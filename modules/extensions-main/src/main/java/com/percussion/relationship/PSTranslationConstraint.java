@@ -55,9 +55,9 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
    *           can be <code>null</code> or empty.
    * @param request the request to operate on, not <code>null</code>. The
    *           request must provide the HTML parameters {#link
-   *           com.percussion.util.IPSHtmlParameters.SYS_CONTENTID} and {#link
-   *           com.percussion.util.IPSHtmlParameters.SYS_LANG} and {#link
-   *           com.percussion.util.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
+   *           com.percussion.system.utils.IPSHtmlParameters.SYS_CONTENTID} and {#link
+   *           com.percussion.system.utils.IPSHtmlParameters.SYS_LANG} and {#link
+   *           com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
    * @throws PSAuthorizationException if the requestor is not authorized to
    *            perform the requested operation.
    * @throws PSRequestValidationException if the current item already has been

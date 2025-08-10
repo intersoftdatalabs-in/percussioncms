@@ -54,7 +54,7 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
    *  Returns a XML document constrained to the dtd specified here:
    * {@link com.percussion.i18n.PSI18NTranslationKeyValues#toXml(Document doc)
    * PSI18NTranslationKeyValues.toXml(Document doc)} that is based on the
-   * {@link com.percussion.util.IPSHtmlParameters#SYS_LANG
+   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_LANG
    * IPSHtmlParameters.SYS_LANG}
    *
    * @see IPSResultDocumentProcessor **/

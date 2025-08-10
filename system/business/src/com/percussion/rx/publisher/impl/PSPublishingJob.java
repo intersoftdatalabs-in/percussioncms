@@ -116,7 +116,7 @@ package com.percussion.rx.publisher.impl;
 
  import static com.percussion.rx.publisher.PSPublisherUtils.getContentList;
  import static com.percussion.rx.publisher.PSPublisherUtils.getEditionContentList;
- import static com.percussion.util.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
+ import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
  import static org.apache.commons.lang.Validate.notNull;
 
 /**

@@ -22,7 +22,7 @@ import static com.percussion.linkmanagement.service.IPSManagedLinkService.PERC_L
 import static com.percussion.linkmanagement.service.IPSManagedLinkService.PERC_MANAGED_ATTR;
 import static com.percussion.linkmanagement.service.IPSManagedLinkService.SRC_ATTR;
 import static com.percussion.linkmanagement.service.IPSManagedLinkService.TRUE_VAL;
-import static com.percussion.util.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
+import static com.percussion.system.utils.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
 

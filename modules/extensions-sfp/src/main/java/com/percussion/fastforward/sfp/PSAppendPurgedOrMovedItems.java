@@ -227,7 +227,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * Get the root locator of the site.
    *
    * @param request the request context, the site id is specified by
-   *    {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}.
+   *    {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}.
    *    Assumed not <code>null</code>.
    *
    * @return the root locator of the site, never <code>null</code>.
@@ -375,8 +375,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * Get all site items that have been successfully published and not
    * successfully unpublished as result set by making an internal request to a
    * Rhythmyx resource. The resource expects two parameters -
-   * {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}and
-   * {@link com.percussion.util.IPSHtmlParameters#SYS_CONTEXT}which are
+   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}and
+   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTEXT}which are
    * assumed to exist in the original request context.
    *
    * @param request request context, assumed not <code>null</code>.

@@ -34,8 +34,8 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  * This is used to assemble a page. Similar with {@link PSPageAssembler}, 
  * but this will use a predefined template to render the page, it does not
  * use the template that is registered to the page.
- * The template ID can be specified by {@link com.percussion.util.IPSHtmlParameters#SYS_VARIANTID}
- * or {@link com.percussion.util.IPSHtmlParameters#SYS_TEMPLATE}
+ * The template ID can be specified by {@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID}
+ * or {@link com.percussion.system.utils.IPSHtmlParameters#SYS_TEMPLATE}
  * <p>
  * This assembler is typically used to render a page in non-HTML format, such as XML.
  * 
@@ -64,7 +64,7 @@ public class PSPageVariateAssembler extends PSPageAssembler
     }
 
     /**
-     * Gets the specified template {@link com.percussion.util.IPSHtmlParameters#SYS_VARIANTID}
+     * Gets the specified template {@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID}
      *
      * @param assemblyItem the item, assumed not <code>null</code>.
      *

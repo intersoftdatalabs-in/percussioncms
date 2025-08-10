@@ -19,7 +19,7 @@ package com.percussion.rx.publisher.impl;
 
 import static com.percussion.design.objectstore.PSRelationshipConfig.FILTER_TYPE_NONE;
 import static com.percussion.design.objectstore.PSRelationshipConfig.TYPE_FOLDER_CONTENT;
-import static com.percussion.util.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
+import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
 import static com.percussion.webservices.PSWebserviceUtils.getRelationshipProcessor;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.Validate.notNull;

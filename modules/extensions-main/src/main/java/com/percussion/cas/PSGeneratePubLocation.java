@@ -16,7 +16,7 @@
  */
 package com.percussion.cas;
 
-import static com.percussion.util.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
+import static com.percussion.system.utils.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;

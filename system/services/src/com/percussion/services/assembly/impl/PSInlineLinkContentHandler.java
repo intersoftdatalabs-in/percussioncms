@@ -67,7 +67,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.percussion.cms.PSSingleValueBuilder.DATA_PATHITEM;
-import static com.percussion.util.IPSHtmlParameters.SYS_RELATIONSHIPID;
+import static com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPID;
 
 /**
  * Do the actual processing of inline content. Each element is examined for the

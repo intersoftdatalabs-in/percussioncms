@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
 /**
  * This exit acts like a dispatcher to the appropriate authtype implementation
  * resource. Exit takes the authtype in the request (as HTML parameter
- * {@link com.percussion.util.IPSHtmlParameters#SYS_AUTHTYPE}), finds the
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_AUTHTYPE}), finds the
  * matching resource name using the singleton object of the class
  * {@link com.percussion.cms.objectstore.server.PSAuthTypes}, makes an internal
  * request and imports the &lt;linkurl&gt; nodes from the result document to the

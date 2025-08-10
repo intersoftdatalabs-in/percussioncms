@@ -65,41 +65,41 @@ import org.apache.logging.log4j.Logger;
  * This extension acts on all search result rows that have one or more of the
  * following columns:
  * <ol>
- * <li>{@link com.percussion.util.IPSHtmlParameters#SYS_CONTENTTYPEID}</li>
- * <li>{@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID}</li>
- * <li>{@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}</li>
- * <li>{@link com.percussion.util.IPSHtmlParameters#SYS_VARIANTID}</li>
+ * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTTYPEID}</li>
+ * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}</li>
+ * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}</li>
+ * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID}</li>
  * </ol>
  * subject to the the conditions below (the processing has multiple steps and
  * intermediate results may differ from final results):
  * <ul>
  * <li>Replaces the default display value (configured in the content editor
  * system definition) for all the above fields with their names. For
- * {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID} column the display
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column the display
  * value will be the full folder path.</li>
- * <li>If a row has {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID}
+ * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}
  * column, the row will be expanded in that it will be cloned for every folder
  * the item in the row exists. If it is not the child of any folder, no action
  * is taken.</li>
- * <li>If a row has {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID} as
- * well as {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID} then the
+ * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} as
+ * well as {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} then the
  * site column display value will be set to the site name the folder path
  * corresponds to. If the folder path does not correspond to a registered site,
  * the display value and internal value for site column will be set to empty.</li>
- * <li>If a row has {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}
- * column but not {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID}
+ * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
+ * column but not {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}
  * column, the row will be expanded to contain one row per site the item exists
  * in. For example, if the item in the row exists in "Internet" and "Internet
  * Mirror", that row becomes two rows with every column unchanged except for
- * {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID} column. If an item
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column. If an item
  * does not exist in a site, no action is taken.</li>
  * <li>If the search results are in the context of a slot (RC Search) and the
- * rows contain {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID} and/or
- * {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID} columns and any of
+ * rows contain {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and/or
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} columns and any of
  * the column values is empty the rows are filtered out.</li>
  * <li>If the search results are in the context of a slot (RC Search) and the
- * rows contain {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID} and
- * {@link com.percussion.util.IPSHtmlParameters#SYS_VARIANTID} columns, the rows
+ * rows contain {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID} columns, the rows
  * are validated to make sure the variant is of type page and is configured for
  * the site. If validation fails the row will be filtered out from the search
  * results.
@@ -137,13 +137,13 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   /**
    * Remove any row from the list if:
    * <ol>
-   * <li>The row has {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}
+   * <li>The row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
    * column and the variant is configured as not allowed on that site.</li>
    * <li>If the search results are for a specified parent folder and the row
-   * has {@link com.percussion.util.IPSHtmlParameters#SYS_FOLDERID} column
+   * has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column
    * value that does not inherit from the parent folder. </l>
    * <li>If the search results are for a specified parent folder and the row
-   * has {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID} column value
+   * has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column value
    * that does not inherit from the parent folder. </l>
    * </ol>
    * <p>

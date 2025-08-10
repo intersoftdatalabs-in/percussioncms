@@ -86,7 +86,7 @@ public class PSContentExplorerException extends PSStandaloneException {
    * for this is due to how the <code>PSI18NTranslationKeyValues</code> get's
    * created. The <code>PSI18NTranslationKeyValues</code> is created for one
    * <code>Locale</code> at a time based on the users session
-   * {@link com.percussion.util.IPSHtmlParameters#SYS_LANG
+   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_LANG
    * IPSHtmlParameters.SYS_LANG}.  Therefore requesting messages in another
    * <code>Locale</code> is unnecessary.
    *

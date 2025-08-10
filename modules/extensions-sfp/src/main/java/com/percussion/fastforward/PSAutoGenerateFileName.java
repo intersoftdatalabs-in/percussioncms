@@ -36,12 +36,12 @@ import org.w3c.dom.Document;
 /**
  * Generates the file name for the content item specified by the the HTML
  * parameters
- * {@link com.percussion.util.IPSHtmlParameters#SYS_CONTENTID contentid}and
- * {@link com.percussion.util.IPSHtmlParameters#SYS_REVISION revision}in the
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTID contentid}and
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_REVISION revision}in the
  * request context. This is done by executing an internal request to the
  * Rhythmyx resource specified by the third parameter to the exit. Nothing will
  * be done if the second parameter is non-empty or if the html parameter
- * {@link com.percussion.util.IPSHtmlParameters#SYS_COMMAND} in the request is
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is
  * not {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
  */
 public class PSAutoGenerateFileName extends PSDefaultExtension

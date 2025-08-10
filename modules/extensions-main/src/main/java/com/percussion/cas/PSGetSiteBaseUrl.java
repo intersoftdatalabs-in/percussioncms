@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
  * The site can be specified as the first parameter to the UDF which is the
  * siteid for which the base URL is being requested. If not specified, it will
  * be taken from the request context as
- * {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID sys_siteid}
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID sys_siteid}
  * parameter. This, if supplied must be a vlid siteid from the system.
  * <p>
  * The second parameter, which is optional can be used to specify to modify the
@@ -43,7 +43,7 @@ import org.apache.logging.log4j.Logger;
  * intra-site if the originating siteid is not <code>null</code> or empty and
  * matches with the current siteid. The originating siteid as always read from
  * the request as the html parameter
- * {@link com.percussion.util.IPSHtmlParameters#SYS_ORIGINALSITEID}. The value
+ * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_ORIGINALSITEID}. The value
  * should be a string "yes" to modify the URL (case insensitive) and any other
  * value or no value is treated as "no". If the value is "yes", the URL string
  * will be modified to chop the protocol, host and port and return only the part

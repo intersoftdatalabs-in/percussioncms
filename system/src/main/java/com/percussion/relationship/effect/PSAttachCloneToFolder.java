@@ -48,7 +48,7 @@ import org.apache.commons.lang.StringUtils;
  * <ol>
  * <li>The context must be relationship creation</li>
  * <li>Non <code>null</code> and non empty HTML parameter {@link
- * com.percussion.util.IPSHtmlParameters#SYS_FOLDERID} must exist in the
+ * com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} must exist in the
  * request. If more than one value exists the clone will be addedd to all
  * target folders</li>
  * <li>The originating and current relationship must be the same. This assures
