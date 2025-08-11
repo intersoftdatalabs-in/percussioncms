@@ -21,11 +21,16 @@ Makefile
 .project
 .checkstyle
 spotless-index-file
+bin/
 
 # IDE-specific files
 *.iml
 .idea/
 .vscode/
+.project
+.classpath
+.settings/
+
 
 # Version control
 .git/
