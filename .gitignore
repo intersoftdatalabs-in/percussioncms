@@ -11,6 +11,11 @@ spotless-index-file
 derby.log
 null
 undefined
+build.log
+**/*.log 
+${sys:catalina.base}/
+**/*/refactored-java11-packages.txt
+**/*.*~
 
 # random output file
 **/test-output.jar
