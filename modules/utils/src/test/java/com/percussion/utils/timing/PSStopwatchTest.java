@@ -17,8 +17,8 @@
 package com.percussion.utils.timing;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,15 +34,13 @@ public class PSStopwatchTest {
    *
    * @param time1
    * @param time2
-   * @throws AssertionFailedError
    */
-  public void checkReasonable(double time1, double time2) throws AssertionFailedError {
+  public void checkReasonable(double time1, double time2) {
     double delta = Math.abs(time1 - time2);
 
     System.err.println("Delta: " + delta);
     if (delta > 80) {
-      throw new AssertionFailedError(
-          "Times varied by more than 80 millis. " + "real variance was " + delta + " millis");
+      fail("Times varied by more than 80 millis. " + "real variance was " + delta + " millis");
     }
   }
 

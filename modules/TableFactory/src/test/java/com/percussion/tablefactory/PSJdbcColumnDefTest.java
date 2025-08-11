@@ -34,9 +34,6 @@ import org.w3c.dom.Element;
 
 /** Unit test for PSJdbcColumnDef. */
 public class PSJdbcColumnDefTest {
-  public PSJdbcColumnDefTest() {
-    super();
-  }
 
   /** Test the def */
   @Test

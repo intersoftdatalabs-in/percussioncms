@@ -239,7 +239,6 @@
                 <groupId>com.github.javafaker</groupId>
                 <artifactId>javafaker</artifactId>
                 <version>1.0.2</version>
-                <scope>test</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>org.yaml</groupId>
@@ -709,10 +708,10 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
                 <exclusions>
-                        <exclusion>
-                            <groupId>com.google.code.findbugs</groupId>
-                            <artifactId>jsr305</artifactId>
-                        </exclusion>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -2375,16 +2374,16 @@
                     </executions>
                 </plugin>
                 <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                 <version>${maven.checkstyle.plugin.version}</version>
-                <configuration>
-                    <configLocation>${maven.multiModuleProjectDirectory}/google_checks.xml</configLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <failOnViolation>true</failOnViolation>
-                </configuration>
-                  <dependencies>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.checkstyle.plugin.version}</version>
+                    <configuration>
+                        <configLocation>${maven.multiModuleProjectDirectory}/google_checks.xml</configLocation>
+                        <encoding>UTF-8</encoding>
+                        <consoleOutput>true</consoleOutput>
+                        <failOnViolation>true</failOnViolation>
+                    </configuration>
+                    <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
