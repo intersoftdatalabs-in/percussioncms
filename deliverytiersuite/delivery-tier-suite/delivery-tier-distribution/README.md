@@ -1,8 +1,7 @@
 # delivery-tier-distribution
-
 This module contains all the configuration files for DTS. For e.g.
 * Log4j configurations
-* Script files for installing DTS as service
+* script files for installing DTS as service
 * DB configurations
 * Spring Security Configurations
 * Email Configurations
@@ -31,9 +30,4 @@ etc...
 ```bash
 mvn clean install
 ```
-
-## Migration Notes
-
-The refactored code maintains full backward compatibility. All public APIs remain unchanged.
-No client code changes are required when upgrading to this version.
 

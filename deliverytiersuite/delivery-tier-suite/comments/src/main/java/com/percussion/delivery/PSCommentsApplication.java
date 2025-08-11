@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *

@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,10 +18,10 @@ package com.percussion.delivery.likes.data;
 
 /**
  * Represents a like entity in the system. Provides accessors and mutators for like properties.
- *
- * @author Administrator
+ * 
  */
-public interface IPSLikes {
+public interface IPSLikes
+{
 
   /**
    * Gets the site associated with this like.

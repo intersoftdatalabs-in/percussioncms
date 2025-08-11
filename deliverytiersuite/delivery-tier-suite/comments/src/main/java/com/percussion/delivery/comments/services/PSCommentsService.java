@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
 import com.percussion.delivery.comments.data.IPSComment;
@@ -50,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Service implementation for comment operations.
  *
  * @author erikserating
+ * 
  */
 public class PSCommentsService implements IPSCommentsService {
   /** Logger for this class */

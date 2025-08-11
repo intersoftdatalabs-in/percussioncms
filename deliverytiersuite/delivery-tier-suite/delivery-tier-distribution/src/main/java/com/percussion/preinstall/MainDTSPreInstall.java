@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 
 package com.percussion.preinstall;
 
+import org.apache.axis.utils.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-// REFACTORED: CP-JAVA11
 public class MainDTSPreInstall {
   private static final String DISTRIBUTION_DIR = "distribution";
   private static final String PERC_JAVA_HOME = "perc.java.home";

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
 import com.percussion.delivery.comments.data.IPSComment;
@@ -71,11 +70,13 @@ import org.springframework.stereotype.Component;
  * REST/Webservice layer used to access the comments service.
  *
  * @author erikserating
+ *
  */
 @Path("/comment")
 @Component
 @Consumes({"application/xml", "application/json"})
-public class PSCommentsRestService extends PSAbstractRestService implements IPSCommentRestService {
+public class PSCommentsRestService extends PSAbstractRestService implements IPSCommentRestService
+{
 
   private static final String CALLBACK_FN = "_jqjsp";
   private static final Logger log = LogManager.getLogger(PSCommentsRestService.class);

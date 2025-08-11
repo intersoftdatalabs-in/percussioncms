@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,15 +18,18 @@ package com.percussion.delivery.likes.data;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Container for a list of likes, used for serialization.
- *
+ * A simple container. Its use is just to add a root element name for Jersey to
+ * spit out when serializing to JSON.
+ * 
  * @author davidpardini
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(

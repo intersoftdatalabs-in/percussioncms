@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
 import com.percussion.delivery.comments.data.PSCommentCriteria;
@@ -43,6 +42,7 @@ import org.glassfish.jersey.server.ContainerRequest;
  * REST API for comment operations.
  *
  * @author natechadwick
+ *
  */
 public interface IPSCommentRestService extends IPSRestService {
 

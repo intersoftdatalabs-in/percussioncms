@@ -31,7 +31,6 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-// import org.apache.cxf.feature.LoggingFeature;
 
 @ApplicationPath("/")
 public class PSFeedsApplication extends ResourceConfig {
