@@ -2345,15 +2345,6 @@
                                 <sortExecutions>false</sortExecutions>
                             </sortPom>
                         </pom>
-                        <!-- For property files or other file types -->
-                        <misc>
-                            <indent>
-                                <spaces>true</spaces>
-                                <spacesPerTab>4</spacesPerTab>
-                            </indent>
-                            <endWithNewline/>
-                            <trimTrailingWhitespace/>
-                        </misc>
                     </configuration>
                     <dependencies>
                         <dependency>

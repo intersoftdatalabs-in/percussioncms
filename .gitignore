@@ -7,6 +7,14 @@ system/.settings/*
 .idea/sonarlint-state.xml
 .idea/sonarlint/issuestore/index.pb
 spotless-index-file
+bin/
+target/
+*.iml
+*.ipr
+*.iws
+*.class
+*.jar
+*.war
 
 derby.log
 null
