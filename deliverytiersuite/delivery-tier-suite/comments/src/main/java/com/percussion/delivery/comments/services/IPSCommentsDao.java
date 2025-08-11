@@ -28,7 +28,6 @@ import java.util.Set;
  * Data access interface for comments.
  *
  * @author erikserating
- *
  */
 public interface IPSCommentsDao {
 

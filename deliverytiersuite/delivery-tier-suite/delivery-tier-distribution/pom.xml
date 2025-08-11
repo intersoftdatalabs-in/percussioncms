@@ -480,7 +480,7 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <configuration>
                     <container>
-                       <containerId>tomcat10x</containerId>
+                        <containerId>tomcat10x</containerId>
                         <!-- <type>embedded</type>-->
                         <!-- TODO: This really should be moved to be mirrored on Percussion's nexus server -->
                         <zipUrlInstaller>

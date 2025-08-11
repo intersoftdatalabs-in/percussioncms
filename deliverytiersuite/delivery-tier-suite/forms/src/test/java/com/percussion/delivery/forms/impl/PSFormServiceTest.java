@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormData;
-import com.percussion.delivery.utils.spring.PSNonValidatingGenericXMLContextLoader;
+import com.percussion.delivery.test.utils.spring.PSNonValidatingGenericXMLContextLoader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;

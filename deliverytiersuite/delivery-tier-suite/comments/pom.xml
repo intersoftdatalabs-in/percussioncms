@@ -11,7 +11,7 @@
     <packaging>war</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.percussion.deliverytier</groupId> 
+            <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-shared-app</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -282,7 +282,6 @@
                     </webResources>
                 </configuration>
             </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -296,6 +295,10 @@
                 </configuration>
             </plugin>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>

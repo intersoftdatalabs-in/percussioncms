@@ -14,23 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.utils.properties;
+package com.percussion.delivery.test.multitenant;
+
+import com.percussion.delivery.test.utils.spring.AbstractSpringAwareJerseyTest;
 
 /**
  * @author natechadwick
- *
  */
-public class PSPropertyDefinitionTest {
-	
-	public void testInstance(){
-		PSPropertyDefinition p = new PSPropertyDefinition();
-		
-		p.setDatatype("string");
-		p.setDefaultValue("Enter String");
-		p.setDisplayName("Test Prop");
-		p.setName("test");
-		p.setRequired("true");
-	
-	}
+public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest {
+
+  /**
+   * @param wad
+   */
+  //	public PSTenantSecurityFilterTest(WebAppDescriptor wad) {
+  //		super(wad);
+  //		// TODO Auto-generated constructor stub
+  //	}
 
 }

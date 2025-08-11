@@ -49,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Service implementation for comment operations.
  *
  * @author erikserating
- * 
  */
 public class PSCommentsService implements IPSCommentsService {
   /** Logger for this class */

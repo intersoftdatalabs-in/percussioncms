@@ -14,25 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.percussion.delivery.test.utils.properties;
 
-package com.percussion.delivery.utils;
+import com.percussion.delivery.utils.properties.PSPropertyDefinition;
 
-import org.junit.Test;
+/**
+ * @author natechadwick
+ */
+public class PSPropertyDefinitionTest {
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+  public void testInstance() {
+    PSPropertyDefinition p = new PSPropertyDefinition();
 
-public class TestStringUtils {
-
-
-    public TestStringUtils(){}
-
-    @Test
-    public void testJoinURL(){
-        String ret = StringUtils.joinURL("https://test.com/","/parttwo");
-
-     assertNotNull(ret);
-     assertEquals("https://test.com/parttwo",ret);
-
-    }
+    p.setDatatype("string");
+    p.setDefaultValue("Enter String");
+    p.setDisplayName("Test Prop");
+    p.setName("test");
+    p.setRequired("true");
+  }
 }

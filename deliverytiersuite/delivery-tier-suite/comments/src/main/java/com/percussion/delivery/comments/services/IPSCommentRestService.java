@@ -42,7 +42,6 @@ import org.glassfish.jersey.server.ContainerRequest;
  * REST API for comment operations.
  *
  * @author natechadwick
- *
  */
 public interface IPSCommentRestService extends IPSRestService {
 

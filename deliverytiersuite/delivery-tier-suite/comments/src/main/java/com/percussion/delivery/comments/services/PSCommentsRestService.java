@@ -29,6 +29,9 @@ import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.exceptions.PSBadRequestException;
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.security.error.PSExceptionUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -54,9 +57,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
@@ -70,13 +70,11 @@ import org.springframework.stereotype.Component;
  * REST/Webservice layer used to access the comments service.
  *
  * @author erikserating
- *
  */
 @Path("/comment")
 @Component
 @Consumes({"application/xml", "application/json"})
-public class PSCommentsRestService extends PSAbstractRestService implements IPSCommentRestService
-{
+public class PSCommentsRestService extends PSAbstractRestService implements IPSCommentRestService {
 
   private static final String CALLBACK_FN = "_jqjsp";
   private static final Logger log = LogManager.getLogger(PSCommentsRestService.class);

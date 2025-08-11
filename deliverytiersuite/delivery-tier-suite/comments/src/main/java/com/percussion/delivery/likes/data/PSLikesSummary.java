@@ -18,9 +18,8 @@ package com.percussion.delivery.likes.data;
 
 /**
  * A simple bean class to hold basic page/likes summary info.
- * 
+ *
  * @author davidpardini
- * 
  */
 public class PSLikesSummary {
 

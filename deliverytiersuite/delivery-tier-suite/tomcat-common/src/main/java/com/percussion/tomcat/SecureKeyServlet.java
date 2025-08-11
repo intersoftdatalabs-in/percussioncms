@@ -20,8 +20,8 @@ package com.percussion.tomcat;
 
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.io.PathUtils;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

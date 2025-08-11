@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.percussion.delivery.utils.spring;
+package com.percussion.delivery.test.utils.spring;
 
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;

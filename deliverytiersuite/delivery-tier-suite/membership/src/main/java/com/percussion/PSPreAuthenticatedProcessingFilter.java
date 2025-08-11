@@ -19,12 +19,12 @@ package com.percussion;
 
 // REFACTORED: CP-JAVA11
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

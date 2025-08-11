@@ -16,12 +16,8 @@
  */
 package com.percussion.delivery.likes.data;
 
-/**
- * Represents a like entity in the system. Provides accessors and mutators for like properties.
- * 
- */
-public interface IPSLikes
-{
+/** Represents a like entity in the system. Provides accessors and mutators for like properties. */
+public interface IPSLikes {
 
   /**
    * Gets the site associated with this like.

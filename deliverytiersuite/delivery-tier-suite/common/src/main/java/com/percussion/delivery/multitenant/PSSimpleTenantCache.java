@@ -17,12 +17,12 @@
 package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
+import jakarta.servlet.ServletRequest;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.ServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -17,8 +17,6 @@
 
 package com.percussion.preinstall;
 
-import org.apache.axis.utils.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

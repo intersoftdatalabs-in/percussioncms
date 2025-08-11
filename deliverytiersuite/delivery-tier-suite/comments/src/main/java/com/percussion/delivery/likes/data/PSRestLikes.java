@@ -16,11 +16,8 @@
  */
 package com.percussion.delivery.likes.data;
 
-import com.percussion.delivery.likes.data.IPSLikes;
-
 /**
  * @author davidpardini
- * 
  */
 public class PSRestLikes implements IPSLikes {
 

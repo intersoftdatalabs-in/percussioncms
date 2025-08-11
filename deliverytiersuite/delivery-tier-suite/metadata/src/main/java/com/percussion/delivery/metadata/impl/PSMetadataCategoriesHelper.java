@@ -19,9 +19,9 @@ package com.percussion.delivery.metadata.impl;
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.data.PSMetadataRestCategory;
+import jakarta.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.ServletException;
 
 /**
  * This class is responsible for process the categories list metadata and return the JSONObject with

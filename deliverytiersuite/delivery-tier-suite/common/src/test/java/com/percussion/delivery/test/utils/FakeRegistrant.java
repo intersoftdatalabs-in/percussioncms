@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.test;
+package com.percussion.delivery.test.utils;
 
 /**
  * Provides a model for holding a Fake Registrant. Provides a large set of data fileds that tests

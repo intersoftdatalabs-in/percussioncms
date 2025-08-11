@@ -16,11 +16,11 @@
  */
 // REFACTORED: CP-JAVA11
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
-import javax.servlet.ServletException;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.connector.Request;

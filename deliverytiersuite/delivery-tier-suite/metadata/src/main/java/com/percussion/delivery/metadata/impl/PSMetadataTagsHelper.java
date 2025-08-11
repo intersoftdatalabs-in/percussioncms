@@ -19,6 +19,7 @@ package com.percussion.delivery.metadata.impl;
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
+import jakarta.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.servlet.ServletException;
 
 /**
  * This class is responsible for process the tags list metadata and return return the JSONObject

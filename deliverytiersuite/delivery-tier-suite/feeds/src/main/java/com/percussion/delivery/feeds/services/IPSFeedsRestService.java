@@ -20,6 +20,7 @@ import com.percussion.delivery.feeds.data.PSFeedDTO;
 import com.percussion.delivery.feeds.data.PSFeedDescriptors;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 import com.percussion.delivery.services.IPSRestService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -31,7 +32,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author natechadwick

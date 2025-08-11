@@ -22,19 +22,18 @@
         <module>modules/utils</module>
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
-        <!-- <module>modules/webservices</module> -->
         <module>modules/jcadf-master</module>
         <module>modules/perc-auditlog</module>
         <module>modules/Simple</module>
         <module>modules/TableFactory</module>
         <module>modules/servletutils</module>
+        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-ant</module>
         <module>delivery</module>
         <module>modules/Help</module>
         <module>modules/SSLTools</module>
         <module>modules/tlsutils</module>
         <module>modules/perc-rxapps</module>
-        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>system</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
@@ -148,7 +147,7 @@
         <junit.version>4.13.1</junit.version>
         <junit5.version>5.13.0</junit5.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
-        <log4j2.version>2.18.0</log4j2.version>
+        <log4j2.version>2.25.1</log4j2.version>
         <lucene.version>8.7.0</lucene.version>
         <maven.antrun.plugin.version>3.1.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
@@ -723,6 +722,16 @@
                 <groupId>org.jasypt</groupId>
                 <artifactId>jasypt</artifactId>
                 <version>${jasypt.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>
+                        <artifactId>bcprov-jdk12</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
@@ -1133,6 +1142,10 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>*</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xmlgraphics</groupId>
+                        <artifactId>xmlgraphics-commons</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

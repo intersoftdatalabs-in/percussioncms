@@ -15,21 +15,23 @@
  * limitations under the License.
  */
 
-package com.percussion.delivery.spring;
+package com.percussion.delivery.test.utils;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import static org.junit.Assert.assertTrue;
+import com.percussion.delivery.utils.StringUtils;
+import org.junit.jupiter.api.Test;
 
-public class PSCsrfSecurityRequestMatcherTest {
+public class TestStringUtils {
 
+  public TestStringUtils() {}
 
-@Test
-public void testExclusions(){
+  @Test
+  public void testJoinURL() {
+    String ret = StringUtils.joinURL("https://test.com/", "/parttwo");
 
-    String ignorePaths = "/indexer/entry/";
-    assertTrue("/indexer/entry/test/2/test4.html".toLowerCase().contains(ignorePaths));
-
-}
-
+    assertNotNull(ret);
+    assertEquals("https://test.com/parttwo", ret);
+  }
 }

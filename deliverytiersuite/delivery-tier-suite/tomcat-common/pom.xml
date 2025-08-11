@@ -11,92 +11,45 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.percussion.deliverytier</groupId>
-            <artifactId>perc-shared-app</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-util</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <!-- version inherited from parent -->
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-juli</artifactId>
             <scope>provided</scope>
-            <!-- version inherited from parent -->
         </dependency>
-        <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>tomcat-catalina</artifactId>
-        <version>${tomcat.version}</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <!-- Servlet API (Jakarta) -->
-    <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <version>5.0.0</version> <!-- Required for Tomcat 10.1.x -->
-        <scope>provided</scope> 
-    </dependency>
-        
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-coyote</artifactId>
-            <scope>provided</scope>
-            <!-- version inherited from parent -->
-        </dependency>
+        <!-- Servlet API (Jakarta) -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
-            <!-- version inherited from parent -->
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <scope>test</scope>
-            <!-- version inherited from parent -->
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework</groupId> 
-            <artifactId>jersey-test-framework-core</artifactId>
-            <scope>test</scope>
-            <!-- version inherited from parent -->
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-collections</groupId>
-                    <artifactId>commons-collections</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-betwixt</groupId>
-                    <artifactId>commons-betwixt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>-org.apache.velocity</groupId>
-                    <artifactId>velocity</artifactId>
-                </exclusion>
-            </exclusions>
-            <!-- version inherited from parent -->
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-coyote</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -108,17 +61,20 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
-<dependency>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.5.2</version>
-</dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rxutils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -14,26 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.multitenant;
+package com.percussion.delivery.test.multitenant;
 
-import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
-
+import com.percussion.delivery.test.utils.spring.AbstractSpringAwareJerseyTest;
 
 /**
- * Responsible for testing of the tenant authorization module. 
- * 
- * @author natechadwick
+ * Responsible for testing of the tenant authorization module.
  *
+ * @author natechadwick
  */
-public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest{
+public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest {
 
-	/**
-	 * @param wad
-	 */
-//	public PSTenantAuthorizationTest(WebAppDescriptor wad) {
-//		super(wad);
-//	}
+  /**
+   * @param wad
+   */
+  //	public PSTenantAuthorizationTest(WebAppDescriptor wad) {
+  //		super(wad);
+  //	}
 
-	
-	
 }

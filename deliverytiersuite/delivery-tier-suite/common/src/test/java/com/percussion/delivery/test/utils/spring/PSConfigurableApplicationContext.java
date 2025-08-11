@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.utils.spring;
+package com.percussion.delivery.test.utils.spring;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -89,18 +89,25 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
   @Override
   public String decrypt(byte[] in) throws PSEncryptionException {
     final int ivLength = 12;
-    if (in == null || in.length <= ivLength) {
-      throw new PSEncryptionException("Input too short for AES-GCM decryption");
+    final int tagLength = 16; // AES-GCM authentication tag length
+    final int minLength = ivLength + tagLength;
+
+    if (in == null || in.length <= minLength) {
+      throw new PSEncryptionException(
+          "Input too short for AES-GCM decryption (minimum " + minLength + " bytes required)");
     }
+
     byte[] iv = new byte[ivLength];
     System.arraycopy(in, 0, iv, 0, ivLength);
-    byte[] cipherText = new byte[in.length - ivLength];
-    System.arraycopy(in, ivLength, cipherText, 0, cipherText.length);
+
+    // The remaining bytes contain ciphertext + authentication tag
+    byte[] cipherTextWithTag = new byte[in.length - ivLength];
+    System.arraycopy(in, ivLength, cipherTextWithTag, 0, cipherTextWithTag.length);
+
     try {
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      PSAESGCMKey aesKey = key;
-      cipher.init(Cipher.DECRYPT_MODE, aesKey.getSecretKey(), new GCMParameterSpec(128, iv));
-      byte[] plainText = cipher.doFinal(cipherText);
+      var cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      cipher.init(Cipher.DECRYPT_MODE, key.getSecretKey(), new GCMParameterSpec(128, iv));
+      byte[] plainText = cipher.doFinal(cipherTextWithTag);
       return new String(plainText, StandardCharsets.UTF_8);
     } catch (NoSuchAlgorithmException
         | NoSuchPaddingException

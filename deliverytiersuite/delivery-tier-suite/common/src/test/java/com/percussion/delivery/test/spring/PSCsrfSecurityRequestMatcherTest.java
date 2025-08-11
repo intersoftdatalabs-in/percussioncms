@@ -14,23 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.multitenant;
 
-import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
+package com.percussion.delivery.test.spring;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * @author natechadwick
- *
- */
-public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest{
+import org.junit.jupiter.api.Test;
 
-	/**
-	 * @param wad
-	 */
-//	public PSTenantSecurityFilterTest(WebAppDescriptor wad) {
-//		super(wad);
-//		// TODO Auto-generated constructor stub
-//	}
-	
+public class PSCsrfSecurityRequestMatcherTest {
+
+  @Test
+  public void testExclusions() {
+
+    String ignorePaths = "/indexer/entry/";
+    assertTrue("/indexer/entry/test/2/test4.html".toLowerCase().contains(ignorePaths));
+  }
 }

@@ -16,7 +16,7 @@
  */
 package com.percussion.soln.p13n.tracking;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

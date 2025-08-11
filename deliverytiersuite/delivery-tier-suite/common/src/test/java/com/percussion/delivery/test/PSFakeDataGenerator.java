@@ -16,6 +16,7 @@
  */
 package com.percussion.delivery.test;
 
+import com.percussion.delivery.test.utils.FakeRegistrant;
 import com.percussion.security.error.PSExceptionUtils;
 import java.io.BufferedReader;
 import java.io.IOException;

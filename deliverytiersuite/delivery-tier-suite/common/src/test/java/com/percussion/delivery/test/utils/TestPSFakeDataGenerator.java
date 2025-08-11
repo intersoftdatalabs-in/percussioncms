@@ -14,39 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.test;
+package com.percussion.delivery.test.utils;
 
+import com.percussion.delivery.test.PSFakeDataGenerator;
 import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Performs some basic testing on the fake data generator
- * @author natechadwick
  *
+ * @author natechadwick
  */
 public class TestPSFakeDataGenerator {
 
-	@Test
-	public void getTenRegistrants(){
-		
-		List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(10);
-		
-		Assert.assertEquals(10, r.size());
-	}
-	
-	/***
-	 * Tests to make sure passing in 0 returns all. 
-	 * 
-	 * NOTE: This test will need changed if the data set size changes. 
-	 */
-	@Test
-	public void getAllRegistrants(){
-		List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(0);
-		
-	//	Assert.assertEquals(50000, r.size());
-		
-	}
-	
+  @Test
+  public void getTenRegistrants() {
+
+    List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(10);
+
+    Assertions.assertEquals(10, r.size());
+  }
+
+  /***
+   * Tests to make sure passing in 0 returns all.
+   *
+   * NOTE: This test will need changed if the data set size changes.
+   */
+  @Test
+  public void getAllRegistrants() {
+    List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(0);
+
+    //	Assertions.assertEquals(50000, r.size());
+
+  }
 }
