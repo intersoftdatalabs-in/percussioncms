@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.*;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
