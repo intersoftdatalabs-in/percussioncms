@@ -17,11 +17,11 @@
 
 package com.percussion.delivery.comments.service.rdbms;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.delivery.comments.data.IPSComment;
 import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
@@ -33,7 +33,7 @@ import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.comments.data.PSPageSummary;
 import com.percussion.delivery.comments.data.PSRestComment;
 import com.percussion.delivery.comments.services.IPSCommentsService;
-import com.percussion.security.error.PSExceptionUtils;
+// import com.percussion.utils.exceptions.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -43,24 +43,28 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-@RunWith(SpringRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:test-beans.xml"})
+@SpringJUnitConfig(locations = {"classpath:test-beans.xml"})
 public class PSCommentsServiceTest {
+
+  // Logger instance for this test class
+
+  private static String getMessageForLog(Exception ex) {
+    return ex.getMessage();
+  }
 
   private static final Logger log = LogManager.getLogger(PSCommentsServiceTest.class);
   private final String COMMENT1_PAGEPATH = "/01_site1/folder/page1.html";
-  private final String COMMENT2_PAGEPATH = "/02_site5/folder/page11.html";
-  private final String COMMENT3_PAGEPATH = "/03_site1/folder/page2.html";
-  private final String COMMENT4_PAGEPATH = "/04_site10/folder/page23.html";
+  private final String COMMENT2_PAGEPATH = "/02_site1/folder/page1.html";
+  private final String COMMENT3_PAGEPATH = "/03_site1/folder/page1.html";
+  private final String COMMENT4_PAGEPATH = "/04_site1/folder/page1.html";
   private final String COMMENT5_PAGEPATH = "/05_site1/folder/subfolder/page.htm";
   private final String COMMENT6_PAGEPATH = "/06_site10/folder/page100.html";
   private final String COMMENT7_PAGEPATH = "/07_site1/folder/page101.html";
@@ -75,7 +79,7 @@ public class PSCommentsServiceTest {
 
   @Autowired private SessionFactory sessionFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     PSComments comments = commentService.getComments(new PSCommentCriteria(), false);
     commentService.deleteComments(getCommnetIds(comments));
@@ -209,37 +213,37 @@ public class PSCommentsServiceTest {
     PSComments comms = commentService.getComments(new PSCommentCriteria(), false);
     checkNewCommentValues(comment, comms.getComments());
 
-    assertEquals("comment count", 1, comms.getComments().size());
+    assertEquals(1, comms.getComments().size(), "comment count");
   }
 
   private void checkNewCommentValues(IPSComment expectedCommentValues, List<IPSComment> comments) {
-    assertEquals("comment count", 1, comments.size());
+    assertEquals(1, comments.size(), "comment count");
     assertEquals("comment mail", expectedCommentValues.getEmail(), comments.get(0).getEmail());
     assertEquals(
-        "comment page path", expectedCommentValues.getPagePath(), comments.get(0).getPagePath());
+        expectedCommentValues.getPagePath(), comments.get(0).getPagePath(), "comment page path");
     assertEquals(
-        "comment approval state",
         expectedCommentValues.getApprovalState(),
-        comments.get(0).getApprovalState());
+        comments.get(0).getApprovalState(),
+        "comment approval state");
     assertEquals(
-        "comment moderated", expectedCommentValues.isModerated(), comments.get(0).isModerated());
-    assertEquals("comment site", expectedCommentValues.getSite(), comments.get(0).getSite());
-    assertNotNull("comment created date not null", comments.get(0).getCreatedDate());
+        expectedCommentValues.isModerated(), comments.get(0).isModerated(), "comment moderated");
+    assertEquals(expectedCommentValues.getSite(), comments.get(0).getSite(), "comment site");
+    assertNotNull(comments.get(0).getCreatedDate(), "comment created date not null");
 
     assertEquals(
-        "comment tags count",
         expectedCommentValues.getTags().size(),
-        comments.get(0).getTags().size());
-    assertTrue("comment tags 1", comments.get(0).getTags().contains("some"));
-    assertTrue("comment tags 2", comments.get(0).getTags().contains("tags"));
-    assertTrue("comment tags 3", comments.get(0).getTags().contains("here"));
+        comments.get(0).getTags().size(),
+        "comment tags count");
+    assertTrue(comments.get(0).getTags().contains("some"), "comment tags 1");
+    assertTrue(comments.get(0).getTags().contains("tags"), "comment tags 2");
+    assertTrue(comments.get(0).getTags().contains("here"), "comment tags 3");
 
-    assertEquals("comment text", expectedCommentValues.getText(), comments.get(0).getText());
-    assertEquals("comment title", expectedCommentValues.getTitle(), comments.get(0).getTitle());
-    assertEquals("comment url", expectedCommentValues.getUrl(), comments.get(0).getUrl());
+    assertEquals(expectedCommentValues.getText(), comments.get(0).getText(), "comment text");
+    assertEquals(expectedCommentValues.getTitle(), comments.get(0).getTitle(), "comment title");
+    assertEquals(expectedCommentValues.getUrl(), comments.get(0).getUrl(), "comment url");
     assertEquals(
-        "comment username", expectedCommentValues.getUsername(), comments.get(0).getUsername());
-    assertEquals("comment viewed", expectedCommentValues.isViewed(), comments.get(0).isViewed());
+        expectedCommentValues.getUsername(), comments.get(0).getUsername(), "comment username");
+    assertEquals(expectedCommentValues.isViewed(), comments.get(0).isViewed(), "comment viewed");
   }
 
   @Test
@@ -254,8 +258,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments())
       assertEquals("comment pagepath", expectedPagepath, com.getPagePath());
@@ -273,8 +277,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 15, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(15, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments())
       assertEquals("comment site", expectedSite, com.getSite());
@@ -291,8 +295,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 4, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments())
       assertEquals("comment username", expectedUsername, com.getUsername());
@@ -309,11 +313,11 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments())
-      assertTrue("comment tag", com.getTags().contains(expectedTag));
+      assertTrue(com.getTags().contains(expectedTag), "comment tag");
   }
 
   @Test
@@ -327,12 +331,12 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertNotNull("comment approval state not null", com.getApprovalState());
-      assertEquals("comment approval state value", expectedApprovalState, com.getApprovalState());
+      assertNotNull(com.getApprovalState(), "comment approval state not null");
+      assertEquals(expectedApprovalState, com.getApprovalState(), "comment approval state value");
     }
   }
 
@@ -350,11 +354,11 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertTrue("comment viewed field", com.isViewed());
+      assertTrue(com.isViewed(), "comment viewed field");
     }
 
     //
@@ -367,11 +371,11 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 12, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(12, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertFalse("comment viewed field", com.isViewed());
+      assertFalse(com.isViewed(), "comment viewed field");
     }
 
     //
@@ -384,8 +388,8 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 15, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(15, comments.getComments().size(), "comments count");
   }
 
   @Test
@@ -402,11 +406,11 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 4, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertTrue("comment moderated field", com.isModerated());
+      assertTrue(com.isModerated(), "comment moderated field");
     }
 
     //
@@ -419,11 +423,11 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 11, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(11, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertFalse("comment moderated field", com.isModerated());
+      assertFalse(com.isModerated(), "comment moderated field");
     }
 
     //
@@ -436,8 +440,8 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 15, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(15, comments.getComments().size(), "comments count");
   }
 
   @Test
@@ -475,12 +479,12 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 4, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
       if (!com.getTags().contains("general"))
-        assertTrue("comment tag", lastCommentId.equals(com.getId()));
+        assertTrue(lastCommentId.equals(com.getId()), "comment tag");
     }
   }
 
@@ -519,19 +523,18 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
     // The size of the list of comments should be 3
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
       if (!com.getTags().contains("general"))
-        assertTrue("comment tag", lastCommentId.equals(com.getId()));
+        assertTrue(lastCommentId.equals(com.getId()), "comment tag");
     }
   }
 
-  @Ignore("Not ready to run. It generates a query with a join sentence and fails.")
+  @Disabled("Not ready to run. It generates a query with a join sentence and fails.")
   @Test
   public void testGetComments_GetByLastCommentId_And_Tags() throws Exception {
-    // Create some comments, and get the id of one of them
     for (int i = 0; i < 3; i++) {
       PSComment comment = new PSComment();
       comment.setTags(
@@ -562,12 +565,13 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 4, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      if (!com.getTags().contains("general"))
-        assertTrue("comment tag", lastCommentId == com.getId());
+      if (!com.getTags().contains("general")) {
+        assertTrue(lastCommentId.equals(com.getId()), "comment tag");
+      }
     }
   }
 
@@ -588,15 +592,15 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 2, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(2, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertNotNull("comment approval state not null", com.getApprovalState());
-      assertEquals("comment approval state value", expectedApprovalState, com.getApprovalState());
+      assertNotNull(com.getApprovalState(), "comment approval state not null");
+      assertEquals(expectedApprovalState, com.getApprovalState(), "comment approval state value");
       assertEquals("comment pagepath", expectedPagepath, com.getPagePath());
       assertEquals("comment username", expectedUsername, com.getUsername());
-      assertTrue("comment tag", com.getTags().contains(expectedTag));
+      assertTrue(com.getTags().contains(expectedTag), "comment tag");
     }
   }
 
@@ -625,14 +629,14 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 7, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(7, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
       assertEquals("comment site", expectedSite, com.getSite());
 
       // 'viewed' flag not modified.
-      assertFalse("comment viewed flag", com.isViewed());
+      assertFalse(com.isViewed(), "comment viewed flag");
     }
   }
 
@@ -662,12 +666,12 @@ public class PSCommentsServiceTest {
 
     comments = commentService.getComments(criteria, true);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 7, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(7, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
       assertEquals("comment site", expectedSite, com.getSite());
-      assertTrue("comment viewed flag", com.isViewed());
+      assertTrue(com.isViewed(), "comment viewed flag");
     }
   }
 
@@ -701,8 +705,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 3, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(3, comments.getComments().size(), "comments count");
 
     // Create a fake comment to make the comparison easier
     Calendar cal = Calendar.getInstance();
@@ -717,8 +721,8 @@ public class PSCommentsServiceTest {
     for (IPSComment com : comments.getComments()) {
       // Make sure the comments are ascending sorted
       assertTrue(
-          "comment created order",
-          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) > 0);
+          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) > 0,
+          "comment created order");
       previousComment = com;
     }
   }
@@ -744,8 +748,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 2, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(2, comments.getComments().size(), "comments count");
 
     // Create a fake comment to make the comparison easier
     Calendar cal = Calendar.getInstance();
@@ -761,8 +765,8 @@ public class PSCommentsServiceTest {
 
     for (IPSComment com : comments.getComments()) {
       assertTrue(
-          "comment created order",
-          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) < 0);
+          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) < 0,
+          "comment created order");
       previousComment = com;
     }
   }
@@ -788,8 +792,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 2, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(2, comments.getComments().size(), "comments count");
 
     // Create a fake comment to make the comparison easier
     Calendar cal = Calendar.getInstance();
@@ -805,8 +809,8 @@ public class PSCommentsServiceTest {
 
     for (IPSComment com : comments.getComments()) {
       assertTrue(
-          "comment created order",
-          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) > 0);
+          previousComment.getCreatedDate().compareTo(com.getCreatedDate()) > 0,
+          "comment created order");
       previousComment = com;
     }
   }
@@ -820,8 +824,8 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 5, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(5, comments.getComments().size(), "comments count");
   }
 
   @Test
@@ -853,11 +857,11 @@ public class PSCommentsServiceTest {
 
     PSComments comments = commentService.getComments(criteria, false);
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comments count", 4, comments.getComments().size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.getComments().size(), "comments count");
 
     for (IPSComment com : comments.getComments()) {
-      assertEquals("comment user", user1, com.getUsername());
+      assertEquals(user1, com.getUsername(), "comment user");
     }
   }
 
@@ -865,19 +869,19 @@ public class PSCommentsServiceTest {
   public void testGetPagesWithComments_SiteNotSpecified() throws Exception {
     // null site
     try {
-      PSPageSummaries pageSummaries = commentService.getPagesWithComments(null, 10, 0);
-      assertTrue("not exception thrown", false);
+      commentService.getPagesWithComments(null, 10, 0);
+      assertTrue(false, "not exception thrown");
     } catch (IllegalArgumentException ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
+      log.error(ex.getMessage());
       log.debug(ex);
     }
 
     // empty site
     try {
       PSPageSummaries pageSummaries = commentService.getPagesWithComments("", 10, 0);
-      assertTrue("not exception thrown", false);
+      assertTrue(false, "not exception thrown");
     } catch (IllegalArgumentException ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
+      log.error(ex.getMessage());
       log.debug(ex);
     }
   }
@@ -914,13 +918,10 @@ public class PSCommentsServiceTest {
       comment.setPagePath(pagepath3);
       comment.setUsername("the user");
       comment.setSite(site1);
-      comment.setTags(
-          new HashSet<String>() {
-            {
-              add("agile");
-              add("cars");
-            }
-          });
+      Set<String> tags = new HashSet<>();
+      tags.add("agile");
+      tags.add("cars");
+      comment.setTags(tags);
 
       if (i % 2 == 0) {
         commentService.setDefaultModerationState(site1, APPROVAL_STATE.REJECTED);
@@ -939,21 +940,21 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(site1, 0, 0);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 3, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(3, pageSummaries.getSummaries().size(), "comments count");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(pagepath1)) {
-        assertEquals("pagepath 1 - comment count", 3, ps.getCommentCount());
-        assertEquals("pagepath 1 - approved comment count", 3, ps.getApprovedCount());
+        assertEquals(3, ps.getCommentCount(), "pagepath 1 - comment count");
+        assertEquals(3, ps.getApprovedCount(), "pagepath 1 - approved comment count");
       } else if (ps.getPagePath().equals(pagepath2)) {
-        assertEquals("pagepath 2 - comment count", 2, ps.getCommentCount());
-        assertEquals("pagepath 2 - approved comment count", 1, ps.getApprovedCount());
+        assertEquals(2, ps.getCommentCount(), "pagepath 2 - comment count");
+        assertEquals(1, ps.getApprovedCount(), "pagepath 2 - approved comment count");
       } else if (ps.getPagePath().equals(pagepath3)) {
-        assertEquals("pagepath 3 - comment count", 5, ps.getCommentCount());
-        assertEquals("pagepath 3 - approved comment count", 2, ps.getApprovedCount());
+        assertEquals(5, (int) ps.getCommentCount(), "pagepath 3 - comment count");
+        assertEquals(2, (int) ps.getApprovedCount(), "pagepath 3 - approved comment count");
       } else {
-        assertTrue("wrong pagepath", false);
+        assertTrue(false, "wrong pagepath");
       }
     }
   }
@@ -987,15 +988,15 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(site1, 0, 0);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 1, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(1, pageSummaries.getSummaries().size(), "comments count");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(pagepath1) || ps.getPagePath().equals(pagepath2)) {
-        assertEquals("pagepath 1 - comment count", 5, ps.getCommentCount());
-        assertEquals("pagepath 1 - approved comment count", 4, ps.getApprovedCount());
+        assertEquals(5, (int) ps.getCommentCount(), "pagepath 1 - comment count");
+        assertEquals(4, (int) ps.getApprovedCount(), "pagepath 1 - approved comment count");
       } else {
-        assertTrue("wrong pagepath", false);
+        assertTrue(false, "wrong pagepath");
       }
     }
   }
@@ -1009,14 +1010,14 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(SITE, 0, 0);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 10, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(10, pageSummaries.getSummaries().size(), "comments count");
 
     // Get page summaries
     pageSummaries = commentService.getPagesWithComments(SITE, -1, -1);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 10, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(10, pageSummaries.getSummaries().size(), "comments count");
   }
 
   @Test
@@ -1024,8 +1025,8 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(SITE, 3, 2);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 0, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(0, pageSummaries.getSummaries().size(), "comments count");
   }
 
   @Test
@@ -1036,34 +1037,34 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(SITE, 3, 0);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 3, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(3, pageSummaries.getSummaries().size(), "comments count");
 
     PSPageSummary ps1 = pageSummaries.getSummaries().get(0);
     PSPageSummary ps2 = pageSummaries.getSummaries().get(1);
     PSPageSummary ps3 = pageSummaries.getSummaries().get(2);
     assertFalse(
-        "summaries must point to different pagepaths - 1",
-        ps1.getPagePath().equals(ps2.getPagePath()));
+        ps1.getPagePath().equals(ps2.getPagePath()),
+        "summaries must point to different pagepaths - 1");
     assertFalse(
-        "summaries must point to different pagepaths - 2",
-        ps1.getPagePath().equals(ps3.getPagePath()));
+        ps1.getPagePath().equals(ps3.getPagePath()),
+        "summaries must point to different pagepaths - 2");
     assertFalse(
-        "summaries must point to different pagepaths - 3",
-        ps2.getPagePath().equals(ps3.getPagePath()));
+        ps2.getPagePath().equals(ps3.getPagePath()),
+        "summaries must point to different pagepaths - 3");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(COMMENT1_PAGEPATH)) {
-        assertEquals("comment count - 1", 3, ps.getCommentCount());
-        assertEquals("approved comment count - 1", 3, ps.getApprovedCount());
+        assertEquals(3, (int) ps.getCommentCount(), "comment count - 1");
+        assertEquals(3, (int) ps.getApprovedCount(), "approved comment count - 1");
       } else if (ps.getPagePath().equals(COMMENT2_PAGEPATH)) {
-        assertEquals("comment count - 2", 7, ps.getCommentCount());
-        assertEquals("approved comment count - 2", 7, ps.getApprovedCount());
+        assertEquals(7, (int) ps.getCommentCount(), "comment count - 2");
+        assertEquals(7, (int) ps.getApprovedCount(), "approved comment count - 2");
       } else if (ps.getPagePath().equals(COMMENT3_PAGEPATH)) {
-        assertEquals("comment count - 3", 2, ps.getCommentCount());
-        assertEquals("approved comment count - 3", 1, ps.getApprovedCount());
+        assertEquals(2, (int) ps.getCommentCount(), "comment count - 3");
+        assertEquals(1, (int) ps.getApprovedCount(), "approved comment count - 3");
       } else {
-        assertTrue("wrong pagepath: " + ps.getPagePath(), false);
+        assertTrue(false, "wrong pagepath: " + ps.getPagePath());
       }
     }
   }
@@ -1076,34 +1077,34 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(SITE, 3, 1);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 3, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(3, pageSummaries.getSummaries().size(), "comments count");
 
     PSPageSummary ps1 = pageSummaries.getSummaries().get(0);
     PSPageSummary ps2 = pageSummaries.getSummaries().get(1);
     PSPageSummary ps3 = pageSummaries.getSummaries().get(2);
     assertFalse(
-        "summaries must point to different pagepaths - 1",
-        ps1.getPagePath().equals(ps2.getPagePath()));
+        ps1.getPagePath().equals(ps2.getPagePath()),
+        "summaries must point to different pagepaths - 1");
     assertFalse(
-        "summaries must point to different pagepaths - 2",
-        ps1.getPagePath().equals(ps3.getPagePath()));
+        ps1.getPagePath().equals(ps3.getPagePath()),
+        "summaries must point to different pagepaths - 2");
     assertFalse(
-        "summaries must point to different pagepaths - 3",
-        ps2.getPagePath().equals(ps3.getPagePath()));
+        ps2.getPagePath().equals(ps3.getPagePath()),
+        "summaries must point to different pagepaths - 3");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(COMMENT4_PAGEPATH)) {
-        assertEquals("comment count - 1", 3, ps.getCommentCount());
-        assertEquals("approved comment count - 1", 2, ps.getApprovedCount());
+        assertEquals(3, (int) ps.getCommentCount(), "comment count - 1");
+        assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 1");
       } else if (ps.getPagePath().equals(COMMENT5_PAGEPATH)) {
-        assertEquals("comment count - 2", 5, ps.getCommentCount());
-        assertEquals("approved comment count - 2", 2, ps.getApprovedCount());
+        assertEquals(5, (int) ps.getCommentCount(), "comment count - 2");
+        assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 2");
       } else if (ps.getPagePath().equals(COMMENT6_PAGEPATH)) {
-        assertEquals("comment count - 3", 3, ps.getCommentCount());
-        assertEquals("approved comment count - 3", 2, ps.getApprovedCount());
+        assertEquals(3, (int) ps.getCommentCount(), "comment count - 3");
+        assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 3");
       } else {
-        assertTrue("wrong pagepath: " + ps.getPagePath(), false);
+        assertTrue(false, "wrong pagepath: " + ps.getPagePath());
       }
     }
   }
@@ -1117,15 +1118,15 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(SITE, 3, 3);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 1, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(1, pageSummaries.getSummaries().size(), "comments count");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(COMMENT10_PAGEPATH)) {
-        assertEquals("comment count - 1", 4, ps.getCommentCount());
-        assertEquals("approved comment count - 1", 4, ps.getApprovedCount());
+        assertEquals(4, (int) ps.getCommentCount(), "comment count - 1");
+        assertEquals(4, (int) ps.getApprovedCount(), "approved comment count - 1");
       } else {
-        assertTrue("wrong pagepath: " + ps.getPagePath(), false);
+        assertTrue(false, "wrong pagepath: " + ps.getPagePath());
       }
     }
   }
@@ -1149,24 +1150,24 @@ public class PSCommentsServiceTest {
     List<IPSComment> comments =
         commentService.getComments(new PSCommentCriteria(), false).getComments();
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comment count", 4, comments.size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.size(), "comment count");
 
     int approvedComments = 0;
     int rejectedComments = 0;
 
     for (IPSComment com : comments) {
       if (commentsIdToApprove.contains(com.getId())) {
-        assertEquals("comment should be approved", APPROVAL_STATE.APPROVED, com.getApprovalState());
+        assertEquals(APPROVAL_STATE.APPROVED, com.getApprovalState(), "comment should be approved");
         approvedComments++;
       } else {
-        assertEquals("comment should be rejected", APPROVAL_STATE.REJECTED, com.getApprovalState());
+        assertEquals(APPROVAL_STATE.REJECTED, com.getApprovalState(), "comment should be rejected");
         rejectedComments++;
       }
     }
 
-    assertEquals("comments approved count", 2, approvedComments);
-    assertEquals("comments rejected count", 2, rejectedComments);
+    assertEquals(2, approvedComments, "comments approved count");
+    assertEquals(2, rejectedComments, "comments rejected count");
   }
 
   @Test
@@ -1175,7 +1176,7 @@ public class PSCommentsServiceTest {
       commentService.approveComments(null);
       fail("null argument should throw an exception");
     } catch (IllegalArgumentException ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
+      log.error(ex.getMessage());
       log.debug(ex);
     }
   }
@@ -1204,24 +1205,24 @@ public class PSCommentsServiceTest {
     PSCommentCriteria cc = new PSCommentCriteria();
     List<IPSComment> comments = commentService.getComments(cc, false).getComments();
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comment count", 4, comments.size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.size(), "comment count");
 
     int approvedComments = 0;
     int rejectedComments = 0;
 
     for (IPSComment com : comments) {
       if (commentsIdToReject.contains(com.getId())) {
-        assertEquals("comment should be rejected", APPROVAL_STATE.REJECTED, com.getApprovalState());
+        assertEquals(APPROVAL_STATE.REJECTED, com.getApprovalState(), "comment should be rejected");
         rejectedComments++;
       } else {
-        assertEquals("comment should be approved", APPROVAL_STATE.APPROVED, com.getApprovalState());
+        assertEquals(APPROVAL_STATE.APPROVED, com.getApprovalState(), "comment should be approved");
         approvedComments++;
       }
     }
 
-    assertEquals("comments approved count", 2, approvedComments);
-    assertEquals("comments rejected count", 2, rejectedComments);
+    assertEquals(2, approvedComments, "comments approved count");
+    assertEquals(2, rejectedComments, "comments rejected count");
   }
 
   @Test
@@ -1230,7 +1231,7 @@ public class PSCommentsServiceTest {
       commentService.rejectComments(null);
       fail("null argument should throw an exception");
     } catch (IllegalArgumentException ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
+      log.error(ex.getMessage());
       log.debug(ex);
     }
   }
@@ -1262,9 +1263,8 @@ public class PSCommentsServiceTest {
   }
 
   @Test
-  @Ignore("Enable just for performance testing purposes")
+  @Disabled("Enable just for performance testing purposes")
   public void testGetPagesWithComments_Performance() throws Exception {
-    // Create lots of comment. Actually, 18 * COMMENT_COUNT_FOR_PERFORMANCE_TESTS
     log.info("Adding comments");
     for (int i = 0; i < COMMENT_COUNT_FOR_PERFORMANCE_TESTS; i++)
       createSampleCommentsForPagingTests(Integer.toString(i));
@@ -1273,8 +1273,7 @@ public class PSCommentsServiceTest {
     // first-level cache.
     // session.close();
 
-    sessionFactory.getCache().evictCollectionRegions();
-    sessionFactory.getCache().evictEntityRegions();
+    sessionFactory.getCache().evictAll();
     sessionFactory.getCache().evictQueryRegions();
 
     // Get page summaries for various pages
@@ -1284,7 +1283,7 @@ public class PSCommentsServiceTest {
       PSPageSummaries pageSummariesPage0 = commentService.getPagesWithComments(SITE + "0", 3, i);
       Calendar after = Calendar.getInstance();
 
-      assertEquals("page summaries count", 3, pageSummariesPage0.getSummaries().size());
+      assertEquals(3, pageSummariesPage0.getSummaries().size(), "page summaries count");
 
       log.info(
           "Page {} - Query took: {} milliseconds",
@@ -1309,19 +1308,19 @@ public class PSCommentsServiceTest {
     List<IPSComment> comments =
         commentService.getComments(new PSCommentCriteria(), false).getComments();
 
-    assertNotNull("comments not null", comments);
-    assertEquals("comment count", 4, comments.size());
+    assertNotNull(comments, "comments not null");
+    assertEquals(4, comments.size(), "comment count");
 
     // Delete comments
     commentService.deleteComments(commentsIdToDelete);
 
     comments = commentService.getComments(new PSCommentCriteria(), false).getComments();
 
-    assertEquals("comments count", 2, comments.size());
+    assertEquals(2, comments.size(), "comments count");
 
     for (IPSComment com : comments) {
       assertTrue(
-          "current comment is not the deleted one", !commentsIdToDelete.contains(com.getId()));
+          !commentsIdToDelete.contains(com.getId()), "current comment is not the deleted one");
     }
   }
 
@@ -1355,7 +1354,7 @@ public class PSCommentsServiceTest {
     }
 
     // Make sure there are comment tags in database
-    assertEquals("comment tags count before deleting", 8, countTags);
+    assertEquals(8, countTags, "comment tags count before deleting");
 
     // reCreateSession();
 
@@ -1364,7 +1363,7 @@ public class PSCommentsServiceTest {
 
     List<IPSComment> comments2 =
         commentService.getComments(new PSCommentCriteria(), false).getComments();
-    assertEquals("comments count", 2, comments2.size());
+    assertEquals(2, comments2.size(), "comments count");
 
     countTags = 0;
     for (IPSComment comm : comments2) {
@@ -1372,7 +1371,7 @@ public class PSCommentsServiceTest {
       countTags = countTags + tags.size();
     }
     // Correct count of tags
-    assertEquals("comment tags count after deleting", 4, countTags);
+    assertEquals(4, countTags, "comment tags count after deleting");
   }
 
   @Test
@@ -1386,7 +1385,7 @@ public class PSCommentsServiceTest {
       commentService.deleteComments(null);
       fail("It has to throw an exception");
     } catch (IllegalArgumentException ex) {
-      log.error(PSExceptionUtils.getMessageForLog(ex));
+      log.error(ex.getMessage());
       log.debug(ex);
     }
   }
@@ -1432,18 +1431,18 @@ public class PSCommentsServiceTest {
     // Get page summaries
     PSPageSummaries pageSummaries = commentService.getPagesWithComments(site1, 10, 0);
 
-    assertNotNull("comments not null", pageSummaries);
-    assertEquals("comments count", 2, pageSummaries.getSummaries().size());
+    assertNotNull(pageSummaries, "comments not null");
+    assertEquals(2, pageSummaries.getSummaries().size(), "comments count");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
       if (ps.getPagePath().equals(pagepath1)) {
-        assertEquals("pagepath 1 - new comment", 5, ps.getNewCommentCount());
-        assertEquals("pagepath 1 - new comment", 8, ps.getCommentCount());
+        assertEquals(5, (int) ps.getNewCommentCount(), "pagepath 1 - new comment");
+        assertEquals(8, ps.getCommentCount(), "pagepath 1 - new comment");
       } else if (ps.getPagePath().equals(pagepath2)) {
-        assertEquals("pagepath 2 - new comment", 2, ps.getNewCommentCount());
-        assertEquals("pagepath 1 - new comment", 5, ps.getCommentCount());
+        assertEquals(2, ps.getNewCommentCount(), "pagepath 2 - new comment");
+        assertEquals(5, ps.getCommentCount(), "pagepath 1 - new comment");
       } else {
-        assertTrue("wrong pagepath", false);
+        assertTrue(false, "wrong pagepath");
       }
     }
   }

@@ -16,13 +16,16 @@
  */
 package com.percussion.delivery.comments.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.multitenant.PSTenantSecurityFilter;
-import com.percussion.delivery.test.FakeRegistrant;
 import com.percussion.delivery.test.PSFakeDataGenerator;
+import com.percussion.delivery.test.utils.FakeRegistrant;
 import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
 import com.percussion.delivery.utils.PSVersionHelper;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -40,12 +43,8 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 /***
  *
@@ -77,25 +76,19 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
   @Override
   protected DeploymentContext configureDeployment() {
     return ServletDeploymentContext.forPackages("com.percussion.delivery.comments.services")
-        .servletClass(HttpServlet.class)
         .contextPath("perc-comments-services")
-        .addListener(ContextLoaderListener.class)
-        .addListener(RequestContextListener.class)
-        .addFilter(
-            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-        .contextParam("contextConfigLocation", _appContext)
         .build();
   }
 
   public PSCommentsRestServiceBaseTest() {}
 
-  @Before
+  @org.junit.jupiter.api.BeforeEach
   public void setup() throws Exception {
     super.setUp();
     this.tenants = PSFakeDataGenerator.getFakeRegistrations(NUM_TENANTS);
   }
 
-  @After
+  @org.junit.jupiter.api.AfterEach
   public void teardown() {
     // add tear down code here.
   }
@@ -103,47 +96,45 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
   private static String MOD_STATE_PUT_URL = "/comment/moderation/defaultModerationState";
   private static String MOD_STATE_GET_URL = "/comment/defaultModerationState/";
 
-  @Ignore
+  @org.junit.jupiter.api.Disabled
   @Test
-  public void testModerationState() throws JSONException {
+  public void testModerationState() throws Exception {
 
     Client client = ClientBuilder.newClient();
 
     WebTarget webTarget = client.target(MOD_STATE_PUT_URL);
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    //  webResource.addFilter(new HTTPBasicAuthFilter("ps_manager", "newpassword"));
 
-    JSONObject setState = new JSONObject();
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode setState = mapper.createObjectNode();
     setState.put("site", "testsite");
     setState.put("state", "REJECTED");
 
-    Response response = invocationBuilder.put(Entity.json(setState));
-    Assert.assertNotNull(response);
-    Assertions.assertEquals("200", response.getStatus(), 200);
+    Response response = invocationBuilder.put(Entity.json(mapper.writeValueAsString(setState)));
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
 
     Client client2 = ClientBuilder.newClient();
 
     WebTarget webTarget2 = client.target(MOD_STATE_GET_URL + "testsite");
     Invocation.Builder invocationBuilder2 = webTarget2.request(MediaType.APPLICATION_JSON);
-    Response response2 = invocationBuilder.put(Entity.json(setState));
+    Response response2 = invocationBuilder2.get();
 
-    //  response = webResource.path(MOD_STATE_GET_URL +
-    // "testsite").accept("application/json").type("application/json").get(ClientResponse.class);
+    assertNotNull(response2);
+    assertEquals(200, response2.getStatus());
 
-    Assert.assertNotNull(response2);
-    Assertions.assertEquals("200", response2.getStatus(), 200);
-
-    String ret = (String) response.getEntity();
+    String ret = response.readEntity(String.class);
 
     Assertions.assertEquals(ret, "REJECTED");
   }
 
   @Test
-  @Ignore
-  public void testComment() throws JSONException {
+  @org.junit.jupiter.api.Disabled
+  public void testComment() throws Exception {
 
     // Load up 1 comment per tenant.
     int i = 1;
+    ObjectMapper mapper = new ObjectMapper();
     for (FakeRegistrant p : this.tenants) {
 
       Client client = ClientBuilder.newClient();
@@ -166,23 +157,21 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
       webTarget.queryParam(IPSCommentRestService.FORM_PARAM_USERNAME, p.getUsername());
       log.info("Tenant ID: {}", p.getGUID());
 
-      //   response =
-      // webResource.path("/comment").entity(queryParams).type("application/x-www-form-urlencoded").header(PSTenantSecurityFilter.TENANTID_PARAM_NAME, p.getGUID()).post(ClientResponse.class);
       Response response = invocationBuilder.get();
-      Assert.assertNotNull(response);
+      assertNotNull(response);
 
       log.info(response.getEntity());
       // Assertions.assertEquals(200, response.getStatus());
 
       PSCommentCriteria crit = new PSCommentCriteria();
 
-      JSONObject postJson = new JSONObject();
+      ObjectNode postJson = mapper.createObjectNode();
       postJson.put("site", "www." + p.getDomain());
       postJson.put("pagepath", "/index");
 
       //	      //Now we want to Approve the comments.
       //	      response =
-      // webResource.path("/comment/moderation/asmoderator").entity(postJson.toString()).type("application/json").accept("application/json").header(PSTenantSecurityFilter.TENANTID_PARAM_NAME, p.getGUID()).post(ClientResponse.class);
+      // webResource.path("/comment/moderation/asmoderator").entity(mapper.writeValueAsString(postJson)).type("application/json").accept("application/json").header(PSTenantSecurityFilter.TENANTID_PARAM_NAME, p.getGUID()).post(ClientResponse.class);
       //
       //	      Assert.assertNotNull(response);
       /// Assertions.assertEquals(200,response.getStatus());
@@ -199,8 +188,6 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
 
   }
 
-  @Test
-  @Ignore
   public void testAddCommentWithGoodLicense() {
 
     FakeRegistrant p = tenants.get(0);
@@ -228,11 +215,11 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
     // response =
     // webResource.path("/comment").entity(queryParams).type("application/x-www-form-urlencoded").header(PSTenantSecurityFilter.TENANTID_PARAM_NAME, PERCUSSION_LIC).post(ClientResponse.class);
 
-    Assert.assertNotNull(response);
+    assertNotNull(response);
   }
 
   @Test
-  @Ignore
+  @org.junit.jupiter.api.Disabled
   public void testGetRestVersion() {
 
     Client client = ClientBuilder.newClient();
@@ -240,14 +227,14 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
     Response response = invocationBuilder.get();
 
-    Assert.assertNotNull(response);
+    assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
     Assertions.assertEquals(testGetVersion(), response.getEntity());
   }
 
   private String testGetVersion() {
     String version = PSVersionHelper.getVersion(this.getClass());
-    Assert.assertNotNull(version);
+    assertNotNull(version);
     System.out.print(version);
     return version;
   }
