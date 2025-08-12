@@ -18,6 +18,7 @@ package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.data.*;
 import com.percussion.delivery.services.IPSRestService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -33,7 +34,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.annotation.security.RolesAllowed;
 
 /**
  * @author natechadwick

@@ -12,7 +12,7 @@ Concise reference for technologies, development setup, constraints, dependencies
   - Axis 1.4 for legacy SOAP services
   - OWASP ESAPI, AntiSamy for security utilities
   - Apache Commons stack, SLF4J + Log4j
-  - JUnit 5 testing with Vintage for JUnit 4 compatibility; JMock in legacy tests
+  - JUnit 5 testing stack with Mockito for mocking
 - Packaging and Deployment
   - DTS tomcat target; servlet APIs provided-scope in webapps
 
@@ -49,9 +49,12 @@ Concise reference for technologies, development setup, constraints, dependencies
 
 ## Testing
 - Primary: JUnit 5 Jupiter
-- Legacy: JUnit 4 via Vintage engine; JMock used in some modules
+- Legacy: JUnit 4 and JMock must be refactored to Mockito
+- Use @ExtendWith(MockitoExtension.class) for Mockito tests
+- Use @Mock and @InjectMocks annotations for mocking dependencies
+- Use @BeforeEach, @AfterEach for setup/teardown
 - Maven Surefire
-  - Standardize at 3.2.5+ in pluginManagement
+  - Standardize at latest version in pluginManagement
   - Ensure junit-platform dependencies resolve consistently
 - Shared resources
   - perc-shared-test-resources module for fixtures/utilities

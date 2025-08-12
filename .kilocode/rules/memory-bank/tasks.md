@@ -15,8 +15,8 @@ Steps:
 1. Verify module compiles on Java 17 with javax.* compatibility.
 2. Ensure no jakarta.* artifacts are introduced.
 3. Align test dependencies:
-- Prefer JUnit 5 Jupiter; keep Vintage if JUnit 4 tests remain.
-- Ensure org.jmock:jmock-junit4 or jmock-junit5 versions are explicit or inherited.
+- Prefer JUnit 5 Jupiter.
+- Replace org.jmock:jmock-junit4 or jmock-junit5 with mockito for mocking.
 4. Update Oracle JDBC:
 - Replace ojdbc6 with com.oracle.database.jdbc:ojdbc8 and inherit version from parent dependencyManagement.
 - Keep runtime scope where applicable.
