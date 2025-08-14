@@ -175,7 +175,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
     session
         .createQuery("delete from PSComment where id in (:commentIds)")
-        .setParameterList("commentIds", longIds)
+        .setParameter("commentIds", longIds)
         .executeUpdate();
   }
 
@@ -200,7 +200,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
       Query updateQuery = session.createQuery(updateQueryString);
       updateQuery.setParameter("newApprovalState", newApprovalState.toString());
-      updateQuery.setParameterList("idList", longIds);
+      updateQuery.setParameter("idList", longIds);
       updateQuery.executeUpdate();
     } finally {
       session.flush();
@@ -221,7 +221,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
       Query query = session.createQuery(stringQuery);
       query.setParameter("site", site);
 
-      List<Object[]> result = query.list();
+      List<Object[]> result = query.getResultList();
       List<PSPageInfo> pages = new ArrayList<>();
       for (Object[] r : result)
         pages.add(new PSPageInfo((String) r[0], (String) r[1], (Long) r[2], (Boolean) r[3]));
@@ -238,7 +238,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
     Query query = session.createQuery("from PSDefaultModerationState where site = :site");
     query.setParameter("site", site);
-    List<Object> result = query.list();
+    List<Object> result = query.getResultList();
     APPROVAL_STATE state = APPROVAL_STATE.APPROVED;
     if (!result.isEmpty()) {
       state = APPROVAL_STATE.valueOf(((IPSDefaultModerationState) result.get(0)).getDefaultState());

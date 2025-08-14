@@ -17,6 +17,7 @@
  */
 package com.percussion.delivery.comments.data;
 
+import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
 import java.util.Date;
 import java.util.Set;
 

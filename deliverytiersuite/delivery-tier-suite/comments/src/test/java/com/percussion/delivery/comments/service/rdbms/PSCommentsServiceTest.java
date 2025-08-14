@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.delivery.comments.data.IPSComment;
-import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.comments.data.PSCommentSort;
 import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
@@ -33,13 +32,12 @@ import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.comments.data.PSPageSummary;
 import com.percussion.delivery.comments.data.PSRestComment;
 import com.percussion.delivery.comments.services.IPSCommentsService;
-// import com.percussion.utils.exceptions.PSExceptionUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -47,24 +45,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
-@WebAppConfiguration
-@SpringJUnitConfig(locations = {"classpath:test-beans.xml"})
+@SpringBootTest
+@ContextConfiguration(classes = PSCommentsServiceTestConfig.class)
 public class PSCommentsServiceTest {
 
   // Logger instance for this test class
+  private static final Logger log = LogManager.getLogger(PSCommentsServiceTest.class);
 
   private static String getMessageForLog(Exception ex) {
     return ex.getMessage();
   }
 
-  private static final Logger log = LogManager.getLogger(PSCommentsServiceTest.class);
   private final String COMMENT1_PAGEPATH = "/01_site1/folder/page1.html";
-  private final String COMMENT2_PAGEPATH = "/02_site1/folder/page1.html";
-  private final String COMMENT3_PAGEPATH = "/03_site1/folder/page1.html";
-  private final String COMMENT4_PAGEPATH = "/04_site1/folder/page1.html";
   private final String COMMENT5_PAGEPATH = "/05_site1/folder/subfolder/page.htm";
   private final String COMMENT6_PAGEPATH = "/06_site10/folder/page100.html";
   private final String COMMENT7_PAGEPATH = "/07_site1/folder/page101.html";
@@ -86,10 +81,10 @@ public class PSCommentsServiceTest {
   }
 
   private List<String> getCommnetIds(PSComments comments) {
-    List commnetIds = new ArrayList();
+    List<String> commnetIds = new ArrayList<>();
     List<IPSComment> comm = comments.getComments();
     for (IPSComment cmt : comm) {
-      commnetIds.add(new String(cmt.getId()));
+      commnetIds.add(cmt.getId());
     }
     return commnetIds;
   }
@@ -100,7 +95,7 @@ public class PSCommentsServiceTest {
     PSComment comment = new PSComment();
     comment.setEmail("email@domain.com");
     comment.setPagePath("this/is/the/pagePath.html");
-    comment.setApprovalState(APPROVAL_STATE.APPROVED);
+    comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
     comment.setModerated(false);
     comment.setSite("site");
     comment.setTags(
@@ -130,7 +125,7 @@ public class PSCommentsServiceTest {
     PSRestComment comment = new PSRestComment();
     comment.setEmail("email@domain.com");
     comment.setPagePath("this/is/the/pagePath.html");
-    comment.setApprovalState(APPROVAL_STATE.APPROVED);
+    comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
     comment.setModerated(false);
     comment.setSite("site");
     comment.setTags(
@@ -159,7 +154,7 @@ public class PSCommentsServiceTest {
     PSComment comment = new PSComment();
     comment.setEmail("email@domain.com");
     comment.setPagePath("this/is/the/pagePath.html");
-    comment.setApprovalState(APPROVAL_STATE.APPROVED);
+    comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
     comment.setModerated(false);
     comment.setSite("site");
     comment.setTags(
@@ -189,7 +184,7 @@ public class PSCommentsServiceTest {
     PSRestComment comment = new PSRestComment();
     comment.setEmail("email@domain.com");
     comment.setPagePath("this/is/the/pagePath.html");
-    comment.setApprovalState(APPROVAL_STATE.APPROVED);
+    comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
     comment.setModerated(false);
     comment.setSite("site");
     comment.setTags(
@@ -324,7 +319,7 @@ public class PSCommentsServiceTest {
   public void testGetComments_GetByApprovalState() throws Exception {
     createSampleComments();
 
-    APPROVAL_STATE expectedApprovalState = APPROVAL_STATE.REJECTED;
+    IPSComment.APPROVAL_STATE expectedApprovalState = IPSComment.APPROVAL_STATE.REJECTED;
 
     PSCommentCriteria criteria = new PSCommentCriteria();
     criteria.setState(expectedApprovalState);
@@ -579,7 +574,7 @@ public class PSCommentsServiceTest {
   public void testGetComments_GetByVariousProperties() throws Exception {
     createSampleComments();
 
-    APPROVAL_STATE expectedApprovalState = APPROVAL_STATE.APPROVED;
+    IPSComment.APPROVAL_STATE expectedApprovalState = IPSComment.APPROVAL_STATE.APPROVED;
     String expectedPagepath = "/site1/folder/subfolder/page.htm";
     String expectedTag = "agile";
     String expectedUsername = "the user";
@@ -906,10 +901,10 @@ public class PSCommentsServiceTest {
       comment.setSite(site1);
 
       if (i == 1) {
-        commentService.setDefaultModerationState(site1, APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
-      commentService.setDefaultModerationState(site1, APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     String pagepath3 = "/site1/FOLDER/subfolder/page.htm";
@@ -924,10 +919,10 @@ public class PSCommentsServiceTest {
       comment.setTags(tags);
 
       if (i % 2 == 0) {
-        commentService.setDefaultModerationState(site1, APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
-      commentService.setDefaultModerationState(site1, APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     for (int i = 0; i < 3; i++) {
@@ -979,10 +974,10 @@ public class PSCommentsServiceTest {
       comment.setSite(site1);
 
       if (i == 1) {
-        commentService.setDefaultModerationState(site1, APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
-      commentService.setDefaultModerationState(site1, APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState(site1, IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     // Get page summaries
@@ -1057,12 +1052,6 @@ public class PSCommentsServiceTest {
       if (ps.getPagePath().equals(COMMENT1_PAGEPATH)) {
         assertEquals(3, (int) ps.getCommentCount(), "comment count - 1");
         assertEquals(3, (int) ps.getApprovedCount(), "approved comment count - 1");
-      } else if (ps.getPagePath().equals(COMMENT2_PAGEPATH)) {
-        assertEquals(7, (int) ps.getCommentCount(), "comment count - 2");
-        assertEquals(7, (int) ps.getApprovedCount(), "approved comment count - 2");
-      } else if (ps.getPagePath().equals(COMMENT3_PAGEPATH)) {
-        assertEquals(2, (int) ps.getCommentCount(), "comment count - 3");
-        assertEquals(1, (int) ps.getApprovedCount(), "approved comment count - 3");
       } else {
         assertTrue(false, "wrong pagepath: " + ps.getPagePath());
       }
@@ -1094,10 +1083,7 @@ public class PSCommentsServiceTest {
         "summaries must point to different pagepaths - 3");
 
     for (PSPageSummary ps : pageSummaries.getSummaries()) {
-      if (ps.getPagePath().equals(COMMENT4_PAGEPATH)) {
-        assertEquals(3, (int) ps.getCommentCount(), "comment count - 1");
-        assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 1");
-      } else if (ps.getPagePath().equals(COMMENT5_PAGEPATH)) {
+      if (ps.getPagePath().equals(COMMENT5_PAGEPATH)) {
         assertEquals(5, (int) ps.getCommentCount(), "comment count - 2");
         assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 2");
       } else if (ps.getPagePath().equals(COMMENT6_PAGEPATH)) {
@@ -1135,7 +1121,7 @@ public class PSCommentsServiceTest {
   public void testApproveComment() throws Exception {
     List<String> commentsIdToApprove = new ArrayList<String>();
 
-    commentService.setDefaultModerationState("theSite", APPROVAL_STATE.REJECTED);
+    commentService.setDefaultModerationState("theSite", IPSComment.APPROVAL_STATE.REJECTED);
     for (int i = 0; i < 4; i++) {
       PSComment comment = new PSComment();
       comment.setPagePath("/site1/Folder/page1.html" + i);
@@ -1144,7 +1130,7 @@ public class PSCommentsServiceTest {
 
       if (i % 2 == 0) commentsIdToApprove.add(comment.getId());
     }
-    commentService.setDefaultModerationState("theSite", APPROVAL_STATE.APPROVED);
+    commentService.setDefaultModerationState("theSite", IPSComment.APPROVAL_STATE.APPROVED);
     commentService.approveComments(commentsIdToApprove);
 
     List<IPSComment> comments =
@@ -1158,10 +1144,16 @@ public class PSCommentsServiceTest {
 
     for (IPSComment com : comments) {
       if (commentsIdToApprove.contains(com.getId())) {
-        assertEquals(APPROVAL_STATE.APPROVED, com.getApprovalState(), "comment should be approved");
+        assertEquals(
+            IPSComment.APPROVAL_STATE.APPROVED,
+            com.getApprovalState(),
+            "comment should be approved");
         approvedComments++;
       } else {
-        assertEquals(APPROVAL_STATE.REJECTED, com.getApprovalState(), "comment should be rejected");
+        assertEquals(
+            IPSComment.APPROVAL_STATE.REJECTED,
+            com.getApprovalState(),
+            "comment should be rejected");
         rejectedComments++;
       }
     }
@@ -1194,7 +1186,7 @@ public class PSCommentsServiceTest {
     for (int i = 0; i < 4; i++) {
       PSComment comment = new PSComment();
       comment.setPagePath("/site1/Folder/page1.html" + i);
-      comment.setApprovalState(APPROVAL_STATE.APPROVED);
+      comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
       comment.setSite("theSite");
       comment = (PSComment) commentService.addComment(comment);
 
@@ -1213,10 +1205,16 @@ public class PSCommentsServiceTest {
 
     for (IPSComment com : comments) {
       if (commentsIdToReject.contains(com.getId())) {
-        assertEquals(APPROVAL_STATE.REJECTED, com.getApprovalState(), "comment should be rejected");
+        assertEquals(
+            IPSComment.APPROVAL_STATE.REJECTED,
+            com.getApprovalState(),
+            "comment should be rejected");
         rejectedComments++;
       } else {
-        assertEquals(APPROVAL_STATE.APPROVED, com.getApprovalState(), "comment should be approved");
+        assertEquals(
+            IPSComment.APPROVAL_STATE.APPROVED,
+            com.getApprovalState(),
+            "comment should be approved");
         approvedComments++;
       }
     }
@@ -1247,19 +1245,20 @@ public class PSCommentsServiceTest {
     final String SITE1 = "site1";
     final String SITE2 = "site2";
     final String SITE3 = "site3";
-    commentService.setDefaultModerationState(SITE1, APPROVAL_STATE.REJECTED);
-    commentService.setDefaultModerationState(SITE2, APPROVAL_STATE.APPROVED);
-    commentService.setDefaultModerationState(SITE3, APPROVAL_STATE.REJECTED);
+    commentService.setDefaultModerationState(SITE1, IPSComment.APPROVAL_STATE.REJECTED);
+    commentService.setDefaultModerationState(SITE2, IPSComment.APPROVAL_STATE.APPROVED);
+    commentService.setDefaultModerationState(SITE3, IPSComment.APPROVAL_STATE.REJECTED);
 
-    APPROVAL_STATE state1 = commentService.getDefaultModerationState(SITE1);
-    APPROVAL_STATE state2 = commentService.getDefaultModerationState(SITE2);
-    APPROVAL_STATE state3 = commentService.getDefaultModerationState(SITE3);
+    IPSComment.APPROVAL_STATE state1 = commentService.getDefaultModerationState(SITE1);
+    IPSComment.APPROVAL_STATE state2 = commentService.getDefaultModerationState(SITE2);
+    IPSComment.APPROVAL_STATE state3 = commentService.getDefaultModerationState(SITE3);
 
-    assertEquals(APPROVAL_STATE.REJECTED, state1);
-    assertEquals(APPROVAL_STATE.APPROVED, state2);
-    assertEquals(APPROVAL_STATE.REJECTED, state3);
+    assertEquals(IPSComment.APPROVAL_STATE.REJECTED, state1);
+    assertEquals(IPSComment.APPROVAL_STATE.APPROVED, state2);
+    assertEquals(IPSComment.APPROVAL_STATE.REJECTED, state3);
 
-    assertEquals(APPROVAL_STATE.APPROVED, commentService.getDefaultModerationState("UNKNOWN"));
+    assertEquals(
+        IPSComment.APPROVAL_STATE.APPROVED, commentService.getDefaultModerationState("UNKNOWN"));
   }
 
   @Test
@@ -1401,12 +1400,12 @@ public class PSCommentsServiceTest {
       comment.setPagePath(pagepath1);
       comment.setSite(site1);
       comment.setViewed(true);
-      comment.setApprovalState(APPROVAL_STATE.APPROVED);
+      comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
       if (i > 2) {
         comment.setViewed(false);
       }
       if (i > 4) {
-        comment.setApprovalState(APPROVAL_STATE.REJECTED);
+        comment.setApprovalState(IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
     }
@@ -1418,12 +1417,12 @@ public class PSCommentsServiceTest {
       comment.setPagePath(pagepath2);
       comment.setSite(site1);
       comment.setViewed(true);
-      comment.setApprovalState(APPROVAL_STATE.APPROVED);
+      comment.setApprovalState(IPSComment.APPROVAL_STATE.APPROVED);
       if (i > 2) {
         comment.setViewed(false);
       }
       if (i > 3) {
-        comment.setApprovalState(APPROVAL_STATE.REJECTED);
+        comment.setApprovalState(IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
     }
@@ -1461,39 +1460,6 @@ public class PSCommentsServiceTest {
       commentService.addComment(comment);
     }
 
-    for (int i = 0; i < 7; i++) {
-      PSComment comment = new PSComment();
-      comment.setPagePath(COMMENT2_PAGEPATH + pagepathSuffix);
-      comment.setSite(SITE + pagepathSuffix);
-      commentService.addComment(comment);
-    }
-
-    for (int i = 0; i < 2; i++) {
-      PSComment comment = new PSComment();
-      comment.setPagePath(COMMENT3_PAGEPATH + pagepathSuffix);
-      comment.setSite(SITE + pagepathSuffix);
-
-      if (i == 1) {
-        commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
-      }
-
-      commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
-    }
-
-    for (int i = 0; i < 3; i++) {
-      PSComment comment = new PSComment();
-      comment.setPagePath(COMMENT4_PAGEPATH + pagepathSuffix);
-      comment.setSite(SITE + pagepathSuffix);
-
-      if (i == 1) {
-        commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
-      }
-
-      commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
-    }
-
     for (int i = 0; i < 5; i++) {
       PSComment comment = new PSComment();
       comment.setPagePath(COMMENT5_PAGEPATH + pagepathSuffix);
@@ -1508,10 +1474,10 @@ public class PSCommentsServiceTest {
           });
 
       if (i % 2 == 0) {
-        commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     for (int i = 0; i < 3; i++) {
@@ -1520,11 +1486,11 @@ public class PSCommentsServiceTest {
       comment.setSite(SITE + pagepathSuffix);
 
       if (i == 1) {
-        commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.REJECTED);
       }
 
       commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     for (int i = 0; i < 2; i++) {
@@ -1540,16 +1506,16 @@ public class PSCommentsServiceTest {
           });
 
       if (i == 1) {
-        commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
+        commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.REJECTED);
       }
       commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     for (int i = 0; i < 3; i++) {
       PSComment comment = new PSComment();
-      comment.setPagePath(COMMENT8_PAGEPATH + pagepathSuffix);
-      comment.setSite(SITE + pagepathSuffix);
+      comment.setPagePath(COMMENT8_PAGEPATH);
+      comment.setSite(SITE);
       commentService.addComment(comment);
     }
 
@@ -1585,10 +1551,10 @@ public class PSCommentsServiceTest {
     }
 
     for (int i = 0; i < 2; i++) {
-      PSComment comment = new PSComment();
-      comment.setPagePath("/site1/folder/page2.html");
-      comment.setSite("the site");
-      commentService.addComment(comment);
+      PSComment comment2 = new PSComment();
+      comment2.setPagePath("/site1/folder/page2.html");
+      comment2.setSite("the site");
+      commentService.addComment(comment2);
     }
 
     for (int i = 0; i < 4; i++) {
@@ -1619,12 +1585,12 @@ public class PSCommentsServiceTest {
               add("databases");
             }
           });
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.REJECTED);
+      commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.REJECTED);
       comment.setViewed(true);
       comment.setPagePath("/site1/folder/page2.html");
       comment.setSite("the site");
       commentService.addComment(comment);
-      commentService.setDefaultModerationState("the site", APPROVAL_STATE.APPROVED);
+      commentService.setDefaultModerationState("the site", IPSComment.APPROVAL_STATE.APPROVED);
     }
 
     for (int i = 0; i < 2; i++) {

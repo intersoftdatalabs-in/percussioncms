@@ -18,6 +18,7 @@
 package com.percussion.delivery.comments.service.rdbms;
 
 import com.percussion.delivery.comments.data.IPSComment;
+import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
