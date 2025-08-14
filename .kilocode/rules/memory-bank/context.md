@@ -6,7 +6,7 @@ This document captures the current work focus, recent changes, and next steps fo
 
 - Java 17 migration of the multi-module Maven monorepo.
 - Centralizing dependencyManagement and pluginManagement in the parent POM to ensure consistent versions.
-- Test stack alignment: support JUnit 5 with Vintage where legacy JUnit 4 tests remain.
+- Test stack alignment: support JUnit 5.
 - Stabilizing dependency resolution (e.g., Axis 1.4, CXF 3.5.11, JAXB/Activation externalized) and cleaning duplicate/legacy declarations.
 - Resolving enforcer upper bound dependency warnings by central version pins.
 
@@ -40,7 +40,7 @@ This document captures the current work focus, recent changes, and next steps fo
    - Pin commons-io, commons-collections4, xmlgraphics-commons, commons-logging, slf4j-api to consistent versions across modules.
    - Prefer stable releases over milestones where possible; if a milestone is required, document rationale.
 3. Verify CXF alignment at 3.5.11 across delivery-tier modules via parent dependencyManagement.
-4. Ensure surefire version is standardized (3.2.5+ recommended) and Vintage engine present where JUnit 4 tests remain.
+4. Ensure surefire version is standardized (3.2.5+ recommended).
 5. Continue module-by-module validation with -am reactors to surface remaining gaps; address missing versions (junit, jmock, axis) where flagged.
 6. Plan handling for proprietary dependencies:
    - Document expected repositories or local artifact installation instructions.

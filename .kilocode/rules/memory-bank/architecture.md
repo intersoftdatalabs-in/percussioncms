@@ -49,7 +49,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Delivery-tier
   - JAX-RS/CXF-based services pinned to CXF 3.5.11; packaged into DTS tomcat-friendly layouts.
 - Extensions
-  - Depend on system/core; tests require JUnit 5 with Vintage for JUnit 4 remnants.
+  - Depend on system/core; tests require JUnit 5 and Mockito
 
 ## Key Technical Decisions
 
@@ -58,7 +58,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Pin Apache CXF to 3.5.11 across delivery-tier modules to ensure consistent JAX-RS behavior.
 - Migrate Oracle JDBC from ojdbc6 to com.oracle.database.jdbc:ojdbc8; manage version centrally.
 - Keep Axis stack at resolvable versions (1.4) and align plugins (wsdl2java/axistools) accordingly.
-- Standardize Maven Surefire (3.2.5+) and testing platform to JUnit 5 with Vintage engine where legacy JUnit 4 tests exist.
+- Standardize Maven Surefire (3.2.5+) and testing platform to JUnit 5.
 - Use Maven Enforcer RequireUpperBoundDeps to surface dependency drifts; resolve centrally rather than per-module where feasible.
 
 ## Design Patterns in Use
@@ -76,7 +76,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
   - Central pins for junit, cxf, jaxb, activation, commons-* libraries, slf4j, log4j.
   - PluginManagement for surefire/failsafe, enforcer, maven-compiler (Java 17), toolchains.
 - Testing stack standardization
-  - JUnit 5 BOM or explicit versions, Vintage engine presence for JUnit 4 tests, junit-platform-launcher pin to stable version.
+  - JUnit 5 BOM or explicit versions
 - Webservices Axis alignment
   - axis.version and axiscore.version set to 1.4, plugins aligned, ensure wsdl2java plugin versions are resolvable.
 - Delivery-tier packaging
@@ -95,7 +95,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 
 ## CI/CD and Deploy Targets
 
-- Build on JDK 11; run unit tests with JUnit 5 plus Vintage where necessary.
+- Build on JDK 17; run unit tests with JUnit 5
 - Package delivery-tier webapps for DTS tomcat deployment.
 - Future: Enable full CI across modules except proprietary; smoke deploy and regression test.
 
