@@ -20,12 +20,12 @@
         <module>modules/perc-exceptions-spring</module>
         <module>modules/perc-legacy</module>
         <module>modules/utils</module>
-        <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
         <module>modules/jcadf-master</module>
         <module>modules/perc-auditlog</module>
         <module>modules/Simple</module>
         <module>modules/TableFactory</module>
+        <module>modules/perc-i18n</module>
         <module>modules/servletutils</module>
         <!--- <module>deliverytiersuite/delivery-tier-suite</module> -->
         <module>modules/perc-ant</module>
@@ -2288,7 +2288,7 @@
                     <version>${spotless.plugin.version}</version>
                     <configuration>
                         <upToDateChecking>
-                            <enabled>false</enabled>
+                            <enabled>true</enabled>
                             <indexFile>${project.basedir}/spotless-index-file</indexFile>
                             <!-- optional, default is ${project.build.directory}/spotless-index -->
                         </upToDateChecking>
