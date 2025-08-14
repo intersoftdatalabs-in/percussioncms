@@ -17,7 +17,6 @@
 
 package com.percussion.delivery.comments.util;
 
-import com.percussion.delivery.comments.bean.PSCommentCriteria;
 import com.percussion.delivery.comments.bean.PSCommentSort;
 import com.percussion.delivery.comments.data.IPSComment;
 import java.util.ArrayList;
@@ -40,19 +39,20 @@ public final class CommentConverter {
    * @param dataCriteria The data package criteria to convert
    * @return A new bean package criteria object with copied values
    */
-  public static PSCommentCriteria convertToBeanCriteria(
+  public static com.percussion.delivery.comments.bean.PSCommentCriteria convertToBeanCriteria(
       com.percussion.delivery.comments.data.PSCommentCriteria dataCriteria) {
     if (dataCriteria == null) {
       return null;
     }
 
-    PSCommentCriteria beanCriteria = new PSCommentCriteria();
+    com.percussion.delivery.comments.bean.PSCommentCriteria beanCriteria =
+        new com.percussion.delivery.comments.bean.PSCommentCriteria();
     beanCriteria.setPagepath(dataCriteria.getPagepath());
     beanCriteria.setSite(dataCriteria.getSite());
     beanCriteria.setUsername(dataCriteria.getUsername());
     beanCriteria.setTag(dataCriteria.getTag());
-    beanCriteria.setViewed(dataCriteria.isViewed());
-    beanCriteria.setModerated(dataCriteria.isModerated());
+    beanCriteria.setViewed(dataCriteria.getViewed());
+    beanCriteria.setModerated(dataCriteria.getModerated());
     beanCriteria.setState(convertToModelState(dataCriteria.getState()));
     beanCriteria.setMaxResults(dataCriteria.getMaxResults());
     beanCriteria.setStartIndex(dataCriteria.getStartIndex());
@@ -99,7 +99,6 @@ public final class CommentConverter {
         case USERNAME:
           sortBy = PSCommentSort.SORTBY.USERNAME;
           break;
-          // Add other cases as needed
       }
     }
 
