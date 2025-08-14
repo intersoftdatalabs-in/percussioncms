@@ -27,7 +27,8 @@
         <module>modules/TableFactory</module>
         <module>modules/perc-i18n</module>
         <module>modules/servletutils</module>
-        <!--- <module>deliverytiersuite/delivery-tier-suite</module> -->
+        <module>deliverytiersuite/delivery-tier-suite</module>
+        <!--
         <module>modules/perc-ant</module>
         <module>delivery</module>
         <module>modules/Help</module>
@@ -50,18 +51,19 @@
         <module>modules/extensions-workflow</module>
         <module>modules/extensions-linkback</module>
         <module>modules/extensions-serverutils</module>
-        <!-- <module>PCM-PkgMgtUI</module> -->
+        <module>PCM-PkgMgtUI</module>
         <module>WebUI</module>
         <module>modules/perc-thumbnail</module>
         <module>modules/shindig-uber</module>
         <module>projects/sitemanage</module>
         <module>modules/perc-checkboxtree</module>
-        <!-- <module>modules/DesktopContentExplorer</module> -->
+        <module>modules/DesktopContentExplorer</module>
         <module>modules/perc-jetty</module>
         <module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
         <module>modules/perc-packages</module>
         <module>modules/perc-distribution-tree</module>
+    -->
     </modules>
     <scm>
         <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
@@ -260,6 +262,12 @@
                         <artifactId>hamcrest-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
