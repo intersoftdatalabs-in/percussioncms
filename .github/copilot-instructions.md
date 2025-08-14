@@ -57,3 +57,19 @@ docs/: Markdown documentation and API specs.
 
 Always work with the #codebase directory as the root for all file paths.
 Always use the #codebase context when resolving missing interfaces or classes.
+
+## Dependency Management
+- This is not a Spring Boot application; avoid Spring Boot dependencies.
+- Use Maven for dependency management; ensure all dependencies are defined in the `pom.xml`.
+- Use the parent POM to manage shared dependencies and plugin versions.
+- Use the `maven-enforcer-plugin` to enforce dependency versions and prevent conflicts.
+- Use `maven-dependency-plugin` to analyze and manage dependencies.
+- Use `maven-surefire-plugin` for running tests; ensure JUnit5 is used.
+- Use `maven-compiler-plugin` to set the Java version to 17.
+- Use `maven-jar-plugin` to package the application; ensure resources are included.
+- Use `maven-resources-plugin` to filter and copy resources.
+- Use `maven-assembly-plugin` for creating distribution packages.
+- Use `maven-shade-plugin` for creating shaded JARs if needed.
+- Use `maven-toolchains-plugin` to ensure the correct Java version is used during builds.
+- Use `maven-enforcer-plugin` to enforce upper bound dependencies and prevent transitive dependency drifts.
+- Use `maven-spotless-plugin` and `maven-checkstyle-plugin` to ensure code style consistency.
