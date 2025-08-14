@@ -17,11 +17,12 @@
 
 package com.percussion.delivery.comments.util;
 
-import com.percussion.delivery.comments.bean.PSCommentSort;
-import com.percussion.delivery.comments.data.IPSComment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import com.percussion.delivery.comments.data.IPSComment;
+import com.percussion.delivery.comments.data.PSCommentCriteria;
+import com.percussion.delivery.comments.data.PSCommentSort;
 
 /**
  * Utility class for converting between different comment-related object types. Used only for
@@ -39,27 +40,27 @@ public final class CommentConverter {
    * @param dataCriteria The data package criteria to convert
    * @return A new bean package criteria object with copied values
    */
-  public static com.percussion.delivery.comments.bean.PSCommentCriteria convertToBeanCriteria(
-      com.percussion.delivery.comments.data.PSCommentCriteria dataCriteria) {
+  public static PSCommentCriteria convertToBeanCriteria(
+      final com.percussion.delivery.comments.data.PSCommentCriteria dataCriteria) {
     if (dataCriteria == null) {
       return null;
     }
 
-    com.percussion.delivery.comments.bean.PSCommentCriteria beanCriteria =
-        new com.percussion.delivery.comments.bean.PSCommentCriteria();
+    final PSCommentCriteria beanCriteria =
+        new PSCommentCriteria();
     beanCriteria.setPagepath(dataCriteria.getPagepath());
     beanCriteria.setSite(dataCriteria.getSite());
     beanCriteria.setUsername(dataCriteria.getUsername());
     beanCriteria.setTag(dataCriteria.getTag());
     beanCriteria.setViewed(dataCriteria.getViewed());
     beanCriteria.setModerated(dataCriteria.getModerated());
-    beanCriteria.setState(convertToModelState(dataCriteria.getState()));
+    beanCriteria.setState(CommentConverter.convertToModelState(dataCriteria.getState()));
     beanCriteria.setMaxResults(dataCriteria.getMaxResults());
     beanCriteria.setStartIndex(dataCriteria.getStartIndex());
     beanCriteria.setLastCommentId(dataCriteria.getLastCommentId());
 
     if (dataCriteria.getSort() != null) {
-      beanCriteria.setSort(convertToBeanSort(dataCriteria.getSort()));
+      beanCriteria.setSort(CommentConverter.convertToBeanSort(dataCriteria.getSort()));
     }
 
     return beanCriteria;
@@ -71,7 +72,7 @@ public final class CommentConverter {
    * @param collection The collection to convert
    * @return A new ArrayList containing the elements from the collection
    */
-  public static List<String> convertToList(Collection<String> collection) {
+  public static List<String> convertToList(final Collection<String> collection) {
     if (collection == null) {
       return null;
     }
@@ -85,7 +86,7 @@ public final class CommentConverter {
    * @return A new bean package sort object with copied values
    */
   private static PSCommentSort convertToBeanSort(
-      com.percussion.delivery.comments.data.PSCommentSort dataSort) {
+      final com.percussion.delivery.comments.data.PSCommentSort dataSort) {
     if (dataSort == null) {
       return null;
     }
@@ -112,18 +113,15 @@ public final class CommentConverter {
    * @return The corresponding model approval state
    */
   private static IPSComment.APPROVAL_STATE convertToModelState(
-      com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE dataState) {
+      final com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE dataState) {
     if (dataState == null) {
       return null;
     }
 
-    switch (dataState) {
-      case APPROVED:
-        return IPSComment.APPROVAL_STATE.APPROVED;
-      case REJECTED:
-        return IPSComment.APPROVAL_STATE.REJECTED;
-      default:
-        return null;
-    }
+    return switch (dataState) {
+        case APPROVED -> IPSComment.APPROVAL_STATE.APPROVED;
+        case REJECTED -> IPSComment.APPROVAL_STATE.REJECTED;
+        default -> null;
+    };
   }
 }

@@ -17,9 +17,6 @@
  */
 package com.percussion.delivery.comments.service.rdbms;
 
-import com.percussion.delivery.comments.data.IPSComment;
-import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -30,6 +27,20 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import com.percussion.delivery.comments.data.IPSComment;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Transient;
 
 /**
  * @author erikserating
@@ -49,7 +60,7 @@ public class PSComment implements IPSComment, Serializable {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "commentId")
   private long id;
 
-  @Basic private String approvalState = APPROVAL_STATE.APPROVED.toString();
+  @Basic private String approvalState = IPSComment.approvalStateToString(IPSComment.APPROVAL_STATE.APPROVED);
 
   @Basic private Date createdDate;
 
@@ -102,7 +113,7 @@ public class PSComment implements IPSComment, Serializable {
    *
    * @param comment A comment to create a copy from.
    */
-  public PSComment(IPSComment comment) {
+  public PSComment(final IPSComment comment) {
     this.approvalState = comment.getApprovalState().toString();
     this.createdDate = comment.getCreatedDate();
     this.email = comment.getEmail();
@@ -110,7 +121,7 @@ public class PSComment implements IPSComment, Serializable {
     this.pagePath = comment.getPagePath();
     this.parent = comment.getParent() == null ? 0 : Long.valueOf(comment.getParent());
     this.site = comment.getSite();
-    setTags(comment.getTags());
+    this.setTags(comment.getTags());
     this.text = comment.getText();
     this.title = comment.getTitle();
     this.url = comment.getUrl();
@@ -122,220 +133,249 @@ public class PSComment implements IPSComment, Serializable {
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getApprovalState()
    */
-  public APPROVAL_STATE getApprovalState() {
-    return APPROVAL_STATE.valueOf(approvalState);
+  @Override
+public APPROVAL_STATE getApprovalState() {
+    return APPROVAL_STATE.valueOf(this.approvalState);
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getCreatedDate()
    */
-  public Date getCreatedDate() {
-    return createdDate;
+  @Override
+public Date getCreatedDate() {
+    return this.createdDate;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getEmail()
    */
-  public String getEmail() {
-    return email;
+  @Override
+public String getEmail() {
+    return this.email;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getId()
    */
-  public String getId() {
-    return String.valueOf(id);
+  @Override
+public String getId() {
+    return String.valueOf(this.id);
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getPagePath()
    */
-  public String getPagePath() {
-    return pagePath;
+  @Override
+public String getPagePath() {
+    return this.pagePath;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getParent()
    */
-  public String getParent() {
-    return String.valueOf(parent);
+  @Override
+public String getParent() {
+    return String.valueOf(this.parent);
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getTags()
    */
-  public Set<String> getTags() {
-    Set<String> tagsAsString = new HashSet<>();
+  @Override
+public Set<String> getTags() {
+    final Set<String> tagsAsString = new HashSet<>();
 
-    for (PSCommentTag tag : this.commentTags) tagsAsString.add(tag.getName());
+    for (final PSCommentTag tag : this.commentTags) tagsAsString.add(tag.getName());
 
     return tagsAsString;
   }
 
   public Set<PSCommentTag> getCommentTags() {
-    return commentTags;
+    return this.commentTags;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getText()
    */
-  public String getText() {
-    return text;
+  @Override
+public String getText() {
+    return this.text;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#getUsername()
    */
-  public String getUsername() {
-    return username;
+  @Override
+public String getUsername() {
+    return this.username;
   }
 
   /**
    * @param createdDate the createdDate to set
    */
-  public void setCreatedDate(Date createdDate) {
+  @Override
+public void setCreatedDate(final Date createdDate) {
     this.createdDate = createdDate;
   }
 
   /**
    * @param id the id to set
    */
-  public void setId(String id) {
+  @Override
+public void setId(final String id) {
     this.id = id == null ? 0 : Long.valueOf(id);
   }
 
   /**
    * @param pagePath the pagePath to set
    */
-  public void setPagePath(String pagePath) {
+  @Override
+public void setPagePath(final String pagePath) {
     this.pagePath = pagePath;
   }
 
   /**
    * @param email the email to set
    */
-  public void setEmail(String email) {
+  @Override
+public void setEmail(final String email) {
     this.email = email;
   }
 
   /**
    * @param username the username to set
    */
-  public void setUsername(String username) {
+  @Override
+public void setUsername(final String username) {
     this.username = username;
   }
 
   /**
    * @param text the text to set
    */
-  public void setText(String text) {
+  @Override
+public void setText(final String text) {
     this.text = text;
   }
 
   /**
    * @param parent the parent to set
    */
-  public void setParent(String parent) {
+  @Override
+public void setParent(final String parent) {
     this.parent = Long.valueOf(parent);
   }
 
-  public void setTags(Set<String> tags) {
+  public void setTags(final Set<String> tags) {
     if (tags == null) return;
     PSCommentTag commentTag;
 
-    for (String aTag : tags) {
+    for (final String aTag : tags) {
       commentTag = new PSCommentTag(aTag);
       commentTag.setComment(this);
       this.commentTags.add(commentTag);
     }
   }
 
-  public void setCommentTags(Set<PSCommentTag> commentTags) {
+  public void setCommentTags(final Set<PSCommentTag> commentTags) {
     this.commentTags = commentTags;
   }
 
   /**
    * @param approvalState the approvalState to set
    */
-  public void setApprovalState(APPROVAL_STATE approvalState) {
+  @Override
+public void setApprovalState(final APPROVAL_STATE approvalState) {
     this.approvalState = approvalState.toString();
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#isModerated()
    */
-  public boolean isModerated() {
-    return moderated;
+  @Override
+public boolean isModerated() {
+    return this.moderated;
   }
 
   /* (non-Javadoc)
    * @see com.percussion.comments.data.IPSComment#isViewed()
    */
-  public boolean isViewed() {
-    return viewed;
+  @Override
+public boolean isViewed() {
+    return this.viewed;
   }
 
   /**
    * @param moderated the moderated to set
    */
-  public void setModerated(boolean moderated) {
+  @Override
+public void setModerated(final boolean moderated) {
     this.moderated = moderated;
   }
 
   /**
    * @param viewed the viewed to set
    */
-  public void setViewed(boolean viewed) {
+  @Override
+public void setViewed(final boolean viewed) {
     this.viewed = viewed;
   }
 
   /**
    * @return the site
    */
-  public String getSite() {
-    return site;
+  @Override
+public String getSite() {
+    return this.site;
   }
 
   /**
    * @param site the site to set
    */
-  public void setSite(String site) {
+  @Override
+public void setSite(final String site) {
     this.site = site;
   }
 
   /**
    * @return the url
    */
-  public String getUrl() {
-    return url;
+  @Override
+public String getUrl() {
+    return this.url;
   }
 
   /**
    * @param url the url to set
    */
-  public void setUrl(String url) {
+  @Override
+public void setUrl(final String url) {
     this.url = url;
   }
 
   /**
    * @return the title
    */
-  public String getTitle() {
-    return title;
+  @Override
+public String getTitle() {
+    return this.title;
   }
 
   /**
    * @param title the title to set
    */
-  public void setTitle(String title) {
+  @Override
+public void setTitle(final String title) {
     this.title = title;
   }
 
-  public String getCommentCreatedDate() {
-    return commentCreatedDate;
+  @Override
+public String getCommentCreatedDate() {
+    return this.commentCreatedDate;
   }
 
-  public void setCommentCreatedDate(String commentCreatedDate) {
+  @Override
+public void setCommentCreatedDate(final String commentCreatedDate) {
     this.commentCreatedDate = commentCreatedDate;
   }
 }

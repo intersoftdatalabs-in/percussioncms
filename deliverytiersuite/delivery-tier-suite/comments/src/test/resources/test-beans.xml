@@ -9,6 +9,8 @@
       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+   <!-- Component-scan removed in test context to avoid instantiating REST components that require other web-layer beans. Beans are defined explicitly below. -->
+
    <bean id="propertyPlaceholderProps"
          class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
       <property name="ignoreResourceNotFound" value="true" />
@@ -27,7 +29,7 @@
       </property>
       <property name="properties">
          <props>
-            <!-- default properties for database -->
+            <!-- Default properties for database -->
             <prop key="jdbcUrl">jdbc:derby:memory:perccomments;create=true</prop>
             <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
             <prop key="maximumPoolSize">10</prop>
@@ -36,7 +38,7 @@
             <prop key="db.schema">APP</prop>
             <prop key="datasource">percDataSource</prop>
             <prop key="hibernateProperties">percHibernateProperties</prop>
-            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+            <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
             <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
             <prop key="hibernate.cache.use_second_level_cache">false</prop>
             <prop key="hibernate.cache.use_query_cache">false</prop>
@@ -50,17 +52,16 @@
       <property name="properties" ref="propertyPlaceholderProps" />
    </bean>
 
-   <context:component-scan base-package="com.percussion.delivery.likes.services" />
-
    <import resource="classpath:perc-datasources.xml" />
 
    <tx:annotation-driven transaction-manager="txManager"/>
 
+   <!-- Hibernate TransactionManager bean for Hibernate 6 (Spring ORM 5) -->
    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
       <property name="sessionFactory" ref="commentsSessionFactory" />
    </bean>
 
-   <!-- Hibernate SessionFactory -->
+   <!-- Hibernate SessionFactory bean for Hibernate 6 (Spring ORM 5) -->
    <bean id="commentsSessionFactory"
          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource">
@@ -74,6 +75,7 @@
       </property>
    </bean>
 
+   <!-- Likes DAO and Service -->
    <bean id="likesDao"
          class="com.percussion.delivery.likes.service.rdbms.PSLikesDao">
       <property name="sessionFactory">
@@ -83,6 +85,26 @@
 
    <bean id="likesService" class="com.percussion.delivery.likes.services.PSLikesService"
          autowire="constructor">
+   </bean>
+
+   <!-- Comments DAO and Service -->
+   <bean id="commentsDao"
+         class="com.percussion.delivery.comments.service.rdbms.PSCommentsDao">
+      <property name="sessionFactory">
+         <ref bean="commentsSessionFactory" />
+      </property>
+   </bean>
+
+   <!-- Comments Service bean -->
+   <bean id="commentsService"
+         class="com.percussion.delivery.comments.services.PSCommentsService"
+         autowire="constructor">
+   </bean>
+
+   <!-- Comments REST service wired to the commentsService -->
+   <bean id="commentRestService"
+         class="com.percussion.delivery.comments.services.PSCommentsRestService">
+      <constructor-arg ref="commentsService" />
    </bean>
 
 </beans>
