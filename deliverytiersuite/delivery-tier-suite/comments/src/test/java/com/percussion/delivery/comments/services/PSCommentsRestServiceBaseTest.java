@@ -40,7 +40,6 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.jupiter.api.Assertions;
@@ -75,7 +74,7 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
 
   @Override
   protected DeploymentContext configureDeployment() {
-    return ServletDeploymentContext.forPackages("com.percussion.delivery.comments.services")
+    return DeploymentContext.builder(new ResourceConfig(PSCommentsService.class))
         .contextPath("perc-comments-services")
         .build();
   }

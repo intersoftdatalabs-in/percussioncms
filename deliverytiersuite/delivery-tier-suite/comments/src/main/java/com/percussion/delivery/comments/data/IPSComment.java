@@ -17,9 +17,9 @@
  */
 package com.percussion.delivery.comments.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
 import java.util.Set;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author erikserating
@@ -74,7 +74,8 @@ public interface IPSComment {
   /**
    * @return the created date for this comment. Never <code>null</code> or empty.
    */
-  @JsonSerialize(using = com.fasterxml.jackson.databind.JsonSerializer.class) Date getCreatedDate();
+  @JsonSerialize(using = com.fasterxml.jackson.databind.JsonSerializer.class)
+  Date getCreatedDate();
 
   /**
    * @return set of all unique tag strings for this comment. Never <code>null</code>, may be empty.
@@ -175,14 +176,14 @@ public interface IPSComment {
   void setCommentCreatedDate(String commentCreatedDate);
 
   /**
-   * Utility method to safely convert APPROVAL_STATE to String.
-   * Returns "PENDING" if the state is null.
+   * Utility method to safely convert APPROVAL_STATE to String. Returns "PENDING" if the state is
+   * null.
    *
    * @param state the approval state
    * @return the string representation or "PENDING" if null
    */
   static String approvalStateToString(final APPROVAL_STATE state) {
-      return state != null ? state.toString() : "PENDING";
+    return state != null ? state.toString() : "PENDING";
   }
 
   /** Comment approval states. */

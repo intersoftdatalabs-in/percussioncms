@@ -17,16 +17,6 @@
  */
 package com.percussion.delivery.comments.service.rdbms;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import com.percussion.delivery.comments.data.IPSComment;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -41,6 +31,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.Transient;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * @author erikserating
@@ -60,7 +60,9 @@ public class PSComment implements IPSComment, Serializable {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "commentId")
   private long id;
 
-  @Basic private String approvalState = IPSComment.approvalStateToString(IPSComment.APPROVAL_STATE.APPROVED);
+  @Basic
+  private String approvalState =
+      IPSComment.approvalStateToString(IPSComment.APPROVAL_STATE.APPROVED);
 
   @Basic private Date createdDate;
 
@@ -134,7 +136,7 @@ public class PSComment implements IPSComment, Serializable {
    * @see com.percussion.comments.data.IPSComment#getApprovalState()
    */
   @Override
-public APPROVAL_STATE getApprovalState() {
+  public APPROVAL_STATE getApprovalState() {
     return APPROVAL_STATE.valueOf(this.approvalState);
   }
 
@@ -142,7 +144,7 @@ public APPROVAL_STATE getApprovalState() {
    * @see com.percussion.comments.data.IPSComment#getCreatedDate()
    */
   @Override
-public Date getCreatedDate() {
+  public Date getCreatedDate() {
     return this.createdDate;
   }
 
@@ -150,7 +152,7 @@ public Date getCreatedDate() {
    * @see com.percussion.comments.data.IPSComment#getEmail()
    */
   @Override
-public String getEmail() {
+  public String getEmail() {
     return this.email;
   }
 
@@ -158,7 +160,7 @@ public String getEmail() {
    * @see com.percussion.comments.data.IPSComment#getId()
    */
   @Override
-public String getId() {
+  public String getId() {
     return String.valueOf(this.id);
   }
 
@@ -166,7 +168,7 @@ public String getId() {
    * @see com.percussion.comments.data.IPSComment#getPagePath()
    */
   @Override
-public String getPagePath() {
+  public String getPagePath() {
     return this.pagePath;
   }
 
@@ -174,7 +176,7 @@ public String getPagePath() {
    * @see com.percussion.comments.data.IPSComment#getParent()
    */
   @Override
-public String getParent() {
+  public String getParent() {
     return String.valueOf(this.parent);
   }
 
@@ -182,7 +184,7 @@ public String getParent() {
    * @see com.percussion.comments.data.IPSComment#getTags()
    */
   @Override
-public Set<String> getTags() {
+  public Set<String> getTags() {
     final Set<String> tagsAsString = new HashSet<>();
 
     for (final PSCommentTag tag : this.commentTags) tagsAsString.add(tag.getName());
@@ -198,7 +200,7 @@ public Set<String> getTags() {
    * @see com.percussion.comments.data.IPSComment#getText()
    */
   @Override
-public String getText() {
+  public String getText() {
     return this.text;
   }
 
@@ -206,7 +208,7 @@ public String getText() {
    * @see com.percussion.comments.data.IPSComment#getUsername()
    */
   @Override
-public String getUsername() {
+  public String getUsername() {
     return this.username;
   }
 
@@ -214,7 +216,7 @@ public String getUsername() {
    * @param createdDate the createdDate to set
    */
   @Override
-public void setCreatedDate(final Date createdDate) {
+  public void setCreatedDate(final Date createdDate) {
     this.createdDate = createdDate;
   }
 
@@ -222,7 +224,7 @@ public void setCreatedDate(final Date createdDate) {
    * @param id the id to set
    */
   @Override
-public void setId(final String id) {
+  public void setId(final String id) {
     this.id = id == null ? 0 : Long.valueOf(id);
   }
 
@@ -230,7 +232,7 @@ public void setId(final String id) {
    * @param pagePath the pagePath to set
    */
   @Override
-public void setPagePath(final String pagePath) {
+  public void setPagePath(final String pagePath) {
     this.pagePath = pagePath;
   }
 
@@ -238,7 +240,7 @@ public void setPagePath(final String pagePath) {
    * @param email the email to set
    */
   @Override
-public void setEmail(final String email) {
+  public void setEmail(final String email) {
     this.email = email;
   }
 
@@ -246,7 +248,7 @@ public void setEmail(final String email) {
    * @param username the username to set
    */
   @Override
-public void setUsername(final String username) {
+  public void setUsername(final String username) {
     this.username = username;
   }
 
@@ -254,7 +256,7 @@ public void setUsername(final String username) {
    * @param text the text to set
    */
   @Override
-public void setText(final String text) {
+  public void setText(final String text) {
     this.text = text;
   }
 
@@ -262,7 +264,7 @@ public void setText(final String text) {
    * @param parent the parent to set
    */
   @Override
-public void setParent(final String parent) {
+  public void setParent(final String parent) {
     this.parent = Long.valueOf(parent);
   }
 
@@ -285,7 +287,7 @@ public void setParent(final String parent) {
    * @param approvalState the approvalState to set
    */
   @Override
-public void setApprovalState(final APPROVAL_STATE approvalState) {
+  public void setApprovalState(final APPROVAL_STATE approvalState) {
     this.approvalState = approvalState.toString();
   }
 
@@ -293,7 +295,7 @@ public void setApprovalState(final APPROVAL_STATE approvalState) {
    * @see com.percussion.comments.data.IPSComment#isModerated()
    */
   @Override
-public boolean isModerated() {
+  public boolean isModerated() {
     return this.moderated;
   }
 
@@ -301,7 +303,7 @@ public boolean isModerated() {
    * @see com.percussion.comments.data.IPSComment#isViewed()
    */
   @Override
-public boolean isViewed() {
+  public boolean isViewed() {
     return this.viewed;
   }
 
@@ -309,7 +311,7 @@ public boolean isViewed() {
    * @param moderated the moderated to set
    */
   @Override
-public void setModerated(final boolean moderated) {
+  public void setModerated(final boolean moderated) {
     this.moderated = moderated;
   }
 
@@ -317,7 +319,7 @@ public void setModerated(final boolean moderated) {
    * @param viewed the viewed to set
    */
   @Override
-public void setViewed(final boolean viewed) {
+  public void setViewed(final boolean viewed) {
     this.viewed = viewed;
   }
 
@@ -325,7 +327,7 @@ public void setViewed(final boolean viewed) {
    * @return the site
    */
   @Override
-public String getSite() {
+  public String getSite() {
     return this.site;
   }
 
@@ -333,7 +335,7 @@ public String getSite() {
    * @param site the site to set
    */
   @Override
-public void setSite(final String site) {
+  public void setSite(final String site) {
     this.site = site;
   }
 
@@ -341,7 +343,7 @@ public void setSite(final String site) {
    * @return the url
    */
   @Override
-public String getUrl() {
+  public String getUrl() {
     return this.url;
   }
 
@@ -349,7 +351,7 @@ public String getUrl() {
    * @param url the url to set
    */
   @Override
-public void setUrl(final String url) {
+  public void setUrl(final String url) {
     this.url = url;
   }
 
@@ -357,7 +359,7 @@ public void setUrl(final String url) {
    * @return the title
    */
   @Override
-public String getTitle() {
+  public String getTitle() {
     return this.title;
   }
 
@@ -365,17 +367,17 @@ public String getTitle() {
    * @param title the title to set
    */
   @Override
-public void setTitle(final String title) {
+  public void setTitle(final String title) {
     this.title = title;
   }
 
   @Override
-public String getCommentCreatedDate() {
+  public String getCommentCreatedDate() {
     return this.commentCreatedDate;
   }
 
   @Override
-public void setCommentCreatedDate(final String commentCreatedDate) {
+  public void setCommentCreatedDate(final String commentCreatedDate) {
     this.commentCreatedDate = commentCreatedDate;
   }
 }

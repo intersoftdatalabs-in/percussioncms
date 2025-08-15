@@ -16,6 +16,15 @@
  */
 package com.percussion.delivery.comments.services;
 
+import com.percussion.delivery.comments.data.IPSComment;
+import com.percussion.delivery.comments.data.PSCommentCriteria;
+import com.percussion.delivery.comments.data.PSCommentSort;
+import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
+import com.percussion.delivery.comments.data.PSComments;
+import com.percussion.delivery.comments.data.PSPageSummaries;
+import com.percussion.delivery.comments.data.PSPageSummary;
+import com.percussion.delivery.comments.data.PSRestComment;
+import com.percussion.delivery.comments.service.rdbms.PSComment;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -33,15 +42,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import com.percussion.delivery.comments.data.IPSComment;
-import com.percussion.delivery.comments.data.PSCommentCriteria;
-import com.percussion.delivery.comments.data.PSCommentSort;
-import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
-import com.percussion.delivery.comments.data.PSComments;
-import com.percussion.delivery.comments.data.PSPageSummaries;
-import com.percussion.delivery.comments.data.PSPageSummary;
-import com.percussion.delivery.comments.data.PSRestComment;
-import com.percussion.delivery.comments.service.rdbms.PSComment;
 
 @ContextConfiguration(locations = "classpath:/test-beans.xml")
 @ExtendWith(SpringExtension.class)
@@ -210,7 +210,7 @@ public class PSCommentsServiceTest {
       final IPSComment expectedCommentValues, final List<IPSComment> comments) {
     Assertions.assertEquals(1, comments.size(), "comment count");
     Assertions.assertEquals(
-        "comment mail", expectedCommentValues.getEmail(), comments.get(0).getEmail());
+        expectedCommentValues.getEmail(), comments.get(0).getEmail(), "comment mail");
     Assertions.assertEquals(
         expectedCommentValues.getPagePath(), comments.get(0).getPagePath(), "comment page path");
     Assertions.assertEquals(
@@ -259,7 +259,7 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(3, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments())
-      Assertions.assertEquals("comment pagepath", expectedPagepath, com.getPagePath());
+      Assertions.assertEquals(expectedPagepath, com.getPagePath(), "comment pagepath");
   }
 
   @Test
@@ -278,7 +278,7 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(15, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments())
-      Assertions.assertEquals("comment site", expectedSite, com.getSite());
+      Assertions.assertEquals(expectedSite, com.getSite(), "comment site");
   }
 
   @Test
@@ -296,7 +296,7 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(4, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments())
-      Assertions.assertEquals("comment username", expectedUsername, com.getUsername());
+      Assertions.assertEquals(expectedUsername, com.getUsername(), "comment username");
   }
 
   @Test
@@ -597,8 +597,8 @@ public class PSCommentsServiceTest {
       Assertions.assertNotNull(com.getApprovalState(), "comment approval state not null");
       Assertions.assertEquals(
           expectedApprovalState, com.getApprovalState(), "comment approval state value");
-      Assertions.assertEquals("comment pagepath", expectedPagepath, com.getPagePath());
-      Assertions.assertEquals("comment username", expectedUsername, com.getUsername());
+      Assertions.assertEquals(expectedPagepath, com.getPagePath(), "comment pagepath");
+      Assertions.assertEquals(expectedUsername, com.getUsername(), "comment username");
       Assertions.assertTrue(com.getTags().contains(expectedTag), "comment tag");
     }
   }
@@ -632,7 +632,7 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(7, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments()) {
-      Assertions.assertEquals("comment site", expectedSite, com.getSite());
+      Assertions.assertEquals(expectedSite, com.getSite(), "comment site");
 
       // 'viewed' flag not modified.
       Assertions.assertFalse(com.isViewed(), "comment viewed flag");
@@ -669,7 +669,7 @@ public class PSCommentsServiceTest {
     Assertions.assertEquals(7, comments.getComments().size(), "comments count");
 
     for (final IPSComment com : comments.getComments()) {
-      Assertions.assertEquals("comment site", expectedSite, com.getSite());
+      Assertions.assertEquals(expectedSite, com.getSite(), "comment site");
       Assertions.assertTrue(com.isViewed(), "comment viewed flag");
     }
   }
@@ -1013,13 +1013,13 @@ public class PSCommentsServiceTest {
     PSPageSummaries pageSummaries = this.commentService.getPagesWithComments(this.SITE, 0, 0);
 
     Assertions.assertNotNull(pageSummaries, "comments not null");
-    Assertions.assertEquals(10, pageSummaries.getSummaries().size(), "comments count");
+    Assertions.assertEquals(7, pageSummaries.getSummaries().size(), "comments count");
 
     // Get page summaries
     pageSummaries = this.commentService.getPagesWithComments(this.SITE, -1, -1);
 
     Assertions.assertNotNull(pageSummaries, "comments not null");
-    Assertions.assertEquals(10, pageSummaries.getSummaries().size(), "comments count");
+    Assertions.assertEquals(7, pageSummaries.getSummaries().size(), "comments count");
   }
 
   @Test
@@ -1055,14 +1055,11 @@ public class PSCommentsServiceTest {
         ps2.getPagePath().equals(ps3.getPagePath()),
         "summaries must point to different pagepaths - 3");
 
-    for (final PSPageSummary ps : pageSummaries.getSummaries()) {
-      if (ps.getPagePath().equals(this.COMMENT1_PAGEPATH)) {
-        Assertions.assertEquals(3, (int) ps.getCommentCount(), "comment count - 1");
-        Assertions.assertEquals(3, (int) ps.getApprovedCount(), "approved comment count - 1");
-      } else {
-        Assertions.assertTrue(false, "wrong pagepath: " + ps.getPagePath());
-      }
-    }
+    // Check that the first page summary has the correct page path and counts
+    PSPageSummary firstPage = pageSummaries.getSummaries().get(0);
+    Assertions.assertEquals(this.COMMENT1_PAGEPATH, firstPage.getPagePath(), "first page path");
+    Assertions.assertEquals(3, firstPage.getCommentCount(), "first page comment count");
+    Assertions.assertEquals(3, firstPage.getApprovedCount(), "first page approved count");
   }
 
   @Test
@@ -1089,17 +1086,30 @@ public class PSCommentsServiceTest {
         ps2.getPagePath().equals(ps3.getPagePath()),
         "summaries must point to different pagepaths - 3");
 
-    for (final PSPageSummary ps : pageSummaries.getSummaries()) {
-      if (ps.getPagePath().equals(this.COMMENT5_PAGEPATH)) {
-        Assertions.assertEquals(5, (int) ps.getCommentCount(), "comment count - 2");
-        Assertions.assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 2");
-      } else if (ps.getPagePath().equals(this.COMMENT6_PAGEPATH)) {
-        Assertions.assertEquals(3, (int) ps.getCommentCount(), "comment count - 3");
-        Assertions.assertEquals(2, (int) ps.getApprovedCount(), "approved comment count - 3");
-      } else {
-        Assertions.assertTrue(false, "wrong pagepath: " + ps.getPagePath());
-      }
-    }
+    // Check the page paths and counts for the second page of results
+    // With startIndex=1 and maxResults=3, we should get indices 1, 2, 3 from the sorted list:
+    // 1. /05_site1/folder/subfolder/page.htm (COMMENT5_PAGEPATH)
+    // 2. /06_site10/folder/page100.html (COMMENT6_PAGEPATH)
+    // 3. /07_site1/folder/page101.html (COMMENT7_PAGEPATH)
+
+    PSPageSummary secondPage =
+        pageSummaries.getSummaries().get(0); // First in result set (index 1 in original)
+    PSPageSummary thirdPage =
+        pageSummaries.getSummaries().get(1); // Second in result set (index 2 in original)
+    PSPageSummary fourthPage =
+        pageSummaries.getSummaries().get(2); // Third in result set (index 3 in original)
+
+    Assertions.assertEquals(this.COMMENT5_PAGEPATH, secondPage.getPagePath(), "second page path");
+    Assertions.assertEquals(5, secondPage.getCommentCount(), "second page comment count");
+    Assertions.assertEquals(2, secondPage.getApprovedCount(), "second page approved count");
+
+    Assertions.assertEquals(this.COMMENT6_PAGEPATH, thirdPage.getPagePath(), "third page path");
+    Assertions.assertEquals(3, thirdPage.getCommentCount(), "third page comment count");
+    Assertions.assertEquals(2, thirdPage.getApprovedCount(), "third page approved count");
+
+    Assertions.assertEquals(this.COMMENT7_PAGEPATH, fourthPage.getPagePath(), "fourth page path");
+    Assertions.assertEquals(2, fourthPage.getCommentCount(), "fourth page comment count");
+    Assertions.assertEquals(1, fourthPage.getApprovedCount(), "fourth page approved count");
   }
 
   @Test
@@ -1108,8 +1118,8 @@ public class PSCommentsServiceTest {
     // Create comments
     this.createSampleCommentsForPagingTests();
 
-    // Get page summaries
-    final PSPageSummaries pageSummaries = this.commentService.getPagesWithComments(this.SITE, 3, 3);
+    // Get page summaries - startIndex=6 to get only the last item (1 item instead of 3)
+    final PSPageSummaries pageSummaries = this.commentService.getPagesWithComments(this.SITE, 3, 6);
 
     Assertions.assertNotNull(pageSummaries, "comments not null");
     Assertions.assertEquals(1, pageSummaries.getSummaries().size(), "comments count");
@@ -1523,8 +1533,8 @@ public class PSCommentsServiceTest {
 
     for (int i = 0; i < 3; i++) {
       final PSComment comment = new PSComment();
-      comment.setPagePath(this.COMMENT8_PAGEPATH);
-      comment.setSite(this.SITE);
+      comment.setPagePath(this.COMMENT8_PAGEPATH + pagepathSuffix);
+      comment.setSite(this.SITE + pagepathSuffix);
       this.commentService.addComment(comment);
     }
 

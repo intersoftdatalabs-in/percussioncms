@@ -19,6 +19,7 @@ package com.percussion.delivery.comments.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -60,5 +61,22 @@ public class PSComments {
    */
   public List<IPSComment> getComments() {
     return comments;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PSComments that = (PSComments) o;
+    return Objects.equals(comments, that.comments);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(comments);
   }
 }

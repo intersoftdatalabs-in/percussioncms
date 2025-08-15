@@ -26,9 +26,10 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = {"classpath:test-beans.xml"})
+// import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
+// @SpringJUnitConfig(locations = {"classpath:test-beans.xml"})
 public class PSProfanityFilterTest {
   private static PSProfanityFilter profanityFilter;
 
@@ -90,7 +91,7 @@ public class PSProfanityFilterTest {
    */
   private File createTempFile() throws IOException {
     File file = File.createTempFile("profanity", ".txt");
-    FileUtils.writeStringToFile(file, "shit\nfuck\nass\n", "UTF-8");
+    FileUtils.writeStringToFile(file, "shit,fuck,ass", "UTF-8");
     return file;
   }
 }

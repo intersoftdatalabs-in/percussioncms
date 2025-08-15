@@ -36,14 +36,29 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author erikserating
  */
-public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao {
+@Repository
+public class PSCommentsDao implements IPSCommentsDao {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  private Session getSession() {
+    return sessionFactory.getCurrentSession();
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -73,8 +88,12 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
     // Tag
     if (!StringUtils.isEmpty(criteria.getTag())) {
-      // queryCriteria.createAlias("commentTags", "tag");
-      // ands.add(Restrictions.eq("tag.name", criteria.getTag()).ignoreCase());
+      // Create a subquery to filter comments by tag
+      jakarta.persistence.criteria.Subquery<Long> subquery = cq.subquery(Long.class);
+      jakarta.persistence.criteria.Root<PSCommentTag> subRoot = subquery.from(PSCommentTag.class);
+      subquery.select(subRoot.get("comment").get("id"));
+      subquery.where(cb.equal(cb.lower(subRoot.get("name")), criteria.getTag().toLowerCase()));
+      predicates.add(root.get("id").in(subquery));
     }
 
     // Approval state
@@ -116,17 +135,16 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
       cq.orderBy(cb.desc(root.get(PSCommentsService.SORTBY_FIELD_MAPPING.get(SORTBY.CREATEDDATE))));
     }
 
-    // Max results
+    // Max results and start index
+    Query<PSComment> query = session.createQuery(cq);
     if (criteria.getMaxResults() > 0) {
-      // queryCriteria.setMaxResults(criteria.getMaxResults());
+      query.setMaxResults(criteria.getMaxResults());
     }
-
-    // Start index
     if (criteria.getStartIndex() > 0) {
-      // queryCriteria.setFirstResult(criteria.getStartIndex());
+      query.setFirstResult(criteria.getStartIndex());
     }
 
-    List<PSComment> results = session.createQuery(cq).getResultList();
+    List<PSComment> results = query.getResultList();
     List<IPSComment> ipsResults = new ArrayList<>();
     for (PSComment comment : results) {
       ipsResults.add(comment);
@@ -139,9 +157,10 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     Collection<Long> longIds = new ArrayList<>(ids.size());
     for (String s : ids) longIds.add(Long.valueOf(s));
     String selectComments = "select site from PSComment where id in (:idList)";
-    List<String> siteNames =
-        (List<String>)
-            this.getHibernateTemplate().findByNamedParam(selectComments, "idList", longIds);
+    Session session = getSession();
+    Query<String> query = session.createQuery(selectComments, String.class);
+    query.setParameter("idList", longIds);
+    List<String> siteNames = query.getResultList();
     return new HashSet<>(siteNames);
   }
 
@@ -156,7 +175,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
   public void save(IPSComment comment) throws Exception {
     PSComment hComment = new PSComment(comment);
     hComment.setId(comment.getId());
-    getHibernateTemplate().saveOrUpdate(hComment);
+    getSession().saveOrUpdate(hComment);
     comment.setId(hComment.getId());
   }
 
@@ -253,10 +272,5 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     IPSDefaultModerationState st = new PSDefaultModerationState(sitename, state.toString());
     session.saveOrUpdate(st);
     session.flush();
-  }
-
-  private Session getSession() {
-
-    return getSessionFactory().getCurrentSession();
   }
 }

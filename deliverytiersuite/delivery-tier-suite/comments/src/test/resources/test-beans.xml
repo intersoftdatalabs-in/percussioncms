@@ -56,12 +56,12 @@
 
    <tx:annotation-driven transaction-manager="txManager"/>
 
-   <!-- Hibernate TransactionManager bean for Hibernate 6 (Spring ORM 5) -->
+   <!-- Hibernate TransactionManager bean for Hibernate 5/6 (Spring ORM 6) -->
    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-      <property name="sessionFactory" ref="commentsSessionFactory" />
+     <property name="sessionFactory" ref="commentsSessionFactory" />
    </bean>
 
-   <!-- Hibernate SessionFactory bean for Hibernate 6 (Spring ORM 5) -->
+   <!-- Hibernate SessionFactory bean for Hibernate 5/6 (Spring ORM 6) -->
    <bean id="commentsSessionFactory"
          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource">
@@ -70,8 +70,18 @@
       <property name="hibernateProperties">
          <ref bean="${hibernateProperties}" />
       </property>
-      <property name="configLocation">
+      <!-- Remove configLocation to avoid conflicts with dataSource -->
+      <!-- <property name="configLocation">
          <value>classpath:hibernate.cfg.xml</value>
+      </property> -->
+      <!-- Instead, explicitly specify mapping classes -->
+      <property name="annotatedClasses">
+         <list>
+            <value>com.percussion.delivery.comments.service.rdbms.PSComment</value>
+            <value>com.percussion.delivery.comments.service.rdbms.PSCommentTag</value>
+            <value>com.percussion.delivery.comments.service.rdbms.PSDefaultModerationState</value>
+            <value>com.percussion.delivery.likes.service.rdbms.PSLikes</value>
+         </list>
       </property>
    </bean>
 

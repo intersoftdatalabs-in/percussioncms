@@ -54,9 +54,7 @@ public class PSLikesServiceTest {
     Session session = getSession();
     try {
       // Clear all existing likes before each test
-      session
-          .createQuery("delete from PSLikes", com.percussion.delivery.likes.data.PSLikes.class)
-          .executeUpdate();
+      session.createQuery("delete from PSLikes").executeUpdate();
     } finally {
       //  session.close();
     }

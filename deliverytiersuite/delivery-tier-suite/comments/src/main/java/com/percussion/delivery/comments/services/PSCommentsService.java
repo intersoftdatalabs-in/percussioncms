@@ -20,7 +20,6 @@ package com.percussion.delivery.comments.services;
 import com.percussion.delivery.comments.data.IPSComment;
 import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
-import com.percussion.delivery.comments.data.PSCommentSort;
 import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
 import com.percussion.delivery.comments.data.PSComments;
 import com.percussion.delivery.comments.data.PSPageInfo;
@@ -66,14 +65,18 @@ public class PSCommentsService implements IPSCommentsService {
   }
 
   /** Map to get the PSComment fields given a SORTBY value. */
-  public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING =
-      new HashMap<PSCommentSort.SORTBY, String>() {
-        {
-          put(SORTBY.CREATEDDATE, "createdDate");
-          put(SORTBY.EMAIL, "email");
-          put(SORTBY.USERNAME, "username");
-        }
-      };
+  public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = new HashMap<>();
+
+  static {
+    try {
+      SORTBY_FIELD_MAPPING.put(SORTBY.CREATEDDATE, "createdDate");
+      SORTBY_FIELD_MAPPING.put(SORTBY.EMAIL, "email");
+      SORTBY_FIELD_MAPPING.put(SORTBY.USERNAME, "username");
+    } catch (Exception e) {
+      System.err.println("Error initializing SORTBY_FIELD_MAPPING: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
 
   /** The amount of minutes during the ones a comment recently made will remain visible. */
   public static final int AMOUNT_MINUTES_COMMENT_VISIBLE = 1;
@@ -309,29 +312,46 @@ public class PSCommentsService implements IPSCommentsService {
   public PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex) {
     Validate.notEmpty(site);
 
-    log.info("Getting all pages with comments");
+    log.info(
+        "Getting all pages with comments for site: {}, maxResults: {}, startIndex: {}",
+        site,
+        maxResults,
+        startIndex);
 
     List<PSPageSummary> pageSummaries = new ArrayList<>();
 
     try {
       List<PSPageInfo> result = dao.findPagesWithComments(site);
+      log.info("Found {} page info records from DAO", result.size());
 
       pageSummaries = createPageSummaries(result);
+      log.info("Created {} page summaries", pageSummaries.size());
 
-      int startIndexProcessed = startIndex > 0 ? startIndex : 0;
-      int maxResultProcessed = maxResults > 0 ? maxResults : pageSummaries.size();
-
-      int fromIndex = startIndexProcessed * maxResultProcessed;
-      int toIndex = (startIndexProcessed * maxResultProcessed) + maxResultProcessed;
-      if (toIndex > pageSummaries.size()) toIndex = pageSummaries.size();
-
-      if (pageSummaries.size() > 0) pageSummaries = pageSummaries.subList(fromIndex, toIndex);
+      // Handle paging logic correctly
+      if (maxResults > 0) {
+        int fromIndex = startIndex;
+        int toIndex = fromIndex + maxResults;
+        if (toIndex > pageSummaries.size()) {
+          toIndex = pageSummaries.size();
+        }
+        if (fromIndex < pageSummaries.size() && fromIndex >= 0) {
+          pageSummaries = pageSummaries.subList(fromIndex, toIndex);
+          log.info(
+              "Applied paging: returning page summaries from index {} to {}", fromIndex, toIndex);
+        } else {
+          // If fromIndex is beyond the list size or negative, return empty list
+          pageSummaries.clear();
+          log.info(
+              "Applied paging: returning empty list as fromIndex {} is out of bounds", fromIndex);
+        }
+      }
     } catch (Exception ex) {
       log.error("Error in getting pages with comments: {}", PSExceptionUtils.getMessageForLog(ex));
       log.debug(ex);
       throw new RuntimeException(ex);
     }
 
+    log.info("Returning {} page summaries", pageSummaries.size());
     return new PSPageSummaries(pageSummaries);
   }
 
@@ -417,8 +437,8 @@ public class PSCommentsService implements IPSCommentsService {
     long commentCount;
     long approvedCount;
     long newCommentsCount;
-    for (String pagePath : pagepathAndCommentsCountMap.keySet()) {
-      pagepathWithCommentCount = pagepathAndCommentsCountMap.get(pagePath);
+    for (Map.Entry<String, CommentCount> entry : pagepathAndCommentsCountMap.entrySet()) {
+      pagepathWithCommentCount = entry.getValue();
       commentCount = 0;
       approvedCount = 0;
       newCommentsCount = 0;
