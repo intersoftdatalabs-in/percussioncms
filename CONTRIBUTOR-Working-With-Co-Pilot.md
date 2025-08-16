@@ -2,6 +2,9 @@
 
 In Agent Mode, Co-Pilot can execute commands and interact with the system on your behalf. This mode is useful for tasks that require automation or when you want Co-Pilot to handle repetitive actions.
 
+- Use /explain on a module while you have the pom.xml file open to get coppilot to explain the module and its dependencies.
+- Use the latest Claude for creating plans, then use the latest GPT model for executing the plan.
+
 ### Context is Everything
 
 When working in Agent mode make sure that the following files are in the IDE plugins Context:
@@ -18,8 +21,6 @@ Close all other open files in the IDE so co-pilot does not parse the open files 
 
 Co-pilot works great, but the code base is huge, and it can't handle the size of it well.
 
-In the .github/copilot-instructions.md file, we have instructions to try to limit the "tokens" used to avoid the API and token rate limits that co-pilot has under the hood.
-
 Even with those instructions, you may still encounter errors like the following:
 
 #### "Sorry, an error occurred while generating a response"
@@ -34,7 +35,7 @@ For example, say your prompt was:
 
 and then you got the error "Sorry, an error occurred while generating a response".
 
-Accept any Pending Changes.
+Keep or Undo any Pending Changes.
 
 Then, start a new Agent session and give it the following prompt:
 
