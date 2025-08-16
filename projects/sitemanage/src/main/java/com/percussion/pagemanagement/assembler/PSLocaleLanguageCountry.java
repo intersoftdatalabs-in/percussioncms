@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.pagemanagement.assembler;
 
+/** Represents a locale with language and country codes. Immutable value object. */
 public class PSLocaleLanguageCountry {
 
-    private String language;
+  private String language;
+  private String country;
 
-    private String country;
+  public PSLocaleLanguageCountry() {
+    // Default constructor
+  }
 
-    public PSLocaleLanguageCountry() {
-        super();
-    }
+  public PSLocaleLanguageCountry(String language, String country) {
+    this.language = language;
+    this.country = country;
+  }
 
-    public String getLanguage() {
-        return language;
-    }
+  /**
+   * Gets the language code.
+   *
+   * @return the language code, may be null
+   */
+  public String getLanguage() {
+    return language;
+  }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+  /**
+   * Sets the language code.
+   *
+   * @param language the language code to set
+   */
+  public void setLanguage(String language) {
+    this.language = language;
+  }
 
-    public String getCountry() {
-        return country;
-    }
+  /**
+   * Gets the country code.
+   *
+   * @return the country code, may be null
+   */
+  public String getCountry() {
+    return country;
+  }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+  /**
+   * Sets the country code.
+   *
+   * @param country the country code to set
+   */
+  public void setCountry(String country) {
+    this.country = country;
+  }
 }

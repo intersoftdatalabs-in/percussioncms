@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,68 +15,72 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.percussion.rest.Guid;
+import java.util.Optional;
 
+/** Represents a Template Binding. Sunny Sal: "Binding ka hero, expression ka zero!" */
 public class TemplateBinding {
 
+  private Guid bindingId;
+  private Integer version;
+  private Guid templateId;
+  private int executionOrder;
+  private String variable;
+  private String expression;
 
-	   private Guid bindingId;
-	   private Integer version;
-	   private Guid templateId;
-	   private int executionOrder;
-	   private String variable;
-	   private String expression;
+  public TemplateBinding() {
+    // Default constructor
+  }
 
+  public Optional<Guid> getBindingId() {
+    return Optional.ofNullable(bindingId);
+  }
 
-	public Guid getBindingId() {
-		return bindingId;
-	}
+  public void setBindingId(Guid bindingId) {
+    this.bindingId = bindingId;
+  }
 
-	public void setBindingId(Guid bindingId) {
-		this.bindingId = bindingId;
-	}
+  public Optional<Integer> getVersion() {
+    return Optional.ofNullable(version);
+  }
 
-	public Integer getVersion() {
-		return version;
-	}
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
 
-	public void setVersion(Integer version) {
-		this.version = version;
-	}
+  public Optional<Guid> getTemplateId() {
+    return Optional.ofNullable(templateId);
+  }
 
-	public Guid getTemplateId() {
-		return templateId;
-	}
+  public void setTemplateId(Guid templateId) {
+    this.templateId = templateId;
+  }
 
-	public void setTemplateId(Guid templateId) {
-		this.templateId = templateId;
-	}
+  public int getExecutionOrder() {
+    return executionOrder;
+  }
 
-	public int getExecutionOrder() {
-		return executionOrder;
-	}
+  public void setExecutionOrder(int executionOrder) {
+    this.executionOrder = executionOrder;
+  }
 
-	public void setExecutionOrder(int executionOrder) {
-		this.executionOrder = executionOrder;
-	}
+  public Optional<String> getVariable() {
+    return Optional.ofNullable(variable);
+  }
 
-	public String getVariable() {
-		return variable;
-	}
+  public void setVariable(String variable) {
+    this.variable = variable;
+  }
 
-	public void setVariable(String variable) {
-		this.variable = variable;
-	}
+  public Optional<String> getExpression() {
+    return Optional.ofNullable(expression);
+  }
 
-	public String getExpression() {
-		return expression;
-	}
-
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-	public TemplateBinding(){}
+  public void setExpression(String expression) {
+    this.expression = expression;
+  }
 }

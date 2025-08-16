@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,54 +24,40 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class dumps the currently used server resources to the server console.
- */
-public class PSConsoleCommandDumpServerResources extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param cmdArgs the argument string to use when executing this command, 
-    *    may be <code>null</code>.
-    */
-   public PSConsoleCommandDumpServerResources(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+/** This class dumps the currently used server resources to the server console. */
+public class PSConsoleCommandDumpServerResources extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     .
+   */
+  public PSConsoleCommandDumpServerResources(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   <P>
-    * The execution of this command results in the following XML document
-    * structure:
-    *   
-    * @see IPSConsolCommand
-    */
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, 
-         "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + 
-         " " + m_cmdArgs);
+  /**
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
+   * @see IPSConsolCommand
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + " " + m_cmdArgs);
 
-      root.appendChild(
-         PSUserSessionManager.getUserSessionManagerStatus(doc, false));
-      root.appendChild(      
-         PSServerLockManager.getInstance().getServerLockStatus(doc));
-      if (m_cmdArgs.equalsIgnoreCase("all"))
-         root.appendChild(PSServer.getRequestHandlersStatus(doc, false));
-      root.appendChild(PSConsoleCommandCache.getCacheStatistics(doc));
-      
-      return doc;
-   }
-   
-   /**
-    * The command entered in the server console to get the information produced
-    * in this class.
-    */
-   final static String ms_cmdName = "dump resources";
+    root.appendChild(PSUserSessionManager.getUserSessionManagerStatus(doc, false));
+    root.appendChild(PSServerLockManager.getInstance().getServerLockStatus(doc));
+    if (m_cmdArgs.equalsIgnoreCase("all"))
+      root.appendChild(PSServer.getRequestHandlersStatus(doc, false));
+    root.appendChild(PSConsoleCommandCache.getCacheStatistics(doc));
+
+    return doc;
+  }
+
+  /** The command entered in the server console to get the information produced in this class. */
+  static final String ms_cmdName = "dump resources";
 }
-

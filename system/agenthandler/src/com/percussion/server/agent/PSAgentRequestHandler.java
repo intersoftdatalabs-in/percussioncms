@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ package com.percussion.server.agent;
 
 import com.percussion.conn.PSServerException;
 import com.percussion.data.PSXslStyleSheetMerger;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.*;
 import com.percussion.tools.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -31,448 +32,365 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Class to handle the agent HTTP requests from the clients. Standard
- * clients are:
- * <br>
+ * Class to handle agent HTTP requests from clients.
+ * Standard clients include:
  * <ul>
- * <li>Agent Manager Web client </li>
- * <li>Command line runner, potentially from a scheduler, and </li>
- * <li>Workflow action that does ad hoc publishing </li>
+ * <li>Agent Manager Web client</li>
+ * <li>Command line runner, potentially from a scheduler</li>
+ * <li>Workflow action that does ad hoc publishing</li>
  * </ul>
- * <br>
- * The HTTP request shall be of the form:
- * <br><br>
- * <strong>http://<emp>server</emp>:<emp>port</emp>/Rhythmyx/AgentManager/
- * agentmanager.htm?rxagent=publish&rxagentaction=execute</strong>
- * <br>
- * TODO:
  *
+ * <p>The HTTP request format:</p>
+ * {@code http://server:port/Rhythmyx/AgentManager/agentmanager.htm?rxagent=publish&rxagentaction=execute}
+ *
+ * @since Java 11
  */
-public class PSAgentRequestHandler implements IPSLoadableRequestHandler
-{
-   /* ************ IPSLoadableRequestHandler Interface Implementation ********/
+public class PSAgentRequestHandler implements IPSLoadableRequestHandler {
 
-   /**
-    * Server thread calls this method during initialization. Any initialization
-    * required to be done based on the data from the config file shall be done
-    * here.
-    */
-   public void init(Collection requestRoots, InputStream cfgFileIn)
-      throws PSServerException
-   {
+   /** The handler name for logging and identification */
+   public static final String HANDLER = "Agent Manager";
+
+   /** HTML parameter name for CMS user ID */
+   private static final String HTML_PARAM_CMS_USERID = "cmsuserid";
+
+   /** HTML parameter name for CMS password */
+   private static final String HTML_PARAM_CMS_PASSWORD = "cmspassword";
+
+   /** Server address for URL generation */
+   private static String ms_Server;
+
+   /** Server port for URL generation */
+   private static String ms_Port = "9992";
+
+   /** Product version description */
+   private static String ms_ProductVersion = "Percussion CM System ";
+
+   /** Resource bundle for internationalization */
+   private static ResourceBundle ms_Res;
+
+   /** Request roots collection */
+   private static Collection<String> ms_requestRoots;
+
+   /** Agent manager instance */
+   private PSAgentManager m_AgentManager;
+
+   /** Configuration document */
+   private Document m_ConfigDoc;
+
+   /** Stylesheet path for response formatting */
+   private String m_StyleSheetPath;
+
+   @Override
+   public void init(Collection<String> requestRoots, InputStream cfgFileIn) throws PSServerException {
       PSConsole.printMsg(HANDLER, "Initializing request handler...");
 
       ms_requestRoots = requestRoots;
 
-      if(null == ms_Server)
-      {
+      if (ms_Server == null) {
          ms_Server = PSServer.getHostAddress();
-         try
-         {
+         try {
             ms_Port = Integer.toString(PSServer.getListenerPort());
-         }
-         catch(NumberFormatException e)
-         {
+         } catch (NumberFormatException e) {
             ms_Port = "0";
          }
       }
-      /*
-      * First try loading the resource file, if fails it is fatal for the
-      * application
-      */
-      try
-      {
+
+      // Load resource bundle
+      try {
          ms_Res = PSUtils.getRes();
-      }
-      catch(MissingResourceException e)
-      {
-         PSConsole.printMsg(HANDLER,
-            "Failed to load agent request handler resources");
+      } catch (MissingResourceException e) {
+         PSConsole.printMsg(HANDLER, "Failed to load agent request handler resources");
          throw new PSServerException(e);
       }
-      /*
-       * Initialize the product version description.
-       */
-      try
-      {
 
-         ResourceBundle resourceBundle = ResourceBundle.getBundle(
-            "com.percussion.server.agent." + "Version", Locale.getDefault());
+      // Initialize product version
+      try {
+         var resourceBundle = ResourceBundle.getBundle(
+            "com.percussion.server.agent.Version", Locale.getDefault());
 
          ms_ProductVersion += resourceBundle.getString("majorVersion") + "." +
                resourceBundle.getString("minorVersion") +
                "; Build:" + resourceBundle.getString("buildNumber");
-      }
-      catch(MissingResourceException e)
-      {
+      } catch (MissingResourceException e) {
          PSConsole.printMsg(HANDLER, "Failed to load Version.properties");
          throw new PSServerException(e);
       }
-      /*
-      * Now read the configuration file and do initialization if required. We
-      * have nothing for now!
-      */
-      try
-      {
+
+      // Read configuration and initialize agent manager
+      try {
          readConfigDoc(cfgFileIn);
          m_AgentManager = new PSAgentManager(m_ConfigDoc);
-      }
-      //Any exception here is fatal
-      catch(Exception e)
-      {
-         System.out.println(
-            "Failed to initialize agent manager request handler");
+      } catch (Exception e) {
+         PSConsole.printMsg(HANDLER, "Failed to initialize agent manager request handler");
          throw new PSServerException(e);
-      }
-      finally
-      {
-         if (cfgFileIn != null)
-         {
-            try{cfgFileIn.close();}catch (Exception e){}
+      } finally {
+         if (cfgFileIn != null) {
+            try {
+               cfgFileIn.close();
+            } catch (IOException e) {
+               PSConsole.printMsg(HANDLER, "Error closing configuration input stream: " +
+                  PSExceptionUtils.getMessageForLog(e));
+            }
          }
       }
       PSConsole.printMsg(HANDLER, "Request handler initialization completed");
    }
 
    /**
-    * Helper function that reads the configuration XML document from the input
-    * stream.
-    * @param is the input stream
-    * @throws IOException
-    * @throws SAXException
+    * Reads the configuration XML document from the input stream.
+    *
+    * @param is the input stream, must not be {@code null}
+    * @throws IOException if I/O error occurs or XML parsing fails
+    * @throws IllegalArgumentException if input stream is {@code null}
     */
-   private void readConfigDoc(InputStream is)
-      throws SAXException, IOException
-   {
-      if(is == null)
-      {
-         throw new IOException(
-            "The input stream for configuration document must not be empty");
+   private void readConfigDoc(InputStream is) throws IOException {
+      if (is == null) {
+         throw new IllegalArgumentException("Configuration input stream must not be null");
       }
 
-      InputSource isource = null;
-      try
-      {
-         DocumentBuilder db = PSUtils.getDocumentBuilder();
-         isource = new InputSource(is);
+      try {
+         var db = PSUtils.getDocumentBuilder();
+         var isource = new InputSource(is);
          m_ConfigDoc = db.parse(isource);
-      }
-      finally
-      {
-         isource = null;
+      } catch (Exception e) {
+         throw new IOException("Failed to parse configuration document", e);
       }
    }
 
-   /* ************ IPSLoadableRequestHandler Interface Implementation ****** */
+   @Override
+   public void processRequest(PSRequest request) {
+      var page = request.getRequestPage(false);
 
-   /**
-   * Process a Agent Manager request using the input context information and
-   * data. The results will be written to the specified output stream.
-   * <p>
-   * The following steps are performed to handle the request:
-   * <ol>
-   * <li>validate the request</li>
-   * <li>see if requested action can be performed</li>
-   * <li>return the response</li>
-   * </ol>
-   *
-   * @param   request      the request object containing all context
-   *            data associated with the request
-   */
-   public void processRequest(PSRequest request)
-   {
-      PSResponse resp = request.getResponse();
-      String page = request.getRequestPage(false);
-      String cmsUserid = "";
-      String cmsPassword = "";
-      String sessionid = "";
+      try {
+         var handlerResponse = new PSAgentHandlerResponse();
 
-      try
-      {
-         PSAgentHandlerResponse handlerResponse =
-                                    new PSAgentHandlerResponse();
-
-         //use the style sheet from the handler
-         handlerResponse.setStyleSheet(m_StyleSheetPath);
-
-         if(!page.equalsIgnoreCase(IPSDTDAgentHandlerResponse.HANDLER_PAGE) &&
-            !page.equalsIgnoreCase(IPSDTDAgentHandlerResponse.MANAGER_PAGE)
-            )
-         {
+         if (!page.equalsIgnoreCase(IPSDTDAgentHandlerResponse.HANDLER_PAGE)) {
             handlerResponse.setResponse(
-               handlerResponse.RESPONSE_TYPE_ERROR,
-               getRes().getString(handlerResponse.RESPONSE_CODE_NOPAGE),
-               handlerResponse.RESPONSE_CODE_NOPAGE);
+               IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR,
+               "Invalid page requested: " + page);
             send(request, handlerResponse);
             return;
          }
 
-         Map<String, Object> map = request.getParameters();
-
-         /* This is not exactly right error since the map is NULL. However it
-          * is not unreasonable to say editionid is not specified when the map
-          * is empty.
-          */
-         if(map == null)
-         {
+         var paramMap = request.getParameters();
+         if (paramMap == null || paramMap.isEmpty()) {
             handlerResponse.setResponse(
-               handlerResponse.RESPONSE_TYPE_ERROR,
-               getRes().getString(handlerResponse.RESPONSE_CODE_NOACTION),
-               handlerResponse.RESPONSE_CODE_NOACTION);
+               IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR,
+               "No parameters provided in request");
             send(request, handlerResponse);
             return;
          }
 
-         if(!map.containsKey(IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION))
-         {
+         if (!paramMap.containsKey(IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION)) {
             handlerResponse.setResponse(
-               handlerResponse.RESPONSE_TYPE_ERROR,
-               getRes().getString(handlerResponse.RESPONSE_CODE_NOACTION),
-               handlerResponse.RESPONSE_CODE_NOACTION);
-
+               IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR,
+               "Action parameter is required");
             send(request, handlerResponse);
             return;
          }
 
-         sessionid = request.getUserSessionId();
+         var action = getParameterAsString(paramMap, IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION)
+            .orElse("");
 
-         if(map.containsKey(HTML_PARAM_CMS_USERID))
-         {
-            cmsUserid = map.get(HTML_PARAM_CMS_USERID).toString();
+         if (page.equalsIgnoreCase(IPSDTDAgentHandlerResponse.HANDLER_PAGE)) {
+            handleAction(action, paramMap, handlerResponse);
+         } else {
+            m_AgentManager.handleAction(paramMap, handlerResponse);
          }
 
-         if(map.containsKey(HTML_PARAM_CMS_PASSWORD))
-         {
-            cmsPassword = map.get(HTML_PARAM_CMS_PASSWORD).toString();
-            if(cmsPassword != null && cmsPassword.length() > 0)
-               cmsPassword = new String(Base64.decode(cmsPassword));
-         }
-
-         String action = map.get(
-            IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION).toString();
-
-         Element result = null;
-         if(page.equalsIgnoreCase(IPSDTDAgentHandlerResponse.HANDLER_PAGE))
-         {
-            handleAction(action, map, handlerResponse);
-         }
-         else //MANAGER_PAGE
-         {
-            m_AgentManager.handleAction(map, handlerResponse);
-         }
          send(request, handlerResponse);
-      }
-      catch(Exception e)
-      {
-         PSConsole.printMsg("AgentMgr", e);
+
+      } catch (Exception e) {
+         PSConsole.printMsg(HANDLER, "Error processing request: " +
+            PSExceptionUtils.getMessageForLog(e));
       }
    }
 
    /**
-    * Most of the requested actions are meant to be handled by the Agent
-    * Manager. However, there are some actions to be handled by the Request
-    * Handler itself. For example, read the configuration file from the disk
-    * and reinitialize the Agent Manager when modifed or status of the agent
-    * manager. This method handles this kind of actions.
+    * Safely extracts a string parameter from the parameter map.
+    *
+    * @param params the parameter map
+    * @param key the parameter key
+    * @return Optional containing the parameter value, or empty if not found
     */
-   protected void handleAction(
-      String action,
-      Map params,
-      PSAgentHandlerResponse handlerResponse)
-   {
-      //No action is currently handled by the requets handler.
-
-      //TODO: use MessageFormat
-      String msg = "Action '" + action + "' for " +
-         handlerResponse.HANDLER_PAGE + " is not valid" ;
-      handlerResponse.setResponse(handlerResponse.RESPONSE_TYPE_ERROR, msg);
+   private Optional<String> getParameterAsString(Map<String, Object> params, String key) {
+      return Optional.ofNullable(params.get(key))
+         .map(Object::toString)
+         .filter(StringUtils::isNotBlank);
    }
 
-   // see IPSRootedHandler for documentation
-   public String getName()
-   {
+   /**
+    * Handles actions meant for the Request Handler itself.
+    * Most actions are delegated to the Agent Manager, but some are handled here
+    * (e.g., configuration reload, status queries).
+    *
+    * @param action the action to handle
+    * @param params the request parameters (currently unused but kept for future extensibility)
+    * @param handlerResponse the response object
+    */
+   protected void handleAction(String action, Map<String, Object> params,
+                              PSAgentHandlerResponse handlerResponse) {
+      // Currently no actions are handled by the request handler
+      var msg = String.format("Action '%s' for %s is not valid",
+         action, IPSDTDAgentHandlerResponse.HANDLER_PAGE);
+      handlerResponse.setResponse(IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR, msg);
+   }
+
+   @Override
+   public String getName() {
       return HANDLER;
    }
 
-   // see IPSRootedHandler for documentation
-   public Iterator getRequestRoots()
-   {
+   @Override
+   public Iterator<String> getRequestRoots() {
       return ms_requestRoots.iterator();
    }
 
    /**
-    * Helper method to send the response to the client back. If the requested
-    * page extension starts with "htm", we merge the response with the style
-    * sheet, otherwise we send the XML document.
+    * Sends the response back to the client.
+    * If the requested page extension starts with "htm", merges the response with
+    * the stylesheet, otherwise sends the XML document directly.
     *
-    * @param request, the PSRequest object, must not be <code>null</code>.
-    *
-    * @param handlerResponse, the agent manager handler's response object,
-    * must not be <code>null</code>.
-    *
-    * @throws IOException, if the response could not be sent to the client.
-    *
+    * @param request the PSRequest object, must not be {@code null}
+    * @param handlerResponse the response object, must not be {@code null}
+    * @throws IOException if the response could not be sent
     */
-   protected void send(PSRequest request,
-      PSAgentHandlerResponse handlerResponse)
-   throws IOException
-   {
-      String ext = request.getRequestPageExtension();
-      if(null != ext &&
-         ext.toLowerCase().startsWith(".htm") &&
-         handlerResponse.getStyleSheet() != null
-         )
-      {
-         URL styleSheetURL = null;
+   protected void send(PSRequest request, PSAgentHandlerResponse handlerResponse)
+         throws IOException {
+      var ext = request.getRequestPageExtension();
+
+      if (ext != null &&
+          ext.toLowerCase().startsWith(".htm") &&
+          handlerResponse.getStyleSheet() != null) {
+
          try {
-            //No caching of the style sheet. Can be a future task.
-            styleSheetURL = new URL("file:" + handlerResponse.getStyleSheet());
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            var styleSheetURL = new URL("file:" + handlerResponse.getStyleSheet());
+
+            try (var out = new ByteArrayOutputStream()) {
                new PSXslStyleSheetMerger().merge(
-                       request,
-                       handlerResponse.getDocument(),
-                       out,
-                       styleSheetURL,
-                       null);
-               try(InputStream io = new ByteArrayInputStream(out.toByteArray())) {
-                  request.getResponse().setContent(io, out.size(), "text/html");
+                  request,
+                  createResponseDocument(handlerResponse),
+                  out,
+                  styleSheetURL,
+                  null);
+
+               try (var in = new ByteArrayInputStream(out.toByteArray())) {
+                  request.getResponse().setContent(in, out.size(), "text/html");
                }
             }
-         }
-         /* Can throw MalformedURLException, PSUnsupportedConversionException
-          * or PSConversionException
-          */
-         catch(Exception e)
-         {
+
+         } catch (Exception e) {
             PSConsole.printMsg(HANDLER,
-               "Error merging response document and stylesheet: "
-               + e.getMessage());
-            //Send at least XML document!
-            request.getResponse().setContent(handlerResponse.getDocument());
+               "Error merging response document and stylesheet: " +
+               PSExceptionUtils.getMessageForLog(e));
+
+            // Fall back to sending raw XML
+            sendXmlResponse(request, handlerResponse);
          }
-      }
-      else
-      {
-         request.getResponse().setContent(handlerResponse.getDocument());
+      } else {
+         sendXmlResponse(request, handlerResponse);
       }
    }
 
-   /*********** IPSLoadableRequestHandler Interface Implementation ***********/
    /**
-    * Shutdown the request handler, freeing any associated resources. This is
-    * called by server during server shut down.
+    * Creates an XML document from the handler response.
+    *
+    * @param handlerResponse the response object
+    * @return the XML document
     */
-   public void shutdown()
-   {
-      PSConsole.printMsg(HANDLER, "Closing Agent Manager...");
-      m_AgentManager.close();
+   private Document createResponseDocument(PSAgentHandlerResponse handlerResponse) {
+      try {
+         var db = PSUtils.getDocumentBuilder();
+         var doc = db.newDocument();
+
+         var root = doc.createElement("Response");
+         root.setAttribute("type", handlerResponse.isSuccess() ? "success" : "error");
+         root.setAttribute("timestamp", handlerResponse.getTimestamp());
+
+         if (handlerResponse.hasContent()) {
+            root.setTextContent(handlerResponse.getResponseContent());
+         }
+
+         doc.appendChild(root);
+         return doc;
+
+      } catch (Exception e) {
+         PSConsole.printMsg(HANDLER, "Error creating response document: " +
+            PSExceptionUtils.getMessageForLog(e));
+         return null;
+      }
    }
 
    /**
-    * Get the program resources.
+    * Sends XML response directly to the client.
     *
-    * @return resource bundle as ResourceBundle never <code>null</code> as it
-    * is initialized in the init() method which makes sure it is not
-    * <code>null</code>
-    *
+    * @param request the request object
+    * @param handlerResponse the response object
+    * @throws IOException if sending fails
     */
-   public static ResourceBundle getRes()
-   {
-      if(null != ms_Res)
-         return ms_Res;
+   private void sendXmlResponse(PSRequest request, PSAgentHandlerResponse handlerResponse)
+         throws IOException {
+      var responseContent = Optional.ofNullable(handlerResponse.getResponseContent())
+         .orElse("No content");
 
-      try
-      {
-         ms_Res = PSUtils.getRes();
+      var xmlResponse = String.format(
+         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+         "<Response type=\"%s\" timestamp=\"%s\">%s</Response>",
+         handlerResponse.isSuccess() ? "success" : "error",
+         handlerResponse.getTimestamp(),
+         responseContent);
+
+      try (var in = new ByteArrayInputStream(xmlResponse.getBytes(StandardCharsets.UTF_8))) {
+         request.getResponse().setContent(in, xmlResponse.length(), "text/xml");
       }
-      catch(MissingResourceException mre)
-      {
-         //Should not happen!!!
+   }
+
+   @Override
+   public void shutdown() {
+      if (m_AgentManager != null) {
+         m_AgentManager.close();
       }
+      PSConsole.printMsg(HANDLER, "Agent request handler shutdown completed");
+   }
+
+   /**
+    * Gets the resource bundle for internationalization.
+    *
+    * @return the resource bundle
+    */
+   protected static ResourceBundle getRes() {
       return ms_Res;
    }
 
    /**
-    * <code>PSAgentManager</code> object that processes all requests from
-    * the clients. Manages all workers.
+    * Gets the server address.
+    *
+    * @return the server address
     */
-   private PSAgentManager m_AgentManager = null;
+   public static String getServer() {
+      return ms_Server;
+   }
 
    /**
-    * DOM Document representing the configuration document for all agents
-    * registered.
+    * Gets the server port.
+    *
+    * @return the server port
     */
-   private Document m_ConfigDoc = null;
-   /**
-    * Program resources
-    */
-   private static ResourceBundle ms_Res = null;
-
-   /**
-    * Product version string to start with. Init will append the version and
-    * build info to this.
-    */
-    public static String ms_ProductVersion = "Rhythmyx Agent Manager ";
+   public static String getPort() {
+      return ms_Port;
+   }
 
    /**
-    * Server name IP Address to use. Set these to <code>null</code> to get it
-    * from PSServer class, which must be the normal case. Use other than
-    * <code>null</code> only for testing.
+    * Gets the product version.
+    *
+    * @return the product version string
     */
-    public static String ms_Server = null;
-
-   /**
-    * Server port number string to use. Set these to <code>null</code> to get
-    * it from PSServer class, which must be the normal case. Use other than
-    * <code>null</code> only for testing.
-    */
-    public static String ms_Port = null;
-
-    /**
-     * Storage for the request roots, initialized in init() call, never
-     * <code>null</code> or empty after that. A list of String objects.
-     */
-    public static Collection ms_requestRoots = null;
-
-    /**
-     * Name of the subsystem used to dump messages to server console.
-     */
-    public static final String HANDLER = "AgentMgr";
-
-    /**
-     * Name of the optional HTML parameter User ID in the request to publish.
-     */
-    public static final String HTML_PARAM_CMS_USERID = "userid";
-
-    /**
-     * Name of the optional HTML parameter Password in the request to publish.
-     */
-    public static final String HTML_PARAM_CMS_PASSWORD = "password";
-
-   /**
-    * Location of the style sheet to be used for the response document.
-    */
-    static private String m_StyleSheetPath =
-         "sys_resources/stylesheets/agenthandlerresponse.xsl";
-
-    /**
-     * main method for testing purpose
-     */
-    public static void main(String[] args)
-    {
-      PSAgentRequestHandler handler = new PSAgentRequestHandler();
-
-      try
-      {
-         handler.handleAction("test", null, null);
-      }
-      catch(Exception e)
-      {
-         e.printStackTrace();
-      }
+   public static String getProductVersion() {
+      return ms_ProductVersion;
    }
 
 }

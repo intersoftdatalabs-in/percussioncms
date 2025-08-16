@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +17,40 @@
  */
 package com.percussion.data;
 
-import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSUrlRequest;
+import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
-
 import java.util.Iterator;
 
-/**
- * Extends the rule evaluator to evaluate conditional URL's.
- */
-public class PSConditionalUrlEvaluator extends PSRuleListEvaluator
-{
-   /**
-    * Constructs a new conditional url evaluator.
-    *
-    * @param rules an iterator of PSRule objects, not <code>null</code>.
-    * @param request the url request to evaluate, not <code>null</code>.
-    */
-   public PSConditionalUrlEvaluator(Iterator rules, PSUrlRequest request)
-      throws PSNotFoundException, PSExtensionException
-   {
-      super(rules);
+/** Extends the rule evaluator to evaluate conditional URL's. */
+public class PSConditionalUrlEvaluator extends PSRuleListEvaluator {
+  /**
+   * Constructs a new conditional url evaluator.
+   *
+   * @param rules an iterator of PSRule objects, not <code>null</code>.
+   * @param request the url request to evaluate, not <code>null</code>.
+   */
+  public PSConditionalUrlEvaluator(Iterator<Object> rules, PSUrlRequest request)
+      throws PSNotFoundException, PSExtensionException {
+    super(rules);
 
-      if (request == null)
-         throw new IllegalArgumentException("request cannot be null");
+    if (request == null) throw new IllegalArgumentException("request cannot be null");
 
-      m_hrefExtractor = new PSUrlRequestExtractor(request);
-   }
+    m_hrefExtractor = new PSUrlRequestExtractor(request);
+  }
 
-   /**
-    * Get the url-string for the provided execution data.
-    *
-    * @param data the execution data, not <code>null</code>.
-    * @return the url-string, might be <code>null</code>.
-    */
-   public String getUrl(PSExecutionData data)
-      throws PSDataExtractionException
-   {
-      if (data == null)
-         throw new IllegalArgumentException("data cannot be null");
+  /**
+   * Get the url-string for the provided execution data.
+   *
+   * @param data the execution data, not <code>null</code>.
+   * @return the url-string, might be <code>null</code>.
+   */
+  public String getUrl(PSExecutionData data) throws PSDataExtractionException {
+    if (data == null) throw new IllegalArgumentException("data cannot be null");
 
-      return m_hrefExtractor.extract(data).toString();
-   }
+    return m_hrefExtractor.extract(data).toString();
+  }
 
-   /** The URL extractor, never <code>null</code> after construction */
-   private IPSDataExtractor m_hrefExtractor = null;
+  /** The URL extractor, never <code>null</code> after construction */
+  private IPSDataExtractor m_hrefExtractor = null;
 }

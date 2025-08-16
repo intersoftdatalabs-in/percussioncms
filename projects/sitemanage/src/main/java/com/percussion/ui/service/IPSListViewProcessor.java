@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +20,20 @@ package com.percussion.ui.service;
 import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 
 /**
- * Provides additional processing for the {@link IPSListViewHelper}
- * 
- * @author JaySeletz
+ * Provides additional processing for the {@link IPSListViewHelper}.
  *
+ * <p>Refactored for Java 11 and Google Java Style.
+ *
+ * @author JaySeletz
  */
-public interface IPSListViewProcessor
-{
-    public static final String TEMPLATE_NAME = "templateName";
-    
-    public static final String LINK_TEXT = "linkText";
-    
-    /**
-     * Process the items in the supplied criteria
-     * 
-     * @param criteria The criteria to process, not <code>null</code>.
-     */
-    void process(PSDisplayPropertiesCriteria criteria);
+public interface IPSListViewProcessor {
+  String TEMPLATE_NAME = "templateName";
+  String LINK_TEXT = "linkText";
+
+  /**
+   * Process the items in the supplied criteria.
+   *
+   * @param criteria The criteria to process, not {@code null}.
+   */
+  void process(PSDisplayPropertiesCriteria criteria);
 }

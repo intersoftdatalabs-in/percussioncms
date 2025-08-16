@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,38 @@
  */
 package com.percussion.servlets.taglib;
 
-import org.apache.commons.lang.StringUtils;
-
+import java.io.IOException;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import java.io.IOException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Create a span tag with a calculated id.
- * 
+ *
  * @author dougrand
  */
-public class PSUISpanId extends UIOutput
-{
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeBegin(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.startElement("span", this);
-      writer.writeAttribute("id", (String) getAttributes().get("definedid"), null);
-      String style = (String) getAttributes().get("inlinestyle");
-      if (StringUtils.isNotBlank(style))
-      {
-         writer.writeAttribute("style", style, null);
-      }
-   }
+public class PSUISpanId extends UIOutput {
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeBegin(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.startElement("span", this);
+    writer.writeAttribute("id", (String) getAttributes().get("definedid"), null);
+    String style = (String) getAttributes().get("inlinestyle");
+    if (StringUtils.isNotBlank(style)) {
+      writer.writeAttribute("style", style, null);
+    }
+  }
 
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeEnd(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.endElement("span");
-   }
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeEnd(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.endElement("span");
+  }
 }

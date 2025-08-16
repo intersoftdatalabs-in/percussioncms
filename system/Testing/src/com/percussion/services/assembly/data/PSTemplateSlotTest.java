@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 
 import java.util.ArrayList;
@@ -30,17 +30,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test basic CRUD on a template slot
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTemplateSlotTest
 {
    /**

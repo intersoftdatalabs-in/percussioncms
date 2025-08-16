@@ -1,48 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>core</artifactId>
         <groupId>com.percussion</groupId>
-        <version>8.1.6-SNAPSHOT</version>
+        <artifactId>core</artifactId>
+        <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>perc-rxapps</artifactId>
-  <version>8.1.6-SNAPSHOT</version>
-
+    <version>8.2.0-SNAPSHOT</version>
     <properties>
         <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
-
     </properties>
-
     <build>
-
-    <plugins>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-                <execution>
-                    <id>populate perc distribution from jetty</id>
-                    <phase>process-resources</phase>
-                    <goals>
-                        <goal>run</goal>
-                    </goals>
-                    <configuration>
-
-                        <target>
-                            <property name="BUILDVERSION" value="${project.parent.version}" />
-                            <property name="APPS_DIR" location="${assembly-directory}/RxApp" />
-                            <property name="FF_DIST_APPS_DIR" location="${assembly-directory}/RxFastForward" />
-                            <property name="WITHFF" location="true" />
-                            <ant dir="${basedir}/../../system" antfile="rxAppsCopy.xml" inheritRefs="true" />
-                        </target>
-                    </configuration>
-                </execution>
-                <!--
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>populate perc distribution from jetty</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <target>
+                                <property name="BUILDVERSION" value="${project.parent.version}"/>
+                                <property location="${assembly-directory}/RxApp" name="APPS_DIR"/>
+                                <property location="${assembly-directory}/RxFastForward" name="FF_DIST_APPS_DIR"/>
+                                <property location="true" name="WITHFF"/>
+                                <ant antfile="rxAppsCopy.xml" dir="${basedir}/../../system" inheritRefs="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!--
                 <execution>
                   <id>set jetty.sh</id>
                   <phase>process-resources</phase>
@@ -68,30 +61,27 @@
                   </configuration>
                 </execution>
               -->
-            </executions>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-
-            <configuration>
-                <descriptors>
-                    <descriptor>src/main/assembly/perc-assembly.xml</descriptor>
-                </descriptors>
-                <tarLongFileMode>posix</tarLongFileMode>
-                <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-
-
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/perc-assembly.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>posix</tarLongFileMode>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

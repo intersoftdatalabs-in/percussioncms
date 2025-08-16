@@ -1,45 +1,26 @@
-/*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.audit;
 
 import com.percussion.server.PSRequest;
-import com.percussion.services.audit.IPSDesignObjectAuditConfig;
-import com.percussion.services.audit.IPSDesignObjectAuditService;
+// Removed unused imports per lint warning
 import com.percussion.services.audit.PSDesignObjectAuditServiceLocator;
 import com.percussion.services.audit.data.PSAuditLogEntry;
 import com.percussion.services.audit.data.PSAuditLogEntry.AuditTypes;
 import com.percussion.services.catalog.IPSCatalogIdentifier;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
 
 /**
- * This class is intended to be configured with Spring AOP to write 
+ * Java 11 refactored: This class is intended to be configured with Spring AOP to write
  * {@link PSAuditLogEntry} object whenever a design object is inserted, updated,
- * or removed from the repository.    
+ * or removed from the repository.
  */
-public class PSDesignObjectAuditor
-{
+public class PSDesignObjectAuditor {
    /**
     * Perform the audit of the method call specified in the supplied joinpoint.
     * If auditing is notenabled, simply returns, otherwise performs the audit 
@@ -58,56 +39,43 @@ public class PSDesignObjectAuditor
     * 
     * @throws Throwable If there are any errors.
     */
-   public void audit(JoinPoint joinPoint) throws Throwable
-   {
-      if (joinPoint == null)
-         throw new IllegalArgumentException("joinPoint may not be null");
-      
-      Date auditDate = new Date();
-
-      // make sure we have something to audit
-      Object[] args = joinPoint.getArgs();
-      if (args == null || args.length == 0)
-         return;
-      
-      if (!isAuditingEnabled())
-         return;
-      
-      String userName = (String) PSRequestInfo.getRequestInfo(
-         PSRequestInfo.KEY_USER);
-      if (StringUtils.isBlank(userName))
-      {
-         PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(
-            PSRequestInfo.KEY_PSREQUEST);
-         if (req != null)
-            userName = req.getUserSession().getRealAuthenticatedUserEntry();
-      }
-      
-      if (StringUtils.isBlank(userName))
-         userName = "unknown";         
-      
-      IPSDesignObjectAuditService svc = 
-         PSDesignObjectAuditServiceLocator.getAuditService();
-      Collection<PSAuditLogEntry> entries = new ArrayList<>();
-      
-      // assume we are auditing the first argument since all service method
-      // signatures follow this pattern
-      String name = joinPoint.getSignature().getName();
-      Collection<PSAuditData> auditData = createAuditData(
-         name, args[0]);
-      
-      for (PSAuditData data : auditData)
-      {
-         PSAuditLogEntry entry = svc.createAuditLogEntry();
-         entry.setAction(data.mi_auditAction);
-         entry.setDate(auditDate);
-         entry.setObjectGUID(data.mi_objectGuid);
-         entry.setUserName(userName);
-         entries.add(entry);
-      }
-      
-      svc.saveAuditLogEntries(entries);
-   }
+    public void audit(JoinPoint joinPoint) throws Throwable {
+        if (joinPoint == null) {
+            throw new IllegalArgumentException("joinPoint may not be null");
+        }
+        var auditDate = new Date();
+        var args = joinPoint.getArgs();
+        if (args == null || args.length == 0) {
+            return;
+        }
+        if (!isAuditingEnabled()) {
+            return;
+        }
+        var userName = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+        if (StringUtils.isBlank(userName)) {
+            var req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+            if (req != null) {
+                userName = req.getUserSession().getRealAuthenticatedUserEntry();
+            }
+        }
+        if (StringUtils.isBlank(userName)) {
+            userName = "unknown";
+        }
+        var svc = PSDesignObjectAuditServiceLocator.getAuditService();
+        var entries = new ArrayList<PSAuditLogEntry>();
+        var name = joinPoint.getSignature().getName();
+        var auditData = createAuditData(name, args[0]);
+        for (var data : auditData) {
+            var entry = svc.createAuditLogEntry();
+            entry.setAction(data.mi_auditAction);
+            // setDate(Date) is deprecated, but required for backward compatibility (see migration notes)
+            entry.setDate(auditDate);
+            entry.setObjectGUID(data.mi_objectGuid);
+            entry.setUserName(userName);
+            entries.add(entry);
+        }
+        svc.saveAuditLogEntries(entries);
+    }
    
    /**
     * Worker method of {@link #audit(JoinPoint)}, see that method for
@@ -126,64 +94,48 @@ public class PSDesignObjectAuditor
     * @return The resulting list of audit data, never <code>null</code>, may be 
     * empty.
     */
-   @SuppressWarnings("unchecked")
-   public Collection<PSAuditData> createAuditData(String methodName, 
-      Object arg)
-   {
-      Collection<PSAuditData> dataList = new ArrayList<>();
-      
-      if (methodName == null)
-         return dataList;
-      
-      AuditTypes type;
-      if (methodName.startsWith("delete"))
-         type = AuditTypes.DELETE;
-      else if (methodName.startsWith("save"))
-         type = AuditTypes.SAVE;
-      else
-      {
-         // not concerned with this method call
-         return dataList;
-      }
-      
-      Collection argCollection = null;
-      
-      // convert single arg to collection for simpler processing
-      if (arg instanceof IPSCatalogIdentifier || arg instanceof IPSGuid)
-      {
-         argCollection = new ArrayList<Object>();
-         argCollection.add(arg);
-      }
-      
-      if (arg instanceof Collection)
-         argCollection = (Collection) arg;
-      
-      if (argCollection == null)
-         return dataList;
-      
-      for (Object object : argCollection)
-      {
-         IPSGuid guid;
-         
-         if (object instanceof IPSGuid)
-            guid = (IPSGuid) object;
-         else if (object instanceof IPSCatalogIdentifier)
-         {
-            IPSCatalogIdentifier id = (IPSCatalogIdentifier) object;
-            guid = id.getGUID();
-         }
-         else 
-            continue;
-         
-         PSAuditData data = new PSAuditData();
-         data.mi_objectGuid = guid;
-         data.mi_auditAction = type;
-         
-         dataList.add(data);
-      }
-      
-      return dataList;
-   }
+    @SuppressWarnings("unchecked")
+    public Collection<PSAuditData> createAuditData(String methodName, Object arg) {
+        var dataList = new ArrayList<PSAuditData>();
+        if (methodName == null) {
+            return dataList;
+        }
+        AuditTypes type;
+        if (methodName.startsWith("delete")) {
+            type = AuditTypes.DELETE;
+        } else if (methodName.startsWith("save")) {
+            type = AuditTypes.SAVE;
+        } else {
+            return dataList;
+        }
+        Collection<?> argCollection = null;
+        if (arg instanceof IPSCatalogIdentifier || arg instanceof IPSGuid) {
+            argCollection = new ArrayList<>();
+            ((ArrayList<Object>) argCollection).add(arg);
+        }
+        if (arg instanceof Collection) {
+            argCollection = (Collection<?>) arg;
+        }
+        if (argCollection == null) {
+            return dataList;
+        }
+        for (var object : argCollection) {
+            IPSGuid guid;
+            if (object instanceof IPSGuid) {
+                guid = (IPSGuid) object;
+            } else if (object instanceof IPSCatalogIdentifier) {
+                var id = (IPSCatalogIdentifier) object;
+                guid = id.getGUID();
+            } else {
+                continue;
+            }
+            var data = new PSAuditData();
+            data.mi_objectGuid = guid;
+            data.mi_auditAction = type;
+            dataList.add(data);
+        }
+        return dataList;
+    }
 
    /**
     * Check the audit service to determine if auditing is enabled, caching the 
@@ -192,24 +144,20 @@ public class PSDesignObjectAuditor
     * @return <code>true</code> if it is enabled, <code>false</code>
     * otherwise.
     */   
-   private boolean isAuditingEnabled()
-   {
-      if (m_auditEnabled == null)
-      {
-         IPSDesignObjectAuditService svc = 
-            PSDesignObjectAuditServiceLocator.getAuditService();
-         IPSDesignObjectAuditConfig config = svc.getConfig();
-         m_auditEnabled = Boolean.valueOf(config.isEnabled());
-      }
-      
-      return m_auditEnabled;
-   }
+    private boolean isAuditingEnabled() {
+        if (m_auditEnabled == null) {
+            var svc = PSDesignObjectAuditServiceLocator.getAuditService();
+            var config = svc.getConfig();
+            m_auditEnabled = config.isEnabled();
+        }
+        return m_auditEnabled;
+    }
 
    /**
     * Saves the enabled setting from the audit config, <code>null</code> until
     * the config is checked for the first time, immutable after that.
     */
-   Boolean m_auditEnabled = null;
+    Boolean m_auditEnabled = null;
    
    /**
     * Simple data structure to hold the guid and audit action, package access

@@ -1,4 +1,5 @@
 # deployer
+
 This module contains support for following :
 
 * An MSM related service which delineates the transaction boundaries for specific assembly elements.
@@ -7,4 +8,5 @@ This module contains support for following :
 * Contains support for install / uninstall of packages.
 
 ## Building
-  mvn clean install
+
+mvn clean install

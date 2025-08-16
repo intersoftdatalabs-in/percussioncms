@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
@@ -30,17 +31,11 @@ import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -72,18 +67,14 @@ public class PSSerializerUtils
      * @return never <code>null</code>.
      */
     public static <T> String marshal(T object) {
-        StringWriter sw = new StringWriter();
-        try
-        {
-
-           PSJaxbContext.createMarshaller(object.getClass()).marshal(object, sw);
-           return sw.toString();
-        }
-        catch (JAXBException e)
-        {
-           log.error("Unable to marshall JAXB object: {} Error: {}", object, PSExceptionUtils.getMessageForLog(e));
-           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-           return null;
+        var sw = new StringWriter();
+        try {
+            PSJaxbContext.createMarshaller(object.getClass()).marshal(object, sw);
+            return sw.toString();
+        } catch (JAXBException e) {
+            log.error("Unable to marshall JAXB object: {} Error: {}", object, PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return null;
         }
     }
     
@@ -95,24 +86,17 @@ public class PSSerializerUtils
      * @param type never <code>null</code>.
      * @return never <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
-   public static <T> T unmarshal(String dataField, Class<T> type)
-    {
-        T object;
+    public static <T> T unmarshal(String dataField, Class<T> type) {
         try {
-            Reader reader = new InputStreamReader(
-                    new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8)));
-         object = (T) Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type)).unmarshal(reader);
-         return object;
-      }
-      catch (JAXBException e)
-      {
-         log.error("Unable to load XML file.  Check for syntax problems. Error: {}, Data: {}" ,
-                 PSExceptionUtils.getMessageForLog(e),
-                 dataField);
-         return null;
-      }
-        
+            var reader = new InputStreamReader(new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8)));
+            var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
+            @SuppressWarnings("unchecked")
+            T object = (T) unmarshaller.unmarshal(reader);
+            return object;
+        } catch (JAXBException e) {
+            log.error("Unable to load XML file. Check for syntax problems. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
+            return null;
+        }
     }
     
     
@@ -133,18 +117,17 @@ public class PSSerializerUtils
      * @return never <code>null</code>.
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T unmarshalWithValidation(InputStream stream, Class<T> type) throws Exception
-    {
+    public static <T> T unmarshalWithValidation(InputStream stream, Class<T> type) throws Exception {
         notNull(stream, "stream");
         notNull(type, "type");
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Source source = new StreamSource(type.getResourceAsStream(type.getSimpleName() + ".xsd"));
-
-        Schema schema = schemaFactory.newSchema(source);
-        Unmarshaller u =  PSJaxbContext.createUnmarshaller(type);
-        u.setSchema(schema);
-        return (T) u.unmarshal(stream);
+        var schemaFactory = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        var source = new StreamSource(type.getResourceAsStream(type.getSimpleName() + ".xsd"));
+        var schema = schemaFactory.newSchema(source);
+        var unmarshaller = PSJaxbContext.createUnmarshaller(type);
+        unmarshaller.setSchema(schema);
+        @SuppressWarnings("unchecked")
+        T result = (T) unmarshaller.unmarshal(stream);
+        return result;
     }
     
     /**
@@ -160,44 +143,36 @@ public class PSSerializerUtils
      * @throws Exception Cannot marshal the object.
      */
     public static <T> String getJsonXmlFromObject(T object) throws Exception {
-        StringWriter sw = new StringWriter();
-        JAXBContext context = JAXBContext.newInstance(object.getClass());
-        Marshaller m = context.createMarshaller();
-        MappedNamespaceConvention c = new MappedNamespaceConvention();
-        XMLStreamWriter xw  = new MappedXMLStreamWriter(c, sw);
-        m.marshal(object, xw);
+        var sw = new StringWriter();
+        var context = JAXBContext.newInstance(object.getClass());
+        var marshaller = context.createMarshaller();
+        var convention = new MappedNamespaceConvention();
+        var xw = new MappedXMLStreamWriter(convention, sw);
+        marshaller.marshal(object, xw);
         return sw.getBuffer().toString();
     }
     
     public static <T> List<T> copyFullToSummaries(List<? extends T> froms, Class<T> type) {
-        List<T> newList = new ArrayList<>();
-        for(T from : froms) {
+        var newList = new ArrayList<T>();
+        for (var from : froms) {
             T sum;
-            try
-            {
-                sum = type.newInstance();
-            }
-            catch (InstantiationException | IllegalAccessException e)
-            {
+            try {
+                sum = type.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
             copyFullToSummary(from, sum);
             newList.add(sum);
         }
         return newList;
-        
     }
     
     public static <T> void copyFullToSummary(T from, T to) {
-        try
-        {
+        try {
             BeanUtils.copyProperties(to, from);
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
-        {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-
     }
     
     /**
@@ -209,21 +184,18 @@ public class PSSerializerUtils
      * @param from object to clone from. never <code>null</code>.
      * @return never <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
     public static <T> T clone(T from) {
-        String err = "Cannot clone bean";
-        try
-        {
-            return (T) BeanUtils.cloneBean(from);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(err,e);
+        var err = "Cannot clone bean";
+        try {
+            @SuppressWarnings("unchecked")
+            T result = (T) BeanUtils.cloneBean(from);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(err, e);
         }
     }
     
     /**
-     * 
      * Parses a simple JSON string turning it into a native Java object.
      * Example valid JSON:
      * <pre>
@@ -239,38 +211,28 @@ public class PSSerializerUtils
      * </em>
      * @param json either a JSON string, number, array or object.
      * @return either a list, number, string, map or <code>null</code>.
-     * 
      */
+    @SuppressWarnings("unchecked")
     public static Object getObjectFromJson(String json) {
-        try
-        {
-            JSONArray obj = JSONArray.fromObject('[' + json + ']');
-            
-            if (obj.isEmpty())
-                return null;
-            
-            Object pre = obj.get(0);
-            Object data = null;
+        try {
+            var obj = JSONArray.fromObject('[' + json + ']');
+            if (obj.isEmpty()) return null;
+            var pre = obj.get(0);
+            Object data;
             if (pre instanceof JSONArray) {
                 data = new ArrayList<Object>((JSONArray) pre);
-            }
-            else if( pre instanceof JSONObject) {
-                data = JSONObject.toBean((JSONObject)pre);
-            }
-            else if( pre instanceof JSONNull) {
+            } else if (pre instanceof JSONObject) {
+                data = JSONObject.toBean((JSONObject) pre);
+            } else if (pre instanceof JSONNull) {
                 data = null;
-            }
-            else {
+            } else {
                 data = pre;
-            }   
+            }
             return data;
-        }
-        catch (JSONException e)
-        {
-            if(log.isDebugEnabled())
-                log.warn("Bad json string: {}" , json);
+        } catch (JSONException e) {
+            if (log.isDebugEnabled()) log.warn("Bad json string: {}", json);
             return json;
-        }    
+        }
     }
     
     /**
@@ -279,10 +241,10 @@ public class PSSerializerUtils
      * @return never <code>null</code>.
      */
     public static String getJsonFromObject(Object obj) {
-      String data = JSONSerializer.toJSON(Collections.singletonList(obj)).toString();
-      data = removeStart(data, "[");
-      data = removeEnd(data, "]");
-      return data;
+        var data = JSONSerializer.toJSON(Collections.singletonList(obj)).toString();
+        data = removeStart(data, "[");
+        data = removeEnd(data, "]");
+        return data;
     }
 
     /**

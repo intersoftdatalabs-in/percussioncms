@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException()
    {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param message
@@ -38,7 +38,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(String message)
    {
       super(message);
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param message
@@ -47,7 +47,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(String message, Throwable cause)
    {
       super(message, cause);
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param cause
@@ -55,6 +55,6 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(Throwable cause)
    {
       super(cause);
-      // TODO Auto-generated constructor stub
+      
    }
 }

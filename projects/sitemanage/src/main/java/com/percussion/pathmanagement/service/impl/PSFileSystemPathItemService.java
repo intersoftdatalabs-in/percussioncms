@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,482 +36,344 @@ import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.data.IPSItemSummary.Category;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSNoContent;
-import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.share.service.exception.PSBeanValidationUtils;
 import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.ui.service.IPSListViewHelper;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.springframework.util.StringUtils.trimLeadingCharacter;
-import static org.springframework.util.StringUtils.trimTrailingCharacter;
-
 /**
- * {@link IPSPathService} implementation that handles requests to URL that
- * maps to the file system.
- * 
- * @author miltonpividori.
- *
+ * {@link IPSPathService} implementation that handles requests to URL that maps to the file system.
  */
-public abstract class PSFileSystemPathItemService implements IPSPathService
-{
-    /**
-     * Type used for {@link PSPathItem} objects that represent a file in the file system.
-     */
-    public static final String FILE_SYSTEM_FILE_TYPE = "FSFile";
+public abstract class PSFileSystemPathItemService implements IPSPathService {
 
-    /**
-     * Type used for {@link PSPathItem} objects that represent a folder in the file system.
-     */
-    public static final String FILE_SYSTEM_FOLDER_TYPE = "FSFolder";
+  public static final String FILE_SYSTEM_FILE_TYPE = "FSFile";
+  public static final String FILE_SYSTEM_FOLDER_TYPE = "FSFolder";
+  public static final String VALIDATE_SUCCESS = "Success";
 
-    /**
-     * Constant for the response given when validation of a folder for delete is
-     * successful.
-     */
-    public static final String VALIDATE_SUCCESS = "Success";
-    
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSFileSystemPathItemService.class);
-    
-    // FIXME We should not use this class directly.
-    private PSItemDefManager itemDefManager = PSItemDefManager.getInstance();
-    
-    protected IPSListViewHelper listViewHelper;
-    
-    protected IPSFileSystemService fileSystemService;
-    
-    protected String rootName;
-    
-    /**
-     * Used for folder item operations. Initialized in ctor, never
-     * <code>null</code> after that.
-     */
-    protected IPSFolderHelper folderHelper;
-    
-    public PSFileSystemPathItemService(IPSFolderHelper folderHelper,
-            IPSFileSystemService fileSystemManagerService, IPSListViewHelper listViewHelper)
-    {
-        this.folderHelper = folderHelper;
-        this.fileSystemService = fileSystemManagerService;
-        this.listViewHelper = listViewHelper;
-    }
+  private static final Logger log = LogManager.getLogger(PSFileSystemPathItemService.class);
 
-    public IPSListViewHelper getListViewHelper()
-    {
-        return listViewHelper;
-    }
-    
-    public void setListViewHelper(IPSListViewHelper listViewHelper)
-    {
-        this.listViewHelper = listViewHelper;
-    }
-    
-    public String getRootName()
-    {
-        return rootName;
-    }
+  // FIXME We should not use this class directly.
+  private final PSItemDefManager itemDefManager = PSItemDefManager.getInstance();
 
-    public void setRootName(String rootName)
-    {
-        this.rootName = rootName;
-    }
+  protected IPSListViewHelper listViewHelper;
+  protected IPSFileSystemService fileSystemService;
+  protected String rootName;
+  protected IPSFolderHelper folderHelper;
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pathmanagement.service.IPSPathService#getRolesAllowed()
-     */
-    public List<String> getRolesAllowed()
-    {
-        // By default, any role is allowed access URL served by this IPSPathService
-        // implementation.
-        return new ArrayList<>();
+  public PSFileSystemPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSFileSystemService fileSystemManagerService,
+      IPSListViewHelper listViewHelper) {
+    this.folderHelper = folderHelper;
+    this.fileSystemService = fileSystemManagerService;
+    this.listViewHelper = listViewHelper;
+  }
+
+  @Override
+  public IPSListViewHelper getListViewHelper() {
+    return listViewHelper;
+  }
+
+  public void setListViewHelper(IPSListViewHelper listViewHelper) {
+    this.listViewHelper = listViewHelper;
+  }
+
+  public String getRootName() {
+    return rootName;
+  }
+
+  public void setRootName(String rootName) {
+    this.rootName = rootName;
+  }
+
+  @Override
+  public List<String> getRolesAllowed() {
+    // By default, any role is allowed access URL served by this IPSPathService implementation.
+    return List.of();
+  }
+
+  private List<File> getChildren(String path) {
+    try {
+      return fileSystemService.getChildren(path);
+    } catch (FileNotFoundException e) {
+      return Collections.emptyList();
     }
-    
-    /**
-     * Given a folder path, it translates the path to an internal file system
-     * representation, gets the children and returns a List of File objects.
-     * 
-     * @param path The path of the folder. Assumed not <code>null</code>.
-     * @return A list of children of the folder path represented by 'path'.
-     */
-    private List<File> getChildren(String path)
-    {
-        try
-        {
-            return fileSystemService.getChildren(path);
-        }
-        catch (FileNotFoundException e)
-        {
-            return new ArrayList<>();
-        }
+  }
+
+  @Override
+  public PSPathItem find(String path)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
+    log.debug("Find root of path: {}", path);
+    if ("/".equals(path)) {
+      return findRoot();
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pathmanagement.service.IPSPathService#find(java.lang.String)
-     */
-    public PSPathItem find(String path) throws PSPathNotFoundServiceException, PSPathServiceException
-    {
-        log.debug("Find root of path: " + path);
-        if ("/".equals(path))
-            return findRoot();
-        
-        return findItem(path);
-    }
-    
-    /**
-     * Returns the {@link PSPathItem} associated with the given path.
-     * 
-     * @param path
-     * @return
-     */
-    protected PSPathItem findItem(String path) throws PSPathNotFoundServiceException {
-        notEmpty(path);
-        
-        File file = fileSystemService.getFile(path);
-        
-        if (!file.exists())
-            throw new PSPathNotFoundServiceException("The path doesn't exist: " + path);
-        
-        String parentPath = null;
-        if ("/".equals(path))
-            parentPath = "/";
-        else
-        {
-            if (path.endsWith("/"))
-                parentPath = "/" + FilenameUtils.getPath(path.substring(0, path.length() - 1));
-            else
-                parentPath = "/" + FilenameUtils.getPath(path);
-        }
-        
-        if (!parentPath.endsWith("/"))
-            parentPath += parentPath + "/";
-        
-        PSPathItem item = getPathItemFromFile(parentPath, file);
-        
-        // This method always adds a slash at the end of the path, never mind if
-        // it's a folder or a file.
-        if (!item.getPath().endsWith("/"))
-            item.setPath(item.getPath() + "/");
-        
-        return item;
+    return findItem(path);
+  }
+
+  protected PSPathItem findItem(String path) throws PSPathNotFoundServiceException {
+    notEmpty(path);
+
+    var file = fileSystemService.getFile(path);
+
+    if (!file.exists()) {
+      throw new PSPathNotFoundServiceException("The path doesn't exist: " + path);
     }
 
-    @Override
-    public List<PSPathItem> findChildren(String path) throws PSPathNotFoundServiceException, PSPathServiceException
-    {
-        List<File> children = getChildren(path);
-        List<PSPathItem> folderPathItems = new ArrayList<>();
-        List<PSPathItem> filePathItems = new ArrayList<>();
-        
-        for (File child : children)
-        {
-            if (child.isDirectory())
-                folderPathItems.add(getPathItemFromFile(path, child));
-            else if (!PSPathOptions.folderChildrenOnly())
-                filePathItems.add(getPathItemFromFile(path, child));
-        }
-        
-        Collections.sort(folderPathItems, PSPathItemComparator.getInstance());
-        Collections.sort(filePathItems, PSPathItemComparator.getInstance());
-        
-        folderPathItems.addAll(filePathItems);
-        
-        return folderPathItems;
+    String parentPath;
+    if ("/".equals(path)) {
+      parentPath = "/";
+    } else {
+      if (path.endsWith("/")) {
+        parentPath = "/" + FilenameUtils.getPath(path.substring(0, path.length() - 1));
+      } else {
+        parentPath = "/" + FilenameUtils.getPath(path);
+      }
     }
 
-    /**
-     * @param child
-     * @return
-     */
-    private PSPathItem getPathItemFromFile(String parentPath, File child) throws PSPathNotFoundServiceException {
-        // parent path should be a folder
-        if(fileSystemService.getFile(parentPath).isFile())
-        {
-            parentPath = fileSystemService.getParentFolder(parentPath);
-        }
-        
-        PSPathItem item = new PSPathItem();
-        item.setName(fileSystemService.getNameFromFile(child));
-        
-        item.setId(generatePathItemId(child));
-        
-        if (child.isDirectory())
-            item.setType(FILE_SYSTEM_FOLDER_TYPE);
-        else
-            item.setType(FILE_SYSTEM_FILE_TYPE);
-        
-        item.setIcon(getIcon(child));
-        
-        String itemPath = parentPath + child.getName();
-        if (!itemPath.endsWith("/") && child.isDirectory())
-            itemPath += "/";
-        
-        item.setPath(itemPath);
-        
-        item.setFolderPath(folderHelper.concatPath(getFullFolderPath(parentPath), item.getName()));
-        item.setFolderPaths(Arrays.asList(FilenameUtils.getFullPathNoEndSeparator(item.getFolderPath())));
-        item.setCategory(Category.SYSTEM);
-        item.setRevisionable(false);
-        
-        item.setLeaf(!child.isDirectory());
-        item.setAccessLevel(PSFolderPermission.Access.ADMIN);
-        
-        item.setRelatedObject(child);
-        
-        return item;
+    if (!parentPath.endsWith("/")) {
+      parentPath += "/";
     }
 
-    /**
-     * Generates the id of the path item from its path. It uses the <code>hashCode</code> method.
-     * 
-     * @param file the path item for which we want to generate the id
-     * 
-     * @return a String with the id of the item.
-     */
-    private String generatePathItemId(File file)
-    {
-        return Integer.valueOf(file.getPath().hashCode()).toString();
-    }
-    
-    /**
-     * Given a File object, it returns the associated extension. It also
-     * checks if the File object points to a folder, in that case it returns
-     * the correct icon.
-     * 
-     * @return The URL for the icon associated to the given file extension.
-     */
-    private String getIcon(File file)
-    {
-        if (file.isDirectory())
-            return "/Rhythmyx/sys_resources/images/finderFolder.png";
-        
-        Properties rxProps = itemDefManager.getRxFileIconProperties();
-        Properties sysProps = itemDefManager.getSysFileIconProperties();
-        
-        String fileExtension = FilenameUtils.getExtension(file.getName()).toLowerCase();
-        
-        String iconFn = rxProps.getProperty(fileExtension);
-        iconFn = getIconPath(iconFn, false);
-        
-        //Get it from system properties if it is blank
-        if (StringUtils.isBlank(iconFn))
-        {
-           iconFn = sysProps.getProperty(fileExtension);
-           iconFn = getIconPath(iconFn, true);
-        }
-        
-        return iconFn;
-    }
-    
-    /**
-     * Given a file extension, it returns the icon URL associated.
-     * 
-     * @param fileExtension The file extension.
-     * @param isSys
-     * @return The URL for the icon associated to the given file extension.
-     */
-    private String getIconPath(String fileExtension, boolean isSys)
-    {
-        String iconPath = itemDefManager.getFullIconPath(fileExtension, isSys);
-        
-        if (iconPath == null)
-            return StringUtils.EMPTY;
-        
-        // FIXME This shouldn't be hardcoded
-        return "/Rhythmyx" + iconPath.substring(2);
+    var item = getPathItemFromFile(parentPath, file);
+
+    // Always add a slash at the end of the path, regardless of folder or file.
+    if (!item.getPath().endsWith("/")) {
+      item.setPath(item.getPath() + "/");
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pathmanagement.service.IPSPathService#findItemProperties(java.lang.String)
-     */
-    @Override
-    public PSItemProperties findItemProperties(String path)
-    {
-        File file = fileSystemService.getFile(path);
-        
-        PSItemProperties itemProperties = new PSItemProperties();
-        itemProperties.setId(file.getName());
-        itemProperties.setName(file.getName());
-        itemProperties.setSize(String.valueOf(file.length()));
-        itemProperties.setLastModifiedDate(PSDateUtils.getDateToString(new Date(file.lastModified())));
-        itemProperties.setPath(path);
-        
-        return itemProperties;
+    return item;
+  }
+
+  @Override
+  public List<PSPathItem> findChildren(String path)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
+    var children = getChildren(path);
+    var folderPathItems = new ArrayList<PSPathItem>();
+    var filePathItems = new ArrayList<PSPathItem>();
+
+    for (var child : children) {
+      if (child.isDirectory()) {
+        folderPathItems.add(getPathItemFromFile(path, child));
+      } else if (!PSPathOptions.folderChildrenOnly()) {
+        filePathItems.add(getPathItemFromFile(path, child));
+      }
     }
 
-    @Override
-    public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request)
-            throws PSPathNotFoundServiceException, PSPathServiceException
-    {
-        throw new UnsupportedOperationException();
+    folderPathItems.sort(PSPathItemComparator.getInstance());
+    filePathItems.sort(PSPathItemComparator.getInstance());
+
+    folderPathItems.addAll(filePathItems);
+
+    return folderPathItems;
+  }
+
+  private PSPathItem getPathItemFromFile(String parentPath, File child)
+      throws PSPathNotFoundServiceException {
+    // parent path should be a folder
+    if (fileSystemService.getFile(parentPath).isFile()) {
+      parentPath = fileSystemService.getParentFolder(parentPath);
     }
 
-    @Override
-    public PSPathItem addFolder(String path) throws PSPathNotFoundServiceException, PSPathServiceException
-    {
-        throw new UnsupportedOperationException();
+    var item = new PSPathItem();
+    item.setName(fileSystemService.getNameFromFile(child));
+    item.setId(generatePathItemId(child));
+    item.setType(child.isDirectory() ? FILE_SYSTEM_FOLDER_TYPE : FILE_SYSTEM_FILE_TYPE);
+    item.setIcon(getIcon(child));
+
+    var itemPath = parentPath + child.getName();
+    if (!itemPath.endsWith("/") && child.isDirectory()) {
+      itemPath += "/";
     }
 
-    @Override
-    public PSPathItem addNewFolder(String path) throws PSPathNotFoundServiceException, PSPathServiceException
-    {
-        try
-        {
-            File newFolder = fileSystemService.addFolder(path);
-        
-            return getPathItemFromFile(path, newFolder);
-        }
-        catch (IOException e)
-        {
-            throw new PSPathServiceException(e);
-        }
+    item.setPath(itemPath);
+    item.setFolderPath(folderHelper.concatPath(getFullFolderPath(parentPath), item.getName()));
+    item.setFolderPaths(List.of(FilenameUtils.getFullPathNoEndSeparator(item.getFolderPath())));
+    item.setCategory(Category.SYSTEM);
+    item.setRevisionable(false);
+    item.setLeaf(!child.isDirectory());
+    item.setAccessLevel(PSFolderPermission.Access.ADMIN);
+    item.setRelatedObject(child);
+
+    return item;
+  }
+
+  private String generatePathItemId(File file) {
+    return Integer.toString(file.getPath().hashCode());
+  }
+
+  private String getIcon(File file) {
+    if (file.isDirectory()) {
+      return "/Rhythmyx/sys_resources/images/finderFolder.png";
     }
 
-    @Override
-    public PSPathItem renameFolder(PSRenameFolderItem item) throws PSSpringValidationException, PSPathNotFoundServiceException {
-        PSBeanValidationException errors = PSBeanValidationUtils.validate(item);
-        errors.throwIfInvalid();
-        
-        try
-        {
-            File newFolder = fileSystemService.renameFolder(item.getPath(), item.getName());
-            
-            return getPathItemFromFile(fileSystemService.getParentFolder(item.getPath()), newFolder);
-        }
-        catch (PSFolderNameLengthLimitException e)
-        {
-            errors.rejectValue("name", "renameFolderItem.longName",
-                    "Cannot rename folder '<old_name>' to '<new_name>' because that name exceeds character limit.");
-            throw errors;
-        }
-        catch (PSInvalidFolderNameException e)
-        {
-            errors.rejectValue("name", "renameFolderItem.reservedName",
-                    "Cannot rename folder '<old_name>' to '<new_name>' because that is a reserved folder name.");
-            throw errors;
-        }
-        catch (PSExistingFolderException e)
-        {
-            errors.rejectValue("name", "renameFolderItem.duplicatedName",
-                    "Cannot rename folder '<old_name>' to '<new_name>' because there is another folder or file with that name.");
-            throw errors;
-        }
-        catch (PSInvalidCharacterInFolderNameException e)
-        {
-            errors.rejectValue("name", "renameFolderItem.invalidCharInName",
-                    "Cannot rename folder '<old_name>' to '<new_name>' because folder names cannot contain the following characters: "
-                            + e.getInvalidChars());
-            throw errors;
-        }
-        catch (PSFolderOperationException e)
-        {
-            // TODO Fix the message here
-            errors.rejectValue("name", "renameFolderItem.unknownCause",
-                    "Unknown problem when renaming the folder.");
-            throw errors;
-        }
+    var rxProps = itemDefManager.getRxFileIconProperties();
+    var sysProps = itemDefManager.getSysFileIconProperties();
+
+    var fileExtension = FilenameUtils.getExtension(file.getName()).toLowerCase();
+
+    var iconFn = rxProps.getProperty(fileExtension);
+    iconFn = getIconPath(iconFn, false);
+
+    // Get it from system properties if it is blank
+    if (StringUtils.isBlank(iconFn)) {
+      iconFn = sysProps.getProperty(fileExtension);
+      iconFn = getIconPath(iconFn, true);
     }
 
-    @Override
-    public PSNoContent moveItem(PSMoveFolderItem request)
-    {
-        throw new UnsupportedOperationException();
+    return iconFn;
+  }
+
+  private String getIconPath(String fileExtension, boolean isSys) {
+    var iconPath = itemDefManager.getFullIconPath(fileExtension, isSys);
+
+    if (iconPath == null) {
+      return StringUtils.EMPTY;
     }
 
-    @Override
-    public int deleteFolder(PSDeleteFolderCriteria criteria) throws PSPathServiceException
-    {
-        try
-        {
-            fileSystemService.deleteFolder(criteria.getPath());
-            
-            return 0;
-        }
-        catch (IOException e)
-        {
-            throw new PSPathServiceException("An error ocurred when deleting the folder '" 
-                    + getFolderName(criteria) + "'. Some files or folders may not have been deleted.");
-        }
+    // FIXME This shouldn't be hardcoded
+    return "/Rhythmyx" + iconPath.substring(2);
+  }
+
+  @Override
+  public PSItemProperties findItemProperties(String path) {
+    var file = fileSystemService.getFile(path);
+
+    var itemProperties = new PSItemProperties();
+    itemProperties.setId(file.getName());
+    itemProperties.setName(file.getName());
+    itemProperties.setSize(String.valueOf(file.length()));
+    itemProperties.setLastModifiedDate(PSDateUtils.getDateToString(new Date(file.lastModified())));
+    itemProperties.setPath(path);
+
+    return itemProperties;
+  }
+
+  @Override
+  public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PSPathItem addFolder(String path)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PSPathItem addNewFolder(String path)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
+    try {
+      var newFolder = fileSystemService.addFolder(path);
+      return getPathItemFromFile(path, newFolder);
+    } catch (IOException e) {
+      throw new PSPathServiceException(e);
+    }
+  }
+
+  @Override
+  public PSPathItem renameFolder(PSRenameFolderItem item)
+      throws PSSpringValidationException, PSPathNotFoundServiceException {
+    var errors = PSBeanValidationUtils.validate(item);
+    errors.throwIfInvalid();
+
+    try {
+      var newFolder = fileSystemService.renameFolder(item.getPath(), item.getName());
+      return getPathItemFromFile(fileSystemService.getParentFolder(item.getPath()), newFolder);
+    } catch (PSFolderNameLengthLimitException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.longName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because that name exceeds character"
+              + " limit.");
+      throw errors;
+    } catch (PSInvalidFolderNameException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.reservedName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because that is a reserved folder"
+              + " name.");
+      throw errors;
+    } catch (PSExistingFolderException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.duplicatedName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because there is another folder or"
+              + " file with that name.");
+      throw errors;
+    } catch (PSInvalidCharacterInFolderNameException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.invalidCharInName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because folder names cannot contain"
+              + " the following characters: "
+              + e.getInvalidChars());
+      throw errors;
+    } catch (PSFolderOperationException e) {
+      // TODO Fix the message here
+      errors.rejectValue(
+          "name", "renameFolderItem.unknownCause", "Unknown problem when renaming the folder.");
+      throw errors;
+    }
+  }
+
+  @Override
+  public PSNoContent moveItem(PSMoveFolderItem request) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int deleteFolder(PSDeleteFolderCriteria criteria) throws PSPathServiceException {
+    try {
+      fileSystemService.deleteFolder(criteria.getPath());
+      return 0;
+    } catch (IOException e) {
+      throw new PSPathServiceException(
+          "An error occurred when deleting the folder '"
+              + getFolderName(criteria)
+              + "'. Some files or folders may not have been deleted.");
+    }
+  }
+
+  private String getFolderName(PSDeleteFolderCriteria criteria) {
+    var paths = criteria.getPath().split("/");
+    if (!paths[paths.length - 1].isEmpty()) {
+      return paths[paths.length - 1];
+    } else {
+      return paths[paths.length - 2];
+    }
+  }
+
+  @Override
+  public String validateFolderDelete(String path) throws PSPathServiceException {
+    notEmpty(path, "path");
+
+    var response = "";
+
+    // validate that the folder we are about to delete is below the 'themes' folder
+    var auxPath = trimLeadingCharacter(trimTrailingCharacter(path, '/'), '/');
+    var paths = auxPath.split("/");
+    if (paths.length < 2) {
+      // it means that we only have the themes folder, so it can't be deleted
+      response = "VALIDATE_ERROR_NOT_UNDER_THEMES";
     }
 
-    /**
-     * @param criteria
-     * @return
-     */
-    private String getFolderName(PSDeleteFolderCriteria criteria)
-    {
-        String[] paths = criteria.getPath().split("/");
-        
-        if(!paths[paths.length - 1].equals(""))
-        {
-            return paths[paths.length - 1];
-        }
-        else 
-        {
-            return paths[paths.length - 2];
-        }
-    }
+    return StringUtils.isEmpty(response) ? VALIDATE_SUCCESS : response;
+  }
 
-    @Override
-    public String validateFolderDelete(String path) throws PSPathServiceException
-    {
-        notEmpty(path, "path");
-        
-        String response = "";
+  @Override
+  public String findLastExistingPath(String path) {
+    throw new UnsupportedOperationException();
+  }
 
-        // validate that the folder we are about to delete is below the 'themes' folder
-        String auxPath = trimLeadingCharacter(trimTrailingCharacter(path, '/'), '/');
-        String paths[] = auxPath.split("/");
-        if(paths.length < 2)
-        {
-            // it means that we only have the themes folder, so it can't be deleted
-            response = "VALIDATE_ERROR_NOT_UNDER_THEMES";
-        }
-        
-        return (StringUtils.isEmpty(response))? VALIDATE_SUCCESS : response;
-    }
+  protected abstract PSPathItem findRoot() throws PSPathNotFoundServiceException;
 
-    @Override
-    public String findLastExistingPath(String path)
-    {
-        throw new UnsupportedOperationException();
-    }
-    
-    /**
-     * Returns the root element of this {@link IPSPathService} implementation.
-     * 
-     * @return A {@link PSPathItem} object representing the root element. Never
-     * <code>null</code>.
-     */
-    protected abstract PSPathItem findRoot() throws PSPathNotFoundServiceException;
-    
-    /**
-     * Generates the full internal folder path for the specified relative path.
-     * This path is used for all item lookup operations.
-     * 
-     * @param path the path identifying a relative location of an item or folder
-     *            in the system.
-     * 
-     * @return the complete folder path used for item lookup. Never
-     *         <code>null</code> or empty.
-     */
-    protected abstract String getFullFolderPath(String path) throws PSPathNotFoundServiceException;
+  protected abstract String getFullFolderPath(String path) throws PSPathNotFoundServiceException;
 }

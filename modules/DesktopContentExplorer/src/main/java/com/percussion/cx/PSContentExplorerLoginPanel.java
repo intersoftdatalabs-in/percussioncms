@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package com.percussion.cx;
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cx.guitools.UTMnemonicLabel;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.guitools.ErrorDialogs;
 import com.percussion.util.PSProperties;
 import com.percussion.webservices.faults.PSContractViolationFault;
@@ -29,7 +29,8 @@ import com.percussion.webservices.faults.PSNotAuthenticatedFault;
 import com.percussion.webservices.security.data.PSLocale;
 import org.apache.axis.AxisFault;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +91,7 @@ import java.util.concurrent.ExecutionException;
 ////////////////////////////////////////////////////////////////////////////////
 public class PSContentExplorerLoginPanel extends JFrame
 {
-   static Logger log = Logger.getLogger(PSContentExplorerLoginPanel.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
 
    /**
     * The name of the file where various properties are stored, such as the last

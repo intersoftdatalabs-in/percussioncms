@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSException;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringComparator;
-import com.percussion.util.PSUrlUtils;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;

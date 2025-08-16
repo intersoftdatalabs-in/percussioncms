@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package com.percussion.converters.variantconverter;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.client.PSRemoteException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.inlinelinkconverter.PSInlineLinkConverter;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
-import com.percussion.util.PSRemoteRequester;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.util.PSStringOperation;
 import com.percussion.xml.PSXmlDocumentBuilder;

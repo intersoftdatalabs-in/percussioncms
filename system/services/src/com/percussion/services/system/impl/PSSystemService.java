@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.services.system.impl;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.design.objectstore.PSSubject;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSRoleManager;
 import com.percussion.server.PSServer;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -49,8 +49,8 @@ import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.util.IOTools;
-import com.percussion.util.PSBaseBean;
 import com.percussion.util.PSCharSetsConstants;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,7 @@ public interface IPSPublishingContext
     *         persisted.
     * @deprecated Use {@link #getGUID()}
     */
+   @Deprecated
    public abstract Integer getId();
 
    /**
@@ -94,6 +95,7 @@ public interface IPSPublishingContext
     * @deprecated Use {@link IPSSiteManager#createContext()} to create a new
     * context with a generated id.
     */
+   @Deprecated
    public abstract void setId(Integer id);
    
    /**
@@ -117,6 +119,7 @@ public interface IPSPublishingContext
     *           
     * @deprecated use {@link #setDefaultSchemeId(IPSGuid)} instead.
     */
+   @Deprecated
    public abstract void setDefaultScheme(IPSLocationScheme defaultScheme);
    
    /**

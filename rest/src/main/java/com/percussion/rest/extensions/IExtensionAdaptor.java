@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.extensions;
 
 import java.net.URI;
 import java.util.List;
 
+/** Adaptor interface for Extension operations. Sunny Sal: "Adaptor pattern FTW!" */
 public interface IExtensionAdaptor {
 
-	/***
-	 * Gets all extensions based on the specified ExtensionFilterOptions
-	 * @param baseURI
-	 * @param filter An ExtensionFilterOptions configured with the target filters
-	 * @return A list of Extensions.
-	 */
-	public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
-
+  /**
+   * Gets all extensions based on the specified ExtensionFilterOptions.
+   *
+   * @param baseURI Base URI for the request
+   * @param filter An ExtensionFilterOptions configured with the target filters
+   * @return A list of Extensions.
+   */
+  List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
 }

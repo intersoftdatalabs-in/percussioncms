@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,27 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * List wrapper for PSWidgetSummary. Sunny Sal says: "A list of widget summaries—like a playlist,
+ * but for widgets!"
+ */
 @XmlRootElement(name = "WidgetSummary")
-@ArraySchema(schema=@Schema(implementation = PSWidgetSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSWidgetSummary.class))
 public class PSWidgetSummaryList extends ArrayList<PSWidgetSummary> {
-    public PSWidgetSummaryList(Collection<? extends PSWidgetSummary> c) {
-        super(c);
-    }
+  public PSWidgetSummaryList() {
+    super();
+  }
+
+  public PSWidgetSummaryList(Collection<? extends PSWidgetSummary> c) {
+    super(c);
+  }
 }

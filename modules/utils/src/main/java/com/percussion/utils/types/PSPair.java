@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,106 +23,92 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * This class holds a generic pair of objects
- * 
+ *
  * @author dougrand
  */
-public class PSPair<A, B>
-{
-   private A m_first;
+public class PSPair<A, B> {
+  private A m_first;
 
-   private B m_second;
+  private B m_second;
 
-   /**
-    * Default ctor
-    */
-   public PSPair()
-   {
-      // 
-   }
-   
-   /**
-    * Ctor to create an instance
-    * 
-    * @param first the first element, may be <code>null</code>
-    * @param second the second element, may be <code>null</code>
-    */
-   public PSPair(A first, B second) {
-      m_first = first;
-      m_second = second;
-   }
+  /** Default ctor */
+  public PSPair() {
+    //
+  }
 
-   /**
-    * @return Returns the first.
-    */
-   public A getFirst()
-   {
-      return m_first;
-   }
+  /**
+   * Ctor to create an instance
+   *
+   * @param first the first element, may be <code>null</code>
+   * @param second the second element, may be <code>null</code>
+   */
+  public PSPair(A first, B second) {
+    m_first = first;
+    m_second = second;
+  }
 
-   /**
-    * @return Returns the second.
-    */
-   public B getSecond()
-   {
-      return m_second;
-   }
+  /**
+   * @return Returns the first.
+   */
+  public A getFirst() {
+    return m_first;
+  }
 
-   
-   /**
-    * @param first The first to set.
-    */
-   public void setFirst(A first)
-   {
-      m_first = first;
-   }
+  /**
+   * @return Returns the second.
+   */
+  public B getSecond() {
+    return m_second;
+  }
 
-   /**
-    * @param second The second to set.
-    */
-   public void setSecond(B second)
-   {
-      m_second = second;
-   }
+  /**
+   * @param first The first to set.
+   */
+  public void setFirst(A first) {
+    m_first = first;
+  }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   @SuppressWarnings("unchecked")
-   @Override
-   public boolean equals(Object obj)
-   {
-      if(!(obj instanceof PSPair))
-         return false;
-      PSPair<A, B> b = (PSPair<A, B>) obj;
-      return new EqualsBuilder().append(m_first, b.m_first).append(m_second,
-            b.m_second).isEquals();
+  /**
+   * @param second The second to set.
+   */
+  public void setSecond(B second) {
+    m_second = second;
+  }
 
-   }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PSPair)) return false;
+    PSPair<A, B> b = (PSPair<A, B>) obj;
+    return new EqualsBuilder().append(m_first, b.m_first).append(m_second, b.m_second).isEquals();
+  }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#hashCode()
-    */
-   @Override
-   public int hashCode()
-   {
-      HashCodeBuilder hc = new HashCodeBuilder();
-      return hc.append(m_first).append(m_second).toHashCode();
-   }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    HashCodeBuilder hc = new HashCodeBuilder();
+    return hc.append(m_first).append(m_second).toHashCode();
+  }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#toString()
-    */
-   @Override
-   public String toString()
-   {
-      return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE).append("first", m_first).append(
-            "second", m_second).toString();
-   }
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+        .append("first", m_first)
+        .append("second", m_second)
+        .toString();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,30 +26,26 @@ public class ASTTableReference extends SimpleNode {
     super(p, id);
   }
 
-  public void setTable(String table)
-  {
-     m_table = table;
+  public void setTable(String table) {
+    m_table = table;
   }
 
-  public String getTable()
-  {
-     return m_table;
+  public String getTable() {
+    return m_table;
   }
 
-  public void setAlias(String alias)
-  {
-     m_alias = alias;
+  public void setAlias(String alias) {
+    m_alias = alias;
   }
 
-  public String getAlias()
-  {
-     return m_alias;
+  public String getAlias() {
+    return m_alias;
   }
 
   private String m_table;
   private String m_alias;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 package test.percussion.soln.p13n.delivery;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.delivery.DeliveryResponse;
 import com.percussion.soln.p13n.delivery.IDeliverySnippetFilterContext;
@@ -46,7 +46,7 @@ import com.percussion.soln.p13n.tracking.VisitorProfile;
 //import static org.hamcrest.Matchers.*;
 //import static org.junit.matchers.JUnitMatchers.*;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class AbstractDeliveryServiceTest {
     //TODO: More tests needed.
     Mockery context = new JUnit4Mockery();
@@ -58,7 +58,7 @@ public class AbstractDeliveryServiceTest {
     IDeliveryResponseListItem filterItem;
     IDeliverySnippetFilterContext deliveryContext;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         deliveryService = new SpringDeliveryService();
         deliveryRequest = createDeliveryRequest(1, null);

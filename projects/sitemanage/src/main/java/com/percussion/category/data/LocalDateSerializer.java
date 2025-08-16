@@ -1,5 +1,7 @@
+// REFACTORED: CP-JAVA11
+
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +20,21 @@
 package com.percussion.category.data;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class LocalDateSerializer extends JsonSerializer<LocalDateTime>
-{
-    @Override
-    public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(localDateTime.toString());
-    }
+/** Jackson serializer for LocalDateTime. */
+public class LocalDateSerializer extends JsonSerializer<LocalDateTime> {
+  @Override
+  public void serialize(
+      LocalDateTime localDateTime,
+      JsonGenerator jsonGenerator,
+      SerializerProvider serializerProvider)
+      throws IOException {
+    // Use ISO_LOCAL_DATE_TIME for consistency
+    jsonGenerator.writeString(localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,233 +14,173 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.data.PSHtmlMetadata;
 import com.percussion.pagemanagement.data.PSMetadataDocType;
-import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
-
-import java.util.List;
-
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 
 /**
- * Test template service through rest.
- * @author adamgent
- * @author YubingChen
+ * Test template service through REST.
  *
+ * <p>Sunny Sal says: "Testing templates is like checking your pizza base before adding
+ * toppings—crucial!"
  */
-@Category(IntegrationTest.class)
-public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient>
-{
-    private String baseTemplateId;
-    
-    PSTestDataCleaner<String> templateCleaner = new PSTestDataCleaner<String>()
-    {
+@Tag("IntegrationTest")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient> {
 
+  private String baseTemplateId;
+
+  PSTestDataCleaner<String> templateCleaner =
+      new PSTestDataCleaner<>() {
         @Override
-        protected void clean(String name) throws Exception
-        {
-            String id = getTemplateId(name);
-            if (id != null)
-                restClient.deleteTemplate(id);
-        }
-        
-        /**
-         * Gets a template id from a name.
-         */
-        private String getTemplateId(String name)
-        {
-            
-            List<PSTemplateSummary> summaries = restClient.findAll();
-            for (PSTemplateSummary sum : summaries)
-            {
-                if (!sum.isReadOnly() && StringUtils.equals(name, sum.getName()))
-                {
-                    String id = sum.getId();
-                    assertNotNull(id);
-                    return id;
-                }
-            }
-            
-            return null;
+        protected void clean(String name) throws Exception {
+          var id = getTemplateId(name);
+          if (id != null) restClient.deleteTemplate(id);
         }
 
-    };
-    {
-        templateCleaner.setFailOnErrors(true);
-    }
-    
-    @Before
-    public void setup() {
-        List<PSTemplateSummary> readOnlySums = restClient.findAllReadOnly();
-        assertNotNull(readOnlySums);
-        assertFalse(readOnlySums.isEmpty());
-        baseTemplateId = readOnlySums.get(0).getId();
-    }
-
-    @Override
-    protected PSTemplateServiceClient getRestClient(String url)
-    {
-        return new PSTemplateServiceClient(url);
-    }
-
-    @Test
-    public void testFindAllTemplates() throws Exception
-    {
-        List<PSTemplateSummary> sums = restClient.findAll();
-        assertNotNull(sums);
-    }
-
-    @Test
-    public void testTemplateMetadata() throws Exception
-    {
-        templateCleaner.add("TestMetadataTemplate");
-        PSTemplate template = restClient.createTemplate("TestMetadataTemplate", baseTemplateId);
-        String head = "headContent";
-        String bodyA = "afterBody";
-        String bodyB = "beforeBody"; 
-
-        PSHtmlMetadata metadataSaved = new PSHtmlMetadata();
-        PSHtmlMetadata metadataToSet = new PSHtmlMetadata();
-        
-        metadataToSet.setId(template.getId());
-        metadataToSet.setAdditionalHeadContent(head);
-        metadataToSet.setAfterBodyStartContent(bodyA);
-        metadataToSet.setBeforeBodyCloseContent(bodyB);
-
-        //save metadata
-        restClient.saveHtmlMetadata(metadataToSet);
-        
-        //load it and verify it matches what was saved.
-        metadataSaved = restClient.loadHtmlMetadata(template.getId());
-        assertTrue(StringUtils.equals(metadataSaved.getAdditionalHeadContent(), head));
-        assertTrue(StringUtils.equals(metadataSaved.getBeforeBodyCloseContent(), bodyB));
-        assertTrue(StringUtils.equals(metadataSaved.getAfterBodyStartContent(), bodyA));
-    }
-    
-    @Test
-    public void testCreateTemplate() throws Exception
-    {
-        templateCleaner.add("TestTemplate1");
-        templateCleaner.add("TestTemplate2");
-        
-        // create template from base template
-        
-        PSTemplate newTemplate = restClient.createTemplate("TestTemplate1", baseTemplateId);
-        assertNotNull(newTemplate.getRegionTree());
-        PSTemplateSummary newSum1 = restClient.findTemplate(newTemplate.getId());
-        assertNotNull(newSum1);
-        assertEquals(newSum1.getName(), "TestTemplate1");
-
-        // create template from user template (save as)
-        PSTemplateSummary newSum2 = restClient.createTemplate("TestTemplate2", newSum1.getId());
-        newSum2 = restClient.findTemplate(newSum2.getId()); 
-        assertNotNull(newSum2);
-        assertEquals(newSum2.getDescription(), newSum1.getDescription());
-        assertEquals(newSum2.getImageThumbPath(), newSum1.getImageThumbPath());
-        assertEquals(newSum2.getName(), "TestTemplate2");
-        assertEquals(newSum2.getLabel(), newSum1.getLabel());
-        
-    }
-    
-    /**
-     * For now just validate the page id gets passed to the service method
-     * @throws Exception
-     */
-    @Test
-    public void testSaveWithPage() throws Exception
-    {
-        String name = "TestSaveTemplateWithPage";
-        templateCleaner.add(name);
-        
-        // create template from base template        
-        PSTemplate newTemplate = restClient.createTemplate(name, baseTemplateId);
-        assertNotNull(newTemplate);
-        
-        String badPageId = "nosuchpageid";
-        boolean didThrow = false;
-        try
-        {
-            restClient.save(newTemplate, badPageId);
+        private String getTemplateId(String name) {
+          return restClient.findAll().stream()
+              .filter(sum -> !sum.isReadOnly() && StringUtils.equals(name, sum.getName()))
+              .map(PSTemplateSummary::getId)
+              .findFirst()
+              .orElse(null);
         }
-        catch (Exception e)
-        {
-            didThrow = true;
-        }
-        
-        assertTrue(didThrow);
-        
-        // make sure works for real
-        restClient.save(newTemplate);
-        
+      };
+
+  {
+    templateCleaner.setFailOnErrors(true);
+  }
+
+  @BeforeEach
+  public void setup() {
+    var readOnlySums = restClient.findAllReadOnly();
+    assertNotNull(readOnlySums);
+    assertFalse(readOnlySums.isEmpty());
+    baseTemplateId = readOnlySums.get(0).getId();
+  }
+
+  @Override
+  protected PSTemplateServiceClient getRestClient(String url) {
+    return new PSTemplateServiceClient(url);
+  }
+
+  @Test
+  public void testFindAllTemplates() {
+    var sums = restClient.findAll();
+    assertNotNull(sums);
+  }
+
+  @Test
+  public void testTemplateMetadata() {
+    templateCleaner.add("TestMetadataTemplate");
+    var template = restClient.createTemplate("TestMetadataTemplate", baseTemplateId);
+    var head = "headContent";
+    var bodyA = "afterBody";
+    var bodyB = "beforeBody";
+
+    var metadataToSet = new PSHtmlMetadata();
+    metadataToSet.setId(template.getId());
+    metadataToSet.setAdditionalHeadContent(head);
+    metadataToSet.setAfterBodyStartContent(bodyA);
+    metadataToSet.setBeforeBodyCloseContent(bodyB);
+
+    restClient.saveHtmlMetadata(metadataToSet);
+
+    var metadataSaved = restClient.loadHtmlMetadata(template.getId());
+    assertEquals(head, metadataSaved.getAdditionalHeadContent());
+    assertEquals(bodyB, metadataSaved.getBeforeBodyCloseContent());
+    assertEquals(bodyA, metadataSaved.getAfterBodyStartContent());
+  }
+
+  @Test
+  public void testCreateTemplate() {
+    templateCleaner.add("TestTemplate1");
+    templateCleaner.add("TestTemplate2");
+
+    var newTemplate = restClient.createTemplate("TestTemplate1", baseTemplateId);
+    assertNotNull(newTemplate.getRegionTree());
+    var newSum1 = restClient.findTemplate(newTemplate.getId());
+    assertNotNull(newSum1);
+    assertEquals("TestTemplate1", newSum1.getName());
+
+    var newSum2 = restClient.createTemplate("TestTemplate2", newSum1.getId());
+    var newSum2Loaded = restClient.findTemplate(newSum2.getId());
+    assertNotNull(newSum2Loaded);
+    assertEquals(newSum1.getDescription(), newSum2Loaded.getDescription());
+    assertEquals(newSum1.getImageThumbPath(), newSum2Loaded.getImageThumbPath());
+    assertEquals("TestTemplate2", newSum2Loaded.getName());
+    assertEquals(newSum1.getLabel(), newSum2Loaded.getLabel());
+  }
+
+  @Test
+  public void testSaveWithPage() {
+    var name = "TestSaveTemplateWithPage";
+    templateCleaner.add(name);
+
+    var newTemplate = restClient.createTemplate(name, baseTemplateId);
+    assertNotNull(newTemplate);
+
+    var badPageId = "nosuchpageid";
+    var didThrow = false;
+    try {
+      restClient.save(newTemplate, badPageId);
+    } catch (Exception e) {
+      didThrow = true;
     }
-    
-    @Test
-    public void testCreateTemplateWithDefaultDocType() throws Exception
-    {
-        templateCleaner.add("TestTemplateDocType1");
-        
-        // create template from base template
-        PSTemplate newTemplate = restClient.createTemplate("TestTemplateDocType1", baseTemplateId);
-        assertNotNull(newTemplate.getRegionTree());
-        PSTemplateSummary newSum1 = restClient.findTemplate(newTemplate.getId());
-        assertNotNull(newSum1);
-        assertEquals(newSum1.getName(), "TestTemplateDocType1");
-        assertEquals(newTemplate.getDocType().getSelected(), "html5");
-    }
-    
-    @Test
-    public void testTemplateChangeDocType() throws Exception
-    {
-        templateCleaner.add("TestTemplateDocType2");
-        
-        // create template from base template
-        PSTemplate newTemplate = restClient.createTemplate("TestTemplateDocType2", baseTemplateId);
-        assertNotNull(newTemplate.getRegionTree());
-        PSTemplateSummary newSum1 = restClient.findTemplate(newTemplate.getId());
-        assertNotNull(newSum1);
-        assertEquals(newSum1.getName(), "TestTemplateDocType2");
-        assertEquals(newTemplate.getDocType().getSelected(), "html5");
-        
-        // change to XTHML doc type
-        PSMetadataDocType docType = new PSMetadataDocType();
-        docType.setSelected("xhtml");
-        
-        // change the metadata
-        PSHtmlMetadata metadataSaved = new PSHtmlMetadata();
-        PSHtmlMetadata metadataToSet = new PSHtmlMetadata();
-        
-        metadataToSet.setId(newTemplate.getId());
-        metadataToSet.setDocType(docType);
-        
-        //save metadata
-        restClient.saveHtmlMetadata(metadataToSet);
-        
-        //load it and verify it matches what was saved.
-        metadataSaved = restClient.loadHtmlMetadata(newTemplate.getId());
-        assertTrue(StringUtils.equals(metadataSaved.getDocType().getSelected(), "xhtml"));
-    }
-    
-    /**
-     * Deletes user templates we created.
-     */
-    @After
-    public void cleanUp()
-    {
-        templateCleaner.clean();
-    }
+    assertTrue(didThrow);
+
+    restClient.save(newTemplate);
+  }
+
+  @Test
+  public void testCreateTemplateWithDefaultDocType() {
+    templateCleaner.add("TestTemplateDocType1");
+
+    var newTemplate = restClient.createTemplate("TestTemplateDocType1", baseTemplateId);
+    assertNotNull(newTemplate.getRegionTree());
+    var newSum1 = restClient.findTemplate(newTemplate.getId());
+    assertNotNull(newSum1);
+    assertEquals("TestTemplateDocType1", newSum1.getName());
+    assertEquals("html5", newTemplate.getDocType().getSelected());
+  }
+
+  @Test
+  public void testTemplateChangeDocType() {
+    templateCleaner.add("TestTemplateDocType2");
+
+    var newTemplate = restClient.createTemplate("TestTemplateDocType2", baseTemplateId);
+    assertNotNull(newTemplate.getRegionTree());
+    var newSum1 = restClient.findTemplate(newTemplate.getId());
+    assertNotNull(newSum1);
+    assertEquals("TestTemplateDocType2", newSum1.getName());
+    assertEquals("html5", newTemplate.getDocType().getSelected());
+
+    var docType = new PSMetadataDocType();
+    docType.setSelected("xhtml");
+
+    var metadataToSet = new PSHtmlMetadata();
+    metadataToSet.setId(newTemplate.getId());
+    metadataToSet.setDocType(docType);
+
+    restClient.saveHtmlMetadata(metadataToSet);
+
+    var metadataSaved = restClient.loadHtmlMetadata(newTemplate.getId());
+    assertEquals("xhtml", metadataSaved.getDocType().getSelected());
+  }
+
+  @AfterEach
+  public void cleanUp() {
+    templateCleaner.clean();
+  }
 }

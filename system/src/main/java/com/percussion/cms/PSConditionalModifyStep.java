@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
 import com.percussion.data.PSConditionalEvaluator;
@@ -26,59 +27,54 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.util.PSCollection;
 
 /**
- * A conditional version of {@link PSUpdateStep}.  Supplied conditions are
- * evaluated at runtime and the step is only executed if the conditions evaluate
- * to <code>true</code>.
+ * A conditional version of {@link PSUpdateStep}. Supplied conditions are evaluated at runtime and
+ * the step is only executed if the conditions evaluate to <code>true</code>.
  */
-public class PSConditionalModifyStep extends PSUpdateStep
-{
-   /**
-    * Constructs a conditional step.  Step is only executed if the conditions
-    * evaluate to <code>true</code>.  See {@link PSUpdateStep#PSUpdateStep(
-    * String, String, String, boolean) PSUpdateStep ctor} for a description of the
-    * common parameters and exceptions.
-    *
-    * @param conditions A collection of PSConditional objects to evaluate at
-    * runtime. If the conditions evalutate to <code>true</code>, the step is
-    * executed, if <code>false</code>, then it is skipped.  May not be <code>
-    * null</code>.
-    */
-   public PSConditionalModifyStep(String requestName, String dbActionTypeParam,
-      String dbActionType,  boolean allowMultiple, PSCollection conditions)
-   {
-      super(requestName, dbActionTypeParam, dbActionType, allowMultiple);
+public class PSConditionalModifyStep extends PSUpdateStep {
+  /**
+   * Constructs a conditional step. Step is only executed if the conditions evaluate to <code>true
+   * </code>. See {@link PSUpdateStep#PSUpdateStep( String, String, String, boolean) PSUpdateStep
+   * ctor} for a description of the common parameters and exceptions.
+   *
+   * @param conditions A collection of PSConditional objects to evaluate at runtime. If the
+   *     conditions evalutate to <code>true</code>, the step is executed, if <code>false</code>,
+   *     then it is skipped. May not be <code>
+   * null</code>.
+   */
+  public PSConditionalModifyStep(
+      String requestName,
+      String dbActionTypeParam,
+      String dbActionType,
+      boolean allowMultiple,
+      PSCollection conditions) {
+    super(requestName, dbActionTypeParam, dbActionType, allowMultiple);
 
-      if (conditions == null)
-         throw new IllegalArgumentException("conditions may not be null");
+    if (conditions == null) throw new IllegalArgumentException("conditions may not be null");
 
-      try
-      {
-         m_conditions = new PSConditionalEvaluator(conditions);
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new IllegalArgumentException(e.getLocalizedMessage());
-      }
-   }
+    try {
+      m_conditions = new PSConditionalEvaluator(conditions);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(e.getLocalizedMessage());
+    }
+  }
 
-   /**
-    * Tests the conditions to see if the step should be executed.  If not, it
-    * simply returns.  If so, executes the request against the resource
-    * handler.  See {@link PSModifyStep#execute(PSExecutionData)
-    * super.execute()} for a description of the parameters and exceptions.
-    *
-    */
-   public void execute(PSExecutionData data)
-      throws PSInternalRequestCallException, PSAuthorizationException,
-      PSAuthenticationFailedException, PSSystemValidationException
-   {
-      if (m_conditions.isMatch(data))
-         super.execute(data);
-   }
+  /**
+   * Tests the conditions to see if the step should be executed. If not, it simply returns. If so,
+   * executes the request against the resource handler. See {@link
+   * PSModifyStep#execute(PSExecutionData) super.execute()} for a description of the parameters and
+   * exceptions.
+   */
+  public void execute(PSExecutionData data)
+      throws PSInternalRequestCallException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSSystemValidationException {
+    if (m_conditions.isMatch(data)) super.execute(data);
+  }
 
-   /**
-    * A conditional evalutator used to determine if this step is to be executed.
-    * Initialized in the constructor.
-    */
-   private PSConditionalEvaluator m_conditions = null;
+  /**
+   * A conditional evalutator used to determine if this step is to be executed. Initialized in the
+   * constructor.
+   */
+  private PSConditionalEvaluator m_conditions = null;
 }

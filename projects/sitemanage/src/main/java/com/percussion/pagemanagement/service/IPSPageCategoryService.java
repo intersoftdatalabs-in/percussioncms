@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,19 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-public interface IPSPageCategoryService 
-{
-    public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
+/** Service for loading page category configuration. */
+public interface IPSPageCategoryService {
+  /**
+   * Loads the category configuration.
+   *
+   * @return The category configuration.
+   * @throws PSDataServiceException If a data service error occurs.
+   */
+  PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,12 @@
 
 package com.percussion.design.objectstore;
 
-/**
- * An interface to be implemented by all server configurations stored in the
- * system repository.
- */
-public interface IPSConfig 
-{
-   /**
-    * Gets <code>String</code> representaion of this configuration.
-    * 
-    * @return the string, never <code>null</code> or empty.
-    */
-   public String getConfigString();   
+/** An interface to be implemented by all server configurations stored in the system repository. */
+public interface IPSConfig {
+  /**
+   * Gets <code>String</code> representaion of this configuration.
+   *
+   * @return the string, never <code>null</code> or empty.
+   */
+  public String getConfigString();
 }

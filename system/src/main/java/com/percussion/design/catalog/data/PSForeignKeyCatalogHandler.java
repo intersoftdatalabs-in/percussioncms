@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,16 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSForeignKeyCatalogHandler class implements cataloging of
- * foreign keys. This request type is used to locate the columns which
- * are related to other tables. Foreign key columns usually refer to the
- * primary key of another table. This allows a unique relationship to be
- * defined between the two tables. When a foreign key is defined, values
- * cannot be inserted which do not exist in the table being referenced.
- * <p>
- * Driver catalog requests are sent to the server using the DriverCatalog
- * XML document. Its definition is as follows:
+ * The PSForeignKeyCatalogHandler class implements cataloging of foreign keys. This request type is
+ * used to locate the columns which are related to other tables. Foreign key columns usually refer
+ * to the primary key of another table. This allows a unique relationship to be defined between the
+ * two tables. When a foreign key is defined, values cannot be inserted which do not exist in the
+ * table being referenced.
+ *
+ * <p>Driver catalog requests are sent to the server using the DriverCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXForeignKeyCatalog (datasource?, tableName)&gt;
  *
@@ -45,17 +44,18 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName            (#PCDATA)&gt;
  * </pre>
  *
- * The PSXForeignKeyCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXForeignKeyCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
- *    &lt;!ELEMENT PSXForeignKeyCatalogResults (datasource, tableName, 
+ *    &lt;!ELEMENT PSXForeignKeyCatalogResults (datasource, tableName,
  *       ForeignKey*)&gt;
  *
- *    &lt;!-- the name of the datasource queried, empty to indicate the 
+ *    &lt;!-- the name of the datasource queried, empty to indicate the
  *       repository.
  *     --&gt;
  *    &lt;!ELEMENT datasource           (#PCDATA)&gt;
- *    
+ *
  *    &lt;!ELEMENT ForeignKey                  (name, ExternalColumn)&gt;
  *
  *    &lt;!-- the name of the column in this table which has a foreign key relationship.
@@ -73,84 +73,67 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT columnName                  (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSForeignKeyCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSForeignKeyCatalogHandler()
-   {
-      super();
-   }
+public class PSForeignKeyCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSForeignKeyCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>ForeignKey</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be omitted to
-    *       query the respository</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>TableName</td>
-    *       <td>the name of the table for which foreign key columns should
-    *           be returned</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"data".equalsIgnoreCase(sTemp) ) 
-      {
-         throw new IllegalArgumentException(
-            "req category invalid: RequestCategory null");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>ForeignKey</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be omitted to
+   *       query the respository</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>TableName</td>
+   *       <td>the name of the table for which foreign key columns should
+   *           be returned</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid: RequestCategory null");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"ForeignKey".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException(
-            "req type invalid: RequestType null");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"ForeignKey".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid: RequestType null");
+    }
 
-      String datasource = (String)req.get("Datasource");
+    String datasource = (String) req.get("Datasource");
 
-      String tableName = (String) req.get("TableName");
-      if (tableName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: TableName");
+    String tableName = (String) req.get("TableName");
+    if (tableName == null) throw new IllegalArgumentException("reqd prop not specified: TableName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-         "PSXForeignKeyCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXForeignKeyCatalog");
 
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", 
-            datasource);
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
 
-        PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

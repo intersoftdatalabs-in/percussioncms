@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,12 @@ package com.percussion.pso.imageedit.services.cache;
 import com.percussion.services.PSBaseServiceLocator;
 
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class ImageCacheManagerLocator extends PSBaseServiceLocator
-{
-   private static final String IMAGE_CACHE_BEAN = "imedImageMetaDataCacheImpl";
-   
-   public static ImageCacheManager getImageCacheManager()
-   {
-      return (ImageCacheManager) getBean(IMAGE_CACHE_BEAN);
-   }
-   
+public class ImageCacheManagerLocator extends PSBaseServiceLocator {
+  private static final String IMAGE_CACHE_BEAN = "imedImageMetaDataCacheImpl";
+
+  public static ImageCacheManager getImageCacheManager() {
+    return (ImageCacheManager) getBean(IMAGE_CACHE_BEAN);
+  }
 }

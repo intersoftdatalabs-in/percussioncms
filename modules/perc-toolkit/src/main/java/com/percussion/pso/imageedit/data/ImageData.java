@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,44 +19,34 @@ package com.percussion.pso.imageedit.data;
 import java.io.Serializable;
 
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class ImageData extends ImageMetaData implements Serializable
-{
-   
-   private static final long serialVersionUID = -135423469L;
-   private byte[] binary; 
-   /**
-    * 
-    */
-   public ImageData()
-   {
-      super();
-   }
-   
-   /**
-    * @return the binary
-    */
-   public byte[] getBinary()
-   {
-      return binary;
-   }
-   /**
-    * @param binary the binary to set
-    */
-   public void setBinary(byte[] binary)
-   {
-      this.binary = binary;
-   }
+public class ImageData extends ImageMetaData implements Serializable {
 
-   @Override
-   public String toString()
-   {
-      return super.toString();
-   }
-   
-   
+  private static final long serialVersionUID = -135423469L;
+  private byte[] binary;
+
+  /** */
+  public ImageData() {
+    super();
+  }
+
+  /**
+   * @return the binary
+   */
+  public byte[] getBinary() {
+    return binary;
+  }
+
+  /**
+   * @param binary the binary to set
+   */
+  public void setBinary(byte[] binary) {
+    this.binary = binary;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,23 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
+/** List wrapper for asset editors. */
 @JsonRootName("AssetEditor")
 public class PSAssetEditorList extends ArrayList<PSAssetEditor> {
-    public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
-        super(c);
-    }
+
+  public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
+    super(c);
+  }
+
+  public PSAssetEditorList() {
+    super();
+  }
 }

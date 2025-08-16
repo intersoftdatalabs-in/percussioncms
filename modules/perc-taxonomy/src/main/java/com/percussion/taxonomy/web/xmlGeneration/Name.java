@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,30 +22,29 @@ import org.simpleframework.xml.Text;
 
 public class Name {
 
-    @Attribute(required = false)
-    public String onclick;
-	
-    @Attribute(required = false)
-    public String href;
-    
-    @Text(data = true)
-    public String text;
+  @Attribute(required = false)
+  public String onclick;
 
-    public Name() {
-    }
+  @Attribute(required = false)
+  public String href;
 
-    public Name(String text) {
-        this.text = text;
-    }
+  @Text(data = true)
+  public String text;
 
-    public Name(String text, String link) {
-        this.text = text;
-        this.href = link;
-    }
-    
-    public Name(String text, String link, String onclick) {
-        this.text = text;
-        this.href = link;
-        this.onclick = onclick;
-    }
+  public Name() {}
+
+  public Name(String text) {
+    this.text = text;
+  }
+
+  public Name(String text, String link) {
+    this.text = text;
+    this.href = link;
+  }
+
+  public Name(String text, String link, String onclick) {
+    this.text = text;
+    this.href = link;
+    this.onclick = onclick;
+  }
 }

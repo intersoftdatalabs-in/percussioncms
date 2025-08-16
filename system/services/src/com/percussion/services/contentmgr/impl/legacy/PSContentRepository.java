@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSHandlerInitListener;
 import com.percussion.server.IPSRequestHandler;
 import com.percussion.server.PSRequest;
@@ -80,15 +80,15 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationHelper;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import com.percussion.services.utils.orm.data.PSTempId;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSBaseBean;
+import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.PSBaseBean;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.beans.PSPropertyWrapper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jsr170.PSMultiProperty;
-import com.percussion.utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSValueFactory;
 import com.percussion.utils.string.PSFolderStringUtils;
 import com.percussion.utils.string.PSXmlPIUtils;

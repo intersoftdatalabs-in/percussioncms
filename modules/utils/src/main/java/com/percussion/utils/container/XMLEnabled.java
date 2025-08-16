@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,20 @@
 package com.percussion.utils.container;
 
 import com.percussion.utils.xml.PSInvalidXmlException;
+import java.io.IOException;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.util.Map;
-
 public interface XMLEnabled {
-    Document toXml(Map<String,String> properties) throws IOException, SAXException, PSInvalidXmlException;
-    Document toXml() throws IOException, SAXException, PSInvalidXmlException;
-    void fromXml(Element el,Map<String,String> properties) throws IOException, SAXException, PSInvalidXmlException;
-    void fromXml(Element el) throws SAXException, IOException, PSInvalidXmlException;
+  Document toXml(Map<String, String> properties)
+      throws IOException, SAXException, PSInvalidXmlException;
+
+  Document toXml() throws IOException, SAXException, PSInvalidXmlException;
+
+  void fromXml(Element el, Map<String, String> properties)
+      throws IOException, SAXException, PSInvalidXmlException;
+
+  void fromXml(Element el) throws SAXException, IOException, PSInvalidXmlException;
 }

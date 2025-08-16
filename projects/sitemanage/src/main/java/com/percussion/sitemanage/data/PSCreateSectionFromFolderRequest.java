@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,48 +19,41 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Request to create a section from a folder and page
- * 
- * @author JaySeletz *
+ * Request to create a section from a folder and page. Sunny Sal says: "Folders and pages—like chai
+ * and biscuits, better together!"
  */
-@XmlRootElement(name="CreateSectionFromFolderRequest")
+@XmlRootElement(name = "CreateSectionFromFolderRequest")
 @JsonRootName("PSCreateSectionFromFolderRequest")
-public class PSCreateSectionFromFolderRequest extends PSAbstractDataObject
-{
-    public String getSourceFolderPath()
-    {
-        return sourceFolderPath;
-    }
-    
-    public void setSourceFolderPath(String folderPath)
-    {
-        this.sourceFolderPath = folderPath;
-    }
-    
-    public String getPageName()
-    {
-        return pageName;
-    }
-    
-    public void setPageName(String landingPageName)
-    {
-        this.pageName = landingPageName;
-    }
-    
-    public String getParentFolderPath()
-    {
-        return parentFolderPath;
-    }
-    
-    public void setParentFolderPath(String parentFolderPath)
-    {
-        this.parentFolderPath = parentFolderPath;
-    }
-    private String sourceFolderPath;
-    private String pageName;
-    private String parentFolderPath;
+public class PSCreateSectionFromFolderRequest extends PSAbstractDataObject {
+
+  public String getSourceFolderPath() {
+    return sourceFolderPath;
+  }
+
+  public void setSourceFolderPath(String folderPath) {
+    this.sourceFolderPath = folderPath;
+  }
+
+  public String getPageName() {
+    return pageName;
+  }
+
+  public void setPageName(String landingPageName) {
+    this.pageName = landingPageName;
+  }
+
+  public String getParentFolderPath() {
+    return parentFolderPath;
+  }
+
+  public void setParentFolderPath(String parentFolderPath) {
+    this.parentFolderPath = parentFolderPath;
+  }
+
+  private String sourceFolderPath;
+  private String pageName;
+  private String parentFolderPath;
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,77 +17,99 @@
  */
 package com.percussion.widgetbuilder.data;
 
+import java.io.Serializable;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.Validate;
+/** Represents a single validation result for a widget builder definition. */
+@XmlRootElement(name = "WidgetBuilderValidationResult")
+public class PSWidgetBuilderValidationResult implements Serializable {
 
-/**
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="WidgetBuilderValidationResult")
-public class PSWidgetBuilderValidationResult
-{
-    String category;
-    String name;
-    String message;
-    
-    public PSWidgetBuilderValidationResult()
-    {
-        
-    }
-    
-    /**
-     * @param category
-     * @param name
-     * @param message
-     */
-    public PSWidgetBuilderValidationResult(String category, String name, String message)
-    {
-        Validate.notEmpty(category);
-        Validate.notEmpty(name);
-        Validate.notEmpty(message);
-        
-        this.category = category;
-        this.name = name;
-        this.message = message;
-    }
+  private static final long serialVersionUID = 1L;
 
-    public String getCategory()
-    {
-        return category;
-    }
+  private String category;
+  private String name;
+  private String message;
 
-    public String getName()
-    {
-        return name;
-    }
+  public PSWidgetBuilderValidationResult() {
+    // Default constructor
+  }
 
-    public String getMessage()
-    {
-        return message;
-    }
+  /**
+   * @param category validation category, not null or empty
+   * @param name validation name, not null or empty
+   * @param message validation message, not null or empty
+   */
+  public PSWidgetBuilderValidationResult(String category, String name, String message) {
+    if (category == null || category.isEmpty())
+      throw new IllegalArgumentException("category must not be empty");
+    if (name == null || name.isEmpty())
+      throw new IllegalArgumentException("name must not be empty");
+    if (message == null || message.isEmpty())
+      throw new IllegalArgumentException("message must not be empty");
+    this.category = category;
+    this.name = name;
+    this.message = message;
+  }
 
-    public void setCategory(String category)
-    {
-        this.category = category;
-    }
+  public String getCategory() {
+    return category;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public enum ValidationCategory
-    {
-        GENERAL,
-        CONTENT,
-        RESOURCES,
-        DISPLAY
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public enum ValidationCategory {
+    GENERAL,
+    CONTENT,
+    RESOURCES,
+    DISPLAY
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderValidationResult)) return false;
+    var that = (PSWidgetBuilderValidationResult) o;
+    return Objects.equals(getCategory(), that.getCategory())
+        && Objects.equals(getName(), that.getName())
+        && Objects.equals(getMessage(), that.getMessage());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getCategory(), getName(), getMessage());
+  }
+
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderValidationResult{"
+        + "category='"
+        + category
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", message='"
+        + message
+        + '\''
+        + '}';
+  }
 }

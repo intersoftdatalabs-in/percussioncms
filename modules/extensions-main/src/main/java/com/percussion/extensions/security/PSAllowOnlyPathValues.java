@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,128 +28,131 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequestValidationException;
+import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.File;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
+public class PSAllowOnlyPathValues
+    implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {
+  private String ms_fullExtensionName;
 
-public class PSAllowOnlyPathValues implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator{
-	private String ms_fullExtensionName;
-	
-	@Override
-	public String validate(String value, String options){
-		String ret = "";
-	
-		if(value == null)
-			return ret;
+  @Override
+  public String validate(String value, String options) {
+    String ret = "";
 
-		value = value.trim();
-		
-		
-		try{
-			Paths.get(value);
-			if((value.contains("/") || value.contains("\\") ) & !value.contains(";")){
-				ret = value;	
-			}else{
-				ret = "";
-			}
-			
-		}catch (InvalidPathException e) {
-			ret = "";
-		}catch( NullPointerException ex){
-			ret = "";
-		}
-		
-		return ret;
-	}
+    if (value == null) return ret;
 
+    value = value.trim();
 
-	public void preProcessRequest(Object[] params, IPSRequestContext request) throws PSAuthorizationException,
-			PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException {
-		PSExtensionParams ep=null; 
-		String paramCSV=null;;
-		
-		try{
-			ep = new PSExtensionParams(params);
-			
-			paramCSV = ep.getStringParam(0, null, true);
-		}catch(PSConversionException e){
-			throw new PSParameterMismatchException("Expected a string for parameter 0, got an unknown data type instead.");
-		}
-	
-		if(paramCSV==null)
-			throw new PSParameterMismatchException("Missing value for parameter 0, expected a comma seperated list, got an empty list");
-	
-		String[] htmlParams = paramCSV.split(",");
-		for(String s: htmlParams){
-			s = s.trim();
-			if(!StringUtils.isEmpty(s)){
-				
-				String v = request.getParameter(s);
-				if(v!=null){
-					request.setParameter(s, validate(v, null));
-				}
-			}
-		}
-		
-	}
+    try {
+      Paths.get(value);
+      if ((value.contains("/") || value.contains("\\")) & !value.contains(";")) {
+        ret = value;
+      } else {
+        ret = "";
+      }
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-		 ms_fullExtensionName = def.getRef().toString();
-		
-	}
+    } catch (InvalidPathException e) {
+      ret = "";
+    } catch (NullPointerException ex) {
+      ret = "";
+    }
 
-	@Override
-	public boolean canModifyStyleSheet() {
-		return false;
-	}
+    return ret;
+  }
 
-	@Override
-	public Document processResultDocument(Object[] params, IPSRequestContext request, Document resultDoc)
-			throws PSParameterMismatchException, PSExtensionProcessingException {
-		PSExtensionParams ep=null; 
-		String paramCSV=null;;
-		
-		 if(params == null || resultDoc == null)
-	         return resultDoc;
-		 
-	      Element elem = resultDoc.getDocumentElement();
-	      if(elem == null)
-	         return resultDoc;
-	    
-	      try{
-		      try{
-					ep = new PSExtensionParams(params);
-					
-					paramCSV = ep.getStringParam(0, null, true);
-				}catch(PSConversionException e){
-					throw new PSParameterMismatchException("Expected a string for parameter 0, got an unknown data type instead.");
-				}
-		
-				if(paramCSV==null)
-					throw new PSParameterMismatchException("Missing value for parameter 0, expected a comma seperated list, got an empty list");
-			
-				String[] htmlParams = paramCSV.split(",");
-				for(String s: htmlParams){
-					s = s.trim();
-					if(!StringUtils.isEmpty(s)){
-						
-						String v = elem.getAttribute(s);
-						if(v!=null){
-							
-							elem.setAttribute(s, validate(v, null));
-						}
-					}
-				}
-	      }catch(Throwable t) //should never happen!
-	      {
-	         PSConsole.printMsg(ms_fullExtensionName, t);
-	      }
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException,
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    PSExtensionParams ep = null;
+    String paramCSV = null;
+    ;
 
-	      return resultDoc;
-	}
+    try {
+      ep = new PSExtensionParams(params);
+
+      paramCSV = ep.getStringParam(0, null, true);
+    } catch (PSConversionException e) {
+      throw new PSParameterMismatchException(
+          "Expected a string for parameter 0, got an unknown data type instead.");
+    }
+
+    if (paramCSV == null)
+      throw new PSParameterMismatchException(
+          "Missing value for parameter 0, expected a comma seperated list, got an empty list");
+
+    String[] htmlParams = paramCSV.split(",");
+    for (String s : htmlParams) {
+      s = s.trim();
+      if (!StringUtils.isEmpty(s)) {
+
+        String v = request.getParameter(s);
+        if (v != null) {
+          request.setParameter(s, validate(v, null));
+        }
+      }
+    }
+  }
+
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    ms_fullExtensionName = def.getRef().toString();
+  }
+
+  @Override
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
+
+  @Override
+  public Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    PSExtensionParams ep = null;
+    String paramCSV = null;
+    ;
+
+    if (params == null || resultDoc == null) return resultDoc;
+
+    Element elem = resultDoc.getDocumentElement();
+    if (elem == null) return resultDoc;
+
+    try {
+      try {
+        ep = new PSExtensionParams(params);
+
+        paramCSV = ep.getStringParam(0, null, true);
+      } catch (PSConversionException e) {
+        throw new PSParameterMismatchException(
+            "Expected a string for parameter 0, got an unknown data type instead.");
+      }
+
+      if (paramCSV == null)
+        throw new PSParameterMismatchException(
+            "Missing value for parameter 0, expected a comma seperated list, got an empty list");
+
+      String[] htmlParams = paramCSV.split(",");
+      for (String s : htmlParams) {
+        s = s.trim();
+        if (!StringUtils.isEmpty(s)) {
+
+          String v = elem.getAttribute(s);
+          if (v != null) {
+
+            elem.setAttribute(s, validate(v, null));
+          }
+        }
+      }
+    } catch (Throwable t) // should never happen!
+    {
+      PSConsole.printMsg(ms_fullExtensionName, t);
+    }
+
+    return resultDoc;
+  }
 }

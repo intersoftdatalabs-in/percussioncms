@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,9 +57,8 @@ import java.util.StringTokenizer;
  * For servlets that return an XML document, see
  * PSInternalResponseXML.
  */
-class PSInternalResponse
-   extends HttpServletResponseWrapper
-   implements HttpServletResponse
+// REFACTORED: CP-JAVA11
+class PSInternalResponse extends HttpServletResponseWrapper
 {
   /**
    * Creates a HttpServletResponse for internal requests
@@ -543,7 +542,7 @@ class PSInternalResponse
    /**
     * Holds all response headers
     */
-   private Map m_headers = new HashMap();
+   private Map<String, String> m_headers = new HashMap<>();
 
    /**
     * our private logger.

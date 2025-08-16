@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,296 +18,252 @@ package com.percussion.server.command;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSServerCacheSettings;
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.PSCacheException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.cache.PSCacheManager;
 import com.percussion.server.cache.PSCacheStatisticsSnapshot;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
+import com.percussion.util.PSCacheException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+/** The PSConsoleCommandCache abstract class is the base for all cache console command handlers. */
+public abstract class PSConsoleCommandCache extends PSConsoleCommand {
 
-/**
- * The PSConsoleCommandCache abstract class is the base for all cache console
- * command handlers.
- */
-public abstract class PSConsoleCommandCache extends PSConsoleCommand
-{
+  private static final Logger log = LogManager.getLogger(IPSConstants.CACHING_LOG);
 
-   private static final Logger log = LogManager.getLogger(IPSConstants.CACHING_LOG);
+  /**
+   * The constructor for this class.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
+   */
+  PSConsoleCommandCache(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-   /**
-    * The constructor for this class.
-    *
-    * @param cmdArgs the argument string to use when executing this command, may
-    * be <code>null</code> or empty.
-    */
-   PSConsoleCommandCache(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+  /**
+   * Sets the cache debug logging enabled/disabled.
+   *
+   * @param enable if <code>true</code> enables logging debug messages to console, otherwise
+   *     disables.
+   */
+  protected void setCacheDebugLogging(boolean enable) {
+    PSCacheManager cacheManager = PSCacheManager.getInstance();
+    cacheManager.setIsDebugLoggingEnabled(enable);
+  }
 
-   /**
-    * Sets the cache debug logging enabled/disabled.
-    *
-    * @param enable if <code>true</code> enables logging debug messages to
-    * console, otherwise disables.
-    */
-   protected void setCacheDebugLogging( boolean enable)
-   {
-      PSCacheManager cacheManager = PSCacheManager.getInstance();
-      cacheManager.setIsDebugLoggingEnabled( enable );
-   }
+  /**
+   * Flushes the cache.
+   *
+   * @param keys the cache keys to be used for flushing, may be <code>null
+   * </code>
+   */
+  protected void flushCache(Map keys) {
+    PSCacheManager cacheManager = PSCacheManager.getInstance();
 
-   /**
-    * Flushes the cache.
-    *
-    * @param keys the cache keys to be used for flushing, may be <code>null
-    * </code>
-    */
-   protected void flushCache(Map keys)
-   {
-      PSCacheManager cacheManager = PSCacheManager.getInstance();
+    if (keys == null) cacheManager.flush();
+    else cacheManager.flush(keys);
+  }
 
-      if(keys == null)
-         cacheManager.flush();
-      else
-         cacheManager.flush(keys);
-   }
+  /**
+   * Starts caching.
+   *
+   * @return <code>false</code> if the caching is already started, otherwise <code>true</code>
+   * @throws IllegalStateException if the cache manager is not yet inited.
+   * @throws PSCacheException
+   */
+  protected boolean startCache() throws PSCacheException {
+    return startStopCache(true);
+  }
 
-   /**
-    * Starts caching.
-    *
-    * @return <code>false</code> if the caching is already started, otherwise
-    * <code>true</code>
-    *
-    * @throws IllegalStateException if the cache manager is not yet inited.
-    *
-    * @throws PSCacheException
-    */
-   protected boolean startCache() throws PSCacheException
-   {
-      return startStopCache( true );
-   }
+  /**
+   * Stops caching.
+   *
+   * @return <code>false</code> if the caching is already stopped, otherwise <code>true</code>
+   * @throws IllegalStateException if the cache manager is not yet inited.
+   * @throws PSCacheException
+   */
+  protected boolean stopCache() throws PSCacheException {
+    return startStopCache(false);
+  }
 
-   /**
-    * Stops caching.
-    *
-    * @return <code>false</code> if the caching is already stopped, otherwise
-    * <code>true</code>
-    *
-    * @throws IllegalStateException if the cache manager is not yet inited.
-    *
-    * @throws PSCacheException
-    */
-   protected boolean stopCache() throws PSCacheException
-   {
-      return startStopCache( false );
-   }
+  /**
+   * Starts or stops caching.
+   *
+   * @param start supply <code>true</code> to start caching and <code>false
+   * </code> to stop caching.
+   * @return <code>false</code> if the caching is already started/stopped and we are trying to
+   *     start/stop, otherwise <code>true</code>
+   * @throws PSCacheException
+   */
+  private boolean startStopCache(boolean start) throws PSCacheException {
+    PSCacheManager cacheManager = PSCacheManager.getInstance();
+    PSServerCacheSettings cacheSettings = cacheManager.getServerCacheSettings();
 
-   /**
-    * Starts or stops caching.
-    *
-    * @param start supply <code>true</code> to start caching and <code>false
-    * </code> to stop caching.
-    *
-    * @return  <code>false</code> if the caching is already started/stopped and
-    * we are trying to start/stop, otherwise <code>true</code>
-    *
-    * @throws PSCacheException
-    */
-   private boolean startStopCache(boolean start) throws PSCacheException
-   {
-      PSCacheManager cacheManager = PSCacheManager.getInstance();
-      PSServerCacheSettings cacheSettings =
-         cacheManager.getServerCacheSettings();
+    if ((start && cacheManager.hasCacheStarted())
+        || // checks for start command
+        !(start || cacheManager.hasCacheStarted())) // checks for stop command
+    {
+      return false;
+    }
 
-      if( (start && cacheManager.hasCacheStarted()) ||  //checks for start command
-         !(start || cacheManager.hasCacheStarted()) )   //checks for stop command
-      {
-         return false;
-      }
-
-      cacheManager.init( new PSServerCacheSettings(
-         start, 
-         cacheSettings.isFolderCacheEnabled(), 
-         cacheSettings.getMaxMemoryUsage(),
-         cacheSettings.getMaxDiskUsage(), 
-         cacheSettings.getMaxPageSize(),
-         cacheSettings.getAgingTime() ) );
-      return true;
-
-   }
-
-   /**
-    * Restarts the cache.
-    *
-    * @throws IllegalStateException if the cache manager is not yet inited.
-    *
-    * @throws PSCacheException
-    */
-   protected void restartCache() throws PSCacheException
-   {
-      PSCacheManager cacheManager = PSCacheManager.getInstance();
-      PSServerCacheSettings cacheSettings =
-         cacheManager.getServerCacheSettings();
-
-      cacheManager.init(new PSServerCacheSettings(true, 
-            cacheSettings.isFolderCacheEnabled(), 
+    cacheManager.init(
+        new PSServerCacheSettings(
+            start,
+            cacheSettings.isFolderCacheEnabled(),
             cacheSettings.getMaxMemoryUsage(),
-            cacheSettings.getMaxDiskUsage(), 
+            cacheSettings.getMaxDiskUsage(),
             cacheSettings.getMaxPageSize(),
             cacheSettings.getAgingTime()));
-   }
+    return true;
+  }
 
-   /**
-    * Creates the cache statistics element.
+  /**
+   * Restarts the cache.
+   *
+   * @throws IllegalStateException if the cache manager is not yet inited.
+   * @throws PSCacheException
+   */
+  protected void restartCache() throws PSCacheException {
+    PSCacheManager cacheManager = PSCacheManager.getInstance();
+    PSServerCacheSettings cacheSettings = cacheManager.getServerCacheSettings();
 
-    * @param doc the document to use to create the element, may not be <code>
-    * null</code>
-    *
-    * @return the XML element representing cache statistics, never
-    * <code>null</code>
-    *
-    * @throws IllegalArgumentException if doc is <code>null</code>
-    * @throws IllegalStateException if the cache manager is not yet initialized.
-    */
-   static Element getCacheStatistics(Document doc)
-   {
-      if(doc == null)
-         throw new IllegalArgumentException("doc may not be null");
+    cacheManager.init(
+        new PSServerCacheSettings(
+            true,
+            cacheSettings.isFolderCacheEnabled(),
+            cacheSettings.getMaxMemoryUsage(),
+            cacheSettings.getMaxDiskUsage(),
+            cacheSettings.getMaxPageSize(),
+            cacheSettings.getAgingTime()));
+  }
 
-      Element legacyCache = getLegacyCacheStatistics(doc);
-      Element ehCacheStatistics = getEhCacheStatistics(doc);
-      
-      Element root = doc.createElement("LazyLoadCacheStatistics");
-      
-      root.appendChild(ehCacheStatistics);
-      root.appendChild(legacyCache);
-      
-      root.setAttribute("size", "" + root.getChildNodes().getLength());
-      return root;
-   }
-   
-   /**
-    * Get the assembly and resource cache statistics.
-    * 
-    * @param doc the document, use to create the returned element, assumed
-    *    not <code>null</code>.
-    *    
-    * @return the XML representation of the statistics, never <code>null</code>.
-    */
-   private static Element getLegacyCacheStatistics(Document doc)
-   {
-      PSCacheStatisticsSnapshot cacheStatistics=null;
+  /**
+   * Creates the cache statistics element.
+   *
+   * @param doc the document to use to create the element, may not be <code>
+   * null</code>
+   * @return the XML element representing cache statistics, never <code>null</code>
+   * @throws IllegalArgumentException if doc is <code>null</code>
+   * @throws IllegalStateException if the cache manager is not yet initialized.
+   */
+  static Element getCacheStatistics(Document doc) {
+    if (doc == null) throw new IllegalArgumentException("doc may not be null");
 
+    Element legacyCache = getLegacyCacheStatistics(doc);
+    Element ehCacheStatistics = getEhCacheStatistics(doc);
+
+    Element root = doc.createElement("LazyLoadCacheStatistics");
+
+    root.appendChild(ehCacheStatistics);
+    root.appendChild(legacyCache);
+
+    root.setAttribute("size", "" + root.getChildNodes().getLength());
+    return root;
+  }
+
+  /**
+   * Get the assembly and resource cache statistics.
+   *
+   * @param doc the document, use to create the returned element, assumed not <code>null</code>.
+   * @return the XML representation of the statistics, never <code>null</code>.
+   */
+  private static Element getLegacyCacheStatistics(Document doc) {
+    PSCacheStatisticsSnapshot cacheStatistics = null;
+
+    try {
+      PSCacheManager cacheManager = PSCacheManager.getInstance();
+      cacheStatistics = cacheManager.getStatisticsSnapShot();
+    } catch (Exception x) {
+      log.error(PSExceptionUtils.getDebugMessageForLog(x));
+    }
+    Element parent = doc.createElement("AssemblyResourceCacheStatistics");
+    if (cacheStatistics != null) {
+      parent.appendChild(cacheStatistics.toXml(doc));
+    }
+
+    parent.setAttribute("size", "" + parent.getChildNodes().getLength());
+    return parent;
+  }
+
+  /**
+   * Get the EhCache statistics.
+   *
+   * @param doc the document used to create the returned object. Assumed not <code>null</code>.
+   * @return the XML representation of the cache statistics, never <code>null</code>.
+   */
+  private static Element getEhCacheStatistics(Document doc) {
+    Element parentEl = doc.createElement("EhCacheStatistics");
+
+    IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+    List<PSCacheStatisticsSnapshot> statList = new ArrayList<>();
+
+    try {
+      statList = cache.getStatistics();
+    } catch (Throwable ex) {
+      log.error(PSExceptionUtils.getMessageForLog(ex));
+    }
+
+    long totalItems = 0;
+    long memUsage = 0;
+    long diskUsage = 0;
+
+    // convert statistics to XML
+    for (PSCacheStatisticsSnapshot stat : statList) {
       try {
-         PSCacheManager cacheManager = PSCacheManager.getInstance();
-          cacheStatistics =
-                 cacheManager.getStatisticsSnapShot();
-      }catch(Exception x){
-         log.error(PSExceptionUtils.getDebugMessageForLog(x));
+        memUsage += stat.getMemoryUsage();
+        diskUsage += stat.getDiskUsage();
+        totalItems += stat.getTotalItems();
+
+        parentEl.appendChild(stat.toXml(doc));
+      } catch (Exception ex) {
+        log.error(PSExceptionUtils.getMessageForLog(ex));
       }
-      Element parent = doc.createElement("AssemblyResourceCacheStatistics");
-      if(cacheStatistics != null) {
-         parent.appendChild(cacheStatistics.toXml(doc));
-      }
+    }
 
-      parent.setAttribute("size", "" + parent.getChildNodes().getLength());
-      return parent;
+    parentEl.setAttribute("size", "" + statList.size());
+    parentEl.setAttribute("memoryUsage", PSCacheStatisticsSnapshot.getProperUnitInBytes(memUsage));
+    parentEl.setAttribute("diskUsage", PSCacheStatisticsSnapshot.getProperUnitInBytes(diskUsage));
+    parentEl.setAttribute("totalItems", totalItems + "");
 
-   }
+    return parentEl;
+  }
 
-   /**
-    * Get the EhCache statistics.
-    * 
-    * @param doc the document used to create the returned object.
-    *    Assumed not <code>null</code>.
-    * 
-    * @return the XML representation of the cache statistics, 
-    *    never <code>null</code>. 
-    */
-   private static Element getEhCacheStatistics(Document doc)
-   {
-      Element parentEl = doc.createElement("EhCacheStatistics");
+  /**
+   * Gets the basic result document. The structure of the document is as follows.
+   *
+   * <PRE><CODE>
+   *      &lt;ELEMENT PSXConsoleCommandResults   (command)&gt;
+   *
+   *      &lt;--
+   *         the command that was executed
+   *      --&gt;
+   *      &lt;ELEMENT command (#PCDATA)&gt;
+   * </CODE></PRE>
+   *
+   * @return the result document, never <code>null</code>
+   */
+  protected Document getResultsDocument() {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(doc, root, "command", getCommandName() + " " + m_cmdArgs);
+    return doc;
+  }
 
-      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
-      List<PSCacheStatisticsSnapshot> statList = new ArrayList<>();
-
-      try {
-         statList = cache.getStatistics();
-      }catch(Throwable ex){
-         log.error(PSExceptionUtils.getMessageForLog( ex));
-      }
-
-      long totalItems = 0;
-      long memUsage = 0;
-      long diskUsage = 0;
-      
-      // convert statistics to XML
-      for (PSCacheStatisticsSnapshot stat : statList)
-      {
-         try {
-            memUsage += stat.getMemoryUsage();
-            diskUsage += stat.getDiskUsage();
-            totalItems += stat.getTotalItems();
-
-            parentEl.appendChild(stat.toXml(doc));
-         }catch(Exception ex){
-            log.error(PSExceptionUtils.getMessageForLog(ex));
-         }
-      }
-
-      parentEl.setAttribute("size", "" + statList.size());
-      parentEl.setAttribute("memoryUsage", 
-            PSCacheStatisticsSnapshot.getProperUnitInBytes(memUsage));
-      parentEl.setAttribute("diskUsage",   
-            PSCacheStatisticsSnapshot.getProperUnitInBytes(diskUsage));
-      parentEl.setAttribute("totalItems",  totalItems + "");
-      
-      return parentEl;
-   }
-   
-   /**
-    * Gets the basic result document. The structure of the document is as
-    * follows.
-    * <PRE><CODE>
-    *      &lt;ELEMENT PSXConsoleCommandResults   (command)&gt;
-    *
-    *      &lt;--
-    *         the command that was executed
-    *      --&gt;
-    *      &lt;ELEMENT command (#PCDATA)&gt;
-    * </CODE></PRE>
-    *
-    * @return the result document, never <code>null</code>
-    */
-   protected Document getResultsDocument()
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc,
-         "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(doc, root, "command", getCommandName() +
-         " " + m_cmdArgs);
-      return doc;
-   }
-
-   /**
-    * Gets the command name. This should be overridden by the derived classes
-    * to provide their command name.
-    *
-    * @return the command name, never <code>null</code> or empty.
-    */
-   public String getCommandName()
-   {
-      return "cache";
-   }
+  /**
+   * Gets the command name. This should be overridden by the derived classes to provide their
+   * command name.
+   *
+   * @return the command name, never <code>null</code> or empty.
+   */
+  public String getCommandName() {
+    return "cache";
+  }
 }
-

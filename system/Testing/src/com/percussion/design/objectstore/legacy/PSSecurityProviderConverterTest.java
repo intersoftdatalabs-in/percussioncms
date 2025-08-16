@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,23 @@ import com.percussion.security.PSSecurityProvider;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSSecurityProviderConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSecurityProviderConverterTest extends PSBaseConverterTest
 {
    /**

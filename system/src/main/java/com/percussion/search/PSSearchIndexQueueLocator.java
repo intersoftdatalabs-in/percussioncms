@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +16,35 @@
  */
 package com.percussion.search;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
 /**
- * Class description - locates the service for using hibernate to read, write
- * and delete FTS Search Index Queue Items
- * 
- * 
+ * Class description - locates the service for using hibernate to read, write and delete FTS Search
+ * Index Queue Items
+ *
  * @author BillLanglais
  */
-public class PSSearchIndexQueueLocator extends PSBaseServiceLocator
-{
+public class PSSearchIndexQueueLocator extends PSBaseServiceLocator {
 
-   private static volatile IPSSearchIndexQueue siq=null;
-   /**
-    * Get the relationship service (singleton) object.
-    * 
-    * @return the hibernate object for FTS Search Index Queue Items, never
-    * <code>null</code>.
-    * 
-    * @throws PSMissingBeanConfigurationException if system configuration error
-    * occurred during locating the service object.
-    */
-   public static IPSSearchIndexQueue getPSSearchIndexQueue()
-      throws PSMissingBeanConfigurationException
-   {
-       if (siq==null)
-       {
-           synchronized (PSSearchIndexQueueLocator.class)
-           {
-               if (siq==null)
-               {
-                   siq = (IPSSearchIndexQueue) getBean("sys_searchindexqueue");
-               }
-           }
-       }
-      return siq;
-   }
+  private static volatile IPSSearchIndexQueue siq = null;
+
+  /**
+   * Get the relationship service (singleton) object.
+   *
+   * @return the hibernate object for FTS Search Index Queue Items, never <code>null</code>.
+   * @throws PSMissingBeanConfigurationException if system configuration error occurred during
+   *     locating the service object.
+   */
+  public static IPSSearchIndexQueue getPSSearchIndexQueue()
+      throws PSMissingBeanConfigurationException {
+    if (siq == null) {
+      synchronized (PSSearchIndexQueueLocator.class) {
+        if (siq == null) {
+          siq = (IPSSearchIndexQueue) getBean("sys_searchindexqueue");
+        }
+      }
+    }
+    return siq;
+  }
 }

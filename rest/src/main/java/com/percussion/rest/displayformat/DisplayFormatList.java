@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,34 @@ package com.percussion.rest.displayformat;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "DisplayFormatList")
 @XmlSeeAlso({DisplayFormat.class})
-@ArraySchema(schema=@Schema(implementation = DisplayFormat.class))
+@ArraySchema(schema = @Schema(implementation = DisplayFormat.class))
 public class DisplayFormatList extends ArrayList<DisplayFormat> {
-    public DisplayFormatList(Collection<? extends DisplayFormat> c) {
-        super(c);
-    }
-    public DisplayFormatList(){}
+  public DisplayFormatList(Collection<? extends DisplayFormat> c) {
+    super(c);
+  }
+
+  public DisplayFormatList() {}
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof DisplayFormatList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "DisplayFormatList" + super.toString();
+  }
 }

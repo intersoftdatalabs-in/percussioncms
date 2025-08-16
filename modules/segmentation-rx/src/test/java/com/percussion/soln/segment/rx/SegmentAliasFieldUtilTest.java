@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,16 @@ package com.percussion.soln.segment.rx;
 import static com.percussion.soln.segment.rx.SegmentAliasUtil.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SegmentAliasFieldUtilTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 

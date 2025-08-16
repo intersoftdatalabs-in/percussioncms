@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,59 +20,46 @@ package com.percussion.pagemanagement.assembler;
 import java.util.List;
 
 /**
- * Html that gets inserted into the page requested by
- * the widgets.
- * @author adamgent
+ * HTML that gets inserted into the page as requested by widgets.
  *
+ * @author adamgent
  */
-public class PSWidgetHtmlInsert
-{
-    private List<String> top;
+public class PSWidgetHtmlInsert {
 
-    private List<String> bottom;
+  private List<String> top;
+  private List<String> bottom;
+  private List<String> before;
+  private List<String> after;
 
-    private List<String> before;
+  public List<String> getTop() {
+    return top;
+  }
 
-    private List<String> after;
+  public void setTop(List<String> top) {
+    this.top = top;
+  }
 
-    public List<String> getTop()
-    {
-        return top;
-    }
+  public List<String> getBottom() {
+    return bottom;
+  }
 
-    public void setTop(List<String> top)
-    {
-        this.top = top;
-    }
+  public void setBottom(List<String> bottom) {
+    this.bottom = bottom;
+  }
 
-    public List<String> getBottom()
-    {
-        return bottom;
-    }
+  public List<String> getBefore() {
+    return before;
+  }
 
-    public void setBottom(List<String> bottom)
-    {
-        this.bottom = bottom;
-    }
+  public void setBefore(List<String> before) {
+    this.before = before;
+  }
 
-    public List<String> getBefore()
-    {
-        return before;
-    }
+  public List<String> getAfter() {
+    return after;
+  }
 
-    public void setBefore(List<String> before)
-    {
-        this.before = before;
-    }
-
-    public List<String> getAfter()
-    {
-        return after;
-    }
-
-    public void setAfter(List<String> after)
-    {
-        this.after = after;
-    }
-
+  public void setAfter(List<String> after) {
+    this.after = after;
+  }
 }

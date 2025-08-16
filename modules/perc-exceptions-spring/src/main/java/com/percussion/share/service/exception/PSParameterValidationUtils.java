@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,23 @@ package com.percussion.share.service.exception;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.share.validation.PSValidationErrorsBuilder;
 
-public class PSParameterValidationUtils
-{
+public class PSParameterValidationUtils {
 
-    public static void rejectIfNull(String method, String field, Object value) throws PSValidationException {
-        throwIfErrors(new PSValidationErrorsBuilder(method).rejectIfNull(field, value).build());
-    }
-    
-    public static void rejectIfBlank(String method, String field, String value) throws PSValidationException {
-        throwIfErrors(new PSValidationErrorsBuilder(method).rejectIfBlank(field, value).build());
-    }
-    
-    public static PSValidationErrorsBuilder validateParameters(String method) {
-        return new PSValidationErrorsBuilder(method);
-    }
-    public static void throwIfErrors(PSValidationErrors pve) throws PSValidationException {
-        new PSParametersValidationException(pve).throwIfInvalid();
-    }
+  public static void rejectIfNull(String method, String field, Object value)
+      throws PSValidationException {
+    throwIfErrors(new PSValidationErrorsBuilder(method).rejectIfNull(field, value).build());
+  }
+
+  public static void rejectIfBlank(String method, String field, String value)
+      throws PSValidationException {
+    throwIfErrors(new PSValidationErrorsBuilder(method).rejectIfBlank(field, value).build());
+  }
+
+  public static PSValidationErrorsBuilder validateParameters(String method) {
+    return new PSValidationErrorsBuilder(method);
+  }
+
+  public static void throwIfErrors(PSValidationErrors pve) throws PSValidationException {
+    new PSParametersValidationException(pve).throwIfInvalid();
+  }
 }

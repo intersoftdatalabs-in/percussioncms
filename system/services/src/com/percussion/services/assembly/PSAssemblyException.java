@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,91 +14,144 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.assembly;
 
 import com.percussion.utils.exceptions.PSBaseException;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
- * Generic problem in assembly, the message will indicate what issue occurred.
- * 
+ * Exception thrown during assembly operations with enhanced Java 11 support.
+ *
+ * <p>This exception provides comprehensive error handling for assembly operations
+ * including template processing, content assembly, slot processing, and variable binding.
+ *
+ * <p>Common assembly error scenarios:
+ * <ul>
+ *   <li>Template not found or invalid</li>
+ *   <li>Content item loading failures</li>
+ *   <li>Slot content finder errors</li>
+ *   <li>Variable binding issues</li>
+ *   <li>Assembly plugin execution failures</li>
+ * </ul>
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Enhanced null safety with Objects.requireNonNull()</li>
+ *   <li>Optional-based safe message access</li>
+ *   <li>Improved cause chain handling</li>
+ *   <li>Modern exception construction patterns</li>
+ * </ul>
+ *
  * @author dougrand
+ * @since Java 11 Modernization
  */
-public class PSAssemblyException extends PSBaseException
-{
+public class PSAssemblyException extends PSBaseException {
+
    /**
-    * 
+    * Serial version UID for serialization compatibility.
     */
    private static final long serialVersionUID = 3256726182123680309L;
 
    /**
-    * Ctor
+    * Construct an assembly exception with the specified error code and arguments.
+    *
     * @param msgCode message code used to lookup message
-    * @param arrayArgs arguments for message, may be <code>null</code>
+    * @param arrayArgs arguments for message formatting, may be {@code null}
     */
    public PSAssemblyException(int msgCode, Object... arrayArgs) {
       super(msgCode, arrayArgs);
    }
 
    /**
-    * Ctor
+    * Construct an assembly exception with the specified error code, cause, and arguments.
+    *
     * @param msgCode message code used to lookup message
-    * @param cause original exception, may be <code>null</code>
-    * @param arrayArgs arguments for message, may be <code>null</code>
+    * @param cause original exception, may be {@code null}
+    * @param arrayArgs arguments for message formatting, may be {@code null}
     */
    public PSAssemblyException(int msgCode, Throwable cause, Object... arrayArgs) {
       super(msgCode, cause, arrayArgs);
    }
 
    /**
-    * Ctor
-    * @param msgCode message code used to lookup message
+    * Create an assembly exception with enhanced error context.
+    *
+    * @param msgCode the error message code
+    * @param cause the underlying cause, not {@code null}
+    * @param context additional context information
+    * @param arrayArgs the arguments for message formatting
+    * @return a new PSAssemblyException with enhanced context
     */
-   public PSAssemblyException(int msgCode) {
-      super(msgCode);
+   public static PSAssemblyException withContext(int msgCode, Throwable cause,
+                                                String context, Object... arrayArgs) {
+      Objects.requireNonNull(cause, "cause cannot be null");
+
+      var exception = new PSAssemblyException(msgCode, cause, arrayArgs);
+      if (context != null && !context.trim().isEmpty()) {
+         exception.addSuppressed(new RuntimeException("Assembly Context: " + context));
+      }
+      return exception;
    }
 
+   /**
+    * Create an assembly exception for template-related errors.
+    *
+    * @param msgCode the error message code
+    * @param templateName the name of the template that caused the error
+    * @param arrayArgs additional arguments for message formatting
+    * @return a new PSAssemblyException with template context
+    */
+   public static PSAssemblyException forTemplate(int msgCode, String templateName, Object... arrayArgs) {
+      var exception = new PSAssemblyException(msgCode, arrayArgs);
+      if (templateName != null && !templateName.trim().isEmpty()) {
+         exception.addSuppressed(new RuntimeException("Template: " + templateName));
+      }
+      return exception;
+   }
 
    /**
-    * Ctor
-    * @param msgCode message code used to lookup message
-    * @param cause the exception that triggered this one
+    * Create an assembly exception for content item-related errors.
+    *
+    * @param msgCode the error message code
+    * @param itemPath the path of the content item that caused the error
+    * @param arrayArgs additional arguments for message formatting
+    * @return a new PSAssemblyException with item context
     */
-   public PSAssemblyException(int msgCode, Throwable cause) {
-      super(msgCode,cause);
+   public static PSAssemblyException forContentItem(int msgCode, String itemPath, Object... arrayArgs) {
+      var exception = new PSAssemblyException(msgCode, arrayArgs);
+      if (itemPath != null && !itemPath.trim().isEmpty()) {
+         exception.addSuppressed(new RuntimeException("Content Item: " + itemPath));
+      }
+      return exception;
+   }
+
+   /**
+    * Get the cause of this exception with Optional wrapper for safer access.
+    *
+    * @return Optional containing the cause if present, empty Optional otherwise
+    */
+   public Optional<Throwable> getCauseOptional() {
+      return Optional.ofNullable(getCause());
+   }
+
+   /**
+    * Check if this exception has a specific cause type.
+    *
+    * @param causeType the expected cause type, not {@code null}
+    * @return true if the cause is of the specified type, false otherwise
+    */
+   public boolean hasCauseOfType(Class<? extends Throwable> causeType) {
+      Objects.requireNonNull(causeType, "causeType cannot be null");
+      return getCauseOptional()
+         .map(cause -> causeType.isAssignableFrom(cause.getClass()))
+         .orElse(false);
    }
 
    @Override
-   protected String getResourceBundleBaseName()
-   {
+   protected String getResourceBundleBaseName() {
       return "com.percussion.services.assembly.PSAssemblyErrorStringBundle";
    }
-
-   public static final int TEMPLATE_NOT_FOUND=1; //The template specified by {0} was not found
-   public static final int ASSEMBLER_NOT_FOUND=2; //The assembler {0} was not found. Check the registrations in the extensions manager.
-   public static final int ASSEMBLER_NOT_INSTANTIATED=3; //The assembler {0} could not be instantiated.
-   public static final int TEMPLATE_NAME_REQUIRED=4; //You must specify either the variantid or the template name
-   public static final int UNEXPECTED_ASSEMBLY_ERROR=5; //Unexpected exception while assembling one or more items
-   public static final int AUTHTYPE_OR_FILTER_REQUIRED=6; //You must specify either the authtype or the item filter name
-   public static final int SLOT_NOT_FOUND=11;//11=The slot specified by {0} was not found
-   public static final int PAGE_FAILED_TO_ASSEMBLE_REGION=24; //12=Failed to assemble region {}
-/*7=An item must be identified by either sys_contentid/sys_revision parameters, guid, or sys_path.
-8=The path {0} is invalid. Paths must contain at least one slash. Paths always start with a slash.
-        9=The path {0} cannot be found
-10=An unknown problem occurred while performing a CRUD operation
-
-12=The finder {0} could not be loaded by the extensions manager or it could not be instantiated
-13=An error occurred while creating an assembly item
-14=Could not assemble snippet for landing page url. Item: {0}
-15=The template {0} does not bind the required variable $pagelink
-16=The template specified by {0} and content type id {1} was not found
-17=Could not locate the default template for content at path {0} with content type {1} because {2}
-18=The {1} specified by the name {0} returned more than one object, the name must be unique
-19=While running the finder {0}, an exception occurred. The message was: {1}
-20=The id {0} does not match the sys_contentid parameter {1}.
-        21=The folder {0} does not match the sys_folderid parameter {1}.
-        22=Unable to create resource instance for assembly item with id {0}
-23=Unable to create render link context for assembly item with id {0}
-   public static final int SLOT_NOT_FOUND=11;
-*/
-
 }

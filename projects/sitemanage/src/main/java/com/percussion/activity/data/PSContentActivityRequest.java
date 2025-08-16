@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,67 +15,53 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.io.Serializable;
+import java.util.Optional;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-/**
- * A request object used for getting the content activity data from the rest service. 
- */
+/** A request object used for getting the content activity data from the rest service. */
 @JsonRootName(value = "ContentActivityRequest")
-public class PSContentActivityRequest implements Serializable  
-{
-	
-	/**
-     * Default serial version
-     */
-    private static final long serialVersionUID = 1L;
-    
-    /**
-	 * @return the path may be <code>null</code> or empty.
-	 */
-	public String getPath() 
-	{
-		return path;
-	}
-	
-	public void setPath(String path) 
-	{
-		this.path = path;
-	}
+public class PSContentActivityRequest implements Serializable {
 
-	/**
-	 * @return the duration type may be <code>null</code> or empty.
-	 */
-	public String getDurationType() 
-	{
-		return durationType;
-	}
-	
-	public void setDurationType(String durationType) 
-	{
-		this.durationType = durationType;
-	}
-	
-	/**
-	 * @return the duration may be <code>null</code> or empty.
-	 */
-	public String getDuration() 
-	{
-		return duration;
-	}
-	
-	public void setDuration(String duration) 
-	{
-		this.duration = duration;
-	}
-	
-	private String path;
-	private String durationType;
-	private String duration;
-	
+  private static final long serialVersionUID = 1L;
+
+  private String path;
+  private String durationType;
+  private String duration;
+
+  /**
+   * @return the path may be <code>null</code> or empty.
+   */
+  public Optional<String> getPath() {
+    return Optional.ofNullable(path);
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  /**
+   * @return the duration type may be <code>null</code> or empty.
+   */
+  public Optional<String> getDurationType() {
+    return Optional.ofNullable(durationType);
+  }
+
+  public void setDurationType(String durationType) {
+    this.durationType = durationType;
+  }
+
+  /**
+   * @return the duration may be <code>null</code> or empty.
+   */
+  public Optional<String> getDuration() {
+    return Optional.ofNullable(duration);
+  }
+
+  public void setDuration(String duration) {
+    this.duration = duration;
+  }
 }

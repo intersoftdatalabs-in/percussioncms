@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,15 @@ import com.percussion.util.PSXMLDomUtil;
 
 /**
  * A utility class that contains methods useful for XML processing.
+ *
  * @deprecated Use com.percussion.util.PSXMLDomUtil instead
  */
-public class PSXmlUtils
-{
+public class PSXmlUtils {
 
-   /**
-    * @see com.percussion.util.PSXMLDomUtil#makeXmlName(String)
-    */
-   public static String makeXmlName(String str)
-   {
-      return PSXMLDomUtil.makeXmlName(str);
-   }
+  /**
+   * @see com.percussion.util.PSXMLDomUtil#makeXmlName(String)
+   */
+  public static String makeXmlName(String str) {
+    return PSXMLDomUtil.makeXmlName(str);
+  }
 }

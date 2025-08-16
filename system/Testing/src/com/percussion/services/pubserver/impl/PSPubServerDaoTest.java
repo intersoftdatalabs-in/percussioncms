@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,22 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPubServerDaoTest
 {
    /**
@@ -84,7 +84,7 @@ public class PSPubServerDaoTest
    IPSSite m_site;
    static PSPubServerDaoTest instance;
 
-   @BeforeClass
+   @BeforeAll
    public static void setup()
    {
       instance = new PSPubServerDaoTest();
@@ -94,7 +94,7 @@ public class PSPubServerDaoTest
       sitemgr.saveSite(instance.m_site);
    }
 
-   @AfterClass
+   @AfterAll
    public static void tearDown()
    {
       sitemgr.deleteSite(instance.m_site);

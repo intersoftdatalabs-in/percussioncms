@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,11 @@
  */
 package com.percussion.generickey.services;
 
-public class PSGenericKeyExistsException extends Exception
-{
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+public class PSGenericKeyExistsException extends Exception {
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    public PSGenericKeyExistsException(String resetKey)
-    {
-        super("Key already exists: " + resetKey);
-    }
+  public PSGenericKeyExistsException(String resetKey) {
+    super("Key already exists: " + resetKey);
+  }
 }

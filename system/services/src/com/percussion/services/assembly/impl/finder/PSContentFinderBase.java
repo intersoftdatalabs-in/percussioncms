@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.utils.orm.PSDataCollectionHelper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;

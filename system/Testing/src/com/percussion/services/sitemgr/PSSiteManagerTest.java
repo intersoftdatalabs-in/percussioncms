@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.sitemgr;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -33,15 +33,15 @@ import com.percussion.services.sitemgr.data.PSLocationScheme;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
-import junit.framework.Assert;
+import static org.junit.jupiter.api.Assertions.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -53,20 +53,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test site manager crud operations
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSiteManagerTest
 {
 
@@ -491,7 +491,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter("x", -1, "x", "2");
-         Assert.fail();
+         Assertions.fail();
       }
       catch(Exception e)
       {
@@ -500,7 +500,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter(null, 11, "x", "2");
-         Assert.fail();
+         Assertions.fail();
       }
       catch(Exception success)
       {}      

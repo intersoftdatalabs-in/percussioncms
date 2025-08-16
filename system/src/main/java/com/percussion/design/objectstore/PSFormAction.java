@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,294 +17,223 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.xml.PSXmlTreeWalker;
+import java.util.List;
+import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 /**
- * Implementation for the PSFormAction DTD in BasicObjects.dtd. A form action
- * is a way for the designer to specify the 'action' attribute of the 'FORM'
- * command in an html form. It includes a url and a type.
+ * Implementation for the PSFormAction DTD in BasicObjects.dtd. A form action is a way for the
+ * designer to specify the 'action' attribute of the 'FORM' command in an html form. It includes a
+ * url and a type.
  */
-public class PSFormAction extends PSComponent
-{
-   /**
-    * Creates a new form action for the provided parameters.
-    *
-    * @param method the form action method, one of METHOD_GET|METHOD_POST.
-    * @param action the form action, not <code>null</code>.
-    */
-   public PSFormAction(int method, PSUrlRequest action)
-   {
-      setMethod(method);
-      setAction(action);
-   }
+public class PSFormAction extends PSComponent {
+  /**
+   * Creates a new form action for the provided parameters.
+   *
+   * @param method the form action method, one of METHOD_GET|METHOD_POST.
+   * @param action the form action, not <code>null</code>.
+   */
+  public PSFormAction(int method, PSUrlRequest action) {
+    setMethod(method);
+    setAction(action);
+  }
 
-   /**
-    * Construct a Java object from its XML representation. See the
-    * {@link #toXml(Document) toXml} method for a description of the XML object.
-    *
-    * @param sourceNode   the XML element node to construct this object from,
-    *    not <code>null</code>.
-    * @param parentDoc the Java object which is the parent of this object,
-    *    not <code>null</code>.
-    * @param parentComponents   the parent objects of this object, not
-    *    <code>null</code>.
-    * @throws PSUnknownNodeTypeException if the XML element node is not of
-    *    the appropriate type
-    */
-   public PSFormAction(Element sourceNode, IPSDocument parentDoc,
-                       List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      fromXml(sourceNode, parentDoc, parentComponents);
-   }
+  /**
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
+   *
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
+   */
+  public PSFormAction(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    fromXml(sourceNode, parentDoc, parentComponents);
+  }
 
+  // see interface for description
+  @Override
+  public Object clone() {
+    PSFormAction copy = (PSFormAction) super.clone();
+    copy.m_action = (PSUrlRequest) m_action.clone();
+    return copy;
+  }
 
-   // see interface for description
-   @Override
-   public Object clone()
-   {
-      PSFormAction copy = (PSFormAction) super.clone();
-      copy.m_action = (PSUrlRequest) m_action.clone();
-      return copy;
-   }
+  /**
+   * Get the form method.
+   *
+   * @return int the form method, one of METHOD_GET|METHOD_POST.
+   */
+  public int getMethod() {
+    return m_method;
+  }
 
+  /**
+   * Set a new form method.
+   *
+   * @param method the new method, one of METHOD_GET|METHOD_POST.
+   */
+  public void setMethod(int method) {
+    if (method != METHOD_GET && method != METHOD_POST)
+      throw new IllegalArgumentException("unknown method");
 
-   /**
-    * Get the form method.
-    *
-    * @return int the form method, one of METHOD_GET|METHOD_POST.
-    */
-   public int getMethod()
-   {
-      return m_method;
-   }
+    m_method = method;
+  }
 
-   /**
-    * Set a new form method.
-    *
-    * @param method the new method, one of METHOD_GET|METHOD_POST.
-    */
-   public void setMethod(int method)
-   {
-      if (method != METHOD_GET && method != METHOD_POST)
-         throw new IllegalArgumentException("unknown method");
+  /**
+   * Get the form action.
+   *
+   * @return PSUrlRequest the form action, never <code>null</code>.
+   */
+  public PSUrlRequest getAction() {
+    return m_action;
+  }
 
-      m_method = method;
-   }
+  /**
+   * Set a new form action.
+   *
+   * @param action the new form action, not <code>null</code>.
+   */
+  public void setAction(PSUrlRequest action) {
+    if (action == null) throw new IllegalArgumentException("action cannot be null");
 
-   /**
-    * Get the form action.
-    *
-    * @return PSUrlRequest the form action, never <code>null</code>.
-    */
-   public PSUrlRequest getAction()
-   {
-      return m_action;
-   }
+    m_action = action;
+  }
 
-   /**
-    * Set a new form action.
-    *
-    * @param action the new form action, not <code>null</code>.
-    */
-   public void setAction(PSUrlRequest action)
-   {
-      if (action == null)
-         throw new IllegalArgumentException("action cannot be null");
+  /**
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
+   *
+   * @param c a valid PSField, not <code>null</code>.
+   */
+  public void copyFrom(PSFormAction c) {
+    try {
+      super.copyFrom(c);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(e.getLocalizedMessage());
+    }
 
-      m_action = action;
-   }
+    m_method = c.m_method;
+    m_action = c.m_action;
+  }
 
-   /**
-    * Performs a shallow copy of the data in the supplied component to this
-    * component. Derived classes should implement this method for their data,
-    * calling the base class method first.
-    *
-    * @param c a valid PSField, not <code>null</code>.
-    */
-   public void copyFrom(PSFormAction c)
-   {
-      try
-      {
-         super.copyFrom(c);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSFormAction)) return false;
+    if (!super.equals(o)) return false;
+    PSFormAction that = (PSFormAction) o;
+    return m_method == that.m_method && Objects.equals(m_action, that.m_action);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), m_method, m_action);
+  }
+
+  // see IPSComponent
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    if (sourceNode == null)
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
+
+    parentComponents = updateParentList(parentComponents);
+    int parentSize = parentComponents.size() - 1;
+
+    int firstFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+    int nextFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+
+    String data = null;
+    Element node = null;
+    try {
+      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+
+      // OPTIONAL: get the method attribute
+      data = tree.getElementData(METHOD_ATTR);
+      if (data != null) {
+        boolean found = false;
+        for (int i = 0; i < METHOD_ENUM.length; i++) {
+          if (METHOD_ENUM[i].equalsIgnoreCase(data)) {
+            m_method = i;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          Object[] args = {XML_NODE_NAME, METHOD_ATTR, data};
+          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        }
       }
-      catch (IllegalArgumentException e)
-      {
-         throw new IllegalArgumentException(e.getLocalizedMessage());
-      }
 
-      m_method = c.m_method;
-      m_action = c.m_action;
-   }
+      // REQUIRED: get the action
+      node = tree.getNextElement(PSUrlRequest.XML_NODE_NAME, firstFlags);
+      if (node == null) {
+        Object[] args = {XML_NODE_NAME, PSUrlRequest.XML_NODE_NAME, "null"};
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      } else m_action = new PSUrlRequest(node, parentDoc, parentComponents);
+    } finally {
+      resetParentList(parentComponents, parentSize);
+    }
+  }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSFormAction)) return false;
-      if (!super.equals(o)) return false;
-      PSFormAction that = (PSFormAction) o;
-      return m_method == that.m_method &&
-              Objects.equals(m_action, that.m_action);
-   }
+  // see IPSComponent
+  public Element toXml(Document doc) {
+    // create root and its attributes
+    Element root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(METHOD_ATTR, METHOD_ENUM[m_method]);
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(super.hashCode(), m_method, m_action);
-   }
+    // REQUIRED: create the action
+    root.appendChild(m_action.toXml(doc));
 
-   // see IPSComponent
-   public void fromXml(Element sourceNode, IPSDocument parentDoc,
-                       List parentComponents)
-      throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+    return root;
+  }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
+  // see IPSComponent
+  public void validate(IPSValidationContext context) throws PSSystemValidationException {
+    if (!context.startValidation(this, null)) return;
 
-      parentComponents = updateParentList(parentComponents);
-      int parentSize = parentComponents.size() - 1;
+    // do children
+    context.pushParent(this);
+    try {
+      if (m_action != null) ((IPSComponent) m_action).validate(context);
+      else context.validationError(this, IPSObjectStoreErrors.INVALID_FORM_ACTION, null);
+    } finally {
+      context.popParent();
+    }
+  }
 
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+  /** the XML node name */
+  public static final String XML_NODE_NAME = "PSXFormAction";
 
-      String data = null;
-      Element node = null;
-      try
-      {
-         PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+  /** GET method specifier. The index into the <code>METHOD_ENUM</code> array. */
+  public static final int METHOD_GET = 0;
 
-         // OPTIONAL: get the method attribute
-         data = tree.getElementData(METHOD_ATTR);
-         if (data != null)
-         {
-            boolean found = false;
-            for (int i=0; i<METHOD_ENUM.length; i++)
-            {
-               if (METHOD_ENUM[i].equalsIgnoreCase(data))
-               {
-                  m_method = i;
-                  found = true;
-                  break;
-               }
-            }
-            if (!found)
-            {
-               Object[] args =
-               {
-                  XML_NODE_NAME,
-                  METHOD_ATTR,
-                  data
-               };
-               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-            }
-         }
+  /** POST method specifier. The index into the <code>METHOD_ENUM</code> array. */
+  public static final int METHOD_POST = 1;
 
-         // REQUIRED: get the action
-         node = tree.getNextElement(PSUrlRequest.XML_NODE_NAME, firstFlags);
-         if (node == null)
-         {
-            Object[] args =
-            {
-               XML_NODE_NAME,
-               PSUrlRequest.XML_NODE_NAME,
-               "null"
-            };
-            throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-         }
-         else
-            m_action = new PSUrlRequest(node, parentDoc, parentComponents);
-      }
-      finally
-      {
-         resetParentList(parentComponents, parentSize);
-      }
-   }
+  /**
+   * An array of XML attribute values for the form method. They are specified at the index of the
+   * specifier.
+   */
+  private static final String[] METHOD_ENUM = {"GET", "POST"};
 
-   // see IPSComponent
-   public Element toXml(Document doc)
-   {
-      // create root and its attributes
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(METHOD_ATTR, METHOD_ENUM[m_method]);
+  /** The form action method. */
+  private int m_method = METHOD_GET;
 
-      // REQUIRED: create the action
-      root.appendChild(m_action.toXml(doc));
+  /** The form action, never <code>null</code> after construction. */
+  private PSUrlRequest m_action;
 
-      return root;
-   }
-
-   // see IPSComponent
-   public void validate(IPSValidationContext context)
-      throws PSSystemValidationException
-   {
-      if (!context.startValidation(this, null))
-         return;
-
-      // do children
-      context.pushParent(this);
-      try
-      {
-         if (m_action != null)
-            ((IPSComponent) m_action).validate(context);
-         else
-            context.validationError(this,
-               IPSObjectStoreErrors.INVALID_FORM_ACTION, null);
-      }
-      finally
-      {
-         context.popParent();
-      }
-   }
-
-   /** the XML node name */
-   public static final String XML_NODE_NAME = "PSXFormAction";
-
-   /**
-    * GET method specifier. The index into the <code>METHOD_ENUM</code> array.
-    */
-   public static final int METHOD_GET = 0;
-   /**
-    * POST method specifier. The index into the <code>METHOD_ENUM</code> array.
-    */
-   public static final int METHOD_POST = 1;
-   /**
-    * An array of XML attribute values for the form method.
-    * They are specified at the index of the specifier.
-    */
-   private static final String[] METHOD_ENUM =
-   {
-      "GET", "POST"
-   };
-
-   /**
-    * The form action method.
-    */
-   private int m_method = METHOD_GET;
-
-   /**
-    * The form action, never <code>null</code> after construction.
-    */
-   private PSUrlRequest m_action;
-
-   //
-   //
-   //
-   private static final String METHOD_ATTR = "method";
+  //
+  //
+  //
+  private static final String METHOD_ATTR = "method";
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.editions.IEditionsAdaptor;
 import com.percussion.rest.editions.PublishResponse;
 import org.springframework.stereotype.Component;
 
+/** Test adaptor for Editions API bridge. */
 @Component
 public class TestEditionsAdaptor implements IEditionsAdaptor {
 
-    @Override
-    public PublishResponse publish(String id) {
-        return null;
-    }
+  @Override
+  public PublishResponse publish(String id) {
+    return null;
+  }
 }

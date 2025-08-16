@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ package com.percussion.security.dao;
 
 import java.util.List;
 
-/**
- * @author miltonpividori
- *
- */
-public interface IPSSecurityItemsDao
-{
-    List<String> getAvailablePrivateKeys();
+/** Data access object for security items such as SSH private keys. */
+public interface IPSSecurityItemsDao {
+
+  /**
+   * Gets the available SSH private key file names.
+   *
+   * @return list of private key file names, never {@code null}
+   */
+  List<String> getAvailablePrivateKeys();
 }

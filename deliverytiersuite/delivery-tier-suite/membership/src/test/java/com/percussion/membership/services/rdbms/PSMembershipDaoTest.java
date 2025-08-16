@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,258 +16,228 @@
  */
 package com.percussion.membership.services.rdbms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.membership.data.IPSMembership;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSMemberExistsException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import junit.framework.TestCase;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author jayseletz
- *
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSMembershipDaoTest extends TestCase
-{
-    
-    @Autowired
-    private IPSMembershipDao membershipDao;
+public class PSMembershipDaoTest {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+  @Autowired private IPSMembershipDao membershipDao;
 
+  @Autowired private SessionFactory sessionFactory;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
-            Root<PSMembership> root = deleteQuery.from(PSMembership.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-          //  session.close();
-        }
+  @BeforeEach
+  public void setUp() throws Exception {
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
+      Root<PSMembership> root = deleteQuery.from(PSMembership.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      //  session.close();
+    }
+  }
+
+  private Session getSession() {
+
+    return sessionFactory.getCurrentSession();
+  }
+
+  @AfterEach
+  public void tearDown() throws Exception {}
+
+  @Test
+  public void testMembership() throws Exception {
+    IPSMembership membership = new PSMembership();
+    membership.setUserId("testuser@foo.com");
+    membership.setEmailAddress("testuser");
+    membership.setLastAccessed(new Date());
+    membership.setSessionId("123abc456xyz");
+    membership.setPwdResetKey("aasfjl2424u9asfjl");
+    membership.setCreatedDate(new Date());
+
+    IPSMembership other = new PSMembership(membership);
+    assertEquals(other, membership);
+  }
+
+  @Test
+  public void testCreateAndFind() throws Exception {
+    IPSMembership member = membershipDao.createMember("testUser", "demo", PSMemberStatus.Active);
+    member.setEmailAddress("myEmail@domain.com");
+    member.setSessionId("ABC123@mysession1d");
+    member.setCreatedDate(new Date());
+    member.setStatus(IPSMembership.PSMemberStatus.Active);
+    membershipDao.saveMember(member);
+
+    IPSMembership found = membershipDao.findMemberBySessionId(member.getSessionId());
+    assertNotNull(member);
+    assertEquals(member, found);
+
+    found = membershipDao.findMemberByUserId(member.getUserId());
+    assertNotNull(member);
+    assertEquals(member, found);
+
+    member.setPwdResetKey("passwordresetkey001");
+    membershipDao.saveMember(member);
+
+    found = membershipDao.findMemberByPwdResetKey(member.getPwdResetKey());
+    assertNotNull(member);
+    assertEquals(member, found);
+
+    found = membershipDao.findMemberBySessionId("badId");
+    assertNull(found);
+
+    found = membershipDao.findMemberByUserId("badId");
+    assertNull(found);
+
+    found = membershipDao.findMemberByPwdResetKey("badId");
+    assertNull(found);
+  }
+
+  @Test
+  public void testCreateDupe() throws Exception {
+    String userId = "testUserDupe";
+    IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
+    member.setEmailAddress("myEmail@domain.com");
+    member.setSessionId("ABC123@mysession1d");
+    member.setCreatedDate(new Date());
+    member.setStatus(IPSMembership.PSMemberStatus.Active);
+    membershipDao.saveMember(member);
+
+    // create dupe user
+    boolean didThrow = false;
+    try {
+      member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
+    } catch (PSMemberExistsException e) {
+      didThrow = true;
     }
 
-    private Session getSession(){
+    assertTrue(didThrow);
 
-        return sessionFactory.getCurrentSession();
+    // check case-insensitive
+    didThrow = false;
+    try {
+      member = membershipDao.createMember(userId.toUpperCase(), "demo", PSMemberStatus.Active);
 
+    } catch (PSMemberExistsException e) {
+      didThrow = true;
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    assertTrue(didThrow);
+
+    // create non-dupe, change to dupe and try to save
+    member = membershipDao.createMember("notDupeUser", "demo", PSMemberStatus.Active);
+    member.setUserId(userId);
+
+    didThrow = false;
+    try {
+      membershipDao.saveMember(member);
+    } catch (PSMemberExistsException e) {
+      didThrow = true;
     }
-    
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
-    @Test
-    public void testMembership() throws Exception
-    {
-        IPSMembership membership = new PSMembership();
-        membership.setUserId("testuser@foo.com");
-        membership.setEmailAddress("testuser");
-        membership.setLastAccessed(new Date());
-        membership.setSessionId("123abc456xyz");
-        membership.setPwdResetKey("aasfjl2424u9asfjl");
-        membership.setCreatedDate(new Date());
-        
-        IPSMembership other = new PSMembership(membership);
-        assertEquals(other, membership);
-    }
-    
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
-    @Test
-    public void testCreateAndFind() throws Exception
-    {
-        IPSMembership member = membershipDao.createMember("testUser", "demo", PSMemberStatus.Active);
-        member.setEmailAddress("myEmail@domain.com");
-        member.setSessionId("ABC123@mysession1d");
-        member.setCreatedDate(new Date());
-        member.setStatus(IPSMembership.PSMemberStatus.Active);
-        membershipDao.saveMember(member);
 
-        IPSMembership found = membershipDao.findMemberBySessionId(member.getSessionId());
-        assertNotNull(member);
-        assertEquals(member, found);
+    assertTrue(didThrow);
+  }
 
-        found = membershipDao.findMemberByUserId(member.getUserId());
-        assertNotNull(member);
-        assertEquals(member, found);
+  @Test
+  public void testFindUsers() throws Exception {
+    List<IPSMembership> members = new ArrayList<IPSMembership>();
+    List<IPSMembership> found = membershipDao.findMembers();
+    assertEquals(members, found);
 
-        member.setPwdResetKey("passwordresetkey001");
-        membershipDao.saveMember(member);
+    members.add(membershipDao.createMember("findUsers1@email.com", "demo", PSMemberStatus.Active));
+    membershipDao.saveMember(members.get(members.size() - 1));
+    found = membershipDao.findMembers();
+    assertEquals(members, found);
 
-        found = membershipDao.findMemberByPwdResetKey(member.getPwdResetKey());
-        assertNotNull(member);
-        assertEquals(member, found);
+    members.add(membershipDao.createMember("findUsers2@email.com", "demo", PSMemberStatus.Active));
+    membershipDao.saveMember(members.get(members.size() - 1));
+    members.add(membershipDao.createMember("findUsers3@email.com", "demo", PSMemberStatus.Active));
+    membershipDao.saveMember(members.get(members.size() - 1));
+    members.add(membershipDao.createMember("findUsers4@email.com", "demo", PSMemberStatus.Active));
+    membershipDao.saveMember(members.get(members.size() - 1));
+    found = membershipDao.findMembers();
+    assertEquals(members, found);
+  }
 
-        found = membershipDao.findMemberBySessionId("badId");
-        assertNull(found);
+  @Test
+  public void testChangeStatusAccount() throws Exception {
+    String userId = "testChangeStatusAccount@" + Math.random() + ".com";
+    IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
+    member.setEmailAddress(userId);
+    member.setSessionId("123321@mysession1d");
+    member.setCreatedDate(new Date());
+    member.setStatus(IPSMembership.PSMemberStatus.Active);
+    membershipDao.saveMember(member);
 
-        found = membershipDao.findMemberByUserId("badId");
-        assertNull(found);
+    IPSMembership found = membershipDao.findMemberByUserId(member.getUserId());
+    assertNotNull(found);
+    assertEquals(member, found);
 
-        found = membershipDao.findMemberByPwdResetKey("badId");
-        assertNull(found);
-    }
-    
-    @Test
-    public void testCreateDupe() throws Exception
-    {
-        String userId = "testUserDupe";
-        IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
-        member.setEmailAddress("myEmail@domain.com");
-        member.setSessionId("ABC123@mysession1d");
-        member.setCreatedDate(new Date());
-        member.setStatus(IPSMembership.PSMemberStatus.Active);
-        membershipDao.saveMember(member);
-        
-        // create dupe user
-        boolean didThrow = false;
-        try
-        {
-            member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
-        }
-        catch (PSMemberExistsException e)
-        {
-            didThrow = true;
-        }
+    // Changes the status
+    PSAccountSummary account = new PSAccountSummary();
+    account.setEmail(userId);
+    account.setAction("Block");
+    membershipDao.changeStatusAccount(account);
 
-        assertTrue(didThrow);
+    member.setStatus(IPSMembership.PSMemberStatus.Blocked);
 
-        // check case-insensitive
-        didThrow = false;
-        try
-        {
-            member = membershipDao.createMember(userId.toUpperCase(), "demo", PSMemberStatus.Active);
+    found = membershipDao.findMemberByUserId(member.getUserId());
+    assertNotNull(found);
+    assertEquals(member, found);
 
-        }
-        catch (PSMemberExistsException e)
-        {
-            didThrow = true;
-        }
+    // Cleans the added account
+    membershipDao.deleteAccount(userId);
+  }
 
-        assertTrue(didThrow);
-        
-        // create non-dupe, change to dupe and try to save
-        member = membershipDao.createMember("notDupeUser", "demo", PSMemberStatus.Active);
-        member.setUserId(userId);
-        
-        didThrow = false;
-        try
-        {
-            membershipDao.saveMember(member);
-        }
-        catch (PSMemberExistsException e)
-        {
-            didThrow = true;
-        }
+  @Test
+  public void testDeleteAccount() throws Exception {
+    String userId = "testDeleteAccount@" + Math.random() + ".com";
+    IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
+    member.setEmailAddress(userId);
+    member.setSessionId("123321@mysession1d");
+    member.setCreatedDate(new Date());
+    member.setStatus(IPSMembership.PSMemberStatus.Active);
+    membershipDao.saveMember(member);
 
-        assertTrue(didThrow);
+    IPSMembership found = membershipDao.findMemberByUserId(member.getUserId());
+    assertNotNull(found);
+    assertEquals(member, found);
 
-    }
-    
-    @Test
-    public void testFindUsers() throws Exception
-    {
-        List<IPSMembership> members = new ArrayList<IPSMembership>();
-        List<IPSMembership> found = membershipDao.findMembers();
-        assertEquals(members, found);
-        
-        members.add(membershipDao.createMember("findUsers1@email.com", "demo", PSMemberStatus.Active));
-        membershipDao.saveMember(members.get(members.size() - 1));
-        found = membershipDao.findMembers();
-        assertEquals(members, found);
-        
-        members.add(membershipDao.createMember("findUsers2@email.com", "demo", PSMemberStatus.Active));
-        membershipDao.saveMember(members.get(members.size() - 1));
-        members.add(membershipDao.createMember("findUsers3@email.com", "demo", PSMemberStatus.Active));
-        membershipDao.saveMember(members.get(members.size() - 1));
-        members.add(membershipDao.createMember("findUsers4@email.com", "demo", PSMemberStatus.Active));
-        membershipDao.saveMember(members.get(members.size() - 1));
-        found = membershipDao.findMembers();
-        assertEquals(members, found);
-    }
-    
-    @SuppressFBWarnings("PREDICTABLE_RANDOM")
-    @Test
-    public void testChangeStatusAccount() throws Exception
-    {
-        String userId = "testChangeStatusAccount@" + Math.random() + ".com";
-        IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
-        member.setEmailAddress(userId);
-        member.setSessionId("123321@mysession1d");
-        member.setCreatedDate(new Date());
-        member.setStatus(IPSMembership.PSMemberStatus.Active);
-        membershipDao.saveMember(member);
-        
-        IPSMembership found = membershipDao.findMemberByUserId(member.getUserId());
-        assertNotNull(found);
-        assertEquals(member, found);
+    // Deletes the account
+    membershipDao.deleteAccount(userId);
 
-        // Changes the status
-        PSAccountSummary account = new PSAccountSummary();
-        account.setEmail(userId);
-        account.setAction("Block");
-        membershipDao.changeStatusAccount(account);
-        
-        member.setStatus(IPSMembership.PSMemberStatus.Blocked);
-        
-        found = membershipDao.findMemberByUserId(member.getUserId());
-        assertNotNull(found);
-        assertEquals(member, found);
-        
-        // Cleans the added account
-        membershipDao.deleteAccount(userId);
-    }
-    
-    @SuppressFBWarnings("PREDICTABLE_RANDOM")
-    @Test
-    public void testDeleteAccount() throws Exception
-    {
-        String userId = "testDeleteAccount@" + Math.random() + ".com";
-        IPSMembership member = membershipDao.createMember(userId, "demo", PSMemberStatus.Active);
-        member.setEmailAddress(userId);
-        member.setSessionId("123321@mysession1d");
-        member.setCreatedDate(new Date());
-        member.setStatus(IPSMembership.PSMemberStatus.Active);
-        membershipDao.saveMember(member);
-        
-        IPSMembership found = membershipDao.findMemberByUserId(member.getUserId());
-        assertNotNull(found);
-        assertEquals(member, found);
-
-        // Deletes the account
-        membershipDao.deleteAccount(userId);
-        
-        found = membershipDao.findMemberByUserId(member.getUserId());
-        assertNull(found);
-    }
+    found = membershipDao.findMemberByUserId(member.getUserId());
+    assertNull(found);
+  }
 }

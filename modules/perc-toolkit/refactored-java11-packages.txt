@@ -1,0 +1,33 @@
+## This file lists the packages that are part of the refactored Java 11 codebase.
+## PACKAGE NAME, DESCRIPTION
+
+com.percussion.pso.workflow, Workflow actions and services
+
+com.percussion.pso.validation, Item validation routines
+
+com.percussion.pso.tasks, Task utilities
+
+com.percussion.pso.restservice, REST service interfaces and locators
+
+com.percussion.pso.relationships, Relationship utilities
+
+com.percussion.pso.effects, Workflow and folder effects
+
+com.percussion.soln.jcr, JCR utilities
+
+com.percussion.pso.utils, Utility classes
+com.percussion.pso.effects, PSO relationship effects (Java 11, Google Java Style, deprecated API workaround)
+
+com.percussion.pso.relationships, PSO parent finder interfaces and implementations (Java 11)
+
+com.percussion.pso.restservice, PSO REST service interfaces and locators (Java 11)
+
+com.percussion.pso.tasks, PSO TrashTask utility (Java 11)
+
+com.percussion.pso.validation, PSO item validation utilities (Java 11)
+
+com.percussion.soln.listbuilder, List builder utilities and JEXL extensions
+
+com.percussion.soln.jcr, JCR utilities and property abstractions
+
+com.percussion.pso.effects, PSO relationship effects (Java 11, Google Java Style, deprecated API workaround)

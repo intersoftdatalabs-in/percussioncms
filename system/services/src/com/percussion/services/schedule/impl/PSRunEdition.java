@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -48,11 +48,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is used to publishing a specified Edition. The name of the Edition
- * is expected to by specified by <code>editionName</code> parameter of the 
- * Extension.
+ * Executes a scheduled edition as a task. Handles publishing jobs and site management.
+ * <p>Uses Java 11 features and follows Google Java Style Guide.</p>
  *
- * @author Yu-Bing Chen
+ * @author Percussion Team
  */
 public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
 {

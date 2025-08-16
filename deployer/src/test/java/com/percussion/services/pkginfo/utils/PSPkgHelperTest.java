@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,162 +32,134 @@ import com.percussion.services.pkginfo.data.PSPkgElement;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
-
 import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.cactus.ServletTestCase;
+import org.junit.jupiter.api.Tag;
 
-/**
- * Test id-name helper
- */
-@Category(IntegrationTest.class)
-public class PSPkgHelperTest extends ServletTestCase
-{
-   /**
-    * Test various methods to perform id-name translation.
-    * 
-    * @throws Exception if the test fails.
-    */
-   public void testValidatePackage() throws Exception
-      
-   {
-      IPSPkgInfoService pkgInfoSvc = 
-         PSPkgInfoServiceLocator.getPkgInfoService();
-      // cleanup before the test
-      pkgInfoSvc.deletePkgInfo("Test_Package");
-      
-      // start the test
-      PSPkgInfo pkgInfo = pkgInfoSvc.createPkgInfo("Test_Package");
-      FileOutputStream out = null;
-      String cfgFileName = "rxconfig/Installer/rxrepository.properties";
+/** Test id-name helper */
+@Tag("IntegrationTest")
+public class PSPkgHelperTest extends ServletTestCase {
+  /**
+   * Test various methods to perform id-name translation.
+   *
+   * @throws Exception if the test fails.
+   */
+  public void testValidatePackage() throws Exception {
 
-      try
-      {
-         IPSGuid pkgGuid = pkgInfo.getGuid();
-         pkgInfoSvc.savePkgInfo(pkgInfo);
+    IPSPkgInfoService pkgInfoSvc = PSPkgInfoServiceLocator.getPkgInfoService();
+    // cleanup before the test
+    pkgInfoSvc.deletePkgInfo("Test_Package");
 
-         IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-         IPSGuid tempGuid = gmgr.makeGuid(501, PSTypeEnum.TEMPLATE);
+    // start the test
+    PSPkgInfo pkgInfo = pkgInfoSvc.createPkgInfo("Test_Package");
+    FileOutputStream out = null;
+    String cfgFileName = "rxconfig/Installer/rxrepository.properties";
 
-         String extnName = "Java/global/percussion/cx/sys_addNewItemToFolder";
-         IPSGuid extnGuid = PSIdNameHelper.getGuid(
-               extnName,
-               PSTypeEnum.EXTENSION);
+    try {
+      IPSGuid pkgGuid = pkgInfo.getGuid();
+      pkgInfoSvc.savePkgInfo(pkgInfo);
 
-         IPSGuid cfgFileGuid = PSIdNameHelper.getGuid(
-               cfgFileName,
-               PSTypeEnum.CONFIGURATION);
+      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
+      IPSGuid tempGuid = gmgr.makeGuid(501, PSTypeEnum.TEMPLATE);
 
-         String handlerName = "actionHandler";
-         IPSGuid handlerGuid = PSIdNameHelper.getGuid(
-               handlerName,
-               PSTypeEnum.LOADABLE_HANDLER);
+      String extnName = "Java/global/percussion/cx/sys_addNewItemToFolder";
+      IPSGuid extnGuid = PSIdNameHelper.getGuid(extnName, PSTypeEnum.EXTENSION);
 
-         PSPkgElement tempElem = pkgInfoSvc.createPkgElement(pkgGuid);
-         tempElem.setObjectGuid(tempGuid);
-         pkgInfoSvc.savePkgElement(tempElem);
+      IPSGuid cfgFileGuid = PSIdNameHelper.getGuid(cfgFileName, PSTypeEnum.CONFIGURATION);
 
-         PSPkgElement extnElem = pkgInfoSvc.createPkgElement(pkgGuid);
-         extnElem.setObjectGuid(extnGuid);
-         pkgInfoSvc.savePkgElement(extnElem);
+      String handlerName = "actionHandler";
+      IPSGuid handlerGuid = PSIdNameHelper.getGuid(handlerName, PSTypeEnum.LOADABLE_HANDLER);
 
-         PSPkgElement cfgFileElem = pkgInfoSvc.createPkgElement(pkgGuid);
-         cfgFileElem.setObjectGuid(cfgFileGuid);
-         pkgInfoSvc.savePkgElement(cfgFileElem);
+      PSPkgElement tempElem = pkgInfoSvc.createPkgElement(pkgGuid);
+      tempElem.setObjectGuid(tempGuid);
+      pkgInfoSvc.savePkgElement(tempElem);
 
-         // this element won't be tracked
-         PSPkgElement handlerElem = pkgInfoSvc.createPkgElement(pkgGuid);
-         handlerElem.setObjectGuid(handlerGuid);
-         pkgInfoSvc.savePkgElement(handlerElem);
+      PSPkgElement extnElem = pkgInfoSvc.createPkgElement(pkgGuid);
+      extnElem.setObjectGuid(extnGuid);
+      pkgInfoSvc.savePkgElement(extnElem);
 
-         PSPkgHelper.updatePkgElementVersions(
-               pkgInfo.getPackageDescriptorName());
+      PSPkgElement cfgFileElem = pkgInfoSvc.createPkgElement(pkgGuid);
+      cfgFileElem.setObjectGuid(cfgFileGuid);
+      pkgInfoSvc.savePkgElement(cfgFileElem);
 
-         // validation should return no results
-         Set<String> modObjs = PSPkgHelper.validatePackage(pkgGuid);
-         // one validation error on community visibility warning/error
-         assertTrue(modObjs.size() == 1); 
+      // this element won't be tracked
+      PSPkgElement handlerElem = pkgInfoSvc.createPkgElement(pkgGuid);
+      handlerElem.setObjectGuid(handlerGuid);
+      pkgInfoSvc.savePkgElement(handlerElem);
 
-         // save template
-         IPSTemplateService templateSvc = 
-            PSAssemblyServiceLocator.getAssemblyService();
+      PSPkgHelper.updatePkgElementVersions(pkgInfo.getPackageDescriptorName());
 
-         IPSAssemblyTemplate temp = templateSvc.loadTemplate(tempGuid, false);
-         templateSvc.saveTemplate(temp);
+      // validation should return no results
+      Set<String> modObjs = PSPkgHelper.validatePackage(pkgGuid);
+      // one validation error on community visibility warning/error
+      assertTrue(modObjs.size() == 1);
 
-         // save extension
-         IPSExtensionManager extnMgr = PSServer.getExtensionManager(null);
-         PSExtensionRef extnRef = new PSExtensionRef(extnName);
-         IPSExtensionDef extnDef = extnMgr.getExtensionDef(extnRef);
-         extnMgr.updateExtension(extnDef, extnDef.getSuppliedResources());
-         
-         // save config file
-         PSProperties props = new PSProperties(PSServer.getRxFile(
-               cfgFileName));
-         props.setProperty("test_prop", "test_value");
-         out = new FileOutputStream(PSServer.getRxFile(cfgFileName));
-         props.store(out, null);
-         out.close();
+      // save template
+      IPSTemplateService templateSvc = PSAssemblyServiceLocator.getAssemblyService();
 
-         // validate and check results
-         modObjs = PSPkgHelper.validatePackage(pkgGuid);
-         // one additional validation on community visibility warning/error
-         assertEquals(4, modObjs.size());
-         String tempStr = temp.getName() + '(' 
-               + PSTypeEnum.TEMPLATE.getDisplayName() + ')';
-         String extnStr = extnName + '('
-               + PSTypeEnum.EXTENSION.getDisplayName() + ')';
-         String cfgFileStr = cfgFileName + '('
-               + PSTypeEnum.CONFIGURATION.getDisplayName() + ')';
-         assertTrue(modObjs.contains(tempStr));
-         assertTrue(modObjs.contains(extnStr));
-         assertTrue(modObjs.contains(cfgFileStr));
-         
-         // modified objects should have been flagged as modified
-         tempElem = pkgInfoSvc.loadPkgElement(tempElem.getGuid());
-         assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION,
-               tempElem.getVersion());
-         extnElem = pkgInfoSvc.loadPkgElement(extnElem.getGuid());
-         assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION,
-               extnElem.getVersion());
-         cfgFileElem = pkgInfoSvc.loadPkgElement(cfgFileElem.getGuid());
-         assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION,
-               cfgFileElem.getVersion());
-         
-         // test validate package name
-         assertEquals(modObjs, PSPkgHelper.validatePackage(
-               pkgInfo.getPackageDescriptorName()));
-         
-         // test update pkg element versions with collection of guids
-         Set<IPSGuid> objGuids = new HashSet<IPSGuid>();
-         objGuids.add(tempGuid);
-                           
-         PSPkgHelper.updatePkgElementVersions(objGuids);
-         
-         // validation should match previous
-         assertEquals(modObjs, PSPkgHelper.validatePackage(pkgGuid));
-                
-         PSPkgHelper.updatePkgElementVersions(
-               pkgInfo.getPackageDescriptorName());
+      IPSAssemblyTemplate temp = templateSvc.loadTemplate(tempGuid, false);
+      templateSvc.saveTemplate(temp);
 
-         // validation should return no results, except warning on community
-         // visibility 
-         modObjs = PSPkgHelper.validatePackage(pkgGuid);
-         assertTrue(modObjs.size() == 1);
-      }
-      finally
-      {
-         pkgInfoSvc.deletePkgInfo(pkgInfo.getPackageDescriptorName());
+      // save extension
+      IPSExtensionManager extnMgr = PSServer.getExtensionManager(null);
+      PSExtensionRef extnRef = new PSExtensionRef(extnName);
+      IPSExtensionDef extnDef = extnMgr.getExtensionDef(extnRef);
+      extnMgr.updateExtension(extnDef, extnDef.getSuppliedResources());
 
-         PSProperties props = new PSProperties(PSServer.getRxFile(
-               cfgFileName));
-         props.remove("test_prop");
-         out = new FileOutputStream(PSServer.getRxFile(cfgFileName));
-         props.store(out, null);
-         out.close();
-      }
-   }
+      // save config file
+      PSProperties props = new PSProperties(PSServer.getRxFile(cfgFileName));
+      props.setProperty("test_prop", "test_value");
+      out = new FileOutputStream(PSServer.getRxFile(cfgFileName));
+      props.store(out, null);
+      out.close();
+
+      // validate and check results
+      modObjs = PSPkgHelper.validatePackage(pkgGuid);
+      // one additional validation on community visibility warning/error
+      assertEquals(4, modObjs.size());
+      String tempStr = temp.getName() + '(' + PSTypeEnum.TEMPLATE.getDisplayName() + ')';
+      String extnStr = extnName + '(' + PSTypeEnum.EXTENSION.getDisplayName() + ')';
+      String cfgFileStr = cfgFileName + '(' + PSTypeEnum.CONFIGURATION.getDisplayName() + ')';
+      assertTrue(modObjs.contains(tempStr));
+      assertTrue(modObjs.contains(extnStr));
+      assertTrue(modObjs.contains(cfgFileStr));
+
+      // modified objects should have been flagged as modified
+      tempElem = pkgInfoSvc.loadPkgElement(tempElem.getGuid());
+      assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION, tempElem.getVersion());
+      extnElem = pkgInfoSvc.loadPkgElement(extnElem.getGuid());
+      assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION, extnElem.getVersion());
+      cfgFileElem = pkgInfoSvc.loadPkgElement(cfgFileElem.getGuid());
+      assertEquals(PSPkgHelper.OBJECT_MODIFIED_VERSION, cfgFileElem.getVersion());
+
+      // test validate package name
+      assertEquals(modObjs, PSPkgHelper.validatePackage(pkgInfo.getPackageDescriptorName()));
+
+      // test update pkg element versions with collection of guids
+      Set<IPSGuid> objGuids = new HashSet<IPSGuid>();
+      objGuids.add(tempGuid);
+
+      PSPkgHelper.updatePkgElementVersions(objGuids);
+
+      // validation should match previous
+      assertEquals(modObjs, PSPkgHelper.validatePackage(pkgGuid));
+
+      PSPkgHelper.updatePkgElementVersions(pkgInfo.getPackageDescriptorName());
+
+      // validation should return no results, except warning on community
+      // visibility
+      modObjs = PSPkgHelper.validatePackage(pkgGuid);
+      assertTrue(modObjs.size() == 1);
+    } finally {
+      pkgInfoSvc.deletePkgInfo(pkgInfo.getPackageDescriptorName());
+
+      PSProperties props = new PSProperties(PSServer.getRxFile(cfgFileName));
+      props.remove("test_prop");
+      out = new FileOutputStream(PSServer.getRxFile(cfgFileName));
+      props.store(out, null);
+      out.close();
+    }
+  }
 }

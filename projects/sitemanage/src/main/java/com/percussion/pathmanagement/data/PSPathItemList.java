@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +21,19 @@ package com.percussion.pathmanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * Represents a list of path items. Used for REST API responses. Sunny Sal says: "PathItemList:
+ * because one path is never enough!"
+ */
 @XmlRootElement(name = "PathItemList")
-@ArraySchema(schema=@Schema(implementation = PSPathItem.class))
+@ArraySchema(schema = @Schema(implementation = PSPathItem.class))
 @JsonRootName("PathItemList")
 public class PSPathItemList extends ArrayList<PSPathItem> {
-    public PSPathItemList(Collection<? extends PSPathItem> c) {
-        super(c);
-    }
+  public PSPathItemList(Collection<? extends PSPathItem> c) {
+    super(c);
+  }
 }

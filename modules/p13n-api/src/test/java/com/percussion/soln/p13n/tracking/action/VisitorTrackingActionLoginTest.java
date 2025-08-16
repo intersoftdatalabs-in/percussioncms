@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +30,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.tracking.IVisitorProfileDataService;
 import com.percussion.soln.p13n.tracking.VisitorProfile;
@@ -44,7 +44,7 @@ import com.percussion.soln.p13n.tracking.action.impl.VisitorTrackingActionLogin;
  * Scenario description: 
  * @author adamgent, Aug 23, 2009
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingActionLoginTest {
 
     Mockery context = new JUnit4Mockery();
@@ -53,7 +53,7 @@ public class VisitorTrackingActionLoginTest {
     VisitorProfile profile;
     VisitorTrackingActionRequest request;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         action = new VisitorTrackingActionLogin();
         dataService = context.mock(IVisitorProfileDataService.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,33 @@
  */
 package com.percussion.design.objectstore.legacy;
 
-/**
- * Supplies the details used to identify the repository connection information.
- */
-public interface IPSRepositoryInfo
-{
-   /**
-    * Get the repository driver name.
-    * 
-    * @return The name, never <code>null</code> or empty.
-    */
-   public String getDriver();
-   
-   /**
-    * Get the repository server name.
-    * 
-    * @return The name, never <code>null</code> or empty.
-    */   
-   public String getServer();
-   
-   /**
-    * Get the repository database name.
-    * 
-    * @return The name, never <code>null</code>, may be empty.
-    */
-   public String getDatabase();
-   
-   /**
-    * Get the repository origin or schema name.
-    * 
-    * @return The name, never <code>null</code>, may be empty.
-    */   
-   public String getOrigin();
-}
+/** Supplies the details used to identify the repository connection information. */
+public interface IPSRepositoryInfo {
+  /**
+   * Get the repository driver name.
+   *
+   * @return The name, never <code>null</code> or empty.
+   */
+  public String getDriver();
 
+  /**
+   * Get the repository server name.
+   *
+   * @return The name, never <code>null</code> or empty.
+   */
+  public String getServer();
+
+  /**
+   * Get the repository database name.
+   *
+   * @return The name, never <code>null</code>, may be empty.
+   */
+  public String getDatabase();
+
+  /**
+   * Get the repository origin or schema name.
+   *
+   * @return The name, never <code>null</code>, may be empty.
+   */
+  public String getOrigin();
+}

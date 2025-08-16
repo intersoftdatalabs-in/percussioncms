@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,257 +15,165 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
-
-import javax.xml.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.percussion.share.data.PSAbstractPersistantObject;
+import javax.xml.bind.annotation.*;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import com.percussion.share.data.PSAbstractPersistantObject;
-
 /**
  * The summary information of a Template. This is an immutable class.
- * 
- * @author YuBingChen
+ *
+ * @author YuBingChen, Sunny Sal
  */
-@XmlRootElement(name="TemplateSummary")
-@JsonSerialize(as=PSTemplateSummary.class)
+@XmlRootElement(name = "TemplateSummary")
+@JsonSerialize(as = PSTemplateSummary.class)
 @JsonRootName("TemplateSummary")
 public class PSTemplateSummary extends PSAbstractPersistantObject {
 
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = -2647068336786632480L;
+  private static final long serialVersionUID = -2647068336786632480L;
 
-    protected static final int MAX_DESCRIPTION=-1;
-    protected static final int MAX_SOURCE_TEMPLATE=200;
-    protected static final int MAX_LABEL = 300;
-    protected static final int MAX_THEME = 300;
-    protected static final int MAX_PROTECTED_REGION=200;
-    protected static final int MAX_DOCTYPE=1000;
-    protected static final int MAX_TYPE=100;
+  protected static final int MAX_DESCRIPTION = -1;
+  protected static final int MAX_SOURCE_TEMPLATE = 200;
+  protected static final int MAX_LABEL = 300;
+  protected static final int MAX_THEME = 300;
+  protected static final int MAX_PROTECTED_REGION = 200;
+  protected static final int MAX_DOCTYPE = 1000;
+  protected static final int MAX_TYPE = 100;
 
+  @NotEmpty private String id;
 
-    /**
-     * The ID of the Template, initialized by constructor, never
-     * <code>null</code> or modified after that.
-     */
-    @NotEmpty
-    private String id;
+  @NotNull @NotEmpty private String name;
 
-    /**
-     * The name of the Template, initialized by constructor, never
-     * <code>null</code>, empty or modified after that.
-     */
-    @NotNull
-    @NotEmpty
-    private String name;
+  private String label;
+  private String description;
+  private String imageThumbPath;
+  private boolean isReadOnly;
+  private String sourceTemplateName;
+  private String type;
+  private String contentMigrationVersion = "0";
 
-    /**
-     * The label of the Template, initialized by constructor, may be
-     * <code>null</code> or empty.
-     */
-    private String label;
+  public PSTemplateSummary() {
+    super();
+  }
 
-    /**
-     * The description of the Template, initialized by constructor, may be
-     * <code>null</code> or empty.
-     */
-    private String description;
-    
-    /**
-     * The path of thumb sized image of the Template, initialized by constructor,
-     * never <code>null</code> or empty after that. Refer to
-     * {@link #getImageThumbPath()} for more details.
-     */
-    private String imageThumbPath;
-    
-    /**
-     * Indicates if the Template is ready only, see {@link #isReadOnly()} for 
-     * more details.
-     */
-    private boolean isReadOnly;
-    
-    /**
-     * The name of the source template, which was used to create this template.
-     * It may be <code>null</code> or empty if it has not been properly set.
-     */
-    private String sourceTemplateName;
+  public PSTemplateSummary(PSTemplate template) {
+    this.contentMigrationVersion = template.getContentMigrationVersion();
+    this.description = template.getDescription();
+    this.id = template.getId();
+    this.imageThumbPath = template.getImageThumbPath();
+    this.isReadOnly = template.isReadOnly();
+    this.label = template.getLabel();
+    this.type = template.getType();
+    this.name = template.getName();
+    this.sourceTemplateName = template.getSourceTemplateName();
+  }
 
-    /**
-     * The type of template. Eg: NORMAL or UNASSIGNED
-     * It may be <code>null</code> if it has not been properly set.
-     */
-    private String type;
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * See {@link #getContentMigrationVersion()}
-     */
-    private String contentMigrationVersion = "0";
+  public String getName() {
+    return name;
+  }
 
-    public PSTemplateSummary() {
-        super();
+  public String getLabel() {
+    return label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getImageThumbPath() {
+    return imageThumbPath;
+  }
+
+  public void setImageThumbPath(String imageThumbPath) {
+    this.imageThumbPath = imageThumbPath;
+  }
+
+  public boolean isReadOnly() {
+    return isReadOnly;
+  }
+
+  public void setReadOnly(boolean isReadOnly) {
+    this.isReadOnly = isReadOnly;
+  }
+
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setLabel(String label) {
+    if (label != null && label.length() > MAX_LABEL) {
+      label = label.substring(0, MAX_LABEL);
     }
+    this.label = label;
+  }
 
-    public PSTemplateSummary(PSTemplate template) {
-        this.contentMigrationVersion = template.getContentMigrationVersion();
-        this.description = template.getDescription();
-        this.id = template.getId();
-        this.imageThumbPath = template.getImageThumbPath();
-        this.isReadOnly = template.isReadOnly();
-        this.label = template.getLabel();
-        this.type = template.getType();
-        this.name = template.getName();
-        this.sourceTemplateName = template.getSourceTemplateName();
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  /**
+   * Gets the name of the source template. The source template was used to create this template.
+   *
+   * @return the source template name, may be null or empty.
+   */
+  public String getSourceTemplateName() {
+    return sourceTemplateName;
+  }
+
+  /**
+   * Sets the name of the source template. The source template was used to create this template.
+   *
+   * @param srcTemplate the new source template name, never null or empty.
+   */
+  public void setSourceTemplateName(String srcTemplate) {
+    if (srcTemplate != null && srcTemplate.length() > MAX_SOURCE_TEMPLATE) {
+      srcTemplate = srcTemplate.substring(0, MAX_SOURCE_TEMPLATE);
     }
+    this.sourceTemplateName = srcTemplate;
+  }
 
-    /**
-     * Gets the ID of the Template.
-     * 
-     * @return the Template ID, never <code>null</code>.
-     */
-    @Override
-    public String getId() {
-        return id;
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    if (type != null && type.length() > MAX_TYPE) {
+      type = type.substring(0, MAX_TYPE);
     }
+    this.type = type;
+  }
 
-    /**
-     * Gets the name of the Template, which is unique in the system.
-     * 
-     * @return the name of the Template, never <code>null</code> or empty.
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Get the version that is incremented each time the template is saved with changes that require
+   * content migration for pages using the template.
+   *
+   * @return the version, 0 if no such changes have been saved.
+   */
+  public String getContentMigrationVersion() {
+    return contentMigrationVersion;
+  }
 
-    /**
-     * Gets the display name of the Template.
-     * 
-     * @return the label, may be <code>null</code> or empty.
-     */
-    public String getLabel() {
-        return label;
-    }
-
-    /**
-     * Gets the description of the Template.
-     * 
-     * @return the description, may be <code>null</code> or empty.
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    
-    
-    public String getImageThumbPath() {
-        return imageThumbPath;
-    }
-
-    
-    public void setImageThumbPath(String imageThumbPath) {
-        this.imageThumbPath = imageThumbPath;
-    }
-
-    
-    public boolean isReadOnly() {
-        return isReadOnly;
-    }
-
-    
-    public void setReadOnly(boolean isReadOnly) {
-        this.isReadOnly = isReadOnly;
-    }
-
-    
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    
-    public void setLabel(String label) {
-        if(label != null && label.length()>MAX_LABEL)
-            label = label.substring(0,MAX_LABEL);
-
-        this.label = label;
-    }
-
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    /**
-     * Gets the name of the source template. The source template was used to 
-     * create this template.
-     * 
-     * @return the source template name, may be <code>null</code> or empty.
-     */
-    public String getSourceTemplateName()
-    {
-       return sourceTemplateName;
-    }
-    
-    /**
-     * Sets the name of the source template. The source template was used to
-     * create this template.
-     * 
-     * @param srcTemplate the new source template name, never <code>null</code>
-     * or empty.
-     */
-    public void setSourceTemplateName(String srcTemplate)
-    {  
-       if(srcTemplate.length()>MAX_SOURCE_TEMPLATE)
-           srcTemplate = srcTemplate.substring(0,MAX_SOURCE_TEMPLATE);
-
-        this.sourceTemplateName = srcTemplate;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        if(type.length()>MAX_TYPE)
-            type = type.substring(0,MAX_TYPE);
-
-        this.type = type;
-    }
-
-    /**
-     * Get the version that is incremented each time the template is saved with changes that require content migration for pages
-     * using the template.
-     * 
-     * @return the version, 0 if no such changes have been saved.
-     */
-    public String getContentMigrationVersion()
-    {
-        return contentMigrationVersion;
-    }
-
-    /**
-     * Set the content migration version.  See {@link #getContentMigrationVersion()}.
-     * 
-     * @param version the version to set.
-     */
-    public void setContentMigrationVersion(String version)
-    {
-        this.contentMigrationVersion = version;
-    }
-    
-    
-
-
+  /**
+   * Set the content migration version. See {@link #getContentMigrationVersion()}.
+   *
+   * @param version the version to set.
+   */
+  public void setContentMigrationVersion(String version) {
+    this.contentMigrationVersion = version;
+  }
 }

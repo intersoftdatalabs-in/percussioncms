@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,19 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * 
  * @author adamgent
- *
  */
-public class PSTouchItemsFolderEffect extends PSFolderEffect
-{
+public class PSTouchItemsFolderEffect extends PSFolderEffect {
 
-   /* Removed code from this class.  This is no longer required but may still be referenced on the folder relationship.
-    * 
-    *   */
-   @Override 
-   protected void onFolderChange(Object[] params, IPSRequestContext request, IPSExecutionContext context,
-         PSEffectResult result)
-   {
-      return;
-      
-   }
+  /* Removed code from this class.  This is no longer required but may still be referenced on the folder relationship.
+   *
+   *   */
+  @Override
+  protected void onFolderChange(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSEffectResult result) {
+    return;
+  }
 }

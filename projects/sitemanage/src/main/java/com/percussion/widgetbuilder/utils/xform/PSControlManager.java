@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +20,10 @@ package com.percussion.widgetbuilder.utils.xform;
 import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.server.PSSystemControlManager;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSControlManager implements IPSControlManager
-{
-    @Override
-    public PSControlMeta getControl(String name)
-    {
-        return PSSystemControlManager.getInstance().getControl(name);
-    }
-
+/** Default implementation of IPSControlManager using PSSystemControlManager. */
+public class PSControlManager implements IPSControlManager {
+  @Override
+  public PSControlMeta getControl(String name) {
+    return PSSystemControlManager.getInstance().getControl(name);
+  }
 }

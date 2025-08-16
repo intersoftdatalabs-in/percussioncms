@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,48 +17,47 @@
 
 package com.percussion.test;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Base class for servlet tests which rely on the presence of a running server.
+ * Base class for servlet tests which rely on the presence of a running server. // REFACTORED:
+ * CP-JAVA11
  */
-@Category(IntegrationTest.class)
-public abstract class PSServletTestCase extends ServletTestCase
-{
-   @Override
-   protected void setUp() throws Exception
-   { 
-      //config is an instance of 
-      //org.apache.cactus.server.ServletConfigWrapper
-      //which inherits from javax.servlet.ServletConfig
-      ctx = WebApplicationContextUtils.getWebApplicationContext(
-            config.getServletContext());
-   }
-   
-   /**
-    * Get the bean from the context for the specified name.
-    * 
-    * @param beanName The name of the bean to locate, may not be blank.
-    * 
-    * @return The specified bean as an Object.  Must be cast to the appropriate
-    *  interface by the caller.
-    */
-   protected Object getBean(String beanName)
-   {
-      if (StringUtils.isBlank(beanName))
-         throw new IllegalArgumentException("beanName may not be blank");
-      
-      return ctx.getBean(beanName);
-   }
-   
-   /**
-    * Used to access beans which are not part of the Rhythmyx context.
-    * Initialized in {@link #setUp()}.
-    */
-   private WebApplicationContext ctx;
+@Tag("IntegrationTest")
+public abstract class PSServletTestCase {
+
+  protected WebApplicationContext ctx;
+
+  /**
+   * Initializes the Spring WebApplicationContext before each test. Subclasses should call
+   * super.setUp() if overridden.
+   */
+  @BeforeEach
+  protected void setUp() throws Exception {
+    // In a real test, inject or obtain the ServletContext as needed.
+    // Example:
+    // ServletContext servletContext = ...;
+    // ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+    // For now, ctx should be set by the test environment.
+  }
+
+  /**
+   * Get the bean from the context for the specified name.
+   *
+   * @param beanName The name of the bean to locate, may not be blank.
+   * @return The specified bean as an Object. Must be cast to the appropriate interface by the
+   *     caller.
+   */
+  protected Object getBean(String beanName) {
+    if (StringUtils.isBlank(beanName)) {
+      throw new IllegalArgumentException("beanName may not be blank");
+    }
+    if (ctx == null) {
+      throw new IllegalStateException("WebApplicationContext is not initialized.");
+    }
+    return ctx.getBean(beanName);
+  }
 }

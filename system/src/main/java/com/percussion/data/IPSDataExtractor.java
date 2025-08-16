@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,61 +20,43 @@ package com.percussion.data;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
 
-
 /**
- * The IPSDataExtractor interface must be implemented by any classes
- * capable of pulling data from the PSExecutionData object. This is then
- * used as input into a UDF call, a SQL statement parameter or XML field
- * value.
- * 
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * The IPSDataExtractor interface must be implemented by any classes capable of pulling data from
+ * the PSExecutionData object. This is then used as input into a UDF call, a SQL statement parameter
+ * or XML field value.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public interface IPSDataExtractor
-{
-   /**
-    * Extract a data value using the run-time data.
-    *
-    * @param   execData    the execution data associated with this request.
-    *                      This includes all context data, result sets, etc.
-    *
-    * @return               the associated value; <code>null</code> if a
-    *                        value is not found
-    *
-    * @exception   PSDataExtractionException
-    *                        if an error condition causes the extraction to
-    *                        fail. This is not thrown if the requested data
-    *                        does not exist.
-    */
-   public Object extract(PSExecutionData data)
-      throws PSDataExtractionException;
+public interface IPSDataExtractor {
+  /**
+   * Extract a data value using the run-time data.
+   *
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
+   * @exception PSDataExtractionException if an error condition causes the extraction to fail. This
+   *     is not thrown if the requested data does not exist.
+   */
+  public Object extract(PSExecutionData data) throws PSDataExtractionException;
 
-   /**
-    * Extract a data value using the run-time data.
-    *
-    * @param   execData    the execution data associated with this request.
-    *                      This includes all context data, result sets, etc.
-    *
-    * @param   defValue      the default value to use if a value is not found
-    *
-    * @return               the associated value; <code>defValue</code> if a
-    *                        value is not found
-    *
-    * @exception   PSDataExtractionException
-    *                        if an error condition causes the extraction to
-    *                        fail. This is not thrown if the requested data
-    *                        does not exist.
-    */
-   public Object extract(PSExecutionData data, Object defValue)
-      throws PSDataExtractionException;
+  /**
+   * Extract a data value using the run-time data.
+   *
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
+   * @exception PSDataExtractionException if an error condition causes the extraction to fail. This
+   *     is not thrown if the requested data does not exist.
+   */
+  public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException;
 
-   /**
-    * Get the source IPSReplacementValue object(s) used to create this
-    * extractor.
-    *
-    * @return               the source object(s) (may be <code>null</code>)
-    */
-   public IPSReplacementValue[] getSource();
+  /**
+   * Get the source IPSReplacementValue object(s) used to create this extractor.
+   *
+   * @return the source object(s) (may be <code>null</code>)
+   */
+  public IPSReplacementValue[] getSource();
 }
-

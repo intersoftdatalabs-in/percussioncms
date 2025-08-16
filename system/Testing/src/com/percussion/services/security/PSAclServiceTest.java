@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.percussion.services.security;
 
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -25,30 +25,30 @@ import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 /**
  * Test the {@link IPSAclService} CRUD operations.  See 
  * {@link PSAclServiceAccessTest} for other service functionality.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAclServiceTest
 {
 
@@ -300,7 +300,7 @@ public class PSAclServiceTest
     * Verify that ACL count >> 450 is handled correctly. 
     * @throws Exception
     */
-   @Ignore("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
+   @Disabled("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
    @Test
    public void testLargeAclCount()
       throws Exception
@@ -372,7 +372,7 @@ public class PSAclServiceTest
     * and such.
     */
    @Test
-   @Ignore
+   @Disabled
    public void skipTestCache()
       throws Exception
    {

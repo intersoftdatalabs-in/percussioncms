@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,24 @@
 
 package com.ibm.cadf.model;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ibm.cadf.cfg.Config;
 import com.ibm.cadf.util.Constants;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class IdentifierTest
-{
+public class IdentifierTest {
 
-    @Before
-    public void setUp()
-    {
-        System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
-    }
+  @BeforeEach
+  public void setUp() {
+    System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
+  }
 
-    @Test
-    public void generateUniqueId()
-    {
-        Config.getInstance().registerProperty("namespace", "jcloud");
-        String uid = Identifier.generateUniqueId();
-        boolean b = uid.startsWith("jcloud");
-        Assert.assertTrue("Wrong prefix", b);
-    }
-
+  @Test
+  public void generateUniqueId() {
+    Config.getInstance().registerProperty("namespace", "jcloud");
+    String uid = Identifier.generateUniqueId();
+    boolean b = uid.startsWith("jcloud");
+    Assertions.assertTrue(b, "Wrong prefix");
+  }
 }

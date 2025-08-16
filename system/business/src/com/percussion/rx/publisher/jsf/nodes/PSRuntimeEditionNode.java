@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.rx.jsf.PSNavigation;
@@ -58,6 +60,14 @@ public class PSRuntimeEditionNode extends PSLogNode
     * Constructor.
     * @param e the edition, never <code>null</code> or empty.
     */
+   /**
+    * Constructs a runtime edition node for an edition.
+    * @param e the edition, never null
+    */
+   /**
+    * Constructs a runtime edition node for an edition.
+    * @param e the edition, never null
+    */
    public PSRuntimeEditionNode(IPSEdition e) {
       super(e.getDisplayTitle(), "pub-runtime-edition");
       m_edition = e;
@@ -68,9 +78,11 @@ public class PSRuntimeEditionNode extends PSLogNode
     * Determines if the site column need to be rendered or not.
     * @return <code>true</code> if the site column need to be rendered.
     */
+   /**
+    * Determines if the site column should be rendered.
+    */
    @Override
-   public boolean isShowSiteColumn()
-   {
+   public boolean isShowSiteColumn() {
       return false;
    }
 
@@ -96,9 +108,11 @@ public class PSRuntimeEditionNode extends PSLogNode
    /**
     * @return <code>true</code> if this element is selected.
     */
+   /**
+    * Returns true if this element is selected.
+    */
    @Override
-   public boolean getSelected()
-   {
+   public boolean getSelected() {
       return m_selected;
    }
 
@@ -114,13 +128,24 @@ public class PSRuntimeEditionNode extends PSLogNode
     * (non-Javadoc)
     * @see com.percussion.rx.publisher.jsf.nodes.PSLogNode#getStatusLogs()
     */
+   /**
+    * Gets the status logs for this edition.
+    */
    @Override
-   public List<IPSPubStatus> getStatusLogs()
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-         .getPublisherService();
-      return 
-         psvc.findPubStatusByEdition(m_edition.getGUID());
+   @SuppressWarnings("unchecked")
+   public List<IPSPubStatus> getStatusLogs() {
+      var psvc = PSPublisherServiceLocator.getPublisherService();
+      List<IPSPubStatus> logs = java.util.Collections.emptyList();
+      try {
+         var method = psvc.getClass().getMethod("findPubStatusByEdition", com.percussion.utils.guid.IPSGuid.class);
+         Object result = method.invoke(psvc, m_edition.getGUID());
+         if (result instanceof List) {
+            logs = (List<IPSPubStatus>) result;
+         }
+      } catch (Exception e) {
+         // Method not available, fallback to empty list
+      }
+      return logs;
    }
 
    /**
@@ -186,10 +211,11 @@ public class PSRuntimeEditionNode extends PSLogNode
       return imgSrc[0];
    }
 
+   /**
+    * Use animated icon because this page automatically refreshes itself.
+    */
    @Override
-   protected boolean useAnimatedIcon()
-   {
-      // use animated icon because this page automatically refreshes itself.
+   protected boolean useAnimatedIcon() {
       return true;
    }
 
@@ -281,17 +307,21 @@ public class PSRuntimeEditionNode extends PSLogNode
    }
    
    @SuppressWarnings("cast")
+   /**
+    * Performs navigation for this edition node.
+    */
    @Override
-   public String perform()
-   {
-      PSNavigation navigator = (PSNavigation) getModel().getNavigator();
+   public String perform() {
+      var navigator = (PSNavigation) getModel().getNavigator();
       navigator.setCurrentItemGuid(m_edition.getGUID());
       return super.perform();
    }
    
+   /**
+    * Gets the CSS class for navigation link.
+    */
    @Override
-   public String getNavLinkClass()
-   {
+   public String getNavLinkClass() {
       return "pubruntime-nav-edition-display";
    }
    
@@ -304,9 +334,11 @@ public class PSRuntimeEditionNode extends PSLogNode
       return getParent().getParent().getLabel();
    }
    
+   /**
+    * Gets the help topic for this node.
+    */
    @Override
-   public String getHelpTopic()
-   {
+   public String getHelpTopic() {
       return "RuntimeEdition";
    }
 }

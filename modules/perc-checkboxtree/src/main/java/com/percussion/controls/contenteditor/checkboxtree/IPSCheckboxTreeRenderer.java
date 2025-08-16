@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@ package com.percussion.controls.contenteditor.checkboxtree;
 import javax.swing.tree.TreeCellRenderer;
 
 /**
- * Renderer interface that allows users to set and use extra parameters. These 
+ * Renderer interface that allows users to set and use extra parameters. These
  * extra parameters can be used by subclasses to implement custom behavior.
  */
-public interface IPSCheckboxTreeRenderer extends TreeCellRenderer, 
-   IPSExtraParameters
-{
-}
+public interface IPSCheckboxTreeRenderer extends TreeCellRenderer, IPSExtraParameters {}

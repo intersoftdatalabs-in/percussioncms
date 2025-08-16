@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,20 @@ import com.percussion.rest.struct.AdaptorBase;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import java.net.URI;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
 
 @XmlRootElement
 @Path("/")
 @Tag(name = "/", description = "Root of api")
-@OpenAPIDefinition(
-        servers = { @Server(url="/rest")}
-)
+@OpenAPIDefinition(servers = {@Server(url = "/rest")})
 public class Root extends AdaptorBase {
 
-    @XmlElement
-    URI self;
+  @XmlElement private URI self;
 
-
-    public Root() {
-
-    }
-
+  public Root() {
+    // Default constructor
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,26 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
+/** Exception thrown when a report fails to run. */
 public class PSReportFailedToRunException extends Exception {
 
-	public PSReportFailedToRunException() {
-		super();
-	}
+  public PSReportFailedToRunException() {
+    super();
+  }
 
-	public PSReportFailedToRunException(String message) {
-		super(message);
-	}
+  public PSReportFailedToRunException(String message) {
+    super(message);
+  }
 
-	public PSReportFailedToRunException(Throwable cause) {
-		super(cause);
-	}
+  public PSReportFailedToRunException(Throwable cause) {
+    super(cause);
+  }
 
-	public PSReportFailedToRunException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+  public PSReportFailedToRunException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

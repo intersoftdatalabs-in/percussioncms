@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSummary;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+/** Test adaptor for Templates API bridge. */
 @Component
 public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
-
-    /**
-     * @param baseUri
-     * @param filter
-     * @return
-     */
-    @Override
-    public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
-        return null;
-    }
+  @Override
+  public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
+    return null;
+  }
 }

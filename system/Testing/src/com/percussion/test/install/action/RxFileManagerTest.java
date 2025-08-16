@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ package com.percussion.test.install.action;
 import com.percussion.install.OSEnum;
 import com.percussion.install.RxFileManager;
 import com.percussion.util.PSOsTool;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /***
  * Tests to cover the RxFileManager utilities.
@@ -39,7 +39,7 @@ public class RxFileManagerTest
 {
 
    @Test
-   @Ignore("Failing on Windows")
+   @Disabled("Failing on Windows")
    public void testisDTSDirValid()
    {
     assertTrue("Valid directory not detected.",RxFileManager.isDTSDir(this.getClass().getResource(".").getPath()));
@@ -127,7 +127,7 @@ public class RxFileManagerTest
     * @throws IOException 
     */
    @Test
-   @Ignore("Failing on Windows")
+   @Disabled("Failing on Windows")
    public void testGetDTSSystemFileProperties() throws IOException{
  
       OSEnum os= OSEnum.Linux;

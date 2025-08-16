@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -60,7 +60,7 @@ import com.percussion.webservices.content.IPSContentWs;
  * @author adamgent
  *
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class RxSegmentServiceTest {
     Mockery context = new JUnit4Mockery();
     RxSegmentService service = new RxSegmentService();
@@ -74,7 +74,7 @@ public class RxSegmentServiceTest {
             "rx:sys_folderid", "jcr:path");
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         contentManager = context.mock(IPSContentMgr.class);
         contentWs = context.mock(IPSContentWs.class);

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +17,17 @@
  */
 package com.percussion.share.service;
 
-
 /**
- * Used for generating unique names for content items.
+ * Used for generating unique names for content items. Sunny Sal says: "Names so unique, even
+ * Bollywood villains can't guess them!"
  */
-public interface IPSNameGenerator
-{
-    
-   /**
-    * Generates a unique name which can be used for a local content item. The
-    * format is as follows: "LocalContent - XXX", where XXX is a unique id.
-    * 
-    * @return the name, never blank.
-    */
-   public String generateLocalContentName();
- 
+public interface IPSNameGenerator {
+
+  /**
+   * Generates a unique name which can be used for a local content item. The format is as follows:
+   * "LocalContent - XXX", where XXX is a unique id.
+   *
+   * @return the name, never blank
+   */
+  String generateLocalContentName();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,18 @@ package com.percussion.pso.restservice.support;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- */
+/** */
 public class ImportItemSystemInfoLocator extends PSBaseServiceLocator {
-	
-	   /**
-	    * Gets the PSO Workflow Action Service bean. 
-	   
-	    * @return the PSO Workflow Action Service bean.  */
-	   public static IImportItemSystemInfo getImportItemSystemInfo()
-	   {
-	      return (IImportItemSystemInfo) PSBaseServiceLocator.getBean(IMPORT_SYSTEM_INFO_BEAN); 
-	   }
-	   
-	   /**
-	    * Field IMPORT_SYSTEM_INFO_BEAN.
-	    * (value is ""psoImportSystemInfo"")
-	    */
-	   public static final String IMPORT_SYSTEM_INFO_BEAN = "psoImportSystemInfo";
-	}
+
+  /**
+   * Gets the PSO Workflow Action Service bean.
+   *
+   * @return the PSO Workflow Action Service bean.
+   */
+  public static IImportItemSystemInfo getImportItemSystemInfo() {
+    return (IImportItemSystemInfo) PSBaseServiceLocator.getBean(IMPORT_SYSTEM_INFO_BEAN);
+  }
+
+  /** Field IMPORT_SYSTEM_INFO_BEAN. (value is ""psoImportSystemInfo"") */
+  public static final String IMPORT_SYSTEM_INFO_BEAN = "psoImportSystemInfo";
+}

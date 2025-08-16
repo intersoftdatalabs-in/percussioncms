@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
  */
 package com.percussion.tablefactory;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -35,17 +35,17 @@ public class PSJdbcDbmsDefTest
 {
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
 
    private String rxdeploydir;
 
-   @Before
+   @BeforeEach 
    public void setup(){
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+      System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       //Reset the deploy dir property if it was set prior to test
       if(rxdeploydir != null)

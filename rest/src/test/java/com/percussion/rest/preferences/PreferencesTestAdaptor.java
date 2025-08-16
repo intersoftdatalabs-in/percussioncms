@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,28 +23,29 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class PreferencesTestAdaptor implements IPreferenceAdaptor {
-    @Override
-    public UserPreferenceList getAllUserPreferences() {
-        return null;
-    }
 
-    @Override
-    public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
-        return null;
-    }
+  @Override
+  public UserPreferenceList getAllUserPreferences() {
+    return null;
+  }
 
-    @Override
-    public UserPreference loadPreference(String preference) {
-        return null;
-    }
+  @Override
+  public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
+    return null;
+  }
 
-    @Override
-    public UserPreference savePreference(UserPreference pref) {
-        return null;
-    }
+  @Override
+  public UserPreference loadPreference(String preference) {
+    return null;
+  }
 
-    @Override
-    public void deletePreference(UserPreference pref) {
+  @Override
+  public UserPreference savePreference(UserPreference pref) {
+    return null;
+  }
 
-    }
+  @Override
+  public void deletePreference(UserPreference pref) {
+    // No-op for test adaptor
+  }
 }

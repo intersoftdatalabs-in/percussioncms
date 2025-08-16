@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,57 +17,51 @@
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * Request object used for copying a site.  The source and destination site names are required, however, the asset
- * folder path is not.
+ * Request object used for copying a site. The source and destination site names are required; the
+ * asset folder path is optional.
  */
 @XmlRootElement(name = "SiteCopyRequest")
 @JsonRootName("SiteCopyRequest")
-public class PSSiteCopyRequest
-{
-    public String getSrcSite()
-    {
-        return srcSite;
-    }
+public class PSSiteCopyRequest {
 
-    public void setSrcSite(String srcSite)
-    {
-        this.srcSite = srcSite;
-    }
+  @NotNull @NotEmpty private String srcSite;
 
-    public String getCopySite()
-    {
-        return copySite;
-    }
+  @NotNull @NotEmpty private String copySite;
 
-    public void setCopySite(String copySite)
-    {
-        this.copySite = copySite;
-    }
+  private String assetFolder;
 
-    public String getAssetFolder()
-    {
-        return assetFolder;
-    }
+  public String getSrcSite() {
+    return srcSite;
+  }
 
-    public void setAssetFolder(String assetFolder)
-    {
-        this.assetFolder = assetFolder;
-    }
+  public void setSrcSite(String srcSite) {
+    this.srcSite = srcSite;
+  }
 
-    @NotNull
-    @NotEmpty
-    private String srcSite;
-    
-    @NotNull
-    @NotEmpty
-    private String copySite;
-    
-    private String assetFolder;
-   
+  public String getCopySite() {
+    return copySite;
+  }
+
+  public void setCopySite(String copySite) {
+    this.copySite = copySite;
+  }
+
+  /**
+   * Gets the asset folder path, if present.
+   *
+   * @return Optional asset folder path.
+   */
+  public Optional<String> getAssetFolder() {
+    return Optional.ofNullable(assetFolder);
+  }
+
+  public void setAssetFolder(String assetFolder) {
+    this.assetFolder = assetFolder;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,34 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.polls.services.PSPollsRestService;
+import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.glassfish.jersey.server.spring.AutowiredInjectResolver;
-import org.glassfish.jersey.server.spring.SpringComponentProvider;
-import org.glassfish.jersey.server.spring.SpringLifecycleListener;
-import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
-import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
-
-    @ApplicationPath("/")
-    public class PSPollsApplication extends  ResourceConfig {
-        public PSPollsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSPollsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-
-        }
-    }
+/**
+ * Jersey application configuration for Polls REST API. Sunny Sal: Refactored for Java 11, Google
+ * style, and better grammar.
+ */
+@ApplicationPath("/")
+public class PSPollsApplication extends ResourceConfig {
+  public PSPollsApplication() {
+    // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
+    // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.
+    // Removed SpringWebApplicationInitializer registration; not required for Jersey 2.x Spring
+    // integration.
+    register(PSPollsRestService.class);
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+    register(PSJsonMappingErrorResponse.class);
+    register(PSUncaughtError.class);
+    register(JacksonXmlBindJsonProvider.class);
+  }
+}

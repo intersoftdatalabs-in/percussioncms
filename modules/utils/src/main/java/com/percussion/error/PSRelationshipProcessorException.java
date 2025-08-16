@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,32 @@
  */
 package com.percussion.error;
 
-/**
- * Generic exception class to be used for relationship processing errors.
- */
-public class PSRelationshipProcessorException extends PSException
-{
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object)
-    */ 
-   public PSRelationshipProcessorException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+/** Generic exception class to be used for relationship processing errors. */
+public class PSRelationshipProcessorException extends PSException {
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object)
+   */
+  public PSRelationshipProcessorException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object[])
+   */
+  public PSRelationshipProcessorException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object[])
-    */ 
-   public PSRelationshipProcessorException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
-
-
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int)
-    */ 
-   public PSRelationshipProcessorException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int)
+   */
+  public PSRelationshipProcessorException(int msgCode) {
+    super(msgCode);
+  }
 }

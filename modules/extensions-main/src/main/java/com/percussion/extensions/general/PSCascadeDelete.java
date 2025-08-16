@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,51 +31,41 @@ import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.xml.PSXPathEvaluator;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit can be used for cascading delete operation, ie. deleting rows
- * from child tables when a row from parent table is deleted.
- * This method does not delete the child rows, instead it queries the
- * specified resource to obtain the rows from the child tables corresponding
- * to the parent table row which is being deleted. Then adds these rows to
- * the document which is processed by the update resource. The update
- * resource must include the mappings for these child table rows so that
- * these rows are deleted from the database. This ensures that all the rows
- * from the parent and child tables are deleted in a single transaction.
- * <p>
- * All the child elements of the root node of the XML document returned by
- * the query resource is appended to the root node of the XML document
- * obtained from the request context (ie, the document which is processed
- * by the update resource).
+ * This exit can be used for cascading delete operation, ie. deleting rows from child tables when a
+ * row from parent table is deleted. This method does not delete the child rows, instead it queries
+ * the specified resource to obtain the rows from the child tables corresponding to the parent table
+ * row which is being deleted. Then adds these rows to the document which is processed by the update
+ * resource. The update resource must include the mappings for these child table rows so that these
+ * rows are deleted from the database. This ensures that all the rows from the parent and child
+ * tables are deleted in a single transaction.
+ *
+ * <p>All the child elements of the root node of the XML document returned by the query resource is
+ * appended to the root node of the XML document obtained from the request context (ie, the document
+ * which is processed by the update resource).
  */
-public class PSCascadeDelete
-   extends PSDefaultExtension
-   implements IPSRequestPreProcessor
-{
-   /*
+public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /*
    * Implementation of the method in the interface
    * <code>com.percussion.extension.IPSRequestPreProcessor</code>
    * <p>
    * See {@link IPSExtension#init(IPSExtensionDef, File) init} for details.
    */
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-      super.init(extensionDef, file);
-      ms_fullExtensionName = extensionDef.getRef().toString();
-   }
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    super.init(extensionDef, file);
+    ms_fullExtensionName = extensionDef.getRef().toString();
+  }
 
-   /*
+  /*
    * Implementation of the method in the interface
    * <code>com.percussion.extension.IPSRequestPreProcessor</code>
    * <p>
@@ -129,136 +119,113 @@ public class PSCascadeDelete
    * @throws PSExtensionProcessingException if the required params are missing
    * or invalid.
    */
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
-            PSRequestValidationException,
-            PSParameterMismatchException,
-            PSExtensionProcessingException
-   {
-      request.printTraceMessage("PSCascadeDelete#preProcessRequest()");
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    request.printTraceMessage("PSCascadeDelete#preProcessRequest()");
 
-      Document inputDoc = request.getInputDocument();
-      if (inputDoc == null)
-      {
-         request.printTraceMessage("PSCascadeDelete#inputDoc is null");
-         return;
+    Document inputDoc = request.getInputDocument();
+    if (inputDoc == null) {
+      request.printTraceMessage("PSCascadeDelete#inputDoc is null");
+      return;
+    }
+    Element parentRoot = inputDoc.getDocumentElement();
+    if (parentRoot == null) {
+      request.printTraceMessage("PSCascadeDelete#inputDoc root is null");
+      return;
+    }
+    if (!parentRoot.hasChildNodes()) {
+      request.printTraceMessage("PSCascadeDelete#inputDoc root has no child nodes");
+      return;
+    }
+
+    String exMsg =
+        "You must supply the XPath expression to obtain the "
+            + "nodeset corresponding to the parent table rows which are being "
+            + "deleted, and the URL of the query resource to obtain the "
+            + "corresponding child table rows.";
+
+    if ((params == null)
+        || (params.length < 2)
+        || (params[0] == null)
+        || (params[0].toString().trim().length() < 1)
+        || (params[0] == null)
+        || (params[1].toString().trim().length() < 1)) {
+      throw new PSExtensionProcessingException(ms_fullExtensionName, new Exception(exMsg));
+    }
+
+    request.printTraceMessage("PSCascadeDelete#params = " + params);
+
+    String xpath = params[0].toString().trim();
+    String url = params[1].toString().trim();
+
+    // build params map
+    HashMap paramMap = new HashMap();
+    int paramMaxIndex = params.length - 1;
+    for (int paramIndex = 2; paramIndex < paramMaxIndex; paramIndex += 2) {
+      Object key = params[paramIndex];
+      Object val = params[paramIndex + 1];
+      if ((key != null) && (val != null)) {
+        String strKey = key.toString().trim();
+        String strVal = val.toString().trim();
+        if (strKey.length() > 0) paramMap.put(strKey, strVal);
       }
-      Element parentRoot = inputDoc.getDocumentElement();
-      if (parentRoot == null)
-      {
-         request.printTraceMessage("PSCascadeDelete#inputDoc root is null");
-         return;
+    }
+
+    IPSInternalRequest iReq = null;
+    try {
+      // get the node set corresponding to the deleted rows of the parent table
+      PSXPathEvaluator xp = new PSXPathEvaluator(inputDoc);
+      Iterator it = xp.enumerate(xpath, false);
+      while (it.hasNext()) {
+        // for each node, evaluate the html param values
+        Node node = (Node) it.next();
+        PSXPathEvaluator xpNode = new PSXPathEvaluator(node);
+        Map nodeParamMap = new HashMap(paramMap);
+        Iterator paramIt = nodeParamMap.entrySet().iterator();
+        while (paramIt.hasNext()) {
+          Map.Entry item = (Map.Entry) paramIt.next();
+          String strVal = (String) item.getValue();
+          try {
+            String newVal = xpNode.evaluate(strVal);
+            item.setValue(newVal);
+          } catch (Exception e) {
+          }
+        }
+        // query the resource to get the child table rows
+        iReq = request.getInternalRequest(url, nodeParamMap, true);
+        if (iReq == null)
+          throw new PSExtensionProcessingException(
+              0, "Unable to locate handler for request: " + url);
+
+        boolean isQuery = (iReq.getRequestType() == IPSInternalRequest.REQUEST_TYPE_QUERY);
+
+        Document childDoc = null;
+        if (isQuery) childDoc = iReq.getResultDoc();
+        else iReq.performUpdate();
+
+        if (childDoc != null) {
+          Element childRoot = childDoc.getDocumentElement();
+          if (childRoot != null) {
+            NodeList nl = childRoot.getChildNodes();
+            for (int i = 0; i < nl.getLength(); i++)
+              PSXmlDocumentBuilder.copyTree(inputDoc, parentRoot, nl.item(i));
+          } else {
+            request.printTraceMessage("PSCascadeDelete : Internal request returned empty doc");
+          }
+        }
       }
-      if (!parentRoot.hasChildNodes())
-      {
-         request.printTraceMessage(
-            "PSCascadeDelete#inputDoc root has no child nodes");
-         return;
-      }
+    } catch (Exception e) {
+      PSConsole.printMsg(ms_fullExtensionName, e);
+      throw new PSExtensionProcessingException(ms_fullExtensionName, e);
+    }
+  }
 
-      String exMsg = "You must supply the XPath expression to obtain the " +
-         "nodeset corresponding to the parent table rows which are being " +
-         "deleted, and the URL of the query resource to obtain the " +
-         "corresponding child table rows.";
-
-      if ((params == null) || (params.length < 2) ||
-         (params[0] == null) || (params[0].toString().trim().length() < 1) ||
-         (params[0] == null) || (params[1].toString().trim().length() < 1))
-      {
-         throw new PSExtensionProcessingException(
-            ms_fullExtensionName, new Exception(exMsg));
-      }
-
-      request.printTraceMessage("PSCascadeDelete#params = " + params);
-
-      String xpath = params[0].toString().trim();
-      String url = params[1].toString().trim();
-
-      // build params map
-      HashMap paramMap = new HashMap();
-      int paramMaxIndex = params.length - 1;
-      for (int paramIndex = 2; paramIndex < paramMaxIndex; paramIndex += 2)
-      {
-         Object key = params[paramIndex];
-         Object val = params[paramIndex + 1];
-         if ((key != null) && (val != null))
-         {
-            String strKey = key.toString().trim();
-            String strVal = val.toString().trim();
-            if (strKey.length() > 0)
-               paramMap.put(strKey, strVal);
-         }
-      }
-
-      IPSInternalRequest iReq = null;
-      try
-      {
-         // get the node set corresponding to the deleted rows of the parent table
-         PSXPathEvaluator xp = new PSXPathEvaluator(inputDoc);
-         Iterator it = xp.enumerate(xpath, false);
-         while (it.hasNext())
-         {
-            // for each node, evaluate the html param values
-            Node node = (Node)it.next();
-            PSXPathEvaluator xpNode = new PSXPathEvaluator(node);
-            Map nodeParamMap = new HashMap(paramMap);
-            Iterator paramIt = nodeParamMap.entrySet().iterator();
-            while (paramIt.hasNext())
-            {
-               Map.Entry item = (Map.Entry)paramIt.next();
-               String strVal = (String)item.getValue();
-               try
-               {
-                  String newVal = xpNode.evaluate(strVal);
-                  item.setValue(newVal);
-               }
-               catch (Exception e)
-               {
-               }
-            }
-            // query the resource to get the child table rows
-            iReq = request.getInternalRequest(url, nodeParamMap, true);
-            if (iReq == null)
-               throw new PSExtensionProcessingException(0,
-                  "Unable to locate handler for request: " + url);
-
-            boolean isQuery =
-               (iReq.getRequestType() == IPSInternalRequest.REQUEST_TYPE_QUERY);
-
-            Document childDoc = null;
-            if (isQuery)
-               childDoc = iReq.getResultDoc();
-            else
-               iReq.performUpdate();
-
-            if (childDoc != null)
-            {
-               Element childRoot = childDoc.getDocumentElement();
-               if (childRoot != null)
-               {
-                  NodeList nl = childRoot.getChildNodes();
-                  for (int i=0; i < nl.getLength(); i++)
-                     PSXmlDocumentBuilder.copyTree(inputDoc, parentRoot, nl.item(i));
-               }
-               else
-               {
-                  request.printTraceMessage(
-                     "PSCascadeDelete : Internal request returned empty doc");
-               }
-            }
-         }
-      }
-      catch (Exception e)
-      {
-         PSConsole.printMsg(ms_fullExtensionName, e);
-         throw new PSExtensionProcessingException(ms_fullExtensionName, e);
-      }
-   }
-
-   /**
-   * The fully qualified name of this extension, set in the <code>init()</code>
-   * method. Never <code>null</code> or modified after that.
+  /**
+   * The fully qualified name of this extension, set in the <code>init()</code> method. Never <code>
+   * null</code> or modified after that.
    */
-   static private String ms_fullExtensionName = "";
+  private static String ms_fullExtensionName = "";
 }
-

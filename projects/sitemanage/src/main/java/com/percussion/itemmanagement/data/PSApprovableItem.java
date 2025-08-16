@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,60 +17,53 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSItemProperties;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * 
- * @author leonardohildt
- * 
- */
+/** Represents an item that can be approved in a bulk approval operation. */
 @XmlRootElement(name = "ApprovableItem")
-public class PSApprovableItem extends PSItemProperties
-{
+public class PSApprovableItem extends PSItemProperties {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private Boolean approve = false;
+  private Boolean approve = false;
+  private String approvalStatus;
+  private String approvalMessage;
 
-    private String approvalStatus;
+  public PSApprovableItem() {
+    // Default constructor for serialization
+  }
 
-    private String approvalMessage;
+  /**
+   * Indicates whether the item should be approved.
+   *
+   * @return true if the item should be approved, false otherwise.
+   */
+  public Boolean getApprove() {
+    return approve;
+  }
 
-    public PSApprovableItem()
-    {
-    }
+  /**
+   * Sets whether the item should be approved.
+   *
+   * @param approve true to approve, false otherwise.
+   */
+  public void setApprove(Boolean approve) {
+    this.approve = approve;
+  }
 
-    public Boolean isApprove()
-    {
-        return approve;
-    }
+  public String getApprovalStatus() {
+    return approvalStatus;
+  }
 
-    /**
-     * @param approve indicates whether the item should be approve or not.
-     */
-    public void setApprove(Boolean approve)
-    {
-        this.approve = approve;
-    }
+  public void setApprovalStatus(String approvalStatus) {
+    this.approvalStatus = approvalStatus;
+  }
 
-    public String getApprovalStatus()
-    {
-        return approvalStatus;
-    }
+  public String getApprovalMessage() {
+    return approvalMessage;
+  }
 
-    public void setApprovalStatus(String approvalStatus)
-    {
-        this.approvalStatus = approvalStatus;
-    }
-
-    public String getApprovalMessage()
-    {
-        return approvalMessage;
-    }
-
-    public void setApprovalMessage(String approvalMessage)
-    {
-        this.approvalMessage = approvalMessage;
-    }
+  public void setApprovalMessage(String approvalMessage) {
+    this.approvalMessage = approvalMessage;
+  }
 }

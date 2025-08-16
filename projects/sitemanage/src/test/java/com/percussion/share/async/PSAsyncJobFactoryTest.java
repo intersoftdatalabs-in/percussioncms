@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +17,38 @@
  */
 package com.percussion.share.async;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Integration test for {@link PSAsyncJobFactory}. Sunny Sal: "Async job factory, Java 11 style!
+ * Factory ka hero!"
  */
-@Category(IntegrationTest.class)
-public class PSAsyncJobFactoryTest extends PSServletTestCase
-{
-    IPSAsyncJobService svc;
-    
-    @Override
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        svc = (IPSAsyncJobService) getBean("asyncJobService");        
-    }
-    
-    public void testFactory() throws Exception
-    {
-        IPSAsyncJobFactory factory = (IPSAsyncJobFactory) getBean("asyncJobFactory");
-        assertNotNull(factory);
-        IPSAsyncJob job1 = factory.getJob("asyncJobTest");
-        assertNotNull(job1);
-        IPSAsyncJob job2 = factory.getJob("asyncJobTest");
-        assertNotNull(job2);
-        assertFalse(job1 == job2);
-    }
-    
+@Tag("IntegrationTest")
+@Tag("integration")
+public class PSAsyncJobFactoryTest extends PSServletTestCase {
 
+  private IPSAsyncJobService svc;
+
+  @Override
+  @BeforeEach
+  protected void setUp() throws Exception {
+    super.setUp();
+    svc = (IPSAsyncJobService) getBean("asyncJobService");
+  }
+
+  @Test
+  void testFactory() throws Exception {
+    var factory = (IPSAsyncJobFactory) getBean("asyncJobFactory");
+    assertNotNull(factory, "Factory should not be null");
+    var job1 = factory.getJob("asyncJobTest");
+    assertNotNull(job1, "Job1 should not be null");
+    var job2 = factory.getJob("asyncJobTest");
+    assertNotNull(job2, "Job2 should not be null");
+    assertFalse(job1 == job2, "Each call should return a new job instance");
+  }
 }

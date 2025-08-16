@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,83 +15,77 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.assembly.impl.PSReplacementFilter;
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+/** Unit tests for {@link PSReplacementFilter}. */
+@Tag("UnitTest")
+class TestPSLinkReservedStringFilter {
 
-@Category(UnitTest.class)
-public class TestPSLinkReservedStringFilter {
-    private static final String FOO = "foo";
-    private static final String BAR = "bar";
+  private static final String FOO = "foo";
+  private static final String BAR = "bar";
 
-    @Test
-    public void testFilter() {
-        assertTrue(
-                "Test Space Failed",
-                PSReplacementFilter.filter("/this has spaces").equals(
-                        "/this-has-spaces"));
-        assertTrue(
-                "Test Brackets Failed",
-                PSReplacementFilter.filter("/this [has] brackets").equals(
-                        "/this-has-brackets"));
-        assertTrue(
-                "Test Multiple Dashes Failed",
-                PSReplacementFilter.filter("/this       [has]     brac--kets").equals(
-                        "/this-has-brac-kets"));
-        assertTrue(
-                "Test Encoded Space Failed",
-                PSReplacementFilter.filter("/test/this%20has%20spaces").equals(
-                        "/test/this-has-spaces"));
-        assertTrue(
-                "Test Backslash Failed",
-                PSReplacementFilter.filter("\\test\\this has spaces").equals(
-                        "/test/this-has-spaces"));
-
-        assertTrue("Test Anchor Failed",
-                PSReplacementFilter.filter("\\this has spaces\\and#anchor?malformed")
-                        .equals("/this-has-spaces/and-malformed#anchor"));
-        
-        assertTrue("Test Colon Failed",
-                PSReplacementFilter.filter("\\test:a:colon\\this has spaces")
-                        .equals("/test-a-colon/this-has-spaces"));
-        assertTrue("Test Percent Failed",
-                PSReplacementFilter.filter("\\test%a%percent\\this has spaces")
-                        .equals("/test-a-percent/this-has-spaces"));
-        assertTrue(
-                "Test Semicolon Failed",
-                PSReplacementFilter.filter(
-                        "\\test;a;semicolon\\this has spaces").equals(
-                        "/test-a-semicolon/this-has-spaces"));
-        assertTrue(
-                "Test Asterisk Failed",
-                PSReplacementFilter
-                        .filter("\\test*a*asterisk\\this has spaces").equals(
-                                "/test-a-asterisk/this-has-spaces"));
-        assertTrue(
-                "Test Question Mark Failed",
-                PSReplacementFilter
-                        .filter("\\test?a?question?mark\\this has spaces").equals(
-                                "/test-a-question-mark/this-has-spaces"));
-        assertTrue(
-                "Test Less Than Failed",
-                PSReplacementFilter
-                        .filter("\\test<a<less<than\\this has spaces").equals(
-                                "/test-a-less-than/this-has-spaces"));
-        assertTrue(
-                "Test Greater Than Failed",
-                PSReplacementFilter
-                        .filter("\\test>a>greater>than\\this has spaces").equals(
-                                "/test-a-greater-than/this-has-spaces"));
-        assertTrue(
-                "Test Pipe Failed",
-                PSReplacementFilter
-                        .filter("\\test|a|pipe\\this has spaces").equals(
-                                "/test-a-pipe/this-has-spaces"));
-    }
-
+  @Test
+  void testFilter() {
+    assertEquals(
+        "/this-has-spaces", PSReplacementFilter.filter("/this has spaces"), "Test Space Failed");
+    assertEquals(
+        "/this-has-brackets",
+        PSReplacementFilter.filter("/this [has] brackets"),
+        "Test Brackets Failed");
+    assertEquals(
+        "/this-has-brac-kets",
+        PSReplacementFilter.filter("/this       [has]     brac--kets"),
+        "Test Multiple Dashes Failed");
+    assertEquals(
+        "/test/this-has-spaces",
+        PSReplacementFilter.filter("/test/this%20has%20spaces"),
+        "Test Encoded Space Failed");
+    assertEquals(
+        "/test/this-has-spaces",
+        PSReplacementFilter.filter("\\test\\this has spaces"),
+        "Test Backslash Failed");
+    assertEquals(
+        "/this-has-spaces/and-malformed#anchor",
+        PSReplacementFilter.filter("\\this has spaces\\and#anchor?malformed"),
+        "Test Anchor Failed");
+    assertEquals(
+        "/test-a-colon/this-has-spaces",
+        PSReplacementFilter.filter("\\test:a:colon\\this has spaces"),
+        "Test Colon Failed");
+    assertEquals(
+        "/test-a-percent/this-has-spaces",
+        PSReplacementFilter.filter("\\test%a%percent\\this has spaces"),
+        "Test Percent Failed");
+    assertEquals(
+        "/test-a-semicolon/this-has-spaces",
+        PSReplacementFilter.filter("\\test;a;semicolon\\this has spaces"),
+        "Test Semicolon Failed");
+    assertEquals(
+        "/test-a-asterisk/this-has-spaces",
+        PSReplacementFilter.filter("\\test*a*asterisk\\this has spaces"),
+        "Test Asterisk Failed");
+    assertEquals(
+        "/test-a-question-mark/this-has-spaces",
+        PSReplacementFilter.filter("\\test?a?question?mark\\this has spaces"),
+        "Test Question Mark Failed");
+    assertEquals(
+        "/test-a-less-than/this-has-spaces",
+        PSReplacementFilter.filter("\\test<a<less<than\\this has spaces"),
+        "Test Less Than Failed");
+    assertEquals(
+        "/test-a-greater-than/this-has-spaces",
+        PSReplacementFilter.filter("\\test>a>greater>than\\this has spaces"),
+        "Test Greater Than Failed");
+    assertEquals(
+        "/test-a-pipe/this-has-spaces",
+        PSReplacementFilter.filter("\\test|a|pipe\\this has spaces"),
+        "Test Pipe Failed");
+  }
 }

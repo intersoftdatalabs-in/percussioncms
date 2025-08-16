@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,172 +19,266 @@ package com.percussion.rest.displayformat;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents a Display Format in Percussion CMS. */
 @XmlRootElement(name = "DisplayFormat")
-@Schema(description="Represents a DisplayFormat.")
-public class DisplayFormat{
+@Schema(description = "Represents a DisplayFormat.")
+public class DisplayFormat {
 
-    @Schema(description="The global unique id for this item.")
-    private Guid guid;
+  @Schema(description = "The global unique id for this item.")
+  private Guid guid;
 
-    @Schema(description="The name of this Display Format")
-    private String name;
-    private String label;
-    private boolean validForRelatedContent;
-    private String sortedColumnNames;
-    private boolean ascendingSort;
-    private boolean descendingSort;
-    private boolean validForViewsAndSearches;
-    private boolean validForFolder;
-    private String invalidFolderFieldNames;
-    private int displayId;
-    private DisplayFormatPropertyList properties;
-    private DisplayFormatColumnList columns;
-    private String internalName;
-    private Map<Guid,String> allowedCommunities;
-    private String description;
-    private String displayName;
+  @Schema(description = "The name of this Display Format")
+  private String name;
 
-    public String getDescription() {
-        return description;
-    }
+  private String label;
+  private boolean validForRelatedContent;
+  private String sortedColumnNames;
+  private boolean ascendingSort;
+  private boolean descendingSort;
+  private boolean validForViewsAndSearches;
+  private boolean validForFolder;
+  private String invalidFolderFieldNames;
+  private int displayId;
+  private DisplayFormatPropertyList properties;
+  private DisplayFormatColumnList columns;
+  private String internalName;
+  private Map<Guid, String> allowedCommunities;
+  private String description;
+  private String displayName;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public DisplayFormat() {}
 
-    public String getDisplayName() {
-        return displayName;
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Guid getGuid() {
-        return guid;
-    }
+  public Optional<String> getDisplayName() {
+    return Optional.ofNullable(displayName);
+  }
 
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public Optional<Guid> getGuid() {
+    return Optional.ofNullable(guid);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 
-    public String getLabel() {
-        return label;
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public boolean isValidForRelatedContent() {
-        return validForRelatedContent;
-    }
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
 
-    public void setValidForRelatedContent(boolean validForRelatedContent) {
-        this.validForRelatedContent = validForRelatedContent;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    public String getSortedColumnNames() {
-        return sortedColumnNames;
-    }
+  public boolean isValidForRelatedContent() {
+    return validForRelatedContent;
+  }
 
-    public void setSortedColumnNames(String sortedColumnNames) {
-        this.sortedColumnNames = sortedColumnNames;
-    }
+  public void setValidForRelatedContent(boolean validForRelatedContent) {
+    this.validForRelatedContent = validForRelatedContent;
+  }
 
-    public boolean isAscendingSort() {
-        return ascendingSort;
-    }
+  public Optional<String> getSortedColumnNames() {
+    return Optional.ofNullable(sortedColumnNames);
+  }
 
-    public void setAscendingSort(boolean ascendingSort) {
-        this.ascendingSort = ascendingSort;
-    }
+  public void setSortedColumnNames(String sortedColumnNames) {
+    this.sortedColumnNames = sortedColumnNames;
+  }
 
-    public boolean isDescendingSort() {
-        return descendingSort;
-    }
+  public boolean isAscendingSort() {
+    return ascendingSort;
+  }
 
-    public void setDescendingSort(boolean descendingSort) {
-        this.descendingSort = descendingSort;
-    }
+  public void setAscendingSort(boolean ascendingSort) {
+    this.ascendingSort = ascendingSort;
+  }
 
-    public boolean isValidForViewsAndSearches() {
-        return validForViewsAndSearches;
-    }
+  public boolean isDescendingSort() {
+    return descendingSort;
+  }
 
-    public void setValidForViewsAndSearches(boolean validForViewsAndSearches) {
-        this.validForViewsAndSearches = validForViewsAndSearches;
-    }
+  public void setDescendingSort(boolean descendingSort) {
+    this.descendingSort = descendingSort;
+  }
 
-    public boolean isValidForFolder() {
-        return validForFolder;
-    }
+  public boolean isValidForViewsAndSearches() {
+    return validForViewsAndSearches;
+  }
 
-    public void setValidForFolder(boolean validForFolder) {
-        this.validForFolder = validForFolder;
-    }
+  public void setValidForViewsAndSearches(boolean validForViewsAndSearches) {
+    this.validForViewsAndSearches = validForViewsAndSearches;
+  }
 
-    public String getInvalidFolderFieldNames() {
-        return invalidFolderFieldNames;
-    }
+  public boolean isValidForFolder() {
+    return validForFolder;
+  }
 
-    public void setInvalidFolderFieldNames(String invalidFolderFieldNames) {
-        this.invalidFolderFieldNames = invalidFolderFieldNames;
-    }
+  public void setValidForFolder(boolean validForFolder) {
+    this.validForFolder = validForFolder;
+  }
 
-    public int getDisplayId() {
-        return displayId;
-    }
+  public Optional<String> getInvalidFolderFieldNames() {
+    return Optional.ofNullable(invalidFolderFieldNames);
+  }
 
-    public void setDisplayId(int displayId) {
-        this.displayId = displayId;
-    }
+  public void setInvalidFolderFieldNames(String invalidFolderFieldNames) {
+    this.invalidFolderFieldNames = invalidFolderFieldNames;
+  }
 
-    public DisplayFormatPropertyList getProperties() {
-        return properties;
-    }
+  public int getDisplayId() {
+    return displayId;
+  }
 
-    public void setProperties(DisplayFormatPropertyList properties) {
-        this.properties = properties;
-    }
+  public void setDisplayId(int displayId) {
+    this.displayId = displayId;
+  }
 
-    public DisplayFormatColumnList getColumns() {
-        return columns;
-    }
+  public Optional<DisplayFormatPropertyList> getProperties() {
+    return Optional.ofNullable(properties);
+  }
 
-    public void setColumns(DisplayFormatColumnList columns) {
-        this.columns = columns;
-    }
+  public void setProperties(DisplayFormatPropertyList properties) {
+    this.properties = properties;
+  }
 
-    public String getInternalName() {
-        return internalName;
-    }
+  public Optional<DisplayFormatColumnList> getColumns() {
+    return Optional.ofNullable(columns);
+  }
 
-    public void setInternalName(String internalName) {
-        this.internalName = internalName;
-    }
+  public void setColumns(DisplayFormatColumnList columns) {
+    this.columns = columns;
+  }
 
-    public Map<Guid, String> getAllowedCommunities() {
-        return allowedCommunities;
-    }
+  public Optional<String> getInternalName() {
+    return Optional.ofNullable(internalName);
+  }
 
-    public void setAllowedCommunities(Map<Guid, String> allowedCommunities) {
-        this.allowedCommunities = allowedCommunities;
-    }
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
+  }
 
-    public DisplayFormat (){
-    }
+  public Optional<Map<Guid, String>> getAllowedCommunities() {
+    return Optional.ofNullable(allowedCommunities);
+  }
 
+  public void setAllowedCommunities(Map<Guid, String> allowedCommunities) {
+    this.allowedCommunities = allowedCommunities;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DisplayFormat)) return false;
+    var that = (DisplayFormat) o;
+    return validForRelatedContent == that.validForRelatedContent
+        && ascendingSort == that.ascendingSort
+        && descendingSort == that.descendingSort
+        && validForViewsAndSearches == that.validForViewsAndSearches
+        && validForFolder == that.validForFolder
+        && displayId == that.displayId
+        && Objects.equals(guid, that.guid)
+        && Objects.equals(name, that.name)
+        && Objects.equals(label, that.label)
+        && Objects.equals(sortedColumnNames, that.sortedColumnNames)
+        && Objects.equals(invalidFolderFieldNames, that.invalidFolderFieldNames)
+        && Objects.equals(properties, that.properties)
+        && Objects.equals(columns, that.columns)
+        && Objects.equals(internalName, that.internalName)
+        && Objects.equals(allowedCommunities, that.allowedCommunities)
+        && Objects.equals(description, that.description)
+        && Objects.equals(displayName, that.displayName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        guid,
+        name,
+        label,
+        validForRelatedContent,
+        sortedColumnNames,
+        ascendingSort,
+        descendingSort,
+        validForViewsAndSearches,
+        validForFolder,
+        invalidFolderFieldNames,
+        displayId,
+        properties,
+        columns,
+        internalName,
+        allowedCommunities,
+        description,
+        displayName);
+  }
+
+  @Override
+  public String toString() {
+    return "DisplayFormat{"
+        + "guid="
+        + guid
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", validForRelatedContent="
+        + validForRelatedContent
+        + ", sortedColumnNames='"
+        + sortedColumnNames
+        + '\''
+        + ", ascendingSort="
+        + ascendingSort
+        + ", descendingSort="
+        + descendingSort
+        + ", validForViewsAndSearches="
+        + validForViewsAndSearches
+        + ", validForFolder="
+        + validForFolder
+        + ", invalidFolderFieldNames='"
+        + invalidFolderFieldNames
+        + '\''
+        + ", displayId="
+        + displayId
+        + ", properties="
+        + properties
+        + ", columns="
+        + columns
+        + ", internalName='"
+        + internalName
+        + '\''
+        + ", allowedCommunities="
+        + allowedCommunities
+        + ", description='"
+        + description
+        + '\''
+        + ", displayName='"
+        + displayName
+        + '\''
+        + '}';
+  }
 }

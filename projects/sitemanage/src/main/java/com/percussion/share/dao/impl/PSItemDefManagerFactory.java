@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +18,26 @@
 package com.percussion.share.dao.impl;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Lazy;
 
-
 @PSSiteManageBean("itemDefManager")
 @Lazy
-public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager>
-{
-    @Override
-    public PSItemDefManager getObject() throws Exception
-    {
-        return PSItemDefManager.getInstance();
-    }
+public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager> {
 
-    @Override
-    public Class<?> getObjectType()
-    {
-        return PSItemDefManager.class;
-    }
+  @Override
+  public PSItemDefManager getObject() {
+    return PSItemDefManager.getInstance();
+  }
 
-    public boolean isSingleton()
-    {
-        return true;
-    }
+  @Override
+  public Class<?> getObjectType() {
+    return PSItemDefManager.class;
+  }
 
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 }

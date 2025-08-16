@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 // Test case
 public class PSFieldTest extends TestCase

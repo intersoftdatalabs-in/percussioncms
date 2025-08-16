@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,44 @@
 
 package com.percussion.server.agent;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
- * This is the interface all Rhythmyx Agent Managers must implement. It
- * provides methods to handle request from an agent and to terminate all agents.
+ * Interface defining the contract for managing server agents.
+ * Provides operations for handling agent actions and lifecycle management.
+ *
+ * @since Java 11
  */
-public interface IPSAgentManager
-{
-   /**
-    * This method is invoked by the request handler whenever the action
-    * requested is from an agent.
-    * @param params - map of all parameters from the request, may be
-    * <code>null</code> but normally is not.
-    * @throws IllegalArgumentException if the response object is
-    * <code>null</code>
-    */
-   void handleAction(Map params, IPSAgentHandlerResponse response);
+public interface IPSAgentManager {
 
    /**
-    * This method terminates all the agents registered by the Agent manager by
-    * calling the <code>terminate()</code> method of the each agent. This method
-    * is typically called by the request handler during server shut down or to
-    * reinitialize the agent manager when the configuration file on the disk
-    * changes.
+    * Handles an action request by delegating to the appropriate agent.
+    *
+    * @param params request parameters containing agent name and action details,
+    *               must not be {@code null}
+    * @param response response object for setting results, must not be {@code null}
+    * @throws IllegalArgumentException if any required parameter is {@code null}
+    */
+   void handleAction(Map<String, Object> params, IPSAgentHandlerResponse response);
+
+   /**
+    * Closes all registered agents and cleans up resources.
+    * This method should be called during shutdown to ensure proper cleanup.
     */
    void close();
+
+   /**
+    * Gets all registered agents.
+    *
+    * @return collection of all agents, never {@code null}
+    */
+   Collection<IPSAgent> getAllAgents();
+
+   /**
+    * Gets the number of registered agents.
+    *
+    * @return the agent count, always >= 0
+    */
+   int getAgentCount();
 }

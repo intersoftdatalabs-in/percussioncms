@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +26,21 @@ public class ASTDerivedColumn extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
 
   public void setColumnAlias(String alias) {
-     m_columnAlias = alias;
+    m_columnAlias = alias;
   }
 
   public String getColumnAlias() {
-     return m_columnAlias;
+    return m_columnAlias;
   }
 
   public boolean hasAlias() {
-     return (null != m_columnAlias);
+    return (null != m_columnAlias);
   }
 
   private String m_columnAlias = null;

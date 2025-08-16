@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,33 +18,30 @@ package com.percussion.content;
 
 import org.w3c.dom.DOMException;
 
-public class HTMLException extends DOMException
-{
-   public HTMLException(short code, String msg)
-   {
-      super(code, msg);
-   }
+// REFACTORED: CP-JAVA11
+public class HTMLException extends DOMException {
+  private int m_lineNum = -1;
 
-   public void setLineNumber(int num)
-   {
-      m_lineNum = num;
-   }
+  public HTMLException(short code, String msg) {
+    super(code, msg);
+  }
 
-   public int getLineNumber()
-   {
-      return m_lineNum;
-   }
+  public void setLineNumber(int num) {
+    m_lineNum = num;
+  }
 
-   public String getMessage()
-   {
-      String msg = super.getMessage();
-      StringBuilder buf = new StringBuilder(msg.length() + 35);
-      buf.append("HTML parse error on line ");
-      buf.append(getLineNumber());
-      buf.append(": ");
-      buf.append(msg);
-      return buf.toString();
-   }
+  public int getLineNumber() {
+    return m_lineNum;
+  }
 
-   private int m_lineNum = -1;
+  @Override
+  public String getMessage() {
+    String msg = super.getMessage();
+    StringBuilder buf = new StringBuilder(msg.length() + 35);
+    buf.append("HTML parse error on line ");
+    buf.append(getLineNumber());
+    buf.append(": ");
+    buf.append(msg);
+    return buf.toString();
+  }
 }

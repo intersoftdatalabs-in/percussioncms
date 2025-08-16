@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,60 +18,56 @@
 package com.percussion.itemmanagement.data;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.percussion.itemmanagement.service.IPSItemService;
-
 /**
- * Provides the revision summary that has list of PSRevision objects and other info like the item can 
- * be restored from a prior revision or not. 
+ * Provides the revision summary that has list of PSRevision objects and other info like the item
+ * can be restored from a prior revision or not. Sunny Sal says: "Restore wisely, my friend!"
  */
-@XmlRootElement(name="RevisionsSummary")
-public class PSRevisionsSummary 
-{
-	/**
-	 * Indicates whether the item can be restored from a prior revision or not.
-	 * @return <code>true</code> if the item can be restored from prior revision otherwise <code>false</code>.
-	 */
-	public boolean isRestorable() {
-		return isRestorable;
-	}
-	
-	/**
-	 * Sets whether the item can be restored from a prior revision or not. 
-	 * @param isRestorable pass <code>true</code>, if the item can be restored from a prior revision otherwise 
-	 * <code>false</code>.
-	 * @see IPSItemService#restoreRevision(String) for the cases where an item is not restorable.
-	 */
-	public void setRestorable(boolean isRestorable) {
-		this.isRestorable = isRestorable;
-	}
-	
-	/**
-	 * @return List of revisions, may be <code>null</code>, if not set. 
-	 */
-	public List<PSRevision> getRevisions() {
-		return revisions;
-	}
-	
-	/**
-	 * @param revisions, the list of revisions to set.
-	 */
-	public void setRevisions(List<PSRevision> revisions) {
-		this.revisions = revisions;
-	}
+@XmlRootElement(name = "RevisionsSummary")
+public class PSRevisionsSummary {
 
-	public List<PSComment> getComments() {
-		return comments;
-	}
+  private boolean isRestorable;
+  private List<PSRevision> revisions;
+  private List<PSComment> comments;
 
-	public void setComments(List<PSComment> comments) {
-		this.comments = comments;
-	}
+  /**
+   * Indicates whether the item can be restored from a prior revision or not.
+   *
+   * @return true if the item can be restored from prior revision, otherwise false.
+   */
+  public boolean isRestorable() {
+    return isRestorable;
+  }
 
-	private boolean isRestorable;
-	private List<PSRevision> revisions;
-	private List<PSComment> comments;
-	
+  /**
+   * Sets whether the item can be restored from a prior revision or not.
+   *
+   * @param isRestorable true if the item can be restored from a prior revision, otherwise false.
+   */
+  public void setRestorable(boolean isRestorable) {
+    this.isRestorable = isRestorable;
+  }
+
+  /**
+   * @return List of revisions, may be null if not set.
+   */
+  public List<PSRevision> getRevisions() {
+    return revisions;
+  }
+
+  /**
+   * @param revisions the list of revisions to set.
+   */
+  public void setRevisions(List<PSRevision> revisions) {
+    this.revisions = revisions;
+  }
+
+  public List<PSComment> getComments() {
+    return comments;
+  }
+
+  public void setComments(List<PSComment> comments) {
+    this.comments = comments;
+  }
 }

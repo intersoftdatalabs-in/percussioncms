@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,39 +19,34 @@ package com.percussion.pso.restservice.model;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-
-/**
- */
-@XmlRootElement(name="Value")
+/** */
+@XmlRootElement(name = "Value")
 public class StringValue implements Value {
 
-	/**
-	 * Field stringValue.
-	 */
-	private String stringValue;
-	
-	
-	/**
-	 * Field type.
-	 */
-	public static final int TYPE=0;  
-	
-	/**
-	 * Method getStringValue.
-	 * @return String
-	 * @see Value#getStringValue()
-	 */
-	@XmlValue
-	public String getStringValue() {
-		return stringValue;
-	}
-	/**
-	 * Method setStringValue.
-	 * @param stringValue String
-	 * @see Value#setStringValue(String)
-	 */
-	public void setStringValue(String stringValue) {
-		this.stringValue = stringValue;
-	}
+  /** Field stringValue. */
+  private String stringValue;
 
+  /** Field type. */
+  public static final int TYPE = 0;
+
+  /**
+   * Method getStringValue.
+   *
+   * @return String
+   * @see Value#getStringValue()
+   */
+  @XmlValue
+  public String getStringValue() {
+    return stringValue;
+  }
+
+  /**
+   * Method setStringValue.
+   *
+   * @param stringValue String
+   * @see Value#setStringValue(String)
+   */
+  public void setStringValue(String stringValue) {
+    this.stringValue = stringValue;
+  }
 }

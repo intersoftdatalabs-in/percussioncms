@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,35 @@
 
 package com.percussion.extensions.encoding;
 
-import java.io.File;
-
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
+import java.io.File;
 import org.owasp.encoder.Encode;
 
-public class PSHTMLEncode implements IPSFieldInputTransformer{
+public class PSHTMLEncode implements IPSFieldInputTransformer {
 
-	/***
-	 * Default constructor
-	 */
-	public PSHTMLEncode(){}
-	
-	@Override
-	public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException {
-		
-	      PSExtensionParams ep = new PSExtensionParams(params);
-	      String value = ep.getStringParam(0, null, true);
-		
-		return Encode.forHtml(value);
-	}
+  /***
+   * Default constructor
+   */
+  public PSHTMLEncode() {}
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-		// TODO Auto-generated method stub
-		
-	}
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
 
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+
+    return Encode.forHtml(value);
+  }
+
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // TODO Auto-generated method stub
+
+  }
 }

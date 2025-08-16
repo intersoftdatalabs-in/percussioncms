@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,35 +17,31 @@
  */
 package com.percussion.delivery.comments.data;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
-
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when 
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
+ *
  * @author erikserating
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {"summaries"})
-public class PSPageSummaries
-{
-    protected List<PSPageSummary> summaries;
+@XmlType(
+    name = "",
+    propOrder = {"summaries"})
+public class PSPageSummaries {
+  protected List<PSPageSummary> summaries;
 
-    public PSPageSummaries(List<PSPageSummary> summaries)
-    {
-        this.summaries = summaries;
-    }
-    
-    public List<PSPageSummary> getSummaries()
-    {
-        if (summaries == null)
-            summaries = new ArrayList<>();
-        return summaries;
-    }
+  public PSPageSummaries(List<PSPageSummary> summaries) {
+    this.summaries = summaries;
+  }
+
+  public List<PSPageSummary> getSummaries() {
+    if (summaries == null) summaries = new ArrayList<>();
+    return summaries;
+  }
 }

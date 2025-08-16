@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,76 +14,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSDataItemSummary;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Class to use internally to use attributes from orphan assets. 
- * 
- * @author Santiago M. Murchio
+ * Class to use internally to use attributes from orphan assets.
  *
+ * @author Santiago M. Murchio
  */
 @XmlRootElement
-public class PSOrphanedAssetSummary extends PSDataItemSummary
-{
-    private static final long serialVersionUID = 1L;
+public class PSOrphanedAssetSummary extends PSDataItemSummary {
 
-    /**
-     * Represents the SLOT_ID field from a {@link PSRelationship} object.
-     */
-    private String slotId;
-    
-    /**
-     * Represents the WIDGET_NAME field from a {@link PSRelationship} object.
-     */
-    private String widgetName;
-    
-    private int relationshipId;
-    
-    public PSOrphanedAssetSummary()
-    {
-        super();
-    }
-    
-    public PSOrphanedAssetSummary(String assetId, String slotId, String widgetName, int relationshipId)
-    {
-        setId(assetId);
-        this.slotId = slotId;
-        this.widgetName = widgetName;
-        this.relationshipId = relationshipId;
-    }
+  private static final long serialVersionUID = 1L;
 
-    public String getSlotId()
-    {
-        return slotId;
-    }
+  /** Represents the SLOT_ID field from a {@link PSRelationship} object. */
+  private String slotId;
 
-    public void setSlotId(String slotId)
-    {
-        this.slotId = slotId;
-    }
+  /** Represents the WIDGET_NAME field from a {@link PSRelationship} object. */
+  private String widgetName;
 
-    public String getWidgetName()
-    {
-        return widgetName;
-    }
+  private int relationshipId;
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
-    
-    public int getRelationshipId()
-    {
-        return relationshipId;
-    }
-    
-    public void setRelationshipId(int id)
-    {
-        relationshipId = id;
-    }
+  public PSOrphanedAssetSummary() {
+    super();
+  }
 
+  public PSOrphanedAssetSummary(
+      String assetId, String slotId, String widgetName, int relationshipId) {
+    setId(assetId);
+    this.slotId = slotId;
+    this.widgetName = widgetName;
+    this.relationshipId = relationshipId;
+  }
+
+  public Optional<String> getSlotId() {
+    return Optional.ofNullable(slotId);
+  }
+
+  public void setSlotId(String slotId) {
+    this.slotId = slotId;
+  }
+
+  public Optional<String> getWidgetName() {
+    return Optional.ofNullable(widgetName);
+  }
+
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
+
+  public int getRelationshipId() {
+    return relationshipId;
+  }
+
+  public void setRelationshipId(int id) {
+    relationshipId = id;
+  }
 }

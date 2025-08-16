@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,14 @@ package com.percussion.utils.testing;
 
 /**
  * @author DougRand
- *
- * Implement this class to enable the filtering of accessor methods.
+ *     <p>Implement this class to enable the filtering of accessor methods.
  */
-public interface IPSReflectionFilter
-{
-   /**
-    * Return true if the given methodname should be used as an accessor
-    * and false otherwise.
-    * @param methodname The given methodname, which will never be 
-    * <code>null</code>
-    * or empty
-    * @return
-    */
-   boolean  acceptMethod(String methodname);
+public interface IPSReflectionFilter {
+  /**
+   * Return true if the given methodname should be used as an accessor and false otherwise.
+   *
+   * @param methodname The given methodname, which will never be <code>null</code> or empty
+   * @return
+   */
+  boolean acceptMethod(String methodname);
 }

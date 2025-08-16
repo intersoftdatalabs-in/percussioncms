@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,71 +17,58 @@
 
 package com.percussion.guitools;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.util.Map;
+import javax.swing.*;
 
 /**
- * The default font used by <code>JLabel</code> (family - Dialog, size - 12,
- * weight - Regular) is unable to display special characters such as TM
- * symbol. This class sets the font family to "Arial" which is able to display
- * such characters. This class mimics all constructors of <code>JLabel</code>
- * for ease of use.
+ * The default font used by <code>JLabel</code> (family - Dialog, size - 12, weight - Regular) is
+ * unable to display special characters such as TM symbol. This class sets the font family to
+ * "Arial" which is able to display such characters. This class mimics all constructors of <code>
+ * JLabel</code> for ease of use.
  */
-public class PSLabel extends JLabel
-{
-   // see base class
-   public PSLabel()
-   {
-      super();
-      init();
-   }
+public class PSLabel extends JLabel {
+  // see base class
+  public PSLabel() {
+    super();
+    init();
+  }
 
-   // see base class
-   public PSLabel(Icon image)
-   {
-      super(image);
-      init();
-   }
+  // see base class
+  public PSLabel(Icon image) {
+    super(image);
+    init();
+  }
 
-   // see base class
-   public PSLabel(Icon image, int horizontalAlignment)
-   {
-      super(image, horizontalAlignment);
-      init();
-   }
+  // see base class
+  public PSLabel(Icon image, int horizontalAlignment) {
+    super(image, horizontalAlignment);
+    init();
+  }
 
-   // see base class
-   public PSLabel(String text)
-   {
-      super(text);
-      init();
-   }
+  // see base class
+  public PSLabel(String text) {
+    super(text);
+    init();
+  }
 
-   // see base class
-   public PSLabel(String text, Icon icon, int horizontalAlignment)
-   {
-      super(text, icon, horizontalAlignment);
-      init();
-   }
+  // see base class
+  public PSLabel(String text, Icon icon, int horizontalAlignment) {
+    super(text, icon, horizontalAlignment);
+    init();
+  }
 
-   // see base class
-   public PSLabel(String text, int horizontalAlignment)
-   {
-      super(text, horizontalAlignment);
-      init();
-   }
+  // see base class
+  public PSLabel(String text, int horizontalAlignment) {
+    super(text, horizontalAlignment);
+    init();
+  }
 
-   /**
-    * Sets the font family to "Arial". Does not modify any other font
-    * attribute.
-    */
-   private void init()
-   {
-      Map fontAttr = getFont().getAttributes();
-      fontAttr.put(TextAttribute.FAMILY, "Arial");
-      setFont(new Font(fontAttr));
-   }
+  /** Sets the font family to "Arial". Does not modify any other font attribute. */
+  private void init() {
+    Map fontAttr = getFont().getAttributes();
+    fontAttr.put(TextAttribute.FAMILY, "Arial");
+    setFont(new Font(fontAttr));
+  }
 }
-

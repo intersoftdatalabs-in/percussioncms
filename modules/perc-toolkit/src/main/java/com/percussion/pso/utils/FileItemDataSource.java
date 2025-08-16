@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,73 +16,72 @@
  */
 package com.percussion.pso.utils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.fileupload.FileItem;
+// REFACTORED: CP-JAVA11
 
-import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.activation.DataSource;
+import org.apache.commons.fileupload.FileItem;
 
 /**
- * A thin wrapper for a FileItem as a DataSource. 
- * 
+ * A thin wrapper for a FileItem as a DataSource.
+ *
  * @author DavidBenua
  * @see javax.activation.DataSource
  * @see org.apache.commons.fileupload.FileItem
  */
-public class FileItemDataSource implements DataSource
-{
-   /**
-    * the wrapped file item. 
-    */
-   private FileItem item = null; 
-   
-   /**
-    * Sole Constructor. 
-    * @param item the file item to be wrapped. 
-    * Must not be <code>null</code>. 
-    */
-   public FileItemDataSource(FileItem item)
-   {
-      this.item = item; 
-   }
-   
-   /**
-    * Gets the file data as a stream.
-    * @return the stream  
-    * @see javax.activation.DataSource#getInputStream()
-    */
-   public InputStream getInputStream() throws IOException
-   {
-       return item.getInputStream(); 
-   }
-   /**
-    * Gets a stream for writing the data.
-    * @return the stream. 
-    * @see javax.activation.DataSource#getOutputStream()
-    */
-   public OutputStream getOutputStream() throws IOException
-   {
-      return item.getOutputStream();       
-   }
-   /**
-    * Gets the MIME content type of this file.
-    * @return the content type.  
-    * @see javax.activation.DataSource#getContentType()
-    */
-   public String getContentType()
-   {
-      return item.getContentType(); 
-   }
-   /**
-    * Gets the file name. 
-    * @return the file name. 
-    * @see javax.activation.DataSource#getName()
-    */
-   @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
-   public String getName()
-   {     
-      return item.getName(); 
-   }
+public class FileItemDataSource implements DataSource {
+  /** the wrapped file item. */
+  private FileItem item = null;
+
+  /**
+   * Sole Constructor.
+   *
+   * @param item the file item to be wrapped. Must not be <code>null</code>.
+   */
+  public FileItemDataSource(FileItem item) {
+    this.item = item;
+  }
+
+  /**
+   * Gets the file data as a stream.
+   *
+   * @return the stream
+   * @see javax.activation.DataSource#getInputStream()
+   */
+  public InputStream getInputStream() throws IOException {
+    return item.getInputStream();
+  }
+
+  /**
+   * Gets a stream for writing the data.
+   *
+   * @return the stream.
+   * @see javax.activation.DataSource#getOutputStream()
+   */
+  public OutputStream getOutputStream() throws IOException {
+    return item.getOutputStream();
+  }
+
+  /**
+   * Gets the MIME content type of this file.
+   *
+   * @return the content type.
+   * @see javax.activation.DataSource#getContentType()
+   */
+  public String getContentType() {
+    return item.getContentType();
+  }
+
+  /**
+   * Gets the file name.
+   *
+   * @return the file name.
+   * @see javax.activation.DataSource#getName()
+   */
+  // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
+  public String getName() {
+    return item.getName();
+  }
 }

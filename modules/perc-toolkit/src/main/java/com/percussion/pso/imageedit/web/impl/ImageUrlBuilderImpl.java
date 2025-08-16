@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,84 +21,70 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ImageUrlBuilderImpl implements ImageUrlBuilder
-{
-   private static final Logger log = LogManager.getLogger(ImageUrlBuilderImpl.class);
-   
-   private String baseUrl; 
-   private String suffix = "jpg"; 
-   
-   /**
-    * @see ImageUrlBuilder#buildUrl(String)
-    */
-   public String buildUrl(String imageKey)
-   {
-      StringBuilder sb = new StringBuilder(); 
-      sb.append(baseUrl);
-      if(!baseUrl.endsWith("/"))
-      {
-         sb.append("/");
-      }
-      sb.append("img");
-      sb.append(imageKey);
-      sb.append(".");
-      sb.append(suffix); 
-      return sb.toString(); 
-   }
-   
-   
-   /**
-    * @see ImageUrlBuilder#extractKey(String)
-    */
-   public String extractKey(String url)
-   {
-      String emsg; 
-      if(StringUtils.isBlank(url))
-      {
-         emsg = "image URL must not be blank"; 
-         log.error(emsg);
-         throw new IllegalArgumentException(emsg);
-      }
-      String lastPart = StringUtils.substringAfterLast(url, "/"); 
-      lastPart = StringUtils.substringBefore(lastPart, "."); 
-      String key = StringUtils.substringAfter(lastPart,"img"); 
-      
-      return key; 
-   }
+public class ImageUrlBuilderImpl implements ImageUrlBuilder {
+  private static final Logger log = LogManager.getLogger(ImageUrlBuilderImpl.class);
 
+  private String baseUrl;
+  private String suffix = "jpg";
 
-   /**
-    * @return the baseUrl
-    */
-   public String getBaseUrl()
-   {
-      return baseUrl;
-   }
+  /**
+   * @see ImageUrlBuilder#buildUrl(String)
+   */
+  public String buildUrl(String imageKey) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(baseUrl);
+    if (!baseUrl.endsWith("/")) {
+      sb.append("/");
+    }
+    sb.append("img");
+    sb.append(imageKey);
+    sb.append(".");
+    sb.append(suffix);
+    return sb.toString();
+  }
 
+  /**
+   * @see ImageUrlBuilder#extractKey(String)
+   */
+  public String extractKey(String url) {
+    String emsg;
+    if (StringUtils.isBlank(url)) {
+      emsg = "image URL must not be blank";
+      log.error(emsg);
+      throw new IllegalArgumentException(emsg);
+    }
+    String lastPart = StringUtils.substringAfterLast(url, "/");
+    lastPart = StringUtils.substringBefore(lastPart, ".");
+    String key = StringUtils.substringAfter(lastPart, "img");
 
-   /**
-    * @param baseUrl the baseUrl to set
-    */
-   public void setBaseUrl(String baseUrl)
-   {
-      this.baseUrl = baseUrl;
-   }
+    return key;
+  }
 
+  /**
+   * @return the baseUrl
+   */
+  public String getBaseUrl() {
+    return baseUrl;
+  }
 
-   /**
-    * @return the suffix
-    */
-   public String getSuffix()
-   {
-      return suffix;
-   }
+  /**
+   * @param baseUrl the baseUrl to set
+   */
+  public void setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
+  /**
+   * @return the suffix
+   */
+  public String getSuffix() {
+    return suffix;
+  }
 
-   /**
-    * @param suffix the suffix to set
-    */
-   public void setSuffix(String suffix)
-   {
-      this.suffix = suffix;
-   }
+  /**
+   * @param suffix the suffix to set
+   */
+  public void setSuffix(String suffix) {
+    this.suffix = suffix;
+  }
 }

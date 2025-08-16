@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,20 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * Service for locating the publishable template for an item. 
- * 
- * @author DavidBenua
+ * Service for locating the publishable template for an item.
  *
+ * @author DavidBenua
  */
 public interface ItemTemplateService {
 
-	/**
-	 * Finds the appropriate template based on site and content item. 
-	 * @param site the site
-	 * @param contentId the content item id. 
-	 * @return the appropriate template. Never <code>null</code>. 
-	 * @throws SiteLookUpException when the template cannot be located. 
-	 */
-	public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
-	  throws SiteLookUpException; 
-	
+  /**
+   * Finds the appropriate template based on site and content item.
+   *
+   * @param site the site
+   * @param contentId the content item id.
+   * @return the appropriate template. Never <code>null</code>.
+   * @throws SiteLookUpException when the template cannot be located.
+   */
+  public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)
+      throws SiteLookUpException;
 }

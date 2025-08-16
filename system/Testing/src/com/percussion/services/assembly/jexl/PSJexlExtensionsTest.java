@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
  */
 package com.percussion.services.assembly.jexl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.utils.jsr170.PSProperty;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.jcr.Property;
 import java.io.IOException;
@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test jexl extensions

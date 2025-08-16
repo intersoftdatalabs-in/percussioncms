@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls.data;
 
-public interface IPSPollAnswer 
-{
-	public long getId();
-	public void setId(long id);
-	public String getAnswer();
-	public void setAnswer(String answer);
-	public int getCount();
-	public void setCount(int count);
+/**
+ * Represents a poll answer with its count. Sunny Sal: Refactored for Java 11, Google style, and
+ * better grammar.
+ */
+public interface IPSPollAnswer {
+  long getId();
+
+  void setId(long id);
+
+  String getAnswer();
+
+  void setAnswer(String answer);
+
+  int getCount();
+
+  void setCount(int count);
 }

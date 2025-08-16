@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +19,28 @@ package com.percussion.sitemanage.dao;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.user.data.PSUserLogin;
-
 import java.util.List;
 
 /**
- * @author DavidBenua
- *
+ * Data access object for user login entries. Sunny Sal says: "Login securely, code confidently!"
  */
-public interface IPSUserLoginDao extends IPSGenericDao<PSUserLogin, String>
-{
-    public PSUserLogin create(PSUserLogin login) throws IPSGenericDao.SaveException;  
+public interface IPSUserLoginDao extends IPSGenericDao<PSUserLogin, String> {
 
-    /**
-     * Gets all user login entries for the specified name, case-insensitive.
-     * 
-     * @param name the user name, may not be blank.
-     * @return list of entries which match the name, never <code>null</code>, may be empty.
-     * 
-     * @throws IPSGenericDao.LoadException if an error occurs.
-     */
-    public List<PSUserLogin> findByName(String name) throws IPSGenericDao.LoadException;
+  /**
+   * Creates a new user login entry.
+   *
+   * @param login the user login, not {@code null}.
+   * @return the created user login, never {@code null}.
+   * @throws IPSGenericDao.SaveException if a save error occurs.
+   */
+  PSUserLogin create(PSUserLogin login) throws IPSGenericDao.SaveException;
+
+  /**
+   * Gets all user login entries for the specified name, case-insensitive.
+   *
+   * @param name the user name, not blank.
+   * @return list of entries which match the name, never {@code null}, may be empty.
+   * @throws IPSGenericDao.LoadException if an error occurs.
+   */
+  List<PSUserLogin> findByName(String name) throws IPSGenericDao.LoadException;
 }

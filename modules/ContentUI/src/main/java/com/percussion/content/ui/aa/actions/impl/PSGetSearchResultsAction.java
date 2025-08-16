@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,18 @@ package com.percussion.content.ui.aa.actions.impl;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.search.PSSearchResult;
-
 import java.util.Map;
 
-/**
- * Implementation of the get search results action.
- */
-public class PSGetSearchResultsAction extends PSAAActionBase
-{
-   /**
-    * todo document the required and optional parameters in the map.
-    */
-   public PSActionResponse execute(Map<String, Object> params)
-      throws PSAAClientActionException
-   {
-      try
-      {
-         return new PSActionResponse(new PSSearchResult()
-            .getSearchResults(getRequestContext()),
-            PSActionResponse.RESPONSE_TYPE_JSON);
-      }
-      catch (Exception e)
-      {
-         throw new PSAAClientActionException(e.getLocalizedMessage());
-      }
-   }
+/** Implementation of the get search results action. */
+public class PSGetSearchResultsAction extends PSAAActionBase {
+  /** todo document the required and optional parameters in the map. */
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    try {
+      return new PSActionResponse(
+          new PSSearchResult().getSearchResults(getRequestContext()),
+          PSActionResponse.RESPONSE_TYPE_JSON);
+    } catch (Exception e) {
+      throw new PSAAClientActionException(e.getLocalizedMessage());
+    }
+  }
 }

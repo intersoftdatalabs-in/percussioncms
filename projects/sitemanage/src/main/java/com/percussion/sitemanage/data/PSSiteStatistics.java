@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,75 +18,56 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents statistics for a site. */
 @XmlRootElement(name = "statistics")
-public class PSSiteStatistics extends PSAbstractDataObject
-{
+public class PSSiteStatistics extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  private long binary;
+  private long css;
+  private long linksInternal;
+  private long pages;
+  private long templates;
 
-    private long binary;
+  public long getBinary() {
+    return binary;
+  }
 
-    private long css;
+  public void setBinary(long binary) {
+    this.binary = binary;
+  }
 
-    private long linksInternal;
+  public long getCss() {
+    return css;
+  }
 
-    private long pages;
+  public void setCss(long css) {
+    this.css = css;
+  }
 
-    private long templates;
+  public long getLinksInternal() {
+    return linksInternal;
+  }
 
-    public long getBinary()
-    {
-        return binary;
-    }
+  public void setLinksInternal(long linksInternal) {
+    this.linksInternal = linksInternal;
+  }
 
-    public void setBinary(long binary)
-    {
-        this.binary = binary;
-    }
+  public long getPages() {
+    return pages;
+  }
 
-    public long getCss()
-    {
-        return css;
-    }
+  public void setPages(long pages) {
+    this.pages = pages;
+  }
 
-    public void setCss(long css)
-    {
-        this.css = css;
-    }
+  public long getTemplates() {
+    return templates;
+  }
 
-    public long getLinksInternal()
-    {
-        return linksInternal;
-    }
-
-    public void setLinksInternal(long linksInternal)
-    {
-        this.linksInternal = linksInternal;
-    }
-
-    public long getPages()
-    {
-        return pages;
-    }
-
-    public void setPages(long pages)
-    {
-        this.pages = pages;
-    }
-
-    public long getTemplates()
-    {
-        return templates;
-    }
-
-    public void setTemplates(long templates)
-    {
-        this.templates = templates;
-    }
+  public void setTemplates(long templates) {
+    this.templates = templates;
+  }
 }

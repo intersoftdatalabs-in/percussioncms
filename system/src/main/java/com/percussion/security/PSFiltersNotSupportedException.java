@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,17 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
- * PSFiltersNotSupportedException is thrown to indicate that the
- * security provider does not support filters.
+ * PSFiltersNotSupportedException is thrown to indicate that the security provider does not support
+ * filters.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSFiltersNotSupportedException extends PSException
-{
-   /**
-    * Constructs a filters not supported exception with the default
-    * message.
-    */
-   public PSFiltersNotSupportedException(java.lang.String provider)
-   {
-      super(IPSSecurityErrors.FILTERS_NOT_SUPPORTED,
-            new Object[] { provider } );
-   }
+public class PSFiltersNotSupportedException extends PSException {
+  /** Constructs a filters not supported exception with the default message. */
+  public PSFiltersNotSupportedException(java.lang.String provider) {
+    super(IPSSecurityErrors.FILTERS_NOT_SUPPORTED, new Object[] {provider});
+  }
 }
-

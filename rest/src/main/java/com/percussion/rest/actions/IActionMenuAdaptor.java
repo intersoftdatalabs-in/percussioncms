@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,22 @@
 package com.percussion.rest.actions;
 
 import com.percussion.webservices.PSErrorResultsException;
-
 import java.util.List;
 
+/** Adaptor interface for Action Menu operations. */
 public interface IActionMenuAdaptor {
 
-  public List<ActionMenu> findMenus(String name, String label, Boolean item, Boolean dynamic, Boolean cascading) throws PSErrorResultsException;
-  public List<ActionMenu> findAllowedTransitions(Integer[] contentIds, Integer[] assignmentTypeIds);
-  public List<ActionMenu> findAllowedContentTypes(Integer[] contentIds);
-  public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA);
+  /** Finds menus matching the given criteria. */
+  List<ActionMenu> findMenus(
+      String name, String label, Boolean item, Boolean dynamic, Boolean cascading)
+      throws PSErrorResultsException;
 
+  /** Finds allowed transitions for the given content and assignment type IDs. */
+  List<ActionMenu> findAllowedTransitions(Integer[] contentIds, Integer[] assignmentTypeIds);
+
+  /** Finds allowed content types for the given content IDs. */
+  List<ActionMenu> findAllowedContentTypes(Integer[] contentIds);
+
+  /** Finds allowed templates for the given content ID. */
+  List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA);
 }

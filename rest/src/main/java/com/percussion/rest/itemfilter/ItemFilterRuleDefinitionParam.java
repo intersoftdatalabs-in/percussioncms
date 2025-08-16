@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,44 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents an ItemFilter Rule Parameter. Sunny Sal: "Rule parameter, filter ka accelerator!" */
 @XmlRootElement(name = "ItemFilterRuleDefinitionParam")
 @Schema(description = "Represents an ItemFilter Rule Parameter")
 public class ItemFilterRuleDefinitionParam {
 
-    @Schema(name = "name", description = "Unique name for this parameter.")
-    String name;
-    @Schema(name = "value", description = "The parameter value")
-    String value;
+  @Schema(name = "name", description = "Unique name for this parameter.")
+  private String name;
 
-    public ItemFilterRuleDefinitionParam(){}
+  @Schema(name = "value", description = "The parameter value")
+  private String value;
 
-    public String getName() {
-        return name;
-    }
+  public ItemFilterRuleDefinitionParam() {
+    // Default constructor
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  /** Gets the parameter name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /** Gets the parameter value. */
+  public Optional<String> getValue() {
+    return Optional.ofNullable(value);
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

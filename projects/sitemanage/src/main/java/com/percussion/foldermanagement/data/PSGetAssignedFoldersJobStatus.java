@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,51 +14,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author JaySeletz
- *
+ * Status object for the async job that gets assigned folders. Sunny Sal says: "Job status
+ * reporting, now with Java 11 shine!"
  */
-@XmlRootElement(name = "GetAssginedFoldersJobStatus")
-public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject
-{
-    public List<PSFolderItem> getFolderItems()
-    {
-        return folderItems;
-    }
-    public void setFolderItems(List<PSFolderItem> folderItems)
-    {
-        this.folderItems = folderItems;
-    }
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-    public long getJobId()
-    {
-        return jobId;
-    }
-    public void setJobId(long jobId)
-    {
-        this.jobId = jobId;
-    }
-    private List<PSFolderItem> folderItems;
-    private String status;
-    private String message;
-    private long jobId;
+@XmlRootElement(name = "GetAssignedFoldersJobStatus")
+public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
+  private List<PSFolderItem> folderItems;
+  private String status;
+  private String message;
+  private long jobId;
 
-    public String getMessage() {  return message; }
+  public List<PSFolderItem> getFolderItems() {
+    return folderItems;
+  }
 
-    public void setMessage(String message) {  this.message = message;}
+  public void setFolderItems(List<PSFolderItem> folderItems) {
+    this.folderItems = folderItems;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public long getJobId() {
+    return jobId;
+  }
+
+  public void setJobId(long jobId) {
+    this.jobId = jobId;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

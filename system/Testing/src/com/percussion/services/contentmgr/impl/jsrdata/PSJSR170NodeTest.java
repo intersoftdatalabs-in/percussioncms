@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.services.contentmgr.impl.jsrdata;
 
 
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.utils.jsr170.PSProperty;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -26,8 +26,8 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 public class PSJSR170NodeTest extends TestCase
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,98 +19,79 @@ package com.percussion.content;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Text;
 
-public class HTMLText extends HTMLNode implements Text
-{
-   public HTMLText(String initialValue)
-   {
-      super();
-      setNodeValue(initialValue);
-   }
+// REFACTORED: CP-JAVA11
+public class HTMLText extends HTMLNode implements Text {
+  public HTMLText(String initialValue) {
+    super();
+    setNodeValue(initialValue);
+  }
 
-   public HTMLText()
-   {
-      super();
-   }
+  public HTMLText() {
+    super();
+  }
 
-   public String getData()
-      throws DOMException
-   {
-      return getNodeValue();
-   }
+  @Override
+  public String getData() throws DOMException {
+    return getNodeValue();
+  }
 
-   public void setData(String data)
-      throws DOMException
-   {
-      setNodeValue(data);
-   }
+  @Override
+  public void setData(String data) throws DOMException {
+    setNodeValue(data);
+  }
 
-   public int getLength()
-   {
-      return m_value.length();
-   }
+  @Override
+  public int getLength() {
+    return m_value.length();
+  }
 
-   public String substringData(int offset, int count)
-      throws DOMException
-   {
-      return m_value.substring(offset, offset + count);
-   }
+  @Override
+  public String substringData(int offset, int count) throws DOMException {
+    return m_value.substring(offset, offset + count);
+  }
 
-   public void appendData(String arg)
-      throws DOMException
-   {
-      m_value.append(arg);
-   }
+  @Override
+  public void appendData(String arg) throws DOMException {
+    m_value.append(arg);
+  }
 
-   public void insertData(int offset, String arg)
-      throws DOMException
-   {
-      m_value.insert(offset, arg);
-   }
+  public void insertData(int offset, String arg) throws DOMException {
+    m_value.insert(offset, arg);
+  }
 
-   public void deleteData(int offset, int count)
-      throws DOMException
-   {
-      m_value.delete(offset, offset + count);
-   }
+  public void deleteData(int offset, int count) throws DOMException {
+    m_value.delete(offset, offset + count);
+  }
 
-   public void replaceData(int offset, int count, String arg)
-      throws DOMException
-   {
-      m_value.replace(offset, offset + count, arg);
-   }
+  public void replaceData(int offset, int count, String arg) throws DOMException {
+    m_value.replace(offset, offset + count, arg);
+  }
 
-   public short getNodeType()
-   {
-      return TEXT_NODE;
-   }
+  public short getNodeType() {
+    return TEXT_NODE;
+  }
 
-   public int numChildren()
-   {
-      return 0; // text has no children
-   }
+  public int numChildren() {
+    return 0; // text has no children
+  }
 
-   public Text splitText(int offset)
-      throws DOMException
-   {
-      // TODO: implement
-      return null;
-   }
+  public Text splitText(int offset) throws DOMException {
+    // TODO: implement
+    return null;
+  }
 
-   public boolean isElementContentWhitespace()
-   {
-      // TODO Auto-generated method stub
-      return false;
-   }
+  public boolean isElementContentWhitespace() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-   public String getWholeText()
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public String getWholeText() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public Text replaceWholeText(String content) throws DOMException
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Text replaceWholeText(String content) throws DOMException {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

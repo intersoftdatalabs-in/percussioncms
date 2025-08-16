@@ -24,16 +24,6 @@
     <plugins>
         <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <jdkToolchain>
-                    <version>1.8</version>
-                    <vendor>oracle</vendor>
-                </jdkToolchain>
-                <verbose>true</verbose>
-                <source>1.8</source>
-                <target>1.8</target>
-                <debuglevel>lines,vars,source</debuglevel>
-            </configuration>
         </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -179,6 +169,18 @@
                 <verbose>true</verbose>
             </configuration>
         </plugin>
+        <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M5</version>
+        </plugin>
+        <plugin>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-maven-plugin</artifactId>
+            <version>0.0.8</version>
+            <configuration>
+                <mainClass>com.percussion.cx.PSContentExplorerApplication</mainClass>
+            </configuration>
+        </plugin>
     </plugins>
     </build>
     <dependencies>
@@ -186,13 +188,18 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx</artifactId>
-            <version>11</version>
+            <version>17</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11</version>
+            <version>17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>17</version>
         </dependency>
 
         <dependency>
@@ -327,11 +334,25 @@
             <version>${xstream.version}</version>
             <scope>runtime</scope>
         </dependency>
+        
+        <!-- JUnit 5 for testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
 </project>

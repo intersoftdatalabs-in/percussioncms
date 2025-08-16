@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,174 +17,143 @@
 
 package com.ibm.cadf.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.util.Constants;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
-public class Resource extends CADFType
-{
+public class Resource extends CADFType {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
+  private String id;
 
-    private String typeURI;
+  private String typeURI;
 
-    private String name;
+  private String name;
 
-    private String domain;
+  private String domain;
 
-    private Credential credential;
+  private Credential credential;
 
-    private Host host;
+  private Host host;
 
-    private String ref;
+  private String ref;
 
-    private Geolocation geolocation;
+  private Geolocation geolocation;
 
-    private String geolocationId;
+  private String geolocationId;
 
-    private List<EndPoint> addresses;
+  private List<EndPoint> addresses;
 
-    private List<Attachment> attachments;
+  private List<Attachment> attachments;
 
-    public Resource()
-    {
+  public Resource() {}
 
+  public Resource(String id) throws CADFException {
+    super();
+    this.id = id;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getTypeURI() {
+    return typeURI;
+  }
+
+  public void setTypeURI(String typeURI) {
+    this.typeURI = typeURI;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getDomain() {
+    return domain;
+  }
+
+  public void setDomain(String domain) {
+    this.domain = domain;
+  }
+
+  public Credential getCredential() {
+    return credential;
+  }
+
+  public void setCredential(Credential credential) {
+    this.credential = credential;
+  }
+
+  public Host getHost() {
+    return host;
+  }
+
+  public void setHost(Host host) {
+    this.host = host;
+  }
+
+  public String getRef() {
+    return ref;
+  }
+
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
+
+  public Geolocation getGeolocation() {
+    return geolocation;
+  }
+
+  public void setGeolocation(Geolocation geolocation) {
+    this.geolocation = geolocation;
+  }
+
+  public String getGeolocationId() {
+    return geolocationId;
+  }
+
+  public void setGeolocationId(String geolocationId) {
+    this.geolocationId = geolocationId;
+  }
+
+  public void addAddress(EndPoint endpoint) {
+    if (addresses == null) {
+      addresses = new ArrayList<>();
     }
+    addresses.add(endpoint);
+  }
 
-    public Resource(String id) throws CADFException
-    {
-        super();
-        this.id = id;
+  public void addAttachment(Attachment attachment) {
+    if (attachments == null) {
+      attachments = new ArrayList<>();
     }
+    attachments.add(attachment);
+  }
 
-    public String getId()
-    {
-        return id;
-    }
+  public List<EndPoint> getAddresses() {
+    return addresses;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public List<Attachment> getAttachments() {
+    return attachments;
+  }
 
-    public String getTypeURI()
-    {
-        return typeURI;
-    }
-
-    public void setTypeURI(String typeURI)
-    {
-        this.typeURI = typeURI;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getDomain()
-    {
-        return domain;
-    }
-
-    public void setDomain(String domain)
-    {
-        this.domain = domain;
-    }
-
-    public Credential getCredential()
-    {
-        return credential;
-    }
-
-    public void setCredential(Credential credential)
-    {
-        this.credential = credential;
-    }
-
-    public Host getHost()
-    {
-        return host;
-    }
-
-    public void setHost(Host host)
-    {
-        this.host = host;
-    }
-
-    public String getRef()
-    {
-        return ref;
-    }
-
-    public void setRef(String ref)
-    {
-        this.ref = ref;
-    }
-
-    public Geolocation getGeolocation()
-    {
-        return geolocation;
-    }
-
-    public void setGeolocation(Geolocation geolocation)
-    {
-        this.geolocation = geolocation;
-    }
-
-    public String getGeolocationId()
-    {
-        return geolocationId;
-    }
-
-    public void setGeolocationId(String geolocationId)
-    {
-        this.geolocationId = geolocationId;
-    }
-
-    public void addAddress(EndPoint endpoint)
-    {
-        if (addresses == null)
-        {
-            addresses = new ArrayList<>();
-        }
-        addresses.add(endpoint);
-    }
-
-    public void addAttachment(Attachment attachment)
-    {
-        if (attachments == null)
-        {
-            attachments = new ArrayList<>();
-        }
-        attachments.add(attachment);
-    }
-
-    public List<EndPoint> getAddresses()
-    {
-        return addresses;
-    }
-
-    public List<Attachment> getAttachments()
-    {
-        return attachments;
-    }
-
-    @Override
-    public boolean isValid()
-    {
-        return (StringUtils.isNotEmpty(id) && (StringUtils.isNotEmpty(typeURI) || (id.equals(Constants.TARGET) || id.equals(Constants.INITIATOR))));
-    }
-
+  @Override
+  public boolean isValid() {
+    return (StringUtils.isNotEmpty(id)
+        && (StringUtils.isNotEmpty(typeURI)
+            || (id.equals(Constants.TARGET) || id.equals(Constants.INITIATOR))));
+  }
 }

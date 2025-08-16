@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,65 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-public class PSResourceLocationContext
-{
-    
-    private String siteId;
-    
-    private String folderPath;
-    
-    private Number legacyFileContext;
-    
-    private Mode mode;
-    
-    public static enum Mode {
-        PUBLISH, PREVIEW;
-    }
+/** Context for resource location resolution. */
+public class PSResourceLocationContext {
 
-    public String getSiteId()
-    {
-        return siteId;
-    }
+  private String siteId;
+  private String folderPath;
+  private Number legacyFileContext;
+  private Mode mode;
 
-    public void setSiteId(String siteId)
-    {
-        this.siteId = siteId;
-    }
+  public enum Mode {
+    PUBLISH,
+    PREVIEW
+  }
 
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  public String getSiteId() {
+    return siteId;
+  }
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public Number getLegacyFileContext()
-    {
-        return legacyFileContext;
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public void setLegacyFileContext(Number legacyFileContext)
-    {
-        this.legacyFileContext = legacyFileContext;
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    public Mode getMode()
-    {
-        return mode;
-    }
+  public Number getLegacyFileContext() {
+    return legacyFileContext;
+  }
 
-    public void setMode(Mode mode)
-    {
-        this.mode = mode;
-    }
-    
-    
-    
+  public void setLegacyFileContext(Number legacyFileContext) {
+    this.legacyFileContext = legacyFileContext;
+  }
 
+  public Mode getMode() {
+    return mode;
+  }
+
+  public void setMode(Mode mode) {
+    this.mode = mode;
+  }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.ContainerConfig;
 
-public interface ConfigurationAdaptorComposite<T extends ConfigurationCtx,U extends ContainerConfig> extends IPSConfigurationAdapter<T> {
+public interface ConfigurationAdaptorComposite<
+        T extends ConfigurationCtx, U extends ContainerConfig>
+    extends IPSConfigurationAdapter<T> {
 
-    void addConfigurationAdapter(IPSConfigurationAdapter<T> adapter);
+  void addConfigurationAdapter(IPSConfigurationAdapter<T> adapter);
 
-    U getConfig();
+  U getConfig();
 
-    void load();
+  void load();
 
-    void save();
-
-
+  void save();
 }

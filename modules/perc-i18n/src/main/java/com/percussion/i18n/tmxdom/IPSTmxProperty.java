@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,25 @@
 package com.percussion.i18n.tmxdom;
 
 /**
- * This interface defines common methods for the TMX node 'prop'. Refer to the
- * TMX 1.4 DTD for more details of this node at:
- * <p>
- * <a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
- * </p>
+ * This interface defines common methods for the TMX node 'prop'. Refer to the TMX 1.4 DTD for more
+ * details of this node at:
+ *
+ * <p><a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
+ *
  * @see IPSTmxDtdConstants
  */
-public interface IPSTmxProperty
-   extends IPSTmxNote
-{
-   /**
-    * Method to get the type attribute of this node.
-    * @return value of the 'type' attribute, never <code>null</code>
-    * or <code>empty</code>
-    */
-   public String getType();
+public interface IPSTmxProperty extends IPSTmxNote {
+  /**
+   * Method to get the type attribute of this node.
+   *
+   * @return value of the 'type' attribute, never <code>null</code> or <code>empty</code>
+   */
+  public String getType();
 
-   /**
-    * Sets type attribute for this node
-    * @param    type if <code>null</code>, assumed <code>empty</code>.
-    */
-   public void setType(String type);
+  /**
+   * Sets type attribute for this node
+   *
+   * @param type if <code>null</code>, assumed <code>empty</code>.
+   */
+  public void setType(String type);
 }

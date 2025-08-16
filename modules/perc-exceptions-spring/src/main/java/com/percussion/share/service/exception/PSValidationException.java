@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,68 +20,58 @@ import com.percussion.share.validation.PSValidationErrors;
 
 /**
  * The base validation exception for <strong>expected</strong> failures.
- * <p>
- * The REST conversion of these exceptions will be HTTP Code <code>400</code>.
- * All other {@link RuntimeException RuntimeExceptions} will be HTTP Code <code>500</code>. 
- * <p>
- * The validation exceptions are loosly based on the Spring Frameworks Validation.
- * 
+ *
+ * <p>The REST conversion of these exceptions will be HTTP Code <code>400</code>. All other {@link
+ * RuntimeException RuntimeExceptions} will be HTTP Code <code>500</code>.
+ *
+ * <p>The validation exceptions are loosly based on the Spring Frameworks Validation.
+ *
  * @see PSSpringValidationException
  * @see PSValidationErrors
  * @author adamgent
- *
  */
-public abstract class PSValidationException extends PSDataServiceException implements IPSValidationException
-{
+public abstract class PSValidationException extends PSDataServiceException
+    implements IPSValidationException {
 
+  private PSValidationErrors validationErrors;
 
-    private PSValidationErrors validationErrors;
-    
-    public PSValidationException(PSValidationErrors validationErrors)
-    {
-        super(validationErrors.toString());
-        setValidationErrors(validationErrors);
+  public PSValidationException(PSValidationErrors validationErrors) {
+    super(validationErrors.toString());
+    setValidationErrors(validationErrors);
+  }
+
+  public PSValidationException(String message) {
+    super(message);
+  }
+
+  public PSValidationException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public PSValidationException(Throwable cause) {
+    super(cause);
+  }
+
+  /** {@inheritDoc} */
+  public PSValidationErrors getValidationErrors() {
+    return validationErrors;
+  }
+
+  public void setValidationErrors(PSValidationErrors validationErrors) {
+    this.validationErrors = validationErrors;
+  }
+
+  /**
+   * This exception will be thrown if its invalid.
+   *
+   * @return never <code>null</code>.
+   */
+  public PSValidationException throwIfInvalid() throws PSValidationException {
+    if (validationErrors != null && validationErrors.hasErrors()) {
+      throw this;
     }
+    return this;
+  }
 
-    public PSValidationException(String message)
-    {
-        super(message);
-    }
-
-    public PSValidationException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
-
-    public PSValidationException(Throwable cause)
-    {
-        super(cause);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public PSValidationErrors getValidationErrors()
-    {
-        return validationErrors;
-    }
-
-    public void setValidationErrors(PSValidationErrors validationErrors)
-    {
-        this.validationErrors = validationErrors;
-    }
-    
-    /**
-     * This exception will be thrown if its invalid.
-     * @return never <code>null</code>.
-     */
-    public PSValidationException throwIfInvalid() throws PSValidationException {
-        if (validationErrors != null && validationErrors.hasErrors()) {
-            throw this;
-        }
-        return this;
-    }
-    
-    private static final long serialVersionUID = 1L;
-
+  private static final long serialVersionUID = 1L;
 }

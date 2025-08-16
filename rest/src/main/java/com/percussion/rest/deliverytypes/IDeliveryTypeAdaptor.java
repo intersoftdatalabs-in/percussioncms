@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,43 +18,43 @@
 package com.percussion.rest.deliverytypes;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 import java.util.List;
 
-
+/** Adaptor interface for Delivery Type operations. */
 public interface IDeliveryTypeAdaptor {
 
-	 /***
-	  * Gets a delivery type by id
-	  * @param baseURI
-	  * @param id
-	  * @return
-	  */
-	 public DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException;
-	 
-	 /***
-	  * Creates or updates a delivery type
-	  * @param baseURI
-	  * @param type
-	  * @return
-	  */
-	 public DeliveryType updateDeliveryType(URI baseURI,DeliveryType type) throws BackendException;
-	 
-	 /***
-	  * Deletes a delivery type
-	  * @param baseURI
-	  * @param id
-	  * @return
-	  */
-	 public void deleteDeliveryTypeById(URI baseURI,String id) throws BackendException;
-	 
-	 /***
-	  * Get the list of DeliveryTypes available on the system.
-	  * @param baseURI
-	  * @return A list of available Delivery Types.
-	  */
-	 public List<DeliveryType> getDeliveryTypes(URI baseURI);
-	 
+  /**
+   * Gets a delivery type by id.
+   *
+   * @param baseURI The base URI of the request.
+   * @param id The delivery type id.
+   * @return The DeliveryType.
+   */
+  DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException;
 
+  /**
+   * Creates or updates a delivery type.
+   *
+   * @param baseURI The base URI of the request.
+   * @param type The DeliveryType to update or create.
+   * @return The updated or created DeliveryType.
+   */
+  DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException;
+
+  /**
+   * Deletes a delivery type.
+   *
+   * @param baseURI The base URI of the request.
+   * @param id The delivery type id.
+   */
+  void deleteDeliveryTypeById(URI baseURI, String id) throws BackendException;
+
+  /**
+   * Get the list of DeliveryTypes available on the system.
+   *
+   * @param baseURI The base URI of the request.
+   * @return A list of available Delivery Types.
+   */
+  List<DeliveryType> getDeliveryTypes(URI baseURI);
 }

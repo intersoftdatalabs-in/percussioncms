@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,23 @@
 package com.percussion.recent.service;
 
 import com.percussion.recent.data.PSRecent.RecentType;
-
 import java.util.List;
 
-public interface IPSRecentServiceBase
-{
-    List<String> findRecent(String user, String siteName, RecentType type);
+/** Service interface for managing recent items in the base service. */
+public interface IPSRecentServiceBase {
 
-    void addRecent(String user, String siteName, RecentType type, String value);
+  /** Finds recent values for the given user, site, and type. */
+  List<String> findRecent(String user, String siteName, RecentType type);
 
-    void deleteRecent(String user, String siteName, RecentType type);
+  /** Adds a recent value for the given user, site, and type. */
+  void addRecent(String user, String siteName, RecentType type, String value);
 
-    void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
+  /** Deletes all recent values for the given user, site, and type. */
+  void deleteRecent(String user, String siteName, RecentType type);
 
-    void renameSiteRecent(String oldSiteName, String newSiteName);
+  /** Deletes specific recent values for the given user, site, and type. */
+  void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
+
+  /** Renames all recent items for the given site. */
+  void renameSiteRecent(String oldSiteName, String newSiteName);
 }

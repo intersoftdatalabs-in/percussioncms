@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import com.percussion.data.vfs.PSVirtualApplicationDirectory;
 import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.server.PSUserSession;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,20 +42,20 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *   Unit tests for the PSXmlDatabaseMetaDataTest class
  */
 
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class PSXmlDatabaseMetaDataTest
 {
    private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
    @Rule
-   public TemporaryFolder tempFolder = new TemporaryFolder();
+   public Path tempFolder = new TemporaryFolder();
 
    /** true if we already initialized */
    private static boolean ms_inited = false;
@@ -103,7 +103,7 @@ public class PSXmlDatabaseMetaDataTest
    /**
     *   Set up the testing directories and files
     */
-   @Before
+   @BeforeEach 
    public void init()
    {
       if (ms_inited)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,22 @@
 package com.percussion.conn;
 
 /**
- * PSInvalidPortException is thrown to indicate that an object is locked.
- * This usually occurs when a request is made to lock an object which is
- * already locked by someone else.
+ * PSInvalidPortException is thrown to indicate that a port value is invalid. This usually occurs
+ * when a request is made to use a port which cannot be converted to a number.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSInvalidPortException extends IllegalArgumentException {
 
-   /**
-    * Construct an invalid port exception when a string based port cannot
-    * be converted to a number.
-    *
-    * @param port          the string representation of the port
-    */
-   public PSInvalidPortException(String port)
-   {
-      super("port number invalid" + port);
-   }
+  /**
+   * Construct an invalid port exception when a string based port cannot be converted to a number.
+   *
+   * @param port the string representation of the port
+   */
+  public PSInvalidPortException(String port) {
+    super("Port number invalid: " + port);
+  }
 }
-

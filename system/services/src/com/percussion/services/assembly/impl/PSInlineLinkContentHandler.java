@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.services.assembly.impl;
 import com.percussion.cms.*;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSUdfProcessor;
@@ -46,7 +46,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
@@ -67,7 +67,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.percussion.cms.PSSingleValueBuilder.DATA_PATHITEM;
-import static com.percussion.util.IPSHtmlParameters.SYS_RELATIONSHIPID;
+import static com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPID;
 
 /**
  * Do the actual processing of inline content. Each element is examined for the

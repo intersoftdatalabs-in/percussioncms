@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,74 +17,61 @@
 
 package com.ibm.cadf.model;
 
+import com.ibm.cadf.exception.CADFException;
 import org.apache.commons.lang3.StringUtils;
 
-import com.ibm.cadf.exception.CADFException;
+public class Measurement extends CADFType {
+  private static final long serialVersionUID = 1L;
 
-public class Measurement extends CADFType
-{
-    private static final long serialVersionUID = 1L;
+  private String result;
 
-    private String result;
+  private Metric metric;
 
-    private Metric metric;
+  private String metricId;
 
-    private String metricId;
+  private Resource calculatedBy;
 
-    private Resource calculatedBy;
+  public Measurement(String result, Metric metric, String metricId) throws CADFException {
+    super();
+    this.result = result;
+    this.metric = metric;
+    this.metricId = metricId;
+  }
 
-    public Measurement(String result, Metric metric, String metricId) throws CADFException
-    {
-        super();
-        this.result = result;
-        this.metric = metric;
-        this.metricId = metricId;
-    }
+  public String getResult() {
+    return result;
+  }
 
-    public String getResult()
-    {
-        return result;
-    }
+  public void setResult(String result) {
+    this.result = result;
+  }
 
-    public void setResult(String result)
-    {
-        this.result = result;
-    }
+  public Metric getMetric() {
+    return metric;
+  }
 
-    public Metric getMetric()
-    {
-        return metric;
-    }
+  public void setMetric(Metric metric) {
+    this.metric = metric;
+  }
 
-    public void setMetric(Metric metric)
-    {
-        this.metric = metric;
-    }
+  public String getMetricId() {
+    return metricId;
+  }
 
-    public String getMetricId()
-    {
-        return metricId;
-    }
+  public void setMetricId(String metricId) {
+    this.metricId = metricId;
+  }
 
-    public void setMetricId(String metricId)
-    {
-        this.metricId = metricId;
-    }
+  public Resource getCalculatedBy() {
+    return calculatedBy;
+  }
 
-    public Resource getCalculatedBy()
-    {
-        return calculatedBy;
-    }
+  public void setCalculatedBy(Resource calculatedBy) {
+    this.calculatedBy = calculatedBy;
+  }
 
-    public void setCalculatedBy(Resource calculatedBy)
-    {
-        this.calculatedBy = calculatedBy;
-    }
-
-    @Override
-    public boolean isValid()
-    {
-        return StringUtils.isNotEmpty(result) && (metric != null ^ StringUtils.isNotEmpty(metricId));
-    }
-
+  @Override
+  public boolean isValid() {
+    return StringUtils.isNotEmpty(result) && (metric != null ^ StringUtils.isNotEmpty(metricId));
+  }
 }

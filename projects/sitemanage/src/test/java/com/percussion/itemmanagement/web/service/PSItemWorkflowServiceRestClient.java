@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,55 +25,47 @@ import com.percussion.share.test.PSObjectRestClient;
 
 /**
  * The class used for unit test on REST layer.
- * 
+ *
  * @author peterfrontiero
  */
-public class PSItemWorkflowServiceRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/itemmanagement/workflow/";
+public class PSItemWorkflowServiceRestClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/itemmanagement/workflow/";
 
-    public PSItemWorkflowServiceRestClient(String baseUrl)
-    {
-        super(baseUrl);
-    }
+  public PSItemWorkflowServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public void checkIn(String id)
-    {
-        GET(concatPath(getPath(), "checkIn", id));
-    }
-    
-    public PSItemUserInfo checkOut(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "checkOut", id), PSItemUserInfo.class);
-    }
+  public void checkIn(String id) {
+    GET(concatPath(getPath(), "checkIn", id));
+  }
 
-    public PSItemUserInfo forceCheckOut(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "forceCheckOut", id), PSItemUserInfo.class);
-    }
-    
-    public PSItemStateTransition getTransitions(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "getTransitions", id), PSItemStateTransition.class);
-    }
-    
-    public PSItemTransitionResults transition(String id, String trigger)
-    {
-       return getObjectFromPath(concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
-    }
-    
-    public void approvePages(PSApprovableItems items)
-    {
-        postObjectToPath(concatPath(getPath(), "bulkapprove"), items);
-    }
-    
-    public String getPath()
-    {
-        return path;
-    }
+  public PSItemUserInfo checkOut(String id) {
+    return getObjectFromPath(concatPath(getPath(), "checkOut", id), PSItemUserInfo.class);
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public PSItemUserInfo forceCheckOut(String id) {
+    return getObjectFromPath(concatPath(getPath(), "forceCheckOut", id), PSItemUserInfo.class);
+  }
+
+  public PSItemStateTransition getTransitions(String id) {
+    return getObjectFromPath(
+        concatPath(getPath(), "getTransitions", id), PSItemStateTransition.class);
+  }
+
+  public PSItemTransitionResults transition(String id, String trigger) {
+    return getObjectFromPath(
+        concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
+  }
+
+  public void approvePages(PSApprovableItems items) {
+    postObjectToPath(concatPath(getPath(), "bulkapprove"), items);
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

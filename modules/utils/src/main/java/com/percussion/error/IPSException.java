@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,69 +17,57 @@
 
 package com.percussion.error;
 
+/** This interface is used to define all of our exception classes. */
+public interface IPSException {
+  /**
+   * Returns the localized detail message of this exception.
+   *
+   * @param locale the locale to generate the message in
+   * @return the localized detail message
+   */
+  String getLocalizedMessage(java.util.Locale locale);
 
+  /**
+   * Returns the localized detail message of this exception in the default locale for this system.
+   *
+   * @return the localized detail message
+   */
+  public java.lang.String getLocalizedMessage();
 
-/**
- * This interface is used to define all of our exception classes.
- */
-public interface IPSException
-{
-   /**
-    * Returns the localized detail message of this exception.
-    *
-    * @param   locale      the locale to generate the message in
-    *
-    * @return               the localized detail message
-    */
-   String getLocalizedMessage(java.util.Locale locale);
+  /**
+   * Returns the detail message of this exception.
+   *
+   * @return the detail message
+   */
+  String getMessage();
 
-   /**
-    * Returns the localized detail message of this exception in the
-    * default locale for this system.
-    *
-    * @return               the localized detail message
-    */
-   public java.lang.String getLocalizedMessage();
+  /**
+   * Get the parsing error code associated with this exception.
+   *
+   * @return the error code
+   */
+  int getErrorCode();
 
-   /**
-    * Returns the detail message of this exception.
-    *
-    * @return               the detail message
-    */
-   String getMessage();
+  /**
+   * Get the parsing error arguments associated with this exception.
+   *
+   * @return the error arguments
+   */
+  Object[] getErrorArguments();
 
-   /**
-    * Get the parsing error code associated with this exception.
-    *
-    * @return   the error code
-    */
-   int getErrorCode();
+  /**
+   * Set the arguments for this exception.
+   *
+   * @param msgCode the error string to load
+   * @param errorArg the argument to use as the sole argument in the error message
+   */
+  void setArgs(int msgCode, Object errorArg);
 
-   /**
-    * Get the parsing error arguments associated with this exception.
-    *
-    * @return   the error arguments
-    */
-    Object[] getErrorArguments();
-
-   /**
-    * Set the arguments for this exception.
-    *
-    * @param   msgCode         the error string to load
-    *
-    * @param   errorArg         the argument to use as the sole argument in
-    *                           the error message
-    */
-    void setArgs(int msgCode, Object errorArg);
-
-   /**
-    * Set the arguments for this exception.
-    *
-    * @param   msgCode         the error string to load
-    *
-    * @param   errorArgs      the array of arguments to use as the arguments
-    *                           in the error message
-    */
-    void setArgs(int msgCode, Object[] errorArgs);
+  /**
+   * Set the arguments for this exception.
+   *
+   * @param msgCode the error string to load
+   * @param errorArgs the array of arguments to use as the arguments in the error message
+   */
+  void setArgs(int msgCode, Object[] errorArgs);
 }
-

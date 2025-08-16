@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,66 +21,48 @@ import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
-import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
-
+import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import java.io.File;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit adds <code>isManagedNavUsed=yes</code> attribute to the root 
- * element of the result document if the managed navigation is configured 
- * (or the managed navigation properties file exists) for this server.
- * <p>
- * The supplied parameters will be ignored.
+ * This exit adds <code>isManagedNavUsed=yes</code> attribute to the root element of the result
+ * document if the managed navigation is configured (or the managed navigation properties file
+ * exists) for this server.
+ *
+ * <p>The supplied parameters will be ignored.
  */
-public class PSAddIsManagedNavUsed implements
-              IPSResultDocumentProcessor
-{
-   // Implementation of the method required by the interface IPSExtension.
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-      ms_fullExtensionName = extensionDef.getRef().toString();
-   }
+public class PSAddIsManagedNavUsed implements IPSResultDocumentProcessor {
+  // Implementation of the method required by the interface IPSExtension.
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    ms_fullExtensionName = extensionDef.getRef().toString();
+  }
 
-   // Implementation of the method required by the interface IPSExtension.
-   public boolean canModifyStyleSheet()
-   {
-      return false;
-   }
+  // Implementation of the method required by the interface IPSExtension.
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
 
-   // Implementation of the method required by the interface IPSExtension.
-   public Document processResultDocument(Object[] params,
-      IPSRequestContext request, Document resDoc)
-         throws PSParameterMismatchException,
-               PSExtensionProcessingException
-   {
-      if(params == null || resDoc == null)
-         return resDoc;
-      Element elem = resDoc.getDocumentElement();
-      if(elem == null)
-         return resDoc;
-      try
-      {
-         if (PSNavConfig.isManagedNavUsed())
-            elem.setAttribute("isManagedNavUsed", "yes");
-         else
-            elem.setAttribute("isManagedNavUsed", "no");
-      }
-      catch(Throwable t) //should never happen!
-      {
-         PSConsole.printMsg(ms_fullExtensionName, t);
-      }
+  // Implementation of the method required by the interface IPSExtension.
+  public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    if (params == null || resDoc == null) return resDoc;
+    Element elem = resDoc.getDocumentElement();
+    if (elem == null) return resDoc;
+    try {
+      if (PSNavConfig.isManagedNavUsed()) elem.setAttribute("isManagedNavUsed", "yes");
+      else elem.setAttribute("isManagedNavUsed", "no");
+    } catch (Throwable t) // should never happen!
+    {
+      PSConsole.printMsg(ms_fullExtensionName, t);
+    }
 
-      return resDoc;
-   }
+    return resDoc;
+  }
 
-   /**
-    * The fully qualified name of this extension.
-    */
-   static private String ms_fullExtensionName = "";
+  /** The fully qualified name of this extension. */
+  private static String ms_fullExtensionName = "";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,31 +24,28 @@ package com.percussion.validation;
  * @see IntegerConstraint
  * @see StringConstraint
  */
-public interface ValidationConstraint
-{
-   /** 
+public interface ValidationConstraint {
+
+   /**
     * Gets the error message to be posted by the warning dialog when the 
     * validating component contains an invalid value. Should be called by the
-    * <code>ValidationFramework</code> when the validation fails on a component.
-    * 
-    * @return the message, never <code>null</code>, may be empty.
+    * {@code ValidationFramework} when the validation fails on a component.
+    *
+    * @return the message, never {@code null}, may be empty.
     */
-   public String getErrorText();
+   String getErrorText();
 
    /** 
     * Validates the value of the component passed in. 
     *
-    * @param comp the component to check, may not be <code>null</code> and must
+    * @param comp the component to check, may not be {@code null} and must
     * be an instance of supported component of the implementor.
     * 
-    * @throws IllegalArgumentException if the component is not a excepted 
+    * @throws IllegalArgumentException if the component is not an accepted
     * component by the implementor.
     * 
     * @throws ValidationException if the component value does not pass the
     * validation.
     */
-   public void checkComponent(Object comp) throws ValidationException;
-
+   void checkComponent(Object comp) throws ValidationException;
 }
-
- 

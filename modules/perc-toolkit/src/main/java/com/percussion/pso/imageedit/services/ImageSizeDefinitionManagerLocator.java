@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,15 @@ package com.percussion.pso.imageedit.services;
 import com.percussion.services.PSBaseServiceLocator;
 
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator
-{
-   /**
-    * Static methods only 
-    */
-   private ImageSizeDefinitionManagerLocator()
-   {
-   }
-   
-   public static ImageSizeDefinitionManager getImageSizeDefinitionManager()
-   {
-      return (ImageSizeDefinitionManager)getBean(IMAGE_SIZE_DEFINITION_MANAGER_BEAN);
-   }
-   
-   private static final String IMAGE_SIZE_DEFINITION_MANAGER_BEAN = "imedImageSizeDefinitionManager";
+public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator {
+  /** Static methods only */
+  private ImageSizeDefinitionManagerLocator() {}
+
+  public static ImageSizeDefinitionManager getImageSizeDefinitionManager() {
+    return (ImageSizeDefinitionManager) getBean(IMAGE_SIZE_DEFINITION_MANAGER_BEAN);
+  }
+
+  private static final String IMAGE_SIZE_DEFINITION_MANAGER_BEAN = "imedImageSizeDefinitionManager";
 }

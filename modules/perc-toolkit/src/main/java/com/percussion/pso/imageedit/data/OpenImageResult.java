@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,59 +19,51 @@ package com.percussion.pso.imageedit.data;
 import com.percussion.services.content.data.PSItemStatus;
 
 /**
- * Result of the OpenImage method.  
+ * Result of the OpenImage method.
  *
  * @author DavidBenua
- *
  */
-public class OpenImageResult
-{
-   private MasterImageMetaData masterImage;
-   private PSItemStatus itemStatus;
-   
-   public OpenImageResult()
-   {
-      
-   }
-   
-   public OpenImageResult(MasterImageMetaData masterImage, PSItemStatus itemStatus)
-   {
-      this();
-      this.masterImage = masterImage;
-      this.itemStatus = itemStatus; 
-   }
-   /**
-    * @return the masterImage
-    */
-   public MasterImageMetaData getMasterImage()
-   {
-      return masterImage;
-   }
-   
-   /**
-    * @return the itemStatus
-    */
-   public PSItemStatus getItemStatus()
-   {
-      return itemStatus;
-   }
+public class OpenImageResult {
+  private MasterImageMetaData masterImage;
+  private PSItemStatus itemStatus;
 
-   /**
-    * Sets the masterImage
-    * @param masterImage the master image
-    */
-   public void setMasterImage(MasterImageMetaData masterImage)
-   {
-      this.masterImage = masterImage;
-   }
+  public OpenImageResult() {}
 
-   /**
-    * Sets the item status
-    * @param itemStatus the item status to set
-    */
-   public void setItemStatus(PSItemStatus itemStatus)
-   {
-      this.itemStatus = itemStatus;
-   }
-   
+  public OpenImageResult(MasterImageMetaData masterImage, PSItemStatus itemStatus) {
+    this();
+    this.masterImage = masterImage;
+    this.itemStatus = itemStatus;
+  }
+
+  /**
+   * @return the masterImage
+   */
+  public MasterImageMetaData getMasterImage() {
+    return masterImage;
+  }
+
+  /**
+   * @return the itemStatus
+   */
+  public PSItemStatus getItemStatus() {
+    return itemStatus;
+  }
+
+  /**
+   * Sets the masterImage
+   *
+   * @param masterImage the master image
+   */
+  public void setMasterImage(MasterImageMetaData masterImage) {
+    this.masterImage = masterImage;
+  }
+
+  /**
+   * Sets the item status
+   *
+   * @param itemStatus the item status to set
+   */
+  public void setItemStatus(PSItemStatus itemStatus) {
+    this.itemStatus = itemStatus;
+  }
 }

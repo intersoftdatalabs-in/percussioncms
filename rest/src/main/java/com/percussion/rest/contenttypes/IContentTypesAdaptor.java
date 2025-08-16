@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,32 @@ package com.percussion.rest.contenttypes;
 import java.net.URI;
 import java.util.List;
 
-/***
- * Defines the interface that backend API implementations must implement
- * for ContentTypes.
- */
+/** Defines the interface that backend API implementations must implement for ContentTypes. */
 public interface IContentTypesAdaptor {
 
-    /***
-     * List all content types available to the System
-     * @param baseUri Requesting URI
-     * @return A list of all available Content Types
-     */
-    public List<ContentType> listContentTypes(URI baseUri);
+  /**
+   * List all content types available to the System.
+   *
+   * @param baseUri Requesting URI
+   * @return A list of all available Content Types
+   */
+  List<ContentType> listContentTypes(URI baseUri);
 
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param siteId Site Id for Site to filter Types by
-     * @return An array of ContentTypes
-     */
-    public List<ContentType> listContentTypes(URI baseUri, int siteId);
+  /**
+   * List ContentTypes available for the specified Site.
+   *
+   * @param baseUri Originating URI
+   * @param siteId Site Id for Site to filter Types by
+   * @return An array of ContentTypes
+   */
+  List<ContentType> listContentTypes(URI baseUri, int siteId);
 
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param filter A ContentTypeFilter that can be used to filter content types.
-     * @return An array of ContentTypes
-     */
-    public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter);
-
+  /**
+   * List ContentTypes available for the specified filter.
+   *
+   * @param baseUri Originating URI
+   * @param filter A ContentTypeFilter that can be used to filter content types.
+   * @return An array of ContentTypes
+   */
+  List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter);
 }

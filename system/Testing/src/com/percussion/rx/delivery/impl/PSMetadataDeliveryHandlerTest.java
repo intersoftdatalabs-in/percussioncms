@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSMetadataDeliveryHandlerTest extends TestCase
 {
@@ -96,7 +96,7 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
 
     private PSPurgableTempFile file;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         if (!isRunTest)
@@ -144,7 +144,7 @@ public class PSMetadataDeliveryHandlerTest extends TestCase
         return f;
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (!isRunTest)

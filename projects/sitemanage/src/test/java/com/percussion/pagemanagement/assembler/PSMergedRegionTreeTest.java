@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +18,7 @@
 package com.percussion.pagemanagement.assembler;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.assembler.PSMergedRegion.PSMergedRegionOwner;
 import com.percussion.pagemanagement.data.PSRegion;
@@ -30,161 +29,131 @@ import com.percussion.pagemanagement.data.PSRegionTree;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.service.IPSWidgetService;
-
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import com.percussion.share.service.exception.PSDataServiceException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-//import static java.util.Arrays.*;
-//import static org.hamcrest.CoreMatchers.*;
-//import static org.junit.matchers.JUnitMatchers.*;
+import org.jmock.junit5.JMockExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Scenario description:
- * 
- * @author adamgent, Oct 29, 2009
+ * Scenario description: Tests merging of region trees and widget overrides. Sunny Sal says:
+ * "Regions merge like Bollywood dance numbers!"
  */
-@RunWith(JMock.class)
-public class PSMergedRegionTreeTest
-{
+@ExtendWith(JMockExtension.class)
+public class PSMergedRegionTreeTest {
 
-    Mockery context = new JUnit4Mockery();
+  private Mockery context = new JUnit4Mockery();
 
-    private PSAbstractMergedRegionTree mergedTree;
-    private PSRegionTree tree;
-    private PSRegionBranches branches;  
+  private PSAbstractMergedRegionTree mergedTree;
+  private PSRegionTree tree;
+  private PSRegionBranches branches;
+  private IPSWidgetService widgetService;
+  private PSWidgetItem widgetItem;
+  private PSWidgetItem treeWidgetItem;
 
+  @BeforeEach
+  public void setUp() {
+    widgetService = context.mock(IPSWidgetService.class);
+    mergedTree = new PSMergedRegionTree(widgetService);
+    tree = new PSRegionTree();
+    branches = new PSRegionBranches();
+    var root =
+        r(
+            "A",
+            asList(
+                r("A/b", asList(r("A/b/1", null), c("test"), r("A/b/2", null))), r("A/c", null)));
+    var branch = r("A/c", asList(r("A/d", null), r("A/e", null)));
+    tree.setRootRegion(root);
+    branches.setRegions(asList(branch));
+    widgetItem = new PSWidgetItem();
+    treeWidgetItem = new PSWidgetItem();
+    widgetItem.setDefinitionId("page");
+    treeWidgetItem.setDefinitionId("tree");
+  }
 
-    private IPSWidgetService widgetService;
-    private PSWidgetItem widgetItem;
-    private PSWidgetItem treeWidgetItem;
-
-    @Before
-    public void setUp() throws Exception
-    {
-
-        widgetService = context.mock(IPSWidgetService.class);
-        mergedTree = new PSMergedRegionTree(widgetService);
-        tree = new PSRegionTree();
-        branches = new PSRegionBranches();
-        PSRegion root = 
-            r("A", asList(
-                r("A/b", asList(
-                        r("A/b/1", null),
-                        c("test"),
-                        r("A/b/2", null)
-                        )),
-                r("A/c", null)));
-        PSRegion branch = 
-            r("A/c", asList(
-                    r("A/d", null),
-                    r("A/e", null)));
-        
-        tree.setRootRegion(root);
-        branches.setRegions(asList(branch));
-        widgetItem = new PSWidgetItem();
-        treeWidgetItem = new PSWidgetItem();
-        widgetItem.setDefinitionId("page");
-        treeWidgetItem.setDefinitionId("tree");
-        
-        
-    }
-
-    @Test
-    public void shouldOverrideTemplateRegionsWithPageWidgets() throws PSDataServiceException {
-        
-        branches.setRegionWidgets("A/c", asList(widgetItem));
-
-        context.checking(new Expectations() {{
-            one(widgetService).load("page");
+  @Test
+  public void shouldOverrideTemplateRegionsWithPageWidgets() throws PSDataServiceException {
+    branches.setRegionWidgets("A/c", asList(widgetItem));
+    context.checking(
+        new Expectations() {
+          {
+            oneOf(widgetService).load("page");
             will(returnValue(new PSWidgetDefinition()));
-        }});
+          }
+        });
+    mergedTree.merge(tree, branches);
+    assertNull(
+        mergedTree.getMergedRegionMap().get("A/e"),
+        "Merged regions should not have subregions for widget regions");
+    assertNotNull(mergedTree.getMergedRegionMap().get("A/c"), "Should have merged region");
+  }
 
+  @Test
+  public void shouldOverrideTemplateRegionsWithPageRegions() throws PSDataServiceException {
+    mergedTree.merge(tree, branches);
+    assertNotNull(
+        mergedTree.getMergedRegionMap().get("A/e"),
+        "Merged regions should have subregions for widget regions");
+    assertNotNull(mergedTree.getMergedRegionMap().get("A/c"), "Should have merged region");
+  }
 
-        mergedTree.merge(tree, branches);
-        
-        assertNull("Merged regions should not have subregions for widget regions", mergedTree.getMergedRegionMap().get("A/e"));
-        assertNotNull("Should have merged region", mergedTree.getMergedRegionMap().get("A/c"));
-
-    }
-    
-    
-    @Test
-    public void shouldOverrideTemplateRegionsWithPageRegions() throws PSDataServiceException {
-        
-        mergedTree.merge(tree, branches);
-        
-
-        assertNotNull("Merged regions should have subregions for widget regions", mergedTree.getMergedRegionMap().get("A/e"));
-        assertNotNull("Should have merged region", mergedTree.getMergedRegionMap().get("A/c"));
-
-    }
-    
-    
-    @Test
-    public void shouldOverridePageRegionsWithTemplateWidgets() throws PSDataServiceException {
-        
-        tree.setRegionWidgets("A/c", asList(treeWidgetItem));
-        
-        context.checking(new Expectations() {{
-            one(widgetService).load("tree");
+  @Test
+  public void shouldOverridePageRegionsWithTemplateWidgets() throws PSDataServiceException {
+    tree.setRegionWidgets("A/c", asList(treeWidgetItem));
+    context.checking(
+        new Expectations() {
+          {
+            oneOf(widgetService).load("tree");
             will(returnValue(new PSWidgetDefinition()));
-        }});
-        
-        mergedTree.merge(tree, branches);
+          }
+        });
+    mergedTree.merge(tree, branches);
+    assertNull(
+        mergedTree.getMergedRegionMap().get("A/e"),
+        "Merged regions should not have subregions for widget regions");
+    assertNotNull(mergedTree.getMergedRegionMap().get("A/c"), "Should have merged region");
+    assertEquals(
+        PSMergedRegionOwner.TEMPLATE, mergedTree.getMergedRegionMap().get("A/c").getOwner());
+  }
 
-        assertNull("Merged regions should not have subregions for widget regions", mergedTree.getMergedRegionMap().get("A/e"));
-        assertNotNull("Should have merged region", mergedTree.getMergedRegionMap().get("A/c"));
-        assertEquals(PSMergedRegionOwner.TEMPLATE, mergedTree.getMergedRegionMap().get("A/c").getOwner());
-        
-    }
-    
-    @Test
-    public void shouldOverridePageWidgetsWithTemplateWidgets() throws PSDataServiceException {
-        
-        tree.setRegionWidgets("A/c", asList(treeWidgetItem));
-        branches.setRegionWidgets("A/c", asList(widgetItem));
-        
-        widgetItem.setDefinitionId("tree");
-        
-        context.checking(new Expectations() {{
-            one(widgetService).load("tree");
+  @Test
+  public void shouldOverridePageWidgetsWithTemplateWidgets() throws PSDataServiceException {
+    tree.setRegionWidgets("A/c", asList(treeWidgetItem));
+    branches.setRegionWidgets("A/c", asList(widgetItem));
+    widgetItem.setDefinitionId("tree");
+    context.checking(
+        new Expectations() {
+          {
+            oneOf(widgetService).load("tree");
             will(returnValue(new PSWidgetDefinition()));
-        }});
-        
+          }
+        });
+    mergedTree.merge(tree, branches);
+    assertNull(
+        mergedTree.getMergedRegionMap().get("A/e"),
+        "Merged regions should not have subregions for widget regions");
+    assertNotNull(mergedTree.getMergedRegionMap().get("A/c"), "Should have merged region");
+    assertEquals(
+        PSMergedRegionOwner.TEMPLATE, mergedTree.getMergedRegionMap().get("A/c").getOwner());
+  }
 
-        mergedTree.merge(tree, branches);
+  private PSRegionCode c(final String t) {
+    var code = new PSRegionCode();
+    code.setTemplateCode(t);
+    return code;
+  }
 
-        assertNull("Merged regions should not have subregions for widget regions", mergedTree.getMergedRegionMap().get("A/e"));
-        assertNotNull("Should have merged region", mergedTree.getMergedRegionMap().get("A/c"));
-        assertEquals(PSMergedRegionOwner.TEMPLATE, mergedTree.getMergedRegionMap().get("A/c").getOwner());
-        
+  private PSRegion r(final String id, final Collection<? extends PSRegionNode> regions) {
+    var region = new PSRegion();
+    region.setRegionId(id);
+    if (regions != null) {
+      region.setChildren(new ArrayList<>(regions));
     }
-    
-    
-    private PSRegionCode c(final String t) {
-        PSRegionCode code = new PSRegionCode();
-        code.setTemplateCode(t);
-        return code;
-    }
-    
-    @SuppressWarnings("serial")
-    private PSRegion r(final String id, final Collection<? extends PSRegionNode> regions) {
-   
-        return new PSRegion() {{
-            setRegionId(id);
-            if (regions != null) {
-                setChildren(new ArrayList<PSRegionNode>(regions));
-            }
-        }};
-    }
-
+    return region;
+  }
 }

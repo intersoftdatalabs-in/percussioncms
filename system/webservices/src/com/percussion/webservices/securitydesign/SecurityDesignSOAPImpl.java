@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices.securitydesign;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -36,7 +36,7 @@ import com.percussion.webservices.security.IPSSecurityDesignWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSCommunityVisibility;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;

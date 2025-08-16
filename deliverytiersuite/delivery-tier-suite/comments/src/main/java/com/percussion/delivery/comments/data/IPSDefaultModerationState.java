@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,24 +20,23 @@ package com.percussion.delivery.comments.data;
 
 public interface IPSDefaultModerationState {
 
-	/* (non-Javadoc)
-	 * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
-	 */
-	public abstract String getSite();
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+   */
+  public abstract String getSite();
 
-	/* (non-Javadoc)
-	 * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
-	 */
-	public abstract void setSite(String site);
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+   */
+  public abstract void setSite(String site);
 
-	/* (non-Javadoc)
-	 * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
-	 */
-	public abstract String getDefaultState();
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+   */
+  public abstract String getDefaultState();
 
-	/* (non-Javadoc)
-	 * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
-	 */
-	public abstract void setDefaultState(String defaultState);
-
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+   */
+  public abstract void setDefaultState(String defaultState);
 }

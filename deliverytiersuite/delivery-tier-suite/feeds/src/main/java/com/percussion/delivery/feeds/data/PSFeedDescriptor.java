@@ -16,150 +16,184 @@
  */
 package com.percussion.delivery.feeds.data;
 
-/**
- * A transfer object impl of the IPSFeedDescriptor interface.
- *
- */
-public class PSFeedDescriptor implements IPSFeedDescriptor
-{
+import java.util.Objects;
 
-    private String name;
-    private String site;
-    private String description;
-    private String link;
-    private String title;
-    private String query;
+/** A transfer object impl of the IPSFeedDescriptor interface. */
+public class PSFeedDescriptor implements IPSFeedDescriptor {
 
+  private String name;
+  private String site;
+  private String description;
+  private String link;
+  private String title;
+  private String query;
+  private String type;
 
-    private String type;
+  public PSFeedDescriptor() {
+    super();
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getDescription()
-     */
-    public String getDescription()
-    {
-        return description;
-    }
+  public PSFeedDescriptor(
+      String name,
+      String site,
+      String description,
+      String link,
+      String title,
+      String query,
+      String type) {
+    this.name = Objects.requireNonNull(name, "name cannot be null");
+    this.site = Objects.requireNonNull(site, "site cannot be null");
+    this.description = Objects.requireNonNull(description, "description cannot be null");
+    this.link = Objects.requireNonNull(link, "link cannot be null");
+    this.title = Objects.requireNonNull(title, "title cannot be null");
+    this.query = Objects.requireNonNull(query, "query cannot be null");
+    this.type = Objects.requireNonNull(type, "type cannot be null");
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getLink()
-     */
-    public String getLink()
-    {
-        return link;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getDescription()
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getName()
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getLink()
+   */
+  public String getLink() {
+    return link;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getQuery()
-     */
-    public String getQuery()
-    {
-        return query;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getName()
+   */
+  public String getName() {
+    return name;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getSite()
-     */
-    public String getSite()
-    {
-        return site;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getQuery()
+   */
+  public String getQuery() {
+    return query;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.feeds.data.IPSFeedDescriptor#getTitle()
-     */
-    public String getTitle()
-    {
-        return title;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getSite()
+   */
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  /* (non-Javadoc)
+   * @see com.percussion.feeds.data.IPSFeedDescriptor#getTitle()
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * @param type the type to set
-     */
+  /**
+   * @return the type
+   */
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  /**
+   * @param type the type to set
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site)
-    {
-        this.site = site;
-    }
+  /**
+   * @param site the site to set
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  /**
+   * @param description the description to set
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    /**
-     * @param link the link to set
-     */
-    public void setLink(String link)
-    {
-        this.link = link;
-    }
+  /**
+   * @param link the link to set
+   */
+  public void setLink(String link) {
+    this.link = link;
+  }
 
-    /**
-     * @param title the title to set
-     */
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
+  /**
+   * @param title the title to set
+   */
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    /**
-     * @param query the query to set
-     */
-    public void setQuery(String query)
-    {
-        this.query = query;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        if(obj == null || !(obj instanceof IPSFeedDescriptor))
-            return false;
-        IPSFeedDescriptor desc = (IPSFeedDescriptor)obj;
-        return (desc.getSite().equals(this.site) && desc.getName().equals(this.name));
-    }
+  /**
+   * @param query the query to set
+   */
+  public void setQuery(String query) {
+    this.query = query;
+  }
 
-    public PSFeedDescriptor(){
-        super();
-    }
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    PSFeedDescriptor that = (PSFeedDescriptor) obj;
+    return Objects.equals(name, that.name)
+        && Objects.equals(site, that.site)
+        && Objects.equals(description, that.description)
+        && Objects.equals(link, that.link)
+        && Objects.equals(title, that.title)
+        && Objects.equals(query, that.query)
+        && Objects.equals(type, that.type);
+  }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, site, description, link, title, query, type);
+  }
+
+  @Override
+  public String toString() {
+    return "PSFeedDescriptor{"
+        + "name='"
+        + name
+        + '\''
+        + ", site='"
+        + site
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", link='"
+        + link
+        + '\''
+        + ", title='"
+        + title
+        + '\''
+        + ", query='"
+        + query
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + '}';
+  }
 }

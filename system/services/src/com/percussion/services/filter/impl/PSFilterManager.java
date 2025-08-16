@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.filter.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.IPSCatalogErrors;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSCatalogException;
@@ -31,7 +31,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang.StringUtils;

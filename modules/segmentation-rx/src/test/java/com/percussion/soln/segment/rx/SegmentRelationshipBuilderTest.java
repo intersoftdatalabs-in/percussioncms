@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentRelationshipBuilderTest {
 
     Mockery context = new JUnit4Mockery();
@@ -71,7 +71,7 @@ public class SegmentRelationshipBuilderTest {
         
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segServMock = context.mock(ISegmentService.class);
         segRelBuilder = new TestRelationshipBuilder();

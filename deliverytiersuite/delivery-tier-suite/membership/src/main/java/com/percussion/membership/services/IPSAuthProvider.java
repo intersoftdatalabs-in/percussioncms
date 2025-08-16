@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,18 @@ package com.percussion.membership.services;
 
 /**
  * Interface to allow for pluggable authentication providers.
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public interface IPSAuthProvider
-{
-    /**
-     * Authenticate the supplied credentials.
-     * 
-     * @param userId The userId to authenticate. 
-     * @param password The password to authenticate.
-     * 
-     * @throws PSAuthenticationFailedException if authentication fails
-     * @throws Exception if there are any other errors.
-     */
-    public void authenticate(String userId, String password) throws PSAuthenticationFailedException, Exception;
+public interface IPSAuthProvider {
+  /**
+   * Authenticate the supplied credentials.
+   *
+   * @param userId The userId to authenticate.
+   * @param password The password to authenticate.
+   * @throws PSAuthenticationFailedException if authentication fails
+   * @throws Exception if there are any other errors.
+   */
+  public void authenticate(String userId, String password)
+      throws PSAuthenticationFailedException, Exception;
 }

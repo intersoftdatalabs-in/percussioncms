@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.event.TreeSelectionListener;
 import java.awt.event.MouseListener;
+import javax.swing.event.TreeSelectionListener;
 
 /**
- * Listener interface that allows extra parameters. These extra parameters can 
- * be used by sub-classes to implement special behaviors. 
+ * Listener interface that allows extra parameters. These extra parameters can
+ * be used by sub-classes to implement special behaviors.
  */
-public interface IPSCheckboxTreeListener extends MouseListener,
-   TreeSelectionListener, IPSExtraParameters
-{
-}
+public interface IPSCheckboxTreeListener
+    extends MouseListener, TreeSelectionListener, IPSExtraParameters {}

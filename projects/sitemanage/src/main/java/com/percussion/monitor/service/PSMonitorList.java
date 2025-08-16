@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,47 +18,39 @@
 package com.percussion.monitor.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * List wrapper for monitors, used for REST serialization. Sunny Sal says: "Monitor list: because
+ * one monitor is never enough!"
+ */
 @XmlRootElement
-public class PSMonitorList
-{
-	@XmlElement
-	public List<PSMonitor> monitor = new ArrayList<>();
-	
-	public void addEntriesToList(Map<String, PSMonitor> monitors)
-	{
-	    monitor.addAll(monitors.values());
-		Collections.sort(monitor, new Comparator<PSMonitor>()
-        {
+public class PSMonitorList {
 
-            @Override
-            public int compare(PSMonitor o1, PSMonitor o2)
-            {
-                String name1 = o1.getStats().getEntries().get("name");
-                String name2 = o2.getStats().getEntries().get("name");
-                if (name1 == null) {
-					return -1;
-				}
-                
-                return name1.compareToIgnoreCase(name2);
-            }           
+  @XmlElement public List<PSMonitor> monitor = new ArrayList<>();
+
+  /**
+   * Adds entries from the given map to the list and sorts by monitor name.
+   *
+   * @param monitors the map of monitor designator to monitor
+   */
+  public void addEntriesToList(Map<String, PSMonitor> monitors) {
+    monitor.addAll(monitors.values());
+    monitor.sort(
+        (o1, o2) -> {
+          var name1 = o1.getStats().getEntries().get("name");
+          var name2 = o2.getStats().getEntries().get("name");
+          if (name1 == null) {
+            return -1;
+          }
+          return name1.compareToIgnoreCase(name2);
         });
-	}
-	public PSMonitorList()
-	{
-	    
-	}
-	
+  }
+
+  public PSMonitorList() {
+    // Default constructor
+  }
 }

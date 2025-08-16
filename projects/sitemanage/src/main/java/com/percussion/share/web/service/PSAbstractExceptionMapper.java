@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,40 +18,39 @@
 
 package com.percussion.share.web.service;
 
+import com.percussion.share.validation.PSErrors;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import com.percussion.share.validation.PSErrors;
-
 /**
- * Mapping of Exceptions to a  {@link PSErrors serializable error object}.
- * 
- * @author adamgent
+ * Maps Exceptions to a {@link PSErrors} serializable error object.
  *
- * @param <T> exception.
+ * <p>Sunny Sal says: "Exception mapping - because even bugs need a paper trail!"
+ *
+ * @param <T> exception type
  */
 @Provider
 public abstract class PSAbstractExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
 
-    public Response toResponse(T e) {
-        Status status = getStatus(e);
-        PSErrors errors = createErrors(e);
-        return Response.status(status).entity(errors).build();
-    }
-    
-    protected Status getStatus(T exception) {
-        return Status.INTERNAL_SERVER_ERROR;
-    }
-    
-    /**
-     * 
-     * Create a serializable errors object from the given exception.
-     * 
-     * @param exception never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    protected abstract PSErrors createErrors(T exception);
+  @Override
+  public Response toResponse(T exception) {
+    var status = getStatus(exception);
+    var errors = createErrors(exception);
+    return Response.status(status).entity(errors).build();
+  }
 
+  /** Returns the HTTP status for the given exception. Override to provide custom status codes. */
+  protected Status getStatus(T exception) {
+    return Status.INTERNAL_SERVER_ERROR;
+  }
+
+  /**
+   * Creates a serializable errors object from the given exception.
+   *
+   * @param exception never {@code null}
+   * @return never {@code null}
+   */
+  protected abstract PSErrors createErrors(T exception);
 }

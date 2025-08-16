@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,56 +17,51 @@
 
 package com.ibm.cadf.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import com.ibm.cadf.Messages;
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+public class FederatedCredentialTest {
 
-import com.ibm.cadf.Messages;
-import com.ibm.cadf.exception.CADFException;
+  @Test
+  public void testFederatedCredentialPositive() throws CADFException, IOException {
+    String type = "http://docs.oasis-open.org/security/saml/v2.0";
+    String token = Identifier.generateUniqueId();
+    String identity_provider = Identifier.generateUniqueId();
+    String user = Identifier.generateUniqueId();
+    List<String> groups = new ArrayList<String>();
+    groups.add(Identifier.generateUniqueId());
+    FederatedCredential fd = new FederatedCredential(type, token, identity_provider, user, groups);
+    assertEquals(true, fd.isValid());
+  }
 
-public class FederatedCredentialTest
-{
+  @Test
+  public void testCredentialNegative() throws CADFException, IOException {
 
-    @Test
-    public void testFederatedCredentialPositive() throws CADFException, IOException
-    {
-        String type = "http://docs.oasis-open.org/security/saml/v2.0";
-        String token = Identifier.generateUniqueId();
-        String identity_provider = Identifier.generateUniqueId();
-        String user = Identifier.generateUniqueId();
-        List<String> groups = new ArrayList<String>();
-        groups.add(Identifier.generateUniqueId());
-        FederatedCredential fd = new FederatedCredential(type, token, identity_provider, user, groups);
-        assertEquals(true, fd.isValid());
+    try {
+      String type = "http://docs.oasis-open.org/security/saml/v2.0";
+      String token = Identifier.generateUniqueId();
+      String identity_provider = null;
+      String user = "";
+      List<String> groups = new ArrayList<String>();
+      groups.add(Identifier.generateUniqueId());
+      FederatedCredential fd =
+          new FederatedCredential(type, token, identity_provider, user, groups);
+      fd.isValid();
+      fail(
+          "FederatedCredential object creation should fail as mandatory field"
+              + " identity_provider,user is not passed");
+    } catch (CADFException ex) {
+      String message =
+          MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "identity_provider,user");
+      assertEquals(message, ex.getMessage());
     }
-
-    @Test
-    public void testCredentialNegative() throws CADFException, IOException
-    {
-
-        try
-        {
-            String type = "http://docs.oasis-open.org/security/saml/v2.0";
-            String token = Identifier.generateUniqueId();
-            String identity_provider = null;
-            String user = "";
-            List<String> groups = new ArrayList<String>();
-            groups.add(Identifier.generateUniqueId());
-            FederatedCredential fd = new FederatedCredential(type, token, identity_provider, user, groups);
-            fd.isValid();
-            fail("FederatedCredential object creation should fail as mandatory field identity_provider,user is not passed");
-        }
-        catch (CADFException ex)
-        {
-            String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "identity_provider,user");
-            assertEquals(message, ex.getMessage());
-        }
-
-    }
+  }
 }

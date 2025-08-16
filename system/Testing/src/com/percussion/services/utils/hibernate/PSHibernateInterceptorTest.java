@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.utils.hibernate;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.IPSFilterService;
 import com.percussion.services.filter.IPSItemFilter;
@@ -29,20 +29,20 @@ import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.security.SecureRandom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test that the event listener is evicting things from the object cache for all
@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNull;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSHibernateInterceptorTest
 {
 
@@ -85,7 +85,7 @@ public class PSHibernateInterceptorTest
    /**
     * Remove any existing test filter and create a new one.
     */
-   @BeforeClass
+   @BeforeAll
    public void setupInitialData()
    {
       // Remove any existing mutable filter instances from db
@@ -210,7 +210,7 @@ public class PSHibernateInterceptorTest
    /**
     * Cleanup object created in testing - should be a noop
     */
-   @AfterClass
+   @AfterAll
    public void cleanupData()
    {
       // Remove any existing mutable filter instances from db

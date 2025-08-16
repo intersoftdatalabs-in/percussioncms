@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.services.workflow;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -47,17 +47,17 @@ import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.workflow.PSWorkflowAppsContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,16 +68,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the system services to test loading workflows. This has been
  * made a separate test since it can be executed without a running server.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSWorkflowServiceTest
 {
 
@@ -114,7 +114,7 @@ public class PSWorkflowServiceTest
    PSWorkflow m_wf4;
    PSState m_wf4State0;
    
-   @Before
+   @BeforeEach 
    public void setUp()
    {
       m_service = PSWorkflowServiceLocator.getWorkflowService();
@@ -255,7 +255,7 @@ public class PSWorkflowServiceTest
    /**
     * Test load workflow state and transitions
     */
-   @Ignore
+   @Disabled
    public void testLoadWorkflowState()
    {
       IPSGuid state4Id = m_gmgr.makeGuid(4, PSTypeEnum.WORKFLOW_STATE);
@@ -575,7 +575,7 @@ public class PSWorkflowServiceTest
    /**
     * Setup additional information needed to test adhoc user assignment
     */
-   @BeforeClass
+   @BeforeAll
    public static void setupAdhocInfo()
    {
       IPSWorkflowService service = PSWorkflowServiceLocator.getWorkflowService();
@@ -596,7 +596,7 @@ public class PSWorkflowServiceTest
    /**
     * Teardown additional information needed to test adhoc user assignment
     */
-   @AfterClass
+   @AfterAll
    public static void teardownAdhocInfo()
    {
       IPSWorkflowService service = PSWorkflowServiceLocator

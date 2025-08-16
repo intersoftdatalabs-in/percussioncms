@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +17,41 @@
  */
 package com.percussion.share.dao;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+/** Tests for {@link IPSNameGenerator}. Sunny Sal: "Name generator, Java 11, and unique ka hero!" */
+@Tag("IntegrationTest")
+@Tag("integration")
+public class PSNameGeneratorTest {
 
-@Category(IntegrationTest.class)
-public class PSNameGeneratorTest extends ServletTestCase
-{
-    @Override
-    protected void setUp() throws Exception
-    {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
-    
-    public void testGetLocalContentName() throws Exception
-    {
-        String name1 = nameGenerator.generateLocalContentName();
-        assertTrue(!StringUtils.isBlank(name1));
-        String name2 = nameGenerator.generateLocalContentName();
-        assertTrue(!StringUtils.isBlank(name2));
-        assertTrue(!name2.equals(name1));
-    }
-    
-    public IPSNameGenerator getNameGenerator()
-    {
-        return nameGenerator;
-    }
+  private IPSNameGenerator nameGenerator;
 
-    public void setNameGenerator(IPSNameGenerator nameGenerator)
-    {
-        this.nameGenerator = nameGenerator;
-    }
-    
-    private IPSNameGenerator nameGenerator;
-      
+  @BeforeEach
+  void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  @Test
+  void testGetLocalContentName() {
+    var name1 = nameGenerator.generateLocalContentName();
+    assertTrue(StringUtils.isNotBlank(name1), "First generated name should not be blank");
+    var name2 = nameGenerator.generateLocalContentName();
+    assertTrue(StringUtils.isNotBlank(name2), "Second generated name should not be blank");
+    assertNotEquals(name1, name2, "Generated names should be unique");
+  }
+
+  public IPSNameGenerator getNameGenerator() {
+    return nameGenerator;
+  }
+
+  public void setNameGenerator(IPSNameGenerator nameGenerator) {
+    this.nameGenerator = nameGenerator;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,72 +16,65 @@
  */
 package com.percussion.delivery.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class PSDeliveryInfoServiceTest
-{
-    @Ignore
-    @Test
-    public void testAvailableServices() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
-        
-        PSDeliveryInfo server;
-        IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
-        
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
-        assertTrue(server != null);
+public class PSDeliveryInfoServiceTest {
+  @Disabled
+  @Test
+  public void testAvailableServices() throws Exception {
+    var tempConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
 
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-        assertTrue(server != null);
-        
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
-        assertTrue(server != null);
-    }
-    
-    @Ignore
-    @Test
-    public void testAvailableServicesServersInfo() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
-        
-        PSDeliveryInfo server;
-        IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
-        
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
-        
-        assertEquals(server.getUsername(), "admin2");
+    PSDeliveryInfo server;
+    IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
 
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-        
-        assertEquals(server.getUsername(), "admin2");
-        
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
-        assertEquals(server.getUsername(), "admin1");
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
+    assertTrue(server != null);
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
+    assertTrue(server != null);
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
+    assertTrue(server != null);
+  }
+
+  @Disabled
+  @Test
+  public void testAvailableServicesServersInfo() throws Exception {
+    var tempConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
+
+    PSDeliveryInfo server;
+    IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
+
+    assertEquals("admin2", server.getUsername());
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
+
+    assertEquals("admin2", server.getUsername());
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
+    assertEquals("admin1", server.getUsername());
+  }
+
+  private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
+    var tempConfigFile = File.createTempFile("deliveryServers", ".xml");
+    try (var out = new FileOutputStream(tempConfigFile)) {
+      IOUtils.copy(baseConfigFile, out);
     }
-    
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
-    {
-        // Copy mixed passwords to temp directory
-        File tempConfigFile = File.createTempFile("deliveryServers", ".xml");
-        OutputStream out = new FileOutputStream(tempConfigFile);
-        InputStream in = baseConfigFile;
-        
-        IOUtils.copy(in, out);
-        
-        return tempConfigFile;
-    }
+    return tempConfigFile;
+  }
 }

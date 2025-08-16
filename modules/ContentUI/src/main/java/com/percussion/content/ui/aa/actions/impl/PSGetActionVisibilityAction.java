@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,233 +43,184 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.ui.IPSUiWs;
 import com.percussion.webservices.ui.PSUiWsLocator;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 
 /**
- * This class takes a set of <code>PSAction</code> names, an ObjectId and
- * calculates whether each of the requested actions is visible given the
- * supplied context.
- * 
+ * This class takes a set of <code>PSAction</code> names, an ObjectId and calculates whether each of
+ * the requested actions is visible given the supplied context.
+ *
  * @author paulhoward
  */
-public class PSGetActionVisibilityAction extends PSAAActionBase
-{
-   /**
-    * For each supplied name, search for a matching <code>PSAction</code> that
-    * has that name (case-insensitive.) If found, calculate whether the action
-    * would be visible given the context of the supplied id.
-    * 
-    * @param params Expected: an entry called 'names' whose value is a String[]
-    * containing the actions of interest, an entry for the object id. The names
-    * are case-insensitive. If an action is not found, <code>false</code> is
-    * returned for its value in the map.
-    * 
-    * @return The value is a <code>Map</code> whose key is the lower-cased
-    * name and whose value is a <code>Boolean</code> (<code>true</code> if
-    * visible); converted to a JSON string.
-    */
-   public PSActionResponse execute(Map<String, Object> params)
-      throws PSAAClientActionException
-   {
-      try
-      {
-         String[] names = (String[]) params.get("names");
-         PSAAObjectId itemId = getObjectId(params);
-         
-         Map<String, Boolean> namesToVisible = new HashMap<String, Boolean>();
-         IPSUiWs mgr = PSUiWsLocator.getUiWebservice();
-         for (String name : names)
-         {
-            List<PSAction> actions = mgr.loadActions(name);
-            boolean visible = false;
-            if (!actions.isEmpty())
-            {
-               PSAction action = actions.get(0);
-               visible = isVisible(itemId, action);
-            }
-            namesToVisible.put(name.toLowerCase(), visible);
-         }
+public class PSGetActionVisibilityAction extends PSAAActionBase {
+  /**
+   * For each supplied name, search for a matching <code>PSAction</code> that has that name
+   * (case-insensitive.) If found, calculate whether the action would be visible given the context
+   * of the supplied id.
+   *
+   * @param params Expected: an entry called 'names' whose value is a String[] containing the
+   *     actions of interest, an entry for the object id. The names are case-insensitive. If an
+   *     action is not found, <code>false</code> is returned for its value in the map.
+   * @return The value is a <code>Map</code> whose key is the lower-cased name and whose value is a
+   *     <code>Boolean</code> (<code>true</code> if visible); converted to a JSON string.
+   */
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    try {
+      String[] names = (String[]) params.get("names");
+      PSAAObjectId itemId = getObjectId(params);
 
-         JSONArray result = new JSONArray();
-         result.put(namesToVisible);
-         return new PSActionResponse(result.toString(),
-               PSActionResponse.RESPONSE_TYPE_JSON);
-      }
-      catch (PSErrorException e)
-      {
-         throw new PSAAClientActionException(e);
-      }
-   }
-   
-   /**
-    * Does the work of calculating visibility.
-    * 
-    * @param itemId The context to which the action is to be applied. Assumed
-    * not <code>null</code>.
-    * 
-    * @param action The action to check. Assumed not <code>null</code>.
-    * 
-    * @return <code>true</code> if the supplied action is visible to the
-    * supplied item given its context, otherwise <code>false</code>.
-    */
-   private boolean isVisible(PSAAObjectId itemId, PSAction action)
-   {
-      PSActionVisibilityChecker visibilityChecker = 
-         new PSActionVisibilityChecker(action);
-      return visibilityChecker.isVisible(new GlobalState(getRequestContext()),
-            new ObjectState(itemId, getRequestContext()));
-   }
-   
-   private class GlobalState extends PSActionVisibilityGlobalState
-   {
-      /**
-       * 
-       * @param ctx Assumed not <code>null</code>.
-       */
-      public GlobalState(IPSRequestContext ctx)
-      {
-         mi_ctx = ctx;
-      }
-      
-      @Override
-      public int getCommunityUuid()
-      {
-         return getCurrentCommunityUuid();
+      Map<String, Boolean> namesToVisible = new HashMap<String, Boolean>();
+      IPSUiWs mgr = PSUiWsLocator.getUiWebservice();
+      for (String name : names) {
+        List<PSAction> actions = mgr.loadActions(name);
+        boolean visible = false;
+        if (!actions.isEmpty()) {
+          PSAction action = actions.get(0);
+          visible = isVisible(itemId, action);
+        }
+        namesToVisible.put(name.toLowerCase(), visible);
       }
 
-      @Override
-      public String getLocale()
-      {
-         return mi_ctx.getUserLocale();
-      }
+      JSONArray result = new JSONArray();
+      result.put(namesToVisible);
+      return new PSActionResponse(result.toString(), PSActionResponse.RESPONSE_TYPE_JSON);
+    } catch (PSErrorException e) {
+      throw new PSAAClientActionException(e);
+    }
+  }
 
-      @SuppressWarnings("unchecked")
-      @Override
-      public Collection<String> getRoles()
-      {
-         return mi_ctx.getSubjectRoles();
-      }
-      
-      /**
-       * Set in ctor, then never null or changed.
-       */
-      private IPSRequestContext mi_ctx;
-   }
-   
-   private class ObjectState extends PSActionVisibilityObjectState
-   {
-      /**
-       * 
-       * @param id Assumed not <code>null</code>.
-       */
-      public ObjectState(PSAAObjectId id, IPSRequestContext ctx)
-      {
-         mi_id = id;
-         mi_ctx = ctx;
-      }
-      
-      @SuppressWarnings("unchecked")
-      @Override
-      public int getAssignmentType()
-      {
-         IPSSystemService svc = PSSystemServiceLocator.getSystemService();
-         List<PSAssignmentTypeEnum> types = Collections.emptyList();
-         try
-         {
-            types = svc.getContentAssignmentTypes(
-               Collections.singletonList(mi_id.getContentGuid()), 
-               getCurrentUser(),
-               mi_ctx.getSubjectRoles(),
-               getCurrentCommunityUuid());
-         }
-         catch (PSSystemException e)
-         {
-            // ignore
-            e.printStackTrace();
-         }
-         return types.isEmpty() ? -1 : types.get(0).getValue();
-      }
+  /**
+   * Does the work of calculating visibility.
+   *
+   * @param itemId The context to which the action is to be applied. Assumed not <code>null</code>.
+   * @param action The action to check. Assumed not <code>null</code>.
+   * @return <code>true</code> if the supplied action is visible to the supplied item given its
+   *     context, otherwise <code>false</code>.
+   */
+  private boolean isVisible(PSAAObjectId itemId, PSAction action) {
+    PSActionVisibilityChecker visibilityChecker = new PSActionVisibilityChecker(action);
+    return visibilityChecker.isVisible(
+        new GlobalState(getRequestContext()), new ObjectState(itemId, getRequestContext()));
+  }
 
-      @Override
-      public String getCheckoutStatus()
-      {
-         return mi_id.getCheckoutStatus();
-      }
+  private class GlobalState extends PSActionVisibilityGlobalState {
+    /**
+     * @param ctx Assumed not <code>null</code>.
+     */
+    public GlobalState(IPSRequestContext ctx) {
+      mi_ctx = ctx;
+    }
 
-      @Override
-      public int getContentTypeUuid()
-      {
-         return Integer.parseInt(mi_id.getContentId());
-      }
+    @Override
+    public int getCommunityUuid() {
+      return getCurrentCommunityUuid();
+    }
 
-      @Override
-      public PSObjectPermissions getFolderPermissions()
-      {
-         String s = mi_id.getFolderId();
-         if (StringUtils.isBlank(s))
-            return null;
-         
-         int fid = Integer.parseInt(s);
-         IPSContentWs cmgr = PSContentWsLocator.getContentWebservice();
-         IPSGuid guid = getItemGuid(fid);
-         
-         PSObjectPermissions perms = null;
-         try
-         {
-            List<PSFolder> folders = 
-               cmgr.loadFolders(Collections.singletonList(guid));
-            assert(folders.size() == 1);
-            perms = folders.get(0).getPermissions();
-         }
-         catch (PSErrorResultsException e)
-         {
-            // ignore
-            e.printStackTrace();
-         }
-         return perms;
-      }
+    @Override
+    public String getLocale() {
+      return mi_ctx.getUserLocale();
+    }
 
-      @Override
-      public int getObjectType()
-      {
-         return mi_id.getItemSummary().getObjectType();
-      }
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<String> getRoles() {
+      return mi_ctx.getSubjectRoles();
+    }
 
-      @Override
-      public String getPublishableType()
-      {
-         IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-         IPSGuid wfGuid = gmgr.makeGuid(mi_id.getItemSummary()
-               .getWorkflowAppId(), PSTypeEnum.WORKFLOW);
-         IPSGuid stateGuid = gmgr.makeGuid(mi_id.getItemSummary()
-               .getContentStateId(), PSTypeEnum.WORKFLOW_STATE);
-         IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
-         PSState wfState = svc.loadWorkflowState(stateGuid, wfGuid);
-         return wfState == null ? StringUtils.EMPTY : 
-            wfState.getContentValidValue();
-      }
+    /** Set in ctor, then never null or changed. */
+    private IPSRequestContext mi_ctx;
+  }
 
-      @Override
-      public int getWorkflowAppUuid()
-      {
-         return mi_id.getItemSummary().getWorkflowAppId();
+  private class ObjectState extends PSActionVisibilityObjectState {
+    /**
+     * @param id Assumed not <code>null</code>.
+     */
+    public ObjectState(PSAAObjectId id, IPSRequestContext ctx) {
+      mi_id = id;
+      mi_ctx = ctx;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public int getAssignmentType() {
+      IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+      List<PSAssignmentTypeEnum> types = Collections.emptyList();
+      try {
+        types =
+            svc.getContentAssignmentTypes(
+                Collections.singletonList(mi_id.getContentGuid()),
+                getCurrentUser(),
+                mi_ctx.getSubjectRoles(),
+                getCurrentCommunityUuid());
+      } catch (PSSystemException e) {
+        // ignore
+        e.printStackTrace();
       }
-      
-      /**
-       * Set in ctor then never <code>null</code> or modified.
-       */
-      private PSAAObjectId mi_id;
-      
-      /**
-       * Set in ctor then never <code>null</code> or modified.
-       */
-      private IPSRequestContext mi_ctx;
-   }
+      return types.isEmpty() ? -1 : types.get(0).getValue();
+    }
+
+    @Override
+    public String getCheckoutStatus() {
+      return mi_id.getCheckoutStatus();
+    }
+
+    @Override
+    public int getContentTypeUuid() {
+      return Integer.parseInt(mi_id.getContentId());
+    }
+
+    @Override
+    public PSObjectPermissions getFolderPermissions() {
+      String s = mi_id.getFolderId();
+      if (StringUtils.isBlank(s)) return null;
+
+      int fid = Integer.parseInt(s);
+      IPSContentWs cmgr = PSContentWsLocator.getContentWebservice();
+      IPSGuid guid = getItemGuid(fid);
+
+      PSObjectPermissions perms = null;
+      try {
+        List<PSFolder> folders = cmgr.loadFolders(Collections.singletonList(guid));
+        assert (folders.size() == 1);
+        perms = folders.get(0).getPermissions();
+      } catch (PSErrorResultsException e) {
+        // ignore
+        e.printStackTrace();
+      }
+      return perms;
+    }
+
+    @Override
+    public int getObjectType() {
+      return mi_id.getItemSummary().getObjectType();
+    }
+
+    @Override
+    public String getPublishableType() {
+      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
+      IPSGuid wfGuid =
+          gmgr.makeGuid(mi_id.getItemSummary().getWorkflowAppId(), PSTypeEnum.WORKFLOW);
+      IPSGuid stateGuid =
+          gmgr.makeGuid(mi_id.getItemSummary().getContentStateId(), PSTypeEnum.WORKFLOW_STATE);
+      IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
+      PSState wfState = svc.loadWorkflowState(stateGuid, wfGuid);
+      return wfState == null ? StringUtils.EMPTY : wfState.getContentValidValue();
+    }
+
+    @Override
+    public int getWorkflowAppUuid() {
+      return mi_id.getItemSummary().getWorkflowAppId();
+    }
+
+    /** Set in ctor then never <code>null</code> or modified. */
+    private PSAAObjectId mi_id;
+
+    /** Set in ctor then never <code>null</code> or modified. */
+    private IPSRequestContext mi_ctx;
+  }
 }

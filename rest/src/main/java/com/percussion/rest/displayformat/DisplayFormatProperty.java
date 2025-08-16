@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,65 +15,82 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.displayformat;
 
 import com.percussion.rest.ValueList;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
 
-
-@Schema(name="DisplayFormatProperty", description="Represents a property of a DisplayFormat. Properties may be multi valued or single valued.")
+/** Represents a property of a DisplayFormat. Properties may be multi-valued or single-valued. */
+@Schema(
+    name = "DisplayFormatProperty",
+    description =
+        "Represents a property of a DisplayFormat. Properties may be multi valued or single"
+            + " valued.")
 public class DisplayFormatProperty {
 
-    @Schema(name="propertyId", description="The id for this property.")
-    private String propertyId;
-    @Schema(name="propertyName", description="The unique Name for this property.")
-    private String propertyName;
-    @Schema(name="propertyValue", description="For a single value property, the value of the property")
-    private String propertyValue;
-    @Schema(name="description", description="An optional description of this properties purpose")
-    private String description;
-    @Schema(name="propertyValues", description="For a multi value property, the list of current values of the property")
-    private ValueList propertyValues;
+  @Schema(name = "propertyId", description = "The id for this property.")
+  private String propertyId;
 
-    public DisplayFormatProperty(){}
+  @Schema(name = "propertyName", description = "The unique Name for this property.")
+  private String propertyName;
 
-    public String getPropertyId() {
-        return propertyId;
-    }
+  @Schema(
+      name = "propertyValue",
+      description = "For a single value property, the value of the property")
+  private String propertyValue;
 
-    public void setPropertyId(String propertyId) {
-        this.propertyId = propertyId;
-    }
+  @Schema(name = "description", description = "An optional description of this property's purpose")
+  private String description;
 
-    public String getPropertyName() {
-        return propertyName;
-    }
+  @Schema(
+      name = "propertyValues",
+      description = "For a multi value property, the list of current values of the property")
+  private ValueList propertyValues;
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
+  public DisplayFormatProperty() {
+    // Default constructor
+  }
 
-    public String getPropertyValue() {
-        return propertyValue;
-    }
+  public Optional<String> getPropertyId() {
+    return Optional.ofNullable(propertyId);
+  }
 
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
-    }
+  public void setPropertyId(String propertyId) {
+    this.propertyId = propertyId;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public Optional<String> getPropertyName() {
+    return Optional.ofNullable(propertyName);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setPropertyName(String propertyName) {
+    this.propertyName = propertyName;
+  }
 
-    public ValueList getPropertyValues() {
-        return propertyValues;
-    }
+  public Optional<String> getPropertyValue() {
+    return Optional.ofNullable(propertyValue);
+  }
 
-    public void setPropertyValues(ValueList propertyValues) {
-        this.propertyValues = propertyValues;
-    }
+  public void setPropertyValue(String propertyValue) {
+    this.propertyValue = propertyValue;
+  }
+
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Optional<ValueList> getPropertyValues() {
+    return Optional.ofNullable(propertyValues);
+  }
+
+  public void setPropertyValues(ValueList propertyValues) {
+    this.propertyValues = propertyValues;
+  }
 }

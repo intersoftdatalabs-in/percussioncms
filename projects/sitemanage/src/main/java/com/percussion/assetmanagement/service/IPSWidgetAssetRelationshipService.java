@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,354 +31,318 @@ import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.types.PSPair;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Manages the association of widgets to assets to pages.
- * <p>
- * {@link PSWidgetItem Widget items} are always associated to a single page or template thus a 
- * widget cannot exist with out a page/template.
- * Consequently widget id's are not unique across pages/templates the page/templates
- * id must be provided whenever the widget id used.
- * <p>
- * However a widget may have 0..n relationships with an asset and this service manages those
+ *
+ * <p>Widget items are always associated to a single page or template; thus, a widget cannot exist
+ * without a page/template. Consequently, widget IDs are not unique across pages/templates; the
+ * page/template ID must be provided whenever the widget ID is used.
+ *
+ * <p>However, a widget may have 0..n relationships with an asset, and this service manages those
  * relationships.
- * <p>
- * <em>Creating {@link PSWidgetItem widget items} is not done in this service
- * and is part of page and template management.</em>
- * 
- * @author adamgent
- * @author peterfrontiero
- * 
+ *
+ * <p>Creating widget items is not done in this service and is part of page and template management.
  */
-public interface IPSWidgetAssetRelationshipService
-{
-    /**
-     * Updates an existing page/asset relationship.
-     * 
-     * @param awRel the to be updated relationship, never <code>null</code>.
-     * @return the Id of the updated relationship.
-     * 
-     * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be created.
-     */    
-    public String updateAssetWidgetRelationship(PSAssetWidgetRelationship awRel) throws PSWidgetAssetRelationshipServiceException, PSValidationException;
-    
-    /**
-     * Creates the relationship defined by the specified asset widget relationship.
-     * 
-     * @param owner never <code>null</code>.
-     * @param asset never <code>null</code>.
-     * @param widgetId never <code>blank</code>.
-     * @param action to be taken when an asset is added to a widget with assets.
-     * @param resourceType that the asset should be added as.  Never <code>null</code>.
-     * @param order of the asset in the widget. 
-     * @param widgetName the name of the created widget/asset. 
-     * @param replacedRelationshipId the ID of the original relationship ID that we need to replaced.
-     * It may be <code>-1</code> if there is no relationship to replace with. 
-     * 
-     * @return the Id of the newly created relationship.
-     * 
-     * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be created.
-     */    
-    public String createAssetWidgetRelationship(PSAbstractPersistantObject owner,
-            PSAssetSummary asset, 
-            String widgetId,
-            PSAssetWidgetRelationshipAction action,
-            PSAssetResourceType resourceType,
-            int order, 
-            String widgetName,
-            int replacedRelationshipId) throws PSWidgetAssetRelationshipServiceException, PSValidationException;
-    
-    /**
-     * Clears the specified relationship.  If no other asset widget relationships exist for the asset, the item will
-     * also be deleted.
-     * 
-     * @param ownerId never blank.
-     * @param assetId never blank.
-     * @param widgetId never blank.
-     * 
-     * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be deleted.
-     */
-    public void clearAssetFromWidget(String ownerId, String assetId, String widgetId)
-    throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Gets The criteria for a widget to allow an asset drop on a Page.
-     * 
-     * @param page never <code>null</code>.
-     * @param template for the page, never <code>null</code>.
-     * 
-     * @return {@link PSAssetDropCriteria}
-     */    
-    public List<PSAssetDropCriteria> getWidgetAssetCriteriaForPage(PSPage page, PSTemplate template);
+public interface IPSWidgetAssetRelationshipService {
 
-    /**
-     * Gets The criteria for a widget to allow an asset drop on a Template.
-     * 
-     * @param template never <code>null</code>.
-     * 
-     * @return {@link PSAssetDropCriteria}
-     */    
-    public List<PSAssetDropCriteria> getWidgetAssetCriteriaForTemplate(PSTemplate template);
+  /**
+   * Updates an existing page/asset relationship.
+   *
+   * @param awRel the to be updated relationship, never <code>null</code>.
+   * @return the Id of the updated relationship.
+   * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be created.
+   */
+  String updateAssetWidgetRelationship(PSAssetWidgetRelationship awRel)
+      throws PSWidgetAssetRelationshipServiceException, PSValidationException;
 
-    /**
-     * Gets the owners of all relationships for a given asset/page.
-     * 
-     * @param id the asset id, never blank.
-     * 
-     * @return the set of all owner id's (revision specific) of relationships for the asset.  Never
-     * <code>null</code>, may be empty.
-     */
-    public Set<String> getRelationshipOwners(String id);
-    
+  /**
+   * Creates the relationship defined by the specified asset widget relationship.
+   *
+   * @param owner never <code>null</code>.
+   * @param asset never <code>null</code>.
+   * @param widgetId never <code>blank</code>.
+   * @param action to be taken when an asset is added to a widget with assets.
+   * @param resourceType that the asset should be added as. Never <code>null</code>.
+   * @param order of the asset in the widget.
+   * @param widgetName the name of the created widget/asset.
+   * @param replacedRelationshipId the ID of the original relationship ID that we need to replaced.
+   *     It may be <code>-1</code> if there is no relationship to replace with.
+   * @return the Id of the newly created relationship.
+   * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be created.
+   */
+  String createAssetWidgetRelationship(
+      PSAbstractPersistantObject owner,
+      PSAssetSummary asset,
+      String widgetId,
+      PSAssetWidgetRelationshipAction action,
+      PSAssetResourceType resourceType,
+      int order,
+      String widgetName,
+      int replacedRelationshipId)
+      throws PSWidgetAssetRelationshipServiceException, PSValidationException;
 
-    /**
-     * Gets the owners of all PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY relationships for a given asset/page.
-     * 
-     * @param id the asset id, String form of the item guid, never blank.
-     * @param restrictToOwnerCurrentRevision flag to restrict the relationship owners to the owner's
-     * current revision only.
-     * 
-     * @return the set of all owner id's (revision specific guids) of relationships for the asset.  Never
-     * <code>null</code>, may be empty.
-     */
-    public Set<String> getRelationshipOwners(String id, boolean restrictToOwnerCurrentRevision);
-    
-    /**
-     * Deletes all local content (assets) associated with the given Page or Template.
-     * 
-     * @param id the Page or Template id, never blank.
-     */
-    public void deleteLocalAssets(String id) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Copies all asset widget relationships associated with the given source Page or Template to the given
-     * destination Page or Template.  Local content items will be cloned.
-     * 
-     * @param srcId never blank.
-     * @param destId never blank.
-     * 
-     * @return id of any asset created may be <code>null</code>
-     */
-    public Collection<String> copyAssetWidgetRelationships(String srcId, String destId) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Cleans up the orphaned assets that belong to the specified page and the assets were used by page specific widgets.
-     * In other words, this is to clean up assets that were used in the widgets that belongs to previous page, but the 
-     * widgets have been deleted in the current page.
-     * 
-     * @param page the page, not <code>null</code>.
-     * @param page the previous page, not <code>null</code>.
-     * @param template the page's template, not <code>null</code>.
-     * @param template the previous page's template, not <code>null</code>.
-     */
-    public void cleanupOrphanedPageAssets(PSPage page, PSPage previousPage, PSTemplate template, PSTemplate previousTemplate) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Removes all asset widget relationships for widgets which do not exist in the specified region-widget
-     * associations.  If no other asset widget relationships exist for the assets, the items will also be deleted.
-     * 
-     * @param ownerId the Page or Template id, never blank.
-     * @param widgets a list of widgets the template/page contains, never <code>null</code>.
-     */
-    public void removeAssetWidgetRelationships(String ownerId, Collection<PSWidgetItem> widgets) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Gets all local content (assets) associated with the specified item.
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of local asset item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getLocalAssets(String id) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Gets all local asset relationships by owner, widget, and asset.
-     * 
-     * @param ownerId may be <code>null</code> to ignore.
-     * @param widgetId may be <code>null</code> to ignore.
-     * @param assetId may be <code>null</code> to ignore.
-     * 
-     * @return local asset relationships for the specified owner, widget, and asset, never <code>null</code>, may be empty.
-     */
-    public List<PSRelationship> getLocalAssetRelationships(String ownerId, String widgetId, String assetId);
+  /**
+   * Clears the specified relationship. If no other asset widget relationships exist for the asset,
+   * the item will also be deleted.
+   *
+   * @param ownerId never blank.
+   * @param assetId never blank.
+   * @param widgetId never blank.
+   * @throws PSWidgetAssetRelationshipServiceException if the relationship cannot be deleted.
+   */
+  void clearAssetFromWidget(String ownerId, String assetId, String widgetId)
+      throws PSWidgetAssetRelationshipServiceException;
 
-    /**
-     * Gets all shared content (assets) associated with the specified item.
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of shared asset item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getSharedAssets(String id) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Gets all content (assets) associated with the specified item via an inline link.  This is determined by first
-     * gathering all local and shared assets of the item, then gathering all shared assets of these assets. 
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of linked asset item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getLinkedAssets(String id) throws PSWidgetAssetRelationshipServiceException, PSValidationException, PSNotFoundException;
-    
-    /**
-     * Gets all content (assets) associated with the specified asset via an inline link. 
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of linked asset item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getLinkedAssetsForAsset(String id) throws PSValidationException, PSNotFoundException;
-    
-    /**
-     * Gets all pages associated with the specified item via an inline link.
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of linked page item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getLinkedPages(String id) throws PSValidationException, PSNotFoundException;
-    
-    /**
-     * Updates the dependent of all shared relationships between the specified owner and dependent.
-     * 
-     * @param ownerId never blank.
-     * @param depId the original dependent id, never blank.
-     * @param newDepId the new dependent id, never blank.
-     * @throws PSCmsException 
-     */
-    public void updateSharedRelationshipDependent(String ownerId, String depId, String newDepId) throws PSValidationException;
-    
+  /**
+   * Gets The criteria for a widget to allow an asset drop on a Page.
+   *
+   * @param page never <code>null</code>.
+   * @param template for the page, never <code>null</code>.
+   * @return {@link PSAssetDropCriteria}
+   */
+  List<PSAssetDropCriteria> getWidgetAssetCriteriaForPage(PSPage page, PSTemplate template);
 
-    /**
-     * Updates the dependent of all shared relationships between the specified owner and dependent.
-     * 
-     * @param ownerId never blank.
-     * @param depId the original dependent id, never blank.
-     * @param newDepId the new dependent id, never blank.
-     * @throws PSCmsException 
-     */
-    public void updateSharedRelationshipDependent(String ownerId, String depId, String newDepId, boolean checkInOut) throws PSValidationException;
+  /**
+   * Gets The criteria for a widget to allow an asset drop on a Template.
+   *
+   * @param template never <code>null</code>.
+   * @return {@link PSAssetDropCriteria}
+   */
+  List<PSAssetDropCriteria> getWidgetAssetCriteriaForTemplate(PSTemplate template);
 
-    /**
-     * Determines if the specified item is used directly or indirectly (via an inline link) by a template.
-     * 
-     * @param id never blank.
-     * 
-     * @return <code>true</code> if the item is being used by a template, <code>false</code> otherwise.
-     */
-    public boolean isUsedByTemplate(String id) throws PSValidationException, PSNotFoundException;
-    
-    /**
-     * For a given asset, the current local content relationship will be updated with the tip revision of the asset if
-     * it is greater than 1.
-     * 
-     * @param id never blank.
-     */
-    public void updateLocalRelationshipAsset(String id) throws PSValidationException;
-    
-    /**
-     * Gets the local content relationships for the supplied parent and resets the dependent revision of local content 
-     * to the tip revision. 
-     * @param id The string representation of the parent guid. Must not be blank.
-     */
-    public void adjustLocalContentRelationships(String id) throws PSValidationException;
-    
-    /**
-     * Gets all resource assets associated with the specified item.  This includes local, shared, and linked resources.
-     * 
-     * @param id never blank.
-     * 
-     * @return a set of resource asset item id's for the given item.  Never <code>null</code>, may be empty.
-     */
-    public Set<String> getResourceAssets(String id) throws PSWidgetAssetRelationshipServiceException;
-    
-    /**
-     * Checks if there has been a change into a widget name, and if it has been,
-     * it updates the corresponding relationships for the template and all the
-     * pages using it.
-     * 
-     * @param templateId the id of the template, must not be blank.
-     * @param changedWidgets {@link Map}<{@link String}, {@link PSPair}<
-     *            {@link String}, {@link String}>> maps the widgetId (slot id)
-     *            to the new name of the widget. Assumed not <code>null</code>.
-     */
-    public void updateWidgetsNames(String templateId, Map<String, PSPair<String, String>> changedWidgets) throws PSValidationException;
+  /**
+   * Gets the owners of all relationships for a given asset/page.
+   *
+   * @param id the asset id, never blank.
+   * @return the set of all owner id's (revision specific) of relationships for the asset. Never
+   *     <code>null</code>, may be empty.
+   */
+  Set<String> getRelationshipOwners(String id);
 
-    /**
-     * Creates a relationship based on the specified source relationship, asset
-     * and widget.
-     * 
-     * @param assetId the ID of the asset, which will be the dependent of the
-     *            created relationship, not empty.
-     * @param ownerId the ID of the owner of the asset, which will be the owner
-     *            of the created relationship, not empty.
-     * @param widgetId the ID of the widget that is used to render the asset,
-     *            not empty.
-     * @param widgetName {@link String} with the widget name, if it exists. May
-     *            be <code>null</code> or empty.
-     * @param isSharedAsset <code>true</code> if the asset is shared.
-     *            <code>false</code> otherwise.
-     */
-    public void createRelationship(String assetId, String ownerId, String widgetId,
-            String widgetName, boolean isSharedAsset) throws PSDataServiceException;
+  /**
+   * Gets the owners of all PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY relationships for a given
+   * asset/page.
+   *
+   * @param id the asset id, String form of the item guid, never blank.
+   * @param restrictToOwnerCurrentRevision flag to restrict the relationship owners to the owner's
+   *     current revision only.
+   * @return the set of all owner id's (revision specific guids) of relationships for the asset.
+   *     Never <code>null</code>, may be empty.
+   */
+  Set<String> getRelationshipOwners(String id, boolean restrictToOwnerCurrentRevision);
 
-    /**
-     * (Runtime) Exception is thrown when an unexpected error occurs in this
-     * service.
-     */
-    public static class PSWidgetAssetRelationshipServiceException extends PSDataServiceException
-    {
+  /**
+   * Deletes all local content (assets) associated with the given Page or Template.
+   *
+   * @param id the Page or Template id, never blank.
+   */
+  void deleteLocalAssets(String id) throws PSWidgetAssetRelationshipServiceException;
 
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1L;
+  /**
+   * Copies all asset widget relationships associated with the given source Page or Template to the
+   * given destination Page or Template. Local content items will be cloned.
+   *
+   * @param srcId never blank.
+   * @param destId never blank.
+   * @return id of any asset created may be <code>null</code>
+   */
+  Collection<String> copyAssetWidgetRelationships(String srcId, String destId)
+      throws PSWidgetAssetRelationshipServiceException;
 
-        /**
-         * Default constructor.
-         */
-        public PSWidgetAssetRelationshipServiceException()
-        {
-            super();
-        }
+  /**
+   * Cleans up the orphaned assets that belong to the specified page and the assets were used by
+   * page specific widgets. In other words, this is to clean up assets that were used in the widgets
+   * that belongs to previous page, but the widgets have been deleted in the current page.
+   *
+   * @param page the page, not <code>null</code>.
+   * @param page the previous page, not <code>null</code>.
+   * @param template the page's template, not <code>null</code>.
+   * @param template the previous page's template, not <code>null</code>.
+   */
+  void cleanupOrphanedPageAssets(
+      PSPage page, PSPage previousPage, PSTemplate template, PSTemplate previousTemplate)
+      throws PSWidgetAssetRelationshipServiceException;
 
-        /**
-         * Constructs an exception with the specified detail message and the
-         * cause.
-         * 
-         * @param message the specified detail message.
-         * @param cause the cause of the exception.
-         */
-        public PSWidgetAssetRelationshipServiceException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
+  /**
+   * Removes all asset widget relationships for widgets which do not exist in the specified
+   * region-widget associations. If no other asset widget relationships exist for the assets, the
+   * items will also be deleted.
+   *
+   * @param ownerId the Page or Template id, never blank.
+   * @param widgets a list of widgets the template/page contains, never <code>null</code>.
+   */
+  void removeAssetWidgetRelationships(String ownerId, Collection<PSWidgetItem> widgets)
+      throws PSWidgetAssetRelationshipServiceException;
 
-        /**
-         * Constructs an exception with the specified detail message.
-         * 
-         * @param message the specified detail message.
-         */
-        public PSWidgetAssetRelationshipServiceException(String message)
-        {
-            super(message);
-        }
+  /**
+   * Gets all local content (assets) associated with the specified item.
+   *
+   * @param id never blank.
+   * @return a set of local asset item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getLocalAssets(String id) throws PSWidgetAssetRelationshipServiceException;
 
-        /**
-         * Constructs an exception with the specified cause.
-         * 
-         * @param cause the cause of the exception.
-         */
-        public PSWidgetAssetRelationshipServiceException(Throwable cause)
-        {
-            super(cause);
-        }
+  /**
+   * Gets all local asset relationships by owner, widget, and asset.
+   *
+   * @param ownerId may be <code>null</code> to ignore.
+   * @param widgetId may be <code>null</code> to ignore.
+   * @param assetId may be <code>null</code> to ignore.
+   * @return local asset relationships for the specified owner, widget, and asset, never <code>null
+   *     </code>, may be empty.
+   */
+  List<PSRelationship> getLocalAssetRelationships(String ownerId, String widgetId, String assetId);
+
+  /**
+   * Gets all shared content (assets) associated with the specified item.
+   *
+   * @param id never blank.
+   * @return a set of shared asset item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getSharedAssets(String id) throws PSWidgetAssetRelationshipServiceException;
+
+  /**
+   * Gets all content (assets) associated with the specified item via an inline link. This is
+   * determined by first gathering all local and shared assets of the item, then gathering all
+   * shared assets of these assets.
+   *
+   * @param id never blank.
+   * @return a set of linked asset item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getLinkedAssets(String id)
+      throws PSWidgetAssetRelationshipServiceException, PSValidationException, PSNotFoundException;
+
+  /**
+   * Gets all content (assets) associated with the specified asset via an inline link.
+   *
+   * @param id never blank.
+   * @return a set of linked asset item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getLinkedAssetsForAsset(String id) throws PSValidationException, PSNotFoundException;
+
+  /**
+   * Gets all pages associated with the specified item via an inline link.
+   *
+   * @param id never blank.
+   * @return a set of linked page item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getLinkedPages(String id) throws PSValidationException, PSNotFoundException;
+
+  /**
+   * Updates the dependent of all shared relationships between the specified owner and dependent.
+   *
+   * @param ownerId never blank.
+   * @param depId the original dependent id, never blank.
+   * @param newDepId the new dependent id, never blank.
+   * @throws PSCmsException
+   */
+  void updateSharedRelationshipDependent(String ownerId, String depId, String newDepId)
+      throws PSValidationException;
+
+  /**
+   * Updates the dependent of all shared relationships between the specified owner and dependent.
+   *
+   * @param ownerId never blank.
+   * @param depId the original dependent id, never blank.
+   * @param newDepId the new dependent id, never blank.
+   * @throws PSCmsException
+   */
+  void updateSharedRelationshipDependent(
+      String ownerId, String depId, String newDepId, boolean checkInOut)
+      throws PSValidationException;
+
+  /**
+   * Determines if the specified item is used directly or indirectly (via an inline link) by a
+   * template.
+   *
+   * @param id never blank.
+   * @return <code>true</code> if the item is being used by a template, <code>false</code>
+   *     otherwise.
+   */
+  boolean isUsedByTemplate(String id) throws PSValidationException, PSNotFoundException;
+
+  /**
+   * For a given asset, the current local content relationship will be updated with the tip revision
+   * of the asset if it is greater than 1.
+   *
+   * @param id never blank.
+   */
+  void updateLocalRelationshipAsset(String id) throws PSValidationException;
+
+  /**
+   * Gets the local content relationships for the supplied parent and resets the dependent revision
+   * of local content to the tip revision.
+   *
+   * @param id The string representation of the parent guid. Must not be blank.
+   */
+  void adjustLocalContentRelationships(String id) throws PSValidationException;
+
+  /**
+   * Gets all resource assets associated with the specified item. This includes local, shared, and
+   * linked resources.
+   *
+   * @param id never blank.
+   * @return a set of resource asset item id's for the given item. Never <code>null</code>, may be
+   *     empty.
+   */
+  Set<String> getResourceAssets(String id) throws PSWidgetAssetRelationshipServiceException;
+
+  /**
+   * Checks if there has been a change into a widget name, and if it has been, it updates the
+   * corresponding relationships for the template and all the pages using it.
+   *
+   * @param templateId the id of the template, must not be blank.
+   * @param changedWidgets {@link Map}<{@link String}, {@link PSPair}< {@link String}, {@link
+   *     String}>> maps the widgetId (slot id) to the new name of the widget. Assumed not <code>null
+   *     </code>.
+   */
+  void updateWidgetsNames(String templateId, Map<String, PSPair<String, String>> changedWidgets)
+      throws PSValidationException;
+
+  /**
+   * Creates a relationship based on the specified source relationship, asset and widget.
+   *
+   * @param assetId the ID of the asset, which will be the dependent of the created relationship,
+   *     not empty.
+   * @param ownerId the ID of the owner of the asset, which will be the owner of the created
+   *     relationship, not empty.
+   * @param widgetId the ID of the widget that is used to render the asset, not empty.
+   * @param widgetName {@link String} with the widget name, if it exists. May be <code>null</code>
+   *     or empty.
+   * @param isSharedAsset <code>true</code> if the asset is shared. <code>false</code> otherwise.
+   */
+  void createRelationship(
+      String assetId, String ownerId, String widgetId, String widgetName, boolean isSharedAsset)
+      throws PSDataServiceException;
+
+  /** (Runtime) Exception thrown when an unexpected error occurs in this service. */
+  class PSWidgetAssetRelationshipServiceException extends PSDataServiceException {
+    private static final long serialVersionUID = 1L;
+
+    public PSWidgetAssetRelationshipServiceException() {
+      super();
     }
+
+    public PSWidgetAssetRelationshipServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSWidgetAssetRelationshipServiceException(String message) {
+      super(message);
+    }
+
+    public PSWidgetAssetRelationshipServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

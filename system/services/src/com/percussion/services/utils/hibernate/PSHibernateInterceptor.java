@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@ import com.percussion.utils.guid.IPSGuid;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,290 +38,326 @@ import org.hibernate.type.Type;
 
 /**
  * Handle update events that should notify the memory subsystem to evict
- * in-memory cached objects.
- * 
+ * in-memory cached objects. This interceptor uses modern Java 11 features
+ * for enhanced performance and type safety.
+ * <p>
+ * The interceptor tracks entity changes during Hibernate transactions and
+ * sends notifications when transactions complete to ensure cache consistency.
+ *
  * @author dougrand
- * 
  */
-public class PSHibernateInterceptor extends EmptyInterceptor
-{
+public class PSHibernateInterceptor extends EmptyInterceptor {
 
-   /**
-    * Serialization global id
-    */
-   private static final long serialVersionUID = 1L;
+    /**
+     * Serialization global id
+     */
+    private static final long serialVersionUID = 1L;
 
-   /**
-    * Logger for this class
-    */
-   private static final Logger ms_log = LogManager.getLogger(PSHibernateInterceptor.class);
+    /**
+     * Logger for this class
+     */
+    private static final Logger ms_log = LogManager.getLogger(PSHibernateInterceptor.class);
 
-   /**
-    * Initialized in ctor, <code>true</code> if loads should be reported
-    */
-   private boolean m_reportLoad;
+    /**
+     * Event types that can be reported
+     */
+    public enum EventType {
+        LOAD("load"),
+        PERSIST("persist"),
+        DELETE("delete");
 
-   /**
-    * Initialized in ctor, <code>true</code> if saves should be reported
-    */
-   boolean m_reportSave;
+        private final String eventName;
 
-   /**
-    * Initialized in ctor, <code>true</code> if deletes should be reported
-    */
-   boolean m_reportDelete;
+        EventType(String eventName) {
+            this.eventName = eventName;
+        }
 
-   /**
-    * When a transaction starts, a set is pushed on the stack. The methods such
-    * as <code>onSave</code> add guids to this set. When the transation
-    * finishes, it is popped off the stack and notifications are sent for each
-    * noted changes. A stack is required because transactions can be nested. We
-    * use thread local storage because transactions are bound to threads.
-    */
-   private static ThreadLocal<Stack<Set<IPSGuid>>> ms_pendingChanges = 
-      new ThreadLocal<>();
+        public String getEventName() {
+            return eventName;
+        }
 
-   /**
-    * Empty array of classes for method lookup
-    */
-   private final Class[] NO_PARAMETERS = new Class[]
-   {};
+        public static Optional<EventType> fromString(String eventName) {
+            return Arrays.stream(values())
+                .filter(type -> type.eventName.equals(eventName))
+                .findFirst();
+        }
+    }
 
-   /**
-    * Empty array of objects for method invocation
-    */
-   private final Object[] NO_ARGS = new Object[]
-   {};
+    /**
+     * Configuration for reporting events
+     */
+    private final Set<EventType> reportedEvents = EnumSet.noneOf(EventType.class);
 
-   /**
-    * Ctor
-    * 
-    * @param eventsString the events configured, may be <code>null</code> or
-    *           empty
-    */
-   public PSHibernateInterceptor(List<String> eventsString) {
-      if (eventsString != null && eventsString.size() > 0)
-      {
-         m_reportSave = eventsString.contains("persist");
-         m_reportDelete = eventsString.contains("delete");
-         m_reportLoad = eventsString.contains("load");
-      }
-   }
+    /**
+     * When a transaction starts, a set is pushed on the stack. The methods such
+     * as {@code onSave} add guids to this set. When the transaction
+     * finishes, it is popped off the stack and notifications are sent for each
+     * noted changes. A stack is required because transactions can be nested. We
+     * use thread local storage because transactions are bound to threads.
+     */
+    private static final ThreadLocal<Stack<Set<IPSGuid>>> ms_pendingChanges =
+        ThreadLocal.withInitial(Stack::new);
 
-   @Override
-   public void onDelete(Object arg0, 
-         @SuppressWarnings("unused") Serializable arg1, 
-         @SuppressWarnings("unused") Object[] arg2,
-         @SuppressWarnings("unused") String[] arg3, 
-         @SuppressWarnings("unused") Type[] arg4)
-   {
-      if (m_reportDelete)
-      {
-         reportEvent("delete", arg0.getClass().getName());
-      }
+    /**
+     * Cache for reflection methods to improve performance
+     */
+    private static final Map<Class<?>, Optional<Method>> methodCache = new ConcurrentHashMap<>();
 
-      IPSGuid guid = getGuidFromObject(arg0);
-      if (guid != null)
-      {
-         addGuid(guid);
-      }
-   }
+    /**
+     * Constructor with modern Java 11 collection handling
+     *
+     * @param eventsString the events configured, may be {@code null} or empty
+     */
+    public PSHibernateInterceptor(List<String> eventsString) {
+        if (eventsString != null && !eventsString.isEmpty()) {
+            eventsString.stream()
+                .map(EventType::fromString)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(reportedEvents::add);
+        }
 
-   /**
-    * Add a guid to the notification list
-    * 
-    * @param guid guid, assumed never <code>null</code>
-    */
-   private void addGuid(IPSGuid guid)
-   {
-      assert (!ms_pendingChanges.get().isEmpty());
-      Set<IPSGuid> current = ms_pendingChanges.get().peek();
-      current.add(guid);
-   }
+        ms_log.info("PSHibernateInterceptor initialized with events: {}", reportedEvents);
+    }
 
-   @Override
-   public boolean onSave(Object arg0, 
-         @SuppressWarnings("unused") Serializable arg1, 
-         @SuppressWarnings("unused") Object[] arg2,
-         @SuppressWarnings("unused") String[] arg3, 
-         @SuppressWarnings("unused") Type[] arg4)
-   {
-      if (m_reportSave)
-      {
-         reportEvent("save", arg0.getClass().getName());
-      }
+    /**
+     * Constructor with no events (all disabled)
+     */
+    public PSHibernateInterceptor() {
+        this(Collections.emptyList());
+    }
 
-      IPSGuid guid = getGuidFromObject(arg0);
-      if (guid != null)
-      {
-         addGuid(guid);
-      }
-      return false;
-   }
+    @Override
+    public void onDelete(Object entity,
+                        @SuppressWarnings("unused") Serializable id,
+                        @SuppressWarnings("unused") Object[] state,
+                        @SuppressWarnings("unused") String[] propertyNames,
+                        @SuppressWarnings("unused") Type[] types) {
 
-   @Override
-   public boolean onFlushDirty(Object arg0, 
-         @SuppressWarnings("unused") Serializable arg1, 
-         @SuppressWarnings("unused") Object[] arg2,
-         @SuppressWarnings("unused") Object[] arg3, 
-         @SuppressWarnings("unused") String[] arg4, 
-         @SuppressWarnings("unused") Type[] arg5)
-   {
-      if (m_reportSave)
-      {
-         reportEvent("flush", arg0.getClass().getName());
-      }
+        if (reportedEvents.contains(EventType.DELETE)) {
+            reportEvent(EventType.DELETE, entity.getClass().getName());
+        }
 
-      IPSGuid guid = getGuidFromObject(arg0);
-      if (guid != null)
-      {
-         addGuid(guid);
-      }
-      return false;
-   }
+        getGuidFromObject(entity).ifPresent(this::addGuid);
+    }
 
-   @Override
-   public boolean onLoad(Object arg0, 
-         @SuppressWarnings("unused") Serializable arg1, 
-         @SuppressWarnings("unused") Object[] arg2,
-         @SuppressWarnings("unused") String[] arg3, 
-         @SuppressWarnings("unused") Type[] arg4)
-   {
-      if (m_reportLoad)
-      {
-         reportEvent("load", arg0.getClass().getName());
-      }
-      return false;
-   }
+    /**
+     * Add a guid to the notification list with null safety
+     *
+     * @param guid guid, must not be {@code null}
+     * @throws IllegalStateException if no pending changes stack exists
+     */
+    private void addGuid(IPSGuid guid) {
+        Objects.requireNonNull(guid, "GUID cannot be null");
 
-   @Override
-   public void afterTransactionBegin(Transaction tx)
-   {
-      super.afterTransactionBegin(tx);
-      Stack<Set<IPSGuid>> stack = ms_pendingChanges.get();
-      if (stack == null)
-      {
-         stack = new Stack<>();
-         ms_pendingChanges.set(stack);
-      }
-      stack.push(new HashSet<>());
-   }
+        var stack = ms_pendingChanges.get();
+        if (stack.isEmpty()) {
+            ms_log.warn("Attempting to add GUID {} but no transaction is active", guid);
+            return;
+        }
 
-   @Override
-   public void afterTransactionCompletion(Transaction tx)
-   {
-      //need to clear the set whether success or rollback
-      Set<IPSGuid> current = ms_pendingChanges.get().pop();
+        var current = stack.peek();
+        current.add(guid);
+        ms_log.debug("Added GUID {} to pending changes", guid);
+    }
 
-      if (tx.getStatus() == TransactionStatus.COMMITTED)
-      {
-         for (IPSGuid guid : current)
-         {
-            PSNotificationHelper.notifyInvalidation(guid);
-         }
-      }
-   }
+    @Override
+    public boolean onSave(Object entity,
+                         @SuppressWarnings("unused") Serializable id,
+                         @SuppressWarnings("unused") Object[] state,
+                         @SuppressWarnings("unused") String[] propertyNames,
+                         @SuppressWarnings("unused") Type[] types) {
 
-   /**
-    * Report event
-    * 
-    * @param string name of event
-    * @param entityName entity name
-    */
-   private void reportEvent(String string, String entityName)
-   {
-      Exception e = new Exception();
-      e.fillInStackTrace();
+        if (reportedEvents.contains(EventType.PERSIST)) {
+            reportEvent(EventType.PERSIST, entity.getClass().getName());
+        }
 
-      // Walk the stack trace to find the first percussion class references
-      StackTraceElement elements[] = e.getStackTrace();
-      StackTraceElement percel = null;
-      int skip = 3;
-      for (StackTraceElement el : elements)
-      {
-         if (skip > 0)
-         {
-            skip--;
-            continue;
-         }
-         if (el.getClassName().startsWith("com.percussion."))
-         {
-            percel = el;
-            break;
-         }
-      }
+        getGuidFromObject(entity).ifPresent(this::addGuid);
+        return false; // Don't veto the save
+    }
 
-      String className = percel.getClassName();
-      String methodName = "";
-      if(percel.getMethodName() !=null)
-         methodName = percel.getMethodName() ;
-      
-      String lineNumber = "";
-      if(percel!=null)
-         lineNumber = String.valueOf(percel.getLineNumber());
-      
-      ms_log.info("Hibernate event "
-            + string
-            + " on entity "
-            + entityName
-            + " called from "
-            + (percel != null ? percel.getClassName() : ":"
-                  + methodName + " at line "
-                  + lineNumber));
-   }
+    @Override
+    public boolean onLoad(Object entity,
+                         @SuppressWarnings("unused") Serializable id,
+                         @SuppressWarnings("unused") Object[] state,
+                         @SuppressWarnings("unused") String[] propertyNames,
+                         @SuppressWarnings("unused") Type[] types) {
 
-   /**
-    * Get the guid from the object, if the object has a <code>getGUID</code>
-    * method.
-    * 
-    * @param ob the object, assumed never <code>null</code>
-    * @return the guid of the object, or <code>null</code> if the object
-    *         doesn't implement a <code>getGUID</code> method.
-    */
-   private IPSGuid getGuidFromObject(Object ob)
-   {
-      IPSGuid guid = null;
+        if (reportedEvents.contains(EventType.LOAD)) {
+            reportEvent(EventType.LOAD, entity.getClass().getName());
+        }
 
-      if (ob instanceof PSAclEntryImpl)
-      {
-         // TODO: remove when we stop resource caching using community views
-         PSAclEntryImpl aclEntry = (PSAclEntryImpl) ob;
-         return new PSGuid(PSTypeEnum.ACL, aclEntry.getAclId());
-      }
-      else if (ob instanceof PSAccessLevelImpl)
-      {
-         // TODO: remove when we stop resource caching using community views
-         
-         // make up an acl since we'll just flush all of them any how
-         return new PSGuid(PSTypeEnum.ACL, 0);
-      }
-      
-      try
-      {
-         Method gguid = ob.getClass().getMethod("getGUID", NO_PARAMETERS);
-         guid = (IPSGuid) gguid.invoke(ob, NO_ARGS);
-      }
-      catch (NoSuchMethodException nme)
-      {
-         // Ignore
-      }
-      catch (IllegalArgumentException e)
-      {
-         ms_log
-               .error("Problem retrieving guid from object " + ob.toString(), e);
-      }
-      catch (IllegalAccessException e)
-      {
-         ms_log
-               .error("Problem retrieving guid from object " + ob.toString(), e);
-      }
-      catch (InvocationTargetException e)
-      {
-         ms_log.error("Problem retrieving guid from object " + ob.toString(), e
-               .getTargetException());
-      }
+        return false; // Don't modify the entity
+    }
 
-      return guid;
-   }
+    @Override
+    public void afterTransactionBegin(Transaction tx) {
+        super.afterTransactionBegin(tx);
 
+        var stack = ms_pendingChanges.get();
+        stack.push(new HashSet<>());
+        ms_log.debug("Transaction begun, pushed new change set. Stack depth: {}", stack.size());
+    }
+
+    @Override
+    public void afterTransactionCompletion(Transaction tx) {
+        super.afterTransactionCompletion(tx);
+
+        var stack = ms_pendingChanges.get();
+        if (stack.isEmpty()) {
+            ms_log.warn("Transaction completed but no pending changes found");
+            return;
+        }
+
+        var changes = stack.pop();
+        ms_log.debug("Transaction completed. Stack depth: {}, Changes: {}", stack.size(), changes.size());
+
+        // Only send notifications if transaction was successful
+        if (tx.getStatus() == TransactionStatus.COMMITTED && !changes.isEmpty()) {
+            sendNotifications(changes);
+        }
+
+        // Clean up thread local if stack is empty
+        if (stack.isEmpty()) {
+            ms_pendingChanges.remove();
+        }
+    }
+
+    /**
+     * Send notifications for all changed GUIDs
+     *
+     * @param changes the set of changed GUIDs, not {@code null}
+     */
+    private void sendNotifications(Set<IPSGuid> changes) {
+        Objects.requireNonNull(changes, "Changes set cannot be null");
+
+        ms_log.debug("Sending {} cache invalidation notifications", changes.size());
+
+        changes.forEach(guid -> {
+            try {
+                PSNotificationHelper.notifyMemoryEvent(guid);
+                ms_log.trace("Sent notification for GUID: {}", guid);
+            } catch (Exception e) {
+                ms_log.error("Failed to send notification for GUID: {}", guid, e);
+            }
+        });
+    }
+
+    /**
+     * Report an event with modern logging
+     *
+     * @param eventType the type of event
+     * @param className the class name involved in the event
+     */
+    private void reportEvent(EventType eventType, String className) {
+        ms_log.info("Hibernate event: {} on class: {}", eventType.getEventName(), className);
+    }
+
+    /**
+     * Extract GUID from an object using cached reflection for performance
+     *
+     * @param obj the object to extract GUID from, may be {@code null}
+     * @return Optional containing the GUID if found, empty otherwise
+     */
+    private Optional<IPSGuid> getGuidFromObject(Object obj) {
+        if (obj == null) {
+            return Optional.empty();
+        }
+
+        // Handle known special cases first for performance
+        if (obj instanceof PSAccessLevelImpl) {
+            PSAccessLevelImpl accessLevel = (PSAccessLevelImpl) obj;
+            return Optional.ofNullable(accessLevel.getGUID());
+        }
+
+        if (obj instanceof PSAclEntryImpl) {
+            PSAclEntryImpl aclEntry = (PSAclEntryImpl) obj;
+            return Optional.ofNullable(aclEntry.getGUID());
+        }
+
+        // Use cached reflection for other objects
+        var objClass = obj.getClass();
+        var method = methodCache.computeIfAbsent(objClass, this::findGuidMethod);
+
+        if (method.isEmpty()) {
+            ms_log.trace("No GUID method found for class: {}", objClass.getName());
+            return Optional.empty();
+        }
+
+        try {
+            var guid = method.get().invoke(obj);
+            return Optional.ofNullable((IPSGuid) guid);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            ms_log.debug("Failed to invoke GUID method on {}: {}", objClass.getName(), e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Find the GUID method for a given class using modern method resolution
+     *
+     * @param clazz the class to search for GUID method
+     * @return Optional containing the method if found, empty otherwise
+     */
+    private Optional<Method> findGuidMethod(Class<?> clazz) {
+        // Try common GUID method names
+        var methodNames = List.of("getGUID", "getGuid", "getId");
+
+        for (var methodName : methodNames) {
+            try {
+                var method = clazz.getMethod(methodName);
+                if (IPSGuid.class.isAssignableFrom(method.getReturnType())) {
+                    ms_log.debug("Found GUID method {} for class {}", methodName, clazz.getName());
+                    return Optional.of(method);
+                }
+            } catch (NoSuchMethodException e) {
+                // Continue searching
+            }
+        }
+
+        ms_log.debug("No suitable GUID method found for class: {}", clazz.getName());
+        return Optional.empty();
+    }
+
+    /**
+     * Get the current set of reported events
+     *
+     * @return an unmodifiable set of reported event types
+     */
+    public Set<EventType> getReportedEvents() {
+        return Collections.unmodifiableSet(reportedEvents);
+    }
+
+    /**
+     * Check if a specific event type is being reported
+     *
+     * @param eventType the event type to check
+     * @return {@code true} if the event type is being reported, {@code false} otherwise
+     */
+    public boolean isEventReported(EventType eventType) {
+        return reportedEvents.contains(eventType);
+    }
+
+    /**
+     * Get statistics about the current pending changes
+     *
+     * @return a map containing statistics about pending changes
+     */
+    public Map<String, Object> getPendingChangesStats() {
+        var stack = ms_pendingChanges.get();
+        var stats = new HashMap<String, Object>();
+
+        stats.put("stackDepth", stack.size());
+        stats.put("totalPendingChanges",
+            stack.stream().mapToInt(Set::size).sum());
+        stats.put("reportedEvents", reportedEvents.size());
+
+        return Collections.unmodifiableMap(stats);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSHibernateInterceptor[reportedEvents=%s, pendingChanges=%s]",
+            reportedEvents, getPendingChangesStats());
+    }
 }

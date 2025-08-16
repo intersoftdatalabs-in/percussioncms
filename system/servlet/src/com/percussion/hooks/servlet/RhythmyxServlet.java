@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
+// ...existing code...
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -243,7 +243,7 @@ public class RhythmyxServlet extends PSServletBase
                        protocol);
 
                String rxSession = getRhythmyxSession(req);
-               List headers = getHttpHeaders(req, rxSession);
+               List<String> headers = getHttpHeaders(req, rxSession);
 
                // get the Rhythmyx roles and add all SSO headers if requested
                if (m_connFactory.isSingleSignOn()) {
@@ -593,7 +593,7 @@ public class RhythmyxServlet extends PSServletBase
    *    error occurs writing to the output stream.
    */
    private void sendStatuslineAndHeadersToServer(String statusLine,
-         List headers, OutputStream out)
+         List<String> headers, OutputStream out)
          throws IOException
    {
       // create a buffered output stream
@@ -605,10 +605,7 @@ public class RhythmyxServlet extends PSServletBase
       // write out the headers
       if (headers != null)
       {
-         Iterator i = headers.iterator();
-         while (i.hasNext())
-         {
-            String header = (String) i.next();
+         for (String header : headers) {
             bout.write(header.getBytes(HEADER_ENCODING));
             bout.write(RET_NEWLINE.getBytes(HEADER_ENCODING));
          }
@@ -804,14 +801,14 @@ public class RhythmyxServlet extends PSServletBase
     *    format <name: value>. If no headers are present in the request,
     *    an <code>List</code> with 0 elements is returned.
     */
-   private List getHttpHeaders(HttpServletRequest req, String rxSession)
+   private List<String> getHttpHeaders(HttpServletRequest req, String rxSession)
    {
-      ArrayList headers = new ArrayList();
+      ArrayList<String> headers = new ArrayList<>();
 
-      Enumeration e = req.getHeaderNames();
+      Enumeration<String> e = req.getHeaderNames();
       while (e.hasMoreElements())
       {
-         String line = (String)e.nextElement();
+         String line = e.nextElement();
          if (line.equalsIgnoreCase("host"))
          {
             String newHost;
@@ -851,7 +848,6 @@ public class RhythmyxServlet extends PSServletBase
       }
 
       addAuthenticationHeaders(req, headers);
-
       return headers;
    }
 
@@ -886,7 +882,7 @@ public class RhythmyxServlet extends PSServletBase
     * @param req The request, assumed not <code>null</code>.
     * @param headers The list of headers, assumed not <code>null</code>.
     */
-   private void addAuthenticationHeaders(HttpServletRequest req, List headers)
+   private void addAuthenticationHeaders(HttpServletRequest req, List<String> headers)
    {
       String authType = req.getAuthType();
       String remoteUser = req.getRemoteUser();

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,24 @@
 
 package com.ibm.cadf.model;
 
+import com.ibm.cadf.exception.CADFException;
 import org.apache.commons.lang3.StringUtils;
 
-import com.ibm.cadf.exception.CADFException;
+public class Tag {
 
-public class Tag
-{
+  public String generate_name_value_tag(String name, String value) throws CADFException {
+    // Generate a CADF tag in the format name?value=<value>
+    // param name: name of tag
+    // param valuue: optional value tag
 
-    public String generate_name_value_tag(String name, String value) throws CADFException
-    {
-        // Generate a CADF tag in the format name?value=<value>
-        // param name: name of tag
-        // param valuue: optional value tag
-
-        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(value))
-        {
-            throw new CADFException("'Invalid name and/or value. Values cannot be Empty or Null");
-        }
-        String tag = name + "?value=" + value;
-        return tag;
+    if (StringUtils.isEmpty(name) || StringUtils.isEmpty(value)) {
+      throw new CADFException("'Invalid name and/or value. Values cannot be Empty or Null");
     }
+    String tag = name + "?value=" + value;
+    return tag;
+  }
 
-    public boolean isValid(String value)
-    {
-        return StringUtils.isNotEmpty(value);
-    }
+  public boolean isValid(String value) {
+    return StringUtils.isNotEmpty(value);
+  }
 }

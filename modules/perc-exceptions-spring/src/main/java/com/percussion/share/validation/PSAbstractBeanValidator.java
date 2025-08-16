@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,45 +26,45 @@ import org.springframework.validation.Validator;
 
 /**
  * See springs {@link Validator}.
- * @author adamgent
  *
+ * @author adamgent
  * @param <FULL> the class to be validated.
  */
-public abstract class PSAbstractBeanValidator<FULL> implements Validator
-{
-    private SpringValidator ovalValidator = new SpringValidator();
-    {
-        ovalValidator.setValidator(new net.sf.oval.Validator());
-    }
-    
-    public PSBeanValidationException validate(FULL obj) throws PSValidationException {
+public abstract class PSAbstractBeanValidator<FULL> implements Validator {
+  private SpringValidator ovalValidator = new SpringValidator();
 
-        PSParameterValidationUtils.rejectIfNull("validate", "object", obj);
-        PSBeanValidationException e = new PSBeanValidationException(obj, obj.getClass().getCanonicalName());
-        validate(obj, e);
-        return e;
-    }
+  {
+    ovalValidator.setValidator(new net.sf.oval.Validator());
+  }
 
-    protected abstract void doValidation(FULL obj, PSBeanValidationException e) throws PSValidationException;
+  public PSBeanValidationException validate(FULL obj) throws PSValidationException {
 
-    public boolean supports(Class clazz)
-    {
-        return ovalValidator.supports(clazz);
-    }
+    PSParameterValidationUtils.rejectIfNull("validate", "object", obj);
+    PSBeanValidationException e =
+        new PSBeanValidationException(obj, obj.getClass().getCanonicalName());
+    validate(obj, e);
+    return e;
+  }
 
+  protected abstract void doValidation(FULL obj, PSBeanValidationException e)
+      throws PSValidationException;
 
-    public void validate(Object object, Errors errors)  {
+  public boolean supports(Class clazz) {
+    return ovalValidator.supports(clazz);
+  }
+
+  public void validate(Object object, Errors errors) {
+    try {
+      ovalValidator.validate(object, errors);
+      if (errors instanceof PSBeanValidationException) {
         try {
-            ovalValidator.validate(object, errors);
-            if (errors instanceof PSBeanValidationException) {
-                try {
-                    doValidation((FULL) object, (PSBeanValidationException) errors);
-                } catch (PSValidationException e) {
-                    ((PSBeanValidationException) errors).addSuppressed(e);
-                }
-            }
-        }catch(ValidationFailedException ex){
-            ((PSBeanValidationException) errors).addSuppressed(ex);
+          doValidation((FULL) object, (PSBeanValidationException) errors);
+        } catch (PSValidationException e) {
+          ((PSBeanValidationException) errors).addSuppressed(e);
         }
+      }
+    } catch (ValidationFailedException ex) {
+      ((PSBeanValidationException) errors).addSuppressed(ex);
     }
+  }
 }

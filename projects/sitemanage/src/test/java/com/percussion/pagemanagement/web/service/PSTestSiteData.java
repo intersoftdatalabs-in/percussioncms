@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.web.service;
 
 import static com.percussion.share.test.PSRestTestCase.baseUrl;
 import static com.percussion.share.test.PSRestTestCase.setupClient;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
 import static junit.framework.Assert.assertEquals;
+import static org.apache.commons.lang.Validate.notEmpty;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
@@ -35,443 +37,371 @@ import com.percussion.sitemanage.data.PSCreateSiteSection;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteSection;
 import com.percussion.sitemanage.data.PSUpdateSectionLink;
-import com.percussion.sitemanage.service.PSSiteTemplates;
 import com.percussion.sitemanage.service.AssignTemplate;
+import com.percussion.sitemanage.service.PSSiteTemplates;
 import com.percussion.sitemanage.service.PSSiteTemplates.CreateTemplate;
 import com.percussion.sitemanage.web.service.PSSiteRestClient;
 import com.percussion.sitemanage.web.service.PSSiteSectionRestClient;
 import com.percussion.sitemanage.web.service.PSSiteTemplateRestClient;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * 
- * Sets up two test sites and two test template items.
- * 
- * @author adamgent
+ * Sets up two test sites and two test template items for integration testing.
  *
+ * <p>Sunny Sal says: "A good test setup is like a good pizza base—everything else is just
+ * toppings!"
  */
-public class PSTestSiteData
-{
+public class PSTestSiteData {
 
-    private PSSiteTemplateRestClient siteTemplateRestClient;
-    private PSTemplateServiceClient templateServiceClient;
-    private PSPageRestClient pageRestClient;
-    private PSSiteRestClient siteRestClient;
-    private PSAssetServiceRestClient assetRestClient;
-    private PSSiteSectionRestClient sectionClient;
-    private PSPathServiceRestClient pathClient;
-    private PSItemWorkflowServiceRestClient workflowClient;
-    private List<PSTemplateSummary> siteTemplates;
-    private PSRenderServiceClient renderServiceClient;
-    private PSAsyncJobStatusRestClient asyncJobStatusRestClient;
-    
-    public PSSite site1;
-    public PSSite site2;
-    
-    public String baseTemplateId;
-    
-    public PSTemplateSummary template1;
-    public PSTemplateSummary template2;
-    
-    PSTestDataCleaner<String> siteCleaner = new SiteCleaner();
-    
-    public class SiteCleaner extends PSTestDataCleaner<String> {
-        
-        
-        @Override
-        protected void clean(String name) throws Exception
-        {
-            siteRestClient.delete(name);
-        }    
+  private PSSiteTemplateRestClient siteTemplateRestClient;
+  private PSTemplateServiceClient templateServiceClient;
+  private PSPageRestClient pageRestClient;
+  private PSSiteRestClient siteRestClient;
+  private PSAssetServiceRestClient assetRestClient;
+  private PSSiteSectionRestClient sectionClient;
+  private PSPathServiceRestClient pathClient;
+  private PSItemWorkflowServiceRestClient workflowClient;
+  private List<PSTemplateSummary> siteTemplates;
+  private PSRenderServiceClient renderServiceClient;
+  private PSAsyncJobStatusRestClient asyncJobStatusRestClient;
+
+  public PSSite site1;
+  public PSSite site2;
+  public String baseTemplateId;
+  public PSTemplateSummary template1;
+  public PSTemplateSummary template2;
+
+  public static final String TEST_WIDGET_DEFINITION = "PSWidget_TestProperties";
+
+  private static final Logger log = LogManager.getLogger(PSTestSiteData.class);
+
+  // --- Data Cleaners ---
+
+  public final PSTestDataCleaner<String> siteCleaner = new SiteCleaner();
+  public final PSTestDataCleaner<String> templateCleaner = new TemplateCleaner();
+  public final PSTestDataCleaner<String> pageCleaner = new PageCleaner();
+  public final PSTestDataCleaner<String> assetCleaner = new AssetCleaner();
+  public final PSTestDataCleaner<String> sectionCleaner = new SectionCleaner();
+
+  private class SiteCleaner extends PSTestDataCleaner<String> {
+    @Override
+    protected void clean(String name) throws Exception {
+      siteRestClient.delete(name);
     }
-    
-    PSTestDataCleaner<String> templateCleaner = new TemplateCleaner();
-    
-    public class TemplateCleaner extends  PSTestDataCleaner<String> {
+  }
 
-        @Override
-        protected void clean(String name) throws Exception
-        {
-            String id = templateNameToId(name);
-            templateServiceClient.deleteTemplate(id); 
-        }
-        
-        private String templateNameToId(String name) {
-            List<PSTemplateSummary> templates = templateServiceClient.findAll();
-            for(PSTemplateSummary sum : templates) {
-                if (ObjectUtils.equals(sum.getName(), name)) {
-                    return sum.getId();
-                }
-            }
-            return null;
-        }
-    
+  private class TemplateCleaner extends PSTestDataCleaner<String> {
+    @Override
+    protected void clean(String name) throws Exception {
+      var id = templateNameToId(name);
+      if (id != null) {
+        templateServiceClient.deleteTemplate(id);
+      }
     }
 
-    
-    PSTestDataCleaner<String> pageCleaner = new PageCleaner();
-        
-    public class PageCleaner extends PSTestDataCleaner<String>
-    {
-        @Override
-        protected void clean(String folderPath) throws Exception
-        {
-            PSPage page = pageRestClient.findPageByFullFolderPath(folderPath);
-            pageRestClient.delete(page.getId());
-        }
+    private String templateNameToId(String name) {
+      return templateServiceClient.findAll().stream()
+          .filter(sum -> ObjectUtils.equals(sum.getName(), name))
+          .map(PSTemplateSummary::getId)
+          .findFirst()
+          .orElse(null);
+    }
+  }
+
+  private class PageCleaner extends PSTestDataCleaner<String> {
+    @Override
+    protected void clean(String folderPath) throws Exception {
+      var page = pageRestClient.findPageByFullFolderPath(folderPath);
+      pageRestClient.delete(page.getId());
+    }
+  }
+
+  private class AssetCleaner extends PSTestDataCleaner<String> {
+    @Override
+    protected void clean(String id) throws Exception {
+      assetRestClient.delete(id);
+    }
+  }
+
+  private class SectionCleaner extends PSTestDataCleaner<String> {
+    @Override
+    protected void clean(String sectionId) throws Exception {
+      sectionClient.delete(sectionId);
     }
 
-    
-    PSTestDataCleaner<String> assetCleaner = new AssetCleaner();
-    
-    public class AssetCleaner extends PSTestDataCleaner<String>
-    {
-        @Override
-        protected void clean(String id) throws Exception
-        {
-            assetRestClient.delete(id);
-        }
+    @Override
+    protected List<String> getDataIds() {
+      var ids = new ArrayList<>(super.getDataIds());
+      Collections.reverse(ids);
+      return ids;
     }
-    
-    PSTestDataCleaner<String> sectionCleaner = new SectionCleaner();
-    
-    public class SectionCleaner extends PSTestDataCleaner<String>
-    {
-        @Override
-        protected void clean(String sectionId) throws Exception
-        {
-            sectionClient.delete(sectionId);
-        }
-        
-        @Override
-        protected List<String> getDataIds()
-        {
-            // the order of the list is parent object followed by its children
-            // need to reverse the order, so that we can delete the child folder
-            // first, then delete the parent folder in the clean() method.
-            
-            List<String> ids = super.getDataIds();
-            Collections.reverse(ids);
-            return ids;
-        }
-        
-    }
-    
-    public void setUpClients() throws Exception {
-        siteTemplateRestClient = new PSSiteTemplateRestClient();
-        templateServiceClient = new PSTemplateServiceClient(baseUrl);
-        siteRestClient = new PSSiteRestClient(baseUrl);
-        pageRestClient = new PSPageRestClient(baseUrl);
-        assetRestClient = new PSAssetServiceRestClient(baseUrl);
-        sectionClient = new PSSiteSectionRestClient(baseUrl);
-        pathClient = new PSPathServiceRestClient(baseUrl);
-        workflowClient = new PSItemWorkflowServiceRestClient(baseUrl);
-        renderServiceClient = new PSRenderServiceClient();
-        asyncJobStatusRestClient = new PSAsyncJobStatusRestClient();
-        
-        setupClient(siteTemplateRestClient);
-        setupClient(templateServiceClient);
-        setupClient(siteRestClient);
-        setupClient(pageRestClient);
-        setupClient(assetRestClient);
-        setupClient(sectionClient);
-        setupClient(pathClient);
-        setupClient(workflowClient);
-        setupClient(renderServiceClient);
-        setupClient(asyncJobStatusRestClient);
-    }
-    
-    public void setUp() throws Exception {
-        log.info("!!!!!!!!!!!!!!  Started Setup  !!!!!!!!!!!!!");
-        setUpClients();
-        PSTemplateSummary sum = templateServiceClient.findAllReadOnly().get(0);
-        baseTemplateId = sum.getId();
-        String t1 = "SiteTemplateServiceTest1" + System.currentTimeMillis();
-        String t2 = "SiteTemplateServiceTest2" + System.currentTimeMillis();
-        
-        site1 = createSite(t1, sum.getName());
-        template1 = siteTemplateRestClient.findTemplatesBySite(site1.getId()).get(0);
-        log.debug("Created template: " + template1);
-        site2 = createSite(t2, sum.getName());
-        template2 = siteTemplateRestClient.findTemplatesBySite(site2.getId()).get(0);
-        log.debug("Created template: " + template2);    
+  }
 
-        PSSiteTemplates s = new PSSiteTemplates();
-        AssignTemplate a1 = new AssignTemplate();
-        AssignTemplate a2 = new AssignTemplate();
-        
-        a1.setTemplateId(template1.getId());
-        a1.setSiteIds(asList(site1.getName()));
-        a2.setTemplateId(template2.getId());
-        a2.setSiteIds(asList(site2.getName()));
-        
-        CreateTemplate c1 = new CreateTemplate();
-        c1.setName("SiteTemplateServiceCreated1");
-                
-        c1.setSiteIds(asList(site1.getName()));
-        c1.setSourceTemplateId(sum.getId());
-        
-        s.setAssignTemplates(asList(a1,a2));
-        s.setCreateTemplates(asList(c1));
-        
-        List<PSTemplateSummary> templates = siteTemplateRestClient.save(s);
-        
-        String json = siteTemplateRestClient.objectToJson(s);
-        log.debug("JSON of site templates: " + json);
-        log.debug("Saved templates: " + templates);
-        assertEquals("Number of templates", 3, templates.size());
-        
-        this.siteTemplates = templates;
-        log.info("!!!!!!!!!!!!!!  Finished Setup  !!!!!!!!!!!!!");
-    }
-    
-    public void tearDown() throws Exception {
-        log.info("!!!!!!!!!!!!!!  Started Tear Down  !!!!!!!!!!!!!");
-        setUpClients();
-        PSTestDataCleaner.runCleaners(sectionCleaner,pageCleaner,siteCleaner,templateCleaner,assetCleaner);
-        log.info("!!!!!!!!!!!!!!  Finished Tear Down  !!!!!!!!!!!!!");
-    }
-    
-    public static final String TEST_WIDGET_DEFINITION = "PSWidget_TestProperties";
-    
-    public PSTemplateSummary createTemplate(String name) {
-        templateCleaner.add(name);
-        return templateServiceClient.createTemplate(name, baseTemplateId);
-    }
-    public PSWidgetItem createWidgetItem(String name, String definition) {
-        PSWidgetItem widgetItem = new PSWidgetItem();
-        widgetItem.setName(name);
-        widgetItem.setDefinitionId(definition);
-        return widgetItem;
-    }
-    
-    public List<PSTemplateSummary> assignTemplatesToSite(String siteId, String ... templateIds) {
-        PSSiteTemplates s = new PSSiteTemplates();
-        List<AssignTemplate> assigns = new ArrayList<AssignTemplate>();
-        for (String tid : templateIds) {
-            AssignTemplate a = new AssignTemplate();
-            a.setSiteIds(asList(siteId));
-            a.setTemplateId(tid);
-            assigns.add(a);
-        }
-        s.setAssignTemplates(assigns);
-        return siteTemplateRestClient.save(s);
-    }
-    
-    public PSSite createSite(String name, String baseTemplateName)
-    {
-        siteCleaner.add(name);
-        PSSite site = new PSSite();
-        site.setName(name);
-        site.setLabel("My test site");
-        site.setHomePageTitle("homePageTitle");
-        site.setNavigationTitle("navigationTitle");
-        site.setBaseTemplateName(baseTemplateName);
-        site.setTemplateName(baseTemplateName + System.currentTimeMillis());
-        
-        PSSite actual = siteRestClient.save(site);
-        // assertEquals(site, actual);
-        return actual;
-    }
-    
-    
-    public String createPage(String name, String folderPath, String templateId) throws Exception
-    {
-        notEmpty(templateId);
-        String pageId = null;
+  // --- Setup and Teardown ---
 
-        PSPage pageNew = new PSPage();
-        pageNew.setName(name);
-        pageNew.setTitle(name);
-        pageNew.setFolderPath(folderPath);
-        pageNew.setTemplateId(templateId);
-        pageNew.setLinkTitle("dummy");
-        PSPage r = pageRestClient.save(pageNew);
-        pageId = r.getId();
-        String fullPath = folderPath + "/" + name;
-        pageCleaner.add(fullPath);
-        
-        return pageId;
+  public void setUpClients() throws Exception {
+    siteTemplateRestClient = new PSSiteTemplateRestClient();
+    templateServiceClient = new PSTemplateServiceClient(baseUrl);
+    siteRestClient = new PSSiteRestClient(baseUrl);
+    pageRestClient = new PSPageRestClient(baseUrl);
+    assetRestClient = new PSAssetServiceRestClient(baseUrl);
+    sectionClient = new PSSiteSectionRestClient(baseUrl);
+    pathClient = new PSPathServiceRestClient(baseUrl);
+    workflowClient = new PSItemWorkflowServiceRestClient(baseUrl);
+    renderServiceClient = new PSRenderServiceClient();
+    asyncJobStatusRestClient = new PSAsyncJobStatusRestClient();
 
-    }
-    
-    public PSAsset saveAsset(PSAsset asset) {
-        PSAsset rvalue = assetRestClient.save(asset);
-        assetCleaner.add(rvalue.getId());
-        return rvalue;
-    }
-    
-    
-    public PSSiteSection createSection(PSCreateSiteSection req)
-    {
-        PSSiteSection section = sectionClient.create(req);
-        sectionCleaner.add(section.getId());        
-        return section;
-    }
-    
-    public PSSiteSection createSectionLink(String targetSectionGuid, String parentSectionGuid)
-    {
-        PSSiteSection section = sectionClient.createSectionLink(targetSectionGuid, parentSectionGuid);
-        return section;
-    }
+    setupClient(siteTemplateRestClient);
+    setupClient(templateServiceClient);
+    setupClient(siteRestClient);
+    setupClient(pageRestClient);
+    setupClient(assetRestClient);
+    setupClient(sectionClient);
+    setupClient(pathClient);
+    setupClient(workflowClient);
+    setupClient(renderServiceClient);
+    setupClient(asyncJobStatusRestClient);
+  }
 
-    /**
-     * This is reverse of {@link #createSection(PSCreateSiteSection)}.
-     * Remove the site section from the clean up list where it has already 
-     * been deleted by the unit test.
-     * 
-     * @param section the section that does not need to be cleaned up,
-     * not <code>null</code>.
-     */
-    public void removeSectionFromCleaner(PSSiteSection section)
-    {
-        sectionCleaner.remove(section.getId());
-    }
-    
-    public PSSiteSectionRestClient getSectionClient()
-    {
-        return sectionClient;
-    }
-    
-    public PSItemWorkflowServiceRestClient getWorkflowClient()
-    {
-        return workflowClient;
-    }
-    
-    public PSPathServiceRestClient getPathRestClient()
-    {
-        return pathClient;
-    }
-    
-    public PSAssetServiceRestClient getAssetRestClient()
-    {
-        return assetRestClient;
-    }
+  public void setUp() throws Exception {
+    log.info("!!!!!!!!!!!!!!  Started Setup  !!!!!!!!!!!!!");
+    setUpClients();
+    var sum = templateServiceClient.findAllReadOnly().get(0);
+    baseTemplateId = sum.getId();
+    var t1 = "SiteTemplateServiceTest1" + System.currentTimeMillis();
+    var t2 = "SiteTemplateServiceTest2" + System.currentTimeMillis();
 
-    public void setAssetRestClient(PSAssetServiceRestClient assetRestClient)
-    {
-        this.assetRestClient = assetRestClient;
-    }
+    site1 = createSite(t1, sum.getName());
+    template1 = siteTemplateRestClient.findTemplatesBySite(site1.getId()).get(0);
+    log.debug("Created template: {}", template1);
+    site2 = createSite(t2, sum.getName());
+    template2 = siteTemplateRestClient.findTemplatesBySite(site2.getId()).get(0);
+    log.debug("Created template: {}", template2);
 
-    public PSSiteTemplateRestClient getSiteTemplateRestClient()
-    {
-        return siteTemplateRestClient;
-    }
+    var s = new PSSiteTemplates();
+    var a1 = new AssignTemplate();
+    var a2 = new AssignTemplate();
 
-    public void setSiteTemplateRestClient(PSSiteTemplateRestClient siteTemplateRestClient)
-    {
-        this.siteTemplateRestClient = siteTemplateRestClient;
-    }
+    a1.setTemplateId(template1.getId());
+    a1.setSiteIds(asList(site1.getName()));
+    a2.setTemplateId(template2.getId());
+    a2.setSiteIds(asList(site2.getName()));
 
-    public PSTemplateServiceClient getTemplateServiceClient()
-    {
-        return templateServiceClient;
-    }
+    var c1 = new CreateTemplate();
+    c1.setName("SiteTemplateServiceCreated1");
+    c1.setSiteIds(asList(site1.getName()));
+    c1.setSourceTemplateId(sum.getId());
 
-    public void setTemplateServiceClient(PSTemplateServiceClient templateServiceClient)
-    {
-        this.templateServiceClient = templateServiceClient;
-    }
+    s.setAssignTemplates(asList(a1, a2));
+    s.setCreateTemplates(asList(c1));
 
-    public PSSiteRestClient getSiteRestClient()
-    {
-        return siteRestClient;
-    }
+    var templates = siteTemplateRestClient.save(s);
 
-    public void setSiteRestClient(PSSiteRestClient siteRestClient)
-    {
-        this.siteRestClient = siteRestClient;
-    }
-    
-    public PSRenderServiceClient getRenderServiceClient()
-    {
-        return renderServiceClient;
-    }
-    
-    public void setRenderServiceClient(PSRenderServiceClient renderServiceClient)
-    {
-        this.renderServiceClient = renderServiceClient;
-    }
+    var json = siteTemplateRestClient.objectToJson(s);
+    log.debug("JSON of site templates: {}", json);
+    log.debug("Saved templates: {}", templates);
+    assertEquals("Number of templates", 3, templates.size());
 
-    public List<PSTemplateSummary> getSiteTemplates()
-    {
-        return siteTemplates;
-    }
+    this.siteTemplates = templates;
+    log.info("!!!!!!!!!!!!!!  Finished Setup  !!!!!!!!!!!!!");
+  }
 
-    public void setSiteTemplates(List<PSTemplateSummary> siteTemplates)
-    {
-        this.siteTemplates = siteTemplates;
-    }
-    
-    public PSAsyncJobStatusRestClient getAsyncJobStatusRestClient()
-    {
-        return asyncJobStatusRestClient;
-    }
+  public void tearDown() throws Exception {
+    log.info("!!!!!!!!!!!!!!  Started Tear Down  !!!!!!!!!!!!!");
+    setUpClients();
+    PSTestDataCleaner.runCleaners(
+        sectionCleaner, pageCleaner, siteCleaner, templateCleaner, assetCleaner);
+    log.info("!!!!!!!!!!!!!!  Finished Tear Down  !!!!!!!!!!!!!");
+  }
 
-    public void setAsyncJobStatusRestClient(PSAsyncJobStatusRestClient asyncJobStatusRestClient)
-    {
-        this.asyncJobStatusRestClient = asyncJobStatusRestClient;
-    }
+  // --- Utility Methods ---
 
-    public PSPageRestClient getPageRestClient()
-    {
-        return pageRestClient;
-    }
+  public PSTemplateSummary createTemplate(String name) {
+    templateCleaner.add(name);
+    return templateServiceClient.createTemplate(name, baseTemplateId);
+  }
 
-    public void setPageRestClient(PSPageRestClient pageRestClient)
-    {
-        this.pageRestClient = pageRestClient;
-    }
+  public PSWidgetItem createWidgetItem(String name, String definition) {
+    var widgetItem = new PSWidgetItem();
+    widgetItem.setName(name);
+    widgetItem.setDefinitionId(definition);
+    return widgetItem;
+  }
 
-    public PSTestDataCleaner<String> getSiteCleaner()
-    {
-        return siteCleaner;
+  public List<PSTemplateSummary> assignTemplatesToSite(String siteId, String... templateIds) {
+    var s = new PSSiteTemplates();
+    var assigns = new ArrayList<AssignTemplate>();
+    for (var tid : templateIds) {
+      var a = new AssignTemplate();
+      a.setSiteIds(asList(siteId));
+      a.setTemplateId(tid);
+      assigns.add(a);
     }
+    s.setAssignTemplates(assigns);
+    return siteTemplateRestClient.save(s);
+  }
 
-    public PSTestDataCleaner<String> getTemplateCleaner()
-    {
-        return templateCleaner;
-    }
-    
-    public PSTestDataCleaner<String> getPageCleaner()
-    {
-        return pageCleaner;
-    }
-    
-    public PSTestDataCleaner<String> getSectionCleaner()
-    {
-        return sectionCleaner;
-    }
+  public PSSite createSite(String name, String baseTemplateName) {
+    siteCleaner.add(name);
+    var site = new PSSite();
+    site.setName(name);
+    site.setLabel("My test site");
+    site.setHomePageTitle("homePageTitle");
+    site.setNavigationTitle("navigationTitle");
+    site.setBaseTemplateName(baseTemplateName);
+    site.setTemplateName(baseTemplateName + System.currentTimeMillis());
+    return siteRestClient.save(site);
+  }
 
-    public PSTestDataCleaner<String> getAssetCleaner()
-    {
-        return assetCleaner;
-    }
+  public String createPage(String name, String folderPath, String templateId) throws Exception {
+    notEmpty(templateId);
+    var pageNew = new PSPage();
+    pageNew.setName(name);
+    pageNew.setTitle(name);
+    pageNew.setFolderPath(folderPath);
+    pageNew.setTemplateId(templateId);
+    pageNew.setLinkTitle("dummy");
+    var r = pageRestClient.save(pageNew);
+    var fullPath = folderPath + "/" + name;
+    pageCleaner.add(fullPath);
+    return r.getId();
+  }
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSTestSiteData.class);
+  public PSAsset saveAsset(PSAsset asset) {
+    var rvalue = assetRestClient.save(asset);
+    assetCleaner.add(rvalue.getId());
+    return rvalue;
+  }
 
-    /**
-     * Updates a section link and returns the result of the update.
-     * 
-     * @param updateRequest {@link PSUpdateSectionLink} request, assumed not
-     *            <code>null</code>.
-     * @return {@link PSSiteSection} never <code>null</code>.
-     */
-    public PSSiteSection updateSectionLink(PSUpdateSectionLink updateRequest)
-    {
-        PSSiteSection section = sectionClient.updateSectionLink(updateRequest);
-        return section;        
-    }
-    
-    
+  public PSSiteSection createSection(PSCreateSiteSection req) {
+    var section = sectionClient.create(req);
+    sectionCleaner.add(section.getId());
+    return section;
+  }
+
+  public PSSiteSection createSectionLink(String targetSectionGuid, String parentSectionGuid) {
+    return sectionClient.createSectionLink(targetSectionGuid, parentSectionGuid);
+  }
+
+  /**
+   * Removes the site section from the clean up list if already deleted by the unit test.
+   *
+   * @param section the section that does not need to be cleaned up, not null.
+   */
+  public void removeSectionFromCleaner(PSSiteSection section) {
+    sectionCleaner.remove(section.getId());
+  }
+
+  // --- Getters and Setters ---
+
+  public PSSiteSectionRestClient getSectionClient() {
+    return sectionClient;
+  }
+
+  public PSItemWorkflowServiceRestClient getWorkflowClient() {
+    return workflowClient;
+  }
+
+  public PSPathServiceRestClient getPathRestClient() {
+    return pathClient;
+  }
+
+  public PSAssetServiceRestClient getAssetRestClient() {
+    return assetRestClient;
+  }
+
+  public void setAssetRestClient(PSAssetServiceRestClient assetRestClient) {
+    this.assetRestClient = assetRestClient;
+  }
+
+  public PSSiteTemplateRestClient getSiteTemplateRestClient() {
+    return siteTemplateRestClient;
+  }
+
+  public void setSiteTemplateRestClient(PSSiteTemplateRestClient siteTemplateRestClient) {
+    this.siteTemplateRestClient = siteTemplateRestClient;
+  }
+
+  public PSTemplateServiceClient getTemplateServiceClient() {
+    return templateServiceClient;
+  }
+
+  public void setTemplateServiceClient(PSTemplateServiceClient templateServiceClient) {
+    this.templateServiceClient = templateServiceClient;
+  }
+
+  public PSSiteRestClient getSiteRestClient() {
+    return siteRestClient;
+  }
+
+  public void setSiteRestClient(PSSiteRestClient siteRestClient) {
+    this.siteRestClient = siteRestClient;
+  }
+
+  public PSRenderServiceClient getRenderServiceClient() {
+    return renderServiceClient;
+  }
+
+  public void setRenderServiceClient(PSRenderServiceClient renderServiceClient) {
+    this.renderServiceClient = renderServiceClient;
+  }
+
+  public List<PSTemplateSummary> getSiteTemplates() {
+    return siteTemplates;
+  }
+
+  public void setSiteTemplates(List<PSTemplateSummary> siteTemplates) {
+    this.siteTemplates = siteTemplates;
+  }
+
+  public PSAsyncJobStatusRestClient getAsyncJobStatusRestClient() {
+    return asyncJobStatusRestClient;
+  }
+
+  public void setAsyncJobStatusRestClient(PSAsyncJobStatusRestClient asyncJobStatusRestClient) {
+    this.asyncJobStatusRestClient = asyncJobStatusRestClient;
+  }
+
+  public PSPageRestClient getPageRestClient() {
+    return pageRestClient;
+  }
+
+  public void setPageRestClient(PSPageRestClient pageRestClient) {
+    this.pageRestClient = pageRestClient;
+  }
+
+  public PSTestDataCleaner<String> getSiteCleaner() {
+    return siteCleaner;
+  }
+
+  public PSTestDataCleaner<String> getTemplateCleaner() {
+    return templateCleaner;
+  }
+
+  public PSTestDataCleaner<String> getPageCleaner() {
+    return pageCleaner;
+  }
+
+  public PSTestDataCleaner<String> getSectionCleaner() {
+    return sectionCleaner;
+  }
+
+  public PSTestDataCleaner<String> getAssetCleaner() {
+    return assetCleaner;
+  }
+
+  /**
+   * Updates a section link and returns the result of the update.
+   *
+   * @param updateRequest {@link PSUpdateSectionLink} request, assumed not null.
+   * @return {@link PSSiteSection} never null.
+   */
+  public PSSiteSection updateSectionLink(PSUpdateSectionLink updateRequest) {
+    return sectionClient.updateSectionLink(updateRequest);
+  }
 }

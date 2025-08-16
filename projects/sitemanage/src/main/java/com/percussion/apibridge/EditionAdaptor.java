@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.editions.IEditionsAdaptor;
@@ -22,40 +24,38 @@ import com.percussion.rest.editions.PublishResponse;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/** Adaptor for managing Editions and publishing jobs in Percussion CMS. */
 @PSSiteManageBean
 public class EditionAdaptor implements IEditionsAdaptor {
 
-    @Autowired
-    private IPSPublishingWs pubWs;
+  @Autowired private IPSPublishingWs pubWs;
 
-    public EditionAdaptor(){
-        //Default ctor
-    }
+  public EditionAdaptor() {
+    // Default constructor
+  }
 
-    private IPSGuid getEditionGuidFromId(String id){
-        return PSGuidUtils.makeGuid(Long.parseLong(id), PSTypeEnum.EDITION);
-    }
+  private IPSGuid getEditionGuidFromId(String id) {
+    return PSGuidUtils.makeGuid(Long.parseLong(id), PSTypeEnum.EDITION);
+  }
 
-    @Override
-    public PublishResponse publish(String id) {
+  @Override
+  public PublishResponse publish(String id) {
+    var jobId = pubWs.startPublishingJob(getEditionGuidFromId(id), null);
+    var status = pubWs.getPublishingJobStatus(jobId);
+    return loadPublishResponseFromStatus(status);
+  }
 
-       return loadPublishResponseFromStatus(pubWs.getPublishingJobStatus(
-               pubWs.startPublishingJob(
-                       getEditionGuidFromId(id),null)));
-    }
-
-    private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status){
-        PublishResponse ret =  new PublishResponse();
-
-        ret.setDelivered(String.valueOf(status.countItemsDelivered()));
-        ret.setFailures(String.valueOf(status.countFailedItems()));
-        ret.setJobid(status.getJobId());
-        ret.setStatus(status.getState().getDisplayName());
-        return ret;
-    }
+  private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status) {
+    var ret = new PublishResponse();
+    ret.setDelivered(String.valueOf(status.countItemsDelivered()));
+    ret.setFailures(String.valueOf(status.countFailedItems()));
+    ret.setJobid(status.getJobId());
+    ret.setStatus(status.getState().getDisplayName());
+    return ret;
+  }
 }

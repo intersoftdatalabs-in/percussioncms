@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,111 +15,103 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.assets.Asset;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents a Widget. Sunny Sal: "Widget ka hero, content ka zero!" */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Widget")
-@Schema(name="Widget",description="Represents a Widget.")
-public class Widget implements Cloneable
-{
-    public static final String SCOPE_LOCAL = "local";
+@Schema(name = "Widget", description = "Represents a Widget.")
+public class Widget implements Cloneable {
 
-    public static final String SCOPE_SHARED = "shared";
-    
-    @Schema(name="id", description="Id of the widget.")
-    private String id;
-    
-    @Schema(name="name",description="Name of the widget.")
-    private String name;
+  public static final String SCOPE_LOCAL = "local";
+  public static final String SCOPE_SHARED = "shared";
 
-    @Schema(name="type", description="Type of widget.")
-    private String type;
+  @Schema(name = "id", description = "Id of the widget.")
+  private String id;
 
-    @Schema(name="scope", description="Scope of the widget.", allowableValues = "local,shared")
-    private String scope;
+  @Schema(name = "name", description = "Name of the widget.")
+  private String name;
 
-    @Schema(name="editable", description="Denotes if widget is editable.")
-    private Boolean editable;
+  @Schema(name = "type", description = "Type of widget.")
+  private String type;
 
-    @Schema(name="asset", description="Asset within the widget.")
-    private Asset asset;
+  @Schema(name = "scope", description = "Scope of the widget.", allowableValues = "local,shared")
+  private String scope;
 
-    
-    public Widget() 
-    {
-       // required for json
-    }
-    
-    public String getId()
-    {
-        return id;
-    }
+  @Schema(name = "editable", description = "Denotes if widget is editable.")
+  private Boolean editable;
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
+  @Schema(name = "asset", description = "Asset within the widget.")
+  private Asset asset;
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public Widget() {
+    // Required for JSON
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  /** Gets the widget id. */
+  public Optional<String> getId() {
+    return Optional.ofNullable(id);
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getScope()
-    {
-        return scope;
-    }
+  /** Gets the widget name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setScope(String scope)
-    {
-        this.scope = scope;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Boolean getEditable()
-    {
-        return editable;
-    }
+  /** Gets the widget type. */
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public void setEditable(Boolean editable)
-    {
-        this.editable = editable;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public Asset getAsset()
-    {
-        return asset;
-    }
+  /** Gets the widget scope. */
+  public Optional<String> getScope() {
+    return Optional.ofNullable(scope);
+  }
 
-    public void setAsset(Asset asset)
-    {
-        this.asset = asset;
-    }
+  public void setScope(String scope) {
+    this.scope = scope;
+  }
 
-    @Override
-    protected Widget clone() throws CloneNotSupportedException {
-        return (Widget) super.clone();
-    }
+  /** Gets whether the widget is editable. */
+  public Optional<Boolean> getEditable() {
+    return Optional.ofNullable(editable);
+  }
 
+  public void setEditable(Boolean editable) {
+    this.editable = editable;
+  }
 
+  /** Gets the asset within the widget. */
+  public Optional<Asset> getAsset() {
+    return Optional.ofNullable(asset);
+  }
+
+  public void setAsset(Asset asset) {
+    this.asset = asset;
+  }
+
+  @Override
+  protected Widget clone() throws CloneNotSupportedException {
+    return (Widget) super.clone();
+  }
 }

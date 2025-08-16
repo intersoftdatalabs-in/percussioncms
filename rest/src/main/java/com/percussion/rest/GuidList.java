@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,26 @@ package com.percussion.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "GuidList")
 @Schema(description = "A list of Guids, commonly used for bulk operations")
 public class GuidList extends ArrayList<Guid> {
-    public GuidList(Collection<? extends Guid> c) {
-        super(c);
-    }
-    public GuidList(){}
+  public GuidList(Collection<? extends Guid> c) {
+    super(c);
+  }
 
-    @Override
-    public String toString(){
-        StringBuilder sb = new StringBuilder();
-        forEach(guid->sb.append(" ").append(guid.getStringValue()));
-        return sb.toString();
-    }
+  public GuidList() {}
+
+  @Override
+  public String toString() {
+    // Use Streams for concise joining
+    return this.stream()
+        .map(guid -> guid.getStringValue().orElse(""))
+        .collect(Collectors.joining(" "));
+  }
 }

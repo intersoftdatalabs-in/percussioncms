@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/** Represents a list of imported users. */
 @XmlRootElement(name = "ImportedUser")
-@ArraySchema(schema=@Schema(implementation =PSImportedUser.class))
+@ArraySchema(schema = @Schema(implementation = PSImportedUser.class))
 @JsonRootName("ImportedUser")
 public class PSImportedUserList extends ArrayList<PSImportedUser> {
-    public PSImportedUserList(Collection<? extends PSImportedUser> c) {
-        super(c);
-    }
+  public PSImportedUserList(Collection<? extends PSImportedUser> c) {
+    super(c);
+  }
 }

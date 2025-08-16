@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,111 +20,92 @@ package com.percussion.design.objectstore;
 import com.percussion.util.PSCollection;
 
 /**
- * The PSObjectFactory abstract class provides mechanisms for creating
- * base objects, such as PSApplication objects. This is intended for use
- * by the com.percussion.design.objectstore.server package only.
+ * The PSObjectFactory abstract class provides mechanisms for creating base objects, such as
+ * PSApplication objects. This is intended for use by the com.percussion.design.objectstore.server
+ * package only.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public abstract class PSObjectFactory
-{
-   /**
-    * Create an empty application object.
-    */
-   protected static PSApplication createApplication()
-   {
-      return createApplication(false);
-   }
+public abstract class PSObjectFactory {
+  /** Create an empty application object. */
+  protected static PSApplication createApplication() {
+    return createApplication(false);
+  }
 
-   /**
-    * Create an empty application object.
-    *
-    * @param initialize if <code>true</code>, then some basic elements are
-    * created and set on the app.  Currently these are:
-    * <ol>
-    * <li>An Acl with an anonymous entry that has full data access and a
-    * default entry that has full data and design access</li>
-    * </ol>
-    *
-    * @return the application.
-    */
-   protected static PSApplication createApplication(boolean initialize)
-   {
-      try
-      {
-         PSApplication app = new PSApplication();
+  /**
+   * Create an empty application object.
+   *
+   * @param initialize if <code>true</code>, then some basic elements are created and set on the
+   *     app. Currently these are:
+   *     <ol>
+   *       <li>An Acl with an anonymous entry that has full data access and a default entry that has
+   *           full data and design access
+   *     </ol>
+   *
+   * @return the application.
+   */
+  protected static PSApplication createApplication(boolean initialize) {
+    try {
+      PSApplication app = new PSApplication();
 
-         if (initialize)
-         {
-            PSAcl acl = new PSAcl();
+      if (initialize) {
+        PSAcl acl = new PSAcl();
 
-            PSAclEntry anonymous = new PSAclEntry(
-               PSAclEntry.ANONYMOUS_USER_NAME,
-               PSAclEntry.ACE_TYPE_USER);
+        PSAclEntry anonymous =
+            new PSAclEntry(PSAclEntry.ANONYMOUS_USER_NAME, PSAclEntry.ACE_TYPE_USER);
 
-            // allow data access query/update by default
-            anonymous.setAccessLevel(PSAclEntry.AACE_DATA_CREATE |
-               PSAclEntry.AACE_DATA_DELETE |
-               PSAclEntry.AACE_DATA_QUERY |
-               PSAclEntry.AACE_DATA_UPDATE);
+        // allow data access query/update by default
+        anonymous.setAccessLevel(
+            PSAclEntry.AACE_DATA_CREATE
+                | PSAclEntry.AACE_DATA_DELETE
+                | PSAclEntry.AACE_DATA_QUERY
+                | PSAclEntry.AACE_DATA_UPDATE);
 
-            PSAclEntry defaultEntry = new PSAclEntry(
-               PSAclEntry.DEFAULT_USER_NAME,
-               PSAclEntry.ACE_TYPE_USER);
+        PSAclEntry defaultEntry =
+            new PSAclEntry(PSAclEntry.DEFAULT_USER_NAME, PSAclEntry.ACE_TYPE_USER);
 
-            // allow data access AND design access query/update by default
-            defaultEntry.setAccessLevel(PSAclEntry.AACE_DATA_CREATE |
-               PSAclEntry.AACE_DATA_DELETE |
-               PSAclEntry.AACE_DATA_QUERY |
-               PSAclEntry.AACE_DATA_UPDATE |
-               PSAclEntry.AACE_DESIGN_DELETE |
-               PSAclEntry.AACE_DESIGN_MODIFY_ACL |
-               PSAclEntry.AACE_DESIGN_READ |
-               PSAclEntry.AACE_DESIGN_UPDATE);
+        // allow data access AND design access query/update by default
+        defaultEntry.setAccessLevel(
+            PSAclEntry.AACE_DATA_CREATE
+                | PSAclEntry.AACE_DATA_DELETE
+                | PSAclEntry.AACE_DATA_QUERY
+                | PSAclEntry.AACE_DATA_UPDATE
+                | PSAclEntry.AACE_DESIGN_DELETE
+                | PSAclEntry.AACE_DESIGN_MODIFY_ACL
+                | PSAclEntry.AACE_DESIGN_READ
+                | PSAclEntry.AACE_DESIGN_UPDATE);
 
-            PSCollection entries = acl.getEntries();
-            entries.clear();
-            entries.add(anonymous);
-            entries.add(defaultEntry);
-            acl.setEntries(entries);
-            app.setAcl(acl);
-         }
-
-         return app;
+        PSCollection entries = acl.getEntries();
+        entries.clear();
+        entries.add(anonymous);
+        entries.add(defaultEntry);
+        acl.setEntries(entries);
+        app.setAcl(acl);
       }
-      catch (IllegalArgumentException e)
-      {
-         throw new IllegalArgumentException(e.getLocalizedMessage());
-      }
-   }
 
-   /**
-    * Create an empty user configuration object for the specified user.
-    */
-   protected static PSUserConfiguration createUserConfiguration(
-      String userName)
-   {
-      return new PSUserConfiguration(userName);
-   }
+      return app;
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(e.getLocalizedMessage());
+    }
+  }
 
-   /**
-    * Create an empty user configuration object.
-    */
-   protected static PSUserConfiguration createUserConfiguration()
-   {
-      return new PSUserConfiguration();
-   }
+  /** Create an empty user configuration object for the specified user. */
+  protected static PSUserConfiguration createUserConfiguration(String userName) {
+    return new PSUserConfiguration(userName);
+  }
 
-   protected static PSServerConfiguration createServerConfiguration()
-   {
-      return new PSServerConfiguration();
-   }
+  /** Create an empty user configuration object. */
+  protected static PSUserConfiguration createUserConfiguration() {
+    return new PSUserConfiguration();
+  }
 
-   protected static PSAcl createAcl()
-   {
-      return new PSAcl();
-   }
+  protected static PSServerConfiguration createServerConfiguration() {
+    return new PSServerConfiguration();
+  }
+
+  protected static PSAcl createAcl() {
+    return new PSAcl();
+  }
 }
-

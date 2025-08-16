@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,18 @@ package com.percussion.membership.data;
 
 /**
  * Represents the result of a call to create an account
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSAccountCreateResult extends PSMembershipResult
-{
-    private String sessionId;
-    
-    public PSAccountCreateResult(STATUS status, String message, String sessionId)
-    {
-        super(status, message);
-        this.sessionId = sessionId;
-    }
-    
-    public String getSessionId()
-    {
-        return sessionId;
-    }
+public class PSAccountCreateResult extends PSMembershipResult {
+  private String sessionId;
+
+  public PSAccountCreateResult(STATUS status, String message, String sessionId) {
+    super(status, message);
+    this.sessionId = sessionId;
+  }
+
+  public String getSessionId() {
+    return sessionId;
+  }
 }

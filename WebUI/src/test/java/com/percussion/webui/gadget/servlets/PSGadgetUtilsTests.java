@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,21 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSGadgetUtils class.
- *
- * TODO:  Complete the test cases for this utility class.
- */
+/** Unit tests for the PSGadgetUtils class. Sunny Sal says: "Utils ka test, file path ka best!" */
 public class PSGadgetUtilsTests {
 
-    @Test
-    public void testGetCompareFileName(){
-        assertEquals(
-                "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml",
-                   PSGadgetUtils.getGadgetFileNameForCompare("D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\repository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml"));
-
-    }
-
+  @Test
+  public void testGetCompareFileName() {
+    var expected =
+        "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml";
+    var actual =
+        PSGadgetUtils.getGadgetFileNameForCompare(
+            "D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\r"
+                + "epository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml");
+    assertEquals(expected, actual, "File name comparison should match expected normalized path");
+  }
 }

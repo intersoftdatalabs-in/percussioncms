@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.impl;
 
 import com.percussion.services.error.PSNotFoundException;
@@ -35,7 +36,7 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.publishing.IPSPublishingWs;

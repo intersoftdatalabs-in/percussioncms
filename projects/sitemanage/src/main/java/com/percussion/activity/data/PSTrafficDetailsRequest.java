@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,102 +20,94 @@ package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
-
 import java.io.Serializable;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.commons.lang.StringUtils;
-
-/**
- * A request object used for getting the traffic details data from the rest service. 
- */
+/** A request object used for getting the traffic details data from the REST service. */
 @JsonRootName(value = "TrafficDetailsRequest")
-public class PSTrafficDetailsRequest implements Serializable  
-{
-	
-	/**
-     * Default serial version
-     */
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * @return path folder path to site folder
-     */
-    public String getPath()
-    {
-        return path;
-    }
-    
-    /**
-     * @return startDate of the date range used for content traffic query.
-     */
-    public String getStartDate()
-    {
-        return startDate;
-    }
-    
-    /**
-     * @return endDate of the date range used for content traffic query.
-     */
-    public String getEndDate()
-    {
-        return endDate;
-    }
-    
-    /**
-     * @return returns usage for analytics.  Default is uniquepageviews.
-     */
-    public String getUsage()
-    {
-        if(StringUtils.equals(usage, IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS))
-        {
-            return IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
-        }
+public class PSTrafficDetailsRequest implements Serializable {
 
-        return IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS;
-    }
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Sets analytics usage to pageviews or uniquepageviews.  
-     * If not set or set to any other value default is uniquepageviews.
-     * @param usage
-     */
-    public void setUsage(String usage)
-    {
-        this.usage = usage;
+  private String path;
+  private String startDate;
+  private String endDate;
+  private String usage;
+
+  /**
+   * Gets the folder path to the site folder.
+   *
+   * @return Optional containing the path, or empty if not set.
+   */
+  public Optional<String> getPath() {
+    return Optional.ofNullable(path);
+  }
+
+  /**
+   * Gets the start date of the date range used for content traffic query.
+   *
+   * @return Optional containing the start date, or empty if not set.
+   */
+  public Optional<String> getStartDate() {
+    return Optional.ofNullable(startDate);
+  }
+
+  /**
+   * Gets the end date of the date range used for content traffic query.
+   *
+   * @return Optional containing the end date, or empty if not set.
+   */
+  public Optional<String> getEndDate() {
+    return Optional.ofNullable(endDate);
+  }
+
+  /**
+   * Gets the usage for analytics. Default is "uniquepageviews".
+   *
+   * @return usage string
+   */
+  public String getUsage() {
+    if (StringUtils.equals(usage, IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS)) {
+      return IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
     }
-    
-    /**
-     * Set path folder path to site folder. Required.
-     * @param path 
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
-    
-    /**
-     * Start date of the date range used for content traffic query. Required.
-     * @param startDate
-     */
-    public void setStartDate(String startDate)
-    {
-        this.startDate = startDate;
-    }
-    
-    /**
-     * End date of the date range used for content traffic query. Required.
-     * @param endDate
-     */
-    public void setEndDate(String endDate)
-    {
-        this.endDate = endDate;
-    }
-    
-    //See getters for javadoc
-    private String path;
-	private String startDate;
-	private String endDate;
-	private String usage;
+    return IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS;
+  }
+
+  /**
+   * Sets analytics usage to "pageviews" or "uniquepageviews". If not set or set to any other value,
+   * default is "uniquepageviews".
+   *
+   * @param usage the usage string
+   */
+  public void setUsage(String usage) {
+    this.usage = usage;
+  }
+
+  /**
+   * Sets the folder path to the site folder. Required.
+   *
+   * @param path the folder path
+   */
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  /**
+   * Sets the start date of the date range used for content traffic query. Required.
+   *
+   * @param startDate the start date
+   */
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  /**
+   * Sets the end date of the date range used for content traffic query. Required.
+   *
+   * @param endDate the end date
+   */
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 }

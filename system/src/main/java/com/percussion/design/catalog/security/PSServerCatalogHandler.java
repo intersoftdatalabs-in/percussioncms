@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSServerCatalogHandler class implements cataloging of
- * servers. This request type is used to locate the servers available
- * through a back-end driver. Not all drivers are capable of locating
+ * The PSServerCatalogHandler class implements cataloging of servers. This request type is used to
+ * locate the servers available through a back-end driver. Not all drivers are capable of locating
  * servers.
- * <p>
- * Server catalog requests are sent to the server using the
- * PSXSecurityServerCatalog XML document. Its definition is as follows:
+ *
+ * <p>Server catalog requests are sent to the server using the PSXSecurityServerCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalog      (providverName)&gt;
  *
@@ -39,8 +38,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT providerName         (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityServerCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXSecurityServerCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalogResults (providerName, Server*)&gt;
  *
@@ -55,69 +55,59 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name                        (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSServerCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSServerCatalogHandler()
-   {
-      super();
-   }
+public class PSServerCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSServerCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>security</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Server</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>ProviderName</td>
-    *       <td>the name of the security provider being queried</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"security".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>security</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Server</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>ProviderName</td>
+   *       <td>the name of the security provider being queried</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"security".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ( (sTemp == null) || !"Server".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Server".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String providerName = (String)req.get("ProviderName");
-      if (providerName == null)
-         throw new IllegalArgumentException("reqd prop not specified: ProviderName");
+    String providerName = (String) req.get("ProviderName");
+    if (providerName == null)
+      throw new IllegalArgumentException("reqd prop not specified: ProviderName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(
-                                       reqDoc, "PSXSecurityServerCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXSecurityServerCatalog");
 
-      PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                       "providerName", providerName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "providerName", providerName);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

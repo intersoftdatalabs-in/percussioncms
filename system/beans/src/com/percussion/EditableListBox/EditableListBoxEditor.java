@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import javax.swing.table.TableCellEditor;
   * box cell.
   */
 
+@SuppressWarnings("unchecked")
 public class EditableListBoxEditor implements TableCellEditor, Serializable
 {
 
@@ -118,7 +119,7 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
        *
      * @param x  a JComboBox object ...
      */
-  public EditableListBoxEditor(JComboBox x)
+  public EditableListBoxEditor(JComboBox<Object> x)
   {
     this.m_editorComponent = x;
 
@@ -141,22 +142,22 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
           //m_storage = new String("");
         }  
         // trims whitespaces before setting string into component
-        ((JComboBox)m_editorComponent).setSelectedItem(m_storage.toString().trim());
+        ((JComboBox<Object>)m_editorComponent).setSelectedItem(m_storage.toString().trim());
         
         // if ComboBox is a DropDownList... and if the selectedItem is not a part of the
         // comboBox list yet...
 
             /*
-        if (!((JComboBox)m_editorComponent).isEditable() && !m_isDropListSet)
+        if (!((JComboBox<Object>)m_editorComponent).isEditable() && !m_isDropListSet)
         {
-            Object selectedItem = ((JComboBox)m_editorComponent).getSelectedItem();
+            Object selectedItem = ((JComboBox<Object>)m_editorComponent).getSelectedItem();
           if (selectedItem != null)
           {
             String item = selectedItem.toString();
             //if (item != ((EditableListBoxCellNameHelper)m_storage).getName())
                if ( null != m_storage && item != m_storage.toString())
             {
-                     ((JComboBox)m_editorComponent).insertItemAt(m_storage.toString(), 0);
+                     ((JComboBox<Object>)m_editorComponent).insertItemAt(m_storage.toString(), 0);
               m_isDropListSet = true;
             }
           }
@@ -168,11 +169,11 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
          {
             if (m_storage instanceof EditableListBoxCellNameHelper)
             {
-               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox)m_editorComponent).getSelectedItem().toString());
+               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox<Object>)m_editorComponent).getSelectedItem().toString());
                return m_storage;
             }
             else
-               return ((JComboBox)m_editorComponent).getSelectedItem();
+               return ((JComboBox<Object>)m_editorComponent).getSelectedItem();
          }
 
          public boolean startCellEditing(EventObject anEvent)
@@ -193,9 +194,9 @@ public class EditableListBoxEditor implements TableCellEditor, Serializable
          }
       };
 
-      ((JComboBox)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
-      ((JComboBox)m_editorComponent).addItemListener(m_delegate);
-      ((JComboBox)m_editorComponent).addActionListener(m_delegate);
+      ((JComboBox<Object>)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
+      ((JComboBox<Object>)m_editorComponent).addItemListener(m_delegate);
+      ((JComboBox<Object>)m_editorComponent).addActionListener(m_delegate);
    }
 
     /**

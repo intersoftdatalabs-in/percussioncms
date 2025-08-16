@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,39 +20,31 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 
-/**
- * Generates ids for widget items.
- * The ids only have to be unique with in the page.
- * @author adamgent
- *
- */
-public interface IPSWidgetItemIdGenerator
-{
+/** Generates IDs for widget items. IDs only need to be unique within the page. */
+public interface IPSWidgetItemIdGenerator {
 
-    /**
-     * 
-     * Generates an id that should be unique over the widget associations.
-     * 
-     * @param widgets never <code>null</code>.
-     * @param item never <code>null</code>.
-     * @return generated id.
-     */
-    public abstract Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item);
+  /**
+   * Generates an ID that should be unique over the widget associations.
+   *
+   * @param widgets never {@code null}.
+   * @param item never {@code null}.
+   * @return generated ID.
+   */
+  Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item);
 
-    /**
-     * Generates and sets ids for widgets that do not have an id.
-     * Or in other words where {@link PSWidgetItem#getId()} is <code>null</code>
-     * an new id will be generated and set on the widget.
-     * <p>
-     * <strong>Note that this method will mutate the widgets</strong>
-     * @param widgets never <code>null</code>.
-     */
-    public void generateIds(PSRegionWidgetAssociations widgets);
-    
-    /**
-     * Sets ids to null for widgets that have an id.
-     * @param widgets never <code>null</code>.
-     */
-    public void deleteIds (PSRegionWidgetAssociations widgets);
+  /**
+   * Generates and sets IDs for widgets that do not have an ID. Widgets where {@link
+   * PSWidgetItem#getId()} is {@code null} will get a new ID. <strong>Note: this method mutates the
+   * widgets.</strong>
+   *
+   * @param widgets never {@code null}.
+   */
+  void generateIds(PSRegionWidgetAssociations widgets);
 
+  /**
+   * Sets IDs to null for widgets that have an ID.
+   *
+   * @param widgets never {@code null}.
+   */
+  void deleteIds(PSRegionWidgetAssociations widgets);
 }

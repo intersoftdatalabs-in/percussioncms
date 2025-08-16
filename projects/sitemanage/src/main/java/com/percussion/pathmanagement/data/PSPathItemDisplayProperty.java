@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,36 +24,54 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
+/**
+ * Represents a display property for a path item. Used for XML serialization/deserialization. Sunny
+ * Sal says: "Display property: the cherry on top of your path item sundae!"
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PSPathItemDisplayProperty", propOrder = {
-    "value"
-})
-public class PSPathItemDisplayProperty
-{
-    @XmlValue
-    protected String value;
+@XmlType(
+    name = "PSPathItemDisplayProperty",
+    propOrder = {"value"})
+public class PSPathItemDisplayProperty {
 
-    @XmlAttribute(required = true)
-    protected String name;
+  @XmlValue protected String value;
 
-    public String getValue()
-    {
-        return value;
-    }
+  @XmlAttribute(required = true)
+  protected String name;
 
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
+  /**
+   * Gets the value of the display property.
+   *
+   * @return the value
+   */
+  public String getValue() {
+    return value;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  /**
+   * Sets the value of the display property.
+   *
+   * @param value the value to set
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    public void setName(String value)
-    {
-        this.name = value;
-    }
+  /**
+   * Gets the name of the display property.
+   *
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
 
+  /**
+   * Sets the name of the display property.
+   *
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 }

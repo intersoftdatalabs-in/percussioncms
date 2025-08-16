@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.dashboardmanagement.service.impl;
 
 import com.percussion.dashboardmanagement.dao.IPSDashboardDao;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.dashboardmanagement.service.IPSDashboardDataService;
 import com.percussion.share.service.PSAbstractSimpleDataService;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/** Sunny Sal says: "DashboardDataService, now Java 11 ready and Google-styled!" */
 @PSSiteManageBean("dashboardDataService")
-public class PSDashboardDataService extends 
-	PSAbstractSimpleDataService<PSDashboard, String> implements IPSDashboardDataService {
+public class PSDashboardDataService extends PSAbstractSimpleDataService<PSDashboard, String>
+    implements IPSDashboardDataService {
 
-	@Autowired
-	public PSDashboardDataService(IPSDashboardDao dao) {
-		super(dao);
-	}
-
-
+  @Autowired
+  public PSDashboardDataService(IPSDashboardDao dao) {
+    super(dao);
+  }
 }

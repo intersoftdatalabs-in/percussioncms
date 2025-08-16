@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,132 +16,176 @@
  */
 package com.percussion.services.publisher;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 /**
- * Publisher service error codes
- * 
+ * Publisher service error codes with enhanced validation and lookup utilities.
+ * This interface defines standardized error constants for publisher service
+ * operations with modern Java 11 patterns for error handling and validation.
+ *
  * @author dougrand
  */
-public interface IPSPublisherServiceErrors
-{
+public interface IPSPublisherServiceErrors {
+
    /**
     * Missing content list by name.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The name of the content list</TD></TR>
-    * </TABLE>
+    * Arguments: [0] The name of the content list
     */
-   public static final int LIST_MISSING = 10;
+   int LIST_MISSING = 10;
+
    /**
     * Invalid query.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The query</TD></TR>
-    * </TABLE>
+    * Arguments: [0] The query
     */
-   public static final int BAD_QUERY = 11;
+   int BAD_QUERY = 11;
+
    /**
     * Repository error.
     * <p>
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The repository problem</TD></TR>
-    * </TABLE>
+    * Arguments: [0] The repository problem
     */
-   public static final int REPOSITORY = 12;
-   
+   int REPOSITORY = 12;
+
    /**
     * Couldn't load the given site.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The site guid</TD></TR>
-    * </TABLE>
+    * Arguments: [0] The site GUID
     */
-   public static final int SITE_LOAD = 13;
-   
+   int SITE_LOAD = 13;
+
    /**
     * Couldn't load the given extension.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The extension name</TD></TR>
-    * <TR><TD>1</TD><TD>The extension context</TD></TR>
-    * <TR><TD>1</TD><TD>The extension interface</TD></TR>
-    * </TABLE>
+    * Arguments: [0] Extension name, [1] Extension context, [2] Extension interface
     */
-   public static final int MISSING_EXTENSION = 14;
-   
+   int MISSING_EXTENSION = 14;
+
    /**
     * A problem occurred while looking up an extension.
     */
-   public static final int EXTENSION_LOOKUP = 15;
-   
+   int EXTENSION_LOOKUP = 15;
+
    /**
     * A problem occurred while retrieving query rows from the generator.
     */
-   public static final int ROW_RETRIEVAL = 16;
-   
+   int ROW_RETRIEVAL = 16;
+
    /**
     * An unknown database problem while retrieving data.
     */
-   public static final int DB = 17;
-   
+   int DB = 17;
+
    /**
     * The filter failed to function properly.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The filter name</TD></TR>
-    * </TABLE>
+    * Arguments: [0] The filter name
     */
-   public static final int FILTER_MALFUNCTION = 18;
-   
-   /**
-    * An unanticipated problem occurred.
-    * <p>
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The original exception message</TD></TR>
-    * </TABLE>
-    */
-   public static final int RUNTIME_ERROR = 19;
-   
-   /**
-    * Did not find a given publisher.
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The publisher id</TD></TR>
-    * </TABLE>
-    */   
-   public static final int MISSING_PUBLISHER = 20;
-   
-   /**
-    * Missing site override information - no arguments
-    */
-   public static final int SITE_MISSING = 21;
+   int FILTER_FAILED = 18;
 
    /**
-    * Missing context override information - no arguments
-    */
-   public static final int CONTEXT_MISSING = 22;
-   
-   /**
-    * An unexpected problem occurred
+    * Publishing job failed.
     * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The problem description</TD></TR>
-    * </TABLE>
+    * Arguments: [0] Job ID, [1] Error details
     */
-   public static final int UNEXPECTED = 23;
+   int JOB_FAILED = 19;
+
+   /**
+    * Content item publishing failed.
+    * <p>
+    * Arguments: [0] Content ID, [1] Site ID, [2] Error details
+    */
+   int ITEM_PUBLISH_FAILED = 20;
+
+   /** All defined error codes for validation and lookup operations */
+   Set<Integer> ALL_ERROR_CODES = Set.of(
+      LIST_MISSING,
+      BAD_QUERY,
+      REPOSITORY,
+      SITE_LOAD,
+      MISSING_EXTENSION,
+      EXTENSION_LOOKUP,
+      ROW_RETRIEVAL,
+      DB,
+      FILTER_FAILED,
+      JOB_FAILED,
+      ITEM_PUBLISH_FAILED
+   );
+
+   /** Error code descriptions for enhanced error reporting */
+   Map<Integer, String> ERROR_DESCRIPTIONS = Map.of(
+      LIST_MISSING, "Content list not found",
+      BAD_QUERY, "Invalid query syntax",
+      REPOSITORY, "Repository access error",
+      SITE_LOAD, "Site loading failed",
+      MISSING_EXTENSION, "Extension not found",
+      EXTENSION_LOOKUP, "Extension lookup failed",
+      ROW_RETRIEVAL, "Query row retrieval failed",
+      DB, "Database operation failed",
+      FILTER_FAILED, "Content filter failed",
+      JOB_FAILED, "Publishing job failed",
+      ITEM_PUBLISH_FAILED, "Content item publishing failed"
+   );
+
+   /**
+    * Validates if an error code is defined in this interface.
+    *
+    * @param errorCode the error code to validate
+    * @return true if the error code is valid, false otherwise
+    */
+   static boolean isValidErrorCode(int errorCode) {
+      return ALL_ERROR_CODES.contains(errorCode);
+   }
+
+   /**
+    * Gets a description for the specified error code.
+    *
+    * @param errorCode the error code to describe
+    * @return Optional containing the description, or empty if code is invalid
+    */
+   static Optional<String> getErrorDescription(int errorCode) {
+      return Optional.ofNullable(ERROR_DESCRIPTIONS.get(errorCode));
+   }
+
+   /**
+    * Gets all valid error codes defined in this interface.
+    *
+    * @return immutable set of all error codes
+    */
+   static Set<Integer> getAllErrorCodes() {
+      return ALL_ERROR_CODES;
+   }
+
+   /**
+    * Checks if an error code indicates a data access problem.
+    *
+    * @param errorCode the error code to check
+    * @return true if the error is related to data access
+    */
+   static boolean isDataAccessError(int errorCode) {
+      return Set.of(REPOSITORY, DB, ROW_RETRIEVAL, SITE_LOAD).contains(errorCode);
+   }
+
+   /**
+    * Checks if an error code indicates an extension problem.
+    *
+    * @param errorCode the error code to check
+    * @return true if the error is related to extensions
+    */
+   static boolean isExtensionError(int errorCode) {
+      return Set.of(MISSING_EXTENSION, EXTENSION_LOOKUP, FILTER_FAILED).contains(errorCode);
+   }
+
+   /**
+    * Checks if an error code indicates a publishing operation failure.
+    *
+    * @param errorCode the error code to check
+    * @return true if the error is related to publishing operations
+    */
+   static boolean isPublishingError(int errorCode) {
+      return Set.of(JOB_FAILED, ITEM_PUBLISH_FAILED).contains(errorCode);
+   }
 }

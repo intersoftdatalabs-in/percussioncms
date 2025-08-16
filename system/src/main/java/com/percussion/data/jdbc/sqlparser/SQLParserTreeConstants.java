@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 
 package com.percussion.data.jdbc.sqlparser;
 
-public interface SQLParserTreeConstants
-{
+public interface SQLParserTreeConstants {
   public int JJTSTATEMENTROOT = 0;
   public int JJTVOID = 1;
   public int JJTDIRECTSQLDATASTATEMENT = 2;
@@ -46,7 +45,6 @@ public interface SQLParserTreeConstants
   public int JJTORDERBYCLAUSE = 24;
   public int JJTSORTSPECIFICATION = 25;
   public int JJTSORTKEY = 26;
-
 
   public String[] jjtNodeName = {
     "StatementRoot",

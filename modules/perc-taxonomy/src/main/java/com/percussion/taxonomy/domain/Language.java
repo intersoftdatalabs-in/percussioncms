@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,89 +19,99 @@ package com.percussion.taxonomy.domain;
 
 public class Language {
 
-   /**
-    * Taxonomy Language class to represent the language in which taxonomy can be created.
-    */
-    public static final int DEFAUL_LANG = 1;
-    
-    private int id;
-    private String name;
-    private String abbreviation;
-    private String script;
+  /** Taxonomy Language class to represent the language in which taxonomy can be created. */
+  public static final int DEFAUL_LANG = 1;
 
-    /**
-     * Returns unique id of a Language
-     * @return id - unique int id of a Langauge
-     */
-    public int getId() {
-        return id;
-    }
+  private int id;
+  private String name;
+  private String abbreviation;
+  private String script;
 
-    /**
-     * Set id unique id of a Language
-     * @param id - int id of a Language
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
+  /**
+   * Returns unique id of a Language
+   *
+   * @return id - unique int id of a Langauge
+   */
+  public int getId() {
+    return id;
+  }
 
-    /**
-     * Returns name of a Language
-     * @return name - String name of a Langauge
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Set id unique id of a Language
+   *
+   * @param id - int id of a Language
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    /**
-     * Set Language name
-     * @param name - String name of a Language
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+  /**
+   * Returns name of a Language
+   *
+   * @return name - String name of a Langauge
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Return Language abbreviation
-     * @return abbreviation - String Language abbreviation
-     */
-    public String getAbbreviation() {
-        return abbreviation;
-    }
+  /**
+   * Set Language name
+   *
+   * @param name - String name of a Language
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Set Language abbreviation
-     * @param abbreviation - String abbreviation of a Language
-     */
-    public void setAbbreviation(String abbreviation) {
-        this.abbreviation = abbreviation;
-    }
+  /**
+   * Return Language abbreviation
+   *
+   * @return abbreviation - String Language abbreviation
+   */
+  public String getAbbreviation() {
+    return abbreviation;
+  }
 
-    /**
-     * Returns Language script
-     * @return script - Language script
-     */
-    public String getScript() {
-        return script;
-    }
+  /**
+   * Set Language abbreviation
+   *
+   * @param abbreviation - String abbreviation of a Language
+   */
+  public void setAbbreviation(String abbreviation) {
+    this.abbreviation = abbreviation;
+  }
 
-    
-    /**
-     * Set script of the Language
-     * @param script - String script of a Language
-     */
-    public void setScript(String script) {
-        this.script = script;
-    }
-    
-    /**
-     * Returns a String representation of the object.
-     */
-    public String toString(){
-        return "Language ----------------------\n"+
-                "ID: "+id+"\n"+
-                "Name: "+name+"\n"+
-                "Abbreviation: "+abbreviation+"\n"+
-                "Script: "+script;
-    }
+  /**
+   * Returns Language script
+   *
+   * @return script - Language script
+   */
+  public String getScript() {
+    return script;
+  }
+
+  /**
+   * Set script of the Language
+   *
+   * @param script - String script of a Language
+   */
+  public void setScript(String script) {
+    this.script = script;
+  }
+
+  /** Returns a String representation of the object. */
+  public String toString() {
+    return "Language ----------------------\n"
+        + "ID: "
+        + id
+        + "\n"
+        + "Name: "
+        + name
+        + "\n"
+        + "Abbreviation: "
+        + abbreviation
+        + "\n"
+        + "Script: "
+        + script;
+  }
 }

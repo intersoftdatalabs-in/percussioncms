@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,13 @@
  */
 package com.percussion.share.dao;
 
-
-/**
- * Used to perform runtime modifications of the server configuration.
- *  
- * @author peterfrontiero
- */
+/** Used to perform runtime modifications of the server configuration. */
 public interface IPSServerConfigUpdater {
-    
-    /**
-     * Locks, loads, modifies, and then saves the server configuration.
-     * 
-     * @throws Exception if an error occurs during the update.
-     */
-    public void update() throws Exception;
+
+  /**
+   * Locks, loads, modifies, and then saves the server configuration.
+   *
+   * @throws Exception if an error occurs during the update.
+   */
+  void update() throws Exception;
 }

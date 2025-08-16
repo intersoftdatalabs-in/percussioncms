@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,101 +14,134 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import org.json.simple.ItemList;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
+ * A JSON object implementation that extends LinkedHashMap to maintain insertion order.
+ * This class provides methods to convert the object to JSON string format with proper escaping.
+ *
  * @author FangYidong<fangyidong@yahoo.com.cn>
  */
-public class JSONObject extends LinkedHashMap{
-    
-    public String toString(){
-        ItemList list=new ItemList();
-        Iterator iter=entrySet().iterator();
-        
-        while(iter.hasNext()){
-            Map.Entry entry=(Map.Entry)iter.next();
-            list.add(toString(entry.getKey().toString(),entry.getValue()));
-        }
-        return "{"+list.toString()+"}";
+public class JSONObject extends LinkedHashMap<String, Object> {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Converts this JSON object to its string representation.
+     *
+     * @return JSON string representation of this object
+     */
+    @Override
+    public String toString() {
+        var list = new ItemList();
+
+        entrySet().stream()
+            .map(entry -> toString(entry.getKey(), entry.getValue()))
+            .forEach(list::add);
+
+        return "{" + list + "}";
     }
     
-    public static String toString(String key,Object value){
-        StringBuilder sb=new StringBuilder();
-        
+    /**
+     * Converts a key-value pair to JSON string format.
+     *
+     * @param key the key to convert, must not be null
+     * @param value the value to convert, may be null
+     * @return JSON string representation of the key-value pair
+     * @throws IllegalArgumentException if key is null
+     */
+    public static String toString(String key, Object value) {
+        Objects.requireNonNull(key, "Key cannot be null");
+
+        var sb = new StringBuilder();
         sb.append("\"");
         sb.append(escape(key));
         sb.append("\":");
-        if(value==null){
+
+        if (value == null) {
             sb.append("null");
-            return sb.toString();
-        }
-        
-        if(value instanceof String){
+        } else if (value instanceof String) {
             sb.append("\"");
-            sb.append(escape((String)value));
+            sb.append(escape((String) value));
             sb.append("\"");
-        }
-        else
+        } else {
             sb.append(value);
+        }
+
         return sb.toString();
     }
     
     /**
-     * " => \" , \ => \\
-     * @param s
-     * @return
+     * Escapes special characters in a string for JSON format.
+     * Handles quotes, backslashes, control characters, and Unicode escape sequences.
+     *
+     * @param s the string to escape, may be null
+     * @return escaped string suitable for JSON, or null if input is null
      */
-    public static String escape(String s){
-        if(s==null)
-            return null;
-        StringBuilder sb=new StringBuilder();
-        for(int i=0;i<s.length();i++){
-            char ch=s.charAt(i);
-            switch(ch){
-            case '"':
-                sb.append("\\\"");
-                break;
-            case '\\':
-                sb.append("\\\\");
-                break;
-            case '\b':
-                sb.append("\\b");
-                break;
-            case '\f':
-                sb.append("\\f");
-                break;
-            case '\n':
-                sb.append("\\n");
-                break;
-            case '\r':
-                sb.append("\\r");
-                break;
-            case '\t':
-                sb.append("\\t");
-                break;
-            case '/':
-                sb.append("\\/");
-                break;
-            default:
-                if(ch>='\u0000' && ch<='\u001F'){
-                    String ss=Integer.toHexString(ch);
-                    sb.append("\\u");
-                    for(int k=0;k<4-ss.length();k++){
-                        sb.append('0');
+    public static String escape(String s) {
+        return Optional.ofNullable(s)
+            .map(JSONObject::escapeInternal)
+            .orElse(null);
+    }
+
+    /**
+     * Internal method to perform the actual string escaping.
+     *
+     * @param s the string to escape, guaranteed not null
+     * @return escaped string
+     */
+    private static String escapeInternal(String s) {
+        var sb = new StringBuilder();
+
+        for (var i = 0; i < s.length(); i++) {
+            var ch = s.charAt(i);
+
+            switch (ch) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                case '/':
+                    sb.append("\\/");
+                    break;
+                default:
+                    if (ch <= '\u001F') {
+                        var hexString = Integer.toHexString(ch);
+                        sb.append("\\u");
+                        // Pad with zeros to ensure 4-character hex representation
+                        sb.append("0".repeat(Math.max(0, 4 - hexString.length())));
+                        sb.append(hexString.toUpperCase());
+                    } else {
+                        sb.append(ch);
                     }
-                    sb.append(ss.toUpperCase());
-                }
-                else{
-                    sb.append(ch);
-                }
+                    break;
             }
-        }//for
+        }
+
         return sb.toString();
     }
 }

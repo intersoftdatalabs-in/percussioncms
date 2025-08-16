@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +21,39 @@ package com.percussion.redirect.service.rest.impl;
 import com.percussion.redirect.data.PSRedirectValidationData;
 import com.percussion.redirect.data.PSRedirectValidationResponse;
 import com.percussion.redirect.service.impl.PSRedirectService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
+/** REST endpoint for redirect validation. */
 @Path("/redirect")
 @Component("pSRedirectRestService")
 @Lazy
-public class PSRedirectRestService
-{
-    private PSRedirectService redirectService;
+public class PSRedirectRestService {
 
-    @Autowired
-    public PSRedirectRestService(PSRedirectService redirectService)
-    {
-        this.redirectService = redirectService;
-    }
-    
-    @POST
-    @Produces(
-    {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Path("/validate")
-    public PSRedirectValidationResponse validate(PSRedirectValidationData data)
-    {
-        return redirectService.validate(data);
-    }
+  private final PSRedirectService redirectService;
 
+  @Autowired
+  public PSRedirectRestService(PSRedirectService redirectService) {
+    this.redirectService = redirectService;
+  }
+
+  /**
+   * Validates a redirect request.
+   *
+   * @param data the redirect validation data
+   * @return the validation response
+   */
+  @POST
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @Path("/validate")
+  public PSRedirectValidationResponse validate(PSRedirectValidationData data) {
+    return redirectService.validate(data);
+  }
 }

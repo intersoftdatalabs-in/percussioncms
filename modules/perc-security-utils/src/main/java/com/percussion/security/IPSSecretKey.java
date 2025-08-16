@@ -1,5 +1,7 @@
+package com.percussion.security;
+
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.security;
-
 /**
- * IPSSecretKey extends the IPSKey interface providing support for
- * secret key encryption/decryption algorithms which can be used
- * within the product.
+ * Extends the IPSKey interface, providing support for secret key encryption/decryption algorithms
+ * used within the product.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <p>Sunny Sal says: This is the secret sauce for your encryption!
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public interface IPSSecretKey extends IPSKey
-{
-   /**
-    * Get the number of bits required for this secret key.
-    *
-    * @return               the number of bits to use in setSecret
-    */
-   public int getSecretSizeInBits();
+public interface IPSSecretKey extends IPSKey {
+  /**
+   * Gets the number of bits required for this secret key.
+   *
+   * @return the number of bits to use in setSecret.
+   */
+  int getSecretSizeInBits();
 
-
-   /**
-    * Set the secret to the specified byte array. It must have the
-    * appropriate number of bytes to match the bit count returned by
-    * getSecretSizeInBits.
-    *
-    * @param      secret   the secret to use to generate the key
-    *
-    * @throws IllegalArgumentException if the secret is invalid for this object
-    */
-   public void setSecret(byte[] secret) throws IllegalArgumentException;
-
-
+  /**
+   * Sets the secret to the specified byte array. It must have the appropriate number of bytes to
+   * match the bit count returned by getSecretSizeInBits.
+   *
+   * @param secret the secret to use to generate the key.
+   * @throws IllegalArgumentException if the secret is invalid for this object.
+   */
+  void setSecret(byte[] secret) throws IllegalArgumentException;
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,61 +21,48 @@ import com.percussion.design.objectstore.PSDisplayFieldRef;
 import org.w3c.dom.Document;
 
 /**
- * A data extractor for DisplayField reference elements as specified in the 
- * sys_ContentEditor.dtd.
+ * A data extractor for DisplayField reference elements as specified in the sys_ContentEditor.dtd.
  */
-public class PSDisplayFieldRefExtractor extends PSDataExtractor
-{
-   /**
-    * Construct a data extractor for the provided source.
-    *
-    * @param source the DisplayField  reference to create this extractor for,
-    *    not <code>null</code>.
-    * @throws IllegalArgumentException if the provided source is 
-    *    <code>null</code>.
-    */
-   public PSDisplayFieldRefExtractor(PSDisplayFieldRef source)
-   {
-      super(source);
+public class PSDisplayFieldRefExtractor extends PSDataExtractor {
+  /**
+   * Construct a data extractor for the provided source.
+   *
+   * @param source the DisplayField reference to create this extractor for, not <code>null</code>.
+   * @throws IllegalArgumentException if the provided source is <code>null</code>.
+   */
+  public PSDisplayFieldRefExtractor(PSDisplayFieldRef source) {
+    super(source);
 
-      if (source == null)
-         throw new IllegalArgumentException("the source cannot be null");
-      
-      m_fieldRef = source.getValueText();
-   }
+    if (source == null) throw new IllegalArgumentException("the source cannot be null");
 
-   // see IPSDataExtractor for description
-   public Object extract(PSExecutionData data)
-      throws PSDataExtractionException
-   {
-      return extract(data, null);
-   }
+    m_fieldRef = source.getValueText();
+  }
 
-   /**
-    * Gets the input document from the execution data and extracts the 
-    * 'Value' from the 'Control' which matches the field reference 
-    * created in the constructor.
-    *
-    * @return the 'Value' of the matching 'Control' as String or a 
-    *    'DisplayChoice' element for arrays, depending on the type of the 
-    *    'Control', never <code>null</code>.
-    * @see IPSDataExtractor
-    */
-   public Object extract(PSExecutionData data, Object defValue)
-      throws PSDataExtractionException
-   {
-      Object result = defValue;
+  // see IPSDataExtractor for description
+  public Object extract(PSExecutionData data) throws PSDataExtractionException {
+    return extract(data, null);
+  }
 
-      Document doc = data.getInputDocument();
-      if (doc != null)
-         result = PSContentEditorWalker.getDisplayFieldValue(doc, m_fieldRef);
+  /**
+   * Gets the input document from the execution data and extracts the 'Value' from the 'Control'
+   * which matches the field reference created in the constructor.
+   *
+   * @return the 'Value' of the matching 'Control' as String or a 'DisplayChoice' element for
+   *     arrays, depending on the type of the 'Control', never <code>null</code>.
+   * @see IPSDataExtractor
+   */
+  public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
+    Object result = defValue;
 
-      return result;
-   }
-   
-   /**
-    * The DisplayField name to be extracted, initialized in ctor, nerver
-    * <code>null</code> or empty after that.
-    */
-   private String m_fieldRef = null;
+    Document doc = data.getInputDocument();
+    if (doc != null) result = PSContentEditorWalker.getDisplayFieldValue(doc, m_fieldRef);
+
+    return result;
+  }
+
+  /**
+   * The DisplayField name to be extracted, initialized in ctor, nerver <code>null</code> or empty
+   * after that.
+   */
+  private String m_fieldRef = null;
 }

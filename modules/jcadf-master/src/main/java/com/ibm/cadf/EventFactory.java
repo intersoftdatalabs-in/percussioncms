@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,23 +23,37 @@ import com.ibm.cadf.model.CADFType.EVENTTYPE;
 import com.ibm.cadf.model.Event;
 import com.ibm.cadf.model.Resource;
 
-public class EventFactory
-{
+public class EventFactory {
 
-    public static String ERROR_UNKNOWN_EVENTTYPE = "Unknown CADF EventType requested on factory method";
+  public static String ERROR_UNKNOWN_EVENTTYPE =
+      "Unknown CADF EventType requested on factory method";
 
-    public static Event getEventInstance(String eventType, String id, String action, String outcome,
-                    Resource initiator,
-                    String initiatorId, Resource target, String targetId, Resource observer,
-                    String observerId) throws CADFException
-    {
+  public static Event getEventInstance(
+      String eventType,
+      String id,
+      String action,
+      String outcome,
+      Resource initiator,
+      String initiatorId,
+      Resource target,
+      String targetId,
+      Resource observer,
+      String observerId)
+      throws CADFException {
 
-        if (!CADFType.isValidEventType(eventType))
-            throw new CADFException(ERROR_UNKNOWN_EVENTTYPE);
+    if (!CADFType.isValidEventType(eventType)) throw new CADFException(ERROR_UNKNOWN_EVENTTYPE);
 
-        EVENTTYPE eventTypeEnum = CADFType.EVENTTYPE.valueOf(eventType);
-        return new Event(eventTypeEnum.value, id, action, outcome, initiator,
-                        initiatorId, target, targetId, observer,
-                        observerId);
-    }
+    EVENTTYPE eventTypeEnum = CADFType.EVENTTYPE.valueOf(eventType);
+    return new Event(
+        eventTypeEnum.value,
+        id,
+        action,
+        outcome,
+        initiator,
+        initiatorId,
+        target,
+        targetId,
+        observer,
+        observerId);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,104 +17,133 @@
 
 package com.percussion.html;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Safelist;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.xml.transform.TransformerException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
+import javax.xml.transform.TransformerException;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-/**
- * Tests to validate that the html cleaner properties
- * are working properly.
- */
+/** Tests to validate that the html cleaner properties are working properly. */
 public class TestPSHtmlCleanerProperties {
 
-    @Test
-    public void testDefaultProps() {
-        Properties props = PSHtmlUtils.getDefaultCleanerProperties();
+  @Test
+  public void testDefaultProps() {
+    Properties props = PSHtmlUtils.getDefaultCleanerProperties();
 
-        assertNotNull(props);
+    assertNotNull(props);
 
-        assertFalse(props.isEmpty());
+    assertFalse(props.isEmpty());
 
-        Safelist sl = PSHtmlUtils.getSafeListFromProperties(props,"");
+    Safelist sl = PSHtmlUtils.getSafeListFromProperties(props, "");
 
-        assertNotNull(sl);
+    assertNotNull(sl);
+  }
 
-    }
+  @Test
+  public void testFragment1() throws PSHtmlParsingException, TransformerException {
 
-    @Test
-    public void testFragment1() throws PSHtmlParsingException, TransformerException {
+    String text =
+        new Scanner(
+                Objects.requireNonNull(
+                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
+                        "/com/percussion/html/fragment1.html")),
+                "UTF-8")
+            .useDelimiter("\\A")
+            .next();
 
-        String text = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/fragment1.html")), "UTF-8").useDelimiter("\\A").next();
+    assertNotNull(text);
 
-        assertNotNull(text);
+    Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, false, null);
+    assertNotNull(doc);
+    System.out.println(doc.html());
+    doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
+    assertNotNull(doc);
+    String out = doc.html();
+    System.out.println(doc.html());
+    assertTrue(out.contains("<aside>"));
+    assertTrue(out.contains("</aside>"));
+    assertTrue(out.contains("<footer>"));
+    assertTrue(out.contains("</footer>"));
+    assertTrue(out.contains("🤡 🤥"));
+    assertTrue(out.contains("<div class=\"rxbodyfield\">"));
+    assertTrue(out.contains("</div"));
+    assertTrue(out.contains("<br />"));
+    assertTrue(out.contains("<script>"));
+    assertTrue(out.contains("</script>"));
+  }
 
-        Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, false, null);
-        assertNotNull(doc);
-        System.out.println(doc.html());
-        doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
-        assertNotNull(doc);
-        String out = doc.html();
-        System.out.println(doc.html());
-        assertTrue(out.contains("<aside>"));
-        assertTrue(out.contains("</aside>"));
-        assertTrue(out.contains("<footer>"));
-        assertTrue(out.contains("</footer>"));
-        assertTrue(out.contains("🤡 🤥"));
-        assertTrue(out.contains("<div class=\"rxbodyfield\">"));
-        assertTrue(out.contains("</div"));
-        assertTrue(out.contains("<br />"));
-        assertTrue(out.contains("<script>"));
-        assertTrue(out.contains("</script>"));
-    }
+  @Test
+  public void testFragment2() throws PSHtmlParsingException, TransformerException {
 
-    @Test
-    public void testFragment2() throws PSHtmlParsingException, TransformerException {
+    String text =
+        new Scanner(
+                Objects.requireNonNull(
+                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
+                        "/com/percussion/html/fragment2.html")),
+                "UTF-8")
+            .useDelimiter("\\A")
+            .next();
 
-        String text = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/fragment2.html")), "UTF-8").useDelimiter("\\A").next();
+    Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, false, null);
+    String parsed = doc.html();
+    assertTrue(parsed.contains("/p>"));
+  }
 
-        Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, false, null);
-        String parsed = doc.html();
-        assertTrue(parsed.contains("/p>"));
-    }
+  @Test
+  public void testFragment3() throws PSHtmlParsingException, TransformerException {
 
-    @Test
-    public void testFragment3() throws PSHtmlParsingException, TransformerException {
+    String text =
+        new Scanner(
+                Objects.requireNonNull(
+                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
+                        "/com/percussion/html/fragment3.html")),
+                "UTF-8")
+            .useDelimiter("\\Z")
+            .next();
+    Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
+    String parsed = doc.body().toString();
+    assertEquals(text, parsed);
+  }
 
-        String text = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/fragment3.html")), "UTF-8").useDelimiter("\\Z").next();
-        Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
-        String parsed = doc.body().toString();
-        assertEquals(text,parsed);
-    }
-    @Test
-    public void testMoreLink() throws PSHtmlParsingException, TransformerException {
+  @Test
+  public void testMoreLink() throws PSHtmlParsingException, TransformerException {
 
-        String text = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/morelink.html")), "UTF-8").useDelimiter("\\Z").next();
-        Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
-        String parsed = doc.body().toString();
-        assertTrue(parsed.contains("<span class=\"perc-blog-more-link\"></span>"));
-    }
+    String text =
+        new Scanner(
+                Objects.requireNonNull(
+                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
+                        "/com/percussion/html/morelink.html")),
+                "UTF-8")
+            .useDelimiter("\\Z")
+            .next();
+    Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
+    String parsed = doc.body().toString();
+    assertTrue(parsed.contains("<span class=\"perc-blog-more-link\"></span>"));
+  }
 
+  @Test
+  public void testRemoveDataPathItem() throws PSHtmlParsingException {
 
-    @Test
-    public void testRemoveDataPathItem() throws PSHtmlParsingException {
+    String text =
+        new Scanner(
+                Objects.requireNonNull(
+                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
+                        "/com/percussion/html/datapathitem.html")),
+                "UTF-8")
+            .useDelimiter("\\Z")
+            .next();
+    Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
+    String parsed = doc.body().toString();
 
-        String text = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/datapathitem.html")), "UTF-8").useDelimiter("\\Z").next();
-        Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
-        String parsed = doc.body().toString();
-
-        assertFalse(parsed.contains("data-pathitem"));
-        assertTrue(parsed.contains("data-jcrpath"));
-
-    }
+    assertFalse(parsed.contains("data-pathitem"));
+    assertTrue(parsed.contains("data-jcrpath"));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Taxonomy;
+import java.util.Collection;
+import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -25,82 +27,65 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
-import java.util.Collection;
-import java.util.List;
+public class HibernateTaxonomyDAO extends HibernateDaoSupport implements TaxonomyDAO {
 
-public class HibernateTaxonomyDAO extends HibernateDaoSupport implements TaxonomyDAO
-{
+  public Taxonomy getTaxonomy(int id) {
+    return (Taxonomy) getHibernateTemplate().get(Taxonomy.class, new Integer(id));
+  }
 
-   public Taxonomy getTaxonomy(int id)
-   {
-      return (Taxonomy) getHibernateTemplate().get(Taxonomy.class, new Integer(id));
-   }
+  public List<Taxonomy> getTaxonomy(String name) {
+    Session sess = this.currentSession();
+    Criteria c = sess.createCriteria(Taxonomy.class);
+    c.add(Restrictions.ilike("Name", name));
+    c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+    return c.list();
+  }
 
-   public List<Taxonomy> getTaxonomy(String name)
-   {
-      Session sess = this.currentSession();
-         Criteria c = sess.createCriteria(Taxonomy.class); 
-         c.add(Restrictions.ilike("Name", name));
-         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-         return c.list();
-   } 
-   
-   public List<Integer> getTaxonomyIdForName(String name)
-   {
-    
-      Session sess = this.currentSession();
+  public List<Integer> getTaxonomyIdForName(String name) {
 
-         Query query = sess.createQuery("select id from Taxonomy where name like :name");
-         query.setString("name", name);
-         @SuppressWarnings("unchecked")
-         List<Integer> taxIds = query.list();
-         return taxIds;
-   }
-   
-   public Collection getAllTaxonomys()
-   {
-      // Optional: Add order by to query
-      return (Collection) getHibernateTemplate().execute(new HibernateCallbackHandler());
-   }
+    Session sess = this.currentSession();
 
-   public void saveTaxonomy(Taxonomy taxonomy)
-   {
-      getHibernateTemplate().saveOrUpdate(taxonomy);
-   }
+    Query query = sess.createQuery("select id from Taxonomy where name like :name");
+    query.setString("name", name);
+    @SuppressWarnings("unchecked")
+    List<Integer> taxIds = query.list();
+    return taxIds;
+  }
 
-   public void removeTaxonomy(Taxonomy taxonomy)
-   {
-      getHibernateTemplate().delete(taxonomy);
-   }
+  public Collection getAllTaxonomys() {
+    // Optional: Add order by to query
+    return (Collection) getHibernateTemplate().execute(new HibernateCallbackHandler());
+  }
 
-   class HibernateCallbackHandler implements HibernateCallback
-   {
+  public void saveTaxonomy(Taxonomy taxonomy) {
+    getHibernateTemplate().saveOrUpdate(taxonomy);
+  }
 
-      private int taxonomy_id;
+  public void removeTaxonomy(Taxonomy taxonomy) {
+    getHibernateTemplate().delete(taxonomy);
+  }
 
-      public HibernateCallbackHandler()
-      {
-      }
+  class HibernateCallbackHandler implements HibernateCallback {
 
-      public HibernateCallbackHandler(int taxonomy_id)
-      {
-         this.taxonomy_id = taxonomy_id;
-      }
+    private int taxonomy_id;
 
-      public int getTaxonomy_id()
-      {
-         return taxonomy_id;
-      }
+    public HibernateCallbackHandler() {}
 
-      public void setTaxonomy_id(int taxonomy_id)
-      {
-         this.taxonomy_id = taxonomy_id;
-      }
+    public HibernateCallbackHandler(int taxonomy_id) {
+      this.taxonomy_id = taxonomy_id;
+    }
 
-      public Object doInHibernate(Session session) throws HibernateException
-      {
-         Query query = session.createQuery("from Taxonomy tax order by lower(name) asc");
-         return query.list();
-      }
-   }
+    public int getTaxonomy_id() {
+      return taxonomy_id;
+    }
+
+    public void setTaxonomy_id(int taxonomy_id) {
+      this.taxonomy_id = taxonomy_id;
+    }
+
+    public Object doInHibernate(Session session) throws HibernateException {
+      Query query = session.createQuery("from Taxonomy tax order by lower(name) asc");
+      return query.list();
+    }
+  }
 }

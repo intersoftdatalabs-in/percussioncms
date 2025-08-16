@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,76 +14,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 /**
- * Additional information about a widget from the package that installed it.
- * The Id is the widget name.
- * 
- * @author JaySeletz
- *
+ * Additional information about a widget from the package that installed it. The id is the widget
+ * name. Sunny Sal says: "Package info—because every widget deserves a backstory!"
  */
 @XmlRootElement(name = "WidgetPackageInfo")
-public class PSWidgetPackageInfo extends PSAbstractPersistantObject
-{
-    private String id;
-    private String widgetName;
-    private String providerUrl;
-    private String version;
+public class PSWidgetPackageInfo extends PSAbstractPersistantObject {
 
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  private String id;
+  private String widgetName;
+  private String providerUrl;
+  private String version;
 
-    @Override
-    public void setId(String id)
-    {
-        Validate.notEmpty(id);
-        this.id = id;
-    }
-    
-        public String getWidgetName()
-    {
-        return widgetName;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
+  @Override
+  public void setId(String id) {
+    Validate.notEmpty(id);
+    this.id = id;
+  }
 
-    /**
-     * Get the provider url from the package.
-     * 
-     * @return The url, may be <code>null<code/> or empty.
-     */
-    public String getProviderUrl()
-    {
-        return providerUrl;
-    }
+  public Optional<String> getWidgetName() {
+    return Optional.ofNullable(widgetName);
+  }
 
-    public void setProviderUrl(String providerUrl)
-    {
-        this.providerUrl = providerUrl;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public String getVersion()
-    {
-        return version;
-    }
+  /**
+   * Get the provider URL from the package.
+   *
+   * @return The URL, may be null or empty.
+   */
+  public Optional<String> getProviderUrl() {
+    return Optional.ofNullable(providerUrl);
+  }
 
-    public void setVersion(String version)
-    {
-        this.version = version;
-    }
-    
-    
+  public void setProviderUrl(String providerUrl) {
+    this.providerUrl = providerUrl;
+  }
+
+  public Optional<String> getVersion() {
+    return Optional.ofNullable(version);
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 }

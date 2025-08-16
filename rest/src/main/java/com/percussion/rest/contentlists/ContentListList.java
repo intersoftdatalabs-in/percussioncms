@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,32 @@ package com.percussion.rest.contentlists;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentList")
 @ArraySchema(schema = @Schema(implementation = ContentList.class))
 public class ContentListList extends ArrayList<ContentList> {
-    public ContentListList(Collection<? extends ContentList> c) {
-        super(c);
-    }
-    public ContentListList(){}
+  public ContentListList(Collection<? extends ContentList> c) {
+    super(c);
+  }
+
+  public ContentListList() {}
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ContentListList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "ContentListList" + super.toString();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,66 @@ package com.percussion.services.filestorage;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-public class PSFileStorageServiceLocator extends PSBaseServiceLocator {
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
-    private static volatile IPSFileStorageService fss=null;
-      
-      public static IPSFileStorageService getFileStorageService()
-      {
-          if (fss==null)
-          {
-              synchronized (PSFileStorageServiceLocator.class)
-              {
-                  if (fss==null)
-                  {
-                      fss = (IPSFileStorageService) PSBaseServiceLocator.getBean(
-                              FILESTORAGE_SERVICE_BEAN);
-                  }
-              }
-          }
-         return fss;
-      }
+/**
+ * Service locator for the file storage service using modern Java 11 patterns.
+ *
+ * <p>This locator provides thread-safe access to the file storage service
+ * with atomic reference patterns and Optional-based safe access methods.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
+ */
+public class PSFileStorageServiceLocator {
 
-      public static final String FILESTORAGE_SERVICE_BEAN = "sys_fileStorageService";
+    /**
+     * Thread-safe reference to the file storage service instance.
+     */
+    private static final AtomicReference<IPSFileStorageService> FILE_STORAGE_SERVICE_REF =
+        new AtomicReference<>();
+
+    /**
+     * Bean name for the file storage service.
+     */
+    public static final String FILESTORAGE_SERVICE_BEAN = "sys_fileStorageService";
+
+    /**
+     * Lazy service supplier for thread-safe initialization.
+     */
+    private static final Supplier<IPSFileStorageService> SERVICE_SUPPLIER = () ->
+        (IPSFileStorageService) PSBaseServiceLocator.getBean(FILESTORAGE_SERVICE_BEAN);
+
+    /**
+     * Gets the file storage service using modern lazy initialization patterns.
+     *
+     * @return the file storage service, never {@code null}
+     */
+    public static IPSFileStorageService getFileStorageService() {
+        return FILE_STORAGE_SERVICE_REF.updateAndGet(existing ->
+            existing != null ? existing : SERVICE_SUPPLIER.get());
+    }
+
+    /**
+     * Gets the file storage service safely with Optional wrapper.
+     *
+     * @return Optional containing the file storage service, or empty if not available
+     */
+    public static Optional<IPSFileStorageService> getFileStorageServiceSafely() {
+        try {
+            return Optional.of(getFileStorageService());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Clears the cached file storage service instance - primarily for testing purposes.
+     * This method is thread-safe and will force reinitialization on next access.
+     */
+    public static void clearCache() {
+        FILE_STORAGE_SERVICE_REF.set(null);
+    }
 }

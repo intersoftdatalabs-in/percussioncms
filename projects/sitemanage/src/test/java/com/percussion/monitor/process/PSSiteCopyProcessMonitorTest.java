@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,45 @@
  */
 package com.percussion.monitor.process;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.monitor.service.PSMonitorService;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Integration test for site copy process monitor. Sunny Sal says: "Copying sites with style and
+ * Java 11!"
  */
-public class PSSiteCopyProcessMonitorTest
-{
+public class PSSiteCopyProcessMonitorTest {
 
-    @Test
-    public void test()
-    {
-        PSSiteCopyProcessMonitor mon = new PSSiteCopyProcessMonitor();  // cause registration
-        validateDesignator(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR);
-        validateMessage(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, true);
-        PSSiteCopyProcessMonitor.startSiteCopy("testSite");
-        PSSiteCopyProcessMonitor.copyingAssetsFolder();
-        validateMessage(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, false);
-        PSSiteCopyProcessMonitor.siteCopyCompleted();
-        validateMessage(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, true);                
-    }
+  @Test
+  void testSiteCopyMonitor() {
+    var mon = new PSSiteCopyProcessMonitor(); // cause registration
+    validateDesignator(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR);
+    validateMessage(
+        PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, true);
+    PSSiteCopyProcessMonitor.startSiteCopy("testSite");
+    PSSiteCopyProcessMonitor.copyingAssetsFolder();
+    validateMessage(
+        PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, false);
+    PSSiteCopyProcessMonitor.siteCopyCompleted();
+    validateMessage(
+        PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR, PSSiteCopyProcessMonitor.IDLE_MSG, true);
+  }
 
-    private void validateDesignator(String designator)
-    {
-        assertEquals(designator, PSMonitorService.getMonitor(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR).getStats().getEntries().get("designator"));
-    }
-    
-    private void validateMessage(String designator, String message, boolean match)
-    {
-        assertEquals(match, message.equals(PSMonitorService.getMonitor(designator).getStats().getEntries().get("message")));
-    }
+  private void validateDesignator(String designator) {
+    assertEquals(
+        designator,
+        PSMonitorService.getMonitor(PSSiteCopyProcessMonitor.MONITOR_DESIGNATOR)
+            .getStats()
+            .getEntries()
+            .get("designator"));
+  }
+
+  private void validateMessage(String designator, String message, boolean match) {
+    assertEquals(
+        match,
+        message.equals(
+            PSMonitorService.getMonitor(designator).getStats().getEntries().get("message")));
+  }
 }

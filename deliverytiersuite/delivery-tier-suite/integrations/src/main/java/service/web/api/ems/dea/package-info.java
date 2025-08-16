@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,5 +15,5 @@
  * limitations under the License.
  */
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://DEA.EMS.API.Web.Service/", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://DEA.EMS.API.Web.Service/", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package service.web.api.ems.dea;

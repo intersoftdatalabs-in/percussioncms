@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,38 +19,36 @@ package com.percussion.auditlog;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class PSUserManagementEvent extends AbstractEvent{
-    //Add any user specific tags here that would be useful to an auditor
+public class PSUserManagementEvent extends AbstractEvent {
+  // Add any user specific tags here that would be useful to an auditor
 
-    public enum UserEventActions{
-        create,
-        update,
-        delete,
-        disable,
-        revoke
-    }
+  public enum UserEventActions {
+    create,
+    update,
+    delete,
+    disable,
+    revoke
+  }
 
-    private UserEventActions action;
+  private UserEventActions action;
 
-    public UserEventActions getAction() {
-        return action;
-    }
+  public UserEventActions getAction() {
+    return action;
+  }
 
-    public void setAction(UserEventActions action) {
-        this.action = action;
-    }
+  public void setAction(UserEventActions action) {
+    this.action = action;
+  }
 
-    public PSUserManagementEvent(
-                                 HttpServletRequest request,
-                                 UserEventActions action,
-                                 PSActionOutcome outcome){
-        super();
+  public PSUserManagementEvent(
+      HttpServletRequest request, UserEventActions action, PSActionOutcome outcome) {
+    super();
 
-        this.setIniatorName(request.getRemoteUser());
-        this.setInitiatorIP(request.getRemoteAddr());
-        this.setTargetName(request.getRemoteUser());
-        this.setAction(action);
-        this.setOutcome(outcome.name());
-        this.setAgentName(request.getHeader("User-Agent"));
-    }
+    this.setIniatorName(request.getRemoteUser());
+    this.setInitiatorIP(request.getRemoteAddr());
+    this.setTargetName(request.getRemoteUser());
+    this.setAction(action);
+    this.setOutcome(outcome.name());
+    this.setAgentName(request.getHeader("User-Agent"));
+  }
 }

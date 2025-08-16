@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.PSUiTestBase;
 import com.percussion.webservices.ui.LoadActionsRequest;
@@ -30,12 +30,12 @@ import com.percussion.webservices.ui.data.PSAction;
 import com.percussion.webservices.ui.data.PSDisplayFormat;
 import com.percussion.webservices.ui.data.PSSearchDef;
 import com.percussion.webservices.ui.data.PSViewDef;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class UiTestCase extends PSUiTestBase
 {
    /**

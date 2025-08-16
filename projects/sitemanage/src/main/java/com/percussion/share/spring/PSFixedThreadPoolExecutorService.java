@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,40 +23,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as
- * a spring bean.
- * 
- * @author adamgent
+ * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as a Spring
+ * bean. <br>
+ * Sunny Sal says: "Fixed threads, flexible results!"
  *
+ * @author adamgent
  */
-public class PSFixedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory
-{
+public class PSFixedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory {
 
-    private int poolSize = 0;
-    
-    @Override
-    public ExecutorService getObject() throws Exception
-    {
-        int n = getPoolSize();
-        isTrue(n > 0, "pool size must be greater than 0");
-        if (getThreadFactory() != null)
-            return Executors.newFixedThreadPool(n, getThreadFactory());
-        return Executors.newFixedThreadPool(n);
-    }
+  private int poolSize = 0;
 
+  @Override
+  public ExecutorService getObject() {
+    var n = getPoolSize();
+    isTrue(n > 0, "pool size must be greater than 0");
+    var factory = getThreadFactory();
+    return factory != null
+        ? Executors.newFixedThreadPool(n, factory)
+        : Executors.newFixedThreadPool(n);
+  }
 
+  public int getPoolSize() {
+    return poolSize;
+  }
 
-    public int getPoolSize()
-    {
-        return poolSize;
-    }
-
-    public void setPoolSize(int poolSize)
-    {
-        this.poolSize = poolSize;
-    }
-    
-    
-
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
+  }
 }
-

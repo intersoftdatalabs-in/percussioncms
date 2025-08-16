@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,23 @@
  */
 package com.percussion.membership.data;
 
-public class PSLoginRequest
-{
-    private String email;
-    private String password;
+public class PSLoginRequest {
+  private String email;
+  private String password;
 
-    public String getEmail()
-    {
-        return email;
-    }
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-    public String getPassword()
-    {
-        return password;
-    }
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,85 +16,73 @@
  */
 package com.percussion.utils.jsr170;
 
+import java.io.InputStream;
+import java.util.Calendar;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
-import java.io.InputStream;
-import java.util.Calendar;
 
 /**
  * Represent a double precision floating point value
- * 
+ *
  * @author dougrand
  */
-public class PSDoubleValue extends PSBaseValue<Double>
-{   
-   /**
-    * Ctor
-    * @param number any number, never <code>null</code>
-    */
-   public PSDoubleValue(Number number) {
-      if (number == null)
-      {
-         throw new IllegalArgumentException("number may not be null");
-      }
-      m_value = number.doubleValue();
-   }
+public class PSDoubleValue extends PSBaseValue<Double> {
+  /**
+   * Ctor
+   *
+   * @param number any number, never <code>null</code>
+   */
+  public PSDoubleValue(Number number) {
+    if (number == null) {
+      throw new IllegalArgumentException("number may not be null");
+    }
+    m_value = number.doubleValue();
+  }
 
-   /**
-    * Ctor
-    * @param value must be valid number
-    * @throws ValueFormatException if invalid numeric format
-    */
-   public PSDoubleValue(String value) throws ValueFormatException {
-      try
-      {
-         m_value = Double.parseDouble(value);
-      }
-      catch (NumberFormatException e)
-      {
-         throw new ValueFormatException(e);
-      }
-   }
+  /**
+   * Ctor
+   *
+   * @param value must be valid number
+   * @throws ValueFormatException if invalid numeric format
+   */
+  public PSDoubleValue(String value) throws ValueFormatException {
+    try {
+      m_value = Double.parseDouble(value);
+    } catch (NumberFormatException e) {
+      throw new ValueFormatException(e);
+    }
+  }
 
-   public String getString() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return m_value.toString();
-   }
+  public String getString()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return m_value.toString();
+  }
 
-   public InputStream getStream() throws IllegalStateException,
-         RepositoryException
-   {
-      return PSValueConverter.convertToStream(getString());
-   }
+  public InputStream getStream() throws IllegalStateException, RepositoryException {
+    return PSValueConverter.convertToStream(getString());
+  }
 
-   public long getLong() throws ValueFormatException, IllegalStateException,
-         RepositoryException
-   {
-      return m_value.longValue();
-   }
+  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
+    return m_value.longValue();
+  }
 
-   public double getDouble() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return m_value;
-   }
+  public double getDouble()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return m_value;
+  }
 
-   public Calendar getDate() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return PSValueConverter.convertToCalendar(getLong());
-   }
+  public Calendar getDate()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return PSValueConverter.convertToCalendar(getLong());
+  }
 
-   public boolean getBoolean() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("Unsupported conversion");
-   }
+  public boolean getBoolean()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("Unsupported conversion");
+  }
 
-   public int getType()
-   {
-      return PropertyType.DOUBLE;
-   }    
+  public int getType() {
+    return PropertyType.DOUBLE;
+  }
 }

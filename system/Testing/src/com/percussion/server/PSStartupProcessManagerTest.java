@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.server;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
@@ -27,17 +27,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.io.IOUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 /**
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSStartupProcessManagerTest
 {
    private static final String YES = "yes";

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,53 +18,61 @@
 package com.percussion.rest.contentlists;
 
 import com.percussion.rest.extensions.Extension;
-
 import java.util.List;
 
+/** Adaptor interface for Content List operations. */
 public interface IContentListsAdaptor {
-	
-	/***
-	 * Get a list of available ContentListGenerators on the system.
-	 * @return A list of ContentListGenerators
-	 */
-	public List<Extension> getContentListGenerators();
-	
-	/***
-	 * Get a list of available TemplateExpanders on the system.
-	 * @return
-	 */
-	public List<Extension> getTemplateExpanders();
-	
-	/***
-	 * Get  a list of content lists for the specified edition.
-	 * @param editionId
-	 * @return
-	 */
-	public List<ContentList> getContentListsByEditionId(long editionId);
-	
-	/***
-	 * Get a list of content lists that are currently unused.
-	 * @return
-	 */
-	public List<ContentList> getUnusedContentLists(long siteId);
-	
-	/***
-	 * Create or update a ContentList
-	 * @param cl
-	 * @return The updated content list
-	 */
-	public ContentList createOrUpdateContentList(ContentList cl);
-	
-	/***
-	 * Delete the specified content list.
-	 * @param id
-	 */
-	public void deleteContentList(long id);
 
-	/***
-	 * Gets a content list by id.
-	 * @param id  Unique identifier for a content list.
-	 * @return The content list
-	 */
-	public ContentList getContentListById(long id);
+  /**
+   * Get a list of available ContentListGenerators on the system.
+   *
+   * @return A list of ContentListGenerators
+   */
+  List<Extension> getContentListGenerators();
+
+  /**
+   * Get a list of available TemplateExpanders on the system.
+   *
+   * @return A list of TemplateExpanders
+   */
+  List<Extension> getTemplateExpanders();
+
+  /**
+   * Get a list of content lists for the specified edition.
+   *
+   * @param editionId The edition id
+   * @return List of ContentLists
+   */
+  List<ContentList> getContentListsByEditionId(long editionId);
+
+  /**
+   * Get a list of content lists that are currently unused.
+   *
+   * @param siteId The site id
+   * @return List of unused ContentLists
+   */
+  List<ContentList> getUnusedContentLists(long siteId);
+
+  /**
+   * Create or update a ContentList.
+   *
+   * @param cl The ContentList to create or update
+   * @return The updated content list
+   */
+  ContentList createOrUpdateContentList(ContentList cl);
+
+  /**
+   * Delete the specified content list.
+   *
+   * @param id The id of the ContentList to delete. Must exist.
+   */
+  void deleteContentList(long id);
+
+  /**
+   * Gets a content list by id.
+   *
+   * @param id Unique identifier for a content list.
+   * @return The content list
+   */
+  ContentList getContentListById(long id);
 }

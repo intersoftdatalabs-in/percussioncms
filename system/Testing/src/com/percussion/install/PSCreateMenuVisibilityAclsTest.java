@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@ package com.percussion.install;
 
 import com.percussion.testing.PSAbstractSpringContextTest;
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 
 /**
  * Test menu visibility acl install plugin
  * 
  * @author dougrand
  */
-@Category({IntegrationTest.class, SpringContextTest.class})
-@RunWith(SpringJUnit4ClassRunner.class)
-@IgnoreInWebAppSpringContext
+@Tag({IntegrationTest.class, SpringContextTest.class})
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
+@DisabledInWebAppSpringContext
 public class PSCreateMenuVisibilityAclsTest extends PSAbstractSpringContextTest
 {
    /**

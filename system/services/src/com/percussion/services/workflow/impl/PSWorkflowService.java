@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import com.percussion.services.workflow.data.PSTransitionBase;
 import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.workflow.PSWorkFlowUtils;
 import org.apache.commons.lang.StringUtils;
