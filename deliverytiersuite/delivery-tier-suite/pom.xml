@@ -219,8 +219,8 @@
                         <artifactId>guice</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>jakarta.xml.bind</groupId>
-                        <artifactId>jakarta.xml.bind-api</artifactId>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

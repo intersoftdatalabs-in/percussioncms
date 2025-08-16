@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;

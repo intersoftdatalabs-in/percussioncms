@@ -17,10 +17,10 @@
 
 package com.percussion.guitools;
 
-import javax.swing.event.TableModelEvent; // TODO: JAVAX-11
-import javax.swing.event.TableModelListener; // TODO: JAVAX-11
-import javax.swing.table.AbstractTableModel; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 /** 
  * This class provides most of the common behaviour of a table model by routing 

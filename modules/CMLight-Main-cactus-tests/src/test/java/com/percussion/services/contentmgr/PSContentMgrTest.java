@@ -25,9 +25,9 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.junit.experimental.categories.Category;
 
-import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

@@ -24,8 +24,8 @@ import com.percussion.contentmigration.service.impl.PSMigrateContentResponse.PSM
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

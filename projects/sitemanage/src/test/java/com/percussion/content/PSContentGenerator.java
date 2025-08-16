@@ -57,9 +57,9 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 /**
  * This class takes an xml file that conforms to the CM1DataDef schema and

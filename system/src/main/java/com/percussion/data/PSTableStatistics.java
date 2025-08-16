@@ -23,7 +23,7 @@ import com.percussion.util.PSSQLStatement;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

@@ -30,10 +30,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-import javax.imageio.ImageIO; // TODO: JAVAX-11
-import javax.imageio.ImageReader; // TODO: JAVAX-11
-import javax.imageio.ImageWriter; // TODO: JAVAX-11
-import javax.imageio.stream.ImageInputStream; // TODO: JAVAX-11
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

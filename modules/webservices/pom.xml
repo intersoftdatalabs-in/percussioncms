@@ -116,13 +116,13 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>jakarta.mail</groupId>
+                        <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
                         <version>1.4.1</version>
                     </dependency>
                     <dependency>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
                         <version>1.1</version>
                     </dependency>
                     <dependency>
@@ -136,8 +136,8 @@
                         <version>1.1</version>
                     </dependency>
                     <dependency>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
                         <version>1.1</version>
                     </dependency>
                     <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->

@@ -31,9 +31,9 @@ import java.time.LocalDateTime;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

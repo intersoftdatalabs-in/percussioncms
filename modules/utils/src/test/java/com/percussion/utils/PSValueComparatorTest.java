@@ -20,8 +20,8 @@ import com.percussion.utils.jsr170.PSValueComparator;
 import com.percussion.utils.jsr170.PSValueFactory;
 import junit.framework.TestCase;
 
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;

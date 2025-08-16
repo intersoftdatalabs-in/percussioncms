@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Session; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
-import javax.jcr.query.Query; // TODO: JAVAX-11
-import javax.jcr.query.QueryManager; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
 
 /**
  * The content manager allows the loading of content items by either GUID or

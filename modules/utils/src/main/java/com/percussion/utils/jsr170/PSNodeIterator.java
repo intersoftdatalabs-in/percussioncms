@@ -19,8 +19,8 @@ package com.percussion.utils.jsr170;
 
 import org.apache.commons.collections4.MultiValuedMap;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import java.util.Map;
 
 /**

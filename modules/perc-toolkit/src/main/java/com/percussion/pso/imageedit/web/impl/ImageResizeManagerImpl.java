@@ -22,11 +22,11 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.IIOImage; // TODO: JAVAX-11
-import javax.imageio.ImageIO; // TODO: JAVAX-11
-import javax.imageio.ImageWriteParam; // TODO: JAVAX-11
-import javax.imageio.ImageWriter; // TODO: JAVAX-11
-import javax.imageio.stream.MemoryCacheImageOutputStream; // TODO: JAVAX-11
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

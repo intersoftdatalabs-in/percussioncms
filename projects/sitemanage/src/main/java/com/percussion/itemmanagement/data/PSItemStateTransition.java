@@ -21,7 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * The class contains the workflow state and all possible transitions for an item.

@@ -30,8 +30,8 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
 
 import static com.percussion.util.PSSqlHelper.qualifyTableName;

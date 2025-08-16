@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.logging.log4j.LogManager;

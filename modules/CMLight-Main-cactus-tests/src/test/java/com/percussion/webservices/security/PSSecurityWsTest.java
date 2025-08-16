@@ -25,7 +25,7 @@ import com.percussion.utils.request.PSRequestInfo;
 
 import java.security.Principal;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;

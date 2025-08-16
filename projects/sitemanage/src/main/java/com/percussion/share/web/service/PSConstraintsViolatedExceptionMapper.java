@@ -25,9 +25,9 @@ import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.exception.ConstraintsViolatedException;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
 
 @Provider

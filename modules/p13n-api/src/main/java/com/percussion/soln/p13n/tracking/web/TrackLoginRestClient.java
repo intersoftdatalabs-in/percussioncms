@@ -19,8 +19,8 @@ package com.percussion.soln.p13n.tracking.web;
 
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.percussion.soln.p13n.tracking.VisitorTrackingResponse;
 

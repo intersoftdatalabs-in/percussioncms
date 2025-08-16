@@ -17,10 +17,10 @@
 package com.percussion.border;
 
 import com.percussion.cx.PSDisplayOptions;
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.AbstractBorder; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.CompoundBorder; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import java.awt.*;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;

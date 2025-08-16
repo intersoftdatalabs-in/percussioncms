@@ -21,21 +21,21 @@ import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.utils.collections.PSIteratorUtils;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JSplitPane; // TODO: JAVAX-11
-import javax.swing.JTree; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.event.TreeExpansionEvent; // TODO: JAVAX-11
-import javax.swing.event.TreeSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.TreeSelectionListener; // TODO: JAVAX-11
-import javax.swing.event.TreeWillExpandListener; // TODO: JAVAX-11
-import javax.swing.tree.DefaultMutableTreeNode; // TODO: JAVAX-11
-import javax.swing.tree.ExpandVetoException; // TODO: JAVAX-11
-import javax.swing.tree.TreePath; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeWillExpandListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;

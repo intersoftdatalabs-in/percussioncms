@@ -23,7 +23,7 @@ import com.percussion.services.publisher.data.PSContentListItem;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.query.QueryResult;
 
 /**
  * A template expander takes a content guid and returns zero or more template

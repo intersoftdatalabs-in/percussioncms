@@ -17,7 +17,7 @@
 
 package com.percussion.ImageListControl;
 
-import javax.swing.ImageIcon; // TODO: JAVAX-11
+import javax.swing.ImageIcon;
 
 /** The property class of ImageListControl.  This class contains the ImageIcon
   * object and a String to be used in the ImageListControlRenderer.

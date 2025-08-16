@@ -27,7 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;

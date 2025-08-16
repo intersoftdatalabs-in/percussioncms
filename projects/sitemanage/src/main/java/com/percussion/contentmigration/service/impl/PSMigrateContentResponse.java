@@ -19,7 +19,7 @@ package com.percussion.contentmigration.service.impl;
 
 import java.util.Map;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="MigrateResponse")
 public class PSMigrateContentResponse

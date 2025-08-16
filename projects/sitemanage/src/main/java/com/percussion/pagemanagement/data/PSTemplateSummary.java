@@ -17,7 +17,7 @@
 
 package com.percussion.pagemanagement.data;
 
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

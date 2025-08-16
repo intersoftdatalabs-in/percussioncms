@@ -25,8 +25,8 @@ import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
 import org.xml.sax.InputSource;
 
-import javax.xml.transform.Source; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
 
 import static com.percussion.security.xml.PSSecureXMLUtils.getNoOpSource;
 

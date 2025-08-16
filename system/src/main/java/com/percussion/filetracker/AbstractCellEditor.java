@@ -17,10 +17,10 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.event.CellEditorListener; // TODO: JAVAX-11
-import javax.swing.event.ChangeEvent; // TODO: JAVAX-11
-import javax.swing.event.EventListenerList; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
 import java.util.EventObject;
 
 

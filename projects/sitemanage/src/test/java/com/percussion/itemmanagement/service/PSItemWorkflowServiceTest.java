@@ -49,7 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import javax.security.auth.login.LoginException;
 
 public class PSItemWorkflowServiceTest extends PSItemWorkflowServiceTestBase
 {

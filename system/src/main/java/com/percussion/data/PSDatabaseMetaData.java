@@ -26,7 +26,7 @@ import com.percussion.utils.jdbc.PSConnectionInfo;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.tools.PSPatternMatcher;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

@@ -27,9 +27,9 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeTypeIterator; // TODO: JAVAX-11
-import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
+import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -16,9 +16,9 @@
  */
 package com.percussion.services.utils.jsf;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.convert.Converter;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
 
 /**
  * Converts to/from enums.

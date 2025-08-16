@@ -21,7 +21,7 @@ import com.percussion.webservices.security.data.PSLocale;
 import com.percussion.webservices.security.data.PSLogin;
 import org.apache.log4j.Logger;
 
-import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.FocusAdapter;

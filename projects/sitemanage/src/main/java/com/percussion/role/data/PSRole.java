@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.configuration.annotation.IsInvariant;
 import net.sf.oval.constraint.Length;

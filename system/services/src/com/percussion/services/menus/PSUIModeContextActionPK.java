@@ -17,8 +17,8 @@
 
 package com.percussion.services.menus;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
+import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
 import java.io.Serializable;
 import java.util.Objects;
 

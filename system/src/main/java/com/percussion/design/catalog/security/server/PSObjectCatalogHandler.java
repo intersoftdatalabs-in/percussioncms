@@ -32,7 +32,7 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Node;
 
 /**
  * Each unit of work to be assembled is represented by an assembly item. The

@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import jakarta.servlet.http.HttpServletRequest;
-import javax.xml.soap.SOAPException; // TODO: JAVAX-11
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.soap.SOAPException;
 
 import org.w3c.dom.Document;
 

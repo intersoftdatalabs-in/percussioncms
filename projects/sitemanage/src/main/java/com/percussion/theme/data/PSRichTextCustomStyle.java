@@ -21,7 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.io.Serializable;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Data object for rich text custom styles.

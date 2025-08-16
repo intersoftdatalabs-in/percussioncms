@@ -17,7 +17,7 @@
 
 package com.percussion.UTComponents;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 

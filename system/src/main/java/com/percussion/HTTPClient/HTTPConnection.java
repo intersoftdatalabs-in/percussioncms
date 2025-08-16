@@ -17,8 +17,8 @@
 
 package com.percussion.HTTPClient;
 
-import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.security.cert.X509Certificate;
 import java.applet.Applet;
 import java.io.ByteArrayOutputStream;

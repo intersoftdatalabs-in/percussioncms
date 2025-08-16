@@ -16,7 +16,7 @@
  */
 package com.percussion.share.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 
 import static java.util.Arrays.asList;

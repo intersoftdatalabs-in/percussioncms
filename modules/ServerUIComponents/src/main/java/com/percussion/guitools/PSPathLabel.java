@@ -18,7 +18,7 @@ package com.percussion.guitools;
 
 import com.percussion.utils.string.PSStringUtils;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;

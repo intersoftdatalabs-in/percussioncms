@@ -21,11 +21,11 @@ import com.percussion.design.objectstore.PSDirectory;
 import com.percussion.error.PSRuntimeException;
 import org.apache.commons.lang.StringUtils;
 
-import javax.naming.CommunicationException; // TODO: JAVAX-11
-import javax.naming.Context; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.InitialDirContext; // TODO: JAVAX-11
+import javax.naming.CommunicationException;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;

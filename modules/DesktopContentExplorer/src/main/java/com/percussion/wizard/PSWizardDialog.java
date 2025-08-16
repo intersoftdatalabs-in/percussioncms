@@ -20,7 +20,7 @@ import com.percussion.cx.PSContentExplorerApplet;
 import com.percussion.guitools.ErrorDialogs;
 import com.percussion.guitools.PSDialog;
 
-import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;

@@ -21,8 +21,8 @@ import com.percussion.cms.IPSConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.transform.ErrorListener; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.TransformerException;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Writer;

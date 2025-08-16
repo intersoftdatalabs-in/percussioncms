@@ -22,7 +22,7 @@ package com.percussion.pagemanagement.assembler;
 
 import net.sf.json.JSONException;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

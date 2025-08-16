@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException;
 import java.beans.IntrospectionException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

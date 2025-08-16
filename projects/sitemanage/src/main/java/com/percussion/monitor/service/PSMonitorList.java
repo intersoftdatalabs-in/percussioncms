@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement

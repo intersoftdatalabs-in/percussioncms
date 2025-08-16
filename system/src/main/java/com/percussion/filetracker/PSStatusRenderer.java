@@ -17,8 +17,8 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.tree.DefaultTreeCellRenderer; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 import java.net.URL;
 

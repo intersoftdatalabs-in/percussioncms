@@ -17,12 +17,12 @@
 package com.percussion.guitools;
 
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

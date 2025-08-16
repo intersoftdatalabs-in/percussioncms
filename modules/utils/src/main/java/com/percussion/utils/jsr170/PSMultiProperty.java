@@ -24,22 +24,22 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.jcr.AccessDeniedException; // TODO: JAVAX-11
-import javax.jcr.Item; // TODO: JAVAX-11
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.ItemVisitor; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Session; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
-import javax.jcr.lock.LockException; // TODO: JAVAX-11
-import javax.jcr.nodetype.ConstraintViolationException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
-import javax.jcr.version.VersionException; // TODO: JAVAX-11
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Item;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.ItemVisitor;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
+import javax.jcr.version.VersionException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;

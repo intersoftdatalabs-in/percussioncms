@@ -20,9 +20,9 @@ package com.percussion.cx;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSMenuBar;
 
-import javax.swing.JMenu; // TODO: JAVAX-11
-import javax.swing.JMenuBar; // TODO: JAVAX-11
-import javax.swing.JPopupMenu; // TODO: JAVAX-11
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JPopupMenu;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

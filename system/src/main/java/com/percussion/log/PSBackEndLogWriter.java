@@ -20,7 +20,7 @@ package com.percussion.log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.util.Date;
 
 /**

@@ -18,7 +18,7 @@ package com.percussion.soln.utilities.rx.jexl;
 
 import java.util.Map;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

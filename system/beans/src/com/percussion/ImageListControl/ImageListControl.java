@@ -25,16 +25,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
-import javax.swing.Box; // TODO: JAVAX-11
-import javax.swing.BoxLayout; // TODO: JAVAX-11
-import javax.swing.ImageIcon; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JViewport; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.border.BevelBorder; // TODO: JAVAX-11
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 
 /** This class creates a panel with a horizontal list of images and labels,
   * scrollable by a button on each side of the panel.  A custom renderer is

@@ -30,8 +30,8 @@ import com.percussion.webservices.security.SecuritySOAPStub;
 import com.percussion.webservices.system.SystemSOAPStub;
 import org.apache.axis.attachments.AttachmentPart;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.URLDataSource;
+import javax.activation.DataHandler;
+import javax.activation.URLDataSource;
 import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.io.InputStream;

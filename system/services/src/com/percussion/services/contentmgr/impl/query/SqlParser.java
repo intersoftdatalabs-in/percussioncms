@@ -41,7 +41,7 @@ import com.percussion.utils.types.PSPair;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.query.Query; // TODO: JAVAX-11
+import javax.jcr.query.Query;
 
 public class SqlParser extends antlr.LLkParser implements SqlTokenTypes
 {

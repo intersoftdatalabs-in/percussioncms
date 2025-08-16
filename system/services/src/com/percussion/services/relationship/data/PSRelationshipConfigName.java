@@ -21,12 +21,12 @@ import com.percussion.cms.IPSConstants;
 import java.io.Serializable;
 
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Entity;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

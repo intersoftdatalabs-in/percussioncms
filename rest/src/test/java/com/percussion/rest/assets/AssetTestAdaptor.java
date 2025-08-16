@@ -21,7 +21,7 @@ import com.percussion.rest.Status;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;

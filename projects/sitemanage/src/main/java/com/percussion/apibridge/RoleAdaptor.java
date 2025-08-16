@@ -28,7 +28,7 @@ import com.percussion.util.PSSiteManageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;

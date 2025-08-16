@@ -25,15 +25,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.swing.JDialog; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JPopupMenu; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.tree.TreeNode; // TODO: JAVAX-11
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.tree.TreeNode;
 import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -29,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.Value;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;

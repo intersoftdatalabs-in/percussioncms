@@ -34,7 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.NotFoundException;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 
 @PSSiteManageBean

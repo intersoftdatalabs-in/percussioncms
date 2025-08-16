@@ -35,7 +35,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

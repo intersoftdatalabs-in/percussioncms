@@ -17,7 +17,7 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 
 /**
  * This class adds storage for the mnemonic letter and accelerator keys used 

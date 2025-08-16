@@ -24,17 +24,17 @@ import com.percussion.guitools.PSDialog;
 import com.percussion.guitools.PSPropertyPanel;
 import com.percussion.guitools.UTStandardCommandPanel;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.Box; // TODO: JAVAX-11
-import javax.swing.BoxLayout; // TODO: JAVAX-11
-import javax.swing.JCheckBox; // TODO: JAVAX-11
-import javax.swing.JColorChooser; // TODO: JAVAX-11
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.border.EtchedBorder; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

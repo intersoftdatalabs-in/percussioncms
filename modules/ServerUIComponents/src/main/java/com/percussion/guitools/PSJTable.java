@@ -23,11 +23,11 @@
  */
 package com.percussion.guitools;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.table.TableColumn; // TODO: JAVAX-11
-import javax.swing.table.TableColumnModel; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import java.util.Vector;
 
 /**

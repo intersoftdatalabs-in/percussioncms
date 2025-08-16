@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;

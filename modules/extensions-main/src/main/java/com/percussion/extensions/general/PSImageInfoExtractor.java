@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.imageio.ImageIO; // TODO: JAVAX-11
+import javax.imageio.ImageIO;
 
 /**
  * This class is a Rhythmyx pre-exit which examines the incoming HTML

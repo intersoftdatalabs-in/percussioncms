@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.multitenant;
 
-import jakarta.servlet.ServletRequest;
+import javax.servlet.ServletRequest;
 
 /**
  * Defines a simple cache for storing tenant data

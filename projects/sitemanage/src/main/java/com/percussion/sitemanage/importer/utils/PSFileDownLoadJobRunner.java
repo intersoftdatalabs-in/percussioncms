@@ -30,7 +30,7 @@ import com.percussion.utils.types.PSPair;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 
-import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
+import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;

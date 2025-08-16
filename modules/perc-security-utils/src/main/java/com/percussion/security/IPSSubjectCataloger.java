@@ -20,7 +20,7 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 
 /**
  * A subject cataloger is used by Rhythmyx to find any or all subjects from a

@@ -33,14 +33,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
-import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
-import javax.xml.transform.sax.SAXSource; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;

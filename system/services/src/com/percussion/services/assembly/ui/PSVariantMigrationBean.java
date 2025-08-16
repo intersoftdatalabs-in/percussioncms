@@ -64,7 +64,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;

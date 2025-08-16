@@ -20,8 +20,8 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "DashboardConfig")
 @XmlType(name = "", propOrder = {

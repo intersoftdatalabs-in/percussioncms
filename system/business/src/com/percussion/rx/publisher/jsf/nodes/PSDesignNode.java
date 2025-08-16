@@ -26,7 +26,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.faces.model.SelectItem;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 

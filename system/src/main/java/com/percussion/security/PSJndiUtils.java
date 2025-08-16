@@ -32,13 +32,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 
-import javax.naming.CompoundName; // TODO: JAVAX-11
-import javax.naming.Context; // TODO: JAVAX-11
-import javax.naming.InvalidNameException; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.InitialDirContext; // TODO: JAVAX-11
-import javax.naming.directory.SearchControls; // TODO: JAVAX-11
+import javax.naming.CompoundName;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;

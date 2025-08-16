@@ -21,8 +21,8 @@ import com.percussion.webdav.PSWebdavStatus;
 import com.percussion.webdav.error.IPSWebdavErrors;
 import com.percussion.webdav.error.PSWebdavException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The factory for creating various WebDAV Method implementations.

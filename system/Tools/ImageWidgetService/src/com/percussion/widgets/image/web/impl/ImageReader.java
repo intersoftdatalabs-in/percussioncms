@@ -28,7 +28,7 @@ import org.apache.commons.imaging.formats.jpeg.segments.UnknownSegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO; // TODO: JAVAX-11
+import javax.imageio.ImageIO;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;

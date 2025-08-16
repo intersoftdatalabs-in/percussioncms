@@ -59,11 +59,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import jakarta.servlet.http.HttpServletRequest;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

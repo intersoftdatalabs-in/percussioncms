@@ -37,12 +37,12 @@ import service.web.api.ems.dea.ArrayOfInt;
 import service.web.api.ems.dea.Service;
 import service.web.api.ems.dea.ServiceSoap;
 
-import javax.xml.datatype.DatatypeConfigurationException; // TODO: JAVAX-11
-import javax.xml.datatype.DatatypeFactory; // TODO: JAVAX-11
-import javax.xml.datatype.XMLGregorianCalendar; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;

@@ -22,8 +22,8 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeTypeManager; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NodeTypeManager;
 
 /**
  * This interface allows the interrogation and modification of the information

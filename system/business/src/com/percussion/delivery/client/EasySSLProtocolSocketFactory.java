@@ -25,12 +25,12 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import javax.net.SocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.HandshakeCompletedEvent; // TODO: JAVAX-11
-import javax.net.ssl.HandshakeCompletedListener; // TODO: JAVAX-11
-import javax.net.ssl.SSLContext; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
-import javax.net.ssl.TrustManager; // TODO: JAVAX-11
+import javax.net.SocketFactory;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;

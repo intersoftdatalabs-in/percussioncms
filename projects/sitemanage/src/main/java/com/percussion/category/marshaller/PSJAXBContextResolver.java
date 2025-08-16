@@ -31,8 +31,8 @@ import com.percussion.util.PSSiteManageBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.ws.rs.ext.ContextResolver;
-import jakarta.xml.bind.JAXBException;
+import javax.ws.rs.ext.ContextResolver;
+import javax.xml.bind.JAXBException;
 
 @PSSiteManageBean("categoryContextResolver")
 public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {

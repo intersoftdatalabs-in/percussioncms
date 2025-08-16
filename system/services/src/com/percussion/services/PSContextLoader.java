@@ -30,7 +30,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
-import jakarta.servlet.ServletContext;
+import javax.servlet.ServletContext;
 
 /**
  * 

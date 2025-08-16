@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Node;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.share.service.IPSLinkableItem;

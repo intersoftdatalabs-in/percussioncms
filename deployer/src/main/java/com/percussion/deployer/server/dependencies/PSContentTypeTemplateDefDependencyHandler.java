@@ -33,7 +33,7 @@ import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;

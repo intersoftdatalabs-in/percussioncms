@@ -49,8 +49,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;

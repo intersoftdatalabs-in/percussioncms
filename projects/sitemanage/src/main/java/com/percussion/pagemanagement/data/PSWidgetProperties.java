@@ -20,8 +20,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;

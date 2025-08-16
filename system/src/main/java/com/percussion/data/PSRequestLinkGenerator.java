@@ -46,7 +46,7 @@ import com.percussion.server.PSServer;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSURLEncoder;
 
-import jakarta.servlet.ServletRequest;
+import javax.servlet.ServletRequest;
 import java.util.ArrayList;
 
 /**

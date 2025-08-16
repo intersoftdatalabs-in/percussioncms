@@ -34,9 +34,9 @@ import com.percussion.utils.security.PSRemoteUserCallback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.callback.Callback; // TODO: JAVAX-11
-import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
-import javax.security.auth.callback.UnsupportedCallbackException; // TODO: JAVAX-11
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

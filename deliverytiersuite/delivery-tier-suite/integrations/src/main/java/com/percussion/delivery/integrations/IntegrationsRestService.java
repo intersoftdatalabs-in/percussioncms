@@ -19,12 +19,12 @@ package com.percussion.delivery.integrations;
 
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.HEAD;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Context;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 
 @Path("/integrations")
 @Component

@@ -26,7 +26,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.PSFilterException;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 import java.util.List;
 import java.util.Map;
 

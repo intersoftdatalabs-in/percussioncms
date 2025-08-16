@@ -19,7 +19,7 @@ package com.percussion.widgetbuilder.data;
 
 import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;

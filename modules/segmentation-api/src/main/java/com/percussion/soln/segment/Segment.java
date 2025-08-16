@@ -20,7 +20,7 @@ package com.percussion.soln.segment;
 import java.io.Serializable;
 import java.util.Set;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.StandardToStringStyle;

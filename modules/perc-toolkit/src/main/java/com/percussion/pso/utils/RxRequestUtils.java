@@ -21,7 +21,7 @@
  *
  */
 package com.percussion.pso.utils;
-import jakarta.servlet.ServletRequest;
+import javax.servlet.ServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.percussion.server.IPSRequestContext;

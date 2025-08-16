@@ -20,7 +20,7 @@ package com.percussion.data;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.error.PSIllegalArgumentException;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.SQLException;
 
 /**

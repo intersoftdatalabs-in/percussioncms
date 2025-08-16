@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import com.percussion.pagemanagement.data.PSWidgetProperties.PSWidgetProperty;
 import com.percussion.share.dao.PSSerializerUtils;

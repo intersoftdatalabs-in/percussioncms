@@ -19,7 +19,7 @@ package com.percussion.services.guidmgr;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
-import jakarta.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Find the guid manager service

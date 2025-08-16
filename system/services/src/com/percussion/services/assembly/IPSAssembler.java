@@ -22,8 +22,8 @@ import com.percussion.services.filter.PSFilterException;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.RepositoryException;
 
 /**
  * Assembles the given items into results for preview or publishing. The type of

@@ -16,10 +16,10 @@
  */
 package com.percussion.guitools;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

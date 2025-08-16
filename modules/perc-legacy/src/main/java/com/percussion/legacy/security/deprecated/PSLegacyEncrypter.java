@@ -26,8 +26,8 @@ import com.percussion.security.PSEncryptor;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.crypto.Cipher; // TODO: JAVAX-11
-import javax.crypto.spec.SecretKeySpec; // TODO: JAVAX-11
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;

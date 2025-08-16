@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Blob;

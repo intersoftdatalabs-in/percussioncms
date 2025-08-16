@@ -23,9 +23,9 @@ import com.percussion.rest.Status;
 import com.percussion.rest.errors.RestError;
 import com.percussion.rest.errors.RestErrorCode;
 
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Test;

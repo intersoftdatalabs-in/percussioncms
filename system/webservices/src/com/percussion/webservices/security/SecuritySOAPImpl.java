@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
-import jakarta.servlet.ServletException;
+import javax.security.auth.login.LoginException;
+import javax.servlet.ServletException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 

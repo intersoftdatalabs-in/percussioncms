@@ -23,7 +23,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.impl.finder.PSNavFinderUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

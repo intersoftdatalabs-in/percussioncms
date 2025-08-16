@@ -21,26 +21,26 @@ import com.percussion.guitools.ErrorDialogs;
 import com.percussion.guitools.PSDialog;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 
-import javax.swing.AbstractAction; // TODO: JAVAX-11
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JMenuItem; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JPopupMenu; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTable; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
-import javax.swing.KeyStroke; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableCellRenderer; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

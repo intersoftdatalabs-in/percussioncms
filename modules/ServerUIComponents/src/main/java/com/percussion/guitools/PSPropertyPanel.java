@@ -19,7 +19,7 @@ package com.percussion.guitools;
 
 import com.percussion.layout.PSGridBoxLayout;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;

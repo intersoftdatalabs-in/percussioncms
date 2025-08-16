@@ -22,15 +22,15 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.crypto.Cipher; // TODO: JAVAX-11
-import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
-import javax.net.ssl.SSLContext; // TODO: JAVAX-11
-import javax.net.ssl.SSLPeerUnverifiedException; // TODO: JAVAX-11
-import javax.net.ssl.SSLServerSocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.SSLSession; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.TrustManager; // TODO: JAVAX-11
+import javax.crypto.Cipher;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;

@@ -19,7 +19,7 @@ package com.percussion.services.contentmgr.impl.query.nodes;
 import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor;
 import com.percussion.utils.jsr170.PSStringEncoder;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.lang.StringUtils;
 

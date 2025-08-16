@@ -24,13 +24,13 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.io.Serializable;
 
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.ListCellRenderer; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 /** The renderer that uses the data within the ImageListControlModel and
   * prepares the data to be displayed onscreen as a GUI component.

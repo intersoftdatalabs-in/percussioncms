@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
-import javax.jcr.query.Query; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.RowIterator;
 
 import org.apache.commons.lang.StringUtils;
 

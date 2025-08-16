@@ -37,9 +37,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;

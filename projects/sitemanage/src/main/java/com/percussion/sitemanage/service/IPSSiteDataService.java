@@ -31,8 +31,8 @@ import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.sitemanage.data.*;
 import com.percussion.sitemanage.error.PSSiteImportException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.Context;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.util.List;
 

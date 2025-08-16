@@ -28,8 +28,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.OutputKeys; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

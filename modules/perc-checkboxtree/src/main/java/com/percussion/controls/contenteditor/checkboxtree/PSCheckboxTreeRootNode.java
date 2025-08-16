@@ -20,8 +20,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.swing.tree.DefaultMutableTreeNode; // TODO: JAVAX-11
-import javax.swing.tree.MutableTreeNode; // TODO: JAVAX-11
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 
 /**
  * The root node of the tree. This node has no checkbox, only a label. It 

@@ -17,7 +17,7 @@
 
 package com.percussion.cookieconsent.service;
 
-import jakarta.ws.rs.PathParam;
+import javax.ws.rs.PathParam;
 
 /**
  * Service to interface with cookie consent

@@ -22,7 +22,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.StringValueResolver;
 
-import jakarta.annotation.Nonnull;
+import javax.annotation.Nonnull;
 
 /**
  * @author erikserating

@@ -20,11 +20,11 @@ package com.percussion.services.contentmgr.impl.jsrdata;
 import com.percussion.services.contentmgr.data.PSContentNode;
 import com.percussion.utils.jsr170.PSProperty;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.PropertyIterator; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

@@ -35,20 +35,20 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
-import javax.xml.parsers.SAXParser; // TODO: JAVAX-11
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result; // TODO: JAVAX-11
-import javax.xml.transform.Source; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

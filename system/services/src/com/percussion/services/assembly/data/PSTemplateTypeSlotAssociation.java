@@ -21,7 +21,7 @@ import com.percussion.utils.guid.IPSGuid;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 

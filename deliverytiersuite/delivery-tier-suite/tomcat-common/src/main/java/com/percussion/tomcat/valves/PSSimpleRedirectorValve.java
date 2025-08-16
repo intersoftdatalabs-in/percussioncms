@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;

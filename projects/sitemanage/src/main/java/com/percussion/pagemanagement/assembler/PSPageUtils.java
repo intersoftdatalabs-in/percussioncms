@@ -126,12 +126,12 @@ import org.jdom2.input.SAXBuilder;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.xml.XMLConstants;
 import java.io.File;
 import java.io.IOException;

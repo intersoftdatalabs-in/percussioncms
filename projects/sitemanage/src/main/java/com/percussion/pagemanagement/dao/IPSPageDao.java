@@ -18,7 +18,7 @@ package com.percussion.pagemanagement.dao;
 
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSPageSummary;

@@ -18,9 +18,9 @@ package com.percussion.guitools;
 
 import com.percussion.cms.objectstore.PSObjectAclEntry;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  * This class implements the method to set appropriate accessible name upon 

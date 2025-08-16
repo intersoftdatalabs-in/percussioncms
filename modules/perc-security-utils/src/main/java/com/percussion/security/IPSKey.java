@@ -17,7 +17,7 @@
 
 package com.percussion.security;
 
-import javax.crypto.SecretKey; // TODO: JAVAX-11
+import javax.crypto.SecretKey;
 
 /**
  * IPSKey is a transparent interface for encryption/decryption

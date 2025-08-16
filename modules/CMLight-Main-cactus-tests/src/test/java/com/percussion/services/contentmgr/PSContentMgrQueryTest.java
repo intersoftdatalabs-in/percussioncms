@@ -16,12 +16,12 @@
  */
 package com.percussion.services.contentmgr;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.query.Query; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;

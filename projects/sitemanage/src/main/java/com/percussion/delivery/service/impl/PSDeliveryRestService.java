@@ -18,7 +18,7 @@ package com.percussion.delivery.service.impl;
 
 import com.percussion.util.PSSiteManageBean;
 
-import jakarta.ws.rs.Path;
+import javax.ws.rs.Path;
 
 /**
  * @author peterfrontiero

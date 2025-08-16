@@ -20,9 +20,9 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 
-import javax.swing.text.BadLocationException; // TODO: JAVAX-11
-import javax.swing.text.DefaultStyledDocument; // TODO: JAVAX-11
-import javax.swing.text.rtf.RTFEditorKit; // TODO: JAVAX-11
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.rtf.RTFEditorKit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

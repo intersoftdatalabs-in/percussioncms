@@ -27,10 +27,10 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.swing.JDialog; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import java.awt.Window;
 import java.net.CookieHandler;
 import java.net.CookieManager;

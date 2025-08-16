@@ -33,8 +33,8 @@ import org.hibernate.Session;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;

@@ -138,9 +138,9 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.FileDataSource;
-import javax.xml.soap.SOAPException; // TODO: JAVAX-11
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.xml.soap.SOAPException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;

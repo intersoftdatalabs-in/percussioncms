@@ -62,8 +62,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;

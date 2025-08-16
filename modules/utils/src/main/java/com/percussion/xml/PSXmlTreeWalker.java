@@ -30,12 +30,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-import javax.xml.transform.OutputKeys; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

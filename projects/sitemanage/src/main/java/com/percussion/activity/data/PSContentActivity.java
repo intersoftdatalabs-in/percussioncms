@@ -17,7 +17,7 @@
 
 package com.percussion.activity.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import org.apache.commons.lang.StringUtils;

@@ -25,10 +25,10 @@ package com.percussion.pso.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

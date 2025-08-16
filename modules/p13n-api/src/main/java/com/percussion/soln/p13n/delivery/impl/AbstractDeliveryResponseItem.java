@@ -20,7 +20,7 @@ package com.percussion.soln.p13n.delivery.impl;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import com.percussion.soln.p13n.delivery.IDeliveryResponseItem;
 import com.percussion.soln.p13n.delivery.IDeliveryProperty;

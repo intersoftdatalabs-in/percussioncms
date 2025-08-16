@@ -18,7 +18,7 @@ package com.percussion.utils.data;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author miltonpividori

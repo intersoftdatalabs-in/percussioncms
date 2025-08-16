@@ -18,7 +18,7 @@ package com.percussion.services.contentmgr.impl.query.nodes;
 
 import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * This query node represents a conjunction condition. It may join two other

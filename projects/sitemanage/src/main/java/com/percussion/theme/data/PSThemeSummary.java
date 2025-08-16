@@ -17,7 +17,7 @@
 
 package com.percussion.theme.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * The summary information of a Theme

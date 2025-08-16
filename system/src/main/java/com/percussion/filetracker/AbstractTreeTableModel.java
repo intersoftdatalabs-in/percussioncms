@@ -17,10 +17,10 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.event.EventListenerList; // TODO: JAVAX-11
-import javax.swing.event.TreeModelEvent; // TODO: JAVAX-11
-import javax.swing.event.TreeModelListener; // TODO: JAVAX-11
-import javax.swing.tree.TreePath; // TODO: JAVAX-11
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreePath;
 
 /**
  * An abstract implementation of the PSFUDTreeTableModel interface, handling

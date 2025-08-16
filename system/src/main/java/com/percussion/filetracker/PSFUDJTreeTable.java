@@ -17,12 +17,12 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
-import javax.swing.tree.DefaultTreeSelectionModel; // TODO: JAVAX-11
-import javax.swing.tree.TreeModel; // TODO: JAVAX-11
-import javax.swing.tree.TreePath; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
 

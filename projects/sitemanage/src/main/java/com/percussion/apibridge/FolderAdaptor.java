@@ -101,7 +101,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 
-import jakarta.ws.rs.NotFoundException;
+import javax.ws.rs.NotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;

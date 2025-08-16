@@ -19,8 +19,8 @@ package com.percussion.utils.jsr170;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang.StringUtils;
 
-import javax.jcr.Item; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Item;
+import javax.jcr.RepositoryException;
 import java.util.regex.Pattern;
 
 /**

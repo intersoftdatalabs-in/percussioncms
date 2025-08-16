@@ -18,7 +18,7 @@ package com.percussion.workflow.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This class contains the structure of the transition for the role in an
