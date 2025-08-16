@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +20,9 @@ package com.percussion.utils;
 
 import com.percussion.integritymanagement.data.PSIntegrityTask;
 import com.percussion.utils.types.PSPair;
-
 import java.util.Map;
 
+/** Provides status reporting for DTS (Data Transformation Service) tasks. */
 public interface IPSDTSStatusProvider {
-    Map<String, PSPair<PSIntegrityTask.TaskStatus, String>> getDTSStatusReport();
+  Map<String, PSPair<PSIntegrityTask.TaskStatus, String>> getDTSStatusReport();
 }

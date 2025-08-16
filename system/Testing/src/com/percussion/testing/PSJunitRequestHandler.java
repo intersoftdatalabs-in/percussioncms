@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package com.percussion.testing;
 
 import com.percussion.conn.PSServerException;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSLoadableRequestHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import junit.framework.Test;
+
+
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
 import junit.textui.TestRunner;
@@ -84,7 +84,7 @@ import java.util.List;
  * dir=c:/e2/classes/com/percussion/cms/dg
  * </pre>
  */
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 {
    /**

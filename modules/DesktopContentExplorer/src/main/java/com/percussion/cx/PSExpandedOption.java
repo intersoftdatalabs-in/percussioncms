@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -35,7 +36,7 @@ import java.util.TreeSet;
  */
 public class PSExpandedOption implements IPSClientObjects
 {
-   static Logger log = Logger.getLogger(PSExpandedOption.class);
+   static Logger log = LogManager.getLogger(PSExpandedOption.class);
    
    /**
     * Default constructor, this is needed so that an instance of this class can

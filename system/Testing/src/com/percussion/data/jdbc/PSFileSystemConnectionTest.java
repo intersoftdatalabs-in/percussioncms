@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 package com.percussion.data.jdbc;
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +32,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PSFileSystemConnectionTest
 {
@@ -46,9 +46,9 @@ public class PSFileSystemConnectionTest
    private Properties m_connProperties;
 
    @Rule
-   public TemporaryFolder tempFolder = new TemporaryFolder();
+   public Path tempFolder = new TemporaryFolder();
 
-   @Before
+   @BeforeEach 
    public void setUp()
    {
 

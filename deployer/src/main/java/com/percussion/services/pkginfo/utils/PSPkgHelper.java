@@ -1,6 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
+ * Copyright 1999-2025 Percussion Software, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,6 @@
  */
 package com.percussion.services.pkginfo.utils;
 
-import com.percussion.rx.config.IPSConfigService;
 import com.percussion.rx.config.PSConfigServiceLocator;
 import com.percussion.rx.design.PSDesignModelUtils;
 import com.percussion.rx.services.deployer.PSPackageVisibility;
@@ -26,427 +25,231 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.pkginfo.IPSPkgInfoService;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgElement;
-import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Utility class which provides support for detecting modifications to packaged
- * elements.
- */
-public class PSPkgHelper
-{
-   /**
-    * Detects modifications to packaged elements which have been made outside
-    * of configuration, i.e., via the workbench.
-    * 
-    * @param guid The id of the package info object whose contents will be
-    * examined for modifications.  May not be <code>null</code>.
-    * 
-    * @return A set of design objects which have been modified outside of
-    * configuration.  Never <code>null</code>, may be empty.  Each entry in
-    * the set will specify the design object, see
-    * {@link #validatePkgElement(PSPkgElement, Collection)}.
-    */
-   public static Set<String> validatePackage(IPSGuid guid) throws PSNotFoundException {
-      if (guid == null)
-      {
-         throw new IllegalArgumentException("guid may not be null");
-      }
-      // get community visibility configuration
-      Collection<String> comms = getCommunityVisibility(guid);            
-      
-      // validating each package element
-      Set<String> objects = new HashSet<>();
-      List<IPSGuid> pkgElemGuids = getPkgInfoService().findPkgElementGuids(
-            guid);
-      for (IPSGuid pkgElemGuid : pkgElemGuids)
-      {
-         PSPkgElement pkgElem = getPkgInfoService().findPkgElement(pkgElemGuid);
-         if (pkgElem == null)
-         {
-            // should never happen
-            String msg = "Failed to get the package element for guid {0}";
-            Object[] args = { pkgElemGuid.toString() };
-            throw new RuntimeException(MessageFormat.format(msg, args));
-         }
-                
-         objects.addAll(validatePkgElement(pkgElem, comms));
-      }
-      
-      return objects;
-   }
+/** Utility class for detecting modifications to packaged elements. */
+public class PSPkgHelper {
+  /**
+   * Detects modifications to packaged elements made outside configuration.
+   *
+   * @param guid The package info GUID, not null.
+   * @return Set of modified design objects, never null.
+   */
+  public static Set<String> validatePackage(IPSGuid guid) throws PSNotFoundException {
+    if (guid == null) {
+      throw new IllegalArgumentException("guid may not be null");
+    }
+    var comms = getCommunityVisibility(guid);
+    var pkgElemGuids = getPkgInfoService().findPkgElementGuids(guid);
+    return pkgElemGuids.stream()
+        .map(getPkgInfoService()::findPkgElement)
+        .filter(Objects::nonNull)
+        .flatMap(pkgElem -> validatePkgElement(pkgElem, comms).stream())
+        .collect(Collectors.toSet());
+  }
 
-   /**
-    * Updates each element version in the supplied package with the current
-    * version of the corresponding design object.
-    * 
-    * @param pkgName The package name, may not be blank.
-    */
-   public static void updatePkgElementVersions(String pkgName) throws PSNotFoundException {
-      if (!ms_enabled)
-         return;
-      
-      if (StringUtils.isBlank(pkgName))
-      {
-         throw new IllegalArgumentException("pkgName may not be blank");
-      }
-      
-      PSPkgInfo pkgInfo = getPkgInfoService().findPkgInfo(pkgName);
-      if (pkgInfo == null)
-      {
-         String msg = "Failed to get the package info for {0}";
-         Object[] args = { pkgName };
-         throw new RuntimeException(MessageFormat.format(msg, args));
-      }
-      
-      List<IPSGuid> pkgElemGuids = getPkgInfoService().findPkgElementGuids(
-            pkgInfo.getGuid());
-      for (IPSGuid pkgElemGuid : pkgElemGuids)
-      {
-         updatePkgElementVersion(pkgElemGuid, true);
-      }
-   }
-   
-   /**
-    * Detects modifications to packaged elements which have been made outside
-    * of configuration, i.e., via the workbench.
-    * 
-    * @param pkgName The name of the package.  May not be blank.
-    * 
-    * @return See {@link #validatePackage(IPSGuid)}.
-    */
-   public static Set<String> validatePackage(String pkgName) throws PSNotFoundException {
-      if (!ms_enabled)
-         return new HashSet<>();
-      
-      if (StringUtils.isBlank(pkgName))
-      {
-         throw new IllegalArgumentException("pkgName may not be blank");
-      }
-      
-      PSPkgInfo pkgInfo = getPkgInfoService().findPkgInfo(pkgName);
-      if (pkgInfo == null)
-      {
-         String msg = "Failed to get the package info for {0}";
-         Object[] args = { pkgName };
-         throw new RuntimeException(MessageFormat.format(msg, args));
-      }
-      
-      return validatePackage(pkgInfo.getGuid());
-   }
+  /**
+   * Updates each element version in the supplied package with the current version.
+   *
+   * @param pkgName The package name, not blank.
+   */
+  public static void updatePkgElementVersions(String pkgName) throws PSNotFoundException {
+    if (!enabled) return;
+    if (StringUtils.isBlank(pkgName)) {
+      throw new IllegalArgumentException("pkgName may not be blank");
+    }
+    var pkgInfo = getPkgInfoService().findPkgInfo(pkgName);
+    if (pkgInfo == null) {
+      throw new RuntimeException(
+          MessageFormat.format("Failed to get the package info for {0}", pkgName));
+    }
+    var pkgElemGuids = getPkgInfoService().findPkgElementGuids(pkgInfo.getGuid());
+    for (var pkgElemGuid : pkgElemGuids) {
+      updatePkgElementVersion(pkgElemGuid, true);
+    }
+  }
 
-   /**
-    * Updates the version for the supplied package element.
-    * 
-    * @param id the ID of the package element, never <code>null</code>.
-    * @param forceUpdate if <code>true</code> the version of the supplied
-    * package element will always be updated with the current version of the
-    * associated design object, otherwise the element version will updated if
-    * the design object has not been modified outside of allowed configuration.
-    */
-   private static void updatePkgElementVersion(IPSGuid id,
-      boolean forceUpdate) throws PSNotFoundException {
-      PSPkgElement pkgElem = null;
-      pkgElem = getPkgInfoService().loadPkgElementModifiable(id);
+  /**
+   * Detects modifications to packaged elements by package name.
+   *
+   * @param pkgName The package name, not blank.
+   * @return See {@link #validatePackage(IPSGuid)}.
+   */
+  public static Set<String> validatePackage(String pkgName) throws PSNotFoundException {
+    if (!enabled) return new HashSet<>();
+    if (StringUtils.isBlank(pkgName)) {
+      throw new IllegalArgumentException("pkgName may not be blank");
+    }
+    var pkgInfo = getPkgInfoService().findPkgInfo(pkgName);
+    if (pkgInfo == null) {
+      throw new RuntimeException(
+          MessageFormat.format("Failed to get the package info for {0}", pkgName));
+    }
+    return validatePackage(pkgInfo.getGuid());
+  }
 
-      Long version = null;
-      try
-      {
-         version = getVersion(pkgElem);
-      }
-      catch (IOException e)
-      {
-         String msg = "Failed to get the design object version for package "
-            + "element with guid {0}";
-         Object[] args = { id.toString() };
-         throw new RuntimeException(MessageFormat.format(msg, args), e);
-      }
-      
-      if (version == null)
-      {
-         // object will not be tracked
-         return;
-      }
-      
-      if (pkgElem.getVersion() != OBJECT_MODIFIED_VERSION || forceUpdate)
-      {
-         pkgElem.setVersion(version);
-         getPkgInfoService().savePkgElement(pkgElem);
-      }
-   }
-   
-   /**
-    * Updates the corresponding element versions for the supplied Design Objects
-    * 
-    * @param ids the IDs of the Design Objects, never <code>null</code>, may be
-    * empty.
-    */
-   public static void updatePkgElementVersions(Collection<IPSGuid> ids) throws PSNotFoundException {
-      if (!ms_enabled)
-         return;
-      
-      if (ids == null)
-         throw new IllegalArgumentException("ids may not be null");
+  /**
+   * Updates the version for the supplied package element.
+   *
+   * @param id The package element GUID, not null.
+   * @param forceUpdate If true, always update version.
+   */
+  private static void updatePkgElementVersion(IPSGuid id, boolean forceUpdate)
+      throws PSNotFoundException {
+    var pkgElem = getPkgInfoService().loadPkgElementModifiable(id);
+    Long version;
+    try {
+      version = getVersion(pkgElem);
+    } catch (IOException e) {
+      throw new RuntimeException(
+          MessageFormat.format(
+              "Failed to get the design object version for package element with guid {0}", id),
+          e);
+    }
+    if (version == null) return;
+    if (pkgElem.getVersion() != OBJECT_MODIFIED_VERSION || forceUpdate) {
+      pkgElem.setVersion(version);
+      getPkgInfoService().savePkgElement(pkgElem);
+    }
+  }
 
-      for (IPSGuid id : ids)
-      {
-         IPSGuid elemId = id;
-         
-         PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
-         if (PSIdNameHelper.isSupported(type))
-         {
-            String name = PSDesignModelUtils.getName(id);
-            if (name != null)
-            {
-               // get pkg element id generated by name service
-               elemId = PSIdNameHelper.getGuid(name, type);
-            }
-         }
-                    
-         PSPkgElement pkgElem = getPkgInfoService().findPkgElementByObject(
-               elemId);
-         if (pkgElem == null)
-            continue; // skip if not tracked by any installed package
-                  
-         updatePkgElementVersion(pkgElem.getGuid(), false);
+  /**
+   * Updates the corresponding element versions for the supplied Design Objects.
+   *
+   * @param ids The Design Object GUIDs, not null.
+   */
+  public static void updatePkgElementVersions(Collection<IPSGuid> ids) throws PSNotFoundException {
+    if (!enabled) return;
+    if (ids == null) throw new IllegalArgumentException("ids may not be null");
+    for (var id : ids) {
+      var elemId = id;
+      var type = PSTypeEnum.valueOf(id.getType());
+      if (PSIdNameHelper.isSupported(type)) {
+        var name = PSDesignModelUtils.getName(id);
+        if (name != null) {
+          elemId = PSIdNameHelper.getGuid(name, type);
+        }
       }
-   }
-   
-   /**
-    * Determines if the specified package element has been modified outside of
-    * allowed configuration.  If the element has been modified outside of
-    * allowed configuration it will be flagged as such.
-    * 
-    * @param pkgElem The package element, may not be <code>null</code>.
-    * @param comms the set of community names that should have set to the design
-    * object of the package element. It may be <code>null</code> if does not
-    * validate the community visibility for the installed package elements.
-    * 
-    * @return a list of warning messages, which represent the design object
-    * represented by the package element if the object has been modified outside
-    * of configuration. The design object name and type will be shown as
-    * follows: rffSnCallout(Template). It can never be <code>null</code>, but
-    * may be empty if the object has not been modified externally.
-    */
-   public static List<String> validatePkgElement(PSPkgElement pkgElem,
-         Collection<String> comms) throws PSNotFoundException {
-      if (pkgElem == null)
-      {
-         throw new IllegalArgumentException("pkgElem may not be null");
+      var pkgElem = getPkgInfoService().findPkgElementByObject(elemId);
+      if (pkgElem == null) continue;
+      updatePkgElementVersion(pkgElem.getGuid(), false);
+    }
+  }
+
+  /**
+   * Determines if the specified package element has been modified outside allowed configuration.
+   *
+   * @param pkgElem The package element, not null.
+   * @param comms The set of community names, may be null.
+   * @return List of warnings for modified objects, never null.
+   */
+  public static List<String> validatePkgElement(PSPkgElement pkgElem, Collection<String> comms)
+      throws PSNotFoundException {
+    if (pkgElem == null) {
+      throw new IllegalArgumentException("pkgElem may not be null");
+    }
+    var warnList = new ArrayList<String>();
+    var objGuid = pkgElem.getObjectGuid();
+    var objType = PSTypeEnum.valueOf(pkgElem.getObjectType());
+    if (objType.equals(PSTypeEnum.ACL)) return warnList;
+    final String objName =
+        PSIdNameHelper.isSupported(objType)
+            ? PSIdNameHelper.getName(objGuid)
+            : PSDesignModelUtils.getName(objGuid);
+    Long version;
+    try {
+      version = getVersion(pkgElem);
+    } catch (IOException e) {
+      throw new RuntimeException(
+          MessageFormat.format(
+              "Failed to get the design object version for package element guid {0}",
+              pkgElem.getGuid()),
+          e);
+    }
+    if (version != null && !version.equals(pkgElem.getVersion())) {
+      warnList.add(objName + '(' + objType.getDisplayName() + ')');
+    }
+    if (comms != null) {
+      var commWarn = validateCommunityVisibility(objGuid, objName, objType.getDisplayName(), comms);
+      if (commWarn != null) warnList.add(commWarn);
+    }
+    if (pkgElem.getVersion() != OBJECT_MODIFIED_VERSION && !warnList.isEmpty()) {
+      var pElem = getPkgInfoService().loadPkgElementModifiable(pkgElem.getGuid());
+      pElem.setVersion(OBJECT_MODIFIED_VERSION);
+      getPkgInfoService().savePkgElement(pElem);
+    }
+    return warnList;
+  }
+
+  /** Validates the community visibility of the given Design Object. */
+  private static String validateCommunityVisibility(
+      IPSGuid id, String name, String type, Collection<String> commsVisibility) {
+    var vis = new PSPackageVisibility();
+    if (!vis.validatePkgCommunities(id, commsVisibility)) {
+      return name + "(" + type + ") does not match the configuration of community visibility.";
+    }
+    return null;
+  }
+
+  /** Gets the current version of the design object for the supplied package element. */
+  private static Long getVersion(PSPkgElement pkgElem) throws IOException {
+    Long version = null;
+    var objGuid = pkgElem.getObjectGuid();
+    var objType = PSTypeEnum.valueOf(objGuid.getType());
+    if (PSIdNameHelper.isSupported(objType)) {
+      var objName = PSIdNameHelper.getName(objGuid);
+      if (objName != null) {
+        version = PSDesignModelUtils.getVersion(objType, objName);
+        if (version == null && (objName.startsWith("/") || objName.startsWith("\\"))) {
+          if (objName.trim().length() > 1) objName = objName.substring(1);
+        }
+        if (version == null) {
+          if (PSOsTool.isUnixPlatform()) objName = objName.replace('\\', '/');
+          var file = new File(PSServer.getRxDir(), objName);
+          if (file.exists()) version = IOTools.getChecksum(file);
+        }
       }
-            
-      List<String> warnList = new ArrayList<>();
-      
-      IPSGuid objGuid = pkgElem.getObjectGuid();
-      PSTypeEnum objType = PSTypeEnum.valueOf(pkgElem.getObjectType());
-      
-      // skip ACL here, the ACL of the design object will be validated through
-      // community visibility
-      if (objType.equals(PSTypeEnum.ACL))
-         return warnList; 
-      
-      String objName;         
-      if (PSIdNameHelper.isSupported(objType))
-      {
-         objName = PSIdNameHelper.getName(objGuid);
-      }
-      else
-      {
-         objName = PSDesignModelUtils.getName(objGuid);
-      }
-            
-      Long version = null;
-      try
-      {
-         version = getVersion(pkgElem);
-      }
-      catch (IOException e)
-      {
-         String msg = "Failed to get the design object version for package "
-            + "element guid {0}";
-         Object[] args = { pkgElem.getGuid().toString() };
-         throw new RuntimeException(MessageFormat.format(msg, args), e);            
-      }
-      
-      if (version != null)
-      {      
-         // compare package element version with current version
-         if (!version.equals(pkgElem.getVersion()))
-         {
-            warnList.add(objName + '(' + objType.getDisplayName() + ')');
-         }
-      }
-      
-      // validate community visibility
-      if (comms != null)
-      {
-         String commWarn = validateCommunityVisibility(objGuid, objName,
-               objType.getDisplayName(), comms);
-         if (commWarn != null)
-            warnList.add(commWarn);
-      }
-      
-      if (pkgElem.getVersion() != OBJECT_MODIFIED_VERSION &&
-            !warnList.isEmpty())
-      {
-         // flag as modified
-         PSPkgElement pElem = getPkgInfoService().loadPkgElementModifiable(
-               pkgElem.getGuid());
-         pElem.setVersion(OBJECT_MODIFIED_VERSION);
-         getPkgInfoService().savePkgElement(pElem);
-      }
-      
-      return warnList;
-   }
-   
-   /**
-    * Validates the community visibility of the given Design Object.
-    *  
-    * @param id the ID of the design object, assumed not <code>null</code>.
-    * @param name the name of the design object, assumed not blank.
-    * @param type the type of the design object, assumed not blank.
-    * @param commsVisibility the current community visibility configuration,
-    * assumed not <code>null</code>, be may empty.
-    * 
-    * @return a warning if failed the validation; otherwise return 
-    * <code>null</code>.
-    */
-   private static String validateCommunityVisibility(IPSGuid id, String name,
-         String type, Collection<String> commsVisibility)
-   {
-      PSPackageVisibility vis = new PSPackageVisibility();
-      if (!vis.validatePkgCommunities(id, commsVisibility))
-      {
-         return name + "(" + type
-               + ") does not match the configuration of community visibility.";
-      }
-      
-      return null;
-   }
-   
-   /**
-    * Gets the current version of the design object which corresponds to the
-    * supplied package element.
-    * 
-    * @param pkgElem The package element, assumed not <code>null</code>.
-    * 
-    * @return The design object version corresponding to the package element.
-    * May be <code>null</code> if the object does not support version or is not
-    * supported for tracking.
-    * 
-    * @throws IOException on any error for file design objects. 
-    */
-   private static Long getVersion(PSPkgElement pkgElem) throws IOException
-   {
-      Long version = null;
-      
-      IPSGuid objGuid = pkgElem.getObjectGuid();
-      PSTypeEnum objType = PSTypeEnum.valueOf(objGuid.getType());
-      if (PSIdNameHelper.isSupported(objType))
-      {
-         String objName = PSIdNameHelper.getName(objGuid);
-         if (objName != null)
-         {
-            // load version by name
-            version = PSDesignModelUtils.getVersion(objType, objName);
-            if (version == null)
-            {
-               // must be a file
-               if (objName.startsWith("/") || objName.startsWith("\\"))
-               {
-                  // strip off leading file separator
-                  if (objName.trim().length() > 1)
-                     objName = objName.substring(1);
-               }
-               
-               if (PSOsTool.isUnixPlatform())
-               {
-                  // normalize path
-                  objName = objName.replace('\\', '/');
-               }
-               File file = new File(PSServer.getRxDir(), objName);
-               if (file.exists())
-                  version = IOTools.getChecksum(file);
-            }
-         }
-      }
-      else
-      {
-         // load version by guid
-         version = PSDesignModelUtils.getVersion(objGuid);
-      }
-      
-      return version;
-   }
-   
-   /**
-    * Used by config service unit tests to enable/disable various methods of
-    * the package helper which should not be run in conjunction with the unit
-    * tests.
-    * 
-    * @param enabled <code>true</code> to enable methods, <code>false</code> to
-    * disable.
-    */
-   public static void setEnabled(boolean enabled)
-   {
-      ms_enabled = enabled;
-   }
-     
-   /**
-    * Get the package info service.  Initialize if necessary.
-    * 
-    * @return The package info service.  Never <code>null</code>.
-    */
-   private static IPSPkgInfoService getPkgInfoService()
-   {
-      if (ms_pkgInfoSvc == null)
-      {
-         ms_pkgInfoSvc = PSPkgInfoServiceLocator.getPkgInfoService();
-      }
-      
-      return ms_pkgInfoSvc;
-   }
-   
-   /**
-    * Loads the community visibility for the supplied package.
-    * 
-    * @param guid The package id, assumed not <code>null</code>.
-    * 
-    * @return A collection of community names in which the package is visible.
-    * Never <code>null</code>, may be empty.
-    */
-   private static Collection<String> getCommunityVisibility(IPSGuid guid) throws PSNotFoundException {
-      // get community visibility configuration
-      PSPkgInfo pkg = getPkgInfoService().loadPkgInfo(guid);
-      IPSConfigService srv = PSConfigServiceLocator.getConfigService();
-      return srv.loadCommunityVisibility(pkg.getPackageDescriptorName());  
-   }
-   
-   /**
-    * Constant which indicates that a package element has been modified outside
-    * of allowed configuration.
-    */
-   public static long OBJECT_MODIFIED_VERSION = -1L;
-   
-   /**
-    * The package info service, may be <code>null</code>.
-    */
-   private static IPSPkgInfoService ms_pkgInfoSvc = null;
-   
-   /**
-    * Flag to enable/disable package helper.  Defaults to <code>true</code>.
-    */
-   private static boolean ms_enabled = true;
+    } else {
+      version = PSDesignModelUtils.getVersion(objGuid);
+    }
+    return version;
+  }
+
+  /** Used by config service unit tests to enable/disable package helper. */
+  public static void setEnabled(boolean enabledFlag) {
+    enabled = enabledFlag;
+  }
+
+  /** Returns the package info service, initializing if necessary. */
+  private static IPSPkgInfoService getPkgInfoService() {
+    if (pkgInfoSvc == null) {
+      pkgInfoSvc = PSPkgInfoServiceLocator.getPkgInfoService();
+    }
+    return pkgInfoSvc;
+  }
+
+  /** Loads the community visibility for the supplied package. */
+  private static Collection<String> getCommunityVisibility(IPSGuid guid)
+      throws PSNotFoundException {
+    var pkg = getPkgInfoService().loadPkgInfo(guid);
+    var srv = PSConfigServiceLocator.getConfigService();
+    return srv.loadCommunityVisibility(pkg.getPackageDescriptorName());
+  }
+
+  /** Constant indicating a package element has been modified outside allowed configuration. */
+  public static final long OBJECT_MODIFIED_VERSION = -1L;
+
+  /** The package info service, may be null. */
+  private static IPSPkgInfoService pkgInfoSvc;
+
+  /** Flag to enable/disable package helper. Defaults to true. */
+  private static boolean enabled = true;
 }

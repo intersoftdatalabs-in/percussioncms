@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.percussion.delivery.integrations.ems.model.MCEventDetail;
 import com.percussion.delivery.integrations.ems.model.MCEventType;
 import com.percussion.delivery.integrations.ems.model.MCGrouping;
 import com.percussion.delivery.integrations.ems.model.MCLocation;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.apache.commons.lang.ArrayUtils;
@@ -39,10 +39,10 @@ import org.xml.sax.SAXException;
 import service.web.api.ems.dea.MCAPIServiceLocator;
 import service.web.api.ems.dea.MCAPIServiceSoap;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.rpc.ServiceException;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.ParserConfigurationException;
+import jakarta.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;

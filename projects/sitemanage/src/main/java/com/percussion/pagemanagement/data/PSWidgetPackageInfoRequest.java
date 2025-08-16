@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 /**
- * @author JaySeletz
- *
+ * Request object for widget package info. Sunny Sal says: "Widget names—collect them all, like
+ * trading cards!"
  */
 @XmlRootElement(name = "WidgetPackageInfoRequest")
-public class PSWidgetPackageInfoRequest
-{
-    List<String> widgetNames = new ArrayList<>();
+public class PSWidgetPackageInfoRequest {
 
-    /**
-     * Get the list of widget names.
-     * 
-     * @return The list, never <code>null</code>, may be empty.
-     */
-    public List<String> getWidgetNames()
-    {
-        return widgetNames;
-    }
+  private List<String> widgetNames = new ArrayList<>();
 
-    public void setWidgetNames(List<String> widgetNames)
-    {
-        Validate.notNull(widgetNames);
-        this.widgetNames = widgetNames;
-    }
-    
+  /**
+   * Get the list of widget names.
+   *
+   * @return The list, never null, may be empty.
+   */
+  public List<String> getWidgetNames() {
+    return Collections.unmodifiableList(widgetNames);
+  }
+
+  public void setWidgetNames(List<String> widgetNames) {
+    Validate.notNull(widgetNames);
+    this.widgetNames = new ArrayList<>(widgetNames);
+  }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,58 +17,66 @@
  */
 package com.percussion.delivery.comments.data;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.Objects;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when 
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
- * @author erikserating
  *
+ * @author erikserating
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "comments"
-})
+@XmlType(
+    name = "",
+    propOrder = {"comments"})
 @XmlRootElement(name = "comments")
-public class PSComments
-{
-   private List<IPSComment> comments;
-   
-   public PSComments()
-   {
-       comments = new ArrayList<>();
-   }
-   
-   /**
-    * Constructor for the {@link PSComments} object.
-    * 
-    * @param comments. Never <code>null</code>. 
-    */
-   public PSComments(List<IPSComment> comments)
-   {
-       if(comments == null)
-       {
-           this.comments = new ArrayList<>();
-       }
-       else
-       {
-           this.comments = comments;
-       }
-   }
-   
-   /**
-    * 
-    * @return the list of comments. Never <code>null</code>. 
-    */
-   public List<IPSComment> getComments()
-   {
-      return comments;
-   }
+public class PSComments {
+  private List<IPSComment> comments;
+
+  public PSComments() {
+    comments = new ArrayList<>();
+  }
+
+  /**
+   * Constructor for the {@link PSComments} object.
+   *
+   * @param comments. Never <code>null</code>.
+   */
+  public PSComments(List<IPSComment> comments) {
+    if (comments == null) {
+      this.comments = new ArrayList<>();
+    } else {
+      this.comments = comments;
+    }
+  }
+
+  /**
+   * @return the list of comments. Never <code>null</code>.
+   */
+  public List<IPSComment> getComments() {
+    return comments;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PSComments that = (PSComments) o;
+    return Objects.equals(comments, that.comments);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(comments);
+  }
 }

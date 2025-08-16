@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,15 @@ package com.percussion.delivery.metadata.data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a list of {@link PSMetadataRestTag} instances.
- *
- */
-public class PSMetadataRestTagList
-{
-    private List<PSMetadataRestTag> properties =
-        new ArrayList<>();
+/** Represents a list of {@link PSMetadataRestTag} instances. */
+public class PSMetadataRestTagList {
+  private List<PSMetadataRestTag> properties = new ArrayList<>();
 
-    public List<PSMetadataRestTag> getProperties()
-    {
-        return properties;
-    }
+  public List<PSMetadataRestTag> getProperties() {
+    return properties;
+  }
 
-    public void setProperties(List<PSMetadataRestTag> properties)
-    {
-        this.properties = properties;
-    }
+  public void setProperties(List<PSMetadataRestTag> properties) {
+    this.properties = properties;
+  }
 }

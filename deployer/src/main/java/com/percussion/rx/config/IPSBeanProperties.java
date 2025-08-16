@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,67 +21,56 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This interface allows accessing the Spring Bean properties defined in
- * default and/or local configure files. 
+ * Provides access to Spring Bean properties defined in default and/or local configuration files.
  *
  * @author YuBingChen
  */
-public interface IPSBeanProperties
-{
-   /**
-    * Gets the properties.
-    * 
-    * @return the properties, never <code>null</code>, may be empty.
-    */
-   Map<String, Object> getProperties();
-   
-   /**
-    * Gets a specified property.
-    * 
-    * @param name the name of the property to retrieve. 
-    * 
-    * @return the value of the property. It may be <code>null</code> if cannot
-    * find the property.
-    */
-   Object getProperty(String name);
+public interface IPSBeanProperties {
 
-   /**
-    * Gets a string associate with a specified property.
-    * 
-    * @param name the name of the property to retrieve.
-    * 
-    * @return the associated string. It may be <code>null</code> if cannot
-    * find the property.
-    */
-   String getString(String name);
+  /**
+   * Gets all properties.
+   *
+   * @return the properties, never {@code null}, may be empty.
+   */
+  Map<String, Object> getProperties();
 
-   /**
-    * Gets a list associate with a specified property.
-    * 
-    * @param name the name of the property to retrieve.
-    * 
-    * @return the associated list. It may be <code>null</code> if cannot find
-    * the property.
-    */
-   @SuppressWarnings("unchecked")
-   List getList(String name);
-   
-   /**
-    * Gets a map associate with a specified property.
-    * 
-    * @param name the name of the property to retrieve.
-    * 
-    * @return the associated map. It may be <code>null</code> if cannot find
-    * the property.
-    */
-   @SuppressWarnings("unchecked")
-   Map getMap(String name);
+  /**
+   * Gets a specified property.
+   *
+   * @param name the name of the property to retrieve.
+   * @return the value of the property, or {@code null} if not found.
+   */
+  Object getProperty(String name);
 
-   /**
-    * Saves a set of properties. The specified properties will be override
-    * and merged into current properties and saved into the repository.
-    * 
-    * @param props the saved properties. Never <code>null</code>.
-    */
-   void save(Map<String, Object> props);
+  /**
+   * Gets a string associated with a specified property.
+   *
+   * @param name the name of the property to retrieve.
+   * @return the associated string, or {@code null} if not found.
+   */
+  String getString(String name);
+
+  /**
+   * Gets a list associated with a specified property.
+   *
+   * @param name the name of the property to retrieve.
+   * @return the associated list, or {@code null} if not found.
+   */
+  List<?> getList(String name);
+
+  /**
+   * Gets a map associated with a specified property.
+   *
+   * @param name the name of the property to retrieve.
+   * @return the associated map, or {@code null} if not found.
+   */
+  Map<?, ?> getMap(String name);
+
+  /**
+   * Saves a set of properties. The specified properties will override and merge into current
+   * properties, and will be saved into the repository.
+   *
+   * @param props the properties to save. Never {@code null}.
+   */
+  void save(Map<String, Object> props);
 }

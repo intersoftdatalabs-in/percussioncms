@@ -18,54 +18,41 @@ package com.percussion.delivery.feeds.data;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-/**
- * A feed descriptor contains meta data needed to create a feed.
- */
+/** A feed descriptor contains meta data needed to create a feed. */
 @JsonDeserialize(as = PSFeedDescriptor.class)
-public interface IPSFeedDescriptor
-{
-    /**
-     * 
-     * @return the name of the feed.
-     */
-    public String getName();
-    
-    /**
-     * 
-     * @return the name of the site the feed belongs to.
-     */
-    public String getSite();
-    
-    /**
-     * 
-     * @return the feed title.
-     */
-    public String getTitle();
-    
-    /**
-     * 
-     * @return the feed description.
-     */
-    public String getDescription();
-    
-    /**
-     * 
-     * @return the link to the page the feed represents.
-     */
-    public String getLink();
-    
-    /**
-     * 
-     * @return the query to get the feed data from the meta-data service.
-     */
-    public String getQuery();
-    
-    /**
-     * 
-     * @return the feed output type. Never <code>null</code>.
-     */
-    public String getType();
+public interface IPSFeedDescriptor {
+  /**
+   * @return the name of the feed.
+   */
+  public String getName();
 
+  /**
+   * @return the name of the site the feed belongs to.
+   */
+  public String getSite();
 
+  /**
+   * @return the feed title.
+   */
+  public String getTitle();
 
+  /**
+   * @return the feed description.
+   */
+  public String getDescription();
+
+  /**
+   * @return the link to the page the feed represents.
+   */
+  public String getLink();
+
+  /**
+   * @return the query to get the feed data from the meta-data service.
+   */
+  public String getQuery();
+
+  /**
+   * @return the feed output type. Never <code>null</code>.
+   */
+  public String getType();
 }

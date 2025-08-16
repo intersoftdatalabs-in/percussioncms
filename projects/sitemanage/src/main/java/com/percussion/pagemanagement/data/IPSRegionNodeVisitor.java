@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,24 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * Visitor pattern is used here mainly to avoid casting
- * and not to define the order of the visit.
- * 
- * The order of the visit will be defined by different iterators.
- * @author adamgent
+ * Visitor pattern for region nodes. Used to avoid casting and decouple visit order from the
+ * visitor. The order of the visit is defined by different iterators.
  *
+ * @author adamgent
  */
 public interface IPSRegionNodeVisitor {
-    void visit(PSRegionCode regionCode);
-    void visit(PSRegion region);
+
+  /**
+   * Visit a region code node.
+   *
+   * @param regionCode the region code node, never {@code null}
+   */
+  void visit(PSRegionCode regionCode);
+
+  /**
+   * Visit a region node.
+   *
+   * @param region the region node, never {@code null}
+   */
+  void visit(PSRegion region);
 }

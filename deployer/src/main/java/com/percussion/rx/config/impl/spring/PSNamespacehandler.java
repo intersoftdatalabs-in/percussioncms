@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,26 @@
  */
 package com.percussion.rx.config.impl.spring;
 
-
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
- * The NamespaceHandler used for registering custom XML elements specified
- * in Spring bean files, such as &lt;psx:list>, &lt;psx:map>, ...etc.
- * <p>
- * Note, the registered custom XML elements must be defined in 
+ * The NamespaceHandler used for registering custom XML elements specified in Spring bean files,
+ * such as &lt;psx:list>, &lt;psx:map>, ...etc.
+ *
+ * <p>Note, the registered custom XML elements must be defined in
  * com.percussion.rx.config.impl.spring.ConfigPropertyValue.xsd.
- * </p>
- * <p>
- * This class is referenced by <code>spring.handlers</code> file.
- * ConfigPropertyValue.xsd is referenced by <code>spring.schemas</code> file.
- * Both <code>spring.handlers</code> and <code>spring.schemas</code> files are 
- * placed under <code>META-INF</code> directory.
- * </p>
+ *
+ * <p>This class is referenced by <code>spring.handlers</code> file. ConfigPropertyValue.xsd is
+ * referenced by <code>spring.schemas</code> file. Both <code>spring.handlers</code> and <code>
+ * spring.schemas</code> files are placed under <code>META-INF</code> directory.
+ *
  * @author YuBingChen
  */
-public class PSNamespacehandler extends NamespaceHandlerSupport
-{
-   /**
-    * Register parsers for all custom elements.
-    */
-   public void init()
-   {
-      registerBeanDefinitionParser("list",
-            new PSListBeanDefinitionParser());
-      registerBeanDefinitionParser("map",
-            new PSMapBeanDefinitionParser());
-   }
-
+public class PSNamespacehandler extends NamespaceHandlerSupport {
+  /** Register parsers for all custom elements. */
+  @Override
+  public void init() {
+    registerBeanDefinitionParser("list", new PSListBeanDefinitionParser());
+    registerBeanDefinitionParser("map", new PSMapBeanDefinitionParser());
+  }
 }

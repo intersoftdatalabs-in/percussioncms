@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,47 +19,42 @@ package com.percussion.ant.install;
 import com.percussion.install.InstallUtil;
 import org.apache.tools.ant.BuildException;
 
-
 /**
- * An install action bean to check for a running Rhythmyx server.  If a running
- * server is found, a build exception will be thrown.
- * 
- * <br>
- * Example Usage:
- * <br>
+ * An install action bean to check for a running Rhythmyx server. If a running server is found, a
+ * build exception will be thrown. <br>
+ * Example Usage: <br>
+ *
  * <pre>
- * 
+ *
  * First set the taskdef:
- * 
- *  <code>  
+ *
+ *  <code>
  *  &lt;taskdef name="checkRunningServer"
  *              class="com.percussion.ant.install.PSCheckRunningServer"
  *              classpathref="INSTALL.CLASSPATH"/&gt;
  *  </code>
- * 
+ *
  * Now use the task to check for a running server.
- * 
+ *
  *  <code>
  *  &lt;checkRunningServer/&gt;
  *  </code>
- * 
- * </pre>
- * 
- * @author vamsinukala
  *
+ * </pre>
+ *
+ * @author vamsinukala
  */
-public class PSCheckRunningServer extends PSAction
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      if (InstallUtil.checkServerRunning(getRootDir()))
-      {
-         throw new BuildException("A running Rhythmyx server has been " +
-               "detected in the installation directory " + getRootDir() +
-               ".  Please shut down this instance of Rhythmyx before " +
-               "installing/upgrading to this location.");
-      }
-   }
+public class PSCheckRunningServer extends PSAction {
+  // see base class
+  @Override
+  public void execute() {
+    if (InstallUtil.checkServerRunning(getRootDir())) {
+      throw new BuildException(
+          "A running Rhythmyx server has been "
+              + "detected in the installation directory "
+              + getRootDir()
+              + ".  Please shut down this instance of Rhythmyx before "
+              + "installing/upgrading to this location.");
+    }
+  }
 }

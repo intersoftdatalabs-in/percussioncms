@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,14 @@
 
 package com.percussion.server.cache;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.parser.Parser;
-
-import javax.naming.NamingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -51,373 +40,338 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import javax.naming.NamingException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Parser;
 
 /**
- * Parses ehcache.xml and updates the file using a result of SELECT COUNT(*)
- * results from specific tables defined in {@link PSAutotuneCacheRelationships}.
- * 
- * <br/>
- * 
- * @author chriswright
+ * Parses ehcache.xml and updates the file using a result of SELECT COUNT(*) results from specific
+ * tables defined in {@link PSAutotuneCacheRelationships}. <br>
  *
+ * @author chriswright
  */
-public class PSAutotuneCache
-{
-   /**
-    * Default ctor.
-    */
-   private PSAutotuneCache()
-   {
-      // Spring
-   }
+public class PSAutotuneCache {
+  /** Default ctor. */
+  private PSAutotuneCache() {
+    // Spring
+  }
 
-   /**
-    * Creates a document builder to parse the ehcache.xml file. From here, it
-    * parses the document based on each 'cache' element. We get the
-    * maxElementsInMemory for each cache field, and if that cache element is
-    * present in the keys map, update it to match the result of the SELECT
-    * COUNT(*) result increased by 10%.
-    */
-   public void updateEhcache() throws Exception
-   {
-      init();
+  /**
+   * Creates a document builder to parse the ehcache.xml file. From here, it parses the document
+   * based on each 'cache' element. We get the maxElementsInMemory for each cache field, and if that
+   * cache element is present in the keys map, update it to match the result of the SELECT COUNT(*)
+   * result increased by 10%.
+   */
+  public void updateEhcache() throws Exception {
+    init();
 
-      long spaceRequiredLgTables = calcSpaceForLargeTables();
-      long spaceRequiredSmTables = calcSpaceForSmallerTables();
-      long percentageOfHeapForCache = (long) (percentage * freeMemory);
+    long spaceRequiredLgTables = calcSpaceForLargeTables();
+    long spaceRequiredSmTables = calcSpaceForSmallerTables();
+    long percentageOfHeapForCache = (long) (percentage * freeMemory);
 
-      log.debug("The maximum space (in ehcache) required for all total tables in MB is: {}"
-            , (DF2.format((double)(spaceRequiredLgTables + spaceRequiredSmTables) / KB_TO_MB)));
+    log.debug(
+        "The maximum space (in ehcache) required for all total tables in MB is: {}",
+        (DF2.format((double) (spaceRequiredLgTables + spaceRequiredSmTables) / KB_TO_MB)));
 
-      log.debug("The amount of memory to be allocated to the ehcache in MB is: {}" , (percentageOfHeapForCache / BYTES_TO_MB));
+    log.debug(
+        "The amount of memory to be allocated to the ehcache in MB is: {}",
+        (percentageOfHeapForCache / BYTES_TO_MB));
 
-      FileInputStream in = new FileInputStream(ehcache);
-      Document doc = Jsoup.parse(in, "UTF-8", "", Parser.xmlParser());
-      List<Element> cacheElems = doc.getElementsByTag("cache");
-      for (Element cache : cacheElems)
-      {
-         String cacheName = cache.attr("name");
-         if (ehcacheDbRowCountValues.containsKey(cacheName) && !largeTables.containsKey(cacheName))
-         {
-            if (percentageOfHeapForCache > 0)
-               percentageOfHeapForCache = updateCacheItem(cacheName, cache, percentageOfHeapForCache);
-         }
-         if(cacheName.equals("item") || cacheName.equals("childitem")){
-            //We want to adjust these to be virtually unlimited but with a TTL
-            cache.attr(MAX_ELEMS_IN_MEMORY, "1000000");
-            cache.attr("eternal","true");
-            cache.attr("memoryStoreEvictionPolicy","LRU");
-            
-         }
+    FileInputStream in = new FileInputStream(ehcache);
+    Document doc = Jsoup.parse(in, "UTF-8", "", Parser.xmlParser());
+    List<Element> cacheElems = doc.getElementsByTag("cache");
+    for (Element cache : cacheElems) {
+      String cacheName = cache.attr("name");
+      if (ehcacheDbRowCountValues.containsKey(cacheName) && !largeTables.containsKey(cacheName)) {
+        if (percentageOfHeapForCache > 0)
+          percentageOfHeapForCache = updateCacheItem(cacheName, cache, percentageOfHeapForCache);
       }
-
-      // process large tables here
-      for (String name : largeTableNames)
-      {
-         List<Element> elem = doc.getElementsByAttributeValue("name", name);
-         if (ehcacheDbRowCountValues.containsKey(name) && !smallTables.containsKey(name))
-         {
-            if (percentageOfHeapForCache > 0)
-               percentageOfHeapForCache = updateCacheItem(name, elem.get(0), percentageOfHeapForCache);
-         }
+      if (cacheName.equals("item") || cacheName.equals("childitem")) {
+        // We want to adjust these to be virtually unlimited but with a TTL
+        cache.attr(MAX_ELEMS_IN_MEMORY, "1000000");
+        cache.attr("eternal", "true");
+        cache.attr("memoryStoreEvictionPolicy", "LRU");
       }
+    }
 
-      writeEhCache(doc);
-      
-      if (in != null) { try { in.close(); } catch (IOException e) {} }
-
-      log.debug("The presumed amount of free space after allocating for the ehcache in MB is: {}",
-             DF2.format(((double)this.freeMemory - percentageOfHeapForCache) / (BYTES_TO_MB)));
-      log.info("The cache has been autotuned.");
-   }
-
-   public void init() throws Exception
-   {
-      Properties serverProps = PSServer.getServerProps();
-      percentage = Integer.parseInt(serverProps.getProperty("autotuneCachePercentage", "40"));
-      percentage /= 100.0;
-      log.debug("The ehcache percentage to be used is: {}" , percentage);
-      
-      loadEhCacheFile();
-      backupEhCache();
-      setHeapSizes();
-      getDatabaseCountValues();
-   }
-
-   /**
-    * Writes the values ehcache.xml file.
-    * @param doc - the processed document that needs writing.
-    */
-   private void writeEhCache(Document doc)
-   {
-      try
-      {
-         FileUtils.writeStringToFile(ehcache, doc.toString(), StandardCharsets.UTF_8);
+    // process large tables here
+    for (String name : largeTableNames) {
+      List<Element> elem = doc.getElementsByAttributeValue("name", name);
+      if (ehcacheDbRowCountValues.containsKey(name) && !smallTables.containsKey(name)) {
+        if (percentageOfHeapForCache > 0)
+          percentageOfHeapForCache = updateCacheItem(name, elem.get(0), percentageOfHeapForCache);
       }
-      catch (IOException e)
-      {
-         log.error("Error writing to ehcache.xml", e);
+    }
+
+    writeEhCache(doc);
+
+    if (in != null) {
+      try {
+        in.close();
+      } catch (IOException e) {
       }
-   }
+    }
 
-   private long updateCacheItem(String cacheName, Element elem, long percentageOfHeapForCache)
-   {
-      double regionRowCount = ehcacheDbRowCountValues.get(cacheName);
-      Node cache =  elem;
-      double bytesToSubtract;
-      String maxElemValue = cache.attr(MAX_ELEMS_IN_MEMORY);
+    log.debug(
+        "The presumed amount of free space after allocating for the ehcache in MB is: {}",
+        DF2.format(((double) this.freeMemory - percentageOfHeapForCache) / (BYTES_TO_MB)));
+    log.info("The cache has been autotuned.");
+  }
 
-      log.debug("The cache element name is: {}" , cacheName);
-      log.debug("The cache element value is: {}" , maxElemValue);
-      log.debug("The current count from database for this table is: {}" , regionRowCount);
+  public void init() throws Exception {
+    Properties serverProps = PSServer.getServerProps();
+    percentage = Integer.parseInt(serverProps.getProperty("autotuneCachePercentage", "40"));
+    percentage /= 100.0;
+    log.debug("The ehcache percentage to be used is: {}", percentage);
 
-      regionRowCount += (regionRowCount * .10);
+    loadEhCacheFile();
+    backupEhCache();
+    setHeapSizes();
+    getDatabaseCountValues();
+  }
 
-      log.debug("The projected new value after calculation will be: {}" , regionRowCount);
+  /**
+   * Writes the values ehcache.xml file.
+   *
+   * @param doc - the processed document that needs writing.
+   */
+  private void writeEhCache(Document doc) {
+    try {
+      FileUtils.writeStringToFile(ehcache, doc.toString(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      log.error("Error writing to ehcache.xml", e);
+    }
+  }
 
-      if (regionRowCount > Integer.parseInt(maxElemValue) && regionRowCount != 0)
-      {
-         log.debug("{} is being updated as it contains a higher value: {}",
-                 MAX_ELEMS_IN_MEMORY ,cacheName);
-         String count = String.valueOf(Math.round(regionRowCount));
-         cache.attr(MAX_ELEMS_IN_MEMORY, count);
-      }
-      
-      if (largeTables.containsKey(cacheName)) {
-         bytesToSubtract = Math.ceil((ehcacheDbRowCountValues.get(cacheName) * largeTables.get(cacheName)));
-         return percentageOfHeapForCache - (long) bytesToSubtract;
-      }
-      
-      bytesToSubtract = Math.ceil((ehcacheDbRowCountValues.get(cacheName) * smallTables.get(cacheName)));
+  private long updateCacheItem(String cacheName, Element elem, long percentageOfHeapForCache) {
+    double regionRowCount = ehcacheDbRowCountValues.get(cacheName);
+    Node cache = elem;
+    double bytesToSubtract;
+    String maxElemValue = cache.attr(MAX_ELEMS_IN_MEMORY);
+
+    log.debug("The cache element name is: {}", cacheName);
+    log.debug("The cache element value is: {}", maxElemValue);
+    log.debug("The current count from database for this table is: {}", regionRowCount);
+
+    regionRowCount += (regionRowCount * .10);
+
+    log.debug("The projected new value after calculation will be: {}", regionRowCount);
+
+    if (regionRowCount > Integer.parseInt(maxElemValue) && regionRowCount != 0) {
+      log.debug(
+          "{} is being updated as it contains a higher value: {}", MAX_ELEMS_IN_MEMORY, cacheName);
+      String count = String.valueOf(Math.round(regionRowCount));
+      cache.attr(MAX_ELEMS_IN_MEMORY, count);
+    }
+
+    if (largeTables.containsKey(cacheName)) {
+      bytesToSubtract =
+          Math.ceil((ehcacheDbRowCountValues.get(cacheName) * largeTables.get(cacheName)));
       return percentageOfHeapForCache - (long) bytesToSubtract;
-   }
+    }
 
-   /**
-    * Loads the ehcache.xml file.
-    */
-   private void loadEhCacheFile()
-   {
-      ClassLoader loader = PSAutotuneCache.class.getClassLoader();
-      ehcache = new File(loader.getResource("/ehcache.xml").getFile());
-   }
+    bytesToSubtract =
+        Math.ceil((ehcacheDbRowCountValues.get(cacheName) * smallTables.get(cacheName)));
+    return percentageOfHeapForCache - (long) bytesToSubtract;
+  }
 
-   /**
-    * Calculates the MAX amount of MB that will be required
-    * to hold all large table data.
-    * 
-    * @return the number of MB to hold all large table data.
-    */
-   private long calcSpaceForLargeTables()
-   {
-      long kb = 0;
-      for (String key : largeTables.keySet())
-      {
-         kb += ehcacheDbRowCountValues.get(key) * largeTables.get(key);
+  /** Loads the ehcache.xml file. */
+  private void loadEhCacheFile() {
+    ClassLoader loader = PSAutotuneCache.class.getClassLoader();
+    ehcache = new File(loader.getResource("/ehcache.xml").getFile());
+  }
+
+  /**
+   * Calculates the MAX amount of MB that will be required to hold all large table data.
+   *
+   * @return the number of MB to hold all large table data.
+   */
+  private long calcSpaceForLargeTables() {
+    long kb = 0;
+    for (String key : largeTables.keySet()) {
+      kb += ehcacheDbRowCountValues.get(key) * largeTables.get(key);
+    }
+    log.debug(
+        "The current amount of MB allocated for entries in the cache for larger tables is: {}",
+        DF2.format((double) kb / KB_TO_MB));
+    return kb;
+  }
+
+  /**
+   * Iterates through the smallTables map and the result of counts from corresponding rows in the db
+   * to determine how many MB are allocated at maximum for each cache region.
+   *
+   * @return a representation in bytes of how much space the small tables will consume.
+   */
+  private long calcSpaceForSmallerTables() {
+    long kb = 0;
+    for (String key : smallTables.keySet()) {
+      kb += ehcacheDbRowCountValues.get(key) * smallTables.get(key);
+    }
+    log.debug(
+        "The current amount of MB allocated for entries in the cache for smaller tables are: {}",
+        DF2.format((double) kb / KB_TO_MB));
+    return kb;
+  }
+
+  /**
+   * Updates the HashMap with results of the SELECT COUNT(*)'s against the database. This maps the
+   * count results to the appropriate ehcache.xml fields.
+   */
+  private void getDatabaseCountValues() throws SQLException, NamingException {
+    try (Connection conn = PSConnectionHelper.getDbConnection()) {
+      PSConnectionDetail detail = PSConnectionHelper.getConnectionDetail();
+      for (Entry<String, String> entry : cacheRelationships.entrySet()) {
+
+        String table =
+            PSSqlHelper.qualifyTableName(
+                entry.getKey(), detail.getDatabase(), detail.getOrigin(), detail.getDriver());
+        String stmt =
+            "SELECT COUNT(*) FROM " + SecureStringUtils.sanitizeStringForSQLStatement(table);
+
+        try (PreparedStatement stmt1 = PSPreparedStatement.getPreparedStatement(conn, stmt)) {
+          try (ResultSet resultSet = stmt1.executeQuery()) {
+            resultSet.next();
+            ehcacheDbRowCountValues.put(entry.getValue(), resultSet.getInt(1));
+          }
+        }
       }
-      log.debug("The current amount of MB allocated for entries in the cache for larger tables is: {}" , DF2.format((double) kb / KB_TO_MB));
-      return kb;
-   }
+    }
+  }
 
-   /**
-    * Iterates through the smallTables map and the result of
-    * counts from corresponding rows in the db to determine
-    * how many MB are allocated at maximum for each cache region.
-    * 
-    * @return a representation in bytes of how much space the small
-    *         tables will consume.
-    */
-   private long calcSpaceForSmallerTables()
-   {
-      long kb = 0;
-      for (String key : smallTables.keySet())
-      {
-         kb += ehcacheDbRowCountValues.get(key) * smallTables.get(key);
+  /** Backs up the ehcache.xml file. */
+  private void backupEhCache() {
+    try (FileInputStream input = new FileInputStream(ehcache)) {
+      File temp = File.createTempFile("ehcache", ".xml", ehcache.getParentFile());
+      try (FileOutputStream output = new FileOutputStream(temp)) {
+        IOUtils.copy(input, output);
       }
-      log.debug("The current amount of MB allocated for entries in the cache for smaller tables are: {}" , DF2.format((double) kb / KB_TO_MB));
-      return kb;
-   }
+      log.info("ehcache.xml file has been backed up as {}", temp.getAbsolutePath());
+    } catch (NullPointerException | IOException e) {
+      log.error(BACKUP_ERROR, PSExceptionUtils.getMessageForLog(e));
+    }
+  }
 
-   /**
-    * Updates the HashMap with results of the SELECT COUNT(*)'s against the
-    * database. This maps the count results to the appropriate ehcache.xml
-    * fields.
-    */
-   private void getDatabaseCountValues() throws SQLException, NamingException {
-      try(Connection conn = PSConnectionHelper.getDbConnection())
-      {
-         PSConnectionDetail detail = PSConnectionHelper.getConnectionDetail();
-         for (Entry<String, String> entry : cacheRelationships.entrySet())
-         {
+  /** Sets the memory variables for use in later calculations. */
+  private void setHeapSizes() {
+    this.heapSize = Runtime.getRuntime().totalMemory();
+    this.heapMaxSize = Runtime.getRuntime().maxMemory();
+    this.heapFreeSize = Runtime.getRuntime().freeMemory();
+    this.freeMemory = this.heapMaxSize - (this.heapSize - this.heapFreeSize);
 
-            String table = PSSqlHelper.qualifyTableName(entry.getKey(), detail.getDatabase(), detail.getOrigin(),
-                    detail.getDriver());
-            String stmt = "SELECT COUNT(*) FROM " + SecureStringUtils.sanitizeStringForSQLStatement(table);
+    log.debug(
+        String.format(
+            "%n%s%d%n%s%d%n%s%d%n%s%d",
+            "The heap size in MB is:",
+            (this.heapSize / BYTES_TO_MB),
+            "The heap max size in MB is: ",
+            (this.heapMaxSize / BYTES_TO_MB),
+            "The heap free size in MB is: ",
+            (this.heapFreeSize / BYTES_TO_MB),
+            "The amount of presumable free memory in MB is: ",
+            (this.freeMemory / BYTES_TO_MB)));
+  }
 
-            try(PreparedStatement stmt1 = PSPreparedStatement.getPreparedStatement(conn, stmt)) {
-              try(ResultSet resultSet = stmt1.executeQuery()){
-                  resultSet.next();
-                  ehcacheDbRowCountValues.put(entry.getValue(), resultSet.getInt(1));
-               }
-             }
-         }
-      }
-   }
+  /**
+   * Spring property accessor.
+   *
+   * @return get the cache service
+   */
+  public IPSCacheAccess getCacheAccessor() {
+    return m_cacheAccessor;
+  }
 
-   /**
-    * Backs up the ehcache.xml file.
-    *
-    */
-   private void backupEhCache()
-   {
-      try(FileInputStream input = new FileInputStream(ehcache))
-      {
-         File temp = File.createTempFile("ehcache", ".xml", ehcache.getParentFile());
-         try(FileOutputStream output = new FileOutputStream(temp)) {
-            IOUtils.copy(input, output);
-         }
-         log.info("ehcache.xml file has been backed up as {}" , temp.getAbsolutePath());
-      } catch (NullPointerException | IOException e)
-      {
-         log.error(BACKUP_ERROR, PSExceptionUtils.getMessageForLog(e));
-      }
-   }
+  /**
+   * Set the cache service.
+   *
+   * @param cache the service, never <code>null</code>
+   */
+  public void setCacheAccessor(IPSCacheAccess cache) {
+    if (cache == null) {
+      throw new IllegalArgumentException("cache may not be null");
+    }
+    m_cacheAccessor = cache;
+  }
 
-   /**
-    * Sets the memory variables for use in later calculations.
-    */
-   private void setHeapSizes()
-   {
-      this.heapSize = Runtime.getRuntime().totalMemory();
-      this.heapMaxSize = Runtime.getRuntime().maxMemory();
-      this.heapFreeSize = Runtime.getRuntime().freeMemory();
-      this.freeMemory = this.heapMaxSize - (this.heapSize - this.heapFreeSize);
+  /**
+   * The total amount of memory currently available for current and future objects, measured in
+   * bytes. Corresponds to the amount of memory CURRENTLY available to the JVM.
+   */
+  private long heapSize;
 
-      log.debug(String.format("%n%s%d%n%s%d%n%s%d%n%s%d",
-            "The heap size in MB is:", (this.heapSize / BYTES_TO_MB),
-            "The heap max size in MB is: ", (this.heapMaxSize / BYTES_TO_MB),
-            "The heap free size in MB is: ", (this.heapFreeSize / BYTES_TO_MB),
-            "The amount of presumable free memory in MB is: ", (this.freeMemory / BYTES_TO_MB)));
-   }
+  /**
+   * The maximum amount of memory that the virtual machine will attempt to use, measured in bytes.
+   * Exceeding this will result in OutOfMemory exception.
+   */
+  private long heapMaxSize;
 
-   /**
-    * Spring property accessor.
-    *
-    * @return get the cache service
-    */
-   public IPSCacheAccess getCacheAccessor()
-   {
-      return m_cacheAccessor;
-   }
+  /**
+   * An approximation to the total amount of memory currently available for future allocated
+   * objects, measured in bytes.
+   */
+  private long heapFreeSize;
 
-   /**
-    * Set the cache service.
-    *
-    * @param cache the service, never <code>null</code>
-    */
-   public void setCacheAccessor(IPSCacheAccess cache)
-   {
-      if (cache == null)
-      {
-         throw new IllegalArgumentException("cache may not be null");
-      }
-      m_cacheAccessor = cache;
-   }
+  /** The amount of presumable free memory. */
+  private long freeMemory;
 
-   /**
-    * The total amount of memory currently available for current and future
-    * objects, measured in bytes. Corresponds to the amount of memory CURRENTLY
-    * available to the JVM.
-    */
-   private long heapSize;
+  /** Error to use when backing up ehcache.xml. */
+  private static final String BACKUP_ERROR = "Error backing up ehcache.xml document. Error: {}";
 
-   /**
-    * The maximum amount of memory that the virtual machine will attempt to use,
-    * measured in bytes. Exceeding this will result in OutOfMemory exception.
-    */
-   private long heapMaxSize;
+  /** maxElementsInMemory cache setting in ehcache.xml. */
+  private static final String MAX_ELEMS_IN_MEMORY = "maxElementsInMemory";
 
-   /**
-    * An approximation to the total amount of memory currently available for
-    * future allocated objects, measured in bytes.
-    */
-   private long heapFreeSize;
+  /** Maintains file reference to ehcache.xml. */
+  private File ehcache = null;
 
-   /**
-    * The amount of presumable free memory.
-    */
-   private long freeMemory;
+  /**
+   * Contains key/value pair for relationship between a table name and it's region name in ehcache.
+   */
+  private static final Map<String, String> cacheRelationships =
+      PSAutotuneCacheRelationships.DBTABLES_AND_CACHEFIELDS;
 
-   /**
-    * Error to use when backing up ehcache.xml.
-    */
-   private static final String BACKUP_ERROR = "Error backing up ehcache.xml document. Error: {}";
+  /**
+   * Contains a key/value pair relationship between the tables that get very large in the database
+   * and their equivalent region associations in ehcache.
+   */
+  private static final Map<String, Double> largeTables = PSAutotuneCacheRelationships.LARGE_TABLES;
 
-   /**
-    * maxElementsInMemory cache setting in ehcache.xml.
-    */
-   private static final String MAX_ELEMS_IN_MEMORY = "maxElementsInMemory";
+  /**
+   * Contains a key/value pair relationship between the tables that don't get as large and their
+   * equivalent region associations in ehcache.
+   */
+  private static final Map<String, Double> smallTables = PSAutotuneCacheRelationships.SMALL_TABLES;
 
-   /**
-    * Maintains file reference to ehcache.xml.
-    */
-   private File ehcache = null;
+  /** Names of the large tables to be iterated in order of how they should be processed. */
+  private static final String[] largeTableNames = PSAutotuneCacheRelationships.LARGE_TABLE_NAMES;
 
-   /**
-    * Contains key/value pair for relationship between a table name and it's
-    * region name in ehcache.
-    */
-   private static final Map<String, String> cacheRelationships = PSAutotuneCacheRelationships.DBTABLES_AND_CACHEFIELDS;
+  /**
+   * Maintains relationships between the ehcache region name and the corresponding SELECT COUNT(*)
+   * result from the database.
+   */
+  private HashMap<String, Integer> ehcacheDbRowCountValues = new HashMap<>();
 
-   /**
-    * Contains a key/value pair relationship between the tables that get very
-    * large in the database and their equivalent region associations in ehcache.
-    */
-   private static final Map<String, Double> largeTables = PSAutotuneCacheRelationships.LARGE_TABLES;
+  /** Access to the cache manager. */
+  private IPSCacheAccess m_cacheAccessor;
 
-   /**
-    * Contains a key/value pair relationship between the tables that don't get
-    * as large and their equivalent region associations in ehcache.
-    */
-   private static final Map<String, Double> smallTables = PSAutotuneCacheRelationships.SMALL_TABLES;
+  /** The percentage the ehcache is allowed to consume. */
+  private double percentage = 40.0;
 
-   /**
-    * Names of the large tables to be iterated in order of how they should be processed.
-    */
-   private static final String[] largeTableNames = PSAutotuneCacheRelationships.LARGE_TABLE_NAMES;
+  /** Convert bytes to MB */
+  private static final long BYTES_TO_MB = 1024L * 1024L;
 
-   /**
-    * Maintains relationships between the ehcache region name and the
-    * corresponding SELECT COUNT(*) result from the database.
-    */
-   private HashMap<String, Integer> ehcacheDbRowCountValues = new HashMap<>();
+  /** Convert kilobytes to MB */
+  private static final long KB_TO_MB = 1024L;
 
-   /**
-    * Access to the cache manager.
-    */
-   private IPSCacheAccess m_cacheAccessor;
-   
-   /**
-    * The percentage the ehcache is allowed to consume.
-    */
-   private double percentage = 40.0;
-   
-   /**
-    * Convert bytes to MB
-    */
-   private static final long BYTES_TO_MB = 1024L * 1024L;
-   
-   /**
-    * Convert kilobytes to MB
-    */
-   private static final long KB_TO_MB = 1024L;
-   
-   /**
-    * Round decimals to two places.
-    */
-   private static final DecimalFormat DF2 =  new DecimalFormat(".#");
+  /** Round decimals to two places. */
+  private static final DecimalFormat DF2 = new DecimalFormat(".#");
 
-   /**
-    * Logger.
-    */
-   public static final Logger log = LogManager.getLogger(PSAutotuneCache.class.getName());
+  /** Logger. */
+  public static final Logger log = LogManager.getLogger(PSAutotuneCache.class.getName());
 }

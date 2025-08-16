@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ package com.percussion.share.dao.impl;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 
-public class PSLegacyExceptionUtils
-{
-    
-    public static Exception convertException(Exception e) {
-        if (e instanceof PSErrorResultsException) {
-            return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
-        }
-        
-        if (e instanceof PSErrorsException) {
-            return new PSErrorsExceptionDecorator((PSErrorsException)e);
-        }
-        
-        return e; 
+/** Utility for converting legacy web service exceptions to decorated exceptions. */
+public class PSLegacyExceptionUtils {
+
+  private PSLegacyExceptionUtils() {
+    // Utility class, do not instantiate
+  }
+
+  public static Exception convertException(Exception e) {
+    if (e instanceof PSErrorResultsException) {
+      return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
     }
-
+    if (e instanceof PSErrorsException) {
+      return new PSErrorsExceptionDecorator((PSErrorsException) e);
+    }
+    return e;
+  }
 }
-

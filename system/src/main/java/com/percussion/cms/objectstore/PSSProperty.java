@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,106 +15,72 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * See base class for description. Represents a property of a given
- * {@link com.percussion.cms.objectstore.PSDisplayFormat}
+ * See base class for description. Represents a property of a given {@link
+ * com.percussion.cms.objectstore.PSDisplayFormat}.
  */
-public class PSSProperty extends PSCmsProperty
-{        
-   /**
-    * Required ctor taking a element
-    */
-   public PSSProperty(Element e)
-      throws PSUnknownNodeTypeException
-   {
-      super(PSSProperty.createKey(new String[] {}), "dummy");
-      fromXml(e);
-   }
-   
-   /**
-    * Required ctor taking a element
-    */
-   public PSSProperty()
-   {
-   }
-   
-   
-   /**
-    * convience Ctor that takes in name, value
-    * 
-    * @param strName of property. Never <code>null</code> or
-    *    empty.
-    * 
-    * @param strValue may be <code>null</code> to specify empty.
-    * 
-    */
-   public PSSProperty(String strName, String strValue)
-   {
-      super(PSSProperty.createKey(new String[] {}), 
-      strName, strValue, null, KEYASSIGN_ALL);       
-   }
+public class PSSProperty extends PSCmsProperty {
+  /** Required ctor taking a element */
+  public PSSProperty(Element e) throws PSUnknownNodeTypeException {
+    super(PSSProperty.createKey(new String[] {}), "dummy");
+    fromXml(e);
+  }
 
-   // see base class for description
-   public static PSKey createKey(String [] values)
-   {
-      if (values == null || values.length == 0)                         
-         return new PSKey(new String [] 
-            {
-                                           KEY_COL_NAME, 
-                                           KEY_COL_VALUE,
-                                           KEY_COL_ID
-                                        });
-      
-      return new PSKey(new String [] 
-         {               
-            KEY_COL_NAME, 
-            KEY_COL_VALUE,
-            KEY_COL_ID
-         }, 
-         values, true);      
-   }     
-   
-   //see base class for description
-   protected String[] getKeyPartValues(IPSKeyGenerator gen)
-   {
-      return new String[] {getName(), getValue()};
-   }
+  /** Required ctor taking a element */
+  public PSSProperty() {
+    // Default constructor
+  }
 
-   /**
-    * Because the value is used in key assignment, it cannot be reset.
-    *
-    * @param value Unused
-    *
-    * @throws UnsupportedOperationException Always.
-    */
-   public void setValue(String value)
-   {
-      throw new UnsupportedOperationException(
-         "The value is immutable in this class.");
-   }
+  /**
+   * convience Ctor that takes in name, value
+   *
+   * @param strName of property. Never <code>null</code> or empty.
+   * @param strValue may be <code>null</code> to specify empty.
+   */
+  public PSSProperty(String strName, String strValue) {
+    super(PSSProperty.createKey(new String[] {}), strName, strValue, null, KEYASSIGN_ALL);
+  }
 
-   // public static define 
-   public static final String KEY_COL_ID = "SEARCHID";
-   public static final String KEY_COL_NAME = "PROPERTYNAME";
-   public static final String KEY_COL_VALUE = "PROPERTYVALUE";
-   
-   /**
-    * The maximum length for a property value.
-    */
-   public static final int VALUE_LENGTH = 100;
-   
-   /**
-    * The maximum length for a property name.
-    */
-   public static final int NAME_LENGTH = 50;
-   
-   /**
-    * The maximum length for a property description.
-    */
-   public static final int DESCRIPTION_LENGTH = 255;
+  // see base class for description
+  public static PSKey createKey(String[] values) {
+    if (values == null || values.length == 0) {
+      return new PSKey(new String[] {KEY_COL_NAME, KEY_COL_VALUE, KEY_COL_ID});
+    }
+    return new PSKey(new String[] {KEY_COL_NAME, KEY_COL_VALUE, KEY_COL_ID}, values, true);
+  }
+
+  // see base class for description
+  protected String[] getKeyPartValues(IPSKeyGenerator gen) {
+    return new String[] {getName(), getValue()};
+  }
+
+  /**
+   * Because the value is used in key assignment, it cannot be reset.
+   *
+   * @param value Unused
+   * @throws UnsupportedOperationException Always.
+   */
+  public void setValue(String value) {
+    throw new UnsupportedOperationException("The value is immutable in this class.");
+  }
+
+  // public static define
+  public static final String KEY_COL_ID = "SEARCHID";
+  public static final String KEY_COL_NAME = "PROPERTYNAME";
+  public static final String KEY_COL_VALUE = "PROPERTYVALUE";
+
+  /** The maximum length for a property value. */
+  public static final int VALUE_LENGTH = 100;
+
+  /** The maximum length for a property name. */
+  public static final int NAME_LENGTH = 50;
+
+  /** The maximum length for a property description. */
+  public static final int DESCRIPTION_LENGTH = 255;
 }

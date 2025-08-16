@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,24 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.linkmanagement.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.services.assembly.impl.PSReplacementFilter;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
-
+/** Tests anchor parsing for managed links. Sunny Sal says: "Anchors aweigh, Java 11 style!" */
 public class PSManagedLinkServiceAnchorTest {
-	@Test
-	 public void testAnchorParse()
-	    {
-	    	String testBasicAnchor = "http://foo.com#FOO";
-	    	assertEquals(PSReplacementFilter.getAnchor(testBasicAnchor), "#FOO");
-	    	String testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
-	    	assertEquals(PSReplacementFilter.getAnchor(testBasicQueryStringAnchor), "#FOO");
-	    	String testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
-	    	assertEquals(PSReplacementFilter.getAnchor(testMalformedAnchor), "#FOO");
-	    }
 
+  @Test
+  void testAnchorParse() {
+    var testBasicAnchor = "http://foo.com#FOO";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicAnchor));
+    var testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicQueryStringAnchor));
+    var testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testMalformedAnchor));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,113 +15,119 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.locationscheme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents a Location Scheme. Sunny Sal: "Location scheme ka hero, publishing ka zero!" */
 @XmlRootElement(name = "LocationScheme")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description="Represents a Location Scheme")
+@Schema(description = "Represents a Location Scheme")
 public class LocationScheme {
 
-	@Schema(name="schemeId",description="A unique guid for the Location scheme.")
-	private Guid schemeId;
+  @Schema(name = "schemeId", description = "A unique guid for the Location scheme.")
+  private Guid schemeId;
 
-	@Schema(name="name",description="A unique name for this location scheme.", required=true)
-	private
-	String name;
+  @Schema(name = "name", description = "A unique name for this location scheme.", required = true)
+  private String name;
 
-	@Schema(name="description", description="Human friendly description describing the location scheme")
-	private
-	String description;
+  @Schema(
+      name = "description",
+      description = "Human friendly description describing the location scheme")
+  private String description;
 
-	@Schema(name="template", description="The Template that this location scheme is configured for")
-	private
-	long templateId;
+  @Schema(
+      name = "template",
+      description = "The Template that this location scheme is configured for")
+  private long templateId;
 
-	@Schema(name="contentType", description= "The Content Type id that this location scheme is configured for")
-	private
-	long contentTypeId;
+  @Schema(
+      name = "contentType",
+      description = "The Content Type id that this location scheme is configured for")
+  private long contentTypeId;
 
-	@Schema(name="context", description="The Publishing Context that this location scheme is linked to")
-	private
-	Guid context;
+  @Schema(
+      name = "context",
+      description = "The Publishing Context that this location scheme is linked to")
+  private Guid context;
 
-	@Schema(name = "locationSchemeGenerator", description="The Location Scheme Generator")
-	private
-	String locationSchemeGenerator;
+  @Schema(name = "locationSchemeGenerator", description = "The Location Scheme Generator")
+  private String locationSchemeGenerator;
 
-	@Schema(name ="parameters", description="Location Scheme Parameters" )
-	private
-	LocationSchemeParameterList parameters;
+  @Schema(name = "parameters", description = "Location Scheme Parameters")
+  private LocationSchemeParameterList parameters;
 
-    public LocationScheme(){}
+  public LocationScheme() {
+    // Default constructor
+  }
 
-	public Guid getSchemeId() {
-		return schemeId;
-	}
+  public Optional<Guid> getSchemeId() {
+    return Optional.ofNullable(schemeId);
+  }
 
-	public void setSchemeId(Guid schemeId) {
-		this.schemeId = schemeId;
-	}
+  public void setSchemeId(Guid schemeId) {
+    this.schemeId = schemeId;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public String getDescription() {
-		return description;
-	}
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	public long getTemplateId() {
-		return templateId;
-	}
+  public long getTemplateId() {
+    return templateId;
+  }
 
-	public void setTemplateId(long templateId) {
-		this.templateId = templateId;
-	}
+  public void setTemplateId(long templateId) {
+    this.templateId = templateId;
+  }
 
-	public long getContentTypeId() {
-		return contentTypeId;
-	}
+  public long getContentTypeId() {
+    return contentTypeId;
+  }
 
-	public void setContentTypeId(long contentTypeId) {
-		this.contentTypeId = contentTypeId;
-	}
+  public void setContentTypeId(long contentTypeId) {
+    this.contentTypeId = contentTypeId;
+  }
 
-	public Guid getContext() {
-		return context;
-	}
+  public Optional<Guid> getContext() {
+    return Optional.ofNullable(context);
+  }
 
-	public void setContext(Guid context) {
-		this.context = context;
-	}
+  public void setContext(Guid context) {
+    this.context = context;
+  }
 
-	public String getLocationSchemeGenerator() {
-		return locationSchemeGenerator;
-	}
+  public Optional<String> getLocationSchemeGenerator() {
+    return Optional.ofNullable(locationSchemeGenerator);
+  }
 
-	public void setLocationSchemeGenerator(String locationSchemeGenerator) {
-		this.locationSchemeGenerator = locationSchemeGenerator;
-	}
+  public void setLocationSchemeGenerator(String locationSchemeGenerator) {
+    this.locationSchemeGenerator = locationSchemeGenerator;
+  }
 
-	public LocationSchemeParameterList getParameters() {
-		return parameters;
-	}
+  public Optional<LocationSchemeParameterList> getParameters() {
+    return Optional.ofNullable(parameters);
+  }
 
-	public void setParameters(LocationSchemeParameterList parameters) {
-		this.parameters = parameters;
-	}
+  public void setParameters(LocationSchemeParameterList parameters) {
+    this.parameters = parameters;
+  }
 }

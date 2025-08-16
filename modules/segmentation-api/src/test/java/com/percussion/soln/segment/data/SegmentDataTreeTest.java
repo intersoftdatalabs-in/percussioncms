@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 package test.percussion.soln.segment.data;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.data.SegmentDataTree;
@@ -42,7 +42,7 @@ public class SegmentDataTreeTest {
     Segment cf;
     List<Segment> updateData;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tree = new SegmentDataTree();
         setUp(tree);

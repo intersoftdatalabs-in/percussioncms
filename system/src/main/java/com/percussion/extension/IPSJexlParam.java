@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,34 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Describe a single parameter. Parameter descriptions are in the order that
- * the annotated method uses them. 
- * 
+ * Describe a single parameter. Parameter descriptions are in the order that the annotated method
+ * uses them.
+ *
  * @author dougrand
  */
-@Documented 
-@Retention(RetentionPolicy.RUNTIME) 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface IPSJexlParam {
-   String   name();
-   String   type() default "";
-   String   description();
+
+  /**
+   * The name of the parameter.
+   *
+   * @return the parameter name, never {@code null}
+   */
+  String name();
+
+  /**
+   * The type of the parameter.
+   *
+   * @return the parameter type, empty string if not specified
+   */
+  String type() default "";
+
+  /**
+   * The description of the parameter.
+   *
+   * @return the parameter description, never {@code null}
+   */
+  String description();
 }

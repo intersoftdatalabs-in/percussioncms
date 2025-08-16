@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.serialization.PSObjectSerializer;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test round tripping of specific objects with the serializer to test
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSObjectSerializerRoundTripTest
 {
    /**

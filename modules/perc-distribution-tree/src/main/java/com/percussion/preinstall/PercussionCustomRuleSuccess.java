@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ package com.percussion.preinstall;
 import com.zerog.ia.api.pub.CustomCodeRule;
 
 public class PercussionCustomRuleSuccess extends CustomCodeRule {
-public static Boolean rulePass=false;
+  public static Boolean rulePass = false;
 
-
-
-    @Override
-    public boolean evaluateRule() {
-        return rulePass;
-    }
+  @Override
+  public boolean evaluateRule() {
+    return rulePass;
+  }
 }

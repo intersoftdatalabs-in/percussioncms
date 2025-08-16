@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +17,23 @@
  */
 package com.percussion.share.service;
 
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.io.Serializable;
 
-import com.percussion.share.service.IPSDataService.DataServiceLoadException;
-import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.share.service.exception.PSValidationException;
+/**
+ * Read-only data service for loading objects by id.
+ *
+ * @param <FULL> the full object type
+ * @param <PK> the primary key type
+ */
+public interface IPSReadOnlyDataService<FULL, PK extends Serializable> {
 
-public interface IPSReadOnlyDataService<FULL, PK extends Serializable>
-{
-    FULL load(PK id) throws PSDataServiceException;
+  /**
+   * Loads an object by id.
+   *
+   * @param id the primary key
+   * @return the loaded object
+   * @throws PSDataServiceException if the object cannot be loaded
+   */
+  FULL load(PK id) throws PSDataServiceException;
 }

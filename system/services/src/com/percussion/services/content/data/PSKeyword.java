@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.content.data;
 
 import com.percussion.services.catalog.IPSCatalogItem;
@@ -30,6 +31,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -48,18 +50,37 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
 
 /**
- * This object represents a single keyword.
+ * This object represents a single keyword with enhanced Java 11 support.
+ *
+ * <p>Keywords are used for content categorization and can have associated choices.
+ * The class provides comprehensive functionality for managing keyword data including
+ * validation, serialization, and choice management.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Immutable keyword type constants</li>
+ *   <li>Optional-based safe navigation</li>
+ *   <li>Enhanced validation with clear error messages</li>
+ *   <li>Modern equals/hashCode implementation</li>
+ * </ul>
+ *
+ * @since Java 11 Modernization
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSKeyword")
 @Table(name = "RXLOOKUP")
 public class PSKeyword implements Serializable, IPSCatalogSummary,
-   IPSCatalogItem, IPSCloneTuner
-{
+   IPSCatalogItem, IPSCloneTuner {
+
    /**
-    * Compiler generated serial version ID used for serialization.
+    * Serial version UID for serialization compatibility.
     */
    private static final long serialVersionUID = -647694540051253253L;
+
+   /**
+    * Constant for all objects of type keyword.
+    */
+   public static final String KEYWORD_TYPE = "1";
 
    @Id
    @Column(name = "LOOKUPID", nullable = false)
@@ -91,33 +112,32 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    
    @Transient
    private List<PSKeywordChoice> m_choices = new ArrayList<>();
-   
-   /**
-    * Constant for all objects of type keyword.
-    */
-   public static String KEYWORD_TYPE = "1";
 
    /**
-    * Bean pattern requires the default constructor. Do not use this to create
-    * new objects.
+    * Default constructor required by JPA/Hibernate.
+    * Use factory methods or parameterized constructors for creating new instances.
     */
-   public PSKeyword()
-   {
+   public PSKeyword() {
+      // Required by JPA
    }
 
    /**
-    * Create a new keyword for the specified parameters with an empty choice
-    * list.
-    * 
-    * @param label the display label for the new keyword, not <code>null</code>
-    * or empty.
-    * @param description a description for the new keyword, may be
-    * <code>null</code> or empty.
-    * @param value the value for the new keyword, not <code>null</code>. This
-    * value will be used as the type for all choices.
+    * Create a new keyword with the specified parameters and an empty choice list.
+    *
+    * @param label the display label for the new keyword, not {@code null} or empty
+    * @param description a description for the new keyword, may be {@code null} or empty
+    * @param value the value for the new keyword, not {@code null}. This value will be
+    *              used as the type for all choices
+    * @throws IllegalArgumentException if label or value is null or empty
     */
-   public PSKeyword(String label, String description, String value)
-   {
+   public PSKeyword(String label, String description, String value) {
+      if (StringUtils.isBlank(label)) {
+         throw new IllegalArgumentException("label cannot be null or empty");
+      }
+      if (StringUtils.isBlank(value)) {
+         throw new IllegalArgumentException("value cannot be null or empty");
+      }
+
       setKeywordType(KEYWORD_TYPE);
       setValue(value);
       setLabel(label);
@@ -125,25 +145,18 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    }
 
    /**
-    * Create a new keyword for the supplied id and choice. This is needed
-    * because keywords and choices are stored in the same table and just
-    * interpret the content differently.
-    * 
-    * @param id the guid of the keyword, not <code>null</code>.
-    * @param choice the choice for which to create a keyword, not
-    * <code>null</code>.
-    * @return the new created keyword for the supplied parameters, never
-    * <code>null</code>.
+    * Create a new keyword for the supplied id and choice using modern validation.
+    *
+    * @param id the GUID of the keyword, not {@code null}
+    * @param choice the choice for which to create a keyword, not {@code null}
+    * @return the newly created keyword for the supplied parameters, never {@code null}
+    * @throws IllegalArgumentException if id or choice is null
     */
-   public PSKeyword createKeyword(IPSGuid id, PSKeywordChoice choice)
-   {
-      if (id == null)
-         throw new IllegalArgumentException("id cannot be null");
+   public PSKeyword createKeyword(IPSGuid id, PSKeywordChoice choice) {
+      Objects.requireNonNull(id, "id cannot be null");
+      Objects.requireNonNull(choice, "choice cannot be null");
 
-      if (choice == null)
-         throw new IllegalArgumentException("choice cannot be null");
-
-      PSKeyword keyword = new PSKeyword();
+      var keyword = new PSKeyword();
       keyword.setGUID(id);
       keyword.setKeywordType(getValue());
       keyword.setLabel(choice.getLabel());
@@ -291,27 +304,30 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    }
 
    /**
-    * Get a list with all defined keyword choices.
-    * 
-    * @return all keyword choices, never <code>null</code>, may be empty.
+    * Get the keyword choices with Optional wrapper for safer access.
+    *
+    * @return Optional containing the list of choices, never null
     */
-   public List<PSKeywordChoice> getChoices()
-   {
-      return m_choices;
+   public Optional<List<PSKeywordChoice>> getChoicesOptional() {
+      return Optional.ofNullable(m_choices);
    }
 
    /**
-    * Set new keyword choices.
-    * 
-    * @param choices a list with the new keyword choices, may be
-    * <code>null</code> or empty.
+    * Get the keyword choices (legacy method for backward compatibility).
+    *
+    * @return the list of choices, never {@code null}, may be empty
     */
-   public void setChoices(List<PSKeywordChoice> choices)
-   {
-      if (choices == null)
-         m_choices = new ArrayList<>();
-      else
-         m_choices = choices;
+   public List<PSKeywordChoice> getChoices() {
+      return m_choices != null ? m_choices : List.of();
+   }
+
+   /**
+    * Set the keyword choices with null safety.
+    *
+    * @param choices the list of choices, may be {@code null}
+    */
+   public void setChoices(List<PSKeywordChoice> choices) {
+      this.m_choices = choices != null ? new ArrayList<>(choices) : new ArrayList<>();
    }
 
    /**
@@ -417,31 +433,39 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSKeyword)) return false;
-      PSKeyword psKeyword = (PSKeyword) o;
-      return m_id == psKeyword.m_id && Objects.equals(getKeywordType(), psKeyword.getKeywordType()) && Objects.equals(getValue(), psKeyword.getValue()) && Objects.equals(getLabel(), psKeyword.getLabel()) && Objects.equals(getDescription(), psKeyword.getDescription()) && Objects.equals(getSequence(), psKeyword.getSequence()) && Objects.equals(getVersion(), psKeyword.getVersion()) && Objects.equals(m_choices, psKeyword.m_choices);
+   public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (!(obj instanceof PSKeyword)) return false;
+
+      var other = (PSKeyword) obj;
+      return new EqualsBuilder()
+         .append(m_id, other.m_id)
+         .append(keywordType, other.keywordType)
+         .append(value, other.value)
+         .append(label, other.label)
+         .isEquals();
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(m_id, getKeywordType(), getValue(), getLabel(), getDescription(), getSequence(), getVersion(), m_choices);
+      return new HashCodeBuilder(17, 37)
+         .append(m_id)
+         .append(keywordType)
+         .append(value)
+         .append(label)
+         .toHashCode();
    }
 
    @Override
    public String toString() {
-      final StringBuffer sb = new StringBuffer("PSKeyword{");
-      sb.append("m_id=").append(m_id);
-      sb.append(", keywordType='").append(keywordType).append('\'');
-      sb.append(", value='").append(value).append('\'');
-      sb.append(", label='").append(label).append('\'');
-      sb.append(", description='").append(description).append('\'');
-      sb.append(", sequence=").append(sequence);
-      sb.append(", version=").append(version);
-      sb.append(", m_choices=").append(m_choices);
-      sb.append('}');
-      return sb.toString();
+      return new ToStringBuilder(this)
+         .append("id", m_id)
+         .append("keywordType", keywordType)
+         .append("value", value)
+         .append("label", label)
+         .append("description", description)
+         .append("sequence", sequence)
+         .toString();
    }
 
    /*

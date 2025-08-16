@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,39 +20,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Contains the configuration of a set of ports.
- */
-public class PSPortConfiguration
-{
-   /**
-    * Add a port configuration.
-    * 
-    * @param portConfig The config to add, may not be <code>null</code>.
-    */
-   public void addPortConfiguration(PSPortInfo portConfig)
-   {
-      if (portConfig == null)
-         throw new IllegalArgumentException("portConfig may not be null");
-      
-      m_portList.add(portConfig);
-   }
-   
-   /**
-    * Get read-only list of port configurations.  Members may be modified, but
-    * the list cannot be modified.
-    *    
-    * @return The list, never <code>null</code>.
-    */
-   public List<PSPortInfo> getPortConfigurations()
-   {
-      return Collections.unmodifiableList(m_portList);
-   }
+/** Contains the configuration of a set of ports. */
+public class PSPortConfiguration {
+  /**
+   * Add a port configuration.
+   *
+   * @param portConfig The config to add, may not be <code>null</code>.
+   */
+  public void addPortConfiguration(PSPortInfo portConfig) {
+    if (portConfig == null) throw new IllegalArgumentException("portConfig may not be null");
 
-   /**
-    * List of port configs, never <code>null</code>, initially empty.  See
-    * {@link #addPortConfiguration(PSPortInfo)}.
-    */
-   private List<PSPortInfo> m_portList = new ArrayList<PSPortInfo>();
+    m_portList.add(portConfig);
+  }
+
+  /**
+   * Get read-only list of port configurations. Members may be modified, but the list cannot be
+   * modified.
+   *
+   * @return The list, never <code>null</code>.
+   */
+  public List<PSPortInfo> getPortConfigurations() {
+    return Collections.unmodifiableList(m_portList);
+  }
+
+  /**
+   * List of port configs, never <code>null</code>, initially empty. See {@link
+   * #addPortConfiguration(PSPortInfo)}.
+   */
+  private List<PSPortInfo> m_portList = new ArrayList<PSPortInfo>();
 }
-

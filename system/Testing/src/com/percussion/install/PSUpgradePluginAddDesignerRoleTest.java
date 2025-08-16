@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -36,19 +36,19 @@ import java.io.IOException;
 import java.util.List;
 
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 /**
  * @author JaySeletz
  *
  */
-@Category({IntegrationTest.class, SpringContextTest.class})
-@IgnoreInWebAppSpringContext
+@Tag({IntegrationTest.class, SpringContextTest.class})
+@DisabledInWebAppSpringContext
 public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextTest
 {
 

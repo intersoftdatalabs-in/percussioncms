@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.process.PSProcessAction;
 import com.percussion.process.PSProcessStatus;
@@ -37,17 +38,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Run a command before or after an edition. <br/>
- * <br>
- * Takes two parameters from the UI.</br> <br>
- * command - Required - The fully qualified command to be run.</br> <br/>
- * timeOut - The maximum time in seconds to wait for the command to finish, or
- * wait indefinite if it is zero. The task fails if the exit code of the command
- * is non-zero or if the command has not finished in time. If it is not
- * specified, the command will run asynchronously and its exit code will be
- * ignored.
- * 
- * 
+ * Java 11 refactored: Run a command before or after an edition.
+ * Uses Google Java Style and concise method signatures.
+ * Takes two parameters from the UI:
+ * - command: Required, fully qualified command to run.
+ * - timeOut: Maximum time in seconds to wait for the command to finish (0 = indefinite).
+ * Task fails if exit code is non-zero or command times out. If not specified, runs asynchronously and exit code is ignored.
  * @author dougrand
  */
 public class PSEditionCommandTask implements IPSEditionTask

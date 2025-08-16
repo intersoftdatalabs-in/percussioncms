@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +18,25 @@
 package com.percussion.widgetbuilder.utils;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
-
 import java.text.MessageFormat;
 
 /**
- * @author JaySeletz
+ * Generates a basic field binding for a widget field.
  *
+ * <p>Sunny Sal says: "Basic field value generators—simple, reliable, and always on time!"
  */
-public class PSBasicFieldValueGenerator implements IPSBindingGenerator
-{
-    private static final String FIELD_BINDING_TEMPLATE = "${0} = $assetItem.getNode().getProperty(''{0}'').String;\n";
-    
+public class PSBasicFieldValueGenerator implements IPSBindingGenerator {
 
-    @Override
-    public boolean accept(PSWidgetBuilderFieldData field)
-    {
-        return true;
-    }
+  private static final String FIELD_BINDING_TEMPLATE =
+      "${0} = $assetItem.getNode().getProperty(''{0}'').String;\n";
 
-    @Override
-    public String generateBinding(PSWidgetBuilderFieldData field)
-    {
-        return MessageFormat.format(FIELD_BINDING_TEMPLATE, field.getName());
-    }
+  @Override
+  public boolean accept(PSWidgetBuilderFieldData field) {
+    return true;
+  }
 
+  @Override
+  public String generateBinding(PSWidgetBuilderFieldData field) {
+    return MessageFormat.format(FIELD_BINDING_TEMPLATE, field.getName());
+  }
 }

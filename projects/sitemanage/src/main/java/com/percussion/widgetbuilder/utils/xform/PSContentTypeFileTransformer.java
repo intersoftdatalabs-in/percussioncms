@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +33,6 @@ import com.percussion.widgetbuilder.utils.IPSWidgetFileTransformer;
 import com.percussion.widgetbuilder.utils.PSWidgetPackageBuilderException;
 import com.percussion.widgetbuilder.utils.PSWidgetPackageSpec;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -42,512 +42,394 @@ import java.io.Writer;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Transforms the files used to generate the content type
- * 
- * @author JaySeletz
+ * Transforms files used to generate the content type for a widget.
  *
+ * <p>Sunny Sal says: "Content types are like Bollywood blockbusters—lots of moving parts, but the
+ * right script makes it a hit!"
  */
 public class PSContentTypeFileTransformer implements IPSWidgetFileTransformer {
-	/**
-     * 
-     */
-	private static final String MAX_TEXT_LEN = "255";
-	private static final String FILE_PATH_LEN = "1000";
-	private static final String IMG_PATH_LEN = "1000";
-	private static final String PAGE_PATH_LEN = "1000";
-	private static final String LINK_LEN = "15";
-	
-	private static final String SUFFIX = ".contentType";
-	private static final String RTE_CONTROL = "sys_tinymce";
-	private static final String REQUIRES_CLEANUP = "yes";
 
-	private static PSJdbcDataTypeMap dataTypeMap;
-	private static Map<String, Integer> dbColumnTypeMap;
-	private static Map<String, String> controlTypeMap;
+  private static final String MAX_TEXT_LEN = "255";
+  private static final String FILE_PATH_LEN = "1000";
+  private static final String IMG_PATH_LEN = "1000";
+  private static final String PAGE_PATH_LEN = "1000";
+  private static final String LINK_LEN = "15";
+  private static final String SUFFIX = ".contentType";
+  private static final String RTE_CONTROL = "sys_tinymce";
+  private static final String REQUIRES_CLEANUP = "yes";
 
-	private int nextObjectId = 1000;
-	private IPSControlManager ctrlMgr;
+  private static PSJdbcDataTypeMap dataTypeMap;
+  private static final Map<String, Integer> dbColumnTypeMap = new HashMap<>();
+  private static final Map<String, String> controlTypeMap = new HashMap<>();
 
-	static {
-		dbColumnTypeMap = new HashMap<>();
-		dbColumnTypeMap.put(FieldType.DATE.name(), Types.TIMESTAMP);
-		dbColumnTypeMap.put(FieldType.RICH_TEXT.name(), Types.CLOB);
-		dbColumnTypeMap.put(FieldType.TEXT.name(), Types.VARCHAR);
-		dbColumnTypeMap.put(FieldType.TEXT_AREA.name(), Types.CLOB);
-		dbColumnTypeMap.put(FieldType.FILE.name(), Types.VARCHAR);
-		dbColumnTypeMap.put(FieldType.IMAGE.name(), Types.VARCHAR);
-		dbColumnTypeMap.put(FieldType.PAGE.name(), Types.VARCHAR);
-		dbColumnTypeMap.put(FieldType.IMAGE_LINK.name(), Types.INTEGER);
-		dbColumnTypeMap.put(FieldType.PAGE_LINK.name(), Types.INTEGER);
-		dbColumnTypeMap.put(FieldType.FILE_LINK.name(), Types.INTEGER);
-		
-		//TODO : FILE_LINK, IMAGE_LINK and PAGE_LINK should be Types.INTEGER
-		// Need to make sure does not break on upgrade.
-		
-		controlTypeMap = new HashMap<>();
-		controlTypeMap.put(FieldType.DATE.name(), "sys_CalendarSimple");
-		controlTypeMap.put(FieldType.RICH_TEXT.name(), RTE_CONTROL);
-		controlTypeMap.put(FieldType.TEXT.name(), "sys_EditBox");
-		controlTypeMap.put(FieldType.TEXT_AREA.name(), "sys_TextArea");
-		controlTypeMap.put(FieldType.FILE.name(), "sys_FilePath");
-		controlTypeMap.put(FieldType.FILE_LINK.name(), "sys_HiddenInput");
-		controlTypeMap.put(FieldType.IMAGE.name(), "sys_ImagePath");
-		controlTypeMap.put(FieldType.IMAGE_LINK.name(), "sys_HiddenInput");
-		controlTypeMap.put(FieldType.PAGE.name(), "sys_PagePath");
-        controlTypeMap.put(FieldType.PAGE_LINK.name(), "sys_HiddenInput");
+  private int nextObjectId = 1000;
+  private final IPSControlManager ctrlMgr;
 
-	}
+  static {
+    dbColumnTypeMap.put(FieldType.DATE.name(), Types.TIMESTAMP);
+    dbColumnTypeMap.put(FieldType.RICH_TEXT.name(), Types.CLOB);
+    dbColumnTypeMap.put(FieldType.TEXT.name(), Types.VARCHAR);
+    dbColumnTypeMap.put(FieldType.TEXT_AREA.name(), Types.CLOB);
+    dbColumnTypeMap.put(FieldType.FILE.name(), Types.VARCHAR);
+    dbColumnTypeMap.put(FieldType.IMAGE.name(), Types.VARCHAR);
+    dbColumnTypeMap.put(FieldType.PAGE.name(), Types.VARCHAR);
+    dbColumnTypeMap.put(FieldType.IMAGE_LINK.name(), Types.INTEGER);
+    dbColumnTypeMap.put(FieldType.PAGE_LINK.name(), Types.INTEGER);
+    dbColumnTypeMap.put(FieldType.FILE_LINK.name(), Types.INTEGER);
 
-	public PSContentTypeFileTransformer(IPSControlManager ctrlMgr) {
-		Validate.notNull(ctrlMgr);
-		this.ctrlMgr = ctrlMgr;
-	}
+    controlTypeMap.put(FieldType.DATE.name(), "sys_CalendarSimple");
+    controlTypeMap.put(FieldType.RICH_TEXT.name(), RTE_CONTROL);
+    controlTypeMap.put(FieldType.TEXT.name(), "sys_EditBox");
+    controlTypeMap.put(FieldType.TEXT_AREA.name(), "sys_TextArea");
+    controlTypeMap.put(FieldType.FILE.name(), "sys_FilePath");
+    controlTypeMap.put(FieldType.FILE_LINK.name(), "sys_HiddenInput");
+    controlTypeMap.put(FieldType.IMAGE.name(), "sys_ImagePath");
+    controlTypeMap.put(FieldType.IMAGE_LINK.name(), "sys_HiddenInput");
+    controlTypeMap.put(FieldType.PAGE.name(), "sys_PagePath");
+    controlTypeMap.put(FieldType.PAGE_LINK.name(), "sys_HiddenInput");
+  }
 
-	@Override
-	public Reader transformFile(File file, Reader reader,
-			PSWidgetPackageSpec packageSpec)
-			throws PSWidgetPackageBuilderException {
-		try {
-			Reader result = null;
+  public PSContentTypeFileTransformer(IPSControlManager ctrlMgr) {
+    Validate.notNull(ctrlMgr);
+    this.ctrlMgr = ctrlMgr;
+  }
 
-			if (isSchemaFile(file))
-				result = transformSchema(reader, packageSpec);
-			else if (isItemDef(file))
-				result = transformItemDef(reader, packageSpec);
-			else
-				result = reader;
+  @Override
+  public Reader transformFile(File file, Reader reader, PSWidgetPackageSpec packageSpec)
+      throws PSWidgetPackageBuilderException {
+    try {
+      if (isSchemaFile(file)) {
+        return transformSchema(reader, packageSpec);
+      } else if (isItemDef(file)) {
+        return transformItemDef(reader, packageSpec);
+      } else {
+        return reader;
+      }
+    } catch (Exception e) {
+      throw new PSWidgetPackageBuilderException(
+          "Failed to transform content type definition file: " + file.getName(), e);
+    }
+  }
 
-			return result;
-		} catch (Exception e) {
-			throw new PSWidgetPackageBuilderException(
-					"Failed to transform content type definition file: "
-							+ file.getName(), e);
-		}
-	}
+  private Reader transformSchema(Reader reader, PSWidgetPackageSpec packageSpec)
+      throws PSJdbcTableFactoryException, SAXException, IOException {
+    var schema = getSchema(reader);
+    var fields = packageSpec.getFields();
+    for (var field : fields) {
+      schema.setColumn(
+          new PSJdbcColumnDef(
+              getDataTypeMap(),
+              field.getName().toUpperCase(),
+              PSJdbcTableComponent.ACTION_CREATE,
+              getDbType(field),
+              getSize(field),
+              true,
+              ""));
+      if (field.getType().equals(FieldType.IMAGE.name())
+          || field.getType().equals(FieldType.FILE.name())
+          || field.getType().equals(FieldType.PAGE.name())) {
+        schema.setColumn(
+            new PSJdbcColumnDef(
+                getDataTypeMap(),
+                field.getName().toUpperCase() + "_LINKID",
+                PSJdbcTableComponent.ACTION_CREATE,
+                Types.INTEGER,
+                getSize(field),
+                true,
+                ""));
+      }
+    }
+    return new StringReader(
+        PSXmlDocumentBuilder.toString(schema.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+  }
 
-	private Reader transformSchema(Reader reader,
-			PSWidgetPackageSpec packageSpec) throws PSJdbcTableFactoryException, SAXException, IOException {
-		PSJdbcTableSchema schema = getSchema(reader);
-		List<PSWidgetBuilderFieldData> fields = packageSpec.getFields();
-		for (PSWidgetBuilderFieldData field : fields) {
-			schema.setColumn(new PSJdbcColumnDef(getDataTypeMap(), field
-					.getName().toUpperCase(), PSJdbcTableComponent.ACTION_CREATE,
-					getDbType(field), getSize(field), true, ""));
-			if (field.getType().equals(FieldType.IMAGE.name())
-			        || field.getType().equals(FieldType.FILE.name()) 
-			        || field.getType().equals(FieldType.PAGE.name())) {
-				schema.setColumn(new PSJdbcColumnDef(getDataTypeMap(), field
-						.getName().toUpperCase() + "_LINKID",
-						PSJdbcTableComponent.ACTION_CREATE, Types.INTEGER,
-						getSize(field), true, ""));
-			}
-		}
-		return new StringReader(PSXmlDocumentBuilder.toString(schema
-				.toXml(PSXmlDocumentBuilder.createXmlDocument())));
-	}
+  private Reader transformItemDef(Reader reader, PSWidgetPackageSpec packageSpec)
+      throws IOException, SAXException, PSSystemValidationException, PSUnknownNodeTypeException {
+    var itemDef = getItemDef(reader);
+    packageSpec.getResolverTokenMap().put("WORKFLOW_ID", String.valueOf(itemDef.getWorkflowId()));
+    var tableSet = itemDef.getTableSet();
+    var tableRef = (PSTableRef) tableSet.getTableRefs().next();
+    var beTable = new PSBackEndTable(tableRef.getAlias());
+    var fieldSet = itemDef.getFieldSet();
+    var mapper = itemDef.getDisplayMapper(fieldSet.getName());
+    if (mapper == null) {
+      throw new RuntimeException(
+          "No matching display mapper found for fieldset: " + fieldSet.getName());
+    }
+    var fields = packageSpec.getFields();
+    if (fields == null || fields.isEmpty()) {
+      throw new RuntimeException("Package spec must contain at least one field");
+    }
+    for (var field : fields) {
+      var psfield = addField(beTable, field, fieldSet, false);
+      var mapping = addMapping(field, mapper);
+      if (field.getType().equals(FieldType.RICH_TEXT.name())) {
+        addTextCleanupExtension(mapping, itemDef);
+        addReservedHtmlClassCleanerExtension(psfield, itemDef);
+        addRichTextLinkFieldTranslations(psfield);
+      } else if (field.getType().equals(FieldType.FILE.name())) {
+        addImageProcessors(itemDef);
+        var linkIdField = new PSWidgetBuilderFieldData();
+        linkIdField.setName(field.getName() + "_linkId");
+        linkIdField.setLabel(linkIdField.getName());
+        linkIdField.setType(FieldType.FILE_LINK.name());
+        var psLinkField = addField(beTable, linkIdField, fieldSet, false);
+        addImgLinkFieldTranslations(psfield, psLinkField);
+        addMapping(linkIdField, mapper);
+      } else if (field.getType().equals(FieldType.IMAGE.name())) {
+        addImageProcessors(itemDef);
+        var linkIdField = new PSWidgetBuilderFieldData();
+        linkIdField.setName(field.getName() + "_linkId");
+        linkIdField.setLabel(linkIdField.getName());
+        linkIdField.setType(FieldType.IMAGE_LINK.name());
+        var psLinkField = addField(beTable, linkIdField, fieldSet, false);
+        addImgLinkFieldTranslations(psfield, psLinkField);
+        addMapping(linkIdField, mapper);
+      } else if (field.getType().equals(FieldType.PAGE.name())) {
+        addImageProcessors(itemDef);
+        var linkIdField = new PSWidgetBuilderFieldData();
+        linkIdField.setName(field.getName() + "_linkId");
+        linkIdField.setLabel(linkIdField.getName());
+        linkIdField.setType(FieldType.PAGE_LINK.name());
+        var psLinkField = addField(beTable, linkIdField, fieldSet, false);
+        addImgLinkFieldTranslations(psfield, psLinkField);
+        addMapping(linkIdField, mapper);
+      }
+    }
+    return new StringReader(
+        PSXmlDocumentBuilder.toString(itemDef.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+  }
 
-	private Reader transformItemDef(Reader reader,
-			PSWidgetPackageSpec packageSpec) throws IOException, SAXException, PSSystemValidationException, PSUnknownNodeTypeException {
-		PSItemDefinition itemDef = getItemDef(reader);
+  private void addReservedHtmlClassCleanerExtension(PSField field, PSItemDefinition itemDef) {
+    var inputTranslations = new PSInputTranslations();
+    var currentTrans = itemDef.getContentEditor().getInputTranslations();
+    while (currentTrans.hasNext()) {
+      inputTranslations.add(currentTrans.next());
+    }
+    var callSet = new PSExtensionCallSet();
+    PSExtensionParamValue[] params = new PSExtensionParamValue[1];
+    params[0] = new PSExtensionParamValue(new PSTextLiteral(field.getSubmitName()));
+    callSet.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_cleanReservedHtmlClasses"),
+            params));
+    inputTranslations.add(new PSConditionalExit(callSet));
+    itemDef.getContentEditor().setInputTranslation(inputTranslations);
+  }
 
-		// workflow id is automatically updated, need to set token so that
-		// descriptor uses the new id
-		packageSpec.getResolverTokenMap().put("WORKFLOW_ID",
-				String.valueOf(itemDef.getWorkflowId()));
+  private void addImgLinkFieldTranslations(PSField imgField, PSField linkField) {
+    var callSet = new PSExtensionCallSet();
+    var ref = new PSExtensionRef("Java/global/percussion/content/sys_manageItemPathOnUpdate");
+    PSExtensionParamValue[] params = new PSExtensionParamValue[2];
+    params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(imgField.getSubmitName()));
+    params[1] = new PSExtensionParamValue(new PSSingleHtmlParameter(linkField.getSubmitName()));
+    callSet.add(new PSExtensionCall(ref, params));
+    var fieldTranslation = new PSFieldTranslation(callSet);
+    linkField.setInputTranslation(fieldTranslation);
 
-		PSTableSet tableSet = itemDef.getTableSet();
-		PSTableRef tableRef = (PSTableRef) tableSet.getTableRefs().next();
-		PSBackEndTable beTable = new PSBackEndTable(tableRef.getAlias());
-		PSFieldSet fieldSet = itemDef.getFieldSet();
-		PSDisplayMapper mapper = itemDef.getDisplayMapper(fieldSet.getName());
-		if (mapper == null) {
-			// this is a bug, should always be found
-			throw new RuntimeException(
-					"No matching display mapper found for fieldset: "
-							+ fieldSet.getName());
-		}
+    callSet = new PSExtensionCallSet();
+    ref = new PSExtensionRef("Java/global/percussion/content/sys_manageItemPathOnEdit");
+    params = new PSExtensionParamValue[2];
+    params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(imgField.getSubmitName()));
+    params[1] = new PSExtensionParamValue(new PSTextLiteral(linkField.getSubmitName()));
+    callSet.add(new PSExtensionCall(ref, params));
+    fieldTranslation = new PSFieldTranslation(callSet);
+    imgField.setOutputTranslation(fieldTranslation);
+  }
 
-		List<PSWidgetBuilderFieldData> fields = packageSpec.getFields();
-		if (fields == null || fields.isEmpty())
-			throw new RuntimeException(
-					"Package spec must contain at least one field");
+  private PSField addField(
+      PSBackEndTable beTable, PSWidgetBuilderFieldData field, PSFieldSet fieldSet, boolean required)
+      throws PSSystemValidationException {
+    var col = new PSBackEndColumn(beTable, field.getName().toUpperCase());
+    var psfield = new PSField(field.getName(), col);
+    psfield.setType(PSField.TYPE_LOCAL);
+    psfield.setMimeType("text/plain");
+    setTypeSpecificFieldProperties(field, psfield);
+    psfield.setSearchProperties(new PSSearchProperties(true));
+    psfield.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_OPTIONAL, null);
+    if (required) {
+      addValidationRule(psfield, field);
+    }
+    fieldSet.add(psfield);
+    return psfield;
+  }
 
-		for (PSWidgetBuilderFieldData field : fields) {
-			//Widget Builder fields should not be required by default.
-			PSField psfield = addField(beTable, field, fieldSet, false);
-			PSDisplayMapping mapping = addMapping(field, mapper);
+  private PSDisplayMapping addMapping(PSWidgetBuilderFieldData field, PSDisplayMapper mapper) {
+    var uiSet = new PSUISet();
+    uiSet.setLabel(new PSDisplayText(field.getLabel() + ":"));
+    uiSet.setErrorLabel(new PSDisplayText(field.getLabel() + ":"));
+    uiSet.setControl(getControlRef(field));
+    var mapping = new PSDisplayMapping(field.getName(), uiSet);
+    mapper.add(mapping);
+    return mapping;
+  }
 
-			if (field.getType().equals(FieldType.RICH_TEXT.name())) {
-				// Add xdtextcleanup extension and control mapping for rich text
-				// fields
-				addTextCleanupExtension(mapping, itemDef);
-				addReservedHtmlClassCleanerExtension(psfield, itemDef);
-				addRichTextLinkFieldTranslations(psfield);
-			} else if (field.getType().equals(FieldType.FILE.name())) {
+  private void addImageProcessors(PSItemDefinition itemDef) {
+    var inputTranslations = new PSInputTranslations();
+    var currentTrans = itemDef.getContentEditor().getInputTranslations();
+    while (currentTrans.hasNext()) {
+      inputTranslations.add(currentTrans.next());
+    }
+    var callSet = new PSExtensionCallSet();
+    callSet.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_managedItemPathPreProcessor"),
+            null));
+    inputTranslations.add(new PSConditionalExit(callSet));
+    itemDef.getContentEditor().setInputTranslation(inputTranslations);
 
-				addImageProcessors(itemDef);
+    callSet = new PSExtensionCallSet();
+    callSet.add(
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_manageLinksPostProcessor"),
+            null));
+    itemDef.getPipe().setResultDataExtensions(callSet);
+  }
 
-				// add "_linkId" field and transforms needed for manage links
-				PSWidgetBuilderFieldData linkIdField = new PSWidgetBuilderFieldData();
-				linkIdField.setName(field.getName() + "_linkId");
-				linkIdField.setLabel(linkIdField.getName());
-				linkIdField.setType(FieldType.FILE_LINK.name());
-				PSField psLinkField = addField(beTable, linkIdField, fieldSet,
-						false);
-				addImgLinkFieldTranslations(psfield, psLinkField);
-				addMapping(linkIdField, mapper);
+  private void setTypeSpecificFieldProperties(PSWidgetBuilderFieldData field, PSField psfield) {
+    if (field.getType().equals(FieldType.RICH_TEXT.name())) {
+      psfield.setAllowActiveTags(false);
+      psfield.setCleanupBrokenInlineLinks(true);
+      psfield.setCleanupNamespaces(true);
+      psfield.setMayHaveInlineLinks(true);
+      psfield.setDataFormat("max");
+      psfield.setDataType(PSField.DT_TEXT);
+    } else if (field.getType().equals(FieldType.DATE.name())) {
+      psfield.setDataType(PSField.DT_DATE);
+    } else if (field.getType().equals(FieldType.FILE.name())) {
+      psfield.setDataType(PSField.DT_BINARY);
+    } else if (field.getType().equals(FieldType.TEXT_AREA.name())) {
+      psfield.setDataType(PSField.DT_TEXT);
+      psfield.setDataFormat("max");
+    } else if (field.getType().equals(FieldType.PAGE_LINK.name())
+        || field.getType().equals(FieldType.FILE_LINK.name())
+        || field.getType().equals(FieldType.IMAGE_LINK.name())) {
+      psfield.setDataType(PSField.DT_INTEGER);
+    } else {
+      psfield.setDataType("text");
+      psfield.setDataFormat(getSize(field));
+    }
+  }
 
-				
-			} else if (field.getType().equals(FieldType.IMAGE.name())) {
+  private PSControlRef getControlRef(PSWidgetBuilderFieldData field) {
+    var controlRef = new PSControlRef(controlTypeMap.get(field.getType()));
+    controlRef.setId(getNextObjectId());
+    if (field.getType().equals(FieldType.TEXT.name())) {
+      var params = new PSCollection(PSParam.class);
+      params.add(new PSParam("maxlength", new PSTextLiteral(MAX_TEXT_LEN)));
+      controlRef.setParameters(params);
+    } else if (field.getType().equals(FieldType.TEXT_AREA.name())
+        || field.getType().equals(FieldType.RICH_TEXT.name())) {
+      var params = new PSCollection(PSParam.class);
+      params.add(new PSParam("requirescleanup", new PSTextLiteral(REQUIRES_CLEANUP)));
+      controlRef.setParameters(params);
+    }
+    return controlRef;
+  }
 
-				addImageProcessors(itemDef);
-				
-				// add "_linkId" field and transforms needed for manage links
-				PSWidgetBuilderFieldData linkIdField = new PSWidgetBuilderFieldData();
-				linkIdField.setName(field.getName() + "_linkId");
-				linkIdField.setLabel(linkIdField.getName());
-				linkIdField.setType(FieldType.IMAGE_LINK.name());
-		
-				PSField psLinkField = addField(beTable, linkIdField, fieldSet,
-						false);
-				addImgLinkFieldTranslations(psfield, psLinkField);
-				addMapping(linkIdField, mapper);
+  private void addTextCleanupExtension(PSDisplayMapping mapping, PSItemDefinition itemDef) {
+    var depMap = itemDef.getPipe().getControlDependencyMap();
+    var ctrlMeta = ctrlMgr.getControl(mapping.getUISet().getControl().getName());
+    List<PSDependency> deps = new ArrayList<>(ctrlMeta.getDependencies());
+    for (var dep : deps) {
+      dep.setId(getNextObjectId());
+    }
+    depMap.setControlDependencies(mapping, deps);
+  }
 
-			} else if (field.getType().equals(FieldType.PAGE.name())) {
+  private void addRichTextLinkFieldTranslations(PSField psField) {
+    var callSet = new PSExtensionCallSet();
+    var ref = new PSExtensionRef("Java/global/percussion/content/sys_manageLinksConverter");
+    PSExtensionParamValue[] params = new PSExtensionParamValue[1];
+    params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(psField.getSubmitName()));
+    callSet.add(new PSExtensionCall(ref, params));
+    var fieldTranslation = new PSFieldTranslation(callSet);
+    psField.setInputTranslation(fieldTranslation);
+  }
 
-               addImageProcessors(itemDef);
+  private void addValidationRule(PSField psfield, PSWidgetBuilderFieldData field) {
+    var validationRules = new PSFieldValidationRules();
+    var rules = new PSCollection(PSRule.class);
+    var extensions = new PSExtensionCallSet();
+    PSExtensionParamValue[] params = {
+      new PSExtensionParamValue(new PSSingleHtmlParameter(field.getName()))
+    };
+    var extension =
+        new PSExtensionCall(
+            new PSExtensionRef("Java/global/percussion/content/sys_ValidateRequiredField"), params);
+    extensions.add(extension);
+    rules.add(new PSRule(extensions));
+    validationRules.setRules(rules);
+    var applyWhen = new PSApplyWhen();
+    applyWhen.setIfFieldEmpty(true);
+    validationRules.setApplyWhen(applyWhen);
+    String errorMsg = field.getLabel() + " may not be empty.";
+    validationRules.setErrorMessage(new PSDisplayText(errorMsg));
+    psfield.setValidationRules(validationRules);
+  }
 
-                // add "_linkId" field and transforms needed for manage links
-                PSWidgetBuilderFieldData linkIdField = new PSWidgetBuilderFieldData();
-                linkIdField.setName(field.getName() + "_linkId");
-                linkIdField.setLabel(linkIdField.getName());
-                linkIdField.setType(FieldType.PAGE_LINK.name());
-                PSField psLinkField = addField(beTable, linkIdField, fieldSet,
-                        false);
-                addImgLinkFieldTranslations(psfield, psLinkField);
-                addMapping(linkIdField, mapper);
+  private PSItemDefinition getItemDef(Reader reader)
+      throws IOException, SAXException, PSUnknownNodeTypeException {
+    return new PSItemDefinition(getElementFromReader(reader));
+  }
 
-            }
-		}
+  private Element getElementFromReader(Reader reader) throws IOException, SAXException {
+    Writer out = new StringWriter();
+    IOTools.writeStream(reader, out);
+    return PSXmlDocumentBuilder.createXmlDocument(new StringReader(out.toString()), false)
+        .getDocumentElement();
+  }
 
-		return new StringReader(PSXmlDocumentBuilder.toString(itemDef
-				.toXml(PSXmlDocumentBuilder.createXmlDocument())));
-	}
+  private boolean isSchemaFile(File file) {
+    return file.getName().endsWith(".schemaDef" + SUFFIX);
+  }
 
-	private void addReservedHtmlClassCleanerExtension(PSField field,
-			PSItemDefinition itemDef) {
-		PSInputTranslations inputTranslations = new PSInputTranslations();
-		Iterator<?> currentTrans = itemDef.getContentEditor()
-				.getInputTranslations();
-		while (currentTrans.hasNext()) {
-			inputTranslations.add(currentTrans.next());
-		}
+  private boolean isItemDef(File file) {
+    return file.getName().endsWith(".itemDef" + SUFFIX);
+  }
 
-		PSExtensionCallSet callSet = new PSExtensionCallSet();
-		PSExtensionParamValue[] params = new PSExtensionParamValue[1];
-		params[0] = new PSExtensionParamValue(new PSTextLiteral(
-				field.getSubmitName()));
-		callSet.add(new PSExtensionCall(new PSExtensionRef(
-				"Java/global/percussion/content/sys_cleanReservedHtmlClasses"),
-				params));
-		inputTranslations.add(new PSConditionalExit(callSet));
-		itemDef.getContentEditor().setInputTranslation(inputTranslations);
-	}
+  private String getSize(PSWidgetBuilderFieldData field) {
+    if (FieldType.TEXT.name().equals(field.getType())) return MAX_TEXT_LEN;
+    else if (FieldType.FILE.name().equals(field.getType())) return FILE_PATH_LEN;
+    else if (FieldType.IMAGE.name().equals(field.getType())) return IMG_PATH_LEN;
+    else if (FieldType.PAGE.name().equals(field.getType())) return PAGE_PATH_LEN;
+    return null;
+  }
 
-	private void addImgLinkFieldTranslations(PSField imgField, PSField linkField) {
-		PSExtensionCallSet callSet = new PSExtensionCallSet();
-		PSExtensionRef ref = new PSExtensionRef(
-				"Java/global/percussion/content/sys_manageItemPathOnUpdate");
-		PSExtensionParamValue[] params = new PSExtensionParamValue[2];
-		params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(
-				imgField.getSubmitName()));
-		params[1] = new PSExtensionParamValue(new PSSingleHtmlParameter(
-				linkField.getSubmitName()));
-		callSet.add(new PSExtensionCall(ref, params));
-		PSFieldTranslation fieldTranslation = new PSFieldTranslation(callSet);
-		linkField.setInputTranslation(fieldTranslation);
+  private int getDbType(PSWidgetBuilderFieldData field) {
+    return dbColumnTypeMap.get(field.getType());
+  }
 
-		callSet = new PSExtensionCallSet();
-		ref = new PSExtensionRef(
-				"Java/global/percussion/content/sys_manageItemPathOnEdit");
-		params = new PSExtensionParamValue[2];
-		params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(
-				imgField.getSubmitName()));
-		params[1] = new PSExtensionParamValue(new PSTextLiteral(
-				linkField.getSubmitName()));
-		callSet.add(new PSExtensionCall(ref, params));
-		fieldTranslation = new PSFieldTranslation(callSet);
-		imgField.setOutputTranslation(fieldTranslation);
-	}
+  PSJdbcTableSchema getSchema(Reader reader)
+      throws IOException, SAXException, PSJdbcTableFactoryException {
+    return new PSJdbcTableSchema(getElementFromReader(reader), getDataTypeMap());
+  }
 
-	private PSField addField(PSBackEndTable beTable,
-			PSWidgetBuilderFieldData field, PSFieldSet fieldSet,
-			boolean required) throws PSSystemValidationException {
-		// create locator
-		PSBackEndColumn col = new PSBackEndColumn(beTable, field.getName()
-				.toUpperCase());
+  private PSJdbcDataTypeMap getDataTypeMap()
+      throws PSJdbcTableFactoryException, IOException, SAXException {
+    if (dataTypeMap == null) dataTypeMap = new PSJdbcDataTypeMap("DERBY", "", "");
+    return dataTypeMap;
+  }
 
-		// add field to field set
-		PSField psfield = new PSField(field.getName(), col);
-		psfield.setType(PSField.TYPE_LOCAL);
-		psfield.setMimeType("text/plain");
-		setTypeSpecificFieldProperties(field, psfield);
-		psfield.setSearchProperties(new PSSearchProperties(true));
-		psfield.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_OPTIONAL,
-				null);
-		if (required)
-			addValidationRule(psfield, field);
-		fieldSet.add(psfield);
+  @Override
+  public boolean handleFile(File file) {
+    return isSchemaFile(file) || isItemDef(file);
+  }
 
-		return psfield;
-	}
+  @Override
+  public File transformPath(File file, PSWidgetPackageSpec packageSpec)
+      throws PSWidgetPackageBuilderException {
+    return file;
+  }
 
-	private PSDisplayMapping addMapping(PSWidgetBuilderFieldData field,
-			PSDisplayMapper mapper)  {
-		// add mapping to ui set
-		PSUISet uiSet = new PSUISet();
-		uiSet.setLabel(new PSDisplayText(field.getLabel() + ":"));
-		uiSet.setErrorLabel(new PSDisplayText(field.getLabel() + ":"));
-		uiSet.setControl(getControlRef(field));
-
-		PSDisplayMapping mapping = new PSDisplayMapping(field.getName(), uiSet);
-		mapper.add(mapping);
-		return mapping;
-	}
-
-	/**
-	 * Add necessary input transform and result doc processor for image fields
-	 * 
-	 * @param itemDef
-	 *            The itemdef to update, not <code>null</code>.
-	 */
-	private void addImageProcessors(PSItemDefinition itemDef) {
-		PSInputTranslations inputTranslations = new PSInputTranslations();
-
-		Iterator<?> currentTrans = itemDef.getContentEditor()
-				.getInputTranslations();
-		while (currentTrans.hasNext()) {
-			inputTranslations.add(currentTrans.next());
-		}
-
-		PSExtensionCallSet callSet = new PSExtensionCallSet();
-		callSet.add(new PSExtensionCall(
-				new PSExtensionRef(
-						"Java/global/percussion/content/sys_managedItemPathPreProcessor"),
-				null));
-		inputTranslations.add(new PSConditionalExit(callSet));
-		itemDef.getContentEditor().setInputTranslation(inputTranslations);
-
-		callSet = new PSExtensionCallSet();
-		callSet.add(new PSExtensionCall(new PSExtensionRef(
-				"Java/global/percussion/content/sys_manageLinksPostProcessor"),
-				null));
-		itemDef.getPipe().setResultDataExtensions(callSet);
-	}
-
-	private void setTypeSpecificFieldProperties(PSWidgetBuilderFieldData field,
-			PSField psfield) {
-		if (field.getType().equals(FieldType.RICH_TEXT.name())) {
-			psfield.setAllowActiveTags(false);
-			psfield.setCleanupBrokenInlineLinks(true);
-			psfield.setCleanupNamespaces(true);
-			psfield.setMayHaveInlineLinks(true);
-			psfield.setDataFormat("max");
-			psfield.setDataType(PSField.DT_TEXT);
-		} else if (field.getType().equals(FieldType.DATE.name())) {
-			psfield.setDataType(PSField.DT_DATE);
-		} else if (field.getType().equals(FieldType.FILE.name())) {
-			psfield.setDataType(PSField.DT_BINARY);
-		} else if (field.getType().equals(FieldType.TEXT_AREA.name())) {
-			psfield.setDataType(PSField.DT_TEXT);
-			psfield.setDataFormat("max");
-		} else if(field.getType().equals(FieldType.PAGE_LINK.name()) ||
-				field.getType().equals(FieldType.FILE_LINK.name()) ||
-				field.getType().equals(FieldType.IMAGE_LINK.name())){
-		      psfield.setDataType(PSField.DT_INTEGER);
-		}else {
-			psfield.setDataType("text");
-			psfield.setDataFormat(getSize(field));
-		}
-	}
-
-	private PSControlRef getControlRef(PSWidgetBuilderFieldData field) {
-		PSControlRef controlRef = new PSControlRef(controlTypeMap.get(field
-				.getType()));
-		controlRef.setId(getNextObjectId());
-		if (field.getType().equals(FieldType.TEXT.name())) {
-			PSCollection params = new PSCollection(PSParam.class);
-			params.add(new PSParam("maxlength", new PSTextLiteral(MAX_TEXT_LEN)));
-			controlRef.setParameters(params);
-		} else if (field.getType().equals(FieldType.TEXT_AREA.name())
-				|| field.getType().equals(FieldType.RICH_TEXT.name())) {
-			PSCollection params = new PSCollection(PSParam.class);
-			params.add(new PSParam("requirescleanup", new PSTextLiteral(
-					REQUIRES_CLEANUP)));
-			controlRef.setParameters(params);
-		}
-
-		return controlRef;
-	}
-
-	/**
-	 * Adds the sys_xdTextCleanup extension to the input data exits, and a
-	 * corresponding set of control dependency user properties
-	 * 
-	 * @param mapping
-	 *            The field to add it for, not <code>null</code>
-	 * @param itemDef
-	 *            The item def to add to, not <code>null</code>.
-	 */
-	@SuppressWarnings("unchecked")
-	private void addTextCleanupExtension(PSDisplayMapping mapping,
-			PSItemDefinition itemDef) {
-		// add extension, add to map
-		PSControlDependencyMap depMap = itemDef.getPipe()
-				.getControlDependencyMap();
-		PSControlMeta ctrlMeta = ctrlMgr.getControl(mapping.getUISet()
-				.getControl().getName());
-		List<PSDependency> deps = new ArrayList<>();
-		deps.addAll(ctrlMeta.getDependencies());
-		for (PSDependency dep : deps) {
-			dep.setId(getNextObjectId());
-		}
-		depMap.setControlDependencies(mapping, deps);
-	}
-
-	/**
-	 * Adds manage link converter extension to rich text field.
-	 * 
-	 * @param psField
-	 *            assumed not <code>null</code>
-	 */
-	private void addRichTextLinkFieldTranslations(PSField psField) {
-		PSExtensionCallSet callSet = new PSExtensionCallSet();
-		PSExtensionRef ref = new PSExtensionRef(
-				"Java/global/percussion/content/sys_manageLinksConverter");
-		PSExtensionParamValue[] params = new PSExtensionParamValue[1];
-		params[0] = new PSExtensionParamValue(new PSSingleHtmlParameter(
-				psField.getSubmitName()));
-		callSet.add(new PSExtensionCall(ref, params));
-		PSFieldTranslation fieldTranslation = new PSFieldTranslation(callSet);
-		psField.setInputTranslation(fieldTranslation);
-	}
-
-	/**
-	 * @param psfield
-	 * @param field
-	 */
-	private void addValidationRule(PSField psfield,
-			PSWidgetBuilderFieldData field) {
-		PSFieldValidationRules validationRules = new PSFieldValidationRules();
-
-		PSCollection rules = new PSCollection(PSRule.class);
-		PSExtensionCallSet extensions = new PSExtensionCallSet();
-		PSExtensionParamValue[] params = { new PSExtensionParamValue(
-				new PSSingleHtmlParameter(field.getName())) };
-		PSExtensionCall extension = new PSExtensionCall(new PSExtensionRef(
-				"Java/global/percussion/content/sys_ValidateRequiredField"),
-				params);
-		extensions.add(extension);
-		rules.add(new PSRule(extensions));
-		validationRules.setRules(rules);
-
-		PSApplyWhen applyWhen = new PSApplyWhen();
-		applyWhen.setIfFieldEmpty(true);
-		validationRules.setApplyWhen(applyWhen);
-
-		String errorMsg = field.getLabel() + " may not be empty.";
-		validationRules.setErrorMessage(new PSDisplayText(errorMsg));
-
-		psfield.setValidationRules(validationRules);
-
-	}
-
-	private PSItemDefinition getItemDef(Reader reader) throws IOException, SAXException, PSUnknownNodeTypeException {
-		return new PSItemDefinition(getElementFromReader(reader));
-	}
-
-	/**
-	 * Parse the content from the supplied reader into a Document and return the
-	 * root element.
-	 * 
-	 * @param reader
-	 *            The reader to use, does not close the underlying stream
-	 * 
-	 * @return The element, may be <code>null</code>.
-	 * 
-	 * @throws IOException
-	 * @throws SAXException
-	 */
-	private Element getElementFromReader(Reader reader) throws IOException,
-			SAXException {
-		Writer out = new StringWriter();
-		IOTools.writeStream(reader, out);
-		return PSXmlDocumentBuilder.createXmlDocument(
-				new StringReader(out.toString()), false).getDocumentElement();
-	}
-
-	private boolean isSchemaFile(File file) {
-		return file.getName().endsWith(".schemaDef" + SUFFIX);
-	}
-
-	private boolean isItemDef(File file) {
-		return file.getName().endsWith(".itemDef" + SUFFIX);
-	}
-
-	private String getSize(PSWidgetBuilderFieldData field) {
-		if (FieldType.TEXT.name().equals(field.getType()))
-			return MAX_TEXT_LEN;
-		else if (FieldType.FILE.name().equals(field.getType()))
-			return FILE_PATH_LEN;
-		else if (FieldType.IMAGE.name().equals(field.getType()))
-			return IMG_PATH_LEN;
-		else if (FieldType.PAGE.name().equals(field.getType()))
-            return PAGE_PATH_LEN;
-
-		return null;
-	}
-
-	private int getDbType(PSWidgetBuilderFieldData field) {
-		return dbColumnTypeMap.get(field.getType());
-	}
-
-	PSJdbcTableSchema getSchema(Reader reader) throws IOException, SAXException, PSJdbcTableFactoryException {
-		return new PSJdbcTableSchema(getElementFromReader(reader),
-				getDataTypeMap());
-	}
-
-	private PSJdbcDataTypeMap getDataTypeMap() throws PSJdbcTableFactoryException, IOException, SAXException {
-		if (dataTypeMap == null)
-			dataTypeMap = new PSJdbcDataTypeMap("DERBY", "", "");
-
-		return dataTypeMap;
-	}
-
-	@Override
-	public boolean handleFile(File file) {
-		return isSchemaFile(file) || isItemDef(file);
-	}
-
-	@SuppressWarnings("unused")
-	@Override
-	public File transformPath(File file, PSWidgetPackageSpec packageSpec)
-			throws PSWidgetPackageBuilderException {
-		// no-op
-		return file;
-	}
-
-	private int getNextObjectId() {
-		return nextObjectId++;
-	}
-
+  private int getNextObjectId() {
+    return nextObjectId++;
+  }
 }

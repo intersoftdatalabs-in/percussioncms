@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,10 @@ import javafx.scene.web.WebEngine;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -78,6 +79,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
@@ -108,7 +110,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    private static final long serialVersionUID = 1L;
 
    public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP = new ConcurrentHashMap<String, PSRelationshipInfo> ();
-   static Logger log = Logger.getLogger(PSContentExplorerApplet.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
 
    private PSHttpConnection m_httpConnection;
 
@@ -176,8 +178,12 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
          URL inputUrl = loader.getResource("wce_log4j.properties");
          if (inputUrl != null)
             {
-               PropertyConfigurator.configure(inputUrl);
+               try {
+               Configurator.initialize(null, inputUrl.toURI());
                log.info("log4j configured");
+               } catch (URISyntaxException e) {
+                  log.error("Cannot convert URL to URI for Log4j configuration: " + inputUrl, e);
+               }
             }
       }
       //As LoginContextWill be set by ContentExplorerFrame, once login details are gathered from user

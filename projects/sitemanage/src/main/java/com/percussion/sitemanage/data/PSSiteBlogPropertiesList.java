@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,24 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/** List wrapper for site blog properties. */
 @XmlRootElement(name = "SiteBlogProperties")
-@ArraySchema(schema=@Schema(implementation = PSSiteBlogProperties.class))
+@ArraySchema(schema = @Schema(implementation = PSSiteBlogProperties.class))
 @JsonRootName("SiteBlogProperties")
 public class PSSiteBlogPropertiesList extends ArrayList<PSSiteBlogProperties> {
-    public PSSiteBlogPropertiesList(Collection<? extends PSSiteBlogProperties> c) {
-        super(c);
-    }
+  private static final long serialVersionUID = 1L;
+
+  public PSSiteBlogPropertiesList(Collection<? extends PSSiteBlogProperties> c) {
+    super(c);
+  }
 }

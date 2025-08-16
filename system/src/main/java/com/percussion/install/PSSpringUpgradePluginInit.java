@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,67 +16,49 @@
  */
 package com.percussion.install;
 
-//java
+// java
 import org.w3c.dom.Element;
 
-
-
 /**
- * This plugin has been written to initiliaze the spring configuration.  It must
- * be run prior to the repository upgrade.
+ * This plugin has been written to initiliaze the spring configuration. It must be run prior to the
+ * repository upgrade.
  */
+public class PSSpringUpgradePluginInit extends PSSpringUpgradePluginBase {
+  /** Default constructor */
+  public PSSpringUpgradePluginInit() {
+    super();
+  }
 
-public class PSSpringUpgradePluginInit extends PSSpringUpgradePluginBase
-{
-   /**
-    * Default constructor
-    */
-   public PSSpringUpgradePluginInit()
-   {
-      super();
-   }
+  /**
+   * Implements the process function of IPSUpgradePlugin. Logs an initiliazation complete message.
+   *
+   * @param config PSUpgradeModule object. Not used.
+   * @param elemData We do not use this element in this function.
+   * @return <code>null</code>.
+   */
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    m_config = config;
+    log("Spring initialization complete.");
 
-   /**
-    * Implements the process function of IPSUpgradePlugin.  Logs an initiliazation
-    * complete message.
-    *
-    * @param config PSUpgradeModule object.  Not used.
-    * @param elemData We do not use this element in this function.
-    * @return <code>null</code>.
-    */
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      m_config = config;
-      log("Spring initialization complete.");
-      
-      return new PSPluginResponse(PSPluginResponse.SUCCESS, 
-            "Spring initialization complete");
-   }
+    return new PSPluginResponse(PSPluginResponse.SUCCESS, "Spring initialization complete");
+  }
 
-   /**
-    * Prints message to the log printstream if it exists
-    * or just sends it to System.out
-    *
-    * @param msg the message to be logged, can be <code>null</code>.
-    */
-   private static void log(String msg)
-   {
-      if (msg == null)
-      {
-         return;
-      }
+  /**
+   * Prints message to the log printstream if it exists or just sends it to System.out
+   *
+   * @param msg the message to be logged, can be <code>null</code>.
+   */
+  private static void log(String msg) {
+    if (msg == null) {
+      return;
+    }
 
-      if (m_config != null)
-      {
-         m_config.getLogStream().println(msg);
-      }
-      else
-      {
-         System.out.println(msg);
-      }
-   }
-   
-   private static IPSUpgradeModule m_config;
-      
-      
+    if (m_config != null) {
+      m_config.getLogStream().println(msg);
+    } else {
+      System.out.println(msg);
+    }
+  }
+
+  private static IPSUpgradeModule m_config;
 }

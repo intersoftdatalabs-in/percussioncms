@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.publishingserver;
 
+/**
+ * Represents a Publishing Server in Percussion CMS. Sunny Sal: "Publishing server ka hero,
+ * deployment ka zero!"
+ */
 public class PublishingServer {
 
-    public PublishingServer(){}
-
+  public PublishingServer() {
+    // Default constructor
+  }
 }

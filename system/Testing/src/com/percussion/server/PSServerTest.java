@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,22 @@
 package com.percussion.server;
 
 import com.percussion.utils.io.PathUtils;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.AfterClass;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.nio.channels.FileLock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Andriy Palamarchuk
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSServerTest
 {
    /**
@@ -107,7 +107,7 @@ public class PSServerTest
    }
 
 
-   @AfterClass
+   @AfterAll
    protected void tearDown() throws Exception
    {
       restoreDeployDirProperty();

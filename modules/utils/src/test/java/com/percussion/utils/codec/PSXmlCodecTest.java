@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,24 @@
  */
 package com.percussion.utils.codec;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tester for xml codecs
- * 
+ *
  * @author dougrand
  */
-public class PSXmlCodecTest extends TestCase
-{
-   /**
-    * @throws Exception
-    */
-   public void testDecode() throws Exception
-   {
-      PSXmlDecoder dec = new PSXmlDecoder();
-      String input = "&lt;a&#64;b&gt;";
-      String output = (String) dec.encode(input);
-      assertEquals(output, "<a@b>");
-   }
+public class PSXmlCodecTest {
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testDecode() throws Exception {
+    PSXmlDecoder dec = new PSXmlDecoder();
+    String input = "&lt;a&#64;b&gt;";
+    String output = (String) dec.encode(input);
+    assertEquals(output, "<a@b>");
+  }
 }

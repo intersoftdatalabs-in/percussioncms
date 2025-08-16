@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,18 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Node_editorDAO {
 
-    public Collection getAllNode_editors();
+  public Collection getAllNode_editors();
 
-    public Node_editor getNode_editor(int id);
+  public Node_editor getNode_editor(int id);
 
-    public void removeNode_editor(Node_editor node_editor);
-    
-    public void removeNode_editors(Collection<Node_editor> node_editors);
+  public void removeNode_editor(Node_editor node_editor);
 
-    public void saveNode_editor(Node_editor node_editor);
+  public void removeNode_editors(Collection<Node_editor> node_editors);
+
+  public void saveNode_editor(Node_editor node_editor);
 }

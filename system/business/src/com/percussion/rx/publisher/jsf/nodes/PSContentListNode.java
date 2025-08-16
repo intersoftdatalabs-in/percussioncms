@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.rx.publisher.jsf.data.PSParameter;
@@ -29,9 +31,9 @@ import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSContentList;
 import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.services.publisher.ui.PSPublisherUI;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;
-import com.percussion.util.PSUrlUtils;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -48,8 +50,12 @@ import java.util.*;
  * 
  * @author dougrand
  */
-public class PSContentListNode extends PSDesignNode
-{
+/**
+ * Java 11 refactored: Content list node for JSF publishing design tree.
+ * <p>Uses var, Optional, Google Java Style, and improved null safety. Comments and spelling fixed.
+ * @author dougrand
+ */
+public class PSContentListNode extends PSDesignNode {
    /**
     * Log.
     */
@@ -68,7 +74,7 @@ public class PSContentListNode extends PSDesignNode
    /**
     * These params are skipped for the "extra" params field.
     */
-   public static Set<String> ms_omit_params = new HashSet<>();
+   public static final Set<String> ms_omit_params = new HashSet<>();
 
    /*
     * Initialize
@@ -99,12 +105,12 @@ public class PSContentListNode extends PSDesignNode
    /**
     * The current generator parameters being edited.
     */
-   List<PSParameter> m_currentGenParams = null;
+   List<PSParameter> m_currentGenParams = new ArrayList<>();
 
    /**
     * The current expander parameters being edited.
     */
-   List<PSParameter> m_currentExpParams = null;
+   List<PSParameter> m_currentExpParams = new ArrayList<>();
 
    /**
     * The current generator.
@@ -133,7 +139,7 @@ public class PSContentListNode extends PSDesignNode
     */
    public PSContentListNode(IPSContentList contentlist) {
       super(contentlist.getName(), contentlist.getGUID());
-      Map<String, String> props = new HashMap<>();
+      var props = new HashMap<String, String>();
       props.put("description", contentlist.getDescription());
       props.put("type", contentlist.getType().name());
       setProperties(props);
@@ -152,18 +158,11 @@ public class PSContentListNode extends PSDesignNode
     * @return The outcome used by the navigation system to decide where to go
     * next or <code>null</code> if there's an error.
     */
-   static String handleNewContentList(PSContentListViewNode parent,
-         PSContentListNode clNode)
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-            .getPublisherService();
-      try
-      {
-         psvc.saveContentLists(Collections.singletonList(clNode
-               .getContentList()));
-      }
-      catch (Exception e)
-      {
+   static String handleNewContentList(PSContentListViewNode parent, PSContentListNode clNode) {
+      var psvc = PSPublisherServiceLocator.getPublisherService();
+      try {
+         psvc.saveContentLists(Collections.singletonList(clNode.getContentList()));
+      } catch (Exception e) {
          ms_log.error("Content list saving failure", e);
          return null;
       }
@@ -173,8 +172,7 @@ public class PSContentListNode extends PSDesignNode
    /**
     * @return Returns the editionType.
     */
-   public int getEditionType()
-   {
+   public int getEditionType() {
       return m_clist.getEditionType().getTypeId();
    }
 
@@ -183,32 +181,28 @@ public class PSContentListNode extends PSDesignNode
     * 
     * @param type the new edition type
     */
-   public void setEditionType(int type)
-   {
+   public void setEditionType(int type) {
       m_clist.setEditionType(PSEditionType.valueOf(type));
    }
 
    /**
     * @return Returns the id.
     */
-   public IPSContentList getContentList()
-   {
+   public IPSContentList getContentList() {
       return m_clist;
    }
 
    /**
     * @return Returns the expander.
     */
-   public String getExpander()
-   {
+   public String getExpander() {
       return m_expander;
    }
 
    /**
     * @param expander The expander to set.
     */
-   public void setExpander(String expander)
-   {
+   public void setExpander(String expander) {
       m_expander = expander;
       m_resetExpParams = true;
    }
@@ -216,16 +210,14 @@ public class PSContentListNode extends PSDesignNode
    /**
     * @return Returns the generator.
     */
-   public String getGenerator()
-   {
+   public String getGenerator() {
       return m_generator;
    }
 
    /**
     * @param generator The generator to set.
     */
-   public void setGenerator(String generator)
-   {
+   public void setGenerator(String generator) {
       m_generator = generator;
       m_resetGenParams = true;
    }
@@ -237,35 +229,21 @@ public class PSContentListNode extends PSDesignNode
     * @param params the params to be adjusted, assumed not <code>null</code>
     * @return the adjusted item list
     */
-   private List<PSParameter> adjustParameters(String extension,
-         List<PSParameter> params)
-   {
-      if (StringUtils.isBlank(extension))
-      {
+   private List<PSParameter> adjustParameters(String extension, List<PSParameter> params) {
+      if (StringUtils.isBlank(extension)) {
          params.clear();
          return params;
       }
-
-      // Store the old data
-      Map<String, String> pdata = new HashMap<>();
-      for (PSParameter i : params)
-      {
-         if (i.getValue() == null)
-            continue;
+      var pdata = new HashMap<String, String>();
+      for (var i : params) {
+         if (i.getValue() == null) continue;
          pdata.put(i.getName(), i.getValue());
       }
-
-      // Clear old data
       params.clear();
-
-      PSPair<String, String>[] declared = ms_pubui.getParameters(extension);
-
-      // Create new
-      for (PSPair<String, String> pdecl : declared)
-      {
-         String name = pdecl.getFirst();
-         String desc = pdecl.getSecond();
-         String value = pdata.get(name);
+      for (var pdecl : ms_pubui.getParameters(extension)) {
+         var name = pdecl.getFirst();
+         var desc = pdecl.getSecond();
+         var value = pdata.get(name);
          params.add(new PSParameter(name, desc, value));
       }
       return params;

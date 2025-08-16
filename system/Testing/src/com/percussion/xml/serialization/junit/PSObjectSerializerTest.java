@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
  */
 package com.percussion.xml.serialization.junit;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.xml.serialization.PSObjectSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.xml.sax.SAXException;
 
 import java.beans.IntrospectionException;
@@ -34,14 +34,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author RammohanVangapalli
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Ignore
+@TestMethodOrder(MethodName.class)
+@Disabled
 public class PSObjectSerializerTest
 {
 
@@ -136,7 +136,7 @@ public class PSObjectSerializerTest
     * 
     * @throws Exception error
     */
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       PSXmlSerializationHelper.addType("person", Person.class);
@@ -176,7 +176,7 @@ public class PSObjectSerializerTest
     */
    @Test
    //TODO: Fix me!  Test is failing on Linux build server
-   @Ignore
+   @Disabled
    public void test02DeSerialization() throws Exception
    {
       Person personNew = (Person) serializer.fromXmlString(serializedString);
@@ -190,7 +190,7 @@ public class PSObjectSerializerTest
     */
    @Test
    //TODO: Fix me!  Test is failing on Linux build server
-   @Ignore
+   @Disabled
    public void test03Collections1() throws Exception
    {
       PSXmlSerializationHelper.addType("p-list",PersonList.class);

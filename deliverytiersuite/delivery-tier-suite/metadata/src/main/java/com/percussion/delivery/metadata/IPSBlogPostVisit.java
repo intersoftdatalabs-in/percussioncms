@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,16 @@ package com.percussion.delivery.metadata;
 import java.math.BigInteger;
 import java.util.Date;
 
-public interface IPSBlogPostVisit
-{
-    public BigInteger getHitCount();
+public interface IPSBlogPostVisit {
+  public BigInteger getHitCount();
 
-    public void setHitCount(BigInteger count);
+  public void setHitCount(BigInteger count);
 
-    public Date getHitDate();
+  public Date getHitDate();
 
-    public void setHitDate(Date date);
+  public void setHitDate(Date date);
 
-    public String getPagepath();
+  public String getPagepath();
 
-    public void setPagepath(String path);
+  public void setPagepath(String path);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import net.sf.oval.constraint.NotNull;
 
 /**
  * Represents the physical location of an asset resource.
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSResourceLocation
-{
-    @NotNull
-    private String filePath;
+public class PSResourceLocation {
 
-    public String getFilePath()
-    {
-        return filePath;
-    }
+  @NotNull private String filePath;
 
-    public void setFilePath(String filePath)
-    {
-        this.filePath = filePath;
-    }
-    
-    
+  public String getFilePath() {
+    return filePath;
+  }
 
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
 }
-

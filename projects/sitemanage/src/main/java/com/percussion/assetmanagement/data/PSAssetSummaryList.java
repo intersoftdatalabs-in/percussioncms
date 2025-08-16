@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,23 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/** List wrapper for PSAssetSummary objects. */
 @XmlRootElement(name = "AssetSummary")
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
-    public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
-        super(c);
-    }
+
+  public PSAssetSummaryList() {
+    super();
+  }
+
+  public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
+    super(c);
+  }
 }

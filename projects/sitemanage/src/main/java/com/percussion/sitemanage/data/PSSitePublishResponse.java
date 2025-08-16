@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,138 +17,102 @@
  */
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-
-/**
- * This response object stores the information returned from a publish request.
- */
+/** This response object stores the information returned from a publish request. */
 @XmlRootElement(name = "SitePublishResponse")
 @JsonRootName("SitePublishResponse")
-public class PSSitePublishResponse
-{
-   /**
-    * See {@link #getSiteName()}.
-    */
-   String siteName;
+public class PSSitePublishResponse {
+  private String siteName;
 
-   /**
-    * See {@link #getStatus()}.
-    */
-   @NotBlank
-   @NotNull
-   String status;
+  @NotBlank @NotNull private String status;
 
-   /**
-    * See {@link #getDelivered()}.
-    */
-   @NotBlank
-   @NotNull
-   String delivered;
+  @NotBlank @NotNull private String delivered;
 
-   /**
-    * See {@link #getFailures()}.
-    */
-   @NotBlank
-   @NotNull
-   String failures;
-   
-   String warningMessage;
-   
-    long jobid;
+  @NotBlank @NotNull private String failures;
 
-    public long getJobid()
-    {
-        return jobid;
-    }
+  private String warningMessage;
+  private long jobid;
 
-    public void setJobid(long jobid)
-    {
-        this.jobid = jobid;
-    }
+  public long getJobid() {
+    return jobid;
+  }
 
-/**
-    * @return the name of the site to be published.
-    */
-   public String getSiteName()
-   {
-      return siteName;
-   }
+  public void setJobid(long jobid) {
+    this.jobid = jobid;
+  }
 
-   /**
-    * @param siteName the name of the site to be published.
-    */
-   public void setSiteName(String siteName)
-   {
-      this.siteName = siteName;
-   }
+  /**
+   * @return the name of the site to be published.
+   */
+  public Optional<String> getSiteName() {
+    return Optional.ofNullable(siteName);
+  }
 
-   /**
-    * @return the publishing status, never blank.
-    */
-   public String getStatus()
-   {
-      return status;
-   }
+  /**
+   * @param siteName the name of the site to be published.
+   */
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-   /**
-    * @param status the publishing status. May not be blank.
-    */
-   public void setStatus(String status)
-   {
-      this.status = status;
-   }
+  /**
+   * @return the publishing status, never blank.
+   */
+  public String getStatus() {
+    return status;
+  }
 
-   /**
-    * @return the number of items delivered, never blank.
-    */
-   public String getDelivered()
-   {
-      return delivered;
-   }
+  /**
+   * @param status the publishing status. May not be blank.
+   */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-   /**
-    * @param delivered the number of items delivered. May not be blank.
-    */
-   public void setDelivered(String delivered)
-   {
-      this.delivered = delivered;
-   }
-   
-   /**
-    * @return the number of failures, never blank.
-    */
-   public String getFailures()
-   {
-      return failures;
-   }
+  /**
+   * @return the number of items delivered, never blank.
+   */
+  public String getDelivered() {
+    return delivered;
+  }
 
-   /**
-    * @param failures the number of failures. May not be blank.
-    */
-   public void setFailures(String failures)
-   {
-      this.failures = failures;
-   }
-   
-    /**
-     * @return the warning message.
-     */
-    public String getWarningMessage()
-    {
-        return warningMessage;
-    }
+  /**
+   * @param delivered the number of items delivered. May not be blank.
+   */
+  public void setDelivered(String delivered) {
+    this.delivered = delivered;
+  }
 
-    /**
-     * @param warningMessage the warning message.
-     */
-    public void setWarningMessage(String warningMessage)
-    {
-        this.warningMessage = warningMessage;
-    }
+  /**
+   * @return the number of failures, never blank.
+   */
+  public String getFailures() {
+    return failures;
+  }
 
+  /**
+   * @param failures the number of failures. May not be blank.
+   */
+  public void setFailures(String failures) {
+    this.failures = failures;
+  }
+
+  /**
+   * @return the warning message.
+   */
+  public Optional<String> getWarningMessage() {
+    return Optional.ofNullable(warningMessage);
+  }
+
+  /**
+   * @param warningMessage the warning message.
+   */
+  public void setWarningMessage(String warningMessage) {
+    this.warningMessage = warningMessage;
+  }
 }

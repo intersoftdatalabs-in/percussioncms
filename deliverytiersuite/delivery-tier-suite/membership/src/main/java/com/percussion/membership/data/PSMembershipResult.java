@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,34 @@ package com.percussion.membership.data;
 
 /**
  * Base class for membership rest call results
- * 
+ *
  * @author JaySeletz
  */
-public class PSMembershipResult
-{
+public class PSMembershipResult {
 
-    protected STATUS status;
-    protected String message;
+  protected STATUS status;
+  protected String message;
 
-    public PSMembershipResult(STATUS status, String message)
-    {
-        this.status = status;
-        this.message = message;
-    }
-    
-    public STATUS getStatus()
-    {
-        return status;
-    }
+  public PSMembershipResult(STATUS status, String message) {
+    this.status = status;
+    this.message = message;
+  }
 
-    public String getMessage()
-    {
-        return message;
-    }
+  public STATUS getStatus() {
+    return status;
+  }
 
-    /**
-     * Enumeration of result status.
-     */
-    public enum STATUS
-    {
-       SUCCESS,
-       INVALID_PARAM,
-       UNEXPECTED_ERROR, 
-       MEMBER_EXISTS, 
-       AUTH_FAILED,
-       INVALID_RESET_KEY
-    }
+  public String getMessage() {
+    return message;
+  }
 
+  /** Enumeration of result status. */
+  public enum STATUS {
+    SUCCESS,
+    INVALID_PARAM,
+    UNEXPECTED_ERROR,
+    MEMBER_EXISTS,
+    AUTH_FAILED,
+    INVALID_RESET_KEY
+  }
 }

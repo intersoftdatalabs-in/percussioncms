@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ import java.util.List;
 
 /**
  * Used to dynamically return values used by the {@link PSWorkflowInfo} class.
- * 
+ *
  * @author JaySeletz
  */
-public interface IPSWorkflowInfoValueAccessor
-{
-   /**
-    * Returns a list of values to use, never <code>null</code>.  See {@link PSWorkflowInfo#getValues()}.
-    */
-   public List<Integer> getValues();
-   
-   /**
-    * Returns if the list should be considered exclusionary or inclusionary. See
-    * {@link PSWorkflowInfo#isExclusionary()}.
-    * 
-    * @return <code>true</code> if exclusionary, <code>false</code> if not.
-    */
-   public boolean isExclusionary();
+public interface IPSWorkflowInfoValueAccessor {
+  /**
+   * Returns a list of values to use, never <code>null</code>. See {@link
+   * PSWorkflowInfo#getValues()}.
+   */
+  public List<Integer> getValues();
+
+  /**
+   * Returns if the list should be considered exclusionary or inclusionary. See {@link
+   * PSWorkflowInfo#isExclusionary()}.
+   *
+   * @return <code>true</code> if exclusionary, <code>false</code> if not.
+   */
+  public boolean isExclusionary();
 }

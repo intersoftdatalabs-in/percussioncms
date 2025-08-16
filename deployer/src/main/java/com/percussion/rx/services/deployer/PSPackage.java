@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,176 +17,142 @@
  */
 package com.percussion.rx.services.deployer;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Class that represents one package entry in the package mgt ui
- * list table.
- * @author erikserating
- *
+ * Represents one package entry in the package management UI list table. Sunny Sal says: "A package
+ * a day keeps the deployment bugs away!"
  */
 @XmlRootElement(name = "Package")
-public class PSPackage
-{   
-   
-   /**
-    * ctor
-    */
-   public PSPackage()
-   {
-      super();
-   }   
-   
-   /**
-    * @return the installed
-    */
-   public String getPackageStatus()
-   {
-      return m_packageStatus;
-   }
-   /**
-    * @param status the installed to set
-    */
-   public void setPackageStatus(String status)
-   {
-      m_packageStatus = status;
-   }
-   /**
-    * @return the configured
-    */
-   public String getConfigStatus()
-   {
-      return m_configStatus;
-   }
-   /**
-    * @param status the configured to set
-    */
-   public void setConfigStatus(String status)
-   {
-      m_configStatus = status;
-   }
-   /**
-    * @return the name
-    */
-   public String getName()
-   {
-      return m_name;
-   }
-   /**
-    * @param name the name to set
-    */
-   public void setName(String name)
-   {
-      m_name = name;
-   }
-   /**
-    * @return the publisher
-    */
-   public String getPublisher()
-   {
-      return m_publisher;
-   }
-   /**
-    * @param publisher the publisher to set
-    */
-   public void setPublisher(String publisher)
-   {
-      m_publisher = publisher;
-   }
-   /**
-    * @return the version
-    */
-   public String getVersion()
-   {
-      return m_version;
-   }
-   /**
-    * @param version the version to set
-    */
-   public void setVersion(String version)
-   {
-      m_version = version;
-   }
-   /**
-    * @return the desc
-    */
-   public String getDesc()
-   {
-      return m_desc;
-   }
-   /**
-    * @param desc the desc to set
-    */
-   public void setDesc(String desc)
-   {
-      m_desc = desc;
-   }
-   /**
-    * @return the installdate
-    */
-   public Date getInstalldate()
-   {
-      return m_installdate;
-   }
-   /**
-    * @param installdate the installdate to set
-    */
-   public void setInstalldate(Date installdate)
-   {
-      m_installdate = installdate;
-   }
-   /**
-    * @return the installer
-    */
-   public String getInstaller()
-   {
-      return m_installer;
-   }
-   /**
-    * @param installer the installer to set
-    */
-   public void setInstaller(String installer)
-   {
-      m_installer = installer;
-   }
-   /**
-    * @return the package category
-    */
-   public String getCategory()
-   {
-      return m_category;
-   }
-   /**
-    * @param category the package category to set
-    */
-   public void setCategory(String category)
-   {
-      m_category = category;
-   }
-   
-   /**
-    * @return the package category
-    */
-   public String getLockStatus()
-   {
-      return m_lockstatus;
-   }
-   /**
-    * @param lockStatus the package category to set
-    */
-   public void setLockStatus(String lockStatus)
-   {
-      m_lockstatus = lockStatus;
-   }
-   private String m_packageStatus;
-   private String m_configStatus;
-   private String m_name;
-   private String m_publisher;
-   private String m_version;
-   private String m_desc;
-   private Date m_installdate;
-   private String m_installer;
-   private String m_category;
-   private String m_lockstatus;
+public class PSPackage {
+
+  private String packageStatus;
+  private String configStatus;
+  private String name;
+  private String publisher;
+  private String version;
+  private String desc;
+  private Date installdate;
+  private String installer;
+  private String category;
+  private String lockStatus;
+
+  /** Default constructor. */
+  public PSPackage() {
+    // For JAXB and bean use
+  }
+
+  public String getPackageStatus() {
+    return packageStatus;
+  }
+
+  public void setPackageStatus(String status) {
+    this.packageStatus = status;
+  }
+
+  public String getConfigStatus() {
+    return configStatus;
+  }
+
+  public void setConfigStatus(String status) {
+    this.configStatus = status;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getPublisher() {
+    return publisher;
+  }
+
+  public void setPublisher(String publisher) {
+    this.publisher = publisher;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  public String getDesc() {
+    return desc;
+  }
+
+  public void setDesc(String desc) {
+    this.desc = desc;
+  }
+
+  public Date getInstalldate() {
+    return installdate;
+  }
+
+  public void setInstalldate(Date installdate) {
+    this.installdate = installdate;
+  }
+
+  public String getInstaller() {
+    return installer;
+  }
+
+  public void setInstaller(String installer) {
+    this.installer = installer;
+  }
+
+  public String getCategory() {
+    return category;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public String getLockStatus() {
+    return lockStatus;
+  }
+
+  public void setLockStatus(String lockStatus) {
+    this.lockStatus = lockStatus;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSPackage)) return false;
+    var that = (PSPackage) o;
+    return Objects.equals(packageStatus, that.packageStatus)
+        && Objects.equals(configStatus, that.configStatus)
+        && Objects.equals(name, that.name)
+        && Objects.equals(publisher, that.publisher)
+        && Objects.equals(version, that.version)
+        && Objects.equals(desc, that.desc)
+        && Objects.equals(installdate, that.installdate)
+        && Objects.equals(installer, that.installer)
+        && Objects.equals(category, that.category)
+        && Objects.equals(lockStatus, that.lockStatus);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        packageStatus,
+        configStatus,
+        name,
+        publisher,
+        version,
+        desc,
+        installdate,
+        installer,
+        category,
+        lockStatus);
+  }
 }

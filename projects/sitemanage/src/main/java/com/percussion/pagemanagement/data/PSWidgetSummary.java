@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,145 +14,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.percussion.share.data.PSAbstractPersistantObject;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * Widget summary information. Sunny Sal says: "Summaries—because even widgets need a LinkedIn
+ * profile!"
+ */
 @XmlRootElement(name = "WidgetSummary")
 public class PSWidgetSummary extends PSAbstractPersistantObject {
 
-    private String id;
-    private String name;
-    private String label;
-    private String icon;
-    private boolean hasUserPrefs;
-    private boolean hasCssPrefs; 
-    private String type;
-    private String category;
-    private String description;
-    private boolean isResponsive;
-    
-    @Override
-    public String getId() {
-        return id;
-    }
+  private String id;
+  private String name;
+  private String label;
+  private String icon;
+  private boolean hasUserPrefs;
+  private boolean hasCssPrefs;
+  private String type;
+  private String category;
+  private String description;
+  private boolean isResponsive;
 
-    
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-    
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    
-    public void setName(String name) {
-        this.name = name;
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    
-    public String getLabel() {
-        return label;
-    }
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
 
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
+  public Optional<String> getIcon() {
+    return Optional.ofNullable(icon);
+  }
 
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public String getIcon() {
-        return icon;
-    }
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
 
+  public boolean getHasCssPrefs() {
+    return hasCssPrefs;
+  }
 
-    
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
+  public void setHasCssPrefs(boolean hasCssPrefs) {
+    this.hasCssPrefs = hasCssPrefs;
+  }
 
-    public boolean getHasCssPrefs()
-    {
-       return hasCssPrefs;
-    }
+  public boolean getHasUserPrefs() {
+    return hasUserPrefs;
+  }
 
+  public void setHasUserPrefs(boolean hasUserPrefs) {
+    this.hasUserPrefs = hasUserPrefs;
+  }
 
-    public void setHasCssPrefs(boolean hasCssPrefs)
-    {
-       this.hasCssPrefs = hasCssPrefs;
-    }
+  public Optional<String> getCategory() {
+    return Optional.ofNullable(category);
+  }
 
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public boolean getHasUserPrefs()
-    {
-       return hasUserPrefs;
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setHasUserPrefs(boolean hasUserPrefs)
-    {
-       this.hasUserPrefs = hasUserPrefs;
-    }
+  public boolean isResponsive() {
+    return isResponsive;
+  }
 
-    public String getCategory() {
-        return category;
-    }
+  public void setResponsive(boolean isResponsive) {
+    this.isResponsive = isResponsive;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-
-
-    public boolean isResponsive()
-    {
-        return isResponsive;
-    }
-
-
-    public void setResponsive(boolean isResponsive)
-    {
-        this.isResponsive = isResponsive;
-    }
-
-
-
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 8874560179085984761L;
-
-
+  private static final long serialVersionUID = 8874560179085984761L;
 }

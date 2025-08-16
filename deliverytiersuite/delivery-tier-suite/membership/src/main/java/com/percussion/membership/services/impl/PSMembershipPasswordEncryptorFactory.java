@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,15 @@ import org.jasypt.util.password.PasswordEncryptor;
 
 /**
  * Factory class to get a password encryptor
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSMembershipPasswordEncryptorFactory
-{
-    public static PasswordEncryptor getPasswordEncryptor()
-    {
-        ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
-        passwordEncryptor.setAlgorithm("SHA-256");
-        passwordEncryptor.setPlainDigest(false);
-        
-        return passwordEncryptor;
-    }
+public class PSMembershipPasswordEncryptorFactory {
+  public static PasswordEncryptor getPasswordEncryptor() {
+    ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
+    passwordEncryptor.setAlgorithm("SHA-256");
+    passwordEncryptor.setPlainDigest(false);
+
+    return passwordEncryptor;
+  }
 }

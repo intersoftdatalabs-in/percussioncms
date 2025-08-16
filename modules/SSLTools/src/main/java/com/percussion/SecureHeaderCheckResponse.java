@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SecureHeaderCheckResponse {
-    private boolean failedCheck = false;
+  private boolean failedCheck = false;
 
-    private Map<String, Boolean> checks = new HashMap<>();
+  private Map<String, Boolean> checks = new HashMap<>();
 
-    public Map<String, Boolean> getChecks() {
-        return checks;
-    }
+  public Map<String, Boolean> getChecks() {
+    return checks;
+  }
 
-    public void setChecks(Map<String, Boolean> checks) {
-        this.checks = checks;
-    }
+  public void setChecks(Map<String, Boolean> checks) {
+    this.checks = checks;
+  }
 
-    /**
-     * When true at least one check failed.
-     * @return
-     */
-    public boolean isFailedCheck() {
-        return failedCheck;
-    }
+  /**
+   * When true at least one check failed.
+   *
+   * @return
+   */
+  public boolean isFailedCheck() {
+    return failedCheck;
+  }
 
-    public void setFailedCheck(boolean failedCheck) {
-        this.failedCheck = failedCheck;
-    }
+  public void setFailedCheck(boolean failedCheck) {
+    this.failedCheck = failedCheck;
+  }
 }

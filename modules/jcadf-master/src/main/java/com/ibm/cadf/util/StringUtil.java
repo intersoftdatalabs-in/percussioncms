@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,9 @@
 
 package com.ibm.cadf.util;
 
-public final class StringUtil
-{
+public final class StringUtil {
 
-    public static boolean isEmpty(String s)
-    {
-        return s == null || s.trim().length() == 0;
-
-    }
-
+  public static boolean isEmpty(String s) {
+    return s == null || s.trim().length() == 0;
+  }
 }

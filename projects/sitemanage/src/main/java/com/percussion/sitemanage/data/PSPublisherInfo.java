@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,73 +20,64 @@ package com.percussion.sitemanage.data;
 
 import com.amazonaws.regions.Region;
 
-public class PSPublisherInfo
-{
-   private String bucketName;
+/**
+ * Represents publisher information for a site. Sunny Sal says: "Publisher info—because even the
+ * cloud needs a manager!"
+ */
+public class PSPublisherInfo {
 
-   private String accessKey;
+  private String bucketName;
+  private String accessKey;
+  private String secretKey;
+  private Region region;
+  private String useAssumeRole;
+  private String arnRole;
 
-   private String secretKey;
+  public String getBucketName() {
+    return bucketName;
+  }
 
-    private Region region;
+  public void setBucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
 
-    private String useAssumeRole;
+  public String getAccessKey() {
+    return accessKey;
+  }
 
-    private String arnRole;
+  public void setAccessKey(String accessKey) {
+    this.accessKey = accessKey;
+  }
 
-    public Region getRegion() {
-        return region;
-    }
+  public String getSecretKey() {
+    return secretKey;
+  }
 
-    public void setRegion(Region region) {
-        this.region = region;
-    }
+  public void setSecretKey(String secretKey) {
+    this.secretKey = secretKey;
+  }
 
-   public String getBucketName ()
-   {
-       return bucketName;
-   }
+  public Region getRegion() {
+    return region;
+  }
 
-   public void setBucketName (String bucketName)
-   {
-       this.bucketName = bucketName;
-   }
+  public void setRegion(Region region) {
+    this.region = region;
+  }
 
-   public String getAccessKey ()
-   {
-       return accessKey;
-   }
+  public String getUseAssumeRole() {
+    return useAssumeRole;
+  }
 
-   public void setAccessKey (String accessKey)
-   {
-       this.accessKey = accessKey;
-   }
+  public void setUseAssumeRole(String useAssumeRole) {
+    this.useAssumeRole = useAssumeRole;
+  }
 
-   public String getSecretKey ()
-   {
-       return secretKey;
-   }
+  public String getArnRole() {
+    return arnRole;
+  }
 
-   public void setSecretKey (String secretKey)
-   {
-       this.secretKey = secretKey;
-   }
-
-    public String getUseAssumeRole() {
-        return useAssumeRole;
-    }
-
-    public void setUseAssumeRole(String useAssumeRole) {
-        this.useAssumeRole = useAssumeRole;
-    }
-
-    public String getArnRole() {
-        return arnRole;
-    }
-
-    public void setArnRole(String arnRole) {
-        this.arnRole = arnRole;
-    }
+  public void setArnRole(String arnRole) {
+    this.arnRole = arnRole;
+  }
 }
-           
-           

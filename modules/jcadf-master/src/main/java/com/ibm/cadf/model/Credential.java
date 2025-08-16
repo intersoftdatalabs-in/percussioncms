@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,56 +17,44 @@
 
 package com.ibm.cadf.model;
 
-import java.text.MessageFormat;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.text.MessageFormat;
+import org.apache.commons.lang3.StringUtils;
 
-public class Credential extends CADFType
-{
+public class Credential extends CADFType {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String type;
+  private String type;
 
-    private String token;
+  private String token;
 
-    public Credential(String token) throws CADFException
-    {
-        super();
-        this.token = token;
-    }
+  public Credential(String token) throws CADFException {
+    super();
+    this.token = token;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getToken()
-    {
-        return token;
-    }
+  public String getToken() {
+    return token;
+  }
 
-    public void setToken(String token)
-    {
-        this.token = token;
-    }
+  public void setToken(String token) {
+    this.token = token;
+  }
 
-    @Override
-    public boolean isValid() throws CADFException
-    {
-        // Validation to ensure Credential required attributes are set.
-        if (StringUtils.isNotEmpty(this.token))
-            return true;
-        else
-            throw new CADFException(MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token"));
-    }
-
+  @Override
+  public boolean isValid() throws CADFException {
+    // Validation to ensure Credential required attributes are set.
+    if (StringUtils.isNotEmpty(this.token)) return true;
+    else throw new CADFException(MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "token"));
+  }
 }

@@ -9,8 +9,8 @@
     <artifactId>webservices</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <axis.version>1.4.1</axis.version>
-        <axiscore.version>1.4.2</axiscore.version>
+        <axis.version>1.4</axis.version>
+        <axiscore.version>1.4</axiscore.version>
     </properties>
     <build>
         <plugins>
@@ -247,7 +247,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-        </dependency>
+        <version>${axis.version}</version></dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxrpc-api</artifactId>

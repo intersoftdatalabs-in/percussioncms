@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,43 @@
 
 package com.percussion.delivery.metadata.solr.impl;
 
-public class PSSolrDeliveryException
-{
+/**
+ * Exception class for handling errors related to Solr delivery in Percussion CMS.
+ */
+// REFACTORED: CP-JAVA11
+public class PSSolrDeliveryException extends RuntimeException {
+    /**
+     * Constructs a new PSSolrDeliveryException with no detail message.
+     */
+    public PSSolrDeliveryException() {
+        super();
+    }
 
+    /**
+     * Constructs a new PSSolrDeliveryException with the specified detail message.
+     *
+     * @param message the detail message
+     */
+    public PSSolrDeliveryException(String message) {
+        super(message);
+    }
+
+    /**
+     * Constructs a new PSSolrDeliveryException with the specified detail message and cause.
+     *
+     * @param message the detail message
+     * @param cause the cause of the exception
+     */
+    public PSSolrDeliveryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
+     * Constructs a new PSSolrDeliveryException with the specified cause.
+     *
+     * @param cause the cause of the exception
+     */
+    public PSSolrDeliveryException(Throwable cause) {
+        super(cause);
+    }
 }

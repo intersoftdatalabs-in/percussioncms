@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@ package com.percussion.log;
 
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the PSLogManager class. These are private and
  * are not to be shipped with the product.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLogManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {
@@ -195,7 +195,7 @@ public class PSLogManagerTest extends PSConfigHelperTestCase
     * Set up the test case variables
     * @throws Exception
     */
-   @BeforeClass
+   @BeforeAll
    public void setUp() throws Exception
    {
       m_validDBMSProps  = new Properties(getConnectionProps(CONN_TYPE_SQL));

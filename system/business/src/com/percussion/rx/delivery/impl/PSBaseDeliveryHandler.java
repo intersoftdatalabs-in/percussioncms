@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.delivery.impl;
 
 import com.percussion.cms.IPSConstants;
@@ -386,6 +387,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
        * 
        * @deprecated Use {@link #release()} instead.
        */
+      @Deprecated
       public void abort()
       {
          mi_file.delete();
@@ -1348,7 +1350,7 @@ public abstract class PSBaseDeliveryHandler implements IPSDeliveryHandler
       {
          try
          {
-            IPSPubServer pubServer = getPubServerDao().findPubServer(result.getPubServerId());
+            IPSPubServer pubServer = getPubServerDao().findPubServer(result.getPubServerId()).orElse(null);
             return getPublishRoot(pubServer, null);
          }
          catch (Exception e)

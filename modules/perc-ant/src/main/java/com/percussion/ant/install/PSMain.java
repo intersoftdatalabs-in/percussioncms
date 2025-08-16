@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,23 @@ package com.percussion.ant.install;
 import org.apache.tools.ant.BuildException;
 
 /**
- * This class is used to allow the installer to continue running after the Ant
- * install is invoked.  This is made possible by overriding the
- * <code>exit</code> method of Ant's <code>Main</code> class (as of v1.7.0).
- * 
+ * This class is used to allow the installer to continue running after the Ant install is invoked.
+ * This is made possible by overriding the <code>exit</code> method of Ant's <code>Main</code> class
+ * (as of v1.7.0).
+ *
  * @author peterfrontiero
  */
-public class PSMain extends org.apache.tools.ant.Main
-{
-   public PSMain(String[] args) throws BuildException {     
-        super(args);
-   }
-   
-   /**
-    * This method does nothing.
-    * 
-    * @param exitCode not used.
-    */
-   protected void exit(int exitCode)
-   {
-      //Don't exit the JVM
-   }
+public class PSMain extends org.apache.tools.ant.Main {
+  public PSMain(String[] args) throws BuildException {
+    super(args);
+  }
+
+  /**
+   * This method does nothing.
+   *
+   * @param exitCode not used.
+   */
+  protected void exit(int exitCode) {
+    // Don't exit the JVM
+  }
 }

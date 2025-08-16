@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,41 +21,35 @@ import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.PSJBossConnectors;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class JBossConnectorConfigurationAdapter implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+public class JBossConnectorConfigurationAdapter
+    implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
+  @Override
+  public void load(DefaultConfigurationContextImpl configurationContext) {
+    Path rxDir = configurationContext.getRootDir();
+    if (!Files.exists(rxDir.resolve("AppServer"))) return;
 
-    @Override
-    public void load(DefaultConfigurationContextImpl configurationContext) {
-        Path rxDir = configurationContext.getRootDir();
-        if (!Files.exists(rxDir.resolve("AppServer")))
-            return;
+    BaseContainerUtils containerUtils = configurationContext.getConfig();
+    System.out.println("Loading installation properties ");
 
-        BaseContainerUtils containerUtils = configurationContext.getConfig();
-        System.out.println("Loading installation properties ");
+    PSJBossConnectors connectors = new PSJBossConnectors(rxDir.toFile());
+    connectors.load();
+    containerUtils.getConnectorInfo().setConnectors(connectors.getConnectors());
+  }
 
-        PSJBossConnectors connectors = new PSJBossConnectors(rxDir.toFile());
-        connectors.load();
-        containerUtils.getConnectorInfo().setConnectors(connectors.getConnectors());
+  @Override
+  public void save(DefaultConfigurationContextImpl configurationContext) {
+    /*
+    5.4 No longer save to jboss
+    Path rxDir = configurationContext.getRootDir();
+    System.out.println("Loading installation properties ");
 
-    }
+    PSJBossConnectors connectors = new PSJBossConnectors(rxDir.toFile(),configurationContext.getConfig().getConnectorInfo());
+    connectors.save();
 
-    @Override
-    public void save(DefaultConfigurationContextImpl configurationContext) {
-        /*
-        5.4 No longer save to jboss
-        Path rxDir = configurationContext.getRootDir();
-        System.out.println("Loading installation properties ");
-
-        PSJBossConnectors connectors = new PSJBossConnectors(rxDir.toFile(),configurationContext.getConfig().getConnectorInfo());
-        connectors.save();
-
-         */
-    }
-
-
+     */
+  }
 }
-

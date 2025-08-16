@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,8 @@
 package com.percussion.testing;
 
 /**
- * Marker interface indicating that a test case requires a Rhythmyx server
- * to run and it is invoked as a remote client (of the Rhythmyx server).
- * In contrast to {@link IPSClientBasedJunitTest} this test does not need
- * assistance in obtaining a server connection.
+ * Marker interface indicating that a test case requires a Rhythmyx server to run and it is invoked
+ * as a remote client (of the Rhythmyx server). In contrast to {@link IPSClientBasedJunitTest} this
+ * test does not need assistance in obtaining a server connection.
  */
-public interface IPSClientJunitTest
-{
-}
+public interface IPSClientJunitTest {}

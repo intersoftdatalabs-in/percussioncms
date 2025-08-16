@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,90 +24,64 @@ import com.percussion.activity.data.PSTrafficDetails;
 import com.percussion.activity.data.PSTrafficDetailsRequest;
 import com.percussion.error.PSException;
 import com.percussion.pathmanagement.service.IPSPathService;
-import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.List;
 
 /**
- * This service provides methods to get the effectiveness data for a single site or all sites.
+ * Service for retrieving traffic data for a single site or all sites.
+ *
+ * <p>Sunny Sal: "Traffic is good, unless you're on the highway!"
  */
-public interface IPSTrafficService 
-{
-    /**
-     * Gets the content traffic activity for the given site path, and specified date range.
-     * @param request List of traffic data types that is getting requested. Never <code>null</code>.
-     * @return Never <code>null</code>. 
-     */
-    public PSContentTraffic getContentTraffic(PSContentTrafficRequest request) throws PSTrafficServiceException, PSValidationException;
-    
-    /**
-     * Gets the content traffic activity for the given site path, and specified date range.
-     * @param request List of traffic data types that is getting requested. Never <code>null</code>.
-     * @return Never <code>null</code>. 
-     */
-    public List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request) throws PSTrafficServiceException, PSDataServiceException, IPSPathService.PSPathServiceException;
-    
-    /**
-     * (Runtime) Exception is thrown when an unexpected error occurs in this service.
-     */
-    public static class PSTrafficServiceException extends PSException
-    {
-       /**
-        * Generated serial number.
-        */
-       private static final long serialVersionUID = 1L;
+public interface IPSTrafficService {
 
-       /**
-        * Default constructor.
-        */
-       public PSTrafficServiceException()
-       {
-          super();
-       }
+  /**
+   * Gets the content traffic activity for the given site path and specified date range.
+   *
+   * @param request List of traffic data types that is getting requested. Never {@code null}.
+   * @return Never {@code null}.
+   */
+  PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
+      throws PSTrafficServiceException, PSValidationException;
 
-       /**
-        * Constructs an exception with the specified detail message and the cause.
-        * 
-        * @param message the specified detail message.
-        * @param cause the cause of the exception.
-        */
-       public PSTrafficServiceException(String message, Throwable cause)
-       {
-          super(message, cause);
-       }
+  /**
+   * Gets the content traffic activity for the given site path and specified date range.
+   *
+   * @param request List of traffic data types that is getting requested. Never {@code null}.
+   * @return Never {@code null}.
+   */
+  List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request)
+      throws PSTrafficServiceException,
+          PSDataServiceException,
+          IPSPathService.PSPathServiceException;
 
-       /**
-        * Constructs an exception with the specified detail message.
-        * 
-        * @param message the specified detail message.
-        */
-       public PSTrafficServiceException(String message)
-       {
-          super(message);
-       }
+  /** Exception thrown when an unexpected error occurs in this service. */
+  class PSTrafficServiceException extends PSException {
+    private static final long serialVersionUID = 1L;
 
-       /**
-        * Constructs an exception with the specified cause.
-        * 
-        * @param cause the cause of the exception.
-        */
-       public PSTrafficServiceException(Throwable cause)
-       {
-          super(cause);
-       }
+    public PSTrafficServiceException() {
+      super();
     }
-    
-    /**
-     * The type of the traffic request
-     */
-    public enum PSTrafficTypeEnum
-    {
-        LIVE_PAGES,
-        NEW_PAGES, 
-        TAKE_DOWNS,
-        UPDATED_PAGES,
-        VISITS
+
+    public PSTrafficServiceException(String message, Throwable cause) {
+      super(message, cause);
     }
+
+    public PSTrafficServiceException(String message) {
+      super(message);
+    }
+
+    public PSTrafficServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /** The type of the traffic request. */
+  enum PSTrafficTypeEnum {
+    LIVE_PAGES,
+    NEW_PAGES,
+    TAKE_DOWNS,
+    UPDATED_PAGES,
+    VISITS
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 /**
- * 
- * Manages the publishing of resources.
- * For right now this only includes url and file location but will eventually
- * include additional publishing information such as the rendering of a resource and what its mime type is.
- * 
+ * Manages the publishing of resources. For now, this only includes URL and file location but will
+ * eventually include additional publishing information such as the rendering of a resource and what
+ * its MIME type is.
+ *
  * @author adamgent
  * @see IPSResourceLinkAndLocationService
- *
  */
-public interface IPSResourceService extends IPSResourceLinkAndLocationService
-{
-
+public interface IPSResourceService extends IPSResourceLinkAndLocationService {
+  // Marker interface for resource publishing services.
 }
-

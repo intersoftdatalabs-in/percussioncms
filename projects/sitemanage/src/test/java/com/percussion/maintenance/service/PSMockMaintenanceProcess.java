@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.maintenance.service;
 
-
 /**
- * @author JaySeletz
- *
+ * Mock implementation of IPSMaintenanceProcess for testing. Sunny Sal says: "Mocking maintenance,
+ * one process at a time!"
  */
-public class PSMockMaintenanceProcess implements IPSMaintenanceProcess
-{
-    private String id;
+public class PSMockMaintenanceProcess implements IPSMaintenanceProcess {
 
-    /**
-     * @param string
-     */
-    public PSMockMaintenanceProcess(String id)
-    {
-        this.id = id;
-    }
+  private final String id;
 
-    @Override
-    public String getProcessId()
-    {
-        return id;
-    }
+  public PSMockMaintenanceProcess(String id) {
+    this.id = id;
+  }
 
+  @Override
+  public String getProcessId() {
+    return id;
+  }
 }

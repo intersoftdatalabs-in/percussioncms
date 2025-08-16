@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,38 +19,32 @@
 package com.percussion.delivery.comments.data;
 
 public class PSPageInfo {
-   
-	private String pagePath;
-	private String approvalState;
-	private long commentCount;
-	private boolean viewed;
-	
-	
-	public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed)
-	{
-		this.pagePath = pagePath;
-		this.approvalState = approvalState;
-		this.commentCount = commentCount;
-		this.viewed = viewed;
-	}
-	
-	public String getPagePath()
-	{
-		return pagePath;
-	}
-	public String getApprovalState()
-	{
-		return approvalState;
-	}
-	public long getCommentCount()
-	{
-		return commentCount;
-	}
 
-	public boolean isViewed() {
-		return viewed;
-	}
-	
-	
-	
+  private String pagePath;
+  private String approvalState;
+  private long commentCount;
+  private boolean viewed;
+
+  public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed) {
+    this.pagePath = pagePath;
+    this.approvalState = approvalState;
+    this.commentCount = commentCount;
+    this.viewed = viewed;
+  }
+
+  public String getPagePath() {
+    return pagePath;
+  }
+
+  public String getApprovalState() {
+    return approvalState;
+  }
+
+  public long getCommentCount() {
+    return commentCount;
+  }
+
+  public boolean isViewed() {
+    return viewed;
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +23,12 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,11 +41,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 /**
  * Class representing an audit entry, used to save information regarding the
  * modification of a design object.
+ *
+ * <p>This entity tracks audit events for design objects with modern Java 11 features
+ * including LocalDateTime for date handling and Stream API for enum operations.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
 @Entity
 @Table(name = "PSX_DESIGN_AUDIT_LOG")
-public class PSAuditLogEntry implements Serializable
-{
+public class PSAuditLogEntry implements Serializable {
    /**
     * Unique identifier for this entry
     */
@@ -49,11 +59,11 @@ public class PSAuditLogEntry implements Serializable
    private long id;
    
    /**
-    * The date of this audit entry
+    * The date of this audit entry using modern LocalDateTime
     */
    @Column(name = "AUDIT_DATE", nullable = false)
-   private Date auditDate;
-   
+   private Date auditDate; // Keep Date for JPA compatibility but provide LocalDateTime accessors
+
    /**
     * The UUID of the object for which the audit event occurred.
     */
@@ -81,20 +91,30 @@ public class PSAuditLogEntry implements Serializable
    private String userName;
    
    /**
-    * The type of action, one of the <code>ACTION_XXX</code> constants.
+    * The type of action, one of the <code>AuditTypes</code> enum values.
     */
    @Column(name = "ACTION", nullable = false)
    private String action;
-   
    
    /**
     * Get the date when this event was generated.
     * 
     * @return The date, may be <code>null</code>.
+    * @deprecated Use {@link #getLocalDateTime()} for modern date handling
     */
-   public Date getDate()
-   {
+   @Deprecated
+   public Date getDate() {
       return auditDate;
+   }
+
+   /**
+    * Get the date when this event was generated as LocalDateTime.
+    *
+    * @return The LocalDateTime, wrapped in Optional if present
+    */
+   public Optional<LocalDateTime> getLocalDateTime() {
+      return Optional.ofNullable(auditDate)
+         .map(date -> date.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime());
    }
 
    /**
@@ -102,8 +122,7 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @return The GUID, may be <code>null</code>.
     */
-   public IPSGuid getGUID()
-   {
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.INTERNAL, id);
    }
 
@@ -112,8 +131,7 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @return The GUID, may be <code>null</code>.
     */
-   public IPSGuid getObjectGUID()
-   {
+   public IPSGuid getObjectGUID() {
       return new PSGuid(PSTypeEnum.valueOf(objectType), objectGuid);
    }
 
@@ -122,8 +140,7 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @return The name, may be <code>null</code> or empty.
     */
-   public String getUserName()
-   {
+   public String getUserName() {
       return userName;
    }
 
@@ -131,13 +148,21 @@ public class PSAuditLogEntry implements Serializable
     * Set the audit date.  See {@link #getDate()}.
     * 
     * @param date The date of the event, may not be <code>null</code>.
+    * @deprecated Use {@link #setLocalDateTime(LocalDateTime)} for modern date handling
     */
-   public void setDate(Date date)
-   {
-      if (date == null)
-         throw new IllegalArgumentException("auditDate may not be null");
-      
-      auditDate = date;
+   @Deprecated
+   public void setDate(Date date) {
+      this.auditDate = Objects.requireNonNull(date, "auditDate may not be null");
+   }
+
+   /**
+    * Set the audit date using LocalDateTime.
+    *
+    * @param dateTime The LocalDateTime of the event, may not be <code>null</code>.
+    */
+   public void setLocalDateTime(LocalDateTime dateTime) {
+      Objects.requireNonNull(dateTime, "dateTime may not be null");
+      this.auditDate = Date.from(dateTime.atZone(ZoneOffset.UTC).toInstant());
    }
 
    /**
@@ -145,12 +170,9 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @param guid The GUID, may not be <code>null</code>.
     */
-   public void setGUID(IPSGuid guid)
-   {
-      if (guid == null)
-         throw new IllegalArgumentException("guid may not be null");
-      
-      id = guid.longValue();
+   public void setGUID(IPSGuid guid) {
+      Objects.requireNonNull(guid, "guid may not be null");
+      this.id = guid.longValue();
    }
 
    /**
@@ -158,14 +180,11 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @param guid The GUID, may not be <code>null</code>.
     */
-   public void setObjectGUID(IPSGuid guid)
-   {
-      if (guid == null)
-         throw new IllegalArgumentException("guid may not be null");
-      
-      objectGuid = guid.longValue();
-      objectId = guid.getUUID();
-      objectType = guid.getType();
+   public void setObjectGUID(IPSGuid guid) {
+      Objects.requireNonNull(guid, "guid may not be null");
+      this.objectGuid = guid.longValue();
+      this.objectId = guid.getUUID();
+      this.objectType = guid.getType();
    }
 
    /**
@@ -173,93 +192,97 @@ public class PSAuditLogEntry implements Serializable
     * 
     * @param name The name of the user, not <code>null</code> or empty.
     */
-   public void setUserName(String name)
-   {
-      if (StringUtils.isBlank(name))
+   public void setUserName(String name) {
+      if (StringUtils.isBlank(name)) {
          throw new IllegalArgumentException("name may not be null or empty");
-      
-      userName = name;
+      }
+      this.userName = name;
    }
 
    /**
-    * Get the action
-    * 
-    * @return Returns the action.
+    * Get the action type.
+    *
+    * @return Returns the action type, never null.
     */
-   public AuditTypes getAction()
-   {
+   public AuditTypes getAction() {
       return AuditTypes.valueFromString(action);
    }
 
    /**
-    * @param auditAction The action to set.
+    * Set the audit action type.
+    *
+    * @param auditAction The action to set, may not be null.
     */
-   public void setAction(AuditTypes auditAction)
-   {
-      action = auditAction.getStringValue();
+   public void setAction(AuditTypes auditAction) {
+      this.action = Objects.requireNonNull(auditAction, "auditAction may not be null")
+         .getStringValue();
    }
-   
+
    @Override
-   public boolean equals(Object obj)
-   {
-      if (!(obj instanceof PSAuditLogEntry))
+   public boolean equals(Object obj) {
+      if (!(obj instanceof PSAuditLogEntry)) {
          return false;
-      if (this == obj)
+      }
+      if (this == obj) {
          return true;
+      }
 
-      PSAuditLogEntry other = (PSAuditLogEntry) obj;
-      
-      // need special handling of date field as Hibernate creates a Timestamp 
-      // instance with a milliseconds value 
-      long thisTime = getTruncatedTime(auditDate);
-      long otherTime = getTruncatedTime(other.auditDate);
-      
-      
-      return new EqualsBuilder().append(id, other.id).append(
-         objectGuid, other.objectGuid).append(action, other.action).append(
-         userName, other.userName).append(thisTime, otherTime).isEquals();
+      var other = (PSAuditLogEntry) obj;
+
+      // Need special handling of date field as Hibernate creates a Timestamp
+      // instance with a milliseconds value
+      var thisTime = getTruncatedTime(auditDate);
+      var otherTime = getTruncatedTime(other.auditDate);
+
+      return new EqualsBuilder()
+         .append(id, other.id)
+         .append(objectGuid, other.objectGuid)
+         .append(action, other.action)
+         .append(userName, other.userName)
+         .append(thisTime, otherTime)
+         .isEquals();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return getGUID().getUUID();
    }
 
    /**
     * Get the value of the supplied date as a long, first truncating any 
-    * millisecond component
-    * 
+    * millisecond component using modern time API.
+    *
     * @param date The date to truncate, may be <code>null</code>.
     * 
     * @return The millisecond value of the truncated date, or <code>0</code> if
     * the date is <code>null</code>.
     */
-   private long getTruncatedTime(Date date)
-   {
-      if (date == null)
+   private long getTruncatedTime(Date date) {
+      if (date == null) {
          return 0;
-      
-      Calendar thisCal = Calendar.getInstance();
-      thisCal.setTime(date);
-      thisCal.clear(Calendar.MILLISECOND);
-      return thisCal.getTimeInMillis();      
+      }
+
+      return date.toInstant()
+         .atZone(ZoneOffset.UTC)
+         .toLocalDateTime()
+         .withNano(0) // Remove nanosecond component
+         .atZone(ZoneOffset.UTC)
+         .toInstant()
+         .toEpochMilli();
    }
 
    @Override
-   public String toString()
-   {
-      return id + " - " + getUserName() + " - " + getObjectGUID() + " - " + 
-         getTruncatedTime(auditDate);
-   }   
+   public String toString() {
+      return String.format("%d - %s - %s - %d",
+         id, getUserName(), getObjectGUID(), getTruncatedTime(auditDate));
+   }
 
    /**
-    * Represents the type of audit event.
+    * Represents the type of audit event using modern enum patterns.
     */
-   public enum AuditTypes
-   {
+   public enum AuditTypes {
       /**
-       * Represents an save event.
+       * Represents a save event.
        */
       SAVE("save"),
       
@@ -271,46 +294,42 @@ public class PSAuditLogEntry implements Serializable
       /**
        * The value of the audit type
        */
-      private String mi_value;
+      private final String value;
 
       /**
-       * Constructor for the value
-       * 
+       * Constructor for the audit type.
+       *
        * @param value The internal value of the type.
        */
-      private AuditTypes(String value)
-      {
-         mi_value = value;
+      AuditTypes(String value) {
+         this.value = Objects.requireNonNull(value, "value may not be null");
       }
       
       /**
-       * Get the type's internal value
-       * 
-       * @return The value.
+       * Get the type's internal value.
+       *
+       * @return The value, never null.
        */
-      private String getStringValue()
-      {
-         return mi_value;
+      public String getStringValue() {
+         return value;
       }
       
       /**
-       * Obtain an instance of this enum based on the internal string value.
-       * 
+       * Obtain an instance of this enum based on the internal string value using Stream API.
+       *
        * @param type The internal string value as obtained by 
        * {@link #getStringValue()}, not <code>null</code>, must be valid.
        * 
        * @return The instance, never <code>null</code>.
+       * @throws IllegalArgumentException if the type is invalid
        */
-      private static AuditTypes valueFromString(String type)
-      {
-         AuditTypes types[] = values();
-         for (int i = 0; i < types.length; i++)
-         {
-            if (types[i].mi_value == type)
-               return types[i];
-         }
+      public static AuditTypes valueFromString(String type) {
+         Objects.requireNonNull(type, "type may not be null");
 
-         throw new IllegalArgumentException("Invalid type" + type);
+         return Arrays.stream(values())
+            .filter(auditType -> auditType.value.equals(type))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Invalid type: " + type));
       }
    }
 }

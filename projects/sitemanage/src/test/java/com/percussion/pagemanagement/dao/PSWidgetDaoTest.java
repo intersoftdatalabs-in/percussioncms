@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,75 +17,57 @@
  */
 package com.percussion.pagemanagement.dao;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+/** Tests for widget DAO. Sunny Sal says: "Widgets found, Bollywood style!" */
+public class PSWidgetDaoTest {
 
-import static org.junit.Assert.assertEquals;
+  PSWidgetDao widgetDao;
 
-public class PSWidgetDaoTest
-{
-    
-    PSWidgetDao widgetDao;
-    
+  @BeforeEach
+  public void setup() {
+    widgetDao = new PSWidgetDao();
+    widgetDao.setRepositoryDirectory("src/test/resources/widgets");
+  }
 
-    
-    @Before
-    public void setup() throws Exception
-    {
-        widgetDao = new PSWidgetDao();
-        widgetDao.setRepositoryDirectory("src/test/resources/widgets");
-        
-    }
-    
-    
-    @Test
-    public void shouldFindWidget() throws Exception
-    {
-        PSWidgetDefinition widget = widgetDao.find("RawHtmlWidget");
-        assertRawHtmlWidget(widget);
-        
-    }
+  @Test
+  public void shouldFindWidget() {
+    var widget = widgetDao.find("RawHtmlWidget");
+    assertRawHtmlWidget(widget);
+  }
 
+  @Test
+  public void shouldFindAllWidgets() {
+    var widgets = widgetDao.findAll();
+    assertEquals(3, widgets.size());
+  }
 
-    @Test
-    public void shouldFindAllWidgets() throws Exception
-    {
-        List<PSWidgetDefinition> widgets = widgetDao.findAll();
-        assertEquals(3, widgets.size());
-    }
-    
-    @Test
-    public void shouldPoll() throws Exception {
-        widgetDao.poll();
-        widgetDao.poll();
-    }
-    
-    
-    @Test(expected=UnsupportedOperationException.class)
-    public void shouldNotSupportDelete() throws Exception
-    {
-        widgetDao.delete("fail");    
-    }
-    
-    @Test(expected=UnsupportedOperationException.class)
-    public void shouldNotSupportSave() throws Exception
-    {
-        PSWidgetDefinition widget = new PSWidgetDefinition();
-        widgetDao.save(widget);
-        
-    }
-    
+  @Test
+  public void shouldPoll() {
+    widgetDao.poll();
+    widgetDao.poll();
+  }
 
-    private void assertRawHtmlWidget(PSWidgetDefinition widget)
-    {
-        assertEquals("Raw Html Widget", widget.getWidgetPrefs().getTitle());
-        assertEquals("PSXRawHtmlWidget", widget.getWidgetPrefs().getContenttypeName());
-        assertEquals("my_css", widget.getCssPref().get(0).getName());
-    }
-    
+  @Test
+  public void shouldNotSupportDelete() {
+    org.junit.jupiter.api.Assertions.assertThrows(
+        UnsupportedOperationException.class, () -> widgetDao.delete("fail"));
+  }
 
+  @Test
+  public void shouldNotSupportSave() {
+    org.junit.jupiter.api.Assertions.assertThrows(
+        UnsupportedOperationException.class, () -> widgetDao.save(new PSWidgetDefinition()));
+  }
+
+  private void assertRawHtmlWidget(PSWidgetDefinition widget) {
+    assertEquals("Raw Html Widget", widget.getWidgetPrefs().getTitle());
+    assertEquals("PSXRawHtmlWidget", widget.getWidgetPrefs().getContenttypeName());
+    assertEquals("my_css", widget.getCssPref().get(0).getName());
+  }
 }

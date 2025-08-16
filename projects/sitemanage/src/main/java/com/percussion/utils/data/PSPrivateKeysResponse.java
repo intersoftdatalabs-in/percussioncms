@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,51 @@
  */
 package com.percussion.utils.data;
 
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author miltonpividori
+ * Response wrapper for private key names. Immutable, Java 11 style.
  *
+ * <p>Sunny Sal says: Private keys are like secrets—handle with care, and never write them on sticky
+ * notes!
  */
 @XmlRootElement(name = "PrivateKeys")
-public class PSPrivateKeysResponse
-{
-    private List<String> keyNames;
+public final class PSPrivateKeysResponse {
 
-    public PSPrivateKeysResponse()
-    {
-        
-    }
-    
-    public PSPrivateKeysResponse(List<String> keyNames)
-    {
-        this.keyNames = keyNames;
-    }
+  private final List<String> keyNames;
 
-    public List<String> getKeyNames()
-    {
-        return keyNames;
-    }
+  /**
+   * Constructs a new PSPrivateKeysResponse.
+   *
+   * @param keyNames the list of private key names
+   */
+  public PSPrivateKeysResponse(List<String> keyNames) {
+    this.keyNames = keyNames == null ? Collections.emptyList() : List.copyOf(keyNames);
+  }
 
-    public void setKeyNames(List<String> keyNames)
-    {
-        this.keyNames = keyNames;
-    }
+  /** Default constructor for frameworks. */
+  public PSPrivateKeysResponse() {
+    this(Collections.emptyList());
+  }
+
+  /**
+   * Gets the list of private key names.
+   *
+   * @return an unmodifiable list of key names
+   */
+  public List<String> getKeyNames() {
+    return keyNames;
+  }
+
+  /**
+   * Gets the key names as an Optional (empty if none).
+   *
+   * @return Optional of key names list
+   */
+  public Optional<List<String>> getKeyNamesOptional() {
+    return keyNames.isEmpty() ? Optional.empty() : Optional.of(keyNames);
+  }
 }

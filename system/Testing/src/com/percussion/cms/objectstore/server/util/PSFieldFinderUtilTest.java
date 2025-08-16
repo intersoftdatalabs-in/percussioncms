@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore.server.util;
 
 import com.percussion.cms.objectstore.PSItemDefinition;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.IOException;
@@ -27,16 +27,16 @@ import java.util.List;
 
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
 * Test the {@link PSFieldFinderUtil} class
 */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSFieldFinderUtilTest
 {
   /**

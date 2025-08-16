@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Node_statusDAO {
 
-    public Collection getAllNode_statuss();
+  public Collection getAllNode_statuss();
 
-    public Node_status getNode_status(int id);
+  public Node_status getNode_status(int id);
 
-    public void removeNode_status(Node_status node_status);
+  public void removeNode_status(Node_status node_status);
 
-    public void saveNode_status(Node_status node_status);
+  public void saveNode_status(Node_status node_status);
 }

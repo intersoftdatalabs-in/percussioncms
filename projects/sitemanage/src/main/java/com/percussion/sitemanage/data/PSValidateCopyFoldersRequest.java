@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,44 +18,73 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
 /**
- * Request object used for validating a source and destination folder for copy.  Both folder paths are required.  The
- * destination folder may not be empty.
+ * Request object used for validating a source and destination folder for copy. Both folder paths
+ * are required. The destination folder may not be empty.
  */
 @XmlRootElement(name = "ValidateCopyFoldersRequest")
-public class PSValidateCopyFoldersRequest extends PSItemByWfStateRequest
-{
-    public String getSrcFolder()
-    {
-        return srcFolder;
-    }
+public class PSValidateCopyFoldersRequest extends PSItemByWfStateRequest {
 
-    public void setSrcFolder(String srcFolder)
-    {
-        this.srcFolder = srcFolder;
-    }
+  @NotNull private String srcFolder;
 
-    public String getDestFolder()
-    {
-        return destFolder;
-    }
+  @NotNull @NotEmpty private String destFolder;
 
-    public void setDestFolder(String destFolder)
-    {
-        this.destFolder = destFolder;
-    }
+  /**
+   * Gets the source folder path.
+   *
+   * @return source folder path.
+   */
+  public String getSrcFolder() {
+    return srcFolder;
+  }
 
-    @NotNull
-    private String srcFolder;
-    
-    @NotNull
-    @NotEmpty
-    private String destFolder;
+  /**
+   * Sets the source folder path.
+   *
+   * @param srcFolder source folder path.
+   */
+  public void setSrcFolder(String srcFolder) {
+    this.srcFolder = srcFolder;
+  }
 
+  /**
+   * Gets the destination folder path.
+   *
+   * @return destination folder path.
+   */
+  public String getDestFolder() {
+    return destFolder;
+  }
+
+  /**
+   * Sets the destination folder path.
+   *
+   * @param destFolder destination folder path.
+   */
+  public void setDestFolder(String destFolder) {
+    this.destFolder = destFolder;
+  }
+
+  /**
+   * Gets the source folder as Optional.
+   *
+   * @return Optional source folder.
+   */
+  public Optional<String> getSrcFolderOptional() {
+    return Optional.ofNullable(srcFolder);
+  }
+
+  /**
+   * Gets the destination folder as Optional.
+   *
+   * @return Optional destination folder.
+   */
+  public Optional<String> getDestFolderOptional() {
+    return Optional.ofNullable(destFolder);
+  }
 }

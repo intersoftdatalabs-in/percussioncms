@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,21 @@
 package com.percussion.relationship;
 
 /**
- * This class may define additional methods to pass sufficient informtion as
- * recover result to relationship engine after executing the
- * {@link IPSEffect#recover() method}. This information includes whether to
- * test for dependents' processing and error details if the test fails for
- * some reason.
+ * This class may define additional methods to pass sufficient informtion as recover result to
+ * relationship engine after executing the {@link IPSEffect#recover() method}. This information
+ * includes whether to test for dependents' processing and error details if the test fails for some
+ * reason.
  */
-public class PSRecoverResult  extends PSEffectResult
-{
-   /**
-    * Implementation for an abstract method, that does NOT allow to set a
-    * recursion flag by always throwing UnsupportedOperationException.
-    * This is to indicate to the effect implementer that it is an illegal
-    * operation for the recover method.
-    *
-    * @param recurseDependents
-    * @throws UnsupportedOperationException always.
-    */
-   public void setRecurseDependents(boolean recurseDependents)
-   {
-      throw new UnsupportedOperationException("not allowed for recover.");
-   }
+public class PSRecoverResult extends PSEffectResult {
+  /**
+   * Implementation for an abstract method, that does NOT allow to set a recursion flag by always
+   * throwing UnsupportedOperationException. This is to indicate to the effect implementer that it
+   * is an illegal operation for the recover method.
+   *
+   * @param recurseDependents
+   * @throws UnsupportedOperationException always.
+   */
+  public void setRecurseDependents(boolean recurseDependents) {
+    throw new UnsupportedOperationException("not allowed for recover.");
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +20,37 @@ package com.percussion.rest.assets;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "AssetFieldList")
 @XmlType(propOrder = {})
-@ArraySchema(schema=@Schema(implementation = AssetField.class))
+@ArraySchema(schema = @Schema(implementation = AssetField.class))
 public class AssetFieldList extends ArrayList<AssetField> {
-    public AssetFieldList(Collection<? extends AssetField> c) {
-        super(c);
-    }
-    public AssetFieldList(){}
+
+  public AssetFieldList(Collection<? extends AssetField> c) {
+    super(c);
+  }
+
+  public AssetFieldList() {
+    super();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof AssetFieldList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "AssetFieldList" + super.toString();
+  }
 }

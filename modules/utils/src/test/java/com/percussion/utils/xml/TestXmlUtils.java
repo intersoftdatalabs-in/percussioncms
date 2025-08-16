@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,21 @@
 
 package com.percussion.utils.xml;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.commons.text.StringEscapeUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-/**
- * Unit tests for the xml utils class
- */
+/** Unit tests for the xml utils class */
 public class TestXmlUtils {
 
-    @Test
-    public void testXMLEncoded(){
+  @Test
+  public void testXMLEncoded() {
 
-        assertFalse(PSXmlUtils.isStringXMLEscaped("<?xml version='1.0'?><test>text</test>"));
-        assertTrue(PSXmlUtils.isStringXMLEscaped(StringEscapeUtils.escapeXml10("<?xml version='1.0'?><test>text</test>")));
-
-    }
+    assertFalse(PSXmlUtils.isStringXMLEscaped("<?xml version='1.0'?><test>text</test>"));
+    assertTrue(
+        PSXmlUtils.isStringXMLEscaped(
+            StringEscapeUtils.escapeXml10("<?xml version='1.0'?><test>text</test>")));
+  }
 }

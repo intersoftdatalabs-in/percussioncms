@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ import com.percussion.data.PSConversionException;
 import com.percussion.data.PSXslStyleSheetMerger;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.util.IOTools;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
@@ -45,14 +45,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the PS...CharacterSet classes; each of which provides a new character
  * encoding output method for the Saxon XSLT processor.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSCharacterSetTest
 {
 
@@ -65,7 +65,7 @@ public class PSCharacterSetTest
     * Performs the setup required by the tests: defining system properties for
     * each character set.
     */
-   @BeforeClass
+   @BeforeAll
    public static void setup() throws Exception
    {
       PSSecureXMLUtils.setupJAXPDefaults();
@@ -161,7 +161,7 @@ public class PSCharacterSetTest
     * @throws Exception if any error occurs
     */
    @Test
-   @Ignore("Test is failing - not sure if it is the resource files or what.")
+   @Disabled("Test is failing - not sure if it is the resource files or what.")
    public void testOutput() throws Exception
    {
       // transform a sample document in the desired encoding through an

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,14 @@ package com.percussion.sitemanage.service;
 import java.util.Collection;
 import java.util.Set;
 
-/**
- * The service used for site publishing operations.
- */
-public interface IPSSitePublishServiceHelper
-{
-    /**
-     * Finds all related IDs for the supplied list of content ids
-     * 
-     * @param templateId never blank.
-     * 
-     * @return list of page IDs, never <code>null</code>, may be empty.
-     */
-    Collection<Integer> findRelatedItemIds(Set<Integer> contentIds);
+/** Helper service for site publishing operations. */
+public interface IPSSitePublishServiceHelper {
+
+  /**
+   * Finds all related IDs for the supplied list of content IDs.
+   *
+   * @param contentIds set of content IDs, never blank.
+   * @return collection of related item IDs, never null, may be empty.
+   */
+  Collection<Integer> findRelatedItemIds(Set<Integer> contentIds);
 }

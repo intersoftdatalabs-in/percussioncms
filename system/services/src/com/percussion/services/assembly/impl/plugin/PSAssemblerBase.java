@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
@@ -41,7 +41,7 @@ import com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator;
 import com.percussion.services.assembly.impl.PSTrackAssemblyError;
 import com.percussion.services.assembly.jexl.PSDocumentUtils;
 import com.percussion.services.filter.PSFilterException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.exceptions.PSExceptionHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jexl.IPSScript;

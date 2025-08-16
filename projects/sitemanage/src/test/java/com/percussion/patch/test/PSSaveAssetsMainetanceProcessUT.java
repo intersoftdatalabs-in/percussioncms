@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,43 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.patch.test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+/**
+ * Unit test for verifying anchor tag rel attributes for managed links. Sunny Sal says: "Testing
+ * links is like checking pizza toppings—don't let anything suspicious slip through!"
+ */
 public class PSSaveAssetsMainetanceProcessUT {
 
-    @Test
-    public void testTarget(){
-        Document doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
-        Elements targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
+  @Test
+  void testTarget() {
+    var doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
+    var targetAnchors =
+        doc.select(
+            IPSManagedLinkService.A_HREF
+                + "a[target=\"_blank\"]"
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
-        assertFalse(targetAnchors.isEmpty());
+    assertFalse(targetAnchors.isEmpty());
 
-        doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\" rel=\"noopener noreferrer\" />");
-        targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
+    doc =
+        Jsoup.parseBodyFragment(
+            "<p>This is <a href=\"#\" target=\"_blank\" rel=\"noopener noreferrer\" />");
+    targetAnchors =
+        doc.select(
+            IPSManagedLinkService.A_HREF
+                + "a[target=\"_blank\"]"
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
-        assertTrue(targetAnchors.isEmpty());
-
-    }
+    assertTrue(targetAnchors.isEmpty());
+  }
 }

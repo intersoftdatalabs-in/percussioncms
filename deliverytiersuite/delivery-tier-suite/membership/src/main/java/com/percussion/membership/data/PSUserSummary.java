@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,66 +17,57 @@
 
 package com.percussion.membership.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.percussion.delivery.services.PSCustomDateSerializer;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
-
 import java.util.Date;
-
 import org.apache.commons.lang.Validate;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Object to hold summary data about a registered user.
- * 
+ *
  * @author JaySeletz
  */
-public class PSUserSummary
-{
-    private String email;
-    private Date createdDate;
-    private PSMemberStatus status;
-    private String groups;
-    
-    public PSUserSummary(IPSMembership member)
-    {
-        Validate.notNull(member);
-        
-        this.email = member.getEmailAddress();
-        this.createdDate = member.getCreatedDate();
-        this.status = member.getStatus();
-        this.groups = member.getGroups() != null ? member.getGroups() : "";
-    }
+public class PSUserSummary {
+  private String email;
+  private Date createdDate;
+  private PSMemberStatus status;
+  private String groups;
 
-    /**
-     * Get the user's email.
-     * 
-     * @return The email, not <code>null</code> or empty.
-     */
-    public String getEmail()
-    {
-        return email;
-    }
+  public PSUserSummary(IPSMembership member) {
+    Validate.notNull(member);
 
-    @JsonSerialize(using = PSCustomDateSerializer.class)
-    public Date getCreatedDate()
-    {
-        return createdDate;
-    }
+    this.email = member.getEmailAddress();
+    this.createdDate = member.getCreatedDate();
+    this.status = member.getStatus();
+    this.groups = member.getGroups() != null ? member.getGroups() : "";
+  }
 
-    /**
-     * @return The status, a {@link PSMemberStatus} object, never or 
-	 * <code>null</code>.
-     */
-    public PSMemberStatus getStatus()
-    {
-        return status;
-    }
-    
-    /**
-     * @return a comma separated list of groups
-     */
-    public String getGroups()
-    {
-        return groups;
-    }
+  /**
+   * Get the user's email.
+   *
+   * @return The email, not <code>null</code> or empty.
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  @JsonSerialize(using = PSCustomDateSerializer.class)
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  /**
+   * @return The status, a {@link PSMemberStatus} object, never or <code>null</code>.
+   */
+  public PSMemberStatus getStatus() {
+    return status;
+  }
+
+  /**
+   * @return a comma separated list of groups
+   */
+  public String getGroups() {
+    return groups;
+  }
 }

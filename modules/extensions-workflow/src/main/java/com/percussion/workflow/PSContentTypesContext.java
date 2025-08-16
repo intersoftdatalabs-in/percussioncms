@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,13 @@ package com.percussion.workflow;
 
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.util.PSPreparedStatement;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Deprecated
-public class PSContentTypesContext implements IPSContentTypesContext
-{
+public class PSContentTypesContext implements IPSContentTypesContext {
   private boolean invokedStandalone = false;
 
   private int contentTypeID = 0;
@@ -41,105 +39,85 @@ public class PSContentTypesContext implements IPSContentTypesContext
   String m_sContentTypeUpdateRequest = "";
 
   public PSContentTypesContext(Connection connection, int contentTypeID)
-     throws SQLException, PSEntryNotFoundException
-  {
+      throws SQLException, PSEntryNotFoundException {
     this.contentTypeID = contentTypeID;
-    try
-    {
-      statement =
-         PSPreparedStatement.getPreparedStatement(connection, QRYSTRING);
+    try {
+      statement = PSPreparedStatement.getPreparedStatement(connection, QRYSTRING);
       statement.clearParameters();
       statement.setInt(1, contentTypeID);
       rs = statement.executeQuery();
 
-      if(false == rs.next())
-      {
+      if (false == rs.next()) {
         close();
         throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
       }
 
-    m_sContentTypeName = rs.getString("CONTENTTYPENAME");
-    m_sContentTypeDescrition = rs.getString("CONTENTTYPEDESC");
-    m_sContentTypeNewRequest = rs.getString("CONTENTTYPENEWREQUEST");
-    m_sContentTypeQueryRequest = rs.getString("CONTENTTYPEQUERYREQUEST");
-    m_sContentTypeUpdateRequest = rs.getString("CONTENTTYPEUPDATEREQUEST");
+      m_sContentTypeName = rs.getString("CONTENTTYPENAME");
+      m_sContentTypeDescrition = rs.getString("CONTENTTYPEDESC");
+      m_sContentTypeNewRequest = rs.getString("CONTENTTYPENEWREQUEST");
+      m_sContentTypeQueryRequest = rs.getString("CONTENTTYPEQUERYREQUEST");
+      m_sContentTypeUpdateRequest = rs.getString("CONTENTTYPEUPDATEREQUEST");
 
-    }
-    catch(SQLException e)
-    {
+    } catch (SQLException e) {
       close();
       throw e;
     }
   }
 
-   public String getContentTypeQueryRequest() throws SQLException
-  {
+  public String getContentTypeQueryRequest() throws SQLException {
     return m_sContentTypeQueryRequest;
   }
 
-   public String getContentTypeUpdateRequest() throws SQLException
-  {
+  public String getContentTypeUpdateRequest() throws SQLException {
     return m_sContentTypeUpdateRequest;
   }
 
-   public String getContentTypeNewRequest() throws SQLException
-  {
+  public String getContentTypeNewRequest() throws SQLException {
     return m_sContentTypeNewRequest;
   }
 
-   public String getContentTypeName() throws SQLException
-  {
+  public String getContentTypeName() throws SQLException {
     return m_sContentTypeName;
   }
 
-   public String getContentTypeDescription() throws SQLException
-  {
+  public String getContentTypeDescription() throws SQLException {
     return m_sContentTypeDescrition;
   }
 
-   public void close()
-  {
-    //release resouces
-    try
-    {
-      if(null != connection && false == connection.getAutoCommit())
-        connection.setAutoCommit(true);
+  public void close() {
+    // release resouces
+    try {
+      if (null != connection && false == connection.getAutoCommit()) connection.setAutoCommit(true);
+    } catch (SQLException e) {
     }
-    catch(SQLException e)
-    {
-    }
-    try
-    {
-      if(null!=rs)
-        rs.close();
+    try {
+      if (null != rs) rs.close();
       rs = null;
 
-      if(null!=statement)
-        statement.close();
+      if (null != statement) statement.close();
       statement = null;
-    }
-    catch(SQLException e)
-    {
+    } catch (SQLException e) {
     }
   }
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
-  static private String TABLE_CTC =
-     PSConnectionMgr.getQualifiedIdentifier("CONTENTTYPES");
+  /** static constant string that represents the qualified table name. */
+  private static String TABLE_CTC = PSConnectionMgr.getQualifiedIdentifier("CONTENTTYPES");
 
   private static final String QRYSTRING =
-   "SELECT " +
-   TABLE_CTC + ".CONTENTTYPENAME," +
-   TABLE_CTC + ".CONTENTTYPEDESC," +
-   TABLE_CTC + ".CONTENTTYPENEWREQUEST," +
-   TABLE_CTC + ".CONTENTTYPEQUERYREQUEST," +
-   TABLE_CTC + ".CONTENTTYPEUPDATEREQUEST " +
-   "FROM " +
-   TABLE_CTC +
-   " WHERE (" +
-   TABLE_CTC + ".CONTENTTYPEID=?)";
-
+      "SELECT "
+          + TABLE_CTC
+          + ".CONTENTTYPENAME,"
+          + TABLE_CTC
+          + ".CONTENTTYPEDESC,"
+          + TABLE_CTC
+          + ".CONTENTTYPENEWREQUEST,"
+          + TABLE_CTC
+          + ".CONTENTTYPEQUERYREQUEST,"
+          + TABLE_CTC
+          + ".CONTENTTYPEUPDATEREQUEST "
+          + "FROM "
+          + TABLE_CTC
+          + " WHERE ("
+          + TABLE_CTC
+          + ".CONTENTTYPEID=?)";
 }
-

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,78 +19,79 @@
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents publishing information for a site. Sunny Sal says: "Publishing info—because even the
+ * cloud needs a passport!"
+ */
 @XmlRootElement(name = "PubInfo")
 @JsonRootName("PubInfo")
-public class PSPubInfo
-{
-    private String bucketName;
-    private String accessKey;
-    private String secretKey;
-    private String regionName;
-    private String useAssumeRole;
-    private String arnRole;
+public class PSPubInfo {
 
-    public String getRegionName() {
-        return regionName;
-    }
+  private String bucketName;
+  private String accessKey;
+  private String secretKey;
+  private String regionName;
+  private String useAssumeRole;
+  private String arnRole;
 
-    public void setRegionName(String region) {
-        this.regionName = region;
-    }
+  public PSPubInfo() {
+    // Default constructor
+  }
 
+  public PSPubInfo(String bucketName, String accessKey, String secretKey, String regionName) {
+    this.bucketName = bucketName;
+    this.accessKey = accessKey;
+    this.secretKey = secretKey;
+    this.regionName = regionName;
+  }
 
-    public PSPubInfo()
-    {
-    }
-    public PSPubInfo(String bucketName, String accessKey, String secretKey, String regionName)
-    {
-        this.bucketName = bucketName;
-        this.accessKey = accessKey;
-        this.secretKey = secretKey;
-        this.regionName = regionName;
-    }
+  public String getBucketName() {
+    return bucketName;
+  }
 
-    public String getBucketName()
-    {
-        return bucketName;
-    }
-    public void setBucketName(String bucketName)
-    {
-        this.bucketName = bucketName;
-    }
-    public String getAccessKey()
-    {
-        return accessKey;
-    }
-    public void setAccessKey(String accessKey)
-    {
-        this.accessKey = accessKey;
-    }
-    public String getSecretKey()
-    {
-        return secretKey;
-    }
-    public void setSecretKey(String secretKey)
-    {
-        this.secretKey = secretKey;
-    }
+  public void setBucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
 
-    public String getUseAssumeRole() {
-        return useAssumeRole;
-    }
+  public String getAccessKey() {
+    return accessKey;
+  }
 
-    public void setUseAssumeRole(String useAssumeRole) {
-        this.useAssumeRole = useAssumeRole;
-    }
+  public void setAccessKey(String accessKey) {
+    this.accessKey = accessKey;
+  }
 
-    public String getArnRole() {
-        return arnRole;
-    }
+  public String getSecretKey() {
+    return secretKey;
+  }
 
-    public void setArnRole(String arnRole) {
-        this.arnRole = arnRole;
-    }
+  public void setSecretKey(String secretKey) {
+    this.secretKey = secretKey;
+  }
+
+  public String getRegionName() {
+    return regionName;
+  }
+
+  public void setRegionName(String region) {
+    this.regionName = region;
+  }
+
+  public String getUseAssumeRole() {
+    return useAssumeRole;
+  }
+
+  public void setUseAssumeRole(String useAssumeRole) {
+    this.useAssumeRole = useAssumeRole;
+  }
+
+  public String getArnRole() {
+    return arnRole;
+  }
+
+  public void setArnRole(String arnRole) {
+    this.arnRole = arnRole;
+  }
 }

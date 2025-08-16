@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +20,30 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.content.ui.aa.PSAAObjectId;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Map;
-
 /**
- * Returns the content type of the content item id passed in.
- * Expects one parameter sys_contentid which is the content id of
- * the content item in question.
+ * Returns the content type of the content item id passed in. Expects one parameter sys_contentid
+ * which is the content id of the content item in question.
  */
-public class PSGetContentTypeByContentIdAction extends PSAAActionBase
-{
+public class PSGetContentTypeByContentIdAction extends PSAAActionBase {
 
-   /* (non-Javadoc)
-    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
-    */
-   public PSActionResponse execute(Map<String, Object> params)
-            throws PSAAClientActionException
-   {
-      Object contentId = getParameter(params, IPSHtmlParameters.SYS_CONTENTID);
-      JSONObject result = new JSONObject();      
-      try
-      {
-         PSComponentSummary summary = 
-            PSAAObjectId.getItemSummary(Integer.parseInt(contentId.toString()));
-         result.put(IPSHtmlParameters.SYS_CONTENTTYPEID,
-            summary.getContentTypeGUID().getUUID());
-      }
-      catch (JSONException e)
-      {
-         throw new PSAAClientActionException(e);
-      }
-      return new PSActionResponse(result.toString(), PSActionResponse.RESPONSE_TYPE_JSON);
-   }
-
+  /* (non-Javadoc)
+   * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
+   */
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    Object contentId = getParameter(params, IPSHtmlParameters.SYS_CONTENTID);
+    JSONObject result = new JSONObject();
+    try {
+      PSComponentSummary summary =
+          PSAAObjectId.getItemSummary(Integer.parseInt(contentId.toString()));
+      result.put(IPSHtmlParameters.SYS_CONTENTTYPEID, summary.getContentTypeGUID().getUUID());
+    } catch (JSONException e) {
+      throw new PSAAClientActionException(e);
+    }
+    return new PSActionResponse(result.toString(), PSActionResponse.RESPONSE_TYPE_JSON);
+  }
 }

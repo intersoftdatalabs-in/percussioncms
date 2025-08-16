@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,41 @@
 
 package com.percussion.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.integritymanagement.data.PSIntegrityTask.TaskStatus;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
-import com.percussion.utils.types.PSPair;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+@Tag("IntegrationTest")
+public class PSDTSStatusProviderTest {
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+  private PSDTSStatusProvider statusProvider;
 
-@Category(IntegrationTest.class)
-public class PSDTSStatusProviderTest extends PSServletTestCase
-{
+  public PSDTSStatusProvider getStatusProvider() {
+    return statusProvider;
+  }
 
-    private PSDTSStatusProvider statsuProvider;
+  public void setStatusProvider(PSDTSStatusProvider statusProvider) {
+    this.statusProvider = statusProvider;
+  }
 
-    public PSDTSStatusProvider getStatsuProvider()
-    {
-        return statsuProvider;
-    }
+  @BeforeEach
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    public void setStatsuProvider(PSDTSStatusProvider statsuProvider)
-    {
-        this.statsuProvider = statsuProvider;
-    }
-
-    @Override
-    protected void setUp() throws Exception
-    {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
-        super.setUp();
-    }
-
-   
-    public void testGetStatusReport()
-    {
-        Map<String, PSPair<TaskStatus, String>> status = getStatsuProvider().getDTSStatusReport();
-        assertEquals(TaskStatus.SUCCESS, status.get("dts").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("feeds").getFirst() );
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-form-processor").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-comments-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-metadata-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-membership-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-polls-services").getFirst());
-    }
-
+  @Test
+  public void testGetStatusReport() {
+    var status = getStatusProvider().getDTSStatusReport();
+    assertEquals(TaskStatus.SUCCESS, status.get("dts").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("feeds").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-form-processor").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-comments-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-metadata-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-membership-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-polls-services").getFirst());
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,25 @@
  */
 package com.percussion.delivery.metadata.data;
 
-/**
- * Represents an object with a tag name and the count of
- * pages that are tagged with it.
- *
- */
-public class PSMetadataRestTag
-{
-    private String tagName;
+/** Represents an object with a tag name and the count of pages that are tagged with it. */
+public class PSMetadataRestTag {
+  private String tagName;
 
-    private Integer tagCount;
+  private Integer tagCount;
 
-    public String getTagName()
-    {
-        return tagName;
-    }
+  public String getTagName() {
+    return tagName;
+  }
 
-    public void setTagName(String tagName)
-    {
-        this.tagName = tagName;
-    }
+  public void setTagName(String tagName) {
+    this.tagName = tagName;
+  }
 
-    public Integer getTagCount()
-    {
-        return tagCount;
-    }
+  public Integer getTagCount() {
+    return tagCount;
+  }
 
-    public void setTagCount(Integer tagCount)
-    {
-        this.tagCount = tagCount;
-    }
+  public void setTagCount(Integer tagCount) {
+    this.tagCount = tagCount;
+  }
 }

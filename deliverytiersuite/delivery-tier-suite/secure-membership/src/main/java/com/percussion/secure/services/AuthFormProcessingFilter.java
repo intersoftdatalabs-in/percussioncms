@@ -17,90 +17,89 @@
 
 package com.percussion.secure.services;
 
-import org.glassfish.jersey.server.ContainerRequest;
-import org.glassfish.jersey.server.internal.InternalServerProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Form;
-import java.io.IOException;
+// REFACTORED: CP-JAVA11
+public class AuthFormProcessingFilter extends AbstractAuthenticationProcessingFilter {
+  public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
+  public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
+  public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
+  private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+  private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+  private boolean postOnly = true;
 
-public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingFilter {
-    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
-    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
-    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
-    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
-    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
-    private boolean postOnly = true;
+  protected AuthFormProcessingFilter(String defaultFilterProcessesUrl) {
+    super(defaultFilterProcessesUrl);
+  }
 
-    protected AuthFormProcessingFilter(String defaultFilterProcessesUrl) {
-        super(defaultFilterProcessesUrl);
+  @Override
+  public Authentication attemptAuthentication(
+      HttpServletRequest request, HttpServletResponse httpServletResponse)
+      throws AuthenticationException, IOException, ServletException {
+    if (postOnly && !"POST".equals(request.getMethod())) {
+      throw new AuthenticationServiceException(
+          "Authentication method not supported: " + request.getMethod());
     }
 
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
-        if (postOnly && !request.getMethod().equals("POST")) {
-            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
-        }
-
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
-        if (username == null) {
-            username = "";
-        }
-        if (password == null) {
-            password = "";
-        }
-        username = username.trim();
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
-
-        // Allow subclasses to set the "details" property
-        setDetails(request, authRequest);
-        if(this.getAuthenticationManager()==null){
-            logger.info("Authentication manager is null.");
-        } else {
-            logger.info("Authentication manager was "+this.getAuthenticationManager().getClass().getName());
-        }
-        return this.getAuthenticationManager().authenticate(authRequest);
+    var username = obtainUsername(request);
+    var password = obtainPassword(request);
+    if (username == null) {
+      username = "";
     }
-
-    protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(passwordParameter);
+    if (password == null) {
+      password = "";
     }
+    username = username.trim();
+    var authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
-    protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(usernameParameter);
+    // Allow subclasses to set the "details" property
+    setDetails(request, authRequest);
+    if (this.getAuthenticationManager() == null) {
+      logger.info("Authentication manager is null.");
+    } else {
+      logger.info("Authentication manager was {}");
     }
+    return this.getAuthenticationManager().authenticate(authRequest);
+  }
 
-    protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-    }
+  protected String obtainPassword(HttpServletRequest request) {
+    return request.getParameter(passwordParameter);
+  }
 
-    public void setUsernameParameter(String usernameParameter) {
-        this.usernameParameter = usernameParameter;
-    }
+  protected String obtainUsername(HttpServletRequest request) {
+    return request.getParameter(usernameParameter);
+  }
 
-    public void setPasswordParameter(String passwordParameter) {
-        this.passwordParameter = passwordParameter;
-    }
+  protected void setDetails(
+      HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
+    authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+  }
 
-    public void setPostOnly(boolean postOnly) {
-        this.postOnly = postOnly;
-    }
+  public void setUsernameParameter(String usernameParameter) {
+    this.usernameParameter = usernameParameter;
+  }
 
-    public final String getUsernameParameter() {
-        return usernameParameter;
-    }
+  public void setPasswordParameter(String passwordParameter) {
+    this.passwordParameter = passwordParameter;
+  }
 
-    public final String getPasswordParameter() {
-        return passwordParameter;
-    }
+  public void setPostOnly(boolean postOnly) {
+    this.postOnly = postOnly;
+  }
 
+  public final String getUsernameParameter() {
+    return usernameParameter;
+  }
+
+  public final String getPasswordParameter() {
+    return passwordParameter;
+  }
 }

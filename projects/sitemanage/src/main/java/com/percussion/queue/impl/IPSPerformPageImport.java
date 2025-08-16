@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +21,18 @@ package com.percussion.queue.impl;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.error.PSSiteImportException;
 
-public interface IPSPerformPageImport
-{
-    void performPageImport(PSSite site, Integer id, String userAgent) throws InterruptedException, PSSiteImportException;
+/** Service for performing a page import for a site. */
+public interface IPSPerformPageImport {
+
+  /**
+   * Performs a page import for the given site and page ID.
+   *
+   * @param site the site, not null
+   * @param id the page ID, not null
+   * @param userAgent the user agent string, not null
+   * @throws InterruptedException if the import is interrupted
+   * @throws PSSiteImportException if the import fails
+   */
+  void performPageImport(PSSite site, Integer id, String userAgent)
+      throws InterruptedException, PSSiteImportException;
 }

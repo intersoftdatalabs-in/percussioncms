@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,16 @@ import org.w3c.dom.Element;
 
 /**
  * This is the interface all Rhythmyx server agents must implement.
+ * Defines the contract for server agent lifecycle management and action execution.
  */
-public interface IPSAgent
-{
+public interface IPSAgent {
+
    /**
     * This method is the first one to be called by the Agent Manager just after
     * instantiating the implementing class object. This is called only once in
     * the object's life cycle.
-    * @param configData - DOM Element representing the configuration data
+    *
+    * @param configData DOM Element representing the configuration data
     * defined in the configuration file. The implementor dictates the DTD for
     * the element depending on what he needs.
     * @throws PSAgentException if initialization fails for any reason
@@ -40,19 +42,19 @@ public interface IPSAgent
    /**
     * This method is the engine of the agent and called any time a service from
     * this agent is requested by the Agent Manager.
-    * @param action - name of the action to be excuted by the agent.
-    * @param params - Map (name, value pairs) of all parameters from the
-    * request
-    * @param response <code>IPSAgentHandlerResponse</code> object that can be
+    *
+    * @param action name of the action to be executed by the agent.
+    * @param params Map (name, value pairs) of all parameters from the request
+    * @param response {@code IPSAgentHandlerResponse} object that can be
     * used to set the results of execution of the action. If the requested
-    * action is not implmented or enough parameters are not supplied to execute
+    * action is not implemented or enough parameters are not supplied to execute
     * the action, the result can be set to error.
     */
-   void executeAction(String action, Map params,
+   void executeAction(String action, Map<String, Object> params,
       IPSAgentHandlerResponse response);
 
    /**
-    * This method is called by the Agent Manager while shuttingdown. May be
+    * This method is called by the Agent Manager while shutting down. May be
     * used to do any cleaning.
     */
    void terminate();

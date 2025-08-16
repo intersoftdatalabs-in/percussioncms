@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,150 +16,155 @@
  */
 package com.percussion.tablefactory;
 
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.UnitTest;
-import org.apache.commons.io.FileUtils;
-import org.apache.derby.drda.NetworkServerControl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-
-import static org.junit.Assert.assertTrue;
+import java.nio.file.Path;
+import org.apache.commons.io.FileUtils;
+import org.apache.derby.drda.NetworkServerControl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Test adding data to db. Assumes a database with specific credentials,
- * change credentials or add an appropriate db to run the test.
- * 
+ * Test adding data to db. Assumes a database with specific credentials, change credentials or add
+ * an appropriate db to run the test.
+ *
  * @author dougrand
  */
-@Category(UnitTest.class)
-public class PSTablefactoryLoadTest
-{
+@Tag("UnitTest")
+public class PSTablefactoryLoadTest {
 
-   private static final Logger log = LogManager.getLogger(PSTablefactoryLoadTest.class);
+  private static final Logger log = LogManager.getLogger(PSTablefactoryLoadTest.class);
 
-   @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-   private String rxdeploydir;
-   protected String baseDir;
-   private  NetworkServerControl server;
+  @TempDir public Path temporaryFolder;
+  private String rxdeploydir;
+  protected String baseDir;
+  private NetworkServerControl server;
 
-   public PSTablefactoryLoadTest(){}
+  public PSTablefactoryLoadTest() {}
 
-   @Before
-   public void setup() throws IOException {
+  @BeforeEach
+  public void setup() throws IOException {
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
 
-      baseDir = temporaryFolder.getRoot().getAbsolutePath();
+    baseDir = temporaryFolder.toAbsolutePath().toString();
 
-       File ao_data = new File(baseDir,"ao_data.xml");
-       ao_data.deleteOnExit();
-       InputStream is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/ao_data.xml");
-       FileUtils.copyInputStreamToFile(is, ao_data);
+    File ao_data = new File(baseDir, "ao_data.xml");
+    ao_data.deleteOnExit();
+    InputStream is =
+        PSTablefactoryLoadTest.class.getResourceAsStream(
+            "/com/percussion/tablefactory/ao_data.xml");
+    FileUtils.copyInputStreamToFile(is, ao_data);
 
-      File ao_def = new File(baseDir,"ao_def.xml");
-      ao_def.deleteOnExit();
-      is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/ao_def.xml");
-      FileUtils.copyInputStreamToFile(is, ao_def);
+    File ao_def = new File(baseDir, "ao_def.xml");
+    ao_def.deleteOnExit();
+    is =
+        PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/ao_def.xml");
+    FileUtils.copyInputStreamToFile(is, ao_def);
 
-      File db = new File(baseDir,"db.properties");
-      db.deleteOnExit();
-      is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/db.properties");
-      FileUtils.copyInputStreamToFile(is, db);
+    File db = new File(baseDir, "db.properties");
+    db.deleteOnExit();
+    is =
+        PSTablefactoryLoadTest.class.getResourceAsStream(
+            "/com/percussion/tablefactory/db.properties");
+    FileUtils.copyInputStreamToFile(is, db);
 
-      File mc = new File(baseDir,"multichild.xml");
-      mc.deleteOnExit();
-      is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/multichild.xml");
-      FileUtils.copyInputStreamToFile(is, mc);
+    File mc = new File(baseDir, "multichild.xml");
+    mc.deleteOnExit();
+    is =
+        PSTablefactoryLoadTest.class.getResourceAsStream(
+            "/com/percussion/tablefactory/multichild.xml");
+    FileUtils.copyInputStreamToFile(is, mc);
 
-      File networkedDerbyDB = new File(baseDir,"derby-networked_rxrepository.properties");
-      networkedDerbyDB.deleteOnExit();
-      is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/derby-networked_rxrepository.properties");
-      FileUtils.copyInputStreamToFile(is, networkedDerbyDB);
+    File networkedDerbyDB = new File(baseDir, "derby-networked_rxrepository.properties");
+    networkedDerbyDB.deleteOnExit();
+    is =
+        PSTablefactoryLoadTest.class.getResourceAsStream(
+            "/com/percussion/tablefactory/derby-networked_rxrepository.properties");
+    FileUtils.copyInputStreamToFile(is, networkedDerbyDB);
 
-      File mco = new File(baseDir,"multichild_out.xml");
-      mco.deleteOnExit();
-      is = PSTablefactoryLoadTest.class.getResourceAsStream("/com/percussion/tablefactory/multichild_out.xml");
-      FileUtils.copyInputStreamToFile(is, mco);
+    File mco = new File(baseDir, "multichild_out.xml");
+    mco.deleteOnExit();
+    is =
+        PSTablefactoryLoadTest.class.getResourceAsStream(
+            "/com/percussion/tablefactory/multichild_out.xml");
+    FileUtils.copyInputStreamToFile(is, mco);
 
-      try {
-         server = new NetworkServerControl
-              (InetAddress.getByName("localhost"),1529);
+    try {
+      server = new NetworkServerControl(InetAddress.getByName("localhost"), 1529);
 
-         server.start(null);
-      } catch (Exception e) {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+      server.start(null);
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 
-   @After
-   public void teardown(){
-      try {
-         //Reset the deploy dir property if it was set prior to test
-         if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
+  @AfterEach
+  public void teardown() {
+    try {
+      // Reset the deploy dir property if it was set prior to test
+      if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
 
-         server.shutdown();
-      } catch (Exception e) {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
-   @Test
-   public void testAOCase() throws Exception
-   {
-      String args[] = new String[] {
-            baseDir + "/db.properties",
+      server.shutdown();
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  @Test
+  public void testAOCase() throws Exception {
+    String args[] =
+        new String[] {
+          baseDir + "/db.properties",
+          "dummy.xml",
+          baseDir + "/ao_def.xml",
+          baseDir + "/ao_data.xml",
+          "-mld"
+        };
+
+    PSJdbcTableFactory.main(args);
+  }
+
+  @Test
+  public void testNetworkedDerby() {
+    try {
+      String args[] =
+          new String[] {
+            baseDir + "/derby-networked_rxrepository.properties",
             "dummy.xml",
             baseDir + "/ao_def.xml",
             baseDir + "/ao_data.xml",
             "-mld"
-      };
-      
+          };
+
       PSJdbcTableFactory.main(args);
-   }
+      assertTrue(server != null);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+  }
 
-   @Test
-   public void testNetworkedDerby(){
-      try {
-         String args[] = new String[]{
-                 baseDir + "/derby-networked_rxrepository.properties",
-                 "dummy.xml",
-                 baseDir + "/ao_def.xml",
-                 baseDir + "/ao_data.xml",
-                 "-mld"
-         };
+  @Test
+  public void testMultiChildCase() throws Exception {
+    String args[] =
+        new String[] {
+          baseDir + "/db.properties", "dummy.xml", baseDir + "/multichild.xml", "-mldp"
+        };
 
-         PSJdbcTableFactory.main(args);
-         assertTrue(server!=null);
-      }catch(Exception e){
-         org.junit.Assert.fail(e.getMessage());
-      }
-   }
-
-   @Test
-   public void testMultiChildCase() throws Exception
-   {
-      String args[] = new String[] {
-            baseDir + "/db.properties",
-            "dummy.xml",
-            baseDir + "/multichild.xml",
-            "-mldp"
-      };
-      
-      PSJdbcTableFactory.main(args);
-   }   
+    PSJdbcTableFactory.main(args);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,42 +24,38 @@ import org.dom4j.Document;
  * @author natechadwick
  *
  */
-public class HttpDOMResponse extends BaseHttpResponse{
+public class HttpDOMResponse extends BaseHttpResponse {
 
-	
-	private Document document;
-	
-	/***
-	 * Sets the DOM Document for the content returned in this response.
-	 * @param document
-	 */
-	public void setDocument(Document document) {
-		this.document = document;
-	}
+  private Document document;
 
-	/***
-	 * Gets the DOM document for this response. 
-	 * @return
-	 */
-	public Document getDocument() {
-		return document;
-	}
-		
-	/***
-	 * Default constructor
-	 */
-	public HttpDOMResponse(){}
-	
+  /***
+   * Sets the DOM Document for the content returned in this response.
+   * @param document
+   */
+  public void setDocument(Document document) {
+    this.document = document;
+  }
 
-	/***
-	 * Single Shot Constructor
-	 * @param doc
-	 * @param head
-	 */
-	public HttpDOMResponse(Document doc, Header[] head){
-		this.setHeaders(head);
-		this.document = doc;
-	}
+  /***
+   * Gets the DOM document for this response.
+   * @return
+   */
+  public Document getDocument() {
+    return document;
+  }
 
+  /***
+   * Default constructor
+   */
+  public HttpDOMResponse() {}
 
+  /***
+   * Single Shot Constructor
+   * @param doc
+   * @param head
+   */
+  public HttpDOMResponse(Document doc, Header[] head) {
+    this.setHeaders(head);
+    this.document = doc;
+  }
 }

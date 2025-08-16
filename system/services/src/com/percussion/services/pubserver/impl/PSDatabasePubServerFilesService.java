@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.percussion.services.pubserver.impl;
 import com.percussion.services.pubserver.IPSDatabasePubServerFilesService;
 import com.percussion.services.pubserver.data.PSDatabasePubServer;
 import com.percussion.services.pubserver.data.PSDatabasePubServer.DriverType;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.container.IPSJndiDatasource;
@@ -27,7 +28,7 @@ import com.percussion.utils.container.PSJndiDatasourceImpl;
 import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
 import com.percussion.utils.jdbc.PSDatasourceConfig;
-import com.percussion.utils.servlet.PSServletUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,17 @@
 package com.percussion.searchmanagement.service;
 
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.Set;
 
-/**
- * Provides search indexing support for pages.
- *  
- * @author peterfrontiero
- */
+/** Provides search indexing support for pages. */
 public interface IPSPageIndexService {
-    
-    /**
-     * Indexes the specified pages and/or templates.  Templates are not indexed directly.  Instead, all pages which use
-     * the templates are indexed.
-     * 
-     * @param set of content id's to index.  May not be <code>null</code>.
-     */
-    public void index(Set<Integer> ids) throws PSValidationException;
+
+  /**
+   * Indexes the specified pages and/or templates. Templates are not indexed directly. Instead, all
+   * pages which use the templates are indexed.
+   *
+   * @param ids set of content IDs to index. May not be {@code null}.
+   * @throws PSValidationException if validation fails
+   */
+  void index(Set<Integer> ids) throws PSValidationException;
 }

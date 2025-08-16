@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,35 +18,29 @@
 package com.percussion.contentmigration.converter;
 
 import com.percussion.contentmigration.converters.IPSContentMigrationConverter;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSRichTextMigrationConverter implements IPSContentMigrationConverter
-{
+public class PSRichTextMigrationConverter implements IPSContentMigrationConverter {
 
-    private static final String WIDGET_DEF = "percRichText";
-    private static final String WIDGET_FIELD_TEXT = "text";
-    private static final String WIDGET_CONTENT_TYPE = "percRichTextAsset";
+  private static final String WIDGET_DEF = "percRichText";
+  private static final String WIDGET_FIELD_TEXT = "text";
+  private static final String WIDGET_CONTENT_TYPE = "percRichTextAsset";
 
-    @Override
-    public String getWidgetDefId()
-    {
-        return WIDGET_DEF;
-    }
+  @Override
+  public String getWidgetDefId() {
+    return WIDGET_DEF;
+  }
 
-    @Override
-    public Map<String, Object> convert(String source)
-    {
-        Map<String, Object> fields = new HashMap<>();
-        fields.put(WIDGET_FIELD_TEXT, source);
-        return fields;
-    }
+  @Override
+  public Map<String, Object> convert(String source) {
+    var fields = new HashMap<String, Object>();
+    fields.put(WIDGET_FIELD_TEXT, source);
+    return fields;
+  }
 
-    @Override
-    public String getWidgetContentType()
-    {
-        return WIDGET_CONTENT_TYPE;
-    }
-
+  @Override
+  public String getWidgetContentType() {
+    return WIDGET_CONTENT_TYPE;
+  }
 }

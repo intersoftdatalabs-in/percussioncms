@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,20 +22,16 @@ import com.percussion.util.PSProperties;
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSContainerUtilsFactory;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-import org.apache.tools.ant.BuildException;
-
 import java.io.File;
 import java.util.List;
-
+import org.apache.tools.ant.BuildException;
 
 /**
  * PSConfigurePort is a task which configures the rhythmyx port.
  *
- * The port information is configured in server.xml of the jboss-web.deployer.
+ * <p>The port information is configured in server.xml of the jboss-web.deployer. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -53,127 +49,96 @@ import java.util.List;
  *  </code>
  *
  * </pre>
- *
  */
-public class PSConfigurePort extends PSAction
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      PSLogger.logInfo("Configuring port...");
-      String port = RX_PORT;
+public class PSConfigurePort extends PSAction {
+  // see base class
+  @Override
+  public void execute() {
+    PSLogger.logInfo("Configuring port...");
+    String port = RX_PORT;
 
-      try
-      {
-         if (m_strServerPort.trim().length() == 0)
-         {
-            try {
-               //Load server information from server.properties
-               PSProperties props = new PSProperties(getRootDir()
-                       + File.separator + getServerPropsLocation());
+    try {
+      if (m_strServerPort.trim().length() == 0) {
+        try {
+          // Load server information from server.properties
+          PSProperties props =
+              new PSProperties(getRootDir() + File.separator + getServerPropsLocation());
 
-               //Get port
-               port = props.getProperty(SERVER_PORT);
-            }catch(Exception e){
-               PSLogger.logWarn("Unable to locate port in: " + getRootDir()
-                       + File.separator + getServerPropsLocation());
-               port = getServerPort();
-            }
-         }
-         else
-         {
-            //Use port property from IDE
-            port = getServerPort();
-         }
-
-         PSLogger.logInfo("Rhythmyx port will be " + port);
-
-          BaseContainerUtils utils = PSContainerUtilsFactory.getInstance();
-         List<IPSConnector> connectors = utils.getConnectorInfo().getConnectors();
-
-         for (IPSConnector connector : connectors)
-         {
-            int portNum = connector.getPort();
-            int jBossPort = Integer.parseInt(RX_PORT_JBOSS);
-            if (portNum == jBossPort)
-            {
-               connector.setPort(Integer.parseInt(port));
-               break;
-            }
-         }
-
-         utils.getConnectorInfo().setConnectors(connectors);
-
-         PSContainerUtilsFactory.getConfigurationContextInstance().save();
+          // Get port
+          port = props.getProperty(SERVER_PORT);
+        } catch (Exception e) {
+          PSLogger.logWarn(
+              "Unable to locate port in: "
+                  + getRootDir()
+                  + File.separator
+                  + getServerPropsLocation());
+          port = getServerPort();
+        }
+      } else {
+        // Use port property from IDE
+        port = getServerPort();
       }
-      catch (Exception e)
-      {
-         throw new BuildException(e.getMessage());
+
+      PSLogger.logInfo("Rhythmyx port will be " + port);
+
+      BaseContainerUtils utils = PSContainerUtilsFactory.getInstance();
+      List<IPSConnector> connectors = utils.getConnectorInfo().getConnectors();
+
+      for (IPSConnector connector : connectors) {
+        int portNum = connector.getPort();
+        int jBossPort = Integer.parseInt(RX_PORT_JBOSS);
+        if (portNum == jBossPort) {
+          connector.setPort(Integer.parseInt(port));
+          break;
+        }
       }
-   }
 
-   /*************************************************************************
-    * Property Accessors and Mutators
-    *************************************************************************/
+      utils.getConnectorInfo().setConnectors(connectors);
 
-   /**
-    * Accessor for the server properties location
-    */
-   public static String getServerPropsLocation()
-   {
-      return ms_strServerPropsLocation;
-   }
+      PSContainerUtilsFactory.getConfigurationContextInstance().save();
+    } catch (Exception e) {
+      throw new BuildException(e.getMessage());
+    }
+  }
 
-   /**
-    * Accessor for the server port
-    */
-   public String getServerPort()
-   {
-      if(m_strServerPort==null || m_strServerPort.trim().equals("")) {
-        m_strServerPort="9992";
-      }
-      return m_strServerPort;
-   }
+  /*************************************************************************
+   * Property Accessors and Mutators
+   *************************************************************************/
 
-   /**
-    * Mutator for the server port.
-    */
-   public void setServerPort(String strServerPort)
-   {
-      m_strServerPort = strServerPort;
-   }
+  /** Accessor for the server properties location */
+  public static String getServerPropsLocation() {
+    return ms_strServerPropsLocation;
+  }
 
+  /** Accessor for the server port */
+  public String getServerPort() {
+    if (m_strServerPort == null || m_strServerPort.trim().equals("")) {
+      m_strServerPort = "9992";
+    }
+    return m_strServerPort;
+  }
 
-   /**************************************************************************
-    * Properties
-    *************************************************************************/
+  /** Mutator for the server port. */
+  public void setServerPort(String strServerPort) {
+    m_strServerPort = strServerPort;
+  }
 
-   /**
-    * The server properties location, relative to the Rhythmyx root.
-    */
-   private static String ms_strServerPropsLocation =
-      "rxconfig/Server/server.properties";
+  /**************************************************************************
+   * Properties
+   *************************************************************************/
 
-   /**
-    * The server port.
-    */
-   private String m_strServerPort = "";
+  /** The server properties location, relative to the Rhythmyx root. */
+  private static String ms_strServerPropsLocation = "rxconfig/Server/server.properties";
 
-   /**
-    * The default rhythmyx port in jboss
-    */
-   static private final String RX_PORT_JBOSS = "8080";
+  /** The server port. */
+  private String m_strServerPort = "";
 
-   /**
-    * The default rhythmyx port
-    */
-   static private final String RX_PORT = "9992";
+  /** The default rhythmyx port in jboss */
+  private static final String RX_PORT_JBOSS = "8080";
 
-   /**
-    * The port property name in server.properties
-    */
-   static protected final String SERVER_PORT = "bindPort";
+  /** The default rhythmyx port */
+  private static final String RX_PORT = "9992";
 
-
+  /** The port property name in server.properties */
+  protected static final String SERVER_PORT = "bindPort";
 }

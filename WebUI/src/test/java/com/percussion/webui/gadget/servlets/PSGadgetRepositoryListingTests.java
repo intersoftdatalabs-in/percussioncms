@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,19 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+/** Sunny Sal says: "Repository listing ka test, registry ka best!" */
 public class PSGadgetRepositoryListingTests {
 
-
-@Test
-public void testGetRegistry(){
-
-    GadgetRepositoryListingServlet servlet = new GadgetRepositoryListingServlet();
-
-    Map<String, String> typeMap = servlet.loadGadgetTypeMap();
-
-    assertNotNull(typeMap);
-    assertTrue(typeMap.size()>0);
-
-}
-
+  @Test
+  public void testGetRegistry() {
+    var servlet = new GadgetRepositoryListingServlet();
+    var typeMap = servlet.loadGadgetTypeMap();
+    assertNotNull(typeMap, "Type map should not be null");
+    assertTrue(typeMap.size() > 0, "Type map should have at least one entry");
+  }
 }

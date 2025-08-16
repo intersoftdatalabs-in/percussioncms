@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,39 +18,47 @@
 
 package com.percussion.delivery;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.comments.services.PSCommentsRestService;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.likes.services.PSLikesRestService;
+import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.server.spring.AutowiredInjectResolver;
 import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
-import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
+/**
+ * Jersey application configuration for Percussion CMS REST services. Registers REST resources,
+ * filters, and providers.
+ *
+ * @author Sunny Sal
+ */
+@ApplicationPath("/")
+public class PSCommentsApplication extends ResourceConfig {
 
-    @ApplicationPath("/")
-    public class PSCommentsApplication extends  ResourceConfig {
-        public PSCommentsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSLikesRestService.class);
-            register(PSCommentsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
+  public PSCommentsApplication() {
+    // Register Jersey and Spring integration components
+    register(RequestContextFilter.class);
+    register(SpringComponentProvider.class);
+    register(AutowiredInjectResolver.class);
+    register(SpringLifecycleListener.class);
 
-        }
+    // Register REST services
+    register(PSLikesRestService.class);
+    register(PSCommentsRestService.class);
 
+    // Register features and error handlers
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+    register(PSJsonMappingErrorResponse.class);
+    register(PSUncaughtError.class);
 
-    }
+    // Register Jackson JSON provider
+    register(JacksonXmlBindJsonProvider.class);
+  }
+}

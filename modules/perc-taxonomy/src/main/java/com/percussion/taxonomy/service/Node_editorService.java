@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,60 +17,57 @@
 
 package com.percussion.taxonomy.service;
 
-import org.hibernate.HibernateException;
-import java.util.Collection;
-import org.springframework.dao.DataAccessException;
-
 import com.percussion.taxonomy.domain.Node_editor;
 import com.percussion.taxonomy.repository.Node_editorDAO;
 import com.percussion.taxonomy.repository.Node_editorServiceInf;
-import com.percussion.taxonomy.service.Node_editorService;
+import java.util.Collection;
+import org.hibernate.HibernateException;
 
 public class Node_editorService implements Node_editorServiceInf {
 
-    public Node_editorDAO node_editorDAO;
+  public Node_editorDAO node_editorDAO;
 
-    public Collection getAllNode_editors() {
-        try {
-            return node_editorDAO.getAllNode_editors();
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Collection getAllNode_editors() {
+    try {
+      return node_editorDAO.getAllNode_editors();
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public Node_editor getNode_editor(int id) {
-        try {
-            return node_editorDAO.getNode_editor(id);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Node_editor getNode_editor(int id) {
+    try {
+      return node_editorDAO.getNode_editor(id);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void removeNode_editor(Node_editor node_editor) {
-        try {
-            node_editorDAO.removeNode_editor(node_editor);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void removeNode_editor(Node_editor node_editor) {
+    try {
+      node_editorDAO.removeNode_editor(node_editor);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void removeNode_editors(Collection<Node_editor> node_editors) {
-        try {
-            node_editorDAO.removeNode_editors(node_editors);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void removeNode_editors(Collection<Node_editor> node_editors) {
+    try {
+      node_editorDAO.removeNode_editors(node_editors);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
-        
-    public void saveNode_editor(Node_editor node_editor) {
-        try {
-            node_editorDAO.saveNode_editor(node_editor);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
-    }
+  }
 
-    public void setNode_editorDAO(Node_editorDAO node_editorDAO) {
-        this.node_editorDAO = node_editorDAO;
+  public void saveNode_editor(Node_editor node_editor) {
+    try {
+      node_editorDAO.saveNode_editor(node_editor);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
+
+  public void setNode_editorDAO(Node_editorDAO node_editorDAO) {
+    this.node_editorDAO = node_editorDAO;
+  }
 }

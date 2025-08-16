@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,142 +26,113 @@ import com.percussion.rx.design.IPSDesignModelFactory;
 import com.percussion.rx.design.PSDesignModelFactoryLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
-public class PSRelationshipConfigSetterTest extends PSConfigurationTest
-{
-   public void testConfigFiles() throws Exception
-   {
-      PSConfigFilesFactoryTest factory = null;
-      try
-      {
-         factory = PSConfigFilesFactoryTest.applyConfigAndReturnFactory(PKG_NAME,
-               IMPL_CFG, LOCAL_CFG);
-         validateLocalConfiguration();
+@Tag("IntegrationTest")
+public class PSRelationshipConfigSetterTest extends PSConfigurationTest {
+  public void testConfigFiles() throws Exception {
+    PSConfigFilesFactoryTest factory = null;
+    try {
+      factory = PSConfigFilesFactoryTest.applyConfigAndReturnFactory(PKG_NAME, IMPL_CFG, LOCAL_CFG);
+      validateLocalConfiguration();
 
-         // Testing validation
-         try
-         {
-            PSConfigFilesFactoryTest.applyConfig(PKG_NAME + "_2", IMPL_CFG,
-                  LOCAL_CFG);
-            fail("Should have failed here, due to validation failure");
-         }
-         catch (Exception e)
-         {
-         }
+      // Testing validation
+      try {
+        PSConfigFilesFactoryTest.applyConfig(PKG_NAME + "_2", IMPL_CFG, LOCAL_CFG);
+        fail("Should have failed here, due to validation failure");
+      } catch (Exception e) {
       }
-      finally
-      {
-         if (factory != null)
-            factory.release();
+    } finally {
+      if (factory != null) factory.release();
+    }
+
+    // \/\/\/\/\/\/\/\
+    // cleanup
+
+    PSConfigFilesFactoryTest.deApplyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
+    validateDefaultConfiguration();
+  }
+
+  @SuppressWarnings("unchecked")
+  private void validateDefaultConfiguration() throws PSNotFoundException {
+    PSRelationshipConfig cfg = getRelationshipConfig();
+    List<PSCloneOverrideField> cloneFields = cfg.getCloneOverrideFieldList();
+    assertTrue(cloneFields.size() == 3);
+    PSProcessCheck scloneCheck = cfg.getProcessCheck("rs_cloneshallow");
+    Iterator conditions = scloneCheck.getConditions();
+    List<PSRule> condRules = new ArrayList<PSRule>();
+    while (conditions.hasNext()) {
+      condRules.add((PSRule) conditions.next());
+    }
+    assertTrue(condRules.size() == 1);
+    PSProcessCheck dcloneCheck = cfg.getProcessCheck("rs_clonedeep");
+    conditions = dcloneCheck.getConditions();
+    condRules = new ArrayList<PSRule>();
+    while (conditions.hasNext()) {
+      condRules.add((PSRule) conditions.next());
+    }
+    assertTrue(condRules.size() == 1);
+    // Validate effects
+    Iterator<PSConditionalEffect> effects = cfg.getEffects();
+    PSConditionalEffect effect = null;
+    while (effects.hasNext()) {
+      PSConditionalEffect ef = effects.next();
+      if (ef.getEffect().getName().equalsIgnoreCase("sys_PublishMandatory")) {
+        effect = ef;
+        break;
       }
+    }
+    assertNull(effect);
+  }
 
-      // \/\/\/\/\/\/\/\
-      // cleanup
-
-      PSConfigFilesFactoryTest.deApplyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
-      validateDefaultConfiguration();
-   }
-
-   @SuppressWarnings("unchecked")
-   private void validateDefaultConfiguration() throws PSNotFoundException {
-      PSRelationshipConfig cfg = getRelationshipConfig();
-      List<PSCloneOverrideField> cloneFields = cfg.getCloneOverrideFieldList();
-      assertTrue(cloneFields.size() == 3);
-      PSProcessCheck scloneCheck = cfg.getProcessCheck("rs_cloneshallow");
-      Iterator conditions = scloneCheck.getConditions();
-      List<PSRule> condRules = new ArrayList<PSRule>();
-      while (conditions.hasNext())
-      {
-         condRules.add((PSRule) conditions.next());
+  @SuppressWarnings("unchecked")
+  private void validateLocalConfiguration() throws PSNotFoundException {
+    PSRelationshipConfig config = getRelationshipConfig();
+    List<PSCloneOverrideField> cloneFields = config.getCloneOverrideFieldList();
+    assertTrue(cloneFields.size() == 1);
+    PSProcessCheck scloneCheck = config.getProcessCheck("rs_cloneshallow");
+    Iterator conditions = scloneCheck.getConditions();
+    List<PSRule> condRules = new ArrayList<PSRule>();
+    while (conditions.hasNext()) {
+      condRules.add((PSRule) conditions.next());
+    }
+    assertTrue(condRules.size() == 3);
+    PSProcessCheck dcloneCheck = config.getProcessCheck("rs_clonedeep");
+    conditions = dcloneCheck.getConditions();
+    condRules = new ArrayList<PSRule>();
+    while (conditions.hasNext()) {
+      // make sure there is one condition with 1 = 2 rule.
+      condRules.add((PSRule) conditions.next());
+    }
+    assertTrue(condRules.size() == 2);
+    // Validate effects
+    Iterator<PSConditionalEffect> effects = config.getEffects();
+    PSConditionalEffect effect = null;
+    while (effects.hasNext()) {
+      PSConditionalEffect ef = effects.next();
+      if (ef.getEffect().getName().equalsIgnoreCase("sys_PublishMandatory")) {
+        effect = ef;
+        break;
       }
-      assertTrue(condRules.size() == 1);
-      PSProcessCheck dcloneCheck = cfg.getProcessCheck("rs_clonedeep");
-      conditions = dcloneCheck.getConditions();
-      condRules = new ArrayList<PSRule>();
-      while (conditions.hasNext())
-      {
-         condRules.add((PSRule) conditions.next());
-      }
-      assertTrue(condRules.size() == 1);
-      //Validate effects
-      Iterator<PSConditionalEffect> effects = cfg.getEffects();
-      PSConditionalEffect effect = null;
-      while(effects.hasNext())
-      {
-         PSConditionalEffect ef = effects.next();
-         if (ef.getEffect().getName()
-               .equalsIgnoreCase(
-                     "sys_PublishMandatory"))
-         {
-            effect = ef;
-            break;
-         }
-      }
-      assertNull(effect);
-   }
+    }
+    assertNotNull(effect);
+  }
 
-   @SuppressWarnings("unchecked")
-   private void validateLocalConfiguration() throws PSNotFoundException {
-      PSRelationshipConfig config = getRelationshipConfig();
-      List<PSCloneOverrideField> cloneFields = config
-            .getCloneOverrideFieldList();
-      assertTrue(cloneFields.size() == 1);
-      PSProcessCheck scloneCheck = config.getProcessCheck("rs_cloneshallow");
-      Iterator conditions = scloneCheck.getConditions();
-      List<PSRule> condRules = new ArrayList<PSRule>();
-      while (conditions.hasNext())
-      {
-         condRules.add((PSRule) conditions.next());
-      }
-      assertTrue(condRules.size() == 3);
-      PSProcessCheck dcloneCheck = config.getProcessCheck("rs_clonedeep");
-      conditions = dcloneCheck.getConditions();
-      condRules = new ArrayList<PSRule>();
-      while (conditions.hasNext())
-      {
-         // make sure there is one condition with 1 = 2 rule.
-         condRules.add((PSRule) conditions.next());
-      }
-      assertTrue(condRules.size() == 2);
-      //Validate effects
-      Iterator<PSConditionalEffect> effects = config.getEffects();
-      PSConditionalEffect effect = null;
-      while(effects.hasNext())
-      {
-         PSConditionalEffect ef = effects.next();
-         if (ef.getEffect().getName()
-               .equalsIgnoreCase(
-                     "sys_PublishMandatory"))
-         {
-            effect = ef;
-            break;
-         }
-      }
-      assertNotNull(effect);
-   }
+  private PSRelationshipConfig getRelationshipConfig() throws PSNotFoundException {
+    IPSDesignModelFactory dm = PSDesignModelFactoryLocator.getDesignModelFactory();
+    IPSDesignModel model = dm.getDesignModel(PSTypeEnum.RELATIONSHIP_CONFIGNAME);
+    return (PSRelationshipConfig) model.load("NewCopy");
+  }
 
-   private PSRelationshipConfig getRelationshipConfig() throws PSNotFoundException {
-      IPSDesignModelFactory dm = PSDesignModelFactoryLocator
-            .getDesignModelFactory();
-      IPSDesignModel model = dm
-            .getDesignModel(PSTypeEnum.RELATIONSHIP_CONFIGNAME);
-      return (PSRelationshipConfig) model.load("NewCopy");
+  public static final String PKG_NAME = "PSRelationshipConfigSetterTest";
 
-   }
+  public static final String IMPL_CFG = PKG_NAME + "_configDef.xml";
 
-   public static final String PKG_NAME = "PSRelationshipConfigSetterTest";
+  public static final String LOCAL_CFG = PKG_NAME + "_localConfig.xml";
 
-   public static final String IMPL_CFG = PKG_NAME + "_configDef.xml";
-
-   public static final String LOCAL_CFG = PKG_NAME + "_localConfig.xml";
-
-   public static final String DEFAULT_CFG = PKG_NAME + "_defaultConfig.xml";
+  public static final String DEFAULT_CFG = PKG_NAME + "_defaultConfig.xml";
 }

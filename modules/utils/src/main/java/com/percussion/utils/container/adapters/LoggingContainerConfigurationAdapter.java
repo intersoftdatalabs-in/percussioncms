@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,31 +20,35 @@ package com.percussion.utils.container.adapters;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-
 import java.nio.file.Path;
 
-public class LoggingContainerConfigurationAdapter implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+public class LoggingContainerConfigurationAdapter
+    implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
-    private boolean enabled = true;
+  private boolean enabled = true;
 
+  @Override
+  public void load(DefaultConfigurationContextImpl configurationContext) {
+    Path rxDir = configurationContext.getRootDir();
+    BaseContainerUtils containerUtils = configurationContext.getConfig();
+    System.out.println(
+        "Logging load configuration from "
+            + rxDir.toString()
+            + " container utils ="
+            + containerUtils.toString());
+    containerUtils.setEnabled(enabled);
+  }
 
-    @Override
-    public void load(DefaultConfigurationContextImpl configurationContext) {
-        Path rxDir = configurationContext.getRootDir();
-        BaseContainerUtils containerUtils = configurationContext.getConfig();
-        System.out.println("Logging load configuration from "+rxDir.toString()+" container utils ="+containerUtils.toString());
-        containerUtils.setEnabled(enabled);
+  @Override
+  public void save(DefaultConfigurationContextImpl configurationContext) {
+    Path rxDir = configurationContext.getRootDir();
+    BaseContainerUtils containerUtils = configurationContext.getConfig();
 
-    }
-
-    @Override
-    public void save(DefaultConfigurationContextImpl configurationContext) {
-        Path rxDir = configurationContext.getRootDir();
-        BaseContainerUtils containerUtils = configurationContext.getConfig();
-
-        System.out.println("Logging save configuration from "+rxDir.toString()+" container utils ="+containerUtils.toString());
-        enabled = containerUtils.isEnabled();
-    }
-
+    System.out.println(
+        "Logging save configuration from "
+            + rxDir.toString()
+            + " container utils ="
+            + containerUtils.toString());
+    enabled = containerUtils.isEnabled();
+  }
 }
-

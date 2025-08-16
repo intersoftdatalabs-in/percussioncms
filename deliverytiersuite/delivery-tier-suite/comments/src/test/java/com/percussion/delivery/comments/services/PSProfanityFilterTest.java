@@ -17,99 +17,81 @@
 
 package com.percussion.delivery.comments.services;
 
-import com.percussion.delivery.comments.services.PSProfanityFilter;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
+// import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations =
-{"classpath:test-beans.xml"})
-public class PSProfanityFilterTest extends TestCase
-{
-    private static PSProfanityFilter profanityFilter;   
-    
-    private static final String FILE_CONTENT = "ass, balls,bastard, shit";
-    
-    /**
-     * Sample file
-     */
-    private File m_file;
-       
-    @Before
-    public void setUp() throws Exception
-    {   
-        super.setUp();
-        m_file = createTempFile();
-        profanityFilter = new PSProfanityFilter(m_file);
-    }
-    
-    @After
-    public void tearDown()
-    {
-        m_file.delete();
-    }
-    
-    @Test
-    public void testContainsProfanity() throws Exception
-    {
-        // Set the text to validate
-        String commentText = "This text contains a profanity word:shit. This comment should be rejected."; 
-        assertTrue("Word exists in the profanity list", profanityFilter.containsProfanity(commentText));
-    }
-    
-    @Test
-    public void testStartsWithProfanity() throws Exception
-    {
-        // Set the text to validate
-        String commentText = "Shit this text starts with a bad word. This comment should be rejected."; 
-        assertTrue("Word exists in the profanity list", profanityFilter.containsProfanity(commentText));
-    }
-    
-    @Test
-    public void testEndsWithProfanity() throws Exception
-    {
-        // Set the text to validate
-        String commentText = "This text ends with a bad word. This comment should be rejected shit "; 
-        assertTrue("Word exists in the profanity list", profanityFilter.containsProfanity(commentText));
-    }
-    
-    @Test
-    public void testContainsCapsProfanity() throws Exception
-    {
-        // Set the text to validate
-        String commentText = "This text contains a bad word ShIt. This comment should be rejected."; 
-        assertTrue("Word exists in the profanity list", profanityFilter.containsProfanity(commentText));
-    }
-    
-    @Test
-    public void testNoContainsProfanity() throws Exception
-    {
-        // Set the text to validate
-        String commentText = "This text does not contain a profanity word sh$$t and should be accepted."; 
-        assertFalse("Word doesn't exist in the profanity list", profanityFilter.containsProfanity(commentText));
-    }
+// @SpringJUnitConfig(locations = {"classpath:test-beans.xml"})
+public class PSProfanityFilterTest {
+  private static PSProfanityFilter profanityFilter;
 
-    /**
-     * Creates temporary file and writes to it string 
-     */
-    private File createTempFile() throws IOException
-    {
-       final File file = File.createTempFile("testProfanity", ".txt");
-       FileUtils.writeStringToFile(file, FILE_CONTENT, "UTF-8"
-       );
-       return file;
-    }
-    
+  /** Sample file */
+  private File m_file;
+
+  @BeforeEach
+  public void setUp() throws Exception {
+    m_file = createTempFile();
+    profanityFilter = new PSProfanityFilter(m_file);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    m_file.delete();
+  }
+
+  @Test
+  public void testContainsProfanity() {
+    // Set the text to validate
+    String commentText =
+        "This text contains a profanity word:shit. This comment should be rejected.";
+    assertTrue(profanityFilter.containsProfanity(commentText), "Word exists in the profanity list");
+  }
+
+  @Test
+  public void testStartsWithProfanity() throws Exception {
+    // Set the text to validate
+    String commentText = "Shit this text starts with a bad word. This comment should be rejected.";
+    assertTrue(profanityFilter.containsProfanity(commentText), "Word exists in the profanity list");
+  }
+
+  @Test
+  public void testEndsWithProfanity() throws Exception {
+    // Set the text to validate
+    String commentText = "This text ends with a bad word. This comment should be rejected shit ";
+    assertTrue(profanityFilter.containsProfanity(commentText), "Word exists in the profanity list");
+  }
+
+  @Test
+  public void testContainsCapsProfanity() throws Exception {
+    // Set the text to validate
+    String commentText = "This text contains a bad word ShIt. This comment should be rejected.";
+    assertTrue(profanityFilter.containsProfanity(commentText), "Word exists in the profanity list");
+
+    // Test with a non-profanity word
+    String cleanCommentText =
+        "This text does not contain a profanity word sh$$t and should be accepted.";
+    assertFalse(
+        profanityFilter.containsProfanity(cleanCommentText),
+        "Word doesn't exist in the profanity list");
+  }
+
+  /**
+   * Creates a temporary file with profanity words for testing
+   *
+   * @return a temporary file
+   * @throws IOException if there is an error creating the file
+   */
+  private File createTempFile() throws IOException {
+    File file = File.createTempFile("profanity", ".txt");
+    FileUtils.writeStringToFile(file, "shit,fuck,ass", "UTF-8");
+    return file;
+  }
 }

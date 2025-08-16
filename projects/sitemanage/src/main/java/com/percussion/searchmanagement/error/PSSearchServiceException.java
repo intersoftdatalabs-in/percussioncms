@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,24 @@
  */
 package com.percussion.searchmanagement.error;
 
-public class PSSearchServiceException extends RuntimeException
-{
+/** Exception thrown for errors in the search service. */
+public class PSSearchServiceException extends RuntimeException {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * 
-     */
-    public PSSearchServiceException()
-    {
-        super();
-    }
+  public PSSearchServiceException() {
+    super();
+  }
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public PSSearchServiceException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
+  public PSSearchServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    /**
-     * @param message
-     */
-    public PSSearchServiceException(String message)
-    {
-        super(message);
-    }
+  public PSSearchServiceException(String message) {
+    super(message);
+  }
 
-    /**
-     * @param cause
-     */
-    public PSSearchServiceException(Throwable cause)
-    {
-        super(cause);
-    }
-
+  public PSSearchServiceException(Throwable cause) {
+    super(cause);
+  }
 }

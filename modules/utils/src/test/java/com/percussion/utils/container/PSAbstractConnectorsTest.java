@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +17,45 @@
 
 package com.percussion.utils.container;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSAbstractConnectorsTest {
-    Map<String,String> loadMap;
+  Map<String, String> loadMap;
 
-    @Test
-    @Before
-    public void loadProperties() {
-        File root = new File(getClass().getClassLoader().getResource("com/percussion/utils/container/sample.properties").getFile());
-        Path rootPath = Paths.get(root.toURI());
+  @Test
+  @BeforeEach
+  public void loadProperties() {
+    File root =
+        new File(
+            getClass()
+                .getClassLoader()
+                .getResource("com/percussion/utils/container/sample.properties")
+                .getFile());
+    Path rootPath = Paths.get(root.toURI());
 
-        PSAbstractConnectors loadProp=new PSAbstractConnectors();
-        loadMap = loadProp.loadProperties(rootPath);
-    }
+    PSAbstractConnectors loadProp = new PSAbstractConnectors();
+    loadMap = loadProp.loadProperties(rootPath);
+  }
 
-    @Test
-    @After
-    public void saveProperties() {
-        Path root = Paths.get(new File(getClass().getClassLoader().getResource("com/percussion/utils/container/sample1.properties").getFile()).toURI());
-        PSAbstractConnectors saveProp=new PSAbstractConnectors();
+  @Test
+  @AfterEach
+  public void saveProperties() {
+    Path root =
+        Paths.get(
+            new File(
+                    getClass()
+                        .getClassLoader()
+                        .getResource("com/percussion/utils/container/sample1.properties")
+                        .getFile())
+                .toURI());
+    PSAbstractConnectors saveProp = new PSAbstractConnectors();
 
-        saveProp.saveProperties(loadMap,root);
-
-
-    }
-
-
+    saveProp.saveProperties(loadMap, root);
+  }
 }

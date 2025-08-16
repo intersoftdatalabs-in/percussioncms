@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,19 @@ package com.percussion.data;
 import com.percussion.design.objectstore.PSDisplayTextLiteral;
 
 /**
- * The PSDisplayTextLiteralExtractor class is used to extract data from 
- * <code>PSDisplayTextLiteral</code>.  Each literal must have its own
- * extractor because of the reflection used in {@link PSDataExtractorFactory}
- * 
- * @author     James Schultz
+ * The PSDisplayTextLiteralExtractor class is used to extract data from <code>PSDisplayTextLiteral
+ * </code>. Each literal must have its own extractor because of the reflection used in {@link
+ * PSDataExtractorFactory}
+ *
+ * @author James Schultz
  */
-public class PSDisplayTextLiteralExtractor extends PSLiteralExtractor
-{
-   /**
-    * Construct the extractor from its literal counterpart.
-    *
-    * @param source the object defining the source of this value
-    */
-   public PSDisplayTextLiteralExtractor(PSDisplayTextLiteral source)
-   {
-      super( source );
-   }
+public class PSDisplayTextLiteralExtractor extends PSLiteralExtractor {
+  /**
+   * Construct the extractor from its literal counterpart.
+   *
+   * @param source the object defining the source of this value
+   */
+  public PSDisplayTextLiteralExtractor(PSDisplayTextLiteral source) {
+    super(source);
+  }
 }
-

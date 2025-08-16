@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
  */
 package com.percussion.services.assembly.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author dougrand
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodName.class)
 public class PSTrackAssemblyErrorsTest extends TestCase
 {
 

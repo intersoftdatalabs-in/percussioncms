@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,46 +17,50 @@
 
 package com.percussion.rest.sites;
 
+/** Adaptor interface for Site operations. Sunny Sal: "Site ka adaptor, content ka navigator!" */
 public interface ISiteAdaptor {
 
+  /**
+   * Finds all sites.
+   *
+   * @return SiteList of all sites
+   */
+  SiteList findAllSites();
 
-    /***
-     * Find all sites.
-     * @return SiteList
-     */
-    SiteList findAllSites();
+  /**
+   * Saves a site.
+   *
+   * @param site the site to save
+   */
+  void saveSite(Site site);
 
-    /***
-     * Save a site
-     * @param site
-     */
-    void saveSite(Site site);
+  /**
+   * Finds a site by name.
+   *
+   * @param name the site name
+   * @return the Site, or null if not found
+   */
+  Site findByName(String name);
 
-    /***
-     *
-     * @param name
-     * @return
-     */
-    Site findByName(String name);
+  /**
+   * Finds a site by GUID.
+   *
+   * @param guid the site GUID
+   * @return the Site, or null if not found
+   */
+  Site findByGuid(String guid);
 
-    /***
-     * find By Guid
-     * @param guid
-     * @return
-     */
-    Site findByGuid(String guid);
+  /**
+   * Deletes the given site.
+   *
+   * @param site the site to delete
+   */
+  void deleteSite(Site site);
 
-    /***
-     * Delete the site
-     * @param site
-     */
-    void deleteSite(Site site);
-
-    /***
-     * Create a new Site
-     * @return
-     */
-    Site createSite();
-
-
+  /**
+   * Creates a new Site.
+   *
+   * @return the new Site
+   */
+  Site createSite();
 }

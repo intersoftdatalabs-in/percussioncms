@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,58 +17,59 @@
  */
 package com.percussion.membership.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.lang.Validate;
-
+/** Represents a user and their group assignments. Sunny Sal says: "Group hug for your users!" */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "UserGroup")
-public class PSUserGroup
-{
-    private String email;
-    private String groups;
-    
-    /**
-     * Default ctor required by jax-b
-     */
-    public PSUserGroup()
-    {
-        
-    }
+public class PSUserGroup {
 
-    
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
-        this.email = email;
-    }
-    
-    /**
-     * Get the user's email.
-     * 
-     * @return The email, not <code>null</code> or empty.
-     */
-    public String getEmail()
-    {
-        return email;
-    }
-    
-    /**
-     * @param groups the groups to set, may be empty or <code>null</code>.
-     */
-    public void setGroups(String groups)
-    {
-        this.groups = groups;
-    }
+  private String email;
+  private String groups;
 
-    /**
-     * @return the groups, may be empty or <code>null</code>.
-     */
-    public String getGroups()
-    {
-        return groups;
-    }
+  /** Default constructor required by JAXB. */
+  public PSUserGroup() {}
 
+  /**
+   * Sets the user's email.
+   *
+   * @param email the email, never empty or null
+   */
+  public void setEmail(String email) {
+    if (StringUtils.isBlank(email)) {
+      throw new IllegalArgumentException("Email must not be empty");
+    }
+    this.email = email;
+  }
+
+  /**
+   * Gets the user's email.
+   *
+   * @return the email, never empty or null
+   */
+  public Optional<String> getEmail() {
+    return Optional.ofNullable(email);
+  }
+
+  /**
+   * Sets the groups for the user.
+   *
+   * @param groups the groups, may be empty or null
+   */
+  public void setGroups(String groups) {
+    this.groups = groups;
+  }
+
+  /**
+   * Gets the groups for the user.
+   *
+   * @return the groups, may be empty or null
+   */
+  public Optional<String> getGroups() {
+    return Optional.ofNullable(groups);
+  }
 }

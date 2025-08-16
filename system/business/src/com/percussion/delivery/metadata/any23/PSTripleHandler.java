@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.delivery.metadata.any23;
 
 import com.percussion.delivery.metadata.PSMetadataExtractorService;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.any23.extractor.ExtractionContext;
 import org.apache.any23.writer.TripleHandler;
 import org.apache.any23.writer.TripleHandlerException;
@@ -44,9 +44,7 @@ import java.util.regex.Pattern;
  * @author miltonpividori
  * 
  */
-public class PSTripleHandler implements TripleHandler
-{
-
+public class PSTripleHandler implements org.apache.any23.writer.TripleHandler {
     private static final Logger log = LogManager.getLogger(PSTripleHandler.class);
 
     /**
@@ -67,13 +65,13 @@ public class PSTripleHandler implements TripleHandler
      * 'http://purl.org/dc/terms/': 'dcterms' }. It used to replace the URL by
      * the declared name when filling PSMetadataProperty.name field.
      */
-    private Map<String, String> namespacesByUrl = new HashMap<>();
+    private final Map<String, String> namespacesByUrl = new HashMap<>();
 
     /**
      * All the PSMetadataProperty objects that were created from the metadata
      * properties extracted from the page being processed.
      */
-    private Set<PSMetadataProperty> properties = new HashSet<>();
+    private final Set<PSMetadataProperty> properties = new HashSet<>();
 
     /**
      * The linktext of the PSMetadataEntry.
@@ -89,7 +87,7 @@ public class PSTripleHandler implements TripleHandler
      * Regular expression to separate the URL from the property name in a
      * Triple's predicate.
      */
-    private Pattern patternForNamespaceURLExtraction = Pattern.compile("(.+[/#])([^/]+)");
+    private final Pattern patternForNamespaceURLExtraction = Pattern.compile("(.+[/#])([^/]+)");
 
     public PSTripleHandler()
     {

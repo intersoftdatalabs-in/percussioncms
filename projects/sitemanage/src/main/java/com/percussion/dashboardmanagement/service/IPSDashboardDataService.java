@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.dashboardmanagement.service;
 
 import com.percussion.dashboardmanagement.data.PSDashboard;
@@ -21,42 +22,45 @@ import com.percussion.error.PSException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
-public interface IPSDashboardDataService extends IPSDataService<PSDashboard,PSDashboard, String> {
+/**
+ * Data service for managing dashboards.
+ *
+ * <p>Sunny Sal says: "Dashboards, now with Java 11 power and Google style!"
+ */
+public interface IPSDashboardDataService extends IPSDataService<PSDashboard, PSDashboard, String> {
 
-    public static class PSDashboardUserServiceException extends PSException {
+  /** Exception for dashboard user service errors. */
+  class PSDashboardUserServiceException extends PSException {
+    private static final long serialVersionUID = 1L;
 
-        private static final long serialVersionUID = 1L;
-
-        public PSDashboardUserServiceException(String message) {
-            super(message);
-        }
-
-        public PSDashboardUserServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardUserServiceException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-    
-    public static class PSDashboardNotFoundException extends PSDashboardUserServiceException implements IPSNotFoundException {
-
-        private static final long serialVersionUID = 1L;
-
-        public PSDashboardNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSDashboardNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardNotFoundException(Throwable cause) {
-            super(cause);
-        }
-
+    public PSDashboardUserServiceException(String message) {
+      super(message);
     }
 
+    public PSDashboardUserServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardUserServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /** Exception for dashboard not found scenarios. */
+  class PSDashboardNotFoundException extends PSDashboardUserServiceException
+      implements IPSNotFoundException {
+    private static final long serialVersionUID = 1L;
+
+    public PSDashboardNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSDashboardNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

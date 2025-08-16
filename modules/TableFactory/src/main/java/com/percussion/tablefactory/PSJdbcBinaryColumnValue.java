@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +20,33 @@ package com.percussion.tablefactory;
 import java.io.FileInputStream;
 
 /***
- * Contains a binary column value. 
- * 
+ * Contains a binary column value.
+ *
  * @author natechadwick
  *
  */
-public class PSJdbcBinaryColumnValue
-{
-   private FileInputStream stream;
-   private long fileSize;
-   
-   public PSJdbcBinaryColumnValue(FileInputStream stream, long l){
-      this.setStream(stream);
-      this.setFileSize(l);
-   }
+public class PSJdbcBinaryColumnValue {
+  private FileInputStream stream;
+  private long fileSize;
 
-   public FileInputStream getStream()
-   {
-      return stream;
-   }
+  public PSJdbcBinaryColumnValue(FileInputStream stream, long l) {
+    this.setStream(stream);
+    this.setFileSize(l);
+  }
 
-   public void setStream(FileInputStream stream)
-   {
-      this.stream = stream;
-   }
+  public FileInputStream getStream() {
+    return stream;
+  }
 
-   public long getFileSize()
-   {
-      return fileSize;
-   }
+  public void setStream(FileInputStream stream) {
+    this.stream = stream;
+  }
 
-   public void setFileSize(long fileSize)
-   {
-      this.fileSize = fileSize;
-   }
+  public long getFileSize() {
+    return fileSize;
+  }
 
-   
+  public void setFileSize(long fileSize) {
+    this.fileSize = fileSize;
+  }
 }

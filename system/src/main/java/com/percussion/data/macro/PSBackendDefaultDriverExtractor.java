@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,14 @@ import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
 import com.percussion.extension.services.PSDatabasePool;
 
-/**
- * Macro extractor to get the database defaut driver name. 
- */
-public class PSBackendDefaultDriverExtractor implements IPSMacroExtractor
-{
-   /**
-    * This macro extractor extracts the driver name of the default backend
-    * database. The name returned is always uppercased.
-    */
-   public Object extract(PSExecutionData data) throws PSDataExtractionException
-   {
-      PSDatabasePool dbPool = PSDatabasePool.getDatabasePool();
-      return dbPool.getDefaultDriver().toUpperCase();
-   }
+/** Macro extractor to get the database defaut driver name. */
+public class PSBackendDefaultDriverExtractor implements IPSMacroExtractor {
+  /**
+   * This macro extractor extracts the driver name of the default backend database. The name
+   * returned is always uppercased.
+   */
+  public Object extract(PSExecutionData data) throws PSDataExtractionException {
+    PSDatabasePool dbPool = PSDatabasePool.getDatabasePool();
+    return dbPool.getDefaultDriver().toUpperCase();
+  }
 }

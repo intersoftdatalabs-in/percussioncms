@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,23 @@
 
 package com.ibm.cadf.model;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
-public class ReasonTest
-{
+public class ReasonTest {
 
-    @Test
-    public void testReasonPositive() throws CADFException, IOException
-    {
-        Reason reason = new Reason("File transfer", "10101", null, null);
-        assertEquals(true, reason.isValid());
-    }
+  @Test
+  public void testReasonPositive() throws CADFException, IOException {
+    Reason reason = new Reason("File transfer", "10101", null, null);
+    assertEquals(true, reason.isValid());
+  }
 
-    @Test
-    public void testReasonNegative() throws CADFException, IOException
-    {
-        Reason reason = new Reason("File transfer", null, null, null);
-        assertEquals(false, reason.isValid());
-    }
+  @Test
+  public void testReasonNegative() throws CADFException, IOException {
+    Reason reason = new Reason("File transfer", null, null, null);
+    assertEquals(false, reason.isValid());
+  }
 }

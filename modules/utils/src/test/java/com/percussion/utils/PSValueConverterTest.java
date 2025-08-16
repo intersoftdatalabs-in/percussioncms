@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,53 +16,45 @@
  */
 package com.percussion.utils;
 
-import com.percussion.utils.jsr170.PSValueConverter;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.utils.jsr170.PSValueConverter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import org.junit.jupiter.api.Test;
 
-public class PSValueConverterTest extends TestCase
-{
-   public PSValueConverterTest(String name) {
-      super(name);
-   }
+public class PSValueConverterTest {
+  public PSValueConverterTest() {}
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSValueConverterTest.class);
-   }
+  @Test
+  public void testConversionMillis() throws Exception {
+    long now = System.currentTimeMillis();
+    Calendar cal = new GregorianCalendar();
+    cal.setTimeInMillis(now);
+    Calendar cval = PSValueConverter.convertToCalendar(now);
+    assertEquals(cal, cval);
+  }
 
-   public void testConversionMillis() throws Exception
-   {
-      long now = System.currentTimeMillis();
-      Calendar cal = new GregorianCalendar();
-      cal.setTimeInMillis(now);
-      Calendar cval = PSValueConverter.convertToCalendar(now);
-      assertEquals(cal, cval);
-   }
-   
-   public void testConversionDateString() throws Exception
-   {
-      Calendar cal = PSValueConverter.convertToCalendar("2001/08/31");
-      assertEquals(8, cal.get(Calendar.MONTH) + 1);
-      assertEquals(31, cal.get(Calendar.DAY_OF_MONTH));
-      assertEquals(2001, cal.get(Calendar.YEAR));
-      
-      cal = PSValueConverter.convertToCalendar("2100-05-04 11:31:23");
-      assertEquals(5, cal.get(Calendar.MONTH) + 1);
-      assertEquals(4, cal.get(Calendar.DAY_OF_MONTH));
-      assertEquals(2100, cal.get(Calendar.YEAR));
-      assertEquals(11, cal.get(Calendar.HOUR));
-      assertEquals(31, cal.get(Calendar.MINUTE));
-      assertEquals(23, cal.get(Calendar.SECOND));
-   }
-   
-   public void testConversion() throws Exception
-   {
-      Calendar cal = new GregorianCalendar(1985,11,22);
-      String date = PSValueConverter.convertToString(cal);
-      assertEquals("1985-12-22 00:00:00", date);
-   }
+  @Test
+  public void testConversionDateString() throws Exception {
+    Calendar cal = PSValueConverter.convertToCalendar("2001/08/31");
+    assertEquals(8, cal.get(Calendar.MONTH) + 1);
+    assertEquals(31, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(2001, cal.get(Calendar.YEAR));
+
+    cal = PSValueConverter.convertToCalendar("2100-05-04 11:31:23");
+    assertEquals(5, cal.get(Calendar.MONTH) + 1);
+    assertEquals(4, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(2100, cal.get(Calendar.YEAR));
+    assertEquals(11, cal.get(Calendar.HOUR));
+    assertEquals(31, cal.get(Calendar.MINUTE));
+    assertEquals(23, cal.get(Calendar.SECOND));
+  }
+
+  @Test
+  public void testConversion() throws Exception {
+    Calendar cal = new GregorianCalendar(1985, 11, 22);
+    String date = PSValueConverter.convertToString(cal);
+    assertEquals("1985-12-22 00:00:00", date);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,18 @@
  */
 package com.percussion.utils.container.jboss;
 
-/**
- * Provides error codes for messages located in 
- * <code>PSJBossErrorStringBundle</code>
- */
-public interface IPSJBossErrors
-{
-   /**
-    * Missing app polciy
-    * <p>
-    * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>the name of the policy</TD></TR>
-    * <TR><TD>1</TD><TD>the name of the file</TD></TR>
-    * </TABLE>
-    */
-   public static final int APP_POLICY_ELEMENT_MISSING = 1;
+/** Provides error codes for messages located in <code>PSJBossErrorStringBundle</code> */
+public interface IPSJBossErrors {
+  /**
+   * Missing app polciy
+   *
+   * <p>The arguments passed in for this message are:
+   *
+   * <TABLE BORDER="1">
+   * <TR><TH>Arg</TH><TH>Description</TH></TR>
+   * <TR><TD>0</TD><TD>the name of the policy</TD></TR>
+   * <TR><TD>1</TD><TD>the name of the file</TD></TR>
+   * </TABLE>
+   */
+  public static final int APP_POLICY_ELEMENT_MISSING = 1;
 }
-

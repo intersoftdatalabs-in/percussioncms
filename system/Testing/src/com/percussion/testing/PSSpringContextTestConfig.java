@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 "file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/" + PSServletUtils.DESIGN_BEANS_FILE_NAME
 })
  */
-@IgnoreInWebAppSpringContext
+@DisabledInWebAppSpringContext
 public class PSSpringContextTestConfig {
 
 }

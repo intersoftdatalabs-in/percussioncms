@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,33 @@ package com.percussion.delivery.metadata.error;
 
 /**
  * @author erikserating
- *
  */
-public class PSMalformedMetadataQueryException extends Exception
-{
+public class PSMalformedMetadataQueryException extends Exception {
 
-   /**
-    * 
-    */
-   public PSMalformedMetadataQueryException()
-   {
-      super();
-   }
+  /** */
+  public PSMalformedMetadataQueryException() {
+    super();
+  }
 
-   /**
-    * @param message
-    * @param cause
-    */
-   public PSMalformedMetadataQueryException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+  /**
+   * @param message
+   * @param cause
+   */
+  public PSMalformedMetadataQueryException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-   /**
-    * @param message
-    */
-   public PSMalformedMetadataQueryException(String message)
-   {
-      super(message);
-   }
+  /**
+   * @param message
+   */
+  public PSMalformedMetadataQueryException(String message) {
+    super(message);
+  }
 
-   /**
-    * @param cause
-    */
-   public PSMalformedMetadataQueryException(Throwable cause)
-   {
-      super(cause);
-   }
-   
+  /**
+   * @param cause
+   */
+  public PSMalformedMetadataQueryException(Throwable cause) {
+    super(cause);
+  }
 }

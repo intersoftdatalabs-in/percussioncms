@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
  */
 package com.percussion.guitools;
 
-/**
- * Used by any AWT/Swing component to indicate the a value has changed.
- */
-public interface IPSValueChangedListener
-{
-   /**
-    * Called when a value is changed by the source component
-    * @param event never <code>null</code>.
-    */
-   public void valueChanged(PSValueChangedEvent event);
+/** Used by any AWT/Swing component to indicate the a value has changed. */
+public interface IPSValueChangedListener {
+  /**
+   * Called when a value is changed by the source component
+   *
+   * @param event never <code>null</code>.
+   */
+  public void valueChanged(PSValueChangedEvent event);
 }

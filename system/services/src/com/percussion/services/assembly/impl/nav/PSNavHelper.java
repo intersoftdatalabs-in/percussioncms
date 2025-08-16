@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.cache.IPSFolderRelationshipCache;
 import com.percussion.server.cache.PSFolderRelationshipCache;
 import com.percussion.services.assembly.IPSAssemblyItem;
@@ -53,11 +53,11 @@ import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.sitemgr.PSSiteHelper;
 import com.percussion.services.sitemgr.PSSiteManagerException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.jsr170.PSProperty;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
-import com.percussion.utils.jsr170.PSProperty;
 import com.percussion.utils.timing.PSStopwatchStack;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;

@@ -19,29 +19,27 @@ package com.percussion.delivery.utils;
 
 public class StringUtils {
 
-    public static String joinURL(String firstPart, String secondPart){
+  public static String joinURL(String firstPart, String secondPart) {
 
-        String ret = null;
+    String ret = null;
 
-            if(null != firstPart && firstPart != ""){
-                if(firstPart.endsWith("/")){
-                    firstPart = firstPart.substring(0,firstPart.length()-1);
-                }
-            }else{
-                firstPart="";
-            }
-
-            if(null != secondPart && "" != secondPart){
-
-                if(secondPart.startsWith("/")){
-                    secondPart = secondPart.substring(1);
-                }
-            }else{
-                secondPart="";
-            }
-
-            return firstPart+ "/" + secondPart;
-
+    if (null != firstPart && firstPart != "") {
+      if (firstPart.endsWith("/")) {
+        firstPart = firstPart.substring(0, firstPart.length() - 1);
+      }
+    } else {
+      firstPart = "";
     }
 
+    if (null != secondPart && "" != secondPart) {
+
+      if (secondPart.startsWith("/")) {
+        secondPart = secondPart.substring(1);
+      }
+    } else {
+      secondPart = "";
+    }
+
+    return firstPart + "/" + secondPart;
+  }
 }

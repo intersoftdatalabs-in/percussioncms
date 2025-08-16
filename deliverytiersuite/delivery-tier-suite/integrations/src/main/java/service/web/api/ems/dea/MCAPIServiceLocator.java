@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
         super(config);
     }
 
-    public MCAPIServiceLocator(java.lang.String wsdlLoc, javax.xml.namespace.QName sName) throws javax.xml.rpc.ServiceException {
+    public MCAPIServiceLocator(java.lang.String wsdlLoc, jakarta.xml.namespace.QName sName) throws jakarta.xml.rpc.ServiceException {
         super(wsdlLoc, sName);
     }
 
@@ -56,18 +56,18 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
         MCAPIServiceSoapWSDDServiceName = name;
     }
 
-    public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException {
+    public MCAPIServiceSoap getMCAPIServiceSoap() throws jakarta.xml.rpc.ServiceException {
        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(MCAPIServiceSoap_address);
         }
         catch (java.net.MalformedURLException e) {
-            throw new javax.xml.rpc.ServiceException(e);
+            throw new jakarta.xml.rpc.ServiceException(e);
         }
         return getMCAPIServiceSoap(endpoint);
     }
 
-    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
+    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws jakarta.xml.rpc.ServiceException {
         try {
            MCAPIServiceSoapStub _stub = new MCAPIServiceSoapStub(portAddress, this);
             _stub.setPortName(getMCAPIServiceSoapWSDDServiceName());
@@ -87,7 +87,7 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
      * If this service has no port for the given interface,
      * then ServiceException is thrown.
      */
-    public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
+    public java.rmi.Remote getPort(Class serviceEndpointInterface) throws jakarta.xml.rpc.ServiceException {
         try {
             if (MCAPIServiceSoap.class.isAssignableFrom(serviceEndpointInterface)) {
                 MCAPIServiceSoapStub _stub = new MCAPIServiceSoapStub(new java.net.URL(MCAPIServiceSoap_address), this);
@@ -96,9 +96,9 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
             }
         }
         catch (java.lang.Throwable t) {
-            throw new javax.xml.rpc.ServiceException(t);
+            throw new jakarta.xml.rpc.ServiceException(t);
         }
-        throw new javax.xml.rpc.ServiceException("There is no stub implementation for the interface:  " + (serviceEndpointInterface == null ? "null" : serviceEndpointInterface.getName()));
+        throw new jakarta.xml.rpc.ServiceException("There is no stub implementation for the interface:  " + (serviceEndpointInterface == null ? "null" : serviceEndpointInterface.getName()));
     }
 
     /**
@@ -106,7 +106,7 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
      * If this service has no port for the given interface,
      * then ServiceException is thrown.
      */
-    public java.rmi.Remote getPort(javax.xml.namespace.QName portName, Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
+    public java.rmi.Remote getPort(jakarta.xml.namespace.QName portName, Class serviceEndpointInterface) throws jakarta.xml.rpc.ServiceException {
         if (portName == null) {
             return getPort(serviceEndpointInterface);
         }
@@ -121,8 +121,8 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
         }
     }
 
-    public javax.xml.namespace.QName getServiceName() {
-        return new javax.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIService");
+    public jakarta.xml.namespace.QName getServiceName() {
+        return new jakarta.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIService");
     }
 
     private java.util.HashSet ports = null;
@@ -130,7 +130,7 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
     public java.util.Iterator getPorts() {
         if (ports == null) {
             ports = new java.util.HashSet();
-            ports.add(new javax.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIServiceSoap"));
+            ports.add(new jakarta.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIServiceSoap"));
         }
         return ports.iterator();
     }
@@ -138,21 +138,21 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
     /**
     * Set the endpoint address for the specified port name.
     */
-    public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
+    public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws jakarta.xml.rpc.ServiceException {
         
 if ("MCAPIServiceSoap".equals(portName)) {
             setMCAPIServiceSoapEndpointAddress(address);
         }
         else 
 { // Unknown Port Name
-            throw new javax.xml.rpc.ServiceException(" Cannot set Endpoint Address for Unknown Port" + portName);
+            throw new jakarta.xml.rpc.ServiceException(" Cannot set Endpoint Address for Unknown Port" + portName);
         }
     }
 
     /**
     * Set the endpoint address for the specified port name.
     */
-    public void setEndpointAddress(javax.xml.namespace.QName portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
+    public void setEndpointAddress(jakarta.xml.namespace.QName portName, java.lang.String address) throws jakarta.xml.rpc.ServiceException {
         setEndpointAddress(portName.getLocalPart(), address);
     }
 

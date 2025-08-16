@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,37 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.Guid;
 import com.percussion.rest.itemfilter.IItemFilterAdaptor;
 import com.percussion.rest.itemfilter.ItemFilter;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
+/** Test adaptor for ItemFilter API bridge. */
 @Component
 public class TestItemFilterAdaptor implements IItemFilterAdaptor {
-    @Override
-    public List<ItemFilter> getItemFilters() {
-        return null;
-    }
 
-    @Override
-    public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
-        return null;
-    }
+  @Override
+  public List<ItemFilter> getItemFilters() {
+    return null;
+  }
 
-    @Override
-    public void deleteItemFilter(Guid itemFilterId) {
+  @Override
+  public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
+    return null;
+  }
 
-    }
+  @Override
+  public void deleteItemFilter(Guid itemFilterId) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public ItemFilter getItemFilter(Guid itemFilterId) {
-        return null;
-    }
+  @Override
+  public ItemFilter getItemFilter(Guid itemFilterId) {
+    return null;
+  }
 }

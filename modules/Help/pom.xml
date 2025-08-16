@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.6-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-help</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-system</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rxutils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.help</groupId>
+            <artifactId>javahelp</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
-                <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <meminitial>1024m</meminitial>
-                    <maxmem>2024m</maxmem>
-                    <verbose>true</verbose>
-                </configuration>
+                <inherited>true</inherited>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -56,10 +63,10 @@
                 <executions>
                     <execution>
                         <id>add-test-source</id>
-                        <phase>generate-test-sources</phase>
                         <goals>
                             <goal>add-test-source</goal>
                         </goals>
+                        <phase>generate-test-sources</phase>
                         <configuration>
                             <sources>test/src</sources>
                         </configuration>
@@ -68,22 +75,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>perc-system</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.help</groupId>
-            <artifactId>javahelp</artifactId>
-            <version>2.0.05</version>
-        </dependency>
-    </dependencies>
-
 </project>

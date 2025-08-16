@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
-public class PSAssemblyConfig
-{
-    public static final String PERC_RESOURCE_ID_PARAM_NAME = IPSHtmlParameters.PERC_RESOURCE_DEFINITION_ID;
-    public static final String PERC_RESOURCE_BINDING_NAME = "perc_resource";
-    public static final String PERC_RESOURCE_ASSEMBLY_TEMPLATE = "perc.sys.resource";
-    
-    public static String PREVIEW_PAGE_BINDING_NAME = "$_previewPage"; 
-    public static String PREVIEW_TEMPLATE_BINDING_NAME = "$_previewTemplate";
-    
-    
+// REFACTORED: CP-JAVA11
+public class PSAssemblyConfig {
+  public static final String PERC_RESOURCE_ID_PARAM_NAME =
+      IPSHtmlParameters.PERC_RESOURCE_DEFINITION_ID;
+  public static final String PERC_RESOURCE_BINDING_NAME = "perc_resource";
+  public static final String PERC_RESOURCE_ASSEMBLY_TEMPLATE = "perc.sys.resource";
 
+  public static String PREVIEW_PAGE_BINDING_NAME = "$_previewPage";
+  public static String PREVIEW_TEMPLATE_BINDING_NAME = "$_previewTemplate";
 }
-

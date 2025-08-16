@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,24 +30,16 @@ import java.util.Set;
  * @author Administrator
  * 
  */
-public class PSMetadataEntry implements IPSMetadataEntry
-{
+public class PSMetadataEntry implements IPSMetadataEntry {
     private String pagepath;
-
     private String name;
-
     private String folder;
-
     private String linktext;
-
     private String type;
-
     private String site;
-
     private Set<IPSMetadataProperty> properties = new HashSet<>();
 
-    public PSMetadataEntry()
-    {
+    public PSMetadataEntry() {
 
     }
 
@@ -62,8 +54,7 @@ public class PSMetadataEntry implements IPSMetadataEntry
      *            empty.
      * @param type
      */
-    public PSMetadataEntry(String name, String folder, String pagepath, String type, String site)
-    {
+    public PSMetadataEntry(String name, String folder, String pagepath, String type, String site) {
         if (name == null || name.length() == 0)
             throw new IllegalArgumentException("name cannot be null or empty");
         if (folder == null || folder.length() == 0)
@@ -82,117 +73,102 @@ public class PSMetadataEntry implements IPSMetadataEntry
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the folder
      */
-    public String getFolder()
-    {
+    public String getFolder() {
         return folder;
     }
 
     /**
      * @param folder the folder to set
      */
-    public void setFolder(String folder)
-    {
+    public void setFolder(String folder) {
         this.folder = folder;
     }
 
     /**
      * @return the page path
      */
-    public String getPagepath()
-    {
+    public String getPagepath() {
         return pagepath;
     }
 
     /**
      * @param path the pagepath to set
      */
-    public void setPagepath(String path)
-    {
+    public void setPagepath(String path) {
         this.pagepath = path;
     }
 
     /**
      * @return the linktext
      */
-    public String getLinktext()
-    {
+    public String getLinktext() {
         return linktext;
     }
 
     /**
      * @param linktext the linktext to set
      */
-    public void setLinktext(String linktext)
-    {
+    public void setLinktext(String linktext) {
         this.linktext = linktext;
     }
 
     /**
      * @return the type
      */
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
     /**
      * @return the site
      */
-    public String getSite()
-    {
+    public String getSite() {
         return site;
     }
 
     /**
      * @param site the site to set
      */
-    public void setSite(String site)
-    {
+    public void setSite(String site) {
         this.site = site;
     }
 
     /**
      * @return the properties
      */
-    public Set<IPSMetadataProperty> getProperties()
-    {
+    public Set<IPSMetadataProperty> getProperties() {
         return properties;
     }
 
     /**
      * @param properties the properties to set
      */
-    public void setProperties(Set<IPSMetadataProperty> properties)
-    {
+    public void setProperties(Set<IPSMetadataProperty> properties) {
         this.properties = properties;
     }
 
-    public void addProperty(IPSMetadataProperty prop)
-    {
+    public void addProperty(IPSMetadataProperty prop) {
         this.properties.add(prop);
     }
     

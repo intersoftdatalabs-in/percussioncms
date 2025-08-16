@@ -19,7 +19,7 @@ package com.percussion.preinstall;
 
 public class AntJobFailedException extends RuntimeException {
 
-    public AntJobFailedException(String message){
-        super(message);
-    }
+  public AntJobFailedException(String message) {
+    super(message);
+  }
 }

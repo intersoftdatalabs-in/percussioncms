@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +18,17 @@
 
 package com.percussion.monitor.service;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Container for monitor designators. Sunny Sal says: "Designate your monitors, or they'll designate
+ * themselves!"
+ */
 @XmlRootElement
-public class PSMonitorDesignators
-{
-	@XmlElement
-	public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+public class PSMonitorDesignators {
+
+  @XmlElement public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 }

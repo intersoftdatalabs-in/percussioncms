@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,12 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
 
 /**
- * Check a numeric argument for a range, supplied in the parameters. Note that
- * the range check is an inclusive test. The parameters to this udf consist of
- * the following: 
+ * Check a numeric argument for a range, supplied in the parameters. Note that the range check is an
+ * inclusive test. The parameters to this udf consist of the following:
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -62,40 +61,31 @@ import java.io.File;
  * the range</td>
  * </tr>
  * </table>
- * <p>
- * The values are compared as double precision numbers.
- * 
+ *
+ * <p>The values are compared as double precision numbers.
+ *
  * @author dougrand
- * 
  */
-public class PSValidateNumber extends PSRangeValidator
-{
+public class PSValidateNumber extends PSRangeValidator {
 
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      Number value, min, max;
-      PSExtensionParams ep = new PSExtensionParams(params);
-      Boolean includemin, includemax;
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    Number value, min, max;
+    PSExtensionParams ep = new PSExtensionParams(params);
+    Boolean includemin, includemax;
 
-      value = ep.getNumberParam(0, null, false);
-      min = ep.getNumberParam(1, Long.MIN_VALUE, false);
-      includemin = ep.getBooleanParam(2, false, false);
-      max = ep.getNumberParam(3, Long.MAX_VALUE, false);
-      includemax = ep.getBooleanParam(4, false, false);
+    value = ep.getNumberParam(0, null, false);
+    min = ep.getNumberParam(1, Long.MIN_VALUE, false);
+    includemin = ep.getBooleanParam(2, false, false);
+    max = ep.getNumberParam(3, Long.MAX_VALUE, false);
+    includemax = ep.getBooleanParam(4, false, false);
 
-      if (value == null)
-      {
-         return false;
-      }
+    if (value == null) {
+      return false;
+    }
 
-      return checkRange(toDouble(min), toDouble(value), toDouble(max), includemin, includemax);
-   }
+    return checkRange(toDouble(min), toDouble(value), toDouble(max), includemin, includemax);
+  }
 
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-
-   }
-
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 }

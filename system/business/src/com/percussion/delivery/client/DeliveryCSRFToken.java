@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,55 +17,66 @@
 
 package com.percussion.delivery.client;
 
-public class DeliveryCSRFToken {
+import java.util.Objects;
+import java.util.Optional;
 
-    private String token;
-    private String param;
+/**
+ * Represents a CSRF token for delivery client requests.
+ * Immutable and uses Optional for null safety.
+ */
+public final class DeliveryCSRFToken {
+    private final String token;
+    private final String param;
+    private final String tokenHeader;
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
+    public DeliveryCSRFToken(String token, String param, String tokenHeader) {
         this.token = token;
-    }
-
-    public String getParam() {
-        return param;
-    }
-
-    public void setParam(String param) {
         this.param = param;
-    }
-
-    public String getTokenHeader() {
-        return tokenHeader;
-    }
-
-    public void setTokenHeader(String tokenHeader) {
         this.tokenHeader = tokenHeader;
     }
 
-    private String tokenHeader;
-
-    private String cookie;
-
-    public String getCookie() {
-        return cookie;
+    /**
+     * @return Optional containing the CSRF token if present
+     */
+    public Optional<String> getToken() {
+        return Optional.ofNullable(token);
     }
 
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
+    /**
+     * @return Optional containing the CSRF parameter name if present
+     */
+    public Optional<String> getParam() {
+        return Optional.ofNullable(param);
     }
 
-    public DeliveryCSRFToken() {
-        //
+    /**
+     * @return Optional containing the CSRF token header if present
+     */
+    public Optional<String> getTokenHeader() {
+        return Optional.ofNullable(tokenHeader);
     }
 
-    public DeliveryCSRFToken(String tokenHeader, String token, String param, String cookie){
-        this.param = param;
-        this.token = token;
-        this.tokenHeader = tokenHeader;
-        this.cookie = cookie;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeliveryCSRFToken that = (DeliveryCSRFToken) o;
+        return Objects.equals(token, that.token) &&
+                Objects.equals(param, that.param) &&
+                Objects.equals(tokenHeader, that.tokenHeader);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(token, param, tokenHeader);
+    }
+
+    @Override
+    public String toString() {
+        return "DeliveryCSRFToken{" +
+                "token='" + token + '\'' +
+                ", param='" + param + '\'' +
+                ", tokenHeader='" + tokenHeader + '\'' +
+                '}';
     }
 }

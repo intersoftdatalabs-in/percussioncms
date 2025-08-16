@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,21 @@
 
 package com.percussion.rest.roles;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.rest.MainTest;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import static junit.framework.TestCase.assertNotNull;
-
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class RolesTest extends MainTest {
 
-
-	@Test
-	public void testneverNull(){
-		Role r = new Role();
-	
-		assertNotNull("Should never be null", r.getDescription());
-		assertNotNull("Should never be null", r.getName());
-		assertNotNull("Should never be null", r.getDescription());
-		assertNotNull("Should never be null", r.getUsers());
-		
-	}
-
+  @Test
+  public void testNeverNull() {
+    var r = new Role();
+    assertNotNull(r.getDescription(), "Should never be null");
+    assertNotNull(r.getName(), "Should never be null");
+    assertNotNull(r.getDescription(), "Should never be null");
+    assertNotNull(r.getUsers(), "Should never be null");
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,27 @@ package com.percussion.pso.restservice.model;
 import org.apache.commons.httpclient.Header;
 import org.jsoup.nodes.Document;
 
-public class HttpHtmlResponse extends BaseHttpResponse{
+public class HttpHtmlResponse extends BaseHttpResponse {
 
-	private Document document;
-	
+  private Document document;
 
-	public HttpHtmlResponse(){}
+  public HttpHtmlResponse() {}
 
+  public void setDocument(Document document) {
+    this.document = document;
+  }
 
+  public Document getDocument() {
+    return document;
+  }
 
-	public void setDocument(Document document) {
-		this.document = document;
-	}
-
-
-	public Document getDocument() {
-		return document;
-	}
-
-	/***
-	 * Single Shot Constructor
-	 * @param doc
-	 * @param head
-	 */
-	public HttpHtmlResponse(Document doc, Header[] head){
-		this.setHeaders(head);
-		this.document = doc;
-	}
-	
+  /***
+   * Single Shot Constructor
+   * @param doc
+   * @param head
+   */
+  public HttpHtmlResponse(Document doc, Header[] head) {
+    this.setHeaders(head);
+    this.document = doc;
+  }
 }

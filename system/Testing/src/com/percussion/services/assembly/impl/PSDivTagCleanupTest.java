@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
  */
 package com.percussion.services.assembly.impl;
 
-import com.percussion.utils.testing.UnitTest;
-import junit.framework.TestCase;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test 
  * @author erikserating
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSDivTagCleanupTest
 {
    /**
@@ -54,7 +54,7 @@ public class PSDivTagCleanupTest
     */
    @Test
    //TODO: Fix me.  This test currently errors out if run with main build.  Passes locally.
-   @Ignore
+   @Disabled
    public void testNSCleanup()
    {
       PSDivTagCleanup cleanup = new PSDivTagCleanup();

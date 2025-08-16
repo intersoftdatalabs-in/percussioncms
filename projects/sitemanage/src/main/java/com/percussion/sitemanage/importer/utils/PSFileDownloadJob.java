@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,50 +15,42 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-public class PSFileDownloadJob
-{
-    String file;
+/** Represents a file download job with file path, URL, and asset creation flag. */
+public class PSFileDownloadJob {
+  private String file;
+  private String url;
+  private Boolean createAsset;
 
-    String url;
+  protected PSFileDownloadJob(String file, String url, Boolean createAsset) {
+    this.file = file;
+    this.url = url;
+    this.createAsset = createAsset;
+  }
 
-    Boolean createAsset;
+  public String getFile() {
+    return file;
+  }
 
-    protected PSFileDownloadJob(String file, String url, Boolean createAsset)
-    {
-        this.file = file;
-        this.url = url;
-        this.createAsset = createAsset;
-    }
+  public void setFile(String file) {
+    this.file = file;
+  }
 
-    public String getFile()
-    {
-        return file;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public void setFile(String file)
-    {
-        this.file = file;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public String getUrl()
-    {
-        return url;
-    }
+  public Boolean getCreateAsset() {
+    return createAsset;
+  }
 
-    public void setUrl(String url)
-    {
-        this.url = url;
-    }
-
-    public Boolean getCreateAsset()
-    {
-        return createAsset;
-    }
-
-    public void setCreateAsset(Boolean createAsset)
-    {
-        this.createAsset = createAsset;
-    }
+  public void setCreateAsset(Boolean createAsset) {
+    this.createAsset = createAsset;
+  }
 }

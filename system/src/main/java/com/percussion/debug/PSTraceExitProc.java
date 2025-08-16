@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,77 +18,63 @@
 package com.percussion.debug;
 
 import java.text.MessageFormat;
+
 /**
- * Used to generate trace messages for the Exit Processing trace message type (0x0400).  Includes:
- * Type of exit
- * Name of each exit executed
- * For each exit:
- * Value of each input param (by doing a toString on it) in the form 'param=value'.
+ * Used to generate trace messages for the Exit Processing trace message type (0x0400). Includes:
+ * Type of exit Name of each exit executed For each exit: Value of each input param (by doing a
+ * toString on it) in the form 'param=value'.
  */
-public class PSTraceExitProc extends PSTraceMessage
-{
-   
-   /**
-    * The constructor for this class
-    *
-    * @param typeFlag the type of trace message this object will generate
-    * @roseuid 39FDDA100271
-    */
-   public PSTraceExitProc(int typeFlag)
-   {
-      super(typeFlag);
-   }
+// REFACTORED: CP-JAVA11
+public class PSTraceExitProc extends PSTraceMessage {
 
-   // see parent class for javadoc
-   protected String getMessageHeader()
-   {
-      return ms_bundle.getString("traceExitProc_dispname");
-   }
+  /**
+   * The constructor for this class
+   *
+   * @param typeFlag the type of trace message this object will generate
+   * @roseuid 39FDDA100271
+   */
+  public PSTraceExitProc(int typeFlag) {
+    super(typeFlag);
+  }
 
-   /**
-    * Formats the output for the body of the message, extracting the information
-    * required from the source object.
-    *
-    * @param source an array of objects containing the information required for the
-    * trace message:
-    * - String exit type
-    * - String classname of exit
-    * - object[] args for the exit
-    * @return the message body
-    * @roseuid 39FEE2F4009C
-    */
-   protected String getMessageBody(java.lang.Object source)
-   {
-      StringBuilder buf = new StringBuilder();
+  // see parent class for javadoc
+  protected String getMessageHeader() {
+    return ms_bundle.getString("traceExitProc_dispname");
+  }
 
-      Object[] args = (Object[])source;
+  /**
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
+   *
+   * @param source an array of objects containing the information required for the trace message: -
+   *     String exit type - String classname of exit - object[] args for the exit
+   * @return the message body
+   * @roseuid 39FEE2F4009C
+   */
+  protected String getMessageBody(java.lang.Object source) {
+    StringBuilder buf = new StringBuilder();
 
-      if (args.length < 3)
-         throw new IllegalArgumentException("PSTraceExitProc: invalid source args");
-      
-      // Add the name and type
-      buf.append(
-         MessageFormat.format(
-            ms_bundle.getString("traceExitProc_message"), args));
+    Object[] args = (Object[]) source;
 
-      // Add each parameter
-      Object[] params = (Object[])args[2];
-      if (params != null)
-      {
-         for (int i = 0; i < params.length; i++)
-         {
-            buf.append(NEW_LINE);
-            buf.append("Param[");
-            buf.append(Integer.toString(i + 1));
-            buf.append("] = ");
+    if (args.length < 3) throw new IllegalArgumentException("PSTraceExitProc: invalid source args");
 
-            if (params[i] != null)
-               buf.append(params[i].toString());
-            else
-               buf.append("null");
-         }
+    // Add the name and type
+    buf.append(MessageFormat.format(ms_bundle.getString("traceExitProc_message"), args));
+
+    // Add each parameter
+    Object[] params = (Object[]) args[2];
+    if (params != null) {
+      for (int i = 0; i < params.length; i++) {
+        buf.append(NEW_LINE);
+        buf.append("Param[");
+        buf.append(Integer.toString(i + 1));
+        buf.append("] = ");
+
+        if (params[i] != null) buf.append(params[i].toString());
+        else buf.append("null");
       }
+    }
 
-      return new String(buf);
-   }
+    return new String(buf);
+  }
 }

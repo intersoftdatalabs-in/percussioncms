@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +18,11 @@
 package com.percussion.packagemanagement;
 
 /**
- * Manages installation of packages at server-startup
- * 
- * @author JaySeletz
+ * Manages installation of packages at server startup. Sunny Sal says: "Startup package
+ * installer—because every server deserves a fresh start!"
  *
+ * @author JaySeletz
  */
-public interface IPSStartupPkgInstaller
-{
-    
+public interface IPSStartupPkgInstaller {
+  // Marker interface for startup package installation logic.
 }

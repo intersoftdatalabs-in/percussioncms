@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,30 @@
  */
 package com.percussion.delivery.metadata.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
+import java.util.Comparator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Comparator;
-
 /**
  * @author davidpardini
- * 
  */
-public class CountOrderTagComparator implements Comparator<JSONObject>
-{
-    private static final Logger log = LogManager.getLogger(CountOrderTagComparator.class);
+public class CountOrderTagComparator implements Comparator<JSONObject> {
+  private static final Logger log = LogManager.getLogger(CountOrderTagComparator.class);
 
-    public int compare(JSONObject o1, JSONObject o2)
-    {
+  public int compare(JSONObject o1, JSONObject o2) {
 
-        int returnCompare = 0;
-        try
-        {
-            int countOb1 = ((Integer) o1.get(PSMetadataTagsHelper.TAG_COUNT));
-            int countOb2 = ((Integer) o2.get(PSMetadataTagsHelper.TAG_COUNT));
-            returnCompare = Integer.compare(countOb2, countOb1);
-        }
-        catch (JSONException e)
-        {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-        return returnCompare;
+    int returnCompare = 0;
+    try {
+      int countOb1 = ((Integer) o1.get(PSMetadataTagsHelper.TAG_COUNT));
+      int countOb2 = ((Integer) o2.get(PSMetadataTagsHelper.TAG_COUNT));
+      returnCompare = Integer.compare(countOb2, countOb1);
+    } catch (JSONException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+    return returnCompare;
+  }
 }

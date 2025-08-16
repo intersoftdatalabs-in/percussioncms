@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,143 +17,115 @@
 
 package com.percussion.activity.service;
 
-import com.percussion.error.PSExceptionUtils;
+import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.injectDependencies;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSStopwatch;
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
+import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+/** Integration tests for {@link IPSActivityService}. */
+@ExtendWith(SpringExtension.class)
+@Tag("IntegrationTest")
+class PSActivityServiceTest {
+  private static final Logger log = LogManager.getLogger(PSActivityServiceTest.class);
+  private boolean hasStarted = false;
+  private IPSActivityService activityService;
 
-import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.injectDependencies;
+  @BeforeEach
+  void setUp() {
+    try {
+      if (!hasStarted) {
+        injectDependencies(this);
+        hasStarted = true;
+      }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 
-@Category(IntegrationTest.class)
-public class PSActivityServiceTest extends ServletTestCase
-{
+  @AfterEach
+  void tearDown() {
+    // No teardown logic required
+  }
 
-    private static final Logger log = LogManager.getLogger(PSActivityServiceTest.class);
-    private boolean hasStarted = false;
-    private IPSActivityService activityService;
-    
+  @Test
+  void testNewContentActivities() throws Exception {
+    var dates = new ArrayList<Date>();
+    dates.add(new Date());
+    dates.add(new Date());
+    var counts = activityService.findNewContentActivities(Collections.emptyList(), dates);
+    assertEquals(1, counts.size());
+  }
 
-    @SuppressWarnings("unchecked")
-    public void testNewContentActivities() throws Exception
-    {
-        List<Date> dates = new ArrayList<Date>();
-        dates.add(new Date());
-        dates.add(new Date());
-        List<Integer> counts = activityService.findNewContentActivities(Collections.EMPTY_LIST, dates);
-        assertTrue(counts.size() == 1);
-    }
-    
-    public void testPerformance() throws Exception
-    {
-        String path = "//Sites/EnterpriseInvestments";
-        Collection<Integer> ids = activityService.findItemIdsByPath(path, null);
-        
-        Date beginDate = getDate(2008, 3, 24, 0, 0, 0); // 2008-3-24 00:00:00
-        List<Date> dates = new ArrayList<Date>();
-        dates.add(beginDate);
-        dates.add(new Date());
-        PSStopwatch sw = new PSStopwatch();
-        sw.start();
-        activityService.findNewContentActivities(ids, dates);
-        sw.stop();
-        System.out.println("findNewContentActivities('" + path + "'): " + sw.toString());
-        
-        sw.start();
-        activityService.findNumberContentActivities(ids, dates, "Public", null);
-        sw.stop();
-        System.out.println("findNumberContentActivities('" + path + "'): " + sw.toString());
-        
-        sw.start();
-        activityService.findPublishedItems(ids, dates);
-        sw.stop();
-        System.out.println("findPublishedItems(ids, dates)('" + path + "'): " + sw.toString());
-        
-        sw.start();
-        activityService.findPublishedItems(ids);
-        sw.stop();
-        System.out.println("findPublishedItems(ids)('" + path + "'): " + sw.toString());
-    }
-    
-    private Date getDate(int year, int month, int date, int hour, int minute, int second)
-    {
-       Calendar cal = Calendar.getInstance();
-       cal.clear();
-       cal.set(year, month - 1, date, hour, minute, second);
-       return cal.getTime();
-    }
-    
-    @SuppressWarnings("unchecked")
-    public void testNewContentActivities_Negative() throws Exception
-    {
-        List<Date> dates = new ArrayList<Date>();
-        dates.add(new Date());
-        dates.add(new Date());
-        
-        // negative test
-        try
-        {
-            activityService.findNewContentActivities(Collections.EMPTY_LIST, null);
-            assertTrue(false);
-        }
-        catch (Exception e)
-        {
-            // ignore
-        }
-        // negative test
-        try
-        {
-            activityService.findNewContentActivities(Collections.EMPTY_LIST, Collections.singletonList(new Date()));
-            assertTrue(false);
-        }
-        catch (Exception e)
-        {
-            // ignore
-        }
-        try
-        {
-            activityService.findNewContentActivities(null, dates);
-            assertTrue(false);
-        }
-        catch (Exception e)
-        {
-            // ignore
-        }
-    }
-    
-    protected void setUp() 
-    {
-       try
-       {
-          super.setUp();
-          if (!hasStarted)
-          {
-              injectDependencies(this);
-              hasStarted = true;
-          }
-       }
-       catch (Exception e)
-       {
-           log.error(PSExceptionUtils.getMessageForLog(e));
-           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-       }
-    }
-    
-    protected void tearDown() 
-    {
-    }
-    
-    public void setActivityService(IPSActivityService activityService)
-    {
-        this.activityService = activityService;
-    }
+  @Test
+  void testPerformance() throws Exception {
+    var path = "//Sites/EnterpriseInvestments";
+    var ids = activityService.findItemIdsByPath(path, null);
+
+    var beginDate = getDate(2008, 3, 24, 0, 0, 0); // 2008-3-24 00:00:00
+    var dates = new ArrayList<Date>();
+    dates.add(beginDate);
+    dates.add(new Date());
+    var sw = new PSStopwatch();
+
+    sw.start();
+    activityService.findNewContentActivities(ids, dates);
+    sw.stop();
+    System.out.println("findNewContentActivities('" + path + "'): " + sw);
+
+    sw.start();
+    activityService.findNumberContentActivities(ids, dates, "Public", null);
+    sw.stop();
+    System.out.println("findNumberContentActivities('" + path + "'): " + sw);
+
+    sw.start();
+    activityService.findPublishedItems(ids, dates);
+    sw.stop();
+    System.out.println("findPublishedItems(ids, dates)('" + path + "'): " + sw);
+
+    sw.start();
+    activityService.findPublishedItems(ids);
+    sw.stop();
+    System.out.println("findPublishedItems(ids)('" + path + "'): " + sw);
+  }
+
+  private Date getDate(int year, int month, int date, int hour, int minute, int second) {
+    var cal = Calendar.getInstance();
+    cal.clear();
+    cal.set(year, month - 1, date, hour, minute, second);
+    return cal.getTime();
+  }
+
+  @Test
+  void testNewContentActivities_Negative() {
+    var dates = new ArrayList<Date>();
+    dates.add(new Date());
+    dates.add(new Date());
+
+    // negative test: null dates
+    assertThrows(
+        Exception.class,
+        () -> activityService.findNewContentActivities(Collections.emptyList(), null));
+
+    // negative test: single date
+    assertThrows(
+        Exception.class,
+        () ->
+            activityService.findNewContentActivities(
+                Collections.emptyList(), Collections.singletonList(new Date())));
+
+    // negative test: null ids
+    assertThrows(Exception.class, () -> activityService.findNewContentActivities(null, dates));
+  }
+
+  public void setActivityService(IPSActivityService activityService) {
+    this.activityService = activityService;
+  }
 }

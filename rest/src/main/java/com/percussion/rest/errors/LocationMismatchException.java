@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,18 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class LocationMismatchException extends RestExceptionBase
-{
-    public LocationMismatchException()
-    {
-        super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
-    }
+/**
+ * Exception for location mismatch errors. Sunny Sal: "Location match nahi hua? Check karo, boss!"
+ */
+public class LocationMismatchException extends RestExceptionBase {
+
+  public LocationMismatchException() {
+    super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
+  }
 }

@@ -54,43 +54,43 @@
 </plugins>
 </build>
 <dependencies>
-<dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <scope>test</scope>
-</dependency>
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-api</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-1.2-api</artifactId>
-</dependency>
-<dependency>
-    <groupId>com.percussion</groupId>
-    <artifactId>webservices</artifactId>
-    <version>${project.parent.version}</version>
-</dependency>
-    <dependency>
-    <groupId>com.percussion</groupId>
-    <artifactId>perc-system</artifactId>
-    <version>${project.parent.version}</version>
-</dependency>
-    <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>perc-security-utils</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>perc-xml-security</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>webservices</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+            <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-system</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+            <dependency>
+                <groupId>com.percussion</groupId>
+                <artifactId>perc-security-utils</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.percussion</groupId>
+                <artifactId>perc-xml-security</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
 </dependencies>
 </project>

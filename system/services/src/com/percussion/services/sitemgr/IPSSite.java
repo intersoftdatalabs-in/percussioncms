@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,6 +211,7 @@ public interface IPSSite extends IPSCatalogSummary
     *         but could be empty
     * @deprecated use {@link #getPropertyNames(IPSGuid)} instead
     */
+   @Deprecated
    Set<String> getPropertyNames(IPSPublishingContext context);
 
    /**
@@ -231,6 +232,7 @@ public interface IPSSite extends IPSCatalogSummary
     *         defined in the given context.
     * @deprecated use {@link #getProperty(String, IPSGuid)} instead
     */
+   @Deprecated
    String getProperty(String name, IPSPublishingContext context);
 
    /**
@@ -266,6 +268,7 @@ public interface IPSSite extends IPSCatalogSummary
     * 
     * @deprecated use {@link #setProperty(String, IPSGuid, String)} instead.
     */
+   @Deprecated
    PSSiteProperty setProperty(String name,
          IPSPublishingContext context, String value);
    
@@ -285,6 +288,7 @@ public interface IPSSite extends IPSCatalogSummary
     * 
     * @deprecated use {@link #removeProperty(String, IPSGuid)} instead.
     */
+   @Deprecated
    void removeProperty(String name,
          IPSPublishingContext context);
 
@@ -318,12 +322,14 @@ public interface IPSSite extends IPSCatalogSummary
     * @return Returns the state, may be <code>null</code>
     * @deprecated this is not used any more.
     */
+   @Deprecated
    Integer getState();
 
    /**
     * @param state The state to set, may be <code>null</code>
     * @deprecated this is not used any more.
     */
+   @Deprecated
    void setState(Integer state);
 
    /**

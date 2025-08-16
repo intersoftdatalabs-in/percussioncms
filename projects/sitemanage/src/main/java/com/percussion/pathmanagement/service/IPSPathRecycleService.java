@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,15 @@ package com.percussion.pathmanagement.service;
 
 import com.percussion.share.data.PSNoContent;
 
+/** Service for restoring folders from recycle bin. */
 public interface IPSPathRecycleService {
 
-    PSNoContent restoreFolder(String guid) throws IPSPathService.PSPathServiceException;
-
+  /**
+   * Restores a folder by its GUID.
+   *
+   * @param guid the GUID of the folder to restore, not {@code null}
+   * @return a {@link PSNoContent} response
+   * @throws IPSPathService.PSPathServiceException if the folder cannot be restored
+   */
+  PSNoContent restoreFolder(String guid) throws IPSPathService.PSPathServiceException;
 }

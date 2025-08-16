@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all assembly test cases.
@@ -135,7 +135,7 @@ public class PSAssemblyTestBase extends PSTestBase
       }
    }
 
-   @BeforeClass
+   @BeforeAll
    public void setUp() throws Exception
    {
 
@@ -163,7 +163,7 @@ public class PSAssemblyTestBase extends PSTestBase
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @After
+   @AfterEach
    protected static void tearDown() throws Exception
    {
       deleteTestSlots(m_session);

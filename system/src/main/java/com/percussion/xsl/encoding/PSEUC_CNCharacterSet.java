@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,18 @@ package com.percussion.xsl.encoding;
 import java.io.IOException;
 
 /**
- * Defines the EUC_CN (GB2312, EUC encoding, Simplified Chinese) character 
- * encoding for the Saxon XSLT processor.
+ * Defines the EUC_CN (GB2312, EUC encoding, Simplified Chinese) character encoding for the Saxon
+ * XSLT processor.
  */
-public class PSEUC_CNCharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSEUC_CNCharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("EUC_CN", "java-EUC_CN.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSEUC_CNCharacterSet() throws IOException
-   {
-      super("EUC_CN", "java-EUC_CN.xml");
-   }
+public class PSEUC_CNCharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSEUC_CNCharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("EUC_CN",
+   * "java-EUC_CN.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSEUC_CNCharacterSet() throws IOException {
+    super("EUC_CN", "java-EUC_CN.xml");
+  }
 }

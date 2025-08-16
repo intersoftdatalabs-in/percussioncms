@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -310,21 +310,20 @@ public class PSGridBoxLayout extends GridLayout implements LayoutManager2
        * components in cells of that column and calculates the xoffset of the
        * component by adding the cell xoffset to its xoffset with in the cell.
        */
-      List colChildren;
+      List<SizeRequirements> colChildren;
       for(int c=0; c<m_cols; c++)
       {
           int alloc_width = xCellSpans[c];
           int[] xOffsets = new int[m_rows];
           int[] xSpans = new int[m_rows];
 
-          colChildren = new ArrayList();
+          colChildren = new ArrayList<>();
           for(int r=0; r<m_rows; r++)
           {
              if(m_compWidths[r][c] != null)
                 colChildren.add(m_compWidths[r][c]);
           }
-          SizeRequirements[] children = (SizeRequirements[])
-          colChildren.toArray( new SizeRequirements[colChildren.size()] );
+          SizeRequirements[] children = colChildren.toArray(new SizeRequirements[0]);
           SizeRequirements total =
              SizeRequirements.getAlignedSizeRequirements(children);
           SizeRequirements.calculateAlignedPositions(
@@ -341,21 +340,20 @@ public class PSGridBoxLayout extends GridLayout implements LayoutManager2
        * components in cells of that row and calculates the yoffset of the
        * component by adding the cell yoffset to its yoffset with in the cell.
        */
-      List rowChildren;
+      List<SizeRequirements> rowChildren;
       for(int r=0; r<m_rows; r++)
       {
          int alloc_height = yCellSpans[r];
          int[] yOffsets = new int[m_cols];
          int[] ySpans = new int[m_cols];
 
-         rowChildren = new ArrayList();
+         rowChildren = new ArrayList<>();
          for(int c=0; c<m_cols; c++)
          {
             if(m_compHeights[r][c] != null)
                rowChildren.add(m_compHeights[r][c]);
          }
-         SizeRequirements[] children = (SizeRequirements[])
-            rowChildren.toArray( new SizeRequirements[rowChildren.size()] );
+         SizeRequirements[] children = rowChildren.toArray(new SizeRequirements[0]);
          SizeRequirements total =
             SizeRequirements.getAlignedSizeRequirements(children);
 
@@ -477,36 +475,34 @@ public class PSGridBoxLayout extends GridLayout implements LayoutManager2
 
       //Get height requirement for each row for proper alignment of all
       //components in that row.
-      List rowHeightChildren;
+      List<SizeRequirements> rowHeightChildren;
       m_rowAlignedSize = new SizeRequirements[m_rows];
       for(int r=0; r<m_rows; r++)
       {
-         rowHeightChildren = new ArrayList();
+         rowHeightChildren = new ArrayList<>();
          for(int c=0; c<m_cols; c++)
          {
             if(m_compHeights[r][c] != null)
                rowHeightChildren.add(m_compHeights[r][c]);
          }
          m_rowAlignedSize[r] = SizeRequirements.getAlignedSizeRequirements(
-            (SizeRequirements[]) rowHeightChildren.toArray(
-               new SizeRequirements[rowHeightChildren.size()] ) );
+            rowHeightChildren.toArray(new SizeRequirements[0]) );
       }
 
       //Get width requirement for each column for proper alignment of all
       //components in that column.
       m_colAlignedSize = new SizeRequirements[m_cols];
-      List colWidthChildren;
+      List<SizeRequirements> colWidthChildren;
       for(int c=0; c<m_cols; c++)
       {
-         colWidthChildren = new ArrayList();
+         colWidthChildren = new ArrayList<>();
          for(int r=0; r<m_rows; r++)
          {
             if(m_compWidths[r][c] != null)
                colWidthChildren.add(m_compWidths[r][c]);
          }
          m_colAlignedSize[c] = SizeRequirements.getAlignedSizeRequirements(
-            (SizeRequirements[]) colWidthChildren.toArray(
-               new SizeRequirements[colWidthChildren.size()] ) );
+            colWidthChildren.toArray(new SizeRequirements[0]) );
       }
 
       //Gets the total width and height of container if all components are

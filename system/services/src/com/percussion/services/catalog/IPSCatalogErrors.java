@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
  */
 package com.percussion.services.catalog;
 
-
 /**
- * Errors in cataloging 
- * 
- * @author dougrand
+ * Errors in cataloging operations.
+ * This interface defines error constants used throughout the catalog service.
  *
+ * @author dougrand
  */
-public interface IPSCatalogErrors
-{
+public interface IPSCatalogErrors {
+
    /**
     * Error while enumerating summaries
     */
-   public static final int SUMMARY_ERROR = 1;
-   
+   int SUMMARY_ERROR = 1;
+
    /**
     * Unknown type
     * <p>
@@ -39,7 +38,7 @@ public interface IPSCatalogErrors
     * <TR><TD>0</TD><TD>The name of the type</TD></TR>
     * </TABLE>
     */
-   public static final int UNKNOWN_TYPE = 2;
+   int UNKNOWN_TYPE = 2;
 
    /**
     * Database error
@@ -50,7 +49,7 @@ public interface IPSCatalogErrors
     * <TR><TD>0</TD><TD>The id of the object being saved or loaded</TD></TR>
     * </TABLE>
     */
-   public static final int REPOSITORY = 3;
+   int REPOSITORY = 3;
 
    /**
     * XML error reading an XML representation of an object
@@ -61,7 +60,7 @@ public interface IPSCatalogErrors
     * <TR><TD>0</TD><TD>The xml source of the object being loaded</TD></TR>
     * </TABLE>
     */
-   public static final int XML = 4;
+   int XML = 4;
 
    /**
     * An io error
@@ -72,10 +71,10 @@ public interface IPSCatalogErrors
     * <TR><TD>0</TD><TD>The id of the object being saved or loaded</TD></TR>
     * </TABLE>
     */
-   public static final int IO = 5;
+   int IO = 5;
 
    /**
     * Error while serializing an object to XML
     */
-   public static final int TOXML = 6;
+   int TOXML = 6;
 }

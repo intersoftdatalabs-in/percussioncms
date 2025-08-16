@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,59 +19,47 @@ package com.percussion.delivery.comments.data;
 
 /**
  * A small data class to hold sortby info for a comment result set.
+ *
  * @author erikserating
  */
-public class PSCommentSort
-{
-   
-   /**
-    * The sort by field value. Initialized in the ctor.
-    */
-   private SORTBY sortby;
-   
-   /**
-    * Indicates an ascending sort direction if set to <code>true</code>.
-    * Initialized in the ctor.
-    */
-   private boolean ascending = true;
-   
-   /**
-    * Ctor
-    * @param sortby sort by option, cannot be <code>null</code>.
-    * @param isAscending <code>true</code> indicates an ascending sort order.
-    */
-   public PSCommentSort(SORTBY sortby, boolean isAscending)
-   {
-      if(sortby == null)
-         throw new IllegalArgumentException("sortby cannot be null.");
-      this.sortby = sortby;
-      this.ascending = isAscending;
-   }
-   
-   /**
-    * @return the sortby field, never <code>null</code>.
-    */
-   public SORTBY getSortBy()
-   {
-      return sortby;
-   }
-   
-   /**
-    * @return <code>true</code> indicates an ascending sort direction.
-    */
-   public boolean isAscending()
-   {
-      return ascending;
-   }
-   
-   /**
-    * Enumeration of sort field options.
-    */
-   public enum SORTBY
-   {
-      CREATEDDATE,
-      EMAIL,
-      USERNAME
-   }
-   
+public class PSCommentSort {
+
+  /** The sort by field value. Initialized in the ctor. */
+  private SORTBY sortby;
+
+  /** Indicates an ascending sort direction if set to <code>true</code>. Initialized in the ctor. */
+  private boolean ascending = true;
+
+  /**
+   * Ctor
+   *
+   * @param sortby sort by option, cannot be <code>null</code>.
+   * @param isAscending <code>true</code> indicates an ascending sort order.
+   */
+  public PSCommentSort(SORTBY sortby, boolean isAscending) {
+    if (sortby == null) throw new IllegalArgumentException("sortby cannot be null.");
+    this.sortby = sortby;
+    this.ascending = isAscending;
+  }
+
+  /**
+   * @return the sortby field, never <code>null</code>.
+   */
+  public SORTBY getSortBy() {
+    return sortby;
+  }
+
+  /**
+   * @return <code>true</code> indicates an ascending sort direction.
+   */
+  public boolean isAscending() {
+    return ascending;
+  }
+
+  /** Enumeration of sort field options. */
+  public enum SORTBY {
+    CREATEDDATE,
+    EMAIL,
+    USERNAME
+  }
 }

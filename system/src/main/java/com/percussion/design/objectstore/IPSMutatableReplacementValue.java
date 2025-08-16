@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 package com.percussion.design.objectstore;
 
 /**
- * This interface represents a <code>IPSReplacementValue</code> whose value
- * can be mutated after construction.
- */ 
-public interface IPSMutatableReplacementValue extends IPSReplacementValue
-{
-   /**
-    * Sets the implementation specific text for this value.
-    * @param text value to assign
-    * @throws IllegalArgumentException if text is invalid
-    */ 
-   public void setValueText(String text);
+ * This interface represents a <code>IPSReplacementValue</code> whose value can be mutated after
+ * construction.
+ */
+public interface IPSMutatableReplacementValue extends IPSReplacementValue {
+  /**
+   * Sets the implementation specific text for this value.
+   *
+   * @param text value to assign
+   * @throws IllegalArgumentException if text is invalid
+   */
+  public void setValueText(String text);
 }

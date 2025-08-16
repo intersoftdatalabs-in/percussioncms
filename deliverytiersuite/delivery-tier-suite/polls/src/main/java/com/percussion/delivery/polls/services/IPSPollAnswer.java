@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,17 @@
 
 package com.percussion.delivery.polls.services;
 
-public interface IPSPollAnswer 
-{
-	public long getId();
-	public void setId(long id);
-	public String getAnswer();
-	public void setAnswer(String answer);
-	public int getCount();
-	public void setCount(int count);
+// REFACTORED: CP-JAVA11
+public interface IPSPollAnswer {
+  long getId();
+
+  void setId(long id);
+
+  String getAnswer();
+
+  void setAnswer(String answer);
+
+  int getCount();
+
+  void setCount(int count);
 }

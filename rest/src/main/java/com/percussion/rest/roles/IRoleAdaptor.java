@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,24 @@
 package com.percussion.rest.roles;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 import java.util.List;
 
+/** Adaptor interface for Role operations. Sunny Sal: "Role ka adaptor, permissions ka factor!" */
 public interface IRoleAdaptor {
-	
-	public Role getRole(URI baseURI, String roleName) throws BackendException;
 
-    public Role updateRole(URI baseURI, Role role);
-    public Role createRole(URI baseURI, Role role) throws BackendException;
+  /** Gets a role by name. */
+  Role getRole(URI baseUri, String roleName) throws BackendException;
 
-    public void deleteRole(URI baseURI, String roleName) throws BackendException;
-    
-    public List<Role> findRoles(URI baseURI, String pattern) throws BackendException;
+  /** Updates a role. */
+  Role updateRole(URI baseUri, Role role);
 
+  /** Creates a role. */
+  Role createRole(URI baseUri, Role role) throws BackendException;
+
+  /** Deletes a role by name. */
+  void deleteRole(URI baseUri, String roleName) throws BackendException;
+
+  /** Finds roles by pattern. */
+  List<Role> findRoles(URI baseUri, String pattern) throws BackendException;
 }

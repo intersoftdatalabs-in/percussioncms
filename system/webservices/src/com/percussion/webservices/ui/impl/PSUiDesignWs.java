@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.percussion.cms.objectstore.PSVersionableDbComponent;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.data.PSTableChangeEvent;
 import com.percussion.data.utils.PSTableUpdateHandlerBase;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.server.PSRequest;
@@ -60,8 +60,9 @@ import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.data.ActionType;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import static org.apache.commons.lang3.Validate.notEmpty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +77,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.apache.commons.lang.Validate.notEmpty;
 
 /**
  * The private ui design webservice implementations.

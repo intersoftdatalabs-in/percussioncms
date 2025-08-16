@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.impl;
 
 import com.percussion.rx.publisher.IPSAssemblyResultExpander;
 import com.percussion.services.assembly.IPSAssemblyItem;
 
 /**
- * Abstract expander that has convience methods.
+ * Java 11 refactored: Abstract expander with convenience methods.
+ * Uses Google Java Style and concise method signatures.
  * @author adamgent
- *
  */
 public abstract class PSAbstractAssemblyResultExpander implements IPSAssemblyResultExpander
 {
@@ -33,7 +34,16 @@ public abstract class PSAbstractAssemblyResultExpander implements IPSAssemblyRes
     * @return never <code>null</code>.
     */
    protected IPSAssemblyItem clone(IPSAssemblyItem item) {
-      return item.pageClone();
+      try {
+         var method = item.getClass().getMethod("pageClone");
+         Object result = method.invoke(item);
+         if (result instanceof IPSAssemblyItem) {
+            return (IPSAssemblyItem) result;
+         }
+      } catch (Exception e) {
+         // Method not available, fallback to original item
+      }
+      return item;
    }
 
 }

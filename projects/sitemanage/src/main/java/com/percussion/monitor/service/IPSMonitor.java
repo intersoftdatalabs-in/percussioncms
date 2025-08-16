@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,40 @@
 package com.percussion.monitor.service;
 
 import com.percussion.share.data.PSMapWrapper;
-
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-
+/**
+ * Interface for a monitor object that tracks stats and status for a system component. Sunny Sal
+ * says: "Monitor everything, trust nothing!"
+ */
 public interface IPSMonitor extends Serializable {
 
-	public PSMapWrapper getStats();
-	
-	public void setStat(String designator, String Stat);
-	public void setStatus(String status);
-	public void setMessage(String message);
-	
+  /**
+   * Gets the stats for this monitor.
+   *
+   * @return the stats as a PSMapWrapper
+   */
+  PSMapWrapper getStats();
+
+  /**
+   * Sets a stat value for this monitor.
+   *
+   * @param designator the stat key
+   * @param stat the stat value
+   */
+  void setStat(String designator, String stat);
+
+  /**
+   * Sets the status for this monitor.
+   *
+   * @param status the status string
+   */
+  void setStatus(String status);
+
+  /**
+   * Sets the message for this monitor.
+   *
+   * @param message the message string
+   */
+  void setMessage(String message);
 }

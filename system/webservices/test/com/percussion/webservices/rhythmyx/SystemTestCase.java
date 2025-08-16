@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSRelationshipConfig.SysConfigEnum;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSSystemTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.common.ObjectType;
@@ -86,15 +86,15 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test all system soap services
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SystemTestCase extends PSSystemTestBase
 {
    /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.percussion.xml;
 
 import com.icl.saxon.expr.XPathException;
 import com.percussion.security.xml.PSSecureXMLUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests that {@link PSXPathEvaluator} operates correctly.
@@ -53,7 +53,7 @@ public class PSXPathEvaluatorTest
     * expressions against each node.
     */
    @Test
-   @Ignore("TODO: Update for XML Catalog resolver")
+   @Disabled("TODO: Update for XML Catalog resolver")
    public void testNode() throws Exception
    {
       PSXPathEvaluator xp = new PSXPathEvaluator(
@@ -100,7 +100,7 @@ public class PSXPathEvaluatorTest
     * input is invalid.
     */
    @Test
-   @Ignore("TODO: Update for XML Catalog resolver")
+   @Disabled("TODO: Update for XML Catalog resolver")
    public void testStream() throws Exception
    {
       PSXPathEvaluator xp = new PSXPathEvaluator(
@@ -126,7 +126,7 @@ public class PSXPathEvaluatorTest
     * input is invalid.
     */
    @Test
-   @Ignore("TODO: Update for XML Catalog resolver")
+   @Disabled("TODO: Update for XML Catalog resolver")
    public void testDOM() throws Exception
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument(

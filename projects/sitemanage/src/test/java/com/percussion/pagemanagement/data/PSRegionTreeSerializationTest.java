@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,81 +17,71 @@
  */
 package com.percussion.pagemanagement.data;
 
-import static java.util.Arrays.*;
-import static org.junit.Assert.*;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.share.dao.PSSerializerUtils;
+import java.util.HashSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PSRegionTreeSerializationTest
-{
-    @Before
-    public void setup()
-    {
-    }
+public class PSRegionTreeSerializationTest {
 
-    @Test
-    public void testRegionTreeSerializeation() throws Exception
-    {
+  @BeforeEach
+  public void setup() {
+    // No-op for now.
+  }
 
-        PSRegionTree tree = new PSRegionTree();
-        
-        PSRegion region = new PSRegion();
-        PSRegion child = new PSRegion();
-        
-        PSRegionCode code = new PSRegionCode();
-        code.setTemplateCode("#blah()");
-        
-        child.setRegionId("child");
-        
-        region.getChildren().add(code);
-        region.getChildren().add(child);
-        PSRegionCode c2 = new PSRegionCode();
-        c2.setTemplateCode("crap");
-        region.getChildren().add(c2);
-        
-        region.setRegionId("Adam");
-        PSWidgetItem wi = new PSWidgetItem();
-        wi.setName("Blah");
-        wi.setId("1");
-        
-        PSWidgetItem wi2 = new PSWidgetItem();
-        
-        wi2.setName("Foo");
-        wi2.setDescription("Foo description.");
-        wi2.setId("2");
-        
-        PSWidgetItem wi3 = new PSWidgetItem();
-        wi3.setId("3");
-        
-        PSRegionWidgets wr = new PSRegionWidgets();
-        wr.setRegionId("Adam");
-        wr.setWidgetItems(asList(wi,wi2,wi3));
-        Set<PSRegionWidgets> sets = new HashSet<PSRegionWidgets>();
-        sets.add(wr);
-        tree.setRegionWidgetAssociations(sets);
-        tree.setRootRegion(region);
-        String s = PSSerializerUtils.marshal(tree);
-        assertNotNull(s);
-        log.debug(s);
-        
-        PSRegionTree unmarshal = PSSerializerUtils.unmarshal(s, PSRegionTree.class);
-        assertNotNull(unmarshal);
-        assertNotNull(unmarshal.getRegionWidgetAssociations());
-        assertFalse(unmarshal.getRegionWidgetAssociations().isEmpty());
-    }
-    
+  @Test
+  public void testRegionTreeSerialization() throws Exception {
+    var tree = new PSRegionTree();
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSRegionTreeSerializationTest.class);
+    var region = new PSRegion();
+    var child = new PSRegion();
 
+    var code = new PSRegionCode();
+    code.setTemplateCode("#blah()");
+
+    child.setRegionId("child");
+
+    region.getChildren().add(code);
+    region.getChildren().add(child);
+    var c2 = new PSRegionCode();
+    c2.setTemplateCode("crap");
+    region.getChildren().add(c2);
+
+    region.setRegionId("Adam");
+    var wi = new PSWidgetItem();
+    wi.setName("Blah");
+    wi.setId("1");
+
+    var wi2 = new PSWidgetItem();
+    wi2.setName("Foo");
+    wi2.setDescription("Foo description.");
+    wi2.setId("2");
+
+    var wi3 = new PSWidgetItem();
+    wi3.setId("3");
+
+    var wr = new PSRegionWidgets();
+    wr.setRegionId("Adam");
+    wr.setWidgetItems(asList(wi, wi2, wi3));
+    var sets = new HashSet<PSRegionWidgets>();
+    sets.add(wr);
+    tree.setRegionWidgetAssociations(sets);
+    tree.setRootRegion(region);
+    var s = PSSerializerUtils.marshal(tree);
+    assertNotNull(s);
+    log.debug(s);
+
+    var unmarshal = PSSerializerUtils.unmarshal(s, PSRegionTree.class);
+    assertNotNull(unmarshal);
+    assertNotNull(unmarshal.getRegionWidgetAssociations());
+    assertFalse(unmarshal.getRegionWidgetAssociations().isEmpty());
+  }
+
+  /** The log instance to use for this class, never null. */
+  private static final Logger log = LogManager.getLogger(PSRegionTreeSerializationTest.class);
 }

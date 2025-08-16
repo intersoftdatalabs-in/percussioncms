@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,96 +14,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * Name/path container for activity which also includes the content types of the active items.
- */
-public class PSActivityNode
-{
-    String siteName;
-    String name;
-    String path;
-    List<String> contentTypes;
-    
-    public PSActivityNode(String siteName, String name, String path, List<String> contentTypes)
-    {
-        this.siteName = siteName;
-        this.name = name;
-        this.path = path;
-        this.contentTypes = contentTypes;
-    }
-    
-    public PSActivityNode(String siteName, String name, String path, String contentType)
-    {
-        this(siteName, name, path, Collections.singletonList(contentType));
-    }
-    
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+/** Name/path container for activity which also includes the content types of the active items. */
+public class PSActivityNode {
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  private String siteName;
+  private String name;
+  private String path;
+  private List<String> contentTypes;
 
-    /**
-     * @return the path
-     */
-    public String getPath()
-    {
-        return path;
-    }
+  public PSActivityNode(String siteName, String name, String path, List<String> contentTypes) {
+    this.siteName = Objects.requireNonNull(siteName, "siteName must not be null");
+    this.name = Objects.requireNonNull(name, "name must not be null");
+    this.path = Objects.requireNonNull(path, "path must not be null");
+    this.contentTypes =
+        List.copyOf(Objects.requireNonNull(contentTypes, "contentTypes must not be null"));
+  }
 
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public PSActivityNode(String siteName, String name, String path, String contentType) {
+    this(
+        siteName,
+        name,
+        path,
+        List.of(Objects.requireNonNull(contentType, "contentType must not be null")));
+  }
 
-    /**
-     * @return the contentTypes
-     */
-    public List<String> getContentTypes()
-    {
-        return contentTypes;
-    }
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param contentTypes the contentTypes to set
-     */
-    public void setContentTypes(List<String> contentTypes)
-    {
-        this.contentTypes = contentTypes;
-    }
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = Objects.requireNonNull(name, "name must not be null");
+  }
 
-    /**
-     * @return the siteName
-     */
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  /**
+   * @return the path
+   */
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * @param siteName the siteName to set
-     */
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+  /**
+   * @param path the path to set
+   */
+  public void setPath(String path) {
+    this.path = Objects.requireNonNull(path, "path must not be null");
+  }
 
+  /**
+   * @return the contentTypes
+   */
+  public List<String> getContentTypes() {
+    return List.copyOf(contentTypes);
+  }
+
+  /**
+   * @param contentTypes the contentTypes to set
+   */
+  public void setContentTypes(List<String> contentTypes) {
+    this.contentTypes =
+        List.copyOf(Objects.requireNonNull(contentTypes, "contentTypes must not be null"));
+  }
+
+  /**
+   * @return the siteName
+   */
+  public String getSiteName() {
+    return siteName;
+  }
+
+  /**
+   * @param siteName the siteName to set
+   */
+  public void setSiteName(String siteName) {
+    this.siteName = Objects.requireNonNull(siteName, "siteName must not be null");
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,17 @@ package com.percussion.guitools;
 
 /**
  * @author DougRand
- *
- * This interface allows a model to state that it can create new instances
- * of an appropriate type for itself.
+ *     <p>This interface allows a model to state that it can create new instances of an appropriate
+ *     type for itself.
  */
-public interface IPSCreateModelItem
-{
-   /**
-    * Create a new instance of the appropriate object for the given model.
-    * If there is a problem, throws an exception.
-    * 
-    * @return an instance of the correct class for the model, see the
-    * specific model code for details.
-    * 
-    * @throws InstantiationException if an instance cannot be created.
-    */
-   Object createInstance() throws InstantiationException;
+public interface IPSCreateModelItem {
+  /**
+   * Create a new instance of the appropriate object for the given model. If there is a problem,
+   * throws an exception.
+   *
+   * @return an instance of the correct class for the model, see the specific model code for
+   *     details.
+   * @throws InstantiationException if an instance cannot be created.
+   */
+  Object createInstance() throws InstantiationException;
 }

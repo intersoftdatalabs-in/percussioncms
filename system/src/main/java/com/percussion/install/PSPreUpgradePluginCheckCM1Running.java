@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,19 @@ package com.percussion.install;
 
 import org.w3c.dom.Element;
 
-public class PSPreUpgradePluginCheckCM1Running implements IPSUpgradePlugin
-{
+// REFACTORED: CP-JAVA11
+public class PSPreUpgradePluginCheckCM1Running implements IPSUpgradePlugin {
 
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      boolean cm1Running = InstallUtil.checkServerRunning(RxUpgrade.getRxRoot());
-      int respType = PSPluginResponse.SUCCESS;
-      String respMessage = "CM1 Server is not running";
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+    boolean cm1Running = InstallUtil.checkServerRunning(RxUpgrade.getRxRoot());
+    int respType = PSPluginResponse.SUCCESS;
+    String respMessage = "CM1 Server is not running";
 
-      if (cm1Running)
-      {
-         respType = PSPluginResponse.EXCEPTION;
-         respMessage = "CM1 Server is not shutdown";
-      }
+    if (cm1Running) {
+      respType = PSPluginResponse.EXCEPTION;
+      respMessage = "CM1 Server is not shutdown";
+    }
 
-      return new PSPluginResponse(respType, respMessage);
-   }
+    return new PSPluginResponse(respType, respMessage);
+  }
 }

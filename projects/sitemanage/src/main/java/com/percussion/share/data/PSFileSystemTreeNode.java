@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,43 +18,44 @@
 
 package com.percussion.share.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/***
- * A lightweight tree node meant to hold a directory tree on the file system.  
- * @author natechadwick
+/**
+ * A lightweight tree node meant to hold a directory tree on the file system. Sunny Sal says: "Tree
+ * nodes—branching out with Java 11!"
  *
  * @param <T> A PSFileSystemItem
+ * @author natechadwick
  */
 public class PSFileSystemTreeNode<T> implements IPSTreeNode<PSFileSystemItem> {
 
-	private IPSTreeNode<PSFileSystemItem> parent;
-	private List<IPSTreeNode<PSFileSystemItem>> children;
-	private PSFileSystemItem value;
-	
-	@Override
-	public IPSTreeNode<PSFileSystemItem> getParent() {
-		return parent;
-	}
+  private IPSTreeNode<PSFileSystemItem> parent;
+  private List<IPSTreeNode<PSFileSystemItem>> children = new ArrayList<>();
+  private PSFileSystemItem value;
 
-	@Override
-	public void setParent(IPSTreeNode<PSFileSystemItem> node) {
-		this.parent = node;
-	}
+  @Override
+  public IPSTreeNode<PSFileSystemItem> getParent() {
+    return parent;
+  }
 
-	@Override
-	public List<IPSTreeNode<PSFileSystemItem>> getChildren() {
-		return this.children;
-	}
+  @Override
+  public void setParent(IPSTreeNode<PSFileSystemItem> node) {
+    this.parent = node;
+  }
 
-	@Override
-	public PSFileSystemItem getValue() {
-		return value;
-	}
+  @Override
+  public List<IPSTreeNode<PSFileSystemItem>> getChildren() {
+    return children;
+  }
 
-	@Override
-	public void setValue(PSFileSystemItem val) {
-		value = val;
-	}
+  @Override
+  public PSFileSystemItem getValue() {
+    return value;
+  }
 
+  @Override
+  public void setValue(PSFileSystemItem val) {
+    value = val;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,41 +17,37 @@
 package com.percussion.user.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.text.Collator;
 
 /**
- * 
- * An abstract representation of a user.
- * 
- * @author adamgent
+ * Abstract representation of a user.
  *
+ * <p>Implements Comparable for sorting by user name.
+ *
+ * @author adamgent
  */
-public abstract class PSAbstractUser extends PSAbstractDataObject implements Comparable<PSAbstractUser>
-{
+public abstract class PSAbstractUser extends PSAbstractDataObject
+    implements Comparable<PSAbstractUser> {
 
-    private static final long serialVersionUID = 1L;
-    private String name;
+  private static final long serialVersionUID = 1L;
+  private String name;
 
-    /**
-     * The user name that uniquely identifies the user.
-     * 
-     * @return should not be <code>null</code> or empty 
-     *    unless the object is not finished being processed.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /**
+   * Gets the user name that uniquely identifies the user.
+   *
+   * @return should not be {@code null} or empty unless the object is not finished being processed.
+   */
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public int compareTo(PSAbstractUser o)
-    {
-        return Collator.getInstance().compare(this.getName(), o.getName());
-    }
+  @Override
+  public int compareTo(PSAbstractUser o) {
+    // Java 11: Use Collator for locale-sensitive comparison
+    return Collator.getInstance().compare(this.getName(), o.getName());
+  }
 }

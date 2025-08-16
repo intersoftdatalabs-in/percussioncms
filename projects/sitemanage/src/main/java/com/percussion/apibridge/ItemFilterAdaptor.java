@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.Guid;
@@ -28,121 +30,112 @@ import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.IPSItemFilterRuleDef;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.PSFilterServiceLocator;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+/** Adaptor for ItemFilter management in Percussion CMS. */
 @PSSiteManageBean
 public class ItemFilterAdaptor implements IItemFilterAdaptor {
 
-    private IPSFilterService filterService;
-    private static final Logger log = LogManager.getLogger(ItemFilterAdaptor.class);
+  private final IPSFilterService filterService;
+  private static final Logger log = LogManager.getLogger(ItemFilterAdaptor.class);
 
-    public ItemFilterAdaptor(){
-        filterService = PSFilterServiceLocator.getFilterService();
+  public ItemFilterAdaptor() {
+    this.filterService = PSFilterServiceLocator.getFilterService();
+  }
+
+  /**
+   * Get a list of the ItemFilters available on the system populated with rules and parameters.
+   *
+   * @return A list of item filters
+   */
+  @Override
+  public List<ItemFilter> getItemFilters() {
+    return filterService.findAllFilters().stream()
+        .map(this::copyFilter)
+        .collect(Collectors.toList());
+  }
+
+  private ItemFilter copyFilter(IPSItemFilter filter) {
+    var ret = new ItemFilter();
+    ret.setFilter_id(ApiUtils.convertGuid(filter.getGUID()));
+    ret.setDescription(filter.getDescription());
+    ret.setName(filter.getName());
+    ret.setLegacyAuthtype(filter.getLegacyAuthtypeId());
+
+    if (filter.getParentFilter() != null) {
+      ret.setParentFilter(copyFilter(filter.getParentFilter()));
     }
 
+    var rules =
+        filter.getRuleDefs().stream()
+            .map(this::copyItemFilterRuleDef)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+    ret.setRules(rules);
+    return ret;
+  }
 
-    /***
-     * Get a list of the ItemFilters available on the system populated with rules and parameters.
-     * @return A list of item filters
-     */
-    @Override
-    public List<ItemFilter> getItemFilters() {
-        List<ItemFilter> ret = new ArrayList<>();
-        List<IPSItemFilter> filters = filterService.findAllFilters();
+  private ItemFilterRuleDefinition copyItemFilterRuleDef(IPSItemFilterRuleDef def) {
+    try {
+      var ret = new ItemFilterRuleDefinition();
+      ret.setName(def.getRuleName());
+      ret.setRuleId(ApiUtils.convertGuid(def.getGUID()));
 
-        for(IPSItemFilter i : filters){
-            ret.add(copyFilter(i));
-        }
-        return ret;
+      var retParams =
+          def.getParams().entrySet().stream()
+              .map(
+                  pair -> {
+                    var p = new ItemFilterRuleDefinitionParam();
+                    p.setName(pair.getKey());
+                    p.setValue(pair.getValue());
+                    return p;
+                  })
+              .collect(Collectors.toList());
+      ret.setParams(retParams);
+      return ret;
+    } catch (PSFilterException e) {
+      log.error("Error getting ItemFilter Rule Name. Skipping Rule.", e);
+      return null;
     }
+  }
 
-    private ItemFilter copyFilter(IPSItemFilter filter){
-        ItemFilter ret  = new ItemFilter();
+  /**
+   * Update or create an ItemFilter.
+   *
+   * @param filter The filter to update or create.
+   * @return The updated ItemFilter.
+   */
+  @Override
+  public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
+    log.warn("updateOrCreateItemFilter not yet implemented");
+    return null;
+  }
 
-        ret.setFilter_id(ApiUtils.convertGuid(filter.getGUID()));
-        ret.setDescription(filter.getDescription());
-        ret.setName(filter.getName());
-        ret.setLegacyAuthtype(filter.getLegacyAuthtypeId());
+  /**
+   * Delete the specified item filter.
+   *
+   * @param itemFilterId A valid ItemFilter id. Filter must not be associated with any ContentLists
+   *     or it won't be deleted.
+   */
+  @Override
+  public void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException {
+    var filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
+    filterService.deleteFilter(filter);
+  }
 
-        if(filter.getParentFilter() != null){
-            ret.setParentFilter(copyFilter(filter.getParentFilter()));
-        }
-
-        Set<IPSItemFilterRuleDef> ruleDefs = filter.getRuleDefs();
-        Set<ItemFilterRuleDefinition> rules = new HashSet<>();
-        for(IPSItemFilterRuleDef def : ruleDefs){
-            ItemFilterRuleDefinition r = copyItemFilterRuleDef(def);
-            if(r != null) {
-                rules.add(r);
-            }
-        }
-        ret.setRules(rules);
-        return ret;
-    }
-
-    private ItemFilterRuleDefinition copyItemFilterRuleDef(IPSItemFilterRuleDef def) {
-        ItemFilterRuleDefinition ret = new ItemFilterRuleDefinition();
-
-        try {
-            ret.setName(def.getRuleName());
-            ret.setRuleId(ApiUtils.convertGuid(def.getGUID()));
-
-            Map<String,String> params = def.getParams();
-            List<ItemFilterRuleDefinitionParam> retParams = new ArrayList<>();
-            for(Map.Entry<String,String> pair : params.entrySet()){
-                ItemFilterRuleDefinitionParam p = new ItemFilterRuleDefinitionParam();
-                p.setName(pair.getKey());
-                p.setValue(pair.getValue());
-                retParams.add(p);
-            }
-           ret.setParams(retParams);
-        } catch (PSFilterException e) {
-            log.error("Error getting ItemFilter Rule Name.  Skipping Rule.", e);
-            ret = null;
-        }
-        return ret;
-    }
-
-
-    /***
-     * Update or create an ItemFilter
-     * @param filter  The filter to update or create.
-     * @return The updated ItemFilter.
-     */
-    @Override
-    public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
-        //TODO: Implement Me
-        log.warn("updateOrCreateItemFilter not yet implemented");
-        return null;
-    }
-
-    /***
-     * Delete the specified item filter.
-     * @param itemFilterId A valid ItemFilter id.  Filter must not be associated with any ContentLists or it won't be deleted.
-     */
-    @Override
-    public void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException {
-        IPSItemFilter filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
-
-        filterService.deleteFilter(filter);
-    }
-
-    /***
-     * Get a single ItemFilter by id.
-     * @param itemFilterId  A Valid ItemFilter id
-     * @return The ItemFilter
-     */
-    @Override
-    public ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException {
-        IPSItemFilter filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
-        return  copyFilter(filter);
-    }
+  /**
+   * Get a single ItemFilter by id.
+   *
+   * @param itemFilterId A Valid ItemFilter id
+   * @return The ItemFilter
+   */
+  @Override
+  public ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException {
+    var filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
+    return copyFilter(filter);
+  }
 }

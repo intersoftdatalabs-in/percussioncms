@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,18 +31,17 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Template to generate notificaton for the results of the tasks ran by
+ * Template to generate notification for the results of tasks run by
  * the scheduler.
- * Note, notification templates don't have anything to do with the assembly
- * templates.
- * 
+ * <p>Note: Notification templates are unrelated to assembly templates.</p>
+ *
  * @author Andriy Palamarchuk
  */
 @Entity

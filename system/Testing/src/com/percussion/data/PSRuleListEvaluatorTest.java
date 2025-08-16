@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSCollection;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the <code>PSRuleListEvaluator</code>.

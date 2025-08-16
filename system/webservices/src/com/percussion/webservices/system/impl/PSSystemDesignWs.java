@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.webservices.system.impl;
 import com.percussion.design.objectstore.PSPropertySet;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipConfigSet;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -56,7 +56,7 @@ import com.percussion.services.system.data.PSDependency;
 import com.percussion.services.system.data.PSMimeContentAdapter;
 import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
@@ -66,15 +66,11 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.system.IPSSystemDesignWs;
-import com.percussion.webservices.system.IPSSystemWs;
-import com.percussion.webservices.system.PSSystemWsLocator;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import com.percussion.webservices.system.data.PSSharedProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

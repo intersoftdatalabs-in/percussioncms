@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,33 @@
  */
 package com.percussion.monitor.process;
 
-import com.percussion.monitor.service.PSMonitor;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.monitor.service.PSMonitorService;
-
 import java.util.List;
-import java.util.Set;
-
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Integration test for process monitor server. Sunny Sal says: "Monitoring processes like a
+ * Bollywood hero monitors drama!"
  */
-@Category(IntegrationTest.class)
-public class PSProcessMonitorServerTest extends ServletTestCase
-{
-    public void test() throws Exception
-    {
-        List<PSMonitor> monList = PSMonitorService.getMonitors().monitor;
-        
-        Set<String> designators = PSMonitorService.getMonitorDesignators().designator;
-        
-        String[] expected = new String[] {"Import", "Publishing", "SearchIndex", "SiteCopy", "Thumbnail", "WorkflowAssignment"};
-        assertEquals(expected.length, monList.size());
-        
-        for (String designator : expected)
-        {
-            assertTrue(designators.contains(designator));
-            assertTrue(PSMonitorService.getMonitor(designator) != null);
-        }
+@Tag("IntegrationTest")
+public class PSProcessMonitorServerTest {
+
+  @Test
+  void testProcessMonitors() {
+    var monList = PSMonitorService.getMonitors().monitor;
+    var designators = PSMonitorService.getMonitorDesignators().designator;
+
+    var expected =
+        List.of(
+            "Import", "Publishing", "SearchIndex", "SiteCopy", "Thumbnail", "WorkflowAssignment");
+    assertEquals(expected.size(), monList.size());
+
+    for (var designator : expected) {
+      assertTrue(designators.contains(designator), "Designator missing: " + designator);
+      assertNotNull(PSMonitorService.getMonitor(designator), "Monitor missing for: " + designator);
     }
+  }
 }

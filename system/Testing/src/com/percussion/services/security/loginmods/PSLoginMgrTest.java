@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.security.PSSecurityProviderPool;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.IOException;
@@ -31,16 +31,16 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link IPSLoginMgr}.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLoginMgrTest
 {
    /**

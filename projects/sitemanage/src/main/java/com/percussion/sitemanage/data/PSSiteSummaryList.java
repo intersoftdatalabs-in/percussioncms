@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.DEFAULT)
-//TODO: Fix this to be a List..  SiteSummary is the object type in the list.  All the JavaScript seems look for SiteSummary
+/** List wrapper for site summaries. */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.DEFAULT)
 @JsonRootName("SiteSummary")
 public class PSSiteSummaryList extends ArrayList<PSSiteSummary> {
-    public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
-        super(c);
-    }
+  private static final long serialVersionUID = 1L;
 
-    public PSSiteSummaryList(){
-        super();
-    }
+  public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
+    super(c);
+  }
+
+  public PSSiteSummaryList() {
+    super();
+  }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.i18n;
 
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcRowData;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.util.ArrayList;
@@ -28,19 +28,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * Unit test for the <code>PSLocale</code> class
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSLocaleTest
 {
    /**

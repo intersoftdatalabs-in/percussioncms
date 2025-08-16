@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,28 @@
 package com.percussion.fastforward.globaltemplate;
 
 /**
- * Exception that can be thrown during creating and processing of outer 
- * templates
- * 
+ * Exception that can be thrown during creating and processing of outer templates
+ *
  * @author RammohanVangapalli
  */
-public class PSGlobalTemplateException extends Exception
-{
+public class PSGlobalTemplateException extends Exception {
 
-   /**
-    * Default Constructor
-    * @see Exception#Exception()
-    * 
-    */
-   public PSGlobalTemplateException()
-   {
-      super();
-   }
+  /**
+   * Default Constructor
+   *
+   * @see Exception#Exception()
+   */
+  public PSGlobalTemplateException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the message as string
-    * @param s
-    * @see Exception#Exception(java.lang.String)
-    */
-   public PSGlobalTemplateException(String s)
-   {
-      super(s);
-   }
+  /**
+   * Constructor that takes the message as string
+   *
+   * @param s
+   * @see Exception#Exception(java.lang.String)
+   */
+  public PSGlobalTemplateException(String s) {
+    super(s);
+  }
 }
