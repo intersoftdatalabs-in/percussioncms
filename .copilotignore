@@ -1,85 +1,10 @@
 # Code to skip for Copilot suggestions
-*.cs
-*.vb
-*.csproj
-*.vbproj
-*.cshtml
-*.vbhtml
-*.csx
-*.vbscript
-*.csxproj
-*.vbproj.user
-*.csproj.user
-*.py
-*.pyc
-*.pyo
-*.pyproj
-*.pyproj.user
-makefile
-build.xml
-Makefile
-.project
-.checkstyle
 spotless-index-file
 bin/
-
-# IDE-specific files
-*.iml
-.idea/
-.vscode/
-.project
-.classpath
-.settings/
-
+target/
 
 # Version control
 .git/
-.gitignore
-
-# Compiled files
-*.class
-*.jar
-*.war
-*.ear
-
-# Test reports and coverage
-*.out
-*.xml
-*.html
-*.xsl
-*.dtd
-coverage/
-jacoco.exec
-
-# Maven-specific files
-.mvn/
-.settings/
-
-# Logs and temporary files
-*.log
-*.tmp
-*.bak
-
-# images
-*.png
-*.gif
-*.jpg
-
-# Config files
-*.json
-*.config
-*.conf
-*.sln
-*.properties
-
-target
-*.class
-*.txt
-system/Packages
-*.dtd
-*.tbl
-*.zip
-*.blb
 
 # binaries
 *.bin
@@ -92,16 +17,6 @@ system/Packages
 *.ear
 *.jar
 
-# documents
-*.pdf
-*.doc
-*.docx
-*.xls
-*.xslx
-*.ppt
-*.pptx
-*.txt
-
-# cui not an actual node module
+# cui not an actual node module - remove this when fixed
 cui/package.json
 cui/node_modules

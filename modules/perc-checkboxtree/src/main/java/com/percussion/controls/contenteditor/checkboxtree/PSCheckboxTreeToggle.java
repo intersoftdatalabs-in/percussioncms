@@ -24,15 +24,14 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.TreePath;
 
 /**
- * The selection toggle controls the mouse behavior. A single click toggles
- * the selected state of the checkbox node.
+ * The selection toggle controls the mouse behavior. A single click toggles the selected state of
+ * the checkbox node.
  */
 public class PSCheckboxTreeToggle extends MouseInputAdapter implements IPSCheckboxTreeListener {
   /**
    * Constructs a toggle event handler for use with the specified tree.
    *
-   * @param tree the tree that this node toggle is part of, not
-   *    <code>null</code>.
+   * @param tree the tree that this node toggle is part of, not <code>null</code>.
    */
   public PSCheckboxTreeToggle(JTree tree) {
     if (tree == null) throw new IllegalArgumentException("tree cannot be null");
@@ -90,14 +89,9 @@ public class PSCheckboxTreeToggle extends MouseInputAdapter implements IPSCheckb
     else m_parameters = parameters;
   }
 
-  /**
-   * The extra parameters set for this listener, never <code>null</code>, may
-   * be empty.
-   */
+  /** The extra parameters set for this listener, never <code>null</code>, may be empty. */
   private Map<String, String> m_parameters = new HashMap<>();
 
-  /**
-   * The containing tree, never <code>null</code> after construction.
-   */
+  /** The containing tree, never <code>null</code> after construction. */
   private JTree m_tree = null;
 }

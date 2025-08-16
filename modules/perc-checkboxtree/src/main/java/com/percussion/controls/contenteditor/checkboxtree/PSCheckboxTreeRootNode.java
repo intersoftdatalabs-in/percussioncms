@@ -23,25 +23,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * The root node of the tree. This node has no checkbox, only a label. It
- * provides all functionality to load the entire tree from an xml document.
+ * The root node of the tree. This node has no checkbox, only a label. It provides all functionality
+ * to load the entire tree from an xml document.
  */
 public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements MutableTreeNode {
   /**
-   * Load the xml document and populate the tree. The expected xml format is:
-   * &lt;!ELEMENT Tree (Node*)&gt;
-   * &lt;!ATTLIST Tree
-   *    label CDATA #REQUIRED
-   * &gt;
-   * &lt;!ELEMENT Node (Node*)&gt;
-   * &lt;!ATTLIST Node
-   *    id CDATA #REQUIRED
-   *    label CDATA #REQUIRED
-   *    selectable (yes | no) "no"
-   * &gt;
+   * Load the xml document and populate the tree. The expected xml format is: &lt;!ELEMENT Tree
+   * (Node*)&gt; &lt;!ATTLIST Tree label CDATA #REQUIRED &gt; &lt;!ELEMENT Node (Node*)&gt;
+   * &lt;!ATTLIST Node id CDATA #REQUIRED label CDATA #REQUIRED selectable (yes | no) "no" &gt;
    *
-   * @param doc the xml document which contains the tree information,
-   *    not <code>null</code>.
+   * @param doc the xml document which contains the tree information, not <code>null</code>.
    */
   public void loadDocument(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc cannot be null");
@@ -55,13 +46,10 @@ public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements Mu
   }
 
   /**
-   * Load each element in the tree. Call recursively for each node in the xml
-   * file.
+   * Load each element in the tree. Call recursively for each node in the xml file.
    *
-   * @param parentNode the tree node to attach this node to, assumed not
-   *    <code>null</code>.
-   * @param el the xml element that describes the current node, assumed not
-   *    <code>null</code>.
+   * @param parentNode the tree node to attach this node to, assumed not <code>null</code>.
+   * @param el the xml element that describes the current node, assumed not <code>null</code>.
    */
   private void loadElement(MutableTreeNode parentNode, Element el) {
     NodeList childList = el.getChildNodes();
@@ -94,6 +82,7 @@ public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements Mu
 
   /**
    * Print the label. Used as a label when this node is used in a tree.
+   *
    * @return the lable text, never <code>null</code>, may be empty.
    */
   @Override
@@ -102,13 +91,11 @@ public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements Mu
   }
 
   /**
-   * The label for the tree that appears next to the root icon, never
-   * <code>null</code>, may be empty.
+   * The label for the tree that appears next to the root icon, never <code>null</code>, may be
+   * empty.
    */
   private String m_label = "";
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = -8009350818045684763L;
 }
