@@ -1,11 +1,29 @@
+.vscode/*
+system/.settings/*
 .idea/*
 .idea/encodings.xml
 .idea/sonarIssues.xml
 .idea/sonarlint.xml
 .idea/sonarlint-state.xml
 .idea/sonarlint/issuestore/index.pb
+spotless-index-file
+bin/
+target/
+*.iml
+*.ipr
+*.iws
+*.class
+*.jar
+*.war
 
 derby.log
+null
+undefined
+build.log
+**/*.log 
+${sys:catalina.base}/
+**/*/refactored-java11-packages.txt
+**/*.*~
 
 # random output file
 **/test-output.jar
@@ -126,3 +144,4 @@ fabric.properties
 /modules/redirect-tool/apache-redirects.conf
 /modules/redirect-tool/redirects.json
 /cui/package-lock.json
+/modules/tlsutils/truststore.jks
