@@ -237,7 +237,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apatransacche.xbean</groupId>
+                <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
                 <version>4.8</version>
             </dependency>
