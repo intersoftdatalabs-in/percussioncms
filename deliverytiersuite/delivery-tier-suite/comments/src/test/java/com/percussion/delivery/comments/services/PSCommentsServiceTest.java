@@ -81,7 +81,7 @@ public class PSCommentsServiceTest {
     for (final IPSComment cmt : comm) {
       commnetIds.add(cmt.getId());
     }
-    this.commentService.deleteComments(this.getCommentIds(comments));
+    return commnetIds;
   }
 
   private List<String> getCommentIds(final PSComments comments) {
