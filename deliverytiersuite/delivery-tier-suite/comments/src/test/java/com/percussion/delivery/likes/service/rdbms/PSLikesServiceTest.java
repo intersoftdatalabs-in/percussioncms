@@ -72,7 +72,7 @@ public class PSLikesServiceTest {
 
   @Test
   public void testLike() throws Exception {
-    int total = likesService.like(SITE, COMMENT1_PAGEPATH, "comment");
+    int total = likesService.like(SITE, COMMENT1_PAGEPATH, IPSLikes.Type.comment.toString());
 
     assertEquals(1, total);
   }

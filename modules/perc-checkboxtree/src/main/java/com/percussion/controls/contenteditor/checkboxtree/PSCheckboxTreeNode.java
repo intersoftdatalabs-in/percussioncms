@@ -19,15 +19,13 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-/**
- * The tree node as used with the checkbox tree applet control.
- */
+/** The tree node as used with the checkbox tree applet control. */
 public class PSCheckboxTreeNode extends DefaultMutableTreeNode {
   /**
    * Constructs a new checkbox tree node for the supplied parameters.
    *
-   * @param id the node identifier, not <code>null</code> or empty. Should
-   *    be unique but uniqueness is not enforced.
+   * @param id the node identifier, not <code>null</code> or empty. Should be unique but uniqueness
+   *     is not enforced.
    * @param label the nodes display label, not <code>null</code> or empty.
    */
   public PSCheckboxTreeNode(String id, String label) {
@@ -73,16 +71,13 @@ public class PSCheckboxTreeNode extends DefaultMutableTreeNode {
   /**
    * Sets the selection flag on this node.
    *
-   * @param select <code>true</code> to select this node, <code>false</code>
-   *    to de-select it.
+   * @param select <code>true</code> to select this node, <code>false</code> to de-select it.
    */
   public void setSelected(boolean select) {
     m_selected = select;
   }
 
-  /**
-   * Toggle the current selection.
-   */
+  /** Toggle the current selection. */
   public void toggleSelected() {
     setSelected(!isSelected());
   }
@@ -132,38 +127,30 @@ public class PSCheckboxTreeNode extends DefaultMutableTreeNode {
   /**
    * Set if this item is selectable.
    *
-   * @param selectable <code>true</code> if the item is selectable,
-   *    <code>false</code> otherwise.
+   * @param selectable <code>true</code> if the item is selectable, <code>false</code> otherwise.
    */
   public void setSelectable(boolean selectable) {
     m_selectable = selectable;
   }
 
-  /**
-   * Is this item selected, <code>true</code> if it is, <code>false</code>
-   * otherwise.
-   */
+  /** Is this item selected, <code>true</code> if it is, <code>false</code> otherwise. */
   private boolean m_selected = false;
 
   /**
-   * Is this node selectable, <code>true</code> if it is, <code>false</code>
-   * otherwise. If so, it will have a checkbox.
+   * Is this node selectable, <code>true</code> if it is, <code>false</code> otherwise. If so, it
+   * will have a checkbox.
    */
   private boolean m_selectable;
 
   /**
-   * The internal id value returned when selected, never <code>null</code>
-   * or empty. Should be unique, but this class does not enforce uniqueness.
+   * The internal id value returned when selected, never <code>null</code> or empty. Should be
+   * unique, but this class does not enforce uniqueness.
    */
   private String m_nodeId;
 
-  /**
-   * The name or label for this node, never <code>null</code> or empty.
-   */
+  /** The name or label for this node, never <code>null</code> or empty. */
   private String m_nodeName;
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = -1276983430140508363L;
 }
