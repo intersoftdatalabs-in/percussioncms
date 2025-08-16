@@ -73,7 +73,7 @@
       <!-- Remove configLocation to avoid conflicts with dataSource -->
       <!-- <property name="configLocation">
          <value>classpath:hibernate.cfg.xml</value>
-      <!-- Instead, explicitly specify mapping classes -->
+      -->
       <property name="annotatedClasses">
          <list>
             <value>com.percussion.delivery.comments.service.rdbms.PSComment</value>
