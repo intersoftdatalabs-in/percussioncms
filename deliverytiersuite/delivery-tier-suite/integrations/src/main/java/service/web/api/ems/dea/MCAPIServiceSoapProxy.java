@@ -35,13 +35,13 @@ public class MCAPIServiceSoapProxy implements MCAPIServiceSoap {
       mCAPIServiceSoap = (new MCAPIServiceLocator()).getMCAPIServiceSoap();
       if (mCAPIServiceSoap != null) {
         if (_endpoint != null)
-          ((javax.xml.rpc.Stub)mCAPIServiceSoap)._setProperty("javax.xml.rpc.service.endpoint.address", _endpoint);
+          ((jakarta.xml.rpc.Stub)mCAPIServiceSoap)._setProperty("jakarta.xml.rpc.service.endpoint.address", _endpoint);
         else
-          _endpoint = (String)((javax.xml.rpc.Stub)mCAPIServiceSoap)._getProperty("javax.xml.rpc.service.endpoint.address");
+          _endpoint = (String)((jakarta.xml.rpc.Stub)mCAPIServiceSoap)._getProperty("jakarta.xml.rpc.service.endpoint.address");
       }
       
     }
-    catch (javax.xml.rpc.ServiceException serviceException) {}
+    catch (jakarta.xml.rpc.ServiceException serviceException) {}
   }
   
   public String getEndpoint() {
@@ -51,7 +51,7 @@ public class MCAPIServiceSoapProxy implements MCAPIServiceSoap {
   public void setEndpoint(String endpoint) {
     _endpoint = endpoint;
     if (mCAPIServiceSoap != null)
-      ((javax.xml.rpc.Stub)mCAPIServiceSoap)._setProperty("javax.xml.rpc.service.endpoint.address", _endpoint);
+      ((jakarta.xml.rpc.Stub)mCAPIServiceSoap)._setProperty("jakarta.xml.rpc.service.endpoint.address", _endpoint);
     
   }
   

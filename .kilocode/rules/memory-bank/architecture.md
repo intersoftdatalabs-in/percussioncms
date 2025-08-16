@@ -60,6 +60,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Keep Axis stack at resolvable versions (1.4) and align plugins (wsdl2java/axistools) accordingly.
 - Standardize Maven Surefire (3.2.5+) and testing platform to JUnit 5.
 - Use Maven Enforcer RequireUpperBoundDeps to surface dependency drifts; resolve centrally rather than per-module where feasible.
+- This is not a Spring Boot application; avoid Spring Boot dependencies to reduce complexity and legacy drag.
 
 ## Design Patterns in Use
 

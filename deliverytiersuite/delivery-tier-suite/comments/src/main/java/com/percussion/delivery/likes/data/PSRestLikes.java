@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,6 +18,8 @@
 package com.percussion.delivery.likes.data;
 
 /**
+ * Represents a REST like entity in the system.
+ *
  * @author davidpardini
  */
 public class PSRestLikes implements IPSLikes {

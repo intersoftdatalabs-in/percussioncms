@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+   <!-- Component-scan removed in test context to avoid instantiating REST components that require other web-layer beans. Beans are defined explicitly below. -->
+
+   <bean id="propertyPlaceholderProps"
+         class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
+      <property name="ignoreResourceNotFound" value="true" />
+      <property name="autoSecure" value="true" />
+      <property name="securedProperties">
+         <list>
+            <value>db.password</value>
+         </list>
+      </property>
+      <property name="locations">
+         <list>
+            <value>classpath:perc-security.properties</value>
+            <value>classpath:perc-datasources.properties</value>
+            <value>classpath:perc-comments-services.properties</value>
+         </list>
+      </property>
+      <property name="properties">
+         <props>
+            <!-- Default properties for database -->
+            <prop key="jdbcUrl">jdbc:derby:memory:perccomments;create=true</prop>
+            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+            <prop key="maximumPoolSize">10</prop>
+            <prop key="db.username">test</prop>
+            <prop key="db.password">test</prop>
+            <prop key="db.schema">APP</prop>
+            <prop key="datasource">percDataSource</prop>
+            <prop key="hibernateProperties">percHibernateProperties</prop>
+            <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
+            <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+            <prop key="hibernate.cache.use_second_level_cache">false</prop>
+            <prop key="hibernate.cache.use_query_cache">false</prop>
+            <prop key="hibernate.hbm2ddl.auto">update</prop>
+         </props>
+      </property>
+   </bean>
+
+   <bean id="propertyConfigurer"
+         class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
+      <property name="properties" ref="propertyPlaceholderProps" />
+   </bean>
+
+</beans>

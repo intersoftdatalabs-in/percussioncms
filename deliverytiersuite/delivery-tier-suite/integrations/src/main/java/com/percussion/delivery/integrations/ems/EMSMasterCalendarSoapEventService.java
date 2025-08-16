@@ -39,10 +39,10 @@ import org.xml.sax.SAXException;
 import service.web.api.ems.dea.MCAPIServiceLocator;
 import service.web.api.ems.dea.MCAPIServiceSoap;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.rpc.ServiceException;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.ParserConfigurationException;
+import jakarta.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;

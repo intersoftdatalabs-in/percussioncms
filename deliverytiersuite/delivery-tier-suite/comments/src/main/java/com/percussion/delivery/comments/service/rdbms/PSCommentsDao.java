@@ -25,26 +25,40 @@ import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
 import com.percussion.delivery.comments.data.PSPageInfo;
 import com.percussion.delivery.comments.services.IPSCommentsDao;
 import com.percussion.delivery.comments.services.PSCommentsService;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Conjunction;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author erikserating
  */
-public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao {
+@Repository
+public class PSCommentsDao implements IPSCommentsDao {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  private Session getSession() {
+    return sessionFactory.getCurrentSession();
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -56,9 +70,86 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
   public List<IPSComment> find(PSCommentCriteria criteria) throws Exception {
     Session session = getSession();
 
-    Criteria queryCriteria = session.createCriteria(PSComment.class);
-    prepareCriteria(criteria, queryCriteria);
-    return queryCriteria.list();
+    CriteriaBuilder cb = session.getCriteriaBuilder();
+    CriteriaQuery<PSComment> cq = cb.createQuery(PSComment.class);
+    Root<PSComment> root = cq.from(PSComment.class);
+
+    List<Predicate> predicates = new ArrayList<>();
+
+    // Username
+    if (!StringUtils.isEmpty(criteria.getUsername()))
+      predicates.add(
+          cb.equal(cb.lower(root.get("username")), criteria.getUsername().toLowerCase()));
+
+    // Pagepath
+    if (!StringUtils.isEmpty(criteria.getPagepath()))
+      predicates.add(
+          cb.equal(cb.lower(root.get("pagePath")), criteria.getPagepath().toLowerCase()));
+
+    // Tag
+    if (!StringUtils.isEmpty(criteria.getTag())) {
+      // Create a subquery to filter comments by tag
+      jakarta.persistence.criteria.Subquery<Long> subquery = cq.subquery(Long.class);
+      jakarta.persistence.criteria.Root<PSCommentTag> subRoot = subquery.from(PSCommentTag.class);
+      subquery.select(subRoot.get("comment").get("id"));
+      subquery.where(cb.equal(cb.lower(subRoot.get("name")), criteria.getTag().toLowerCase()));
+      predicates.add(root.get("id").in(subquery));
+    }
+
+    // Approval state
+    if (criteria.getState() != null)
+      predicates.add(cb.equal(root.get("approvalState"), criteria.getState().toString()));
+
+    // Site
+    if (!StringUtils.isEmpty(criteria.getSite()))
+      predicates.add(cb.equal(cb.lower(root.get("site")), criteria.getSite().toLowerCase()));
+
+    // Viewed
+    if (criteria.isViewed() != null)
+      predicates.add(cb.equal(root.get("viewed"), criteria.isViewed()));
+
+    // Moderated
+    if (criteria.isModerated() != null)
+      predicates.add(cb.equal(root.get("moderated"), criteria.isModerated()));
+
+    // Last comment Id
+    if (criteria.getLastCommentId() != null) {
+      // ors = Restrictions.conjunction();
+      // ors.add(Restrictions.eq("id", Long.valueOf(criteria.getLastCommentId())));
+      // ors.add(Restrictions.eq("site", criteria.getSite()).ignoreCase());
+      // if (!StringUtils.isEmpty(criteria.getPagepath()))
+      // ors.add(Restrictions.eq("pagePath", criteria.getPagepath()).ignoreCase());
+    }
+
+    cq.where(predicates.toArray(new Predicate[0]));
+
+    // Sorting
+    if (criteria.getSort() != null && criteria.getSort().getSortBy() != null) {
+      String field = PSCommentsService.SORTBY_FIELD_MAPPING.get(criteria.getSort().getSortBy());
+      boolean isAscending = criteria.getSort().isAscending();
+
+      if (isAscending) cq.orderBy(cb.asc(root.get(field)));
+      else cq.orderBy(cb.desc(root.get(field)));
+    } else {
+      // By default, sort by CREATEDATE in descending order
+      cq.orderBy(cb.desc(root.get(PSCommentsService.SORTBY_FIELD_MAPPING.get(SORTBY.CREATEDDATE))));
+    }
+
+    // Max results and start index
+    Query<PSComment> query = session.createQuery(cq);
+    if (criteria.getMaxResults() > 0) {
+      query.setMaxResults(criteria.getMaxResults());
+    }
+    if (criteria.getStartIndex() > 0) {
+      query.setFirstResult(criteria.getStartIndex());
+    }
+
+    List<PSComment> results = query.getResultList();
+    List<IPSComment> ipsResults = new ArrayList<>();
+    for (PSComment comment : results) {
+      ipsResults.add(comment);
+    }
+    return ipsResults;
   }
 
   @Transactional
@@ -66,9 +157,10 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     Collection<Long> longIds = new ArrayList<>(ids.size());
     for (String s : ids) longIds.add(Long.valueOf(s));
     String selectComments = "select site from PSComment where id in (:idList)";
-    List<String> siteNames =
-        (List<String>)
-            this.getHibernateTemplate().findByNamedParam(selectComments, "idList", longIds);
+    Session session = getSession();
+    Query<String> query = session.createQuery(selectComments, String.class);
+    query.setParameter("idList", longIds);
+    List<String> siteNames = query.getResultList();
     return new HashSet<>(siteNames);
   }
 
@@ -83,7 +175,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
   public void save(IPSComment comment) throws Exception {
     PSComment hComment = new PSComment(comment);
     hComment.setId(comment.getId());
-    getHibernateTemplate().saveOrUpdate(hComment);
+    getSession().saveOrUpdate(hComment);
     comment.setId(hComment.getId());
   }
 
@@ -102,7 +194,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
     session
         .createQuery("delete from PSComment where id in (:commentIds)")
-        .setParameterList("commentIds", longIds)
+        .setParameter("commentIds", longIds)
         .executeUpdate();
   }
 
@@ -127,7 +219,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
       Query updateQuery = session.createQuery(updateQueryString);
       updateQuery.setParameter("newApprovalState", newApprovalState.toString());
-      updateQuery.setParameterList("idList", longIds);
+      updateQuery.setParameter("idList", longIds);
       updateQuery.executeUpdate();
     } finally {
       session.flush();
@@ -148,7 +240,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
       Query query = session.createQuery(stringQuery);
       query.setParameter("site", site);
 
-      List<Object[]> result = query.list();
+      List<Object[]> result = query.getResultList();
       List<PSPageInfo> pages = new ArrayList<>();
       for (Object[] r : result)
         pages.add(new PSPageInfo((String) r[0], (String) r[1], (Long) r[2], (Boolean) r[3]));
@@ -165,7 +257,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
 
     Query query = session.createQuery("from PSDefaultModerationState where site = :site");
     query.setParameter("site", site);
-    List<Object> result = query.list();
+    List<Object> result = query.getResultList();
     APPROVAL_STATE state = APPROVAL_STATE.APPROVED;
     if (!result.isEmpty()) {
       state = APPROVAL_STATE.valueOf(((IPSDefaultModerationState) result.get(0)).getDefaultState());
@@ -180,84 +272,5 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     IPSDefaultModerationState st = new PSDefaultModerationState(sitename, state.toString());
     session.saveOrUpdate(st);
     session.flush();
-  }
-
-  /**
-   * Prepares the Hibernate Criteria object according to the settings in PSCommentCriteria object.
-   *
-   * @param criteria The comment criteria. Must not be <code>null</code>.
-   * @param queryCriteria The Hibernate Criteria object.
-   */
-  private void prepareCriteria(PSCommentCriteria criteria, Criteria queryCriteria) {
-    Conjunction ands = Restrictions.conjunction();
-    Conjunction ors = null;
-
-    // Username
-    if (!StringUtils.isEmpty(criteria.getUsername()))
-      ands.add(Restrictions.eq("username", criteria.getUsername()).ignoreCase());
-
-    // Pagepath
-    if (!StringUtils.isEmpty(criteria.getPagepath()))
-      ands.add(Restrictions.eq("pagePath", criteria.getPagepath()).ignoreCase());
-
-    // Tag
-    if (!StringUtils.isEmpty(criteria.getTag())) {
-      queryCriteria.createAlias("commentTags", "tag");
-      ands.add(Restrictions.eq("tag.name", criteria.getTag()).ignoreCase());
-    }
-
-    // Approval state
-    if (criteria.getState() != null)
-      ands.add(Restrictions.eq("approvalState", criteria.getState().toString()));
-
-    // Site
-    if (!StringUtils.isEmpty(criteria.getSite()))
-      ands.add(Restrictions.eq("site", criteria.getSite()).ignoreCase());
-
-    // Viewed
-    if (criteria.isViewed() != null) ands.add(Restrictions.eq("viewed", criteria.isViewed()));
-
-    // Moderated
-    if (criteria.isModerated() != null)
-      ands.add(Restrictions.eq("moderated", criteria.isModerated()));
-
-    // Last comment Id
-    if (criteria.getLastCommentId() != null) {
-      ors = Restrictions.conjunction();
-      ors.add(Restrictions.eq("id", Long.valueOf(criteria.getLastCommentId())));
-      ors.add(Restrictions.eq("site", criteria.getSite()).ignoreCase());
-      if (!StringUtils.isEmpty(criteria.getPagepath()))
-        ors.add(Restrictions.eq("pagePath", criteria.getPagepath()).ignoreCase());
-    }
-
-    if (ors != null) queryCriteria.add(Restrictions.or(ands, ors));
-    else queryCriteria.add(ands);
-
-    // Sorting
-    if (criteria.getSort() != null && criteria.getSort().getSortBy() != null) {
-      String field = PSCommentsService.SORTBY_FIELD_MAPPING.get(criteria.getSort().getSortBy());
-      boolean isAscending = criteria.getSort().isAscending();
-
-      if (isAscending) queryCriteria.addOrder(Order.asc(field));
-      else queryCriteria.addOrder(Order.desc(field));
-    } else {
-      // By default, sort by CREATEDATE in descending order
-      queryCriteria.addOrder(
-          Order.desc(PSCommentsService.SORTBY_FIELD_MAPPING.get(SORTBY.CREATEDDATE)));
-    }
-
-    // Max results
-    if (criteria.getMaxResults() > 0) queryCriteria.setMaxResults(criteria.getMaxResults());
-
-    // Start index
-    if (criteria.getStartIndex() > 0) queryCriteria.setFirstResult(criteria.getStartIndex());
-
-    // Unique entites
-    queryCriteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-  }
-
-  private Session getSession() {
-
-    return getSessionFactory().getCurrentSession();
   }
 }

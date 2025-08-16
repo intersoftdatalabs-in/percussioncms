@@ -31,11 +31,6 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-delivery-common</artifactId>
             <version>${project.parent.version}</version>
@@ -74,16 +69,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -161,20 +148,12 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.velocity</groupId>
-                    <artifactId>velocity</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>commons-lang</groupId>
                     <artifactId>commons-lang</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-betwixt</groupId>
@@ -185,6 +164,11 @@
                     <artifactId>xercesImpl</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

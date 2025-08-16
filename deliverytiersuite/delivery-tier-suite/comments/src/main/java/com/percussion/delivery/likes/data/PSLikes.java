@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple container. Its use is just to add a root element name for Jersey to spit out when
- * serializing to JSON.
+ * Container for a list of likes, used for serialization.
  *
  * @author davidpardini
  */

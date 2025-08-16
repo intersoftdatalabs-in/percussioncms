@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
 import com.percussion.delivery.comments.data.IPSComment;
@@ -57,8 +58,8 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.server.ContainerRequest;
@@ -85,7 +86,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Inject
   @Autowired
   public PSCommentsRestService(IPSCommentsService service) {
-    commentService = service;
+    this.commentService = service;
   }
 
   @HEAD
@@ -113,20 +114,20 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Consumes(MediaType.APPLICATION_JSON)
   public PSComments getComments(PSCommentCriteria criteria) {
     if (criteria == null) {
-      log.error("criteria cannot be null.");
+      PSCommentsRestService.log.error("criteria cannot be null.");
       throw new IllegalArgumentException("criteria cannot be null.");
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Criteria in the service is : {}", criteria.toJSON());
+    if (PSCommentsRestService.log.isDebugEnabled()) {
+      PSCommentsRestService.log.debug("Criteria in the service is : {}", criteria.toJSON());
     }
     try {
-      return toRestComments(commentService.getComments(criteria, false));
+      return this.toRestComments(this.commentService.getComments(criteria, false));
     } catch (Exception e) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while getting comments!, Error: {}",
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
       throw new WebApplicationException(e, Response.serverError().build());
     }
@@ -142,19 +143,19 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Produces("application/json")
   public PSComments getCommentsAsModerator(PSCommentCriteria criteria) {
     if (criteria == null) {
-      log.error("criteria cannot be null.");
+      PSCommentsRestService.log.error("criteria cannot be null.");
       throw new IllegalArgumentException("criteria cannot be null.");
     }
-    if (log.isDebugEnabled()) {
-      log.debug("Criteria in the service is :{}", criteria.toJSON());
+    if (PSCommentsRestService.log.isDebugEnabled()) {
+      PSCommentsRestService.log.debug("Criteria in the service is :{}", criteria.toJSON());
     }
     try {
-      return toRestComments(commentService.getComments(criteria, true));
+      return this.toRestComments(this.commentService.getComments(criteria, true));
     } catch (Exception e) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while getting comments as moderator!, Error: {}",
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
       throw new WebApplicationException(e, Response.serverError().build());
     }
@@ -171,36 +172,38 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   public GenericEntity getCommentsP(PSCommentCriteria criteria) {
     try {
       if (criteria.getCallback() == null || criteria.getCallback().isEmpty())
-        criteria.setCallback(CALLBACK_FN);
+        criteria.setCallback(PSCommentsRestService.CALLBACK_FN);
 
       if (StringUtils.isNotBlank(criteria.getSortby())) {
         boolean asc =
             StringUtils.isNotBlank(criteria.getAscending())
-                && criteria.getAscending().equalsIgnoreCase("true");
-        PSCommentSort commentSort = new PSCommentSort(getSortBy(criteria.getSortby()), asc);
+                && "true".equalsIgnoreCase(criteria.getAscending());
+        PSCommentSort commentSort = new PSCommentSort(this.getSortBy(criteria.getSortby()), asc);
         criteria.setSort(commentSort);
       }
 
-      validateCallback(criteria.getCallback());
+      this.validateCallback(criteria.getCallback());
 
-      PSComments results = getComments(criteria);
+      PSComments results = this.getComments(criteria);
       for (IPSComment ipc : results.getComments()) {
         String cDate =
-            FastDateFormat.getInstance(iso8601ExtendedString).format(ipc.getCreatedDate());
+            FastDateFormat.getInstance(PSCommentsRestService.iso8601ExtendedString)
+                .format(ipc.getCreatedDate());
         ipc.setCommentCreatedDate(cDate);
       }
 
       return new GenericEntity<PSComments>(results) {};
 
     } catch (IllegalArgumentException e) {
-      log.error("Illegal Argument Exception!, Error: {}", PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.error(
+          "Illegal Argument Exception!, Error: {}", PSExceptionUtils.getMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new PSBadRequestException(e.getLocalizedMessage());
     }
   }
 
   private void validateCallback(String callback) {
-    if (!CALLBACK_FN.equals(callback))
+    if (!PSCommentsRestService.CALLBACK_FN.equals(callback))
       throw new IllegalArgumentException("Invalid callback parameter supplied");
   }
 
@@ -214,7 +217,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       if (sortbyval.name().equals(sortby)) return PSCommentSort.SORTBY.valueOf(sortby);
     }
 
-    log.error("Illegal Argument Exception! : Invalid sortby parameter supplied.");
+    PSCommentsRestService.log.error(
+        "Illegal Argument Exception! : Invalid sortby parameter supplied.");
     throw new IllegalArgumentException("Invalid sortby parameter supplied");
   }
 
@@ -227,11 +231,11 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     try {
       return Integer.parseInt(strInt);
     } catch (NumberFormatException e) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Number Format Exception! - Invalid {} parameter supplied, Error: {}",
           paramName,
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new IllegalArgumentException("Invalid " + paramName + " parameter supplied");
     }
   }
@@ -246,7 +250,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       if (approvalVal.name().equals(state)) return APPROVAL_STATE.valueOf(state);
     }
 
-    log.error("Illegal Argument Exception! - Invalid parameter supplied.");
+    PSCommentsRestService.log.error("Illegal Argument Exception! - Invalid parameter supplied.");
     throw new IllegalArgumentException("Invalid state parameter supplied");
   }
 
@@ -268,8 +272,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       try {
         max = criteria.getMaxResults();
       } catch (NumberFormatException ignore) {
-        log.error("Number Format Exception!, Error: {}", ignore.getMessage());
-        log.debug(ignore.getMessage(), ignore);
+        PSCommentsRestService.log.error("Number Format Exception!, Error: {}", ignore.getMessage());
+        PSCommentsRestService.log.debug(ignore.getMessage(), ignore);
       }
     }
     int start = -1;
@@ -277,17 +281,17 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       try {
         start = criteria.getStartIndex();
       } catch (NumberFormatException ignore) {
-        log.error("Number Format Exception!, Error: {}", ignore.getMessage());
-        log.debug(ignore.getMessage(), ignore);
+        PSCommentsRestService.log.error("Number Format Exception!, Error: {}", ignore.getMessage());
+        PSCommentsRestService.log.debug(ignore.getMessage(), ignore);
       }
     }
     try {
-      return commentService.getPagesWithComments(site, max, start);
+      return this.commentService.getPagesWithComments(site, max, start);
     } catch (Exception e) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while getting pages with comments, Error: {}",
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());
     }
   }
@@ -307,16 +311,16 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     Form form = (Form) containerRequest.getProperty(InternalServerProperties.FORM_DECODED_PROPERTY);
     MultivaluedMap<String, String> params = form.asMap();
     PSRestComment comment = new PSRestComment();
-    comment.setUsername(params.getFirst(FORM_PARAM_USERNAME));
-    comment.setPagePath(params.getFirst(FORM_PARAM_PAGEPATH));
-    comment.setSite(params.getFirst(FORM_PARAM_SITE));
-    comment.setEmail(params.getFirst(FORM_PARAM_EMAIL));
-    comment.setText(params.getFirst(FORM_PARAM_TEXT));
-    comment.setUrl(params.getFirst(FORM_PARAM_URL));
-    comment.setTitle(params.getFirst(FORM_PARAM_TITLE));
-    List<String> tags = params.get(FORM_PARAM_TAGS);
+    comment.setUsername(params.getFirst(IPSCommentRestService.FORM_PARAM_USERNAME));
+    comment.setPagePath(params.getFirst(IPSCommentRestService.FORM_PARAM_PAGEPATH));
+    comment.setSite(params.getFirst(IPSCommentRestService.FORM_PARAM_SITE));
+    comment.setEmail(params.getFirst(IPSCommentRestService.FORM_PARAM_EMAIL));
+    comment.setText(params.getFirst(IPSCommentRestService.FORM_PARAM_TEXT));
+    comment.setUrl(params.getFirst(IPSCommentRestService.FORM_PARAM_URL));
+    comment.setTitle(params.getFirst(IPSCommentRestService.FORM_PARAM_TITLE));
+    List<String> tags = params.get(IPSCommentRestService.FORM_PARAM_TAGS);
     if (StringUtils.isBlank(comment.getPagePath()) || StringUtils.isBlank(comment.getSite())) {
-      log.error("pagepath or site cannot be null or empty.");
+      PSCommentsRestService.log.error("pagepath or site cannot be null or empty.");
       throw new WebApplicationException(
           new IllegalArgumentException("pagepath and site cannot be null or empty"),
           Response.serverError().build());
@@ -326,8 +330,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
      * if the hidden Honeypot field isn't empty, it was likely filled out by a robot. we can return
      * a successful response to indicate normal behavior to trick the bot.
      */
-    if (!StringUtils.isBlank(params.getFirst(FORM_PARAM_HONEYPOT))) {
-      log.debug(
+    if (!StringUtils.isBlank(params.getFirst(IPSCommentRestService.FORM_PARAM_HONEYPOT))) {
+      PSCommentsRestService.log.debug(
           "Detected hidden honeypot field was filled out.  Ignoring comment -- see request headers"
               + " below.");
       String referer = headerParams.getFirst("Referer");
@@ -335,26 +339,27 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       try {
         loc = new URI(referer);
       } catch (URISyntaxException e) {
-        log.error(
+        PSCommentsRestService.log.error(
             "Error creating redirect in Honeypot detection with message, Error: {}",
             PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         throw new WebApplicationException(e, Response.serverError().build());
       }
       return Response.seeOther(loc).build();
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Http Header in the service is : {}", headers.getRequestHeaders());
+    if (PSCommentsRestService.log.isDebugEnabled()) {
+      PSCommentsRestService.log.debug(
+          "Http Header in the service is : {}", headers.getRequestHeaders());
     }
 
     if (tags != null && tags.size() > 0) {
-      comment.setTags(new HashSet<>(params.get(FORM_PARAM_TAGS)));
+      comment.setTags(new HashSet<>(params.get(IPSCommentRestService.FORM_PARAM_TAGS)));
     }
     try {
 
       PSComment comm = new PSComment(comment);
-      IPSComment newComment = commentService.addComment(comment);
+      IPSComment newComment = this.commentService.addComment(comment);
       String referer = headerParams.getFirst("Referer");
       if (referer != null
           && comment.getPagePath() != null
@@ -369,16 +374,16 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
         referer = referer.substring(0, commentIndex);
       }
       URI loc = new URI(referer + "?lastCommentId=" + newComment.getId());
-      if (log.isDebugEnabled()) {
-        log.debug("URI obtained is : {}", loc.toString());
+      if (PSCommentsRestService.log.isDebugEnabled()) {
+        PSCommentsRestService.log.debug("URI obtained is : {}", loc.toString());
       }
 
       return Response.seeOther(loc).build();
     } catch (Exception e) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while adding comment, Error: {}",
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());
     }
   }
@@ -392,10 +397,11 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Path("/moderation/delete")
   public void delete(PSCommentIds commentIds) {
     try {
-      commentService.deleteComments(commentIds.getComments());
+      this.commentService.deleteComments(commentIds.getComments());
     } catch (Exception ex) {
-      log.error("Exception occurred while deleting, Error: {}", ex.getMessage());
-      log.debug(ex.getMessage(), ex);
+      PSCommentsRestService.log.error(
+          "Exception occurred while deleting, Error: {}", ex.getMessage());
+      PSCommentsRestService.log.debug(ex.getMessage(), ex);
       throw new WebApplicationException(ex, Response.serverError().build());
     }
   }
@@ -409,10 +415,11 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Path("/moderation/approve")
   public void approve(PSCommentIds commentIds) {
     try {
-      commentService.approveComments(commentIds.getComments());
+      this.commentService.approveComments(commentIds.getComments());
     } catch (Exception ex) {
-      log.error("Exception occurred while approving comments, Error: {}", ex.getMessage());
-      log.debug(ex.getMessage(), ex);
+      PSCommentsRestService.log.error(
+          "Exception occurred while approving comments, Error: {}", ex.getMessage());
+      PSCommentsRestService.log.debug(ex.getMessage(), ex);
       throw new WebApplicationException(ex, Response.serverError().build());
     }
   }
@@ -426,10 +433,11 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Path("/moderation/reject")
   public void reject(PSCommentIds commentIds) {
     try {
-      commentService.rejectComments(commentIds.getComments());
+      this.commentService.rejectComments(commentIds.getComments());
     } catch (Exception ex) {
-      log.error("Exception occurred while rejecting comments, Error: {}", ex.getMessage());
-      log.debug(ex.getMessage(), ex);
+      PSCommentsRestService.log.error(
+          "Exception occurred while rejecting comments, Error: {}", ex.getMessage());
+      PSCommentsRestService.log.debug(ex.getMessage(), ex);
       throw new WebApplicationException(ex, Response.serverError().build());
     }
   }
@@ -445,15 +453,16 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     try {
       String site = (String) data.get("site");
       String state = (String) data.get("state");
-      if (log.isDebugEnabled()) {
-        log.debug("Site in the map data is : {} and state in the map data is : {}", site, state);
+      if (PSCommentsRestService.log.isDebugEnabled()) {
+        PSCommentsRestService.log.debug(
+            "Site in the map data is : {} and state in the map data is : {}", site, state);
       }
 
-      commentService.setDefaultModerationState(site, APPROVAL_STATE.valueOf(state));
+      this.commentService.setDefaultModerationState(site, APPROVAL_STATE.valueOf(state));
     } catch (Exception ex) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while setting default moderation state, Error: {}", ex.getMessage());
-      log.debug(ex.getMessage(), ex);
+      PSCommentsRestService.log.debug(ex.getMessage(), ex);
       throw new WebApplicationException(ex, Response.serverError().build());
     }
   }
@@ -466,11 +475,11 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Path("/defaultModerationState/{site}")
   public String getDefaultModerationState(@PathParam("site") String site) {
     try {
-      return commentService.getDefaultModerationState(site).toString();
+      return this.commentService.getDefaultModerationState(site).toString();
     } catch (Exception ex) {
-      log.error(
+      PSCommentsRestService.log.error(
           "Exception occurred while getting default moderation state, Error: {}", ex.getMessage());
-      log.debug(ex.getMessage(), ex);
+      PSCommentsRestService.log.debug(ex.getMessage(), ex);
       throw new WebApplicationException(ex, Response.serverError().build());
     }
   }
@@ -494,11 +503,12 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     return results;
   }
 
+  @Override
   public String getVersion() {
 
     String version = super.getVersion();
 
-    log.info("getVersion() from PSCommentsRestService ...{}", version);
+    PSCommentsRestService.log.info("getVersion() from PSCommentsRestService ...{}", version);
 
     return version;
   }
@@ -509,10 +519,10 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @RolesAllowed("deliverymanager")
   @Override
   public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
-    log.info("Attempting to update comments for site name: {}", prevSiteName);
-    boolean result = commentService.updateCommentsForRenameSite(prevSiteName, newSiteName);
+    PSCommentsRestService.log.info("Attempting to update comments for site name: {}", prevSiteName);
+    boolean result = this.commentService.updateCommentsForRenameSite(prevSiteName, newSiteName);
     if (!result) {
-      log.error("Error updating comments for site: {}", prevSiteName);
+      PSCommentsRestService.log.error("Error updating comments for site: {}", prevSiteName);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
     return Response.status(Response.Status.NO_CONTENT).build();

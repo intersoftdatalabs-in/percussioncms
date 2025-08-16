@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,7 +18,7 @@
 package com.percussion.delivery.likes.data;
 
 /**
- * A simple bean class to hold basic page/likes summary info.
+ * Bean class to hold basic page/likes summary info.
  *
  * @author davidpardini
  */

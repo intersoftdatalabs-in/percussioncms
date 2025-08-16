@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.tomcat.valves;
 
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static jakarta.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
 import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
