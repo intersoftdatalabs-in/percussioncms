@@ -22,9 +22,8 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
- * The tree render controls the behavior on screen. This one returns the
- * rendered component if the tree contains an instance of
- * <code>PSCheckBoxTreeNode</code>.
+ * The tree render controls the behavior on screen. This one returns the rendered component if the
+ * tree contains an instance of <code>PSCheckBoxTreeNode</code>.
  */
 public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer
     implements IPSCheckboxTreeRenderer {
@@ -66,14 +65,9 @@ public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer
     else m_parameters = parameters;
   }
 
-  /**
-   * The extra parameters set for this renderer, never <code>null</code>, may
-   * be empty.
-   */
+  /** The extra parameters set for this renderer, never <code>null</code>, may be empty. */
   private Map<String, String> m_parameters = new HashMap<>();
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = -5871298110935968333L;
 }

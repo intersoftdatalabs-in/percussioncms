@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,15 +72,7 @@ public class PSCommentsServiceTest {
   @BeforeEach
   public void setUp() throws Exception {
     final PSComments comments = this.commentService.getComments(new PSCommentCriteria(), false);
-    this.commentService.deleteComments(this.getCommnetIds(comments));
-  }
-
-  private List<String> getCommnetIds(final PSComments comments) {
-    final List<String> commnetIds = new ArrayList<>();
-    final List<IPSComment> comm = comments.getComments();
-    for (final IPSComment cmt : comm) {
-      commnetIds.add(cmt.getId());
-    return commnetIds;
+    this.commentService.deleteComments(this.getCommentIds(comments));
   }
 
   private List<String> getCommentIds(final PSComments comments) {

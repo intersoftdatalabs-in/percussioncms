@@ -30,36 +30,23 @@ import javax.swing.tree.TreeSelectionModel;
 
 /**
  * An xml driven tree applet designed for use as Rhythmyx custom control.
- * <p>
- * This applet is intended to be extensible by any of the following:
+ *
+ * <p>This applet is intended to be extensible by any of the following:
+ *
  * <ol>
- *    <li>
- *    Creating a new <code>IPSCheckboxTreeListener</code> implementation that
- *    handles special behavior. To use a custom listerner one must override
- *    {@link #makeListener(JTree)}.
- *    </li>
- *    <li>
- *    Creating a new <code>IPSCheckboxTreeRenderer</code> implementation that
- *    renders different. To use a custom renderer one must
- *    override {@link #makeRenderer()}.
- *    </li>
- *    <li>
- *    Change the applets look and feel, which defaults to the system look and
- *    feel. To use a custom look and feel one must override
- *    {@link #initializeLookAndFeel()}.
- *    </li>
- *    <li>
- *    Addition of extra parameters that will be passed to the renderer and
- *    listener implementations. Subclasses with extra parameters should also
- *    override the {@link #getParameterInfo()} and {@link #getExtraParameters()}
- *    methods.
- *    </li>
+ *   <li>Creating a new <code>IPSCheckboxTreeListener</code> implementation that handles special
+ *       behavior. To use a custom listerner one must override {@link #makeListener(JTree)}.
+ *   <li>Creating a new <code>IPSCheckboxTreeRenderer</code> implementation that renders different.
+ *       To use a custom renderer one must override {@link #makeRenderer()}.
+ *   <li>Change the applets look and feel, which defaults to the system look and feel. To use a
+ *       custom look and feel one must override {@link #initializeLookAndFeel()}.
+ *   <li>Addition of extra parameters that will be passed to the renderer and listener
+ *       implementations. Subclasses with extra parameters should also override the {@link
+ *       #getParameterInfo()} and {@link #getExtraParameters()} methods.
  * </ol>
  */
 public class PSCheckboxTreeApplet extends JApplet implements Runnable {
-  /**
-   * Initialize the applet and load the tree.
-   */
+  /** Initialize the applet and load the tree. */
   @Override
   public void init() {
     super.init();
@@ -114,8 +101,8 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
    * Convenience method for obtaining parameters.
    *
    * @param key name of the system property, not <code>null</code> or empty.
-   * @param def the default value is returned if the specified key is not
-   *    found, may be <code>null</code> or empty.
+   * @param def the default value is returned if the specified key is not found, may be <code>null
+   *     </code> or empty.
    */
   protected String getParameter(String key, String def) {
     if (key == null || key.trim().length() == 0)
@@ -127,9 +114,9 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Creates the listener for this tree. Subclasses of this applet that
-   * implement special behavior must override this method to create a
-   * different <code>IPSCheckboxTreeListener</code> implementation.
+   * Creates the listener for this tree. Subclasses of this applet that implement special behavior
+   * must override this method to create a different <code>IPSCheckboxTreeListener</code>
+   * implementation.
    *
    * @param tree the tree to monitor, not <code>null</code>.
    * @return the listener for this tree, never <code>null</code>.
@@ -144,9 +131,9 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Creates the renderer for this tree. Subclasses of this applet that
-   * implement a different look and feel must override this method to create
-   * a different <code>IPSCheckboxTreeRender</code> implementation.
+   * Creates the renderer for this tree. Subclasses of this applet that implement a different look
+   * and feel must override this method to create a different <code>IPSCheckboxTreeRender</code>
+   * implementation.
    *
    * @return the tree renderer, never <code>null</code>.
    */
@@ -158,9 +145,8 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Process any extra parameters. The base implementation does not use any
-   * extra parameters. Subclasses must override this if extra parameters are
-   * required.
+   * Process any extra parameters. The base implementation does not use any extra parameters.
+   * Subclasses must override this if extra parameters are required.
    *
    * @return a map of extra parameters, never <code>null</code>, may be empty.
    */
@@ -171,13 +157,12 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Gets the list of selected nodes, as a semicolon delimited list of node
-   * ids. The String may be empty, but never <code>null</code>. This method
-   * is intended to be called from <code>JavaScript</code> when the page
-   * submit button is pushed.
+   * Gets the list of selected nodes, as a semicolon delimited list of node ids. The String may be
+   * empty, but never <code>null</code>. This method is intended to be called from <code>JavaScript
+   * </code> when the page submit button is pushed.
    *
-   * @return the list of selected node ids as semicolon delimited string,
-   *    never <code>null</code>, may be empty.
+   * @return the list of selected node ids as semicolon delimited string, never <code>null</code>,
+   *     may be empty.
    */
   public String getSelected() {
     List<String> selected = getSelectedNodes();
@@ -193,9 +178,7 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
     return !m_selectedItems.equals(getSelected());
   }
 
-  /**
-   * Start the applet.
-   */
+  /** Start the applet. */
   @Override
   public void start() {
     /*
@@ -206,29 +189,23 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
     SwingUtilities.invokeLater(this);
   }
 
-  /**
-   * Stop the applet.
-   */
+  /** Stop the applet. */
   @Override
   public void stop() {}
 
-  /**
-   * Destroy the applet.
-   */
+  /** Destroy the applet. */
   @Override
   public void destroy() {}
 
-  /**
-   * Get Applet information.
-   */
+  /** Get Applet information. */
   @Override
   public String getAppletInfo() {
     return "Percussion Rhythmyx CheckboxTree Control";
   }
 
   /**
-   * Get the parameter info in a printable form. Subclasses which use extra
-   * parameters should also override this method.
+   * Get the parameter info in a printable form. Subclasses which use extra parameters should also
+   * override this method.
    */
   @Override
   public String[][] getParameterInfo() {
@@ -242,8 +219,8 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Sets the selected nodes. All nodes whose <code>id</code> matches any
-   * element of this list will be selected.
+   * Sets the selected nodes. All nodes whose <code>id</code> matches any element of this list will
+   * be selected.
    *
    * @param selectList the node ids to select, assumed not <code>null</code>.
    */
@@ -267,8 +244,7 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   /**
    * Walk the node tree listing all selected node ids.
    *
-   * @return all selected node ids, may be <code>empty</code> but not
-   *    <code>null</code>.
+   * @return all selected node ids, may be <code>empty</code> but not <code>null</code>.
    */
   private List<String> getSelectedNodes() {
     List<String> selectedList = new ArrayList<>();
@@ -288,10 +264,9 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   /**
    * Get a list of tokens for the supplied comma or semicolon delimited string.
    *
-   * @param delimitedString the comma or semicolon delimited string,
-   *    not <code>null</code>, may be empty.
-   * @return a list of tokens, may be <code>empty</code> but never
-   *    <code>null</code>.
+   * @param delimitedString the comma or semicolon delimited string, not <code>null</code>, may be
+   *     empty.
+   * @return a list of tokens, may be <code>empty</code> but never <code>null</code>.
    */
   public static List<String> getTokens(String delimitedString) {
     if (delimitedString == null)
@@ -308,10 +283,9 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   /**
    * Produce a semicolon delimited string from the supplied tokens.
    *
-   * @param tokens the tokens from which to create a semicolon delimited
-   *    string, may be <code>null</code>.
-   * @return the values concatenated into a single string, never
-   *    <code>null</code>, may be empty.
+   * @param tokens the tokens from which to create a semicolon delimited string, may be <code>null
+   *     </code>.
+   * @return the values concatenated into a single string, never <code>null</code>, may be empty.
    */
   public static String listToString(List<String> tokens) {
     StringBuilder delimitedString = new StringBuilder();
@@ -330,17 +304,12 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
     return delimitedString.toString();
   }
 
-  /**
-   * Update the component tree UI with the look and feel of this applet.
-   */
+  /** Update the component tree UI with the look and feel of this applet. */
   public void run() {
     SwingUtilities.updateComponentTreeUI(this);
   }
 
-  /**
-   * Initialize the look and feel for this applet. Uses the look and feel of
-   * the current system.
-   */
+  /** Initialize the look and feel for this applet. Uses the look and feel of the current system. */
   protected void initializeLookAndFeel() {
     UIManager.put("ClassLoader", PSCheckboxTreeApplet.class.getClassLoader());
     try {
@@ -375,73 +344,60 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   }
 
   /**
-   * Extra Parameters for this tree applet. Not used in the base
-   * implementation, but may be used by subclasses. Initialized by
-   * {@link #getExtraParameters()}, never <code>null</code> or changed after
-   * that.
+   * Extra Parameters for this tree applet. Not used in the base implementation, but may be used by
+   * subclasses. Initialized by {@link #getExtraParameters()}, never <code>null</code> or changed
+   * after that.
    */
   protected Map<String, String> m_parameters = null;
 
-  /**
-   * Is this a standalone invocation, used for testing only.
-   */
+  /** Is this a standalone invocation, used for testing only. */
   private boolean m_isStandalone = false;
 
   /**
-   * The list of selected items, never <code>null</code>, may be empty after
-   * applet initialization.
+   * The list of selected items, never <code>null</code>, may be empty after applet initialization.
    */
   private String m_selectedItems;
 
   /**
-   * The URL of the definition tree. The xml file at this URL is loaded during
-   * applet initialzation, never <code>null</code>, may be empty after that.
+   * The URL of the definition tree. The xml file at this URL is loaded during applet initialzation,
+   * never <code>null</code>, may be empty after that.
    */
   private String m_treeURL;
 
   /**
-   * Is this applet read only. The Applet will still expand and collapse, but
-   * the selection cannot be changed if this is <code>true</code>.
+   * Is this applet read only. The Applet will still expand and collapse, but the selection cannot
+   * be changed if this is <code>true</code>.
    */
   private boolean m_isReadonly = false;
 
-  /**
-   * The tree that controls the main behavior, never <code>null</code>.
-   */
+  /** The tree that controls the main behavior, never <code>null</code>. */
   private JTree m_tree = new JTree();
 
   /**
-   * This pane holds the optional scrollbars. The scrollbars are not normally
-   * visible unless the xml supplied specifies a larger amount of data than the
-   * allocated size of the applet.
+   * This pane holds the optional scrollbars. The scrollbars are not normally visible unless the xml
+   * supplied specifies a larger amount of data than the allocated size of the applet.
    */
   private JScrollPane m_treeScrollpane = new JScrollPane(m_tree);
 
   /**
-   * Listener for this applet, initialized wit the applet initialization. May
-   * be <code>null</code> if started in readonly mode.
+   * Listener for this applet, initialized wit the applet initialization. May be <code>null</code>
+   * if started in readonly mode.
    */
   private IPSCheckboxTreeListener m_listener = null;
 
   /**
-   * Renderer for this applet, initialized with the applet initialization,
-   * never <code>null</code> after that.
+   * Renderer for this applet, initialized with the applet initialization, never <code>null</code>
+   * after that.
    */
   private IPSCheckboxTreeRenderer m_renderer = null;
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = -2234401999372713865L;
 
-  /**
-   * Base resource file location, used for testing in standalone mode.
-   */
+  /** Base resource file location, used for testing in standalone mode. */
   private static final String RESOURCE_BASE =
       "UnitTestResources/com/percussion/controls/contenteditor/checkboxtree/";
 
-  /**
-   * The tree definition file used for testing in standalone mode.
-   */
+  /** The tree definition file used for testing in standalone mode. */
   private static final String TREEDEF_FILE = "treedef.xml";
 }

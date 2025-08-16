@@ -28,9 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-/**
- * Tree model with extensions for loading the model data from an xml document.
- */
+/** Tree model with extensions for loading the model data from an xml document. */
 public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
 
   private static final Logger log = LogManager.getLogger(PSCheckboxTreeModel.class);
@@ -39,10 +37,10 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
    * Construct and populate the tree model.
    *
    * @param baseURL the base URL of the Applet, not <code>null</code>.
-   * @param docUrlStr the URL string where the xml definition document is
-   *    found, not <code>null</code> or empty.
-   * @param psSessionId the value of "pssessionid" applet parameter. It may
-   * be <code>null</code> or empty if the parameter is not defined.
+   * @param docUrlStr the URL string where the xml definition document is found, not <code>null
+   *     </code> or empty.
+   * @param psSessionId the value of "pssessionid" applet parameter. It may be <code>null</code> or
+   *     empty if the parameter is not defined.
    */
   public PSCheckboxTreeModel(URL baseURL, String docUrlStr, String psSessionId) {
     super(new PSCheckboxTreeRootNode());
@@ -55,8 +53,8 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
    * Load the tree model.
    *
    * @param baseURL the base URL of the applet, not <code>null</code>.
-   * @param docUrlStr the URL string where the xml definition document is
-   *    found, not <code>null</code> or empty.
+   * @param docUrlStr the URL string where the xml definition document is found, not <code>null
+   *     </code> or empty.
    */
   private void loadModel(URL baseURL, String docUrlStr) {
     if (baseURL == null) throw new IllegalArgumentException("baseURL cannot be null");
@@ -84,28 +82,25 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
   }
 
   /**
-   * Append PS Session ID parameter to the query string of the specified URL.
-   * Do nothing if the URL is used to request the PS Session ID.
-   * This is needed for Firefox in the following scenario:
+   * Append PS Session ID parameter to the query string of the specified URL. Do nothing if the URL
+   * is used to request the PS Session ID. This is needed for Firefox in the following scenario:
+   *
    * <UL>
-   * <LI> Bring up Firefox, login CX
-   * <LI> JSESSIONID and/or PS Session expired (due to either server
-   *      restart or session expired (more than 2 hours, for example)
-   * <LI> Bring a new (after close down the current) Firefox session or refresh
-   *      the same Firefox window, login CX, get new JSESSIONID (and
-   *      pssessionid)
-   * <LI> perform some operation in CX (for example, bring up an Content Editor
-   * <LI> Some of the request from java applet may not have the
-   *      authenticated cookie, which is retained from step [3].
+   *   <LI>Bring up Firefox, login CX
+   *   <LI>JSESSIONID and/or PS Session expired (due to either server restart or session expired
+   *       (more than 2 hours, for example)
+   *   <LI>Bring a new (after close down the current) Firefox session or refresh the same Firefox
+   *       window, login CX, get new JSESSIONID (and pssessionid)
+   *   <LI>perform some operation in CX (for example, bring up an Content Editor
+   *   <LI>Some of the request from java applet may not have the authenticated cookie, which is
+   *       retained from step [3].
    * </UL>
-   * <p>
-   * Note, this will not be called when requesting the PS Session ID for the
-   * current applet session.
+   *
+   * <p>Note, this will not be called when requesting the PS Session ID for the current applet
+   * session.
    *
    * @param url the URL in question, assumed not <code>null</code>.
-   *
-   * @return the URL that has appended PS Session ID parameter. It can never
-   * be <code>null</code>.
+   * @return the URL that has appended PS Session ID parameter. It can never be <code>null</code>.
    */
   private URL appendPsSessionId(URL url) {
     String sUrl = url.toString();
@@ -126,11 +121,9 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
   }
 
   /**
-   * Sets the PS Session ID if the specified session ID is not
-   * <code>null</code> or empty.
+   * Sets the PS Session ID if the specified session ID is not <code>null</code> or empty.
    *
-   * @param psSessionId the possible new session ID. It may be
-   * <code>null</code> or empty.
+   * @param psSessionId the possible new session ID. It may be <code>null</code> or empty.
    */
   private void setPsSessionId(String psSessionId) {
     // set the PS Session ID if there is one.
@@ -172,11 +165,10 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
   }
 
   /**
-   * Sends a request to server with the specified URL and return the
-   * the response from byte array to string.
+   * Sends a request to server with the specified URL and return the the response from byte array to
+   * string.
    *
    * @param url the request URL, assumed not <code>null</code>.
-   *
    * @return the response of the request, never <code>null</code>.
    */
   private String getResponse(URL url) {
@@ -195,18 +187,14 @@ public class PSCheckboxTreeModel extends DefaultTreeModel implements TreeModel {
   }
 
   /**
-   * The current PS Session ID. Default to <code>null</code> if has not been
-   * set for current applet session.
+   * The current PS Session ID. Default to <code>null</code> if has not been set for current applet
+   * session.
    */
   private String m_psSessionId = null;
 
-  /**
-   * The URL used to retrieve the PS Session ID from server.
-   */
+  /** The URL used to retrieve the PS Session ID from server. */
   private static String GET_SESSIONID_URL = "/util/getPSSessionID.jsp";
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = 6374466631198834418L;
 }
