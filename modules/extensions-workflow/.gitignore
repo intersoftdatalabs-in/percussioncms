@@ -1,5 +1,8 @@
 # os
 **/.DS_Store
+.dcignore
+.dccache
+Thumbs.db
 
 # maven
 **/target
