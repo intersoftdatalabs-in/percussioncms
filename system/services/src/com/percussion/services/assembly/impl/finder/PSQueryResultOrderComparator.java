@@ -24,9 +24,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.Value;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
 /**
  * Record and use query result information in sorting the slot items. The

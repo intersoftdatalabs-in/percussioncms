@@ -18,7 +18,7 @@ package com.percussion.workflow;
 
 import com.percussion.util.PSPreparedStatement;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;

@@ -20,7 +20,7 @@ import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.PSUserSummary;
 import java.util.List;
 
-import jakarta.ws.rs.Path;
+import javax.ws.rs.Path;
 
 /**
  * The membership service is used to store, retrieve and locate members. 

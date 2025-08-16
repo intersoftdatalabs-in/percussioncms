@@ -31,9 +31,9 @@ import javafx.scene.web.WebEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.ImageIcon; // TODO: JAVAX-11
-import javax.swing.JFrame; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;

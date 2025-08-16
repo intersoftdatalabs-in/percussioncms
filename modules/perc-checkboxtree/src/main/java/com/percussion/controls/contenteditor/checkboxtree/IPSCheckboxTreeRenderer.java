@@ -15,7 +15,7 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.tree.TreeCellRenderer; // TODO: JAVAX-11
+import javax.swing.tree.TreeCellRenderer;
 
 /**
  * Renderer interface that allows users to set and use extra parameters. These 

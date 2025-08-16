@@ -13,7 +13,7 @@ import com.percussion.installer.model.PSDeliveryTierInstallOptionModel;
 
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
-import javax.swing.JTextArea; // TODO: JAVAX-11
+import javax.swing.JTextArea;
 
 /***
  * Displays the panel for selecting a new or upgrade install.

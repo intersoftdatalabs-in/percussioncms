@@ -49,13 +49,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

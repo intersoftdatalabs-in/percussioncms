@@ -34,7 +34,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Provider;
 
 /**
  * Implements {@link IPSIdMapper}.

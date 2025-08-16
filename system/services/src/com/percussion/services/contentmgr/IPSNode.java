@@ -21,9 +21,9 @@ import com.percussion.utils.jsr170.IPSJcrCacheItem;
 
 import java.util.List;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 
 /**
  * Extended JCR node with added functionality

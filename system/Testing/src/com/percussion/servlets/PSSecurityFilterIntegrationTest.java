@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.List;
 

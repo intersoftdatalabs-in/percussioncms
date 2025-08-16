@@ -43,12 +43,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Templates; // TODO: JAVAX-11
-import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

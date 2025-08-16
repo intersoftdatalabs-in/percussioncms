@@ -19,8 +19,8 @@ package com.percussion.utils.jsr170;
 
 import com.percussion.utils.beans.PSPropertyWrapper;
 
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.PropertyIterator; // TODO: JAVAX-11
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import java.util.Map;
 
 /**

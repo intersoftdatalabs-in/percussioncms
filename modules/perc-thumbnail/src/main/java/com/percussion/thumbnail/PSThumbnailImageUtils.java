@@ -23,10 +23,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import javax.imageio.IIOImage; // TODO: JAVAX-11
-import javax.imageio.ImageIO; // TODO: JAVAX-11
-import javax.imageio.ImageWriter; // TODO: JAVAX-11
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam; // TODO: JAVAX-11
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

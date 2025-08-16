@@ -18,7 +18,7 @@ package com.percussion.pathmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This class is posted to the rest service as part of a request to move 

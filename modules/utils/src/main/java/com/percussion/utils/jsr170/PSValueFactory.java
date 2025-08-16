@@ -18,12 +18,12 @@ package com.percussion.utils.jsr170;
 
 import com.percussion.utils.io.PSReaderInputStream;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFactory; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFactory;
+import javax.jcr.ValueFormatException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

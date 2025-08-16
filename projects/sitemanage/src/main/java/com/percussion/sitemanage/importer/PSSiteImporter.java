@@ -40,13 +40,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.HostnameVerifier; // TODO: JAVAX-11
-import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
-import javax.net.ssl.SSLContext; // TODO: JAVAX-11
-import javax.net.ssl.SSLSession; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.TrustManager; // TODO: JAVAX-11
-import javax.net.ssl.X509TrustManager; // TODO: JAVAX-11
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;

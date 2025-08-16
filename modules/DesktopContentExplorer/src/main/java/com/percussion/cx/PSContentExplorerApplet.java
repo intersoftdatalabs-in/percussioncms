@@ -56,9 +56,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.text.DefaultEditorKit; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

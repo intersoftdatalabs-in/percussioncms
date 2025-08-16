@@ -23,7 +23,7 @@ import static org.apache.commons.lang.StringUtils.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

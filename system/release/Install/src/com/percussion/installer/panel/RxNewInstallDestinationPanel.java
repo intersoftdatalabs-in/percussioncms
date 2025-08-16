@@ -22,7 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.JFileChooser; // TODO: JAVAX-11
+import javax.swing.JFileChooser;
 
 /**
  * Panel for RxNewInstallDestinationModel.

@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import jakarta.activation.DataSource;
+import javax.activation.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

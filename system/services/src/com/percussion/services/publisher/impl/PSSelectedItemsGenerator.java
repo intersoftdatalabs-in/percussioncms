@@ -38,8 +38,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.Value;
+import javax.jcr.query.QueryResult;
 
 import org.apache.commons.lang.StringUtils;
 

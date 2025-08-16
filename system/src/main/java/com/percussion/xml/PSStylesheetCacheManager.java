@@ -22,9 +22,9 @@ import com.percussion.data.PSTransformErrorListener;
 import com.percussion.extension.PSExtensionProcessingException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.transform.ErrorListener; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactoryConfigurationError; // TODO: JAVAX-11
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

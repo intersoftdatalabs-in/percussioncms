@@ -22,7 +22,7 @@ import com.percussion.cx.objectstore.PSMenuAction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.swing.SwingUtilities;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;

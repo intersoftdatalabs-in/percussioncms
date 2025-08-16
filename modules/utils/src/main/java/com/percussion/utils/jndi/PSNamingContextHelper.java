@@ -18,9 +18,9 @@ package com.percussion.utils.jndi;
 
 import org.apache.commons.lang.StringUtils;
 
-import javax.naming.Context; // TODO: JAVAX-11
-import javax.naming.InitialContext; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.util.Iterator;
 import java.util.Map;
 

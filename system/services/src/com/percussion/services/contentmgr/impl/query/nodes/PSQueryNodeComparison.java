@@ -18,7 +18,7 @@ package com.percussion.services.contentmgr.impl.query.nodes;
 
 import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * A comparison query node compares a property and an operator. The child values

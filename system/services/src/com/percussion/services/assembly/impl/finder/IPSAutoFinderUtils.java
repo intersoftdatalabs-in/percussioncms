@@ -22,7 +22,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.utils.guid.IPSGuid;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 import java.util.Map;
 import java.util.Set;
 

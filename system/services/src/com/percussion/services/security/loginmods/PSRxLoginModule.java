@@ -22,13 +22,13 @@ import com.percussion.services.security.PSJaasUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
-import javax.security.auth.callback.Callback; // TODO: JAVAX-11
-import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
-import javax.security.auth.callback.NameCallback; // TODO: JAVAX-11
-import javax.security.auth.callback.PasswordCallback; // TODO: JAVAX-11
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
-import javax.security.auth.spi.LoginModule; // TODO: JAVAX-11
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import java.util.Map;
 
 /**

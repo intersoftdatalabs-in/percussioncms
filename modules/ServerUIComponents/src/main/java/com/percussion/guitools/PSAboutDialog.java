@@ -16,7 +16,7 @@
  */
 package com.percussion.guitools;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.applet.AppletContext;
 import java.awt.*;
 import java.awt.event.KeyEvent;

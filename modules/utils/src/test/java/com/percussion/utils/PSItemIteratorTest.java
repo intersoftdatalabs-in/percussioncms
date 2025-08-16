@@ -21,20 +21,20 @@ import junit.framework.TestCase;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
-import javax.jcr.AccessDeniedException; // TODO: JAVAX-11
-import javax.jcr.InvalidItemStateException; // TODO: JAVAX-11
-import javax.jcr.Item; // TODO: JAVAX-11
-import javax.jcr.ItemExistsException; // TODO: JAVAX-11
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.ItemVisitor; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.ReferentialIntegrityException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Session; // TODO: JAVAX-11
-import javax.jcr.lock.LockException; // TODO: JAVAX-11
-import javax.jcr.nodetype.ConstraintViolationException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
-import javax.jcr.version.VersionException; // TODO: JAVAX-11
+import javax.jcr.AccessDeniedException;
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.Item;
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.ItemVisitor;
+import javax.jcr.Node;
+import javax.jcr.ReferentialIntegrityException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.version.VersionException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;

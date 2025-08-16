@@ -92,9 +92,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import jakarta.ws.rs.WebApplicationException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;

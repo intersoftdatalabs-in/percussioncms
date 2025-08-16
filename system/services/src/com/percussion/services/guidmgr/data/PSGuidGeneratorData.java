@@ -16,19 +16,19 @@
  */
 package com.percussion.services.guidmgr.data;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
+import javax.persistence.Basic;
+import javax.persistence.Column;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import jakarta.persistence.Entity;
+import javax.persistence.Entity;
 
 /**
  * Storage for GUID allocation records.

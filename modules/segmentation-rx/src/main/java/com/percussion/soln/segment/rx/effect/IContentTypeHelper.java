@@ -17,7 +17,7 @@
 
 package com.percussion.soln.segment.rx.effect;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 public interface IContentTypeHelper {
     

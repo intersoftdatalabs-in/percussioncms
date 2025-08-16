@@ -20,9 +20,9 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.io.Serializable;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * Class to pass the information regarding the conversion of an HTML widget into

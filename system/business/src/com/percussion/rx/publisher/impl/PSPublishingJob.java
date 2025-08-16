@@ -92,7 +92,7 @@ package com.percussion.rx.publisher.impl;
  import org.w3c.dom.Document;
  import org.w3c.dom.Element;
 
- import javax.naming.NameNotFoundException; // TODO: JAVAX-11
+ import javax.naming.NameNotFoundException;
  import java.io.IOException;
  import java.io.StringReader;
  import java.io.UnsupportedEncodingException;

@@ -20,7 +20,7 @@ package com.percussion.sitemanage.service;
 import com.percussion.share.data.PSAbstractDataObject;
 import java.io.Serializable;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "PageToTemplatePair")
 public class PSPageToTemplatePair extends PSAbstractDataObject implements Serializable, Comparable

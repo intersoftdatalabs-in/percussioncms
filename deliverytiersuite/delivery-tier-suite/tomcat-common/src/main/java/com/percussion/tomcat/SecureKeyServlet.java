@@ -22,8 +22,8 @@ import com.percussion.utils.io.PathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 
 public class SecureKeyServlet extends HttpServlet
 {

@@ -20,8 +20,8 @@ package com.percussion.tools;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

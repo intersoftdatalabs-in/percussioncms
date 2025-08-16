@@ -19,8 +19,8 @@ package com.percussion.servlets.taglib;
 import org.apache.commons.lang.StringUtils;
 import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.FacesContext;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 /**
  * The tag that implements the actual menu item for the CSS menu implementation.

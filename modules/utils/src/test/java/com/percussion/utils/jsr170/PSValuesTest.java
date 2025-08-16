@@ -21,8 +21,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.PropertyType;
+import javax.jcr.Value;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;

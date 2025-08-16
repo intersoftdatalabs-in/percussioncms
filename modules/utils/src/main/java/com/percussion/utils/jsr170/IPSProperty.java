@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.Property;
 
 /**
  * Extend the jcr property interface with useful information for our 

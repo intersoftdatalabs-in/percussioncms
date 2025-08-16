@@ -21,7 +21,7 @@ import com.percussion.delivery.data.PSDeliveryInfo;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.ws.rs.core.MediaType;
+import javax.ws.rs.core.MediaType;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

@@ -22,10 +22,10 @@ import com.percussion.tools.help.PSJavaHelp;
 import com.percussion.validation.ValidationConstraint;
 import com.percussion.validation.ValidationFramework;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EtchedBorder; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

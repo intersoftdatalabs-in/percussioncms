@@ -38,10 +38,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.query.Query; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

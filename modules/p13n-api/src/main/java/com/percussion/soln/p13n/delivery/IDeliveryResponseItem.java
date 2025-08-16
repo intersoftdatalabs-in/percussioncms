@@ -19,7 +19,7 @@ package com.percussion.soln.p13n.delivery;
 
 import java.util.Iterator;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 /**
  * 

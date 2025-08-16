@@ -28,12 +28,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.ErrorListener; // TODO: JAVAX-11
-import javax.xml.transform.Templates; // TODO: JAVAX-11
-import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactoryConfigurationError; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

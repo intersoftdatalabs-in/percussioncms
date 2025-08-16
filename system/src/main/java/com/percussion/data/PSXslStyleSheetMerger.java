@@ -30,14 +30,14 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.transform.ErrorListener; // TODO: JAVAX-11
-import javax.xml.transform.Templates; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactoryConfigurationError; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

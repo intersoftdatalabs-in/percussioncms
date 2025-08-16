@@ -27,12 +27,12 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSErrorManager;
 import org.apache.commons.lang.StringUtils;
 
-import javax.naming.NamingEnumeration; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.directory.Attribute; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.SearchControls; // TODO: JAVAX-11
-import javax.naming.directory.SearchResult; // TODO: JAVAX-11
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

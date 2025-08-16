@@ -35,7 +35,7 @@ import com.percussion.webservices.aop.security.IPSWsParameter;
 
 import java.util.List;
 
-import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Node;
 
 /**
  * This interface defines all content design related webservices.

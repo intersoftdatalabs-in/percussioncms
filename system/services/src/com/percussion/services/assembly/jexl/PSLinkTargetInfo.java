@@ -17,7 +17,7 @@
 
 package com.percussion.services.assembly.jexl;
 
-import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Node;
 
 import com.percussion.utils.guid.IPSGuid;
 

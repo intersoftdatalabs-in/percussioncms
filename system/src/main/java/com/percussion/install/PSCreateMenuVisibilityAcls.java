@@ -35,7 +35,7 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.io.PrintStream;
 import java.security.acl.NotOwnerException;
 import java.sql.Connection;

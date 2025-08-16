@@ -24,7 +24,7 @@ import com.percussion.pathmanagement.data.xmladapters.PSMapAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * Custom XmlAdapter which takes a PSPathItem object (it has

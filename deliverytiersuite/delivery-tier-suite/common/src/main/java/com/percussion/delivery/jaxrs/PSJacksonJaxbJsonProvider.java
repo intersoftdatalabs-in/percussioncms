@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.jaxrs;
 
-import jakarta.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 

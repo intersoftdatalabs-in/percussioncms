@@ -16,7 +16,7 @@
  */
 package com.percussion.cxfextension;
 
-import jakarta.servlet.ServletConfig;
+import javax.servlet.ServletConfig;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.cxf.transport.servlet.ServletController;

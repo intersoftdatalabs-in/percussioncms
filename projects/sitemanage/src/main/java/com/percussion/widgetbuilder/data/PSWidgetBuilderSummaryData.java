@@ -21,7 +21,7 @@ import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractPersistantObject;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;

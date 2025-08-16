@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.text.JTextComponent; // TODO: JAVAX-11
+import javax.swing.JComboBox;
+import javax.swing.text.JTextComponent;
 
 /** 
  * Constraint for validating String-based component values. Validates empty 

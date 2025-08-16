@@ -19,7 +19,7 @@ package com.percussion.services.utils.jsf.validators;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import jakarta.faces.validator.ValidatorException;
+import javax.faces.validator.ValidatorException;
 import junit.framework.TestCase;
 
 /**

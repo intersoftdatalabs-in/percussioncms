@@ -18,10 +18,10 @@ package test.percussion.pso.imageedit.services.jexl;
 
 import static org.junit.Assert.*;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -19,7 +19,7 @@ package com.percussion.activity.data;
 
 import static org.apache.commons.lang.Validate.notEmpty;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotEmpty;

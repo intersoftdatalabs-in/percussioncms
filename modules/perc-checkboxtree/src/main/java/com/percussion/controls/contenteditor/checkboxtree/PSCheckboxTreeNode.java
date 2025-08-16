@@ -15,8 +15,8 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.tree.DefaultMutableTreeNode; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 
 /**

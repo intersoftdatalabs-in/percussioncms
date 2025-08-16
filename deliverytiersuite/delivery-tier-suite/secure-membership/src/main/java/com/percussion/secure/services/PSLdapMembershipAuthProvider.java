@@ -23,13 +23,13 @@ import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.naming.Context; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.AuthenticationException; // TODO: JAVAX-11
-import javax.naming.OperationNotSupportedException; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.SearchControls; // TODO: JAVAX-11
-import javax.naming.ldap.InitialLdapContext; // TODO: JAVAX-11
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.AuthenticationException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.InitialLdapContext;
 
 
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;

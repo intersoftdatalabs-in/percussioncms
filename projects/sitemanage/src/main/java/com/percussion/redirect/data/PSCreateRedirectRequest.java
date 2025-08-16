@@ -19,7 +19,7 @@ package com.percussion.redirect.data;
 
 import java.io.Serializable;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /***
  * Encapsulates a request for a new redirect.

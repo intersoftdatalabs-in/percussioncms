@@ -16,7 +16,7 @@
  */
 package com.percussion.cx;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.awt.*;
 
 /**

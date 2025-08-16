@@ -22,11 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.help.UnsupportedOperationException;
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
 import org.apache.jackrabbit.commons.iterator.RowIteratorAdapter;
 

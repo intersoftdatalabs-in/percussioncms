@@ -97,7 +97,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

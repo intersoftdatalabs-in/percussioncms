@@ -23,7 +23,7 @@ import com.percussion.guitools.ErrorDialogs;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 
-import javax.swing.JOptionPane; // TODO: JAVAX-11
+import javax.swing.JOptionPane;
 import java.util.Properties;
 import java.util.ResourceBundle;
 

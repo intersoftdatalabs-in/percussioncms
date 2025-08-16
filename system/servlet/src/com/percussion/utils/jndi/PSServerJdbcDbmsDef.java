@@ -22,8 +22,8 @@ import com.percussion.utils.jdbc.IPSConnectionInfo;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.sql.DataSource; // TODO: JAVAX-11
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 public class PSServerJdbcDbmsDef extends PSJdbcDbmsDef {

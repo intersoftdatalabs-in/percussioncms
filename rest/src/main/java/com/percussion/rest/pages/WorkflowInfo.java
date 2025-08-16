@@ -19,7 +19,7 @@ package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "WorkflowInfo")
 @Schema(name="WorkflowInfo",description="Represents information on the workflow.")

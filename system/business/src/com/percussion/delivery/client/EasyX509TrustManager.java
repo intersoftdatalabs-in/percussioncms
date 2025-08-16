@@ -23,9 +23,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.TrustManagerFactory; // TODO: JAVAX-11
-import javax.net.ssl.TrustManager; // TODO: JAVAX-11
-import javax.net.ssl.X509TrustManager; // TODO: JAVAX-11
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 

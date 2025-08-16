@@ -39,9 +39,9 @@ import org.xml.sax.SAXException;
 import service.web.api.ems.dea.MCAPIServiceLocator;
 import service.web.api.ems.dea.MCAPIServiceSoap;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.io.StringReader;

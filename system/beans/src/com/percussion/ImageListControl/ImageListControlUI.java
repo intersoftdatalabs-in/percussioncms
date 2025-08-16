@@ -25,18 +25,18 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.ListCellRenderer; // TODO: JAVAX-11
-import javax.swing.ListModel; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.event.ListDataEvent; // TODO: JAVAX-11
-import javax.swing.event.ListDataListener; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.event.MouseInputListener; // TODO: JAVAX-11
-import javax.swing.plaf.basic.BasicListUI; // TODO: JAVAX-11
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputListener;
+import javax.swing.plaf.basic.BasicListUI;
 
 
 /** The custom UI for ImageListControl that displays cells in columns instead

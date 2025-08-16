@@ -28,26 +28,26 @@ import com.percussion.guitools.PSAccessibleListSelectionListener;
 import com.percussion.guitools.PSDialog;
 import com.percussion.guitools.UTStandardCommandPanel;
 
-import javax.swing.AbstractButton; // TODO: JAVAX-11
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.Box; // TODO: JAVAX-11
-import javax.swing.BoxLayout; // TODO: JAVAX-11
-import javax.swing.ButtonGroup; // TODO: JAVAX-11
-import javax.swing.DefaultListCellRenderer; // TODO: JAVAX-11
-import javax.swing.DefaultListModel; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JRadioButton; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.ListCellRenderer; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EtchedBorder; // TODO: JAVAX-11
-import javax.swing.border.TitledBorder; // TODO: JAVAX-11
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;

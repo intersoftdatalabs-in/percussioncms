@@ -124,15 +124,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -17,7 +17,7 @@
 
 package com.percussion.utils.security;
 
-import javax.security.auth.callback.Callback; // TODO: JAVAX-11
+import javax.security.auth.callback.Callback;
 import java.util.HashMap;
 import java.util.Map;
 

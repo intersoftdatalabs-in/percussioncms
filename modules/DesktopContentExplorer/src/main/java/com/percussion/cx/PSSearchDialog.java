@@ -38,18 +38,18 @@ import com.percussion.search.ui.PSSearchSimplePanel;
 import com.percussion.util.IPSHtmlParameters;
 import org.apache.log4j.Logger;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.Box; // TODO: JAVAX-11
-import javax.swing.BoxLayout; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JCheckBox; // TODO: JAVAX-11
-import javax.swing.JDialog; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JScrollBar; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

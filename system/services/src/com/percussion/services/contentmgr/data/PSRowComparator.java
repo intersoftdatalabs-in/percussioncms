@@ -24,8 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 
 import org.apache.commons.lang.StringUtils;
 

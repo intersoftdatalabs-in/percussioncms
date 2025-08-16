@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 
 import com.percussion.rxfix.IPSFix;
 import com.percussion.util.PSPreparedStatement;

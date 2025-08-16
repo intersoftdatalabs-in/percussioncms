@@ -18,10 +18,10 @@ package com.percussion.guitools;
 
 import com.percussion.UTComponents.UTFixedButton;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

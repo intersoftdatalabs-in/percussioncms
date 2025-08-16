@@ -18,7 +18,7 @@ package com.percussion.utils.spring;
 
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
-import jakarta.servlet.Servlet;
+import javax.servlet.Servlet;
 
 /**
  * This class allows for setting the supported HTTP methods as well as the

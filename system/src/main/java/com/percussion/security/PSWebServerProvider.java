@@ -22,9 +22,9 @@ import com.percussion.utils.security.PSRemoteUserCallback;
 import com.percussion.utils.security.PSRequestHeadersCallback;
 import org.apache.commons.lang.StringUtils;
 
-import javax.security.auth.callback.Callback; // TODO: JAVAX-11
-import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
-import javax.security.auth.callback.UnsupportedCallbackException; // TODO: JAVAX-11
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;

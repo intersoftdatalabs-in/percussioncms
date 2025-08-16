@@ -17,7 +17,7 @@
 
 package com.percussion.EditableListBox;
 
-import javax.swing.ImageIcon; // TODO: JAVAX-11
+import javax.swing.ImageIcon;
 
 /** ICellImageHelper is to be implemented by the object wrapper class used
   * as the EditableListBox cell elements.  The interface allows the 

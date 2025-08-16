@@ -17,7 +17,7 @@
 
 package com.percussion.integrations.siteimprove.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Siteimprove credentials to access their api.

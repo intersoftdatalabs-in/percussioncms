@@ -21,7 +21,7 @@ import com.percussion.share.test.PSObjectRestClient;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * @author JaySeletz

@@ -17,7 +17,7 @@
 
 package com.percussion.rest.errors;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Error")
 public class RestError

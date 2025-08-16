@@ -30,7 +30,7 @@ import com.percussion.error.PSIllegalArgumentException;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.util.PSCollection;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;

@@ -31,12 +31,12 @@ import com.percussion.guitools.PSDialog;
 import com.percussion.guitools.UTStandardCommandPanel;
 import com.percussion.util.PSPathUtil;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTabbedPane; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;

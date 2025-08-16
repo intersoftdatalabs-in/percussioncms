@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 import org.junit.Test;
 
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;

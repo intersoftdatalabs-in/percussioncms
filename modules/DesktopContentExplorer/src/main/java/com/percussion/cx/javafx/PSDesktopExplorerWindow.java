@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JFrame; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;

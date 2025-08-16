@@ -37,10 +37,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 
 import org.apache.cactus.ServletTestCase;
 import org.junit.experimental.categories.Category;

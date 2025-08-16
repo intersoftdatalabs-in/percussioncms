@@ -29,19 +29,19 @@ import com.percussion.guitools.PSPathLabel;
 import org.apache.commons.lang.StringUtils;
 
 import javax.accessibility.AccessibleContext;
-import javax.swing.Box; // TODO: JAVAX-11
-import javax.swing.BoxLayout; // TODO: JAVAX-11
-import javax.swing.DefaultListCellRenderer; // TODO: JAVAX-11
-import javax.swing.Icon; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.JMenuBar; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;

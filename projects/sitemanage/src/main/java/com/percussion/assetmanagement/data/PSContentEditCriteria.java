@@ -16,7 +16,7 @@
  */
 package com.percussion.assetmanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class to provide the content creating/editing criteria part of the page or

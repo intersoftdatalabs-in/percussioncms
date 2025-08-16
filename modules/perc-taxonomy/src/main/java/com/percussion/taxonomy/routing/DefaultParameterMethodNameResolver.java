@@ -17,7 +17,7 @@
 
 package com.percussion.taxonomy.routing;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 //@TODO: Update to use anotations
 public class DefaultParameterMethodNameResolver {

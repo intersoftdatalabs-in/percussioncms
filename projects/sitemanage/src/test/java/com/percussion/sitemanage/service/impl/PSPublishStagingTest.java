@@ -23,8 +23,8 @@ import com.percussion.metadata.service.IPSMetadataService;
 import java.util.Collection;
 import java.util.HashMap;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 import org.junit.Test;
 

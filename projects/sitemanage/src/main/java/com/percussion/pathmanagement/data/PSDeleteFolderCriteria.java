@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This class is posted to the rest service as part of a request to delete a folder.  It contains the relative path of

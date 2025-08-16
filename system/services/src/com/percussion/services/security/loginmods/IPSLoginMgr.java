@@ -16,9 +16,9 @@
  */
 package com.percussion.services.security.loginmods;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
-import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
 
 /**
  * Handle login and logout tasks, authenticate against the back-end table

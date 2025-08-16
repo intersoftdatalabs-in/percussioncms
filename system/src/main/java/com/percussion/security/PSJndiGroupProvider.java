@@ -21,16 +21,16 @@ import com.percussion.design.objectstore.PSJndiObjectClass;
 import com.percussion.services.security.PSTypedPrincipal;
 import org.apache.commons.lang.StringUtils;
 
-import javax.naming.CompoundName; // TODO: JAVAX-11
-import javax.naming.InvalidNameException; // TODO: JAVAX-11
-import javax.naming.NameNotFoundException; // TODO: JAVAX-11
-import javax.naming.NamingEnumeration; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.directory.Attribute; // TODO: JAVAX-11
-import javax.naming.directory.Attributes; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.SearchControls; // TODO: JAVAX-11
-import javax.naming.directory.SearchResult; // TODO: JAVAX-11
+import javax.naming.CompoundName;
+import javax.naming.InvalidNameException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;

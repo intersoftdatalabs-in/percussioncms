@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.xml.bind.UnmarshalException;
+import javax.xml.bind.UnmarshalException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

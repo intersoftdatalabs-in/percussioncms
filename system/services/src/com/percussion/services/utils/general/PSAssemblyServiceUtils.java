@@ -32,8 +32,8 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang.StringUtils;
 
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.RepositoryException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;

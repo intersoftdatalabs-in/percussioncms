@@ -20,7 +20,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 
 import java.util.List;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 /**
  * Service to encapsulate operations acting on both pages and templates

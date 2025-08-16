@@ -20,7 +20,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 
 /**

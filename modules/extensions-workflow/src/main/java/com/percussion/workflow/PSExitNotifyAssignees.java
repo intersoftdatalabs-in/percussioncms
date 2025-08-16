@@ -81,8 +81,8 @@ import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.w3c.dom.Document;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.naming.NamingException;
 import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;

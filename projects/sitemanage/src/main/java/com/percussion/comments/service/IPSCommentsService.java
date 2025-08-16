@@ -24,8 +24,8 @@ import com.percussion.share.service.exception.PSValidationException;
 
 import java.util.List;
 
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
  * @author davidpardini

@@ -22,7 +22,7 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.xml.sax.SAXException;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;

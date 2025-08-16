@@ -24,7 +24,7 @@ import com.percussion.wizard.PSWizardCommandPanel;
 import com.percussion.wizard.PSWizardPanel;
 import com.percussion.wizard.PSWizardValidationError;
 
-import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;

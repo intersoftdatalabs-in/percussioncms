@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 /**
  * Represents a role definition in the Rx backend.

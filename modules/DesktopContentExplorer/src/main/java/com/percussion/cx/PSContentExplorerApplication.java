@@ -28,11 +28,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import javax.swing.InputMap; // TODO: JAVAX-11
-import javax.swing.KeyStroke; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.text.DefaultEditorKit; // TODO: JAVAX-11
+import javax.swing.InputMap;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;

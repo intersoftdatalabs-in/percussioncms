@@ -48,9 +48,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.Value;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.*;

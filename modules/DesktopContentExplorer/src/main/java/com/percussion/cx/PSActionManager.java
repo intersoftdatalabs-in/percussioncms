@@ -90,18 +90,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.swing.Icon; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JDialog; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.WindowConstants; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;

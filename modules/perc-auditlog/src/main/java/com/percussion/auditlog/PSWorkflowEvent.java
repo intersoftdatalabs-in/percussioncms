@@ -17,7 +17,7 @@
 
 package com.percussion.auditlog;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 public class PSWorkflowEvent extends AbstractEvent{
 

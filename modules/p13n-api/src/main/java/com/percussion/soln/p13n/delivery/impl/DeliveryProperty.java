@@ -19,10 +19,10 @@ package com.percussion.soln.p13n.delivery.impl;
 
 import java.util.Calendar;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.ValueFactory; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFactory;
+import javax.jcr.ValueFormatException;
 
 import org.apache.jackrabbit.value.ValueFactoryImpl;
 

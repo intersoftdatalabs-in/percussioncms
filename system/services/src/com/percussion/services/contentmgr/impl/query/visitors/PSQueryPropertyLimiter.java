@@ -28,8 +28,8 @@ import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode.Op;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.PropertyType;
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * This class performs two functions. First, it finds properties that don't

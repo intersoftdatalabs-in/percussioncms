@@ -20,7 +20,7 @@ import com.percussion.extension.IPSExtension;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.PSFilterException;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 import java.util.List;
 import java.util.Map;
 

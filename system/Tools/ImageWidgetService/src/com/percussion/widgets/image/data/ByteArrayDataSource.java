@@ -23,7 +23,7 @@ package com.percussion.widgets.image.data;
      import java.io.IOException;
      import java.io.InputStream;
      import java.io.OutputStream;
-     import jakarta.activation.DataSource;
+     import javax.activation.DataSource;
      
      public class ByteArrayDataSource
        implements DataSource

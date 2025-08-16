@@ -18,7 +18,7 @@ package com.percussion.utils.jsr170;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

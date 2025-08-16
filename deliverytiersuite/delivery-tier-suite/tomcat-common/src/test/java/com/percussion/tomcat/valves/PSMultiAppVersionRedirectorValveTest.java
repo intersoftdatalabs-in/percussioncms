@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;

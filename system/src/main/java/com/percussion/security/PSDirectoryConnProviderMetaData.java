@@ -26,13 +26,13 @@ import com.percussion.design.objectstore.PSReference;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.server.PSServer;
 
-import javax.naming.CompoundName; // TODO: JAVAX-11
-import javax.naming.NamingEnumeration; // TODO: JAVAX-11
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.naming.directory.Attribute; // TODO: JAVAX-11
-import javax.naming.directory.DirContext; // TODO: JAVAX-11
-import javax.naming.directory.SearchControls; // TODO: JAVAX-11
-import javax.naming.directory.SearchResult; // TODO: JAVAX-11
+import javax.naming.CompoundName;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

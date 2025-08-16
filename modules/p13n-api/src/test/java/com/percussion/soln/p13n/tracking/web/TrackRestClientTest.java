@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 
 import org.junit.After;
 import org.junit.Before;

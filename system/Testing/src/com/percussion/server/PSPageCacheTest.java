@@ -22,8 +22,8 @@ import com.percussion.security.xml.PSXmlSecurityOptions;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace;
 

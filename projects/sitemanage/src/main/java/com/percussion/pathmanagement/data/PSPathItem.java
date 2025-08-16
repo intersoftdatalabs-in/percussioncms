@@ -24,8 +24,8 @@ import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.data.PSMapWrapper;
 import org.apache.commons.lang.StringUtils;
 
-import jakarta.xml.bind.annotation.*;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

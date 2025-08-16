@@ -66,7 +66,7 @@
             <version>1.0.6</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
+            <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
             <version>1.1.1</version>
         </dependency>
@@ -76,8 +76,8 @@
             <version>1.1</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

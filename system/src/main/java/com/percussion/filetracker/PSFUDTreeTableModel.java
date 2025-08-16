@@ -17,7 +17,7 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.tree.TreeModel; // TODO: JAVAX-11
+import javax.swing.tree.TreeModel;
 
 /**
  * PSFUDTreeTableModel is the model used by a PSFUDJTreeTable. It extends 

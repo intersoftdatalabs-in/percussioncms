@@ -18,7 +18,7 @@ package com.percussion.UTComponents;
 
 import com.percussion.guitools.BitmapManager;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 import java.awt.*;
 
 /**

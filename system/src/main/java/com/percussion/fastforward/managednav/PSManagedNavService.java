@@ -59,7 +59,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

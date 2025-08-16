@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
 
 /** 
  * Handles integer validation includes the component value to be a valid integer

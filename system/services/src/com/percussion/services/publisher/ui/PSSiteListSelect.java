@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import jakarta.faces.model.SelectItem;
+import javax.faces.model.SelectItem;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;

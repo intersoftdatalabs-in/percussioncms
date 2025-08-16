@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import jakarta.xml.bind.UnmarshalException;
+import javax.xml.bind.UnmarshalException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;

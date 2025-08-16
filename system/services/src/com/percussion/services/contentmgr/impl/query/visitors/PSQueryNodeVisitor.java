@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * The base class for query visitors, used for validation and transformation.

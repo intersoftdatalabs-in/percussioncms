@@ -20,7 +20,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Leonardo Hildt

@@ -18,7 +18,7 @@ package com.percussion.utils.security;
 
 import org.apache.commons.lang.StringUtils;
 
-import javax.security.auth.callback.Callback; // TODO: JAVAX-11
+import javax.security.auth.callback.Callback;
 
 /**
  * Used to get the remote user name of an already authenticated user.

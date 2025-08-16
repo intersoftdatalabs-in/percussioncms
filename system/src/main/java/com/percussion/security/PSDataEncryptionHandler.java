@@ -23,7 +23,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 
-import jakarta.servlet.ServletRequest;
+import javax.servlet.ServletRequest;
 
 
 /**

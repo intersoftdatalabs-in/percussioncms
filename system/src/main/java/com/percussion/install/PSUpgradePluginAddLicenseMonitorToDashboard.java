@@ -19,7 +19,7 @@ package com.percussion.install;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.w3c.dom.Element;
 
-import javax.sql.rowset.serial.SerialClob; // TODO: JAVAX-11
+import javax.sql.rowset.serial.SerialClob;
 import java.io.PrintStream;
 import java.sql.Clob;
 import java.sql.Connection;

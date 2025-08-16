@@ -18,10 +18,10 @@ package com.percussion.wizard;
 
 import com.percussion.cx.PSContentExplorerApplet;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

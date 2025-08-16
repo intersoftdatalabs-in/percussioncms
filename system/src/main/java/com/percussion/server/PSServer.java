@@ -138,9 +138,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.http.HttpServletRequest;
+import javax.naming.NamingException;
+import javax.servlet.ServletConfig;
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

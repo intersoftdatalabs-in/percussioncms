@@ -25,8 +25,8 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.util.Date;
 
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.PropertyType;
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * Lookup the types of the properties in the tree

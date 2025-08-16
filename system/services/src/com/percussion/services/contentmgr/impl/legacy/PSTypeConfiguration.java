@@ -47,11 +47,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jcr.PropertyType; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
+import javax.jcr.PropertyType;
+import javax.jcr.Value;
+import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
 
 import net.sf.cglib.beans.BeanGenerator;
 import net.sf.cglib.core.DefaultNamingPolicy;

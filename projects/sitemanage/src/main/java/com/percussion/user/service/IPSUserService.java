@@ -30,8 +30,8 @@ import com.percussion.user.data.PSUser;
 import com.percussion.user.data.PSUserList;
 import net.sf.oval.constraint.NotNull;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
 /**

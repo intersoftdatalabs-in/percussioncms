@@ -27,7 +27,7 @@ import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.util.PSSiteManageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.ext.Provider;
+import javax.ws.rs.ext.Provider;
 
 
 @Provider

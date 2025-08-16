@@ -16,9 +16,9 @@
  */
 package com.percussion.hooks;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import java.util.Locale;
 import java.util.ResourceBundle;
 

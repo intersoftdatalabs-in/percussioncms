@@ -51,7 +51,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

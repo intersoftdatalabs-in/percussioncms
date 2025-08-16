@@ -20,7 +20,7 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
 

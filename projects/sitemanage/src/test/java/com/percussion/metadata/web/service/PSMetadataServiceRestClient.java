@@ -25,7 +25,7 @@ import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.test.PSDataServiceRestClient;
 import net.sf.json.JSONObject;
 
-import jakarta.ws.rs.core.MediaType;
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

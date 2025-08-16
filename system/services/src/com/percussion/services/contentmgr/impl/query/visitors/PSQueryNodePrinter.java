@@ -24,7 +24,7 @@ import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeIdentifier
 import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeLiteral;
 import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeValue;
 
-import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException;
 
 /**
  * Pretty printer, primarily for testing and debug purposes. Use the

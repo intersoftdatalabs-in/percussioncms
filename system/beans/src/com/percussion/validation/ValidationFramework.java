@@ -23,11 +23,11 @@ import java.awt.Window;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JOptionPane; // TODO: JAVAX-11
-import javax.swing.JPasswordField; // TODO: JAVAX-11
-import javax.swing.text.JTextComponent; // TODO: JAVAX-11
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.text.JTextComponent;
 
 
 

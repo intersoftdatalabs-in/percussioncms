@@ -25,13 +25,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Objects;
 
 /**

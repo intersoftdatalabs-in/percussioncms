@@ -16,7 +16,7 @@
  */
 package com.percussion.servlets.taglib;
 
-import jakarta.faces.component.UIComponent;
+import javax.faces.component.UIComponent;
 
 /**
  * The span id tag allows the creation of elements in a JSF tree that have

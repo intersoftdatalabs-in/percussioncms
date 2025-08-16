@@ -20,7 +20,7 @@ package com.percussion.security;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSUserSession;
 
-import jakarta.servlet.ServletRequest;
+import javax.servlet.ServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;

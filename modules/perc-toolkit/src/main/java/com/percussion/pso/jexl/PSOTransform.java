@@ -22,10 +22,10 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.transform.Source; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.percussion.data.PSCachedStylesheet;

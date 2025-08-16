@@ -17,8 +17,8 @@
 
 package com.percussion.validation;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.text.JTextComponent; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;

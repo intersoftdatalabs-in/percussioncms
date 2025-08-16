@@ -60,8 +60,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;

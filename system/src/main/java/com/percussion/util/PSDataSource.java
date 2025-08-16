@@ -19,7 +19,7 @@ package com.percussion.util;
 import com.percussion.utils.jdbc.PSDriverHelper;
 import org.apache.commons.lang.StringUtils;
 
-import javax.sql.DataSource; // TODO: JAVAX-11
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;

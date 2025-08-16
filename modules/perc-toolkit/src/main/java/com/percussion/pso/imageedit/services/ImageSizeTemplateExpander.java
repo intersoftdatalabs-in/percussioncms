@@ -28,8 +28,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

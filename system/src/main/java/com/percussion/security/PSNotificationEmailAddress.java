@@ -17,7 +17,7 @@
 
 package com.percussion.security;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Objects;

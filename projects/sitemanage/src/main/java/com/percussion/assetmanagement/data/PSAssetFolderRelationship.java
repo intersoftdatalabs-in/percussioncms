@@ -16,7 +16,7 @@
  */
 package com.percussion.assetmanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.MatchPattern;
 import net.sf.oval.constraint.NotBlank;

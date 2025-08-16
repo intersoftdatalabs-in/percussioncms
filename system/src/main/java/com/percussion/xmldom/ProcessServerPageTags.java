@@ -24,7 +24,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

@@ -25,8 +25,8 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.OverlayLayout; // TODO: JAVAX-11
+import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.net.URL;

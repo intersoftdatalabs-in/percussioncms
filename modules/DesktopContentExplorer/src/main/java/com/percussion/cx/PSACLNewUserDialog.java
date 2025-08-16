@@ -23,12 +23,12 @@ import com.percussion.guitools.PSDialog;
 import com.percussion.guitools.PSPropertyPanel;
 import com.percussion.guitools.UTStandardCommandPanel;
 
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
-import javax.swing.SwingConstants; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Frame;

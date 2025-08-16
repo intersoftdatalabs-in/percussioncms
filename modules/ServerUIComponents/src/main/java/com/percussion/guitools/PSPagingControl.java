@@ -18,13 +18,13 @@ package com.percussion.guitools;
 
 import com.percussion.UTComponents.UTFixedButton;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.event.ChangeEvent; // TODO: JAVAX-11
-import javax.swing.event.ChangeListener; // TODO: JAVAX-11
-import javax.swing.text.AttributeSet; // TODO: JAVAX-11
-import javax.swing.text.BadLocationException; // TODO: JAVAX-11
-import javax.swing.text.Document; // TODO: JAVAX-11
-import javax.swing.text.PlainDocument; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;

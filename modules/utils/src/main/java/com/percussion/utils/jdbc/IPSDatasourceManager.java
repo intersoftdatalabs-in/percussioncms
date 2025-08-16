@@ -18,7 +18,7 @@ package com.percussion.utils.jdbc;
 
 import com.percussion.utils.container.IPSHibernateDialectConfig;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
