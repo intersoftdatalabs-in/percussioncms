@@ -80,7 +80,6 @@ public class PSCommentsServiceTest {
     final List<IPSComment> comm = comments.getComments();
     for (final IPSComment cmt : comm) {
       commnetIds.add(cmt.getId());
-    }
     return commnetIds;
   }
 
