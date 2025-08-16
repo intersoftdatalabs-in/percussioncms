@@ -73,7 +73,6 @@
       <!-- Remove configLocation to avoid conflicts with dataSource -->
       <!-- <property name="configLocation">
          <value>classpath:hibernate.cfg.xml</value>
-      </property> -->
       <!-- Instead, explicitly specify mapping classes -->
       <property name="annotatedClasses">
          <list>
