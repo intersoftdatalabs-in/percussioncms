@@ -59,6 +59,7 @@ Always work with the #codebase directory as the root for all file paths.
 Always use the #codebase context when resolving missing interfaces or classes.
 
 ## Dependency Management
+
 - This is not a Spring Boot application; avoid Spring Boot dependencies.
 - Use Maven for dependency management; ensure all dependencies are defined in the `pom.xml`.
 - Use the parent POM to manage shared dependencies and plugin versions.
@@ -73,3 +74,4 @@ Always use the #codebase context when resolving missing interfaces or classes.
 - Use `maven-toolchains-plugin` to ensure the correct Java version is used during builds.
 - Use `maven-enforcer-plugin` to enforce upper bound dependencies and prevent transitive dependency drifts.
 - Use `maven-spotless-plugin` and `maven-checkstyle-plugin` to ensure code style consistency.
+

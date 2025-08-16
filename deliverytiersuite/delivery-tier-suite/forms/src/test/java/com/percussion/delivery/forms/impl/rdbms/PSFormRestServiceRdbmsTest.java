@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.internal.PropertiesDelegate;
@@ -257,7 +258,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     private String mi_redirect;
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getCharacterEncoding()
+     * @see jakarta.servlet.ServletResponse#getCharacterEncoding()
      */
     @Override
     public String getCharacterEncoding() {
@@ -266,7 +267,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getContentType()
+     * @see jakarta.servlet.ServletResponse#getContentType()
      */
     @Override
     public String getContentType() {
@@ -275,7 +276,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getOutputStream()
+     * @see jakarta.servlet.ServletResponse#getOutputStream()
      */
     @Override
     public ServletOutputStream getOutputStream() {
@@ -284,7 +285,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getWriter()
+     * @see jakarta.servlet.ServletResponse#getWriter()
      */
     @Override
     public PrintWriter getWriter() {
@@ -293,7 +294,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#setCharacterEncoding(java.lang.String)
+     * @see jakarta.servlet.ServletResponse#setCharacterEncoding(java.lang.String)
      */
     @Override
     public void setCharacterEncoding(String charset) {
@@ -302,7 +303,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#setContentLength(int)
+     * @see jakarta.servlet.ServletResponse#setContentLength(int)
      */
     @Override
     public void setContentLength(int len) {
@@ -314,7 +315,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     public void setContentLengthLong(long l) {}
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#setContentType(java.lang.String)
+     * @see jakarta.servlet.ServletResponse#setContentType(java.lang.String)
      */
     @Override
     public void setContentType(String type) {
@@ -323,7 +324,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#setBufferSize(int)
+     * @see jakarta.servlet.ServletResponse#setBufferSize(int)
      */
     @Override
     public void setBufferSize(int size) {
@@ -332,7 +333,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getBufferSize()
+     * @see jakarta.servlet.ServletResponse#getBufferSize()
      */
     @Override
     public int getBufferSize() {
@@ -341,7 +342,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#flushBuffer()
+     * @see jakarta.servlet.ServletResponse#flushBuffer()
      */
     @Override
     public void flushBuffer() {
@@ -350,7 +351,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#resetBuffer()
+     * @see jakarta.servlet.ServletResponse#resetBuffer()
      */
     @Override
     public void resetBuffer() {
@@ -359,7 +360,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#isCommitted()
+     * @see jakarta.servlet.ServletResponse#isCommitted()
      */
     @Override
     public boolean isCommitted() {
@@ -368,7 +369,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#reset()
+     * @see jakarta.servlet.ServletResponse#reset()
      */
     @Override
     public void reset() {
@@ -377,7 +378,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#setLocale(java.util.Locale)
+     * @see jakarta.servlet.ServletResponse#setLocale(java.util.Locale)
      */
     @Override
     public void setLocale(Locale loc) {
@@ -386,7 +387,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.ServletResponse#getLocale()
+     * @see jakarta.servlet.ServletResponse#getLocale()
      */
     @Override
     public Locale getLocale() {
@@ -395,16 +396,16 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#addCookie(javax.servlet.http.Cookie)
+     * @see jakarta.servlet.http.HttpServletResponse#addCookie(jakarta.servlet.http.Cookie)
      */
     @Override
-    public void addCookie(javax.servlet.http.Cookie cookie) {
+    public void addCookie(jakarta.servlet.http.Cookie cookie) {
       // noop
 
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#containsHeader(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#containsHeader(java.lang.String)
      */
     @Override
     public boolean containsHeader(String name) {
@@ -413,7 +414,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#encodeURL(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#encodeURL(java.lang.String)
      */
     @Override
     public String encodeURL(String url) {
@@ -422,7 +423,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#encodeRedirectURL(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#encodeRedirectURL(java.lang.String)
      */
     @Override
     public String encodeRedirectURL(String url) {
@@ -431,25 +432,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#encodeUrl(java.lang.String)
-     */
-    @Override
-    public String encodeUrl(String url) {
-      // noop
-      return null;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#encodeRedirectUrl(java.lang.String)
-     */
-    @Override
-    public String encodeRedirectUrl(String url) {
-      // noop
-      return null;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#sendError(int, java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#sendError(int, java.lang.String)
      */
     @Override
     public void sendError(int sc, String msg) {
@@ -458,7 +441,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#sendError(int)
+     * @see jakarta.servlet.http.HttpServletResponse#sendError(int)
      */
     @Override
     public void sendError(int sc) {
@@ -467,7 +450,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#sendRedirect(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#sendRedirect(java.lang.String)
      */
     @Override
     public void sendRedirect(String location) {
@@ -475,7 +458,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#setDateHeader(java.lang.String, long)
+     * @see jakarta.servlet.http.HttpServletResponse#setDateHeader(java.lang.String, long)
      */
     @Override
     public void setDateHeader(String name, long date) {
@@ -484,7 +467,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#addDateHeader(java.lang.String, long)
+     * @see jakarta.servlet.http.HttpServletResponse#addDateHeader(java.lang.String, long)
      */
     @Override
     public void addDateHeader(String name, long date) {
@@ -493,7 +476,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#setHeader(java.lang.String, java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#setHeader(java.lang.String, java.lang.String)
      */
     @Override
     public void setHeader(String name, String value) {
@@ -502,7 +485,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#addHeader(java.lang.String, java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#addHeader(java.lang.String, java.lang.String)
      */
     @Override
     public void addHeader(String name, String value) {
@@ -511,7 +494,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#setIntHeader(java.lang.String, int)
+     * @see jakarta.servlet.http.HttpServletResponse#setIntHeader(java.lang.String, int)
      */
     @Override
     public void setIntHeader(String name, int value) {
@@ -520,7 +503,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#addIntHeader(java.lang.String, int)
+     * @see jakarta.servlet.http.HttpServletResponse#addIntHeader(java.lang.String, int)
      */
     @Override
     public void addIntHeader(String name, int value) {
@@ -529,7 +512,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#setStatus(int)
+     * @see jakarta.servlet.http.HttpServletResponse#setStatus(int)
      */
     @Override
     public void setStatus(int sc) {
@@ -538,16 +521,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#setStatus(int, java.lang.String)
-     */
-    @Override
-    public void setStatus(int sc, String sm) {
-      // noop
-
-    }
-
-    /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#getStatus()
+     * @see jakarta.servlet.http.HttpServletResponse#getStatus()
      */
     public int getStatus() {
       // noop
@@ -555,7 +529,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#getHeader(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#getHeader(java.lang.String)
      */
     public String getHeader(String name) {
       // noop
@@ -563,7 +537,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#getHeaders(java.lang.String)
+     * @see jakarta.servlet.http.HttpServletResponse#getHeaders(java.lang.String)
      */
     public Collection<String> getHeaders(String name) {
       // noop
@@ -571,7 +545,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
     }
 
     /* (non-Javadoc)
-     * @see javax.servlet.http.HttpServletResponse#getHeaderNames()
+     * @see jakarta.servlet.http.HttpServletResponse#getHeaderNames()
      */
     public Collection<String> getHeaderNames() {
       // noop
@@ -582,6 +556,12 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
 
     public Supplier<Map<String, String>> getTrailerFields() {
       return null;
+    }
+
+    @Override
+    public void sendRedirect(String arg0, int arg1, boolean arg2) throws IOException {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'sendRedirect'");
     }
   }
 
@@ -687,6 +667,12 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest {
 
     public Date getDate() {
       return Date.from(Instant.now());
+    }
+
+    @Override
+    public boolean containsHeaderString(
+        String name, String valueSeparatorRegex, Predicate<String> valuePredicate) {
+      throw new UnsupportedOperationException("Unimplemented method 'containsHeaderString'");
     }
   }
 }

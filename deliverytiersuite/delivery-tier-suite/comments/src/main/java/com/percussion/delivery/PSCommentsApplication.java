@@ -18,7 +18,7 @@
 
 package com.percussion.delivery;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.comments.services.PSCommentsRestService;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
@@ -30,7 +30,6 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.server.spring.AutowiredInjectResolver;
 import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
-import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 /**
@@ -48,7 +47,6 @@ public class PSCommentsApplication extends ResourceConfig {
     register(SpringComponentProvider.class);
     register(AutowiredInjectResolver.class);
     register(SpringLifecycleListener.class);
-    register(SpringWebApplicationInitializer.class);
 
     // Register REST services
     register(PSLikesRestService.class);
@@ -61,6 +59,6 @@ public class PSCommentsApplication extends ResourceConfig {
     register(PSUncaughtError.class);
 
     // Register Jackson JSON provider
-    register(JacksonJaxbJsonProvider.class);
+    register(JacksonXmlBindJsonProvider.class);
   }
 }

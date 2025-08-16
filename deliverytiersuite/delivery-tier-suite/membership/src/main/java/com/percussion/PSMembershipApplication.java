@@ -19,7 +19,7 @@ package com.percussion;
 
 // REFACTORED: CP-JAVA11
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.generickey.utils.services.impl.PSGenericKeyRestService;
@@ -87,7 +87,9 @@ public class PSMembershipApplication extends ResourceConfig {
   private void registerProviders() {
     var providers =
         List.of(
-            LoggingFeature.class, RolesAllowedDynamicFeature.class, JacksonJaxbJsonProvider.class);
+            LoggingFeature.class,
+            RolesAllowedDynamicFeature.class,
+            JacksonXmlBindJsonProvider.class);
 
     providers.forEach(this::register);
   }

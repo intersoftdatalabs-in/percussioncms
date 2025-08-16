@@ -16,8 +16,6 @@
  */
 package com.percussion.delivery.feeds.services;
 
-import static com.percussion.security.SecureStringUtils.stripNonHttpProtocols;
-
 import com.percussion.delivery.feeds.PSFeedGenerator;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.data.PSFeedDTO;
@@ -95,8 +93,6 @@ import org.springframework.stereotype.Component;
  *
  * @author erikserating
  */
-@SuppressFBWarnings(
-    "URLCONNECTION_SSRF_FD") // It is validated - only http and https urls are allowed.
 @Path("/rss")
 @Component
 @Scope("singleton")
@@ -105,7 +101,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   public PSFeedService() {}
 
   public String getRssFeedsIP() {
-    return rssFeedsIP;
+    return this.rssFeedsIP;
   }
 
   public void setRssFeedsIP(String rssFeedsIP) {
@@ -145,73 +141,73 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
   @Autowired
   public PSFeedService(@Qualifier("feedsDao") IPSFeedDao dao, PSHttpClient httpClient) {
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = Objects.requireNonNull(dao, "dao cannot be null");
+    this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient cannot be null");
-    feedDao = dao;
+    this.feedDao = dao;
     this.httpClient = httpClient;
   }
 
@@ -235,71 +231,75 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     hostname = SecureStringUtils.stripAllLineBreaks(SecureStringUtils.normalize(hostname, false));
 
     if (StringUtils.isEmpty(sitename)) {
-      log.error("Illegal argument passed to getFeed. Site Name was missing from request.");
+      PSFeedService.log.error(
+          "Illegal argument passed to getFeed. Site Name was missing from request.");
       return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
 
     if (StringUtils.isEmpty(feedname)) {
-      log.error("Illegal argument passed to getFeed. Feed Name was missing from request.");
+      PSFeedService.log.error(
+          "Illegal argument passed to getFeed. Feed Name was missing from request.");
       return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
 
     if (StringUtils.isEmpty(hostname)) {
-      log.error("Illegal argument passed to getFeed. Host Name was missing from request.");
+      PSFeedService.log.error(
+          "Illegal argument passed to getFeed. Host Name was missing from request.");
       return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug(
+    if (PSFeedService.log.isDebugEnabled()) {
+      PSFeedService.log.debug(
           String.format(
               "Searching for feed descriptor with feed name: %s with site name: %s and hostname:"
                   + " %s",
               feedname, sitename, hostname));
     }
 
-    IPSFeedDescriptor desc = feedDao.find(feedname, sitename).orElse(null);
+    IPSFeedDescriptor desc = this.feedDao.find(feedname, sitename).orElse(null);
     Response resp;
     if (desc != null) {
 
-      log.debug("Found feed descriptor: {}", desc);
+      PSFeedService.log.debug("Found feed descriptor: {}", desc);
 
-      log.debug("Searching for feed connection information...");
+      PSFeedService.log.debug("Searching for feed connection information...");
 
-      IPSConnectionInfo info = feedDao.getConnectionInfo().orElse(null);
+      IPSConnectionInfo info = this.feedDao.getConnectionInfo().orElse(null);
       if (info != null) {
 
-        log.debug("Got connection info for feed: {}", info);
+        PSFeedService.log.debug("Got connection info for feed: {}", info);
 
         String feed;
         try {
-          if (log.isDebugEnabled()) {
-            log.debug("Generating feed ...");
+          if (PSFeedService.log.isDebugEnabled()) {
+            PSFeedService.log.debug("Generating feed ...");
           }
-          feed = generateFeed(desc, Optional.ofNullable(hostname), httpRequest);
+          feed = this.generateFeed(desc, Optional.ofNullable(hostname), httpRequest);
         } catch (FeedException e) {
-          log.error(
+          PSFeedService.log.error(
               "Unexpected exception generating RSS feed: {}", PSExceptionUtils.getMessageForLog(e));
-          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+          PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
           return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
         if (StringUtils.isNotBlank(feed)) {
-          if (log.isDebugEnabled()) {
-            log.debug("Metadata Service returned results for feed: {}", feed);
+          if (PSFeedService.log.isDebugEnabled()) {
+            PSFeedService.log.debug("Metadata Service returned results for feed: {}", feed);
           }
           resp = Response.ok(feed).type(MediaType.TEXT_XML_TYPE).build();
         } else {
-          log.warn("Feed query returned no results.");
+          PSFeedService.log.warn("Feed query returned no results.");
           // Could not generate feed because no meta data exists
           resp = Response.status(Status.NOT_FOUND).build();
         }
       } else {
-        log.error("Unable to locate connection information.  Unable to query for feed.");
+        PSFeedService.log.error(
+            "Unable to locate connection information.  Unable to query for feed.");
         // No connection info present, send service unavailable
         resp = Response.status(Status.SERVICE_UNAVAILABLE).build();
       }
 
     } else {
-      log.error(
+      PSFeedService.log.error(
           "Unable to locate matching feed for feed name: {} and sitename: {} ", feedname, sitename);
       // No feed descriptor found
       resp = Response.status(Status.NOT_FOUND).build();
@@ -328,7 +328,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     }
     String feedUrl = psFeedDTO.getFeedsUrl();
 
-    log.debug("URL is: {}", feedUrl);
+    PSFeedService.log.debug("URL is: {}", feedUrl);
 
     try {
       // If Secure File is not Copied to DTS Yet then returning
@@ -336,19 +336,19 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       String decryptedUrl =
           PSEncryptor.decryptString(
               PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR), feedUrl);
-      log.debug("Decrypted URL is: {}", decryptedUrl);
+      PSFeedService.log.debug("Decrypted URL is: {}", decryptedUrl);
       decodedUrl = URLDecoder.decode(decryptedUrl, "UTF8");
-      log.debug("Decoded URL is: {}", decodedUrl);
+      PSFeedService.log.debug("Decoded URL is: {}", decodedUrl);
 
       // plaintext URL Sent---- Throw not Allowed Error
       if (decodedUrl != null && decodedUrl.equals(feedUrl)) {
-        log.error(
+        PSFeedService.log.error(
             "Illegal argument passed to readExternalFeed. External unEncrypted Feed Url Not"
                 + " Allowed.");
         throw new WebApplicationException(404);
       }
 
-      decodedUrl = stripNonHttpProtocols(decodedUrl);
+      decodedUrl = SecureStringUtils.stripNonHttpProtocols(decodedUrl);
 
       if (StringUtils.isEmpty(decodedUrl)) {
         // this is the case for initial time when RSS Widget is added to the page, thus returning
@@ -357,18 +357,19 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
     } catch (PSEncryptionException e) {
       // Means EncryptionKey Not generated yet
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.error(PSExceptionUtils.getMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return "";
 
     } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.error(PSExceptionUtils.getMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(404);
     }
 
     if (StringUtils.isEmpty(feedUrl)) {
-      log.error("Illegal argument passed to readExternalFeed. Feed Url was missing from request.");
+      PSFeedService.log.error(
+          "Illegal argument passed to readExternalFeed. Feed Url was missing from request.");
       throw new WebApplicationException(404);
     }
 
@@ -386,7 +387,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
                   url.getRef())
               .toURL();
 
-      log.debug("The Url for external feed : {}", url);
+      PSFeedService.log.debug("The Url for external feed : {}", url);
 
       con = (HttpURLConnection) url.openConnection();
       con.setRequestProperty("Accept-Charset", "utf-8, ISO-8859-1;q=0.7,*;q=0.7");
@@ -402,9 +403,9 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
 
     } catch (Exception e) {
-      log.error(
+      PSFeedService.log.error(
           "Exception during reading external feed : {}", PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     } finally {
       if (con != null) {
         con.disconnect();
@@ -423,12 +424,13 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   @RolesAllowed("deliverymanager")
   public void saveDescriptors(PSFeedDescriptors descriptors) {
     if (descriptors == null) {
-      log.error("Illegal argument passed to saveDescriptors. Feed descriptors cannot be null.");
+      PSFeedService.log.error(
+          "Illegal argument passed to saveDescriptors. Feed descriptors cannot be null.");
       return;
     }
 
     if (descriptors.getDescriptors().isEmpty()) {
-      log.warn("Attempt to save empty list of Feed Descriptors");
+      PSFeedService.log.warn("Attempt to save empty list of Feed Descriptors");
       return;
     }
 
@@ -436,13 +438,13 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     sites.add(descriptors.getSite());
 
     // Save connection info
-    feedDao.saveConnectionInfo(
+    this.feedDao.saveConnectionInfo(
         descriptors.getServiceUrl(),
         descriptors.getServiceUser(),
         descriptors.getServicePass(),
         descriptors.isServicePassEncrypted());
     // Determine descriptor delete list
-    List<IPSFeedDescriptor> existing = feedDao.findBySite(descriptors.getSite());
+    List<IPSFeedDescriptor> existing = this.feedDao.findBySite(descriptors.getSite());
 
     // Use streams to determine descriptors to delete
     List<IPSFeedDescriptor> deletes =
@@ -456,14 +458,14 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
                                     && nd.getSite().equals(d.getSite())))
             .collect(Collectors.toList());
 
-    if (log.isDebugEnabled()) {
-      log.debug("Descriptors that will be deleted are : {} ", deletes);
+    if (PSFeedService.log.isDebugEnabled()) {
+      PSFeedService.log.debug("Descriptors that will be deleted are : {} ", deletes);
     }
 
-    feedDao.saveDescriptors(descriptors.getDescriptors());
+    this.feedDao.saveDescriptors(descriptors.getDescriptors());
 
     // Remove feed descriptors for feeds that no longer exist
-    feedDao.deleteDescriptors(deletes);
+    this.feedDao.deleteDescriptors(deletes);
   }
 
   /**
@@ -480,26 +482,26 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       IPSFeedDescriptor desc, Optional<String> hostName, HttpServletRequest httpRequest)
       throws FeedException {
 
-    if (rssFeedsIP == null || rssFeedsIP.isEmpty()) {
-      rssFeedsIP = FEEDS_IP_DEFAULT;
+    if (this.rssFeedsIP == null || this.rssFeedsIP.isEmpty()) {
+      this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
     } else {
-      rssFeedsIP = rssFeedsIP.trim();
+      this.rssFeedsIP = this.rssFeedsIP.trim();
     }
 
     InetAddressValidator ipValidator = new InetAddressValidator();
-    boolean isValidIp = ipValidator.isValid(rssFeedsIP);
+    boolean isValidIp = ipValidator.isValid(this.rssFeedsIP);
     boolean isIPV4Address = false;
     boolean isIPV6Address = false;
     if (isValidIp) {
-      if (ipValidator.isValidInet4Address(rssFeedsIP)) {
+      if (ipValidator.isValidInet4Address(this.rssFeedsIP)) {
         isIPV4Address = true;
-      } else if (ipValidator.isValidInet6Address(rssFeedsIP)) {
+      } else if (ipValidator.isValidInet6Address(this.rssFeedsIP)) {
         isIPV6Address = true;
       } else {
-        rssFeedsIP = FEEDS_IP_DEFAULT;
+        this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
       }
     } else {
-      rssFeedsIP = FEEDS_IP_DEFAULT;
+      this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
     }
     // Call the metadata service with the query to get page listing
     PSFeedGenerator generator = new PSFeedGenerator();
@@ -510,30 +512,32 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     Client client;
 
     try {
-      client = httpClient.getSSLClient();
+      client = this.httpClient.getSSLClient();
       uri = new URI(desc.getLink());
       if (isIPV4Address) {
-        url = httpRequest.getScheme() + "://" + rssFeedsIP + ":" + httpRequest.getLocalPort();
+        url = httpRequest.getScheme() + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       } else if (isIPV6Address) {
-        url = httpRequest.getScheme() + "://[" + rssFeedsIP + "]:" + httpRequest.getLocalPort();
+        url =
+            httpRequest.getScheme() + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
       } else {
-        url = httpRequest.getScheme() + "://" + rssFeedsIP + ":" + httpRequest.getLocalPort();
+        url = httpRequest.getScheme() + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
       }
 
       protocol = uri.getScheme() + "://";
-      log.info("The url obtained using the httpRequest.getLocalAddr() ----> {} ", url);
+      PSFeedService.log.info(
+          "The url obtained using the httpRequest.getLocalAddr() ----> {} ", url);
     } catch (Exception e) {
       client = ClientBuilder.newClient();
-      log.error(
+      PSFeedService.log.error(
           "Exception occurred in creating the SSL Client : {} ",
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
     WebTarget webTarget = client.target(url + "/perc-metadata-services/metadata/get");
 
-    if (log.isDebugEnabled()) {
-      log.debug("WebResource for metadata service : {}", webTarget);
+    if (PSFeedService.log.isDebugEnabled()) {
+      PSFeedService.log.debug("WebResource for metadata service : {}", webTarget);
     }
 
     try {
@@ -562,25 +566,27 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
         if (props.has(PROP_TITLE)) item.setTitle(props.getString(PROP_TITLE));
         if (props.has(PROP_DESCRIPTION)) {
           String sitePrefix = protocol + host;
-          String replacedHtml = replaceRelativeLinks(props.getString(PROP_DESCRIPTION), sitePrefix);
+          String replacedHtml =
+              this.replaceRelativeLinks(props.getString(PROP_DESCRIPTION), sitePrefix);
           item.setDescription(replacedHtml);
         }
         if (props.has(PROP_PUBDATE)) {
           TimeZone tz = TimeZone.getDefault();
           if (props.has(PROP_CONTENTPOSTDATETZ))
             tz = TimeZone.getTimeZone(props.getString(PROP_CONTENTPOSTDATETZ));
-          FastDateFormat tzFmt = FastDateFormat.getInstance(dateFormat.getPattern(), tz);
+          FastDateFormat tzFmt = FastDateFormat.getInstance(this.dateFormat.getPattern(), tz);
           item.setPublishDate(tzFmt.parse(props.getString(PROP_PUBDATE)));
         }
         items.add(item);
       }
       feed = generator.makeFeedContent(desc, host, items);
 
-      log.debug("The generated feed: {}", feed);
+      PSFeedService.log.debug("The generated feed: {}", feed);
 
     } catch (Exception e) {
-      log.error("Exception during feed generation : {}", PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.error(
+          "Exception during feed generation : {}", PSExceptionUtils.getMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new FeedException(e.getMessage(), e);
     }
 
@@ -600,7 +606,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   @Override
   public void addMetadataListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");
-    if (!listeners.contains(listener)) listeners.add(listener);
+    if (!this.listeners.contains(listener)) this.listeners.add(listener);
   }
 
   /*
@@ -616,7 +622,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   @Override
   public void removeMetadataListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");
-    listeners.remove(listener);
+    this.listeners.remove(listener);
   }
 
   /** Fire a data change event for all registered listeners. */
@@ -626,7 +632,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       return;
     }
 
-    for (IPSServiceDataChangeListener listener : listeners) {
+    for (IPSServiceDataChangeListener listener : this.listeners) {
       listener.dataChanged(sites, this.PERC_FEEDS_SERVICE);
     }
   }
@@ -638,7 +644,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       return;
     }
 
-    for (IPSServiceDataChangeListener listener : listeners) {
+    for (IPSServiceDataChangeListener listener : this.listeners) {
       listener.dataChangeRequested(sites, this.PERC_FEEDS_SERVICE);
     }
   }
@@ -660,7 +666,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
     String version = super.getVersion();
 
-    log.debug("getVersion() from PSFeedService... {}", version);
+    PSFeedService.log.debug("getVersion() from PSFeedService... {}", version);
 
     return version;
   }
@@ -685,16 +691,16 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   /** {@inheritDoc} */
   @Override
   public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
-    log.info("Attempting to delete feeds entries for site name: {}", prevSiteName);
+    PSFeedService.log.info("Attempting to delete feeds entries for site name: {}", prevSiteName);
     try {
-      List<IPSFeedDescriptor> feeds = feedDao.findBySite(prevSiteName);
-      feedDao.deleteDescriptors(feeds);
+      List<IPSFeedDescriptor> feeds = this.feedDao.findBySite(prevSiteName);
+      this.feedDao.deleteDescriptors(feeds);
     } catch (Exception e) {
-      log.error(
+      PSFeedService.log.error(
           "Error updating feed entries for old site: {}, Error: {}",
           prevSiteName,
           PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
 

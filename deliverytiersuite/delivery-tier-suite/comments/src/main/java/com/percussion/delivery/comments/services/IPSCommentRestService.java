@@ -22,6 +22,7 @@ import com.percussion.delivery.comments.data.PSCommentIds;
 import com.percussion.delivery.comments.data.PSComments;
 import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.services.IPSRestService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -36,7 +37,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Map;
-import javax.annotation.security.RolesAllowed;
 import org.glassfish.jersey.server.ContainerRequest;
 
 /**

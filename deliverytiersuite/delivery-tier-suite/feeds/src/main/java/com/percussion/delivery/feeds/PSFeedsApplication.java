@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.feeds;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.feeds.services.PSFeedService;
@@ -44,6 +44,6 @@ public class PSFeedsApplication extends ResourceConfig {
     register(RolesAllowedDynamicFeature.class);
     register(PSJsonMappingErrorResponse.class);
     register(PSUncaughtError.class);
-    register(JacksonJaxbJsonProvider.class);
+    register(JacksonXmlBindJsonProvider.class);
   }
 }
