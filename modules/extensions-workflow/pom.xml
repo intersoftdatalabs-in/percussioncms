@@ -82,8 +82,8 @@
            <scope>provided</scope>
        </dependency>
        <dependency>
-           <groupId>jakarta.mail</groupId>
-           <artifactId>jakarta.mail</artifactId>
+           <groupId>javax.mail</groupId>
+           <artifactId>javax.mail-api</artifactId>
            <scope>provided</scope>
        </dependency>
        <dependency>
