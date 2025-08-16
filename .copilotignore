@@ -17,6 +17,6 @@ target/
 *.ear
 *.jar
 
-# cui not an actual node module
+# cui not an actual node module - remove this when fixed
 cui/package.json
 cui/node_modules
