@@ -1645,7 +1645,6 @@ import com.percussion.delivery.comments.data.IPSComment;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.comments.data.PSCommentSort;
 import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
-import com.percussion.delivery.comments.data.PSComments;
 import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.comments.data.PSPageSummary;
 import com.percussion.delivery.comments.data.PSRestComment;
