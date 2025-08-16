@@ -33,11 +33,8 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
@@ -99,11 +96,12 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
 
     try {
       Session session = getSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<PSDbCookieConsent> query = cb.createQuery(PSDbCookieConsent.class);
+      Root<PSDbCookieConsent> root = query.from(PSDbCookieConsent.class);
+      query.select(root);
 
-      Criteria crit = session.createCriteria(PSDbCookieConsent.class);
-
-      @SuppressWarnings("unchecked")
-      List<IPSCookieConsent> result = crit.list();
+      List<PSDbCookieConsent> result = session.createQuery(query).getResultList();
 
       for (IPSCookieConsent res : result) {
         consents.add(res);
@@ -124,13 +122,12 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
     Collection<IPSCookieConsent> consents = new ArrayList<>();
     try {
       Session session = getSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<PSDbCookieConsent> query = cb.createQuery(PSDbCookieConsent.class);
+      Root<PSDbCookieConsent> root = query.from(PSDbCookieConsent.class);
+      query.select(root).where(cb.equal(root.get("siteName"), siteName));
 
-      Criteria crit = session.createCriteria(PSDbCookieConsent.class);
-
-      crit.add(Restrictions.eq("siteName", siteName));
-
-      @SuppressWarnings("unchecked")
-      List<IPSCookieConsent> result = crit.list();
+      List<PSDbCookieConsent> result = session.createQuery(query).getResultList();
 
       for (IPSCookieConsent res : result) {
         consents.add(res);
@@ -218,23 +215,31 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
       Map<String, Integer> results = new HashMap<>();
 
       Session session = getSession();
+      CriteriaBuilder cb = session.getCriteriaBuilder();
 
-      Criteria crit = session.createCriteria(PSDbCookieConsent.class);
-      crit.add(Restrictions.eq("siteName", siteName));
-      crit.setProjection(Projections.projectionList().add(Projections.property("serviceName")));
-      @SuppressWarnings("unchecked")
-      List<String> serviceNames = crit.list();
+      // First query: get distinct service names for the site
+      CriteriaQuery<String> serviceQuery = cb.createQuery(String.class);
+      Root<PSDbCookieConsent> serviceRoot = serviceQuery.from(PSDbCookieConsent.class);
+      serviceQuery
+          .select(serviceRoot.get("serviceName"))
+          .distinct(true)
+          .where(cb.equal(serviceRoot.get("siteName"), siteName));
 
+      List<String> serviceNames = session.createQuery(serviceQuery).getResultList();
+
+      // Second query: count entries for each service name
       for (String sName : serviceNames) {
-        crit = session.createCriteria(PSDbCookieConsent.class);
-        crit.setProjection(Projections.rowCount());
-        crit.add(Restrictions.eq("serviceName", sName));
-        crit.add(Restrictions.eq("siteName", siteName));
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<PSDbCookieConsent> countRoot = countQuery.from(PSDbCookieConsent.class);
+        countQuery
+            .select(cb.count(countRoot))
+            .where(
+                cb.and(
+                    cb.equal(countRoot.get("serviceName"), sName),
+                    cb.equal(countRoot.get("siteName"), siteName)));
 
-        @SuppressWarnings("unchecked")
-        List<Long> res = crit.list();
-
-        results.put(siteName, res.get(0).intValue());
+        Long count = session.createQuery(countQuery).getSingleResult();
+        results.put(siteName, count.intValue());
       }
 
       return results;

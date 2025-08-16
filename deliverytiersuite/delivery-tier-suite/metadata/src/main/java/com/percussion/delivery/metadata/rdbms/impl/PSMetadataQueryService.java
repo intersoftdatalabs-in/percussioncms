@@ -41,7 +41,6 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.internal.SessionImpl;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -256,9 +255,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
               PSMetadataQueryServiceHelper.parseToList(
                   key, value.toString(), datatypeMappings, hashCalculator));
         } else if (value instanceof Date) {
-          hq.setTimestamp(key, (Date) value);
+          hq.setParameter(key, (Date) value);
         } else if (value instanceof String) {
-          hq.setString(key, value.toString());
+          hq.setParameter(key, value.toString());
         }
       }
       // Returns List of Array with "Count: {} Name {} Cat: {}", c[0], c[1], c[2]
@@ -588,9 +587,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
             PSMetadataQueryServiceHelper.parseToList(
                 key, value.toString(), datatypeMappings, hashCalculator));
       } else if (value instanceof Date) {
-        q.setTimestamp(key, (Date) value);
+        q.setParameter(key, (Date) value);
       } else if (value instanceof String) {
-        q.setString(key, value.toString());
+        q.setParameter(key, value.toString());
       }
     }
 
@@ -666,9 +665,15 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     Connection connection = null;
     try (Session session = getSession()) {
-      connection = ((SessionImpl) session).connection();
-      jdbcConnectionUrl = connection.getMetaData().getURL();
-    } catch (SQLException | RuntimeException e) {
+      session.doWork(
+          conn -> {
+            try {
+              jdbcConnectionUrl = conn.getMetaData().getURL();
+            } catch (SQLException e) {
+              log.error("Error getting JDBC URL: {}", PSExceptionUtils.getMessageForLog(e));
+            }
+          });
+    } catch (RuntimeException e) {
       log.error(
           "There was an error getting jdbc driver name Error: {}",
           PSExceptionUtils.getMessageForLog(e));
