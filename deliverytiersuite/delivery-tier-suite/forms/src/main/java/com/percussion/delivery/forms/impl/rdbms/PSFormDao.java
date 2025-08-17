@@ -108,7 +108,7 @@ public class PSFormDao implements IPSFormDao {
       for (IPSFormData form : forms) {
         values.add(Long.valueOf(form.getId()));
         if (values.size() > 950 || values.size() == forms.size()) {
-          session.createQuery(query).setParameter("ids", values).executeUpdate();
+          session.createQuery(query).setParameterList("ids", values).executeUpdate();
           session.flush();
           values.clear();
         }
