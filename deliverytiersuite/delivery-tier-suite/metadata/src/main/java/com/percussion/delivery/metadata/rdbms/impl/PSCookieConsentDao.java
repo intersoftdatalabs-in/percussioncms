@@ -239,7 +239,7 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
                     cb.equal(countRoot.get("siteName"), siteName)));
 
         Long count = session.createQuery(countQuery).getSingleResult();
-        results.put(siteName, count.intValue());
+        results.put(sName, count.intValue());
       }
 
       return results;
