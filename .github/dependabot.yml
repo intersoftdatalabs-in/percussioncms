@@ -5,7 +5,5 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-  - package-ecosystem: "submodules"
-    directory: "/"
-    schedule:
-      interval: "daily"
+    versioning-strategy: "increase"
+    target-branch: "development-java-8"
