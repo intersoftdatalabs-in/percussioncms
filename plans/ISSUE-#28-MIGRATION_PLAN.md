@@ -21,4 +21,4 @@ Migrate all usage to `java.net.http.HttpClient` (available since Java 11).
 
 ## Progress
 
-Currently targeting development-java-11 branch as requested.
+Currently targeting development branch.
