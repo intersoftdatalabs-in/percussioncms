@@ -16,26 +16,100 @@
  */
 package com.percussion.utils.http;
 
-/**
- * Simple test for the PSModernHttpClient to verify basic functionality
- */
-public class PSModernHttpClientTest {
-    
-    public static void main(String[] args) {
-        try {
-            // Test basic instantiation
-            PSModernHttpClient client = new PSModernHttpClient("https://httpbin.org");
-            System.out.println("PSModernHttpClient created successfully");
-            
-            // Test GET request (commented out to avoid external dependency in build)
-            // String response = client.get("/get");
-            // System.out.println("GET response: " + response);
-            
-            System.out.println("PSModernHttpClient test passed!");
-            
-        } catch (Exception e) {
-            System.err.println("PSModernHttpClient test failed: " + e.getMessage());
-            e.printStackTrace();
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/** Simple test for the PSModernHttpClient to verify basic functionality */
+class PSModernHttpClientTest {
+
+    private static final String BASE_URL = "https://httpbin.org";
+
+    @Test
+    void testGetReturnsResponse() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        String response = client.get("/get");
+        assertTrue(response.contains("\"url\": \"https://httpbin.org/get\""));
+    }
+
+    @Test
+    void testGetWithParams() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        Map<String, String> params = new HashMap<>();
+        params.put("foo", "bar");
+        String response = client.get("/get", params);
+        assertTrue(response.contains("\"foo\": \"bar\""));
+    }
+
+    @Test
+    void testGetBinaryReturnsInputStream() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        try (InputStream is = client.getBinary("/image/png")) {
+            assertNotNull(is);
+            byte[] buffer = new byte[8];
+            int read = is.read(buffer);
+            assertTrue(read > 0);
         }
+    }
+
+    @Test
+    void testPostReturnsResponse() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        String body = "{\"hello\":\"world\"}";
+        String response = client.post("/post", body);
+        assertTrue(response.contains("\"hello\": \"world\""));
+    }
+
+    @Test
+    void testPostFormReturnsResponse() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        Map<String, String> params = new HashMap<>();
+        params.put("foo", "bar");
+        String response = client.postForm("/post", params);
+        assertTrue(response.contains("\"foo\": \"bar\""));
+    }
+
+    @Test
+    void testPutReturnsResponse() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        String body = "{\"update\":\"true\"}";
+        String response = client.put("/put", body);
+        assertTrue(response.contains("\"update\": \"true\""));
+    }
+
+    @Test
+    void testDeleteReturnsResponse() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        String response = client.delete("/delete");
+        assertTrue(response.contains("\"url\": \"https://httpbin.org/delete\""));
+    }
+
+    @Test
+    void testAddHeader() throws IOException {
+        var client = new PSModernHttpClient(BASE_URL);
+        client.addHeader("X-Test-Header", "SunnySal");
+        String response = client.get("/headers");
+        assertTrue(response.contains("\"X-Test-Header\": \"SunnySal\""));
+    }
+
+    @Test
+    void testSetTimeout() {
+        var client = new PSModernHttpClient(BASE_URL);
+        client.setTimeout(Duration.ofMillis(1));
+        IOException thrown = assertThrows(IOException.class, () -> client.get("/delay/2"));
+        assertTrue(thrown.getMessage().contains("HTTP connect timed out"), "Expected timeout exception not thrown, was: " + thrown.getMessage());
+    }
+
+    @Test
+    void testErrorResponseThrowsIOException() {
+        var client = new PSModernHttpClient(BASE_URL);
+        IOException thrown = assertThrows(IOException.class, () -> client.get("/status/404"));
+        assertTrue(thrown.getMessage().contains("HTTP Error 404"));
     }
 }

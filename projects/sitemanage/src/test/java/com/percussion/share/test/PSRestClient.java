@@ -111,7 +111,7 @@ public class PSRestClient {
 
     
 
-    protected PSModernHttpClient getClient() {
+    protected synchronized PSModernHttpClient getClient() {
         if (client == null && url != null) {
             client = new PSModernHttpClient(url, requestHeaders);
         }
