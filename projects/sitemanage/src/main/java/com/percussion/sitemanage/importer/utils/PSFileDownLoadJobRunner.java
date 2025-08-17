@@ -18,10 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
-import com.percussion.HTTPClient.URI;
+import java.net.URI;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
