@@ -17,7 +17,7 @@
 
 package com.percussion.soln.p13n.tracking.action;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.soln.p13n.tracking.IVisitorProfileDataService;
 import com.percussion.soln.p13n.tracking.IVisitorTrackingAction;

@@ -19,7 +19,7 @@ package com.percussion.utils.tools;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Class of unit test utility functions. */
 public class PSTestUtils {

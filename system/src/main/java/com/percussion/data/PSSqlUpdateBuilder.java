@@ -18,8 +18,8 @@
 package com.percussion.data;
 
 import static com.percussion.util.PSSqlHelper.isMysql;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.percussion.design.objectstore.IPSBackEndMapping;
 import com.percussion.design.objectstore.IPSReplacementValue;

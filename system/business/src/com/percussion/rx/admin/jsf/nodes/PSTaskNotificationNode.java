@@ -18,7 +18,7 @@
 package com.percussion.rx.admin.jsf.nodes;
 
 import static com.percussion.utils.string.PSStringUtils.notBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.rx.jsf.PSEditableNode;
 import com.percussion.services.schedule.IPSSchedulingService;

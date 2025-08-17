@@ -21,7 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a folder or site for workflow assignment. Used to list the sites and asset folders

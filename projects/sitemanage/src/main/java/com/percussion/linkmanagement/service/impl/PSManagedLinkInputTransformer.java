@@ -25,7 +25,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Item input transformer to process/update any HTML links in the specified content. Calls the

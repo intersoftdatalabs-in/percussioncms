@@ -23,7 +23,7 @@ import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import java.util.Map;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

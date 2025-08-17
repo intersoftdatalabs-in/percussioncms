@@ -18,7 +18,7 @@ package com.percussion.workflow;
 
 import com.percussion.services.workflow.data.PSWorkflow;
 import java.sql.SQLException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a workflow in the system. This object is not cached at this time as it may be updated

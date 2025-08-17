@@ -22,7 +22,7 @@ import com.percussion.delivery.utils.IPSEmailHelper;
 import com.percussion.delivery.utils.PSEmailServiceNotInitializedException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Mock email helper for testing services that send email. Should be wired into services in the

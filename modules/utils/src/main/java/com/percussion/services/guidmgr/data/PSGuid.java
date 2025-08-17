@@ -18,8 +18,8 @@ package com.percussion.services.guidmgr.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * This class encapsulates guids and converts them to and from user readable and machine formats.

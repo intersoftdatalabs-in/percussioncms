@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.searchmanagement.service.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;

@@ -58,7 +58,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 import javax.naming.NamingException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;

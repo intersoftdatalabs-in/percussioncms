@@ -16,8 +16,8 @@
  */
 package com.percussion.services.filter.impl;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.noNullElements;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.noNullElements;
 
 import java.util.ArrayList;
 import java.util.List;

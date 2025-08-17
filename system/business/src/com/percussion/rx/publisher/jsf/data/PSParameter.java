@@ -21,7 +21,7 @@ package com.percussion.rx.publisher.jsf.data;
 
 import java.util.Optional;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Java 11 refactored: Describes one attribute for the parameters. Used for the expander and generator arguments.

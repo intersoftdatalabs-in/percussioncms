@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.jsf;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.percussion.services.error.PSNotFoundException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.trinidad.model.RowKeyIndex;
 
 /**

@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.dao.impl;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.pagemanagement.dao.IPSResourceDefinitionGroupDao;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;

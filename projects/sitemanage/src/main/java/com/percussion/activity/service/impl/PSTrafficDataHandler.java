@@ -17,7 +17,7 @@
  */
 package com.percussion.activity.service.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.activity.data.*;
 import com.percussion.activity.service.IPSTrafficService;

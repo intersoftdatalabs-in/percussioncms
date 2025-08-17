@@ -18,7 +18,7 @@ package com.percussion.search.lucene.textconverter;
 
 import com.percussion.search.lucene.IPSLuceneConstants;
 import org.junit.jupiter.api.Test;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 

@@ -39,7 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

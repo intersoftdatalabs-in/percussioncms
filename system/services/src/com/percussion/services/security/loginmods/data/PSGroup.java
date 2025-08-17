@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.collections.iterators.IteratorEnumeration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Implements a security group

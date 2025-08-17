@@ -16,8 +16,8 @@
  */
 package com.percussion.utils.jsr170;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents an absolute or relative JSR-170 path. A path is made up of path elements. Each element

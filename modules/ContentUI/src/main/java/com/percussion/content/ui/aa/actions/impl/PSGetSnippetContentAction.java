@@ -26,7 +26,7 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.types.PSPair;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Retrieves the assembled html content for the specified snippet. Expects an objectid for the

@@ -50,7 +50,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
@@ -63,7 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.text.MessageFormat.format;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * The meta-data delivery handler, which publishes and un-publishes pages to the indexer

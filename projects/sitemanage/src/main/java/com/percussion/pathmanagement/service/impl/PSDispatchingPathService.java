@@ -19,8 +19,8 @@ package com.percussion.pathmanagement.service.impl;
 
 import static java.text.MessageFormat.format;
 import static java.util.Collections.unmodifiableCollection;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -60,8 +60,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

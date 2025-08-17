@@ -18,8 +18,8 @@
 
 package com.percussion.assetmanagement.forms.data;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.itemmanagement.data.IPSEditableItem;

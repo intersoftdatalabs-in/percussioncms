@@ -17,7 +17,7 @@
  */
 package com.percussion.share.service.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.service.impl.jaxb.Data;
 import com.percussion.share.service.impl.jaxb.Response;

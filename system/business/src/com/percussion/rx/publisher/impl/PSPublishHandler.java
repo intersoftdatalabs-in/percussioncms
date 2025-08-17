@@ -62,7 +62,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.webservices.PSWebserviceUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,8 +87,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
-import static org.apache.commons.lang.Validate.noNullElements;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.noNullElements;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Handler that processes assembly items waiting in the assembly queue for

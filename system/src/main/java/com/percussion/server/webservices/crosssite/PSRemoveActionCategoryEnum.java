@@ -17,7 +17,7 @@
 
 package com.percussion.server.webservices.crosssite;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Enumeration for the remove from folder action categories that are processed by this processor per

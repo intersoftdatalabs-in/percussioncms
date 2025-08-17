@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.string;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.utils.jsr170.PSPath;
 import java.awt.*;
@@ -24,8 +24,8 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 
 /**
  * Useful string utilities

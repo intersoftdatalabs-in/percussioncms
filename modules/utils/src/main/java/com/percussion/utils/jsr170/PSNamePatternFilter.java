@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import javax.jcr.Item;
 import javax.jcr.RepositoryException;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A name pattern filter handles objects that fulfill the <code>Item</code> interface or uses the

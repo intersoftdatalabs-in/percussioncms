@@ -20,7 +20,7 @@ import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.util.PSDataTypeConverter;
 import java.util.Date;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Extension utilities to extract parameters, etc.

@@ -25,7 +25,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 
 public class PSDisplayFormatModel extends PSDesignModel

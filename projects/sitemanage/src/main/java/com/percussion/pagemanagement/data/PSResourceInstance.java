@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import static org.apache.commons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResource;
 import com.percussion.share.data.IPSLinkableContentItem;

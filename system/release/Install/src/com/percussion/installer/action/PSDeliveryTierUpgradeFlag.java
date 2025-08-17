@@ -15,7 +15,7 @@ import com.percussion.install.RxFileManager;
 import com.percussion.installanywhere.RxIAAction;
 import com.percussion.installer.RxVariables;
 import com.percussion.util.PSOsTool;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 

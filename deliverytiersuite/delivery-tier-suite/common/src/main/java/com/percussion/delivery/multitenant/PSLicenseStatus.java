@@ -17,7 +17,7 @@
 package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Represents the status information returned by a call to the license service.

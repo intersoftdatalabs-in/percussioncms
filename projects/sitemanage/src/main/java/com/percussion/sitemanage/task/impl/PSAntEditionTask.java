@@ -18,8 +18,8 @@ package com.percussion.sitemanage.task.impl;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.*;
-import static org.apache.commons.lang.StringUtils.*;
-import static org.apache.commons.lang.Validate.*;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.Validate.*;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionDef;

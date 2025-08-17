@@ -19,7 +19,7 @@ package com.percussion.pso.preview;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Iterator;
 import java.util.Properties;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

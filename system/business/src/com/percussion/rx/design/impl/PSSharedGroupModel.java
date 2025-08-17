@@ -26,7 +26,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 public class PSSharedGroupModel extends PSLimitedDesignModel

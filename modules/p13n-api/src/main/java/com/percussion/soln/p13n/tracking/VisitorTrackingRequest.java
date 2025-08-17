@@ -17,8 +17,8 @@
 
 package com.percussion.soln.p13n.tracking;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * A visitor tracking request includes either the profile id

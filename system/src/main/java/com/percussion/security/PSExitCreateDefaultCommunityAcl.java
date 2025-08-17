@@ -42,7 +42,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Enumeration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 /**

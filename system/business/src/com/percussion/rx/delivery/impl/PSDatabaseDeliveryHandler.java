@@ -34,9 +34,9 @@ import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.xml.PSSaxCopier;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -64,8 +64,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * The database delivery handler delivers content to a database. The database

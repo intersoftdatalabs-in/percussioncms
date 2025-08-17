@@ -17,7 +17,7 @@
 
 package com.percussion.services.publisher.data;
 
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.share.data.PSAbstractDataObject;
 

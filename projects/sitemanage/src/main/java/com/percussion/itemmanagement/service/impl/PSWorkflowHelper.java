@@ -33,8 +33,8 @@ import static com.percussion.webservices.PSWebserviceUtils.isItemCheckedOutToUse
 import static com.percussion.webservices.PSWebserviceUtils.transitionItem;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableCollection;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;

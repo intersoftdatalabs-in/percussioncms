@@ -31,7 +31,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.PSCollection;
 import java.text.MessageFormat;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Relationship configuration setter to set shallowCloning, deepCloning, and fieldOverrides.

@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.metadata.data;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class contains the structure of the event information. The object is composed of the

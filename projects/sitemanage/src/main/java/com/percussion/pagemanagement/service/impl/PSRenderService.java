@@ -17,8 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.EditType;

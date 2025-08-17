@@ -33,7 +33,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Element;
 
 /**

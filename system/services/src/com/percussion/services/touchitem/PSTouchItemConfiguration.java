@@ -17,7 +17,7 @@
 
 package com.percussion.services.touchitem;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 

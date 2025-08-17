@@ -37,7 +37,7 @@ import java.util.TreeSet;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides a set of getters to populate browser UIs. Each method is named for

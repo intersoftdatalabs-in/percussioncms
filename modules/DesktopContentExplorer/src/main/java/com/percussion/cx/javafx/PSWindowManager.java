@@ -19,7 +19,7 @@ package com.percussion.cx.javafx;
 
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

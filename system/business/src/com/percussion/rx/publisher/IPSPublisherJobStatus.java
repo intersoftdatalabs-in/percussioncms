@@ -20,7 +20,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The public (read-only) interface to the job status. A job can be in a number

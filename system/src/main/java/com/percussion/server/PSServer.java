@@ -17,7 +17,7 @@
 
 package com.percussion.server;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSCmsObject;
@@ -171,7 +171,7 @@ import java.util.concurrent.Executors;
 import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

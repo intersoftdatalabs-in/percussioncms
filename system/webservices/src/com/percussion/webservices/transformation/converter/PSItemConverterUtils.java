@@ -56,7 +56,7 @@ import com.percussion.webservices.content.PSItemFolders;
 import com.percussion.webservices.content.PSItemSlots;
 import com.percussion.webservices.content.PSRelatedItem;
 import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

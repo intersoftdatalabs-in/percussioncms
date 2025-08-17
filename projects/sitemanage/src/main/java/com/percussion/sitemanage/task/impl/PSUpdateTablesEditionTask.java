@@ -16,7 +16,7 @@
  */
 package com.percussion.sitemanage.task.impl;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionDef;
@@ -45,7 +45,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

@@ -24,8 +24,8 @@ import static com.percussion.fastforward.managednav.PSNavFolderUtils.getChildNav
 import static com.percussion.fastforward.managednav.PSNavFolderUtils.getParentFolder;
 import static com.percussion.fastforward.managednav.PSNavFolderUtils.removeNavonParents;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.jcr.Node;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

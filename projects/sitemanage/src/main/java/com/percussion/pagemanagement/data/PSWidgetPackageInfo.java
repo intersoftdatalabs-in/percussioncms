@@ -20,7 +20,7 @@ package com.percussion.pagemanagement.data;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Additional information about a widget from the package that installed it. The id is the widget

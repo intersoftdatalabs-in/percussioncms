@@ -17,7 +17,7 @@
 package com.percussion.design.objectstore;
 
 import com.percussion.cms.PSCmsException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This is a specific exception class derived from PSCmsException to hold the field validation

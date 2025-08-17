@@ -13,7 +13,7 @@ import com.percussion.util.IPSBrandCodeConstants;
 
 import java.io.File;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

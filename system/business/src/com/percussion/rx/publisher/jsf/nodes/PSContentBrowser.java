@@ -25,7 +25,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

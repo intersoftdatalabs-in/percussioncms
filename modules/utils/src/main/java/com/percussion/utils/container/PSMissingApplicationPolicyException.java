@@ -18,7 +18,7 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.jboss.IPSJBossErrors;
 import com.percussion.utils.exceptions.PSBaseException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Indicates a specified application policy is not found. */
 public class PSMissingApplicationPolicyException extends PSBaseException {

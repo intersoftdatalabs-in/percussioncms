@@ -25,7 +25,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The user status, used only for the status tag.

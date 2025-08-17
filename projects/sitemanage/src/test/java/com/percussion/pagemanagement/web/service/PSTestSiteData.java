@@ -22,7 +22,7 @@ import static com.percussion.share.test.PSRestTestCase.baseUrl;
 import static com.percussion.share.test.PSRestTestCase.setupClient;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
@@ -46,7 +46,7 @@ import com.percussion.sitemanage.web.service.PSSiteTemplateRestClient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

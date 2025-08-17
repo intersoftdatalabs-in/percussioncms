@@ -17,7 +17,7 @@
 
 package com.percussion.pagemanagement.assembler;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.pagemanagement.assembler.impl.PSAssemblyItemBridge.TemplateAndPage;
 import com.percussion.services.assembly.IPSAssemblyItem;

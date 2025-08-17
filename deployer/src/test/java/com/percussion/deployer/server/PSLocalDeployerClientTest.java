@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import org.apache.cactus.ServletTestCase;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Tag;
 
 /**

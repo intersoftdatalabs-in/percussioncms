@@ -16,7 +16,7 @@
  */
 package com.percussion.workflow;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Aggregates some basic info about a transition */
 public class PSTransitionInfo {
