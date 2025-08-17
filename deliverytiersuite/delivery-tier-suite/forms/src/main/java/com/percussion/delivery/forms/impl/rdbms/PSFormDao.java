@@ -143,7 +143,8 @@ public class PSFormDao implements IPSFormDao {
       query = entityManager.createQuery(sqlString, IPSFormData.class);
     } else {
       sqlString =
-          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) = lower(:formName)";
+          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) ="
+              + " lower(:formName)";
       query = entityManager.createQuery(sqlString, IPSFormData.class);
       query.setParameter("formName", formName);
     }
@@ -185,7 +186,7 @@ public class PSFormDao implements IPSFormDao {
     TypedQuery<String> query =
         entityManager.createQuery(
             "select distinct lower(name) from PSFormData order by lower(name) asc", String.class);
-            "select distinct name from PSFormData order by name asc", String.class);
+
     List<String> names = query.getResultList();
     // Deduplicate case-insensitively, preserving original casing of first occurrence
     Map<String, String> deduped = new java.util.LinkedHashMap<>();

@@ -120,30 +120,21 @@
         </property>
     </bean>
 
-    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-       <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
-
-   <!-- Hibernate SessionFactory -->
-   <bean id="sessionFactory"
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-      <property name="dataSource" ref="percDataSource" />
-      <property name="hibernateProperties" ref="percHibernateProperties" />
     <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-       <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
 
-   <!-- JPA EntityManagerFactory -->
-   <bean id="entityManagerFactory"
-         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-      <property name="dataSource" ref="percDataSource" />
-      <property name="jpaProperties" ref="percHibernateProperties" />
-      <property name="packagesToScan" value="com.percussion.delivery.forms.data" />
-      <property name="jpaVendorAdapter">
-          <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
-      </property>
-   </bean>
-
+    <!-- JPA EntityManagerFactory -->
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="percDataSource" />
+        <property name="jpaProperties" ref="percHibernateProperties" />
+        <property name="packagesToScan" value="com.percussion.delivery.forms.data" />
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory" />
+    </bean>
 
     <bean id="recaptchaService" class="com.percussion.delivery.forms.impl.PSRecaptchaService" autowire="constructor">
         <constructor-arg index = "0" value = "${recaptcha.on}"/>
