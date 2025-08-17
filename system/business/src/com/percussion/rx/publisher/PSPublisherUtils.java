@@ -16,8 +16,8 @@
  */
 package com.percussion.rx.publisher;
 
-import static org.apache.commons.lang.Validate.notNull;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

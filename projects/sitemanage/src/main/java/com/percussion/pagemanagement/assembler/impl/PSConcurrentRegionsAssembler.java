@@ -17,8 +17,8 @@
 package com.percussion.pagemanagement.assembler.impl;
 
 import static com.percussion.system.utils.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.assembler.IPSRegionAssembler;
 import com.percussion.pagemanagement.assembler.IPSRegionsAssembler;

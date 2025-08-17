@@ -22,7 +22,7 @@ import com.percussion.search.PSSearchKey;
 import com.percussion.util.PSStringOperation;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Handles the transformation of Rhythmyx ids to string identifiers used to uniquely identify

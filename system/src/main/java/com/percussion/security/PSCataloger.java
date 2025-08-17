@@ -45,7 +45,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** An abstract base class which holds all common functionality to all catalogers. */
 @SuppressWarnings(value = {"unchecked"})

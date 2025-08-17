@@ -20,7 +20,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.webservices.assembly.data.TemplateUsageType;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Converts objects between the classes 

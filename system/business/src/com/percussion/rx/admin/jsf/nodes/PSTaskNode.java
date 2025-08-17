@@ -18,7 +18,7 @@
 package com.percussion.rx.admin.jsf.nodes;
 
 import static com.percussion.utils.string.PSStringUtils.notBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.rx.jsf.PSEditableNode;
@@ -48,7 +48,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

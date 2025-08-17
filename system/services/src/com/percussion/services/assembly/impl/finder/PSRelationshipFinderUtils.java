@@ -39,7 +39,7 @@ import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationServiceLocator;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +49,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.percussion.services.assembly.impl.finder.PSContentFinderBase.ORDER_BY;
 import static com.percussion.services.memory.IPSCacheAccess.CONTENT_FINDER_RELS;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * This class provides various helper methods for relationship content finders.

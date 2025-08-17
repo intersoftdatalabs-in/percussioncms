@@ -774,7 +774,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @throws PSDeployException If there are any errors.
    */
   protected static PSPurgableTempFile createXmlFile(String str) throws PSDeployException {
-    if (org.apache.commons.lang.StringUtils.isBlank(str))
+    if (org.apache.commons.lang3.StringUtils.isBlank(str))
       throw new IllegalArgumentException("doc may not be empty or null");
 
     try {

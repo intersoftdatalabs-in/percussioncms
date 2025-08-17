@@ -53,6 +53,8 @@ docs/: Markdown documentation and API specs.
 .github/instructions/:    Additional Copilot instructions
 .github/prompts/:    Copilot prompts for specific tasks
 .github/chatmodes/:    Copilot chat modes for different contexts
+.github/ISSUE_DRAFTS/:    Drafts for GitHub issues
+plans/: Contains plans for tasks and issues. New plans should be added here in ISSUE-#<number>-<plan name>.md format.
 ```
 
 Always work with the #codebase directory as the root for all file paths.
@@ -74,4 +76,8 @@ Always use the #codebase context when resolving missing interfaces or classes.
 - Use `maven-toolchains-plugin` to ensure the correct Java version is used during builds.
 - Use `maven-enforcer-plugin` to enforce upper bound dependencies and prevent transitive dependency drifts.
 - Use `maven-spotless-plugin` and `maven-checkstyle-plugin` to ensure code style consistency.
+- The parent POM (`pom.xml`) has a dependencyManagement section to manage versions of dependencies used in child modules.
+- The parent POM (`pom.xml`) has a pluginManagement section to manage versions of plugins used in child modules.
+- The deliverytiersuite/delivery-tier-suite module has its own POM file to manage its child dependencies and plugins.
+- The deliverytiersuite/delivery-tier-suite module may override dependency versions defined in the parent POM but should do so only if absolutely necessary.
 

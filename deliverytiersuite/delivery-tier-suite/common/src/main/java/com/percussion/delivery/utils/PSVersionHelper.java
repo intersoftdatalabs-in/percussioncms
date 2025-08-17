@@ -19,7 +19,7 @@ package com.percussion.delivery.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Utility class for discovering the version of a service.

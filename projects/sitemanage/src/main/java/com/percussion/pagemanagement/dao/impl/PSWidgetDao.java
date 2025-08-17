@@ -17,8 +17,8 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
@@ -28,7 +28,7 @@ import com.percussion.share.dao.PSXmlFileDataRepository;
 import com.percussion.share.service.exception.PSDataServiceException;
 import java.io.IOException;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

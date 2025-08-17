@@ -21,7 +21,7 @@ import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import com.percussion.membership.services.IPSAuthProvider;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSAuthenticationFailedException;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 

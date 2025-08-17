@@ -20,7 +20,7 @@ import com.percussion.services.assembly.jexl.PSLinkUtils;
 
 import java.net.MalformedURLException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A class to provide link utilities to JSPs or XSL. Both JSPs and XSL allow

@@ -24,7 +24,7 @@ import com.percussion.error.PSRuntimeException;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Filters rows representing folders based on the user's permissions for the folder. The row is

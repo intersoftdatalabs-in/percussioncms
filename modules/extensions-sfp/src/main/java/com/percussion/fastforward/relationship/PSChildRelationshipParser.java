@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Uses the assembly service and relationship api to query relationships.

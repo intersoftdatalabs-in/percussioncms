@@ -20,7 +20,7 @@ import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor
 
 import javax.jcr.query.InvalidQueryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a literal chunk of HQL to be spliced into the final query.

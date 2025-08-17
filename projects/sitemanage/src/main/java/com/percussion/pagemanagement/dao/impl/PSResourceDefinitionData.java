@@ -17,9 +17,9 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.IPSResourceDefinitionVisitor;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;

@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import static org.apache.commons.lang.Validate.*;
+import static org.apache.commons.lang3.Validate.*;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.share.data.PSAbstractPersistantObject;

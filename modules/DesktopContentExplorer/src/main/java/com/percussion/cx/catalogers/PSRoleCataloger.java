@@ -108,14 +108,14 @@ public class PSRoleCataloger
 
         PSRoleCataloger that = (PSRoleCataloger) object;
 
-        return new org.apache.commons.lang.builder.EqualsBuilder()
+        return new org.apache.commons.lang3.builder.EqualsBuilder()
                 .appendSuper(super.equals(object))
                 .append(m_collRoles, that.m_collRoles)
                 .isEquals();
     }
 
     public int hashCode() {
-        return new org.apache.commons.lang.builder.HashCodeBuilder(17, 37)
+        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
                 .append(m_collRoles)
                 .toHashCode();

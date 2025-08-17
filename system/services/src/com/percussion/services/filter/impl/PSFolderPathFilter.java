@@ -26,7 +26,7 @@ import com.percussion.services.filter.IPSItemFilterRule;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.string.PSFolderStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

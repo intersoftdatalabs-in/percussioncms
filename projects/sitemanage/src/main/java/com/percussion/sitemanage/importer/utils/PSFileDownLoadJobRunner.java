@@ -18,10 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
-import com.percussion.HTTPClient.URI;
+import java.net.URI;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
@@ -43,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /** Executes a file download job, optionally creating an asset. */
 public class PSFileDownLoadJobRunner implements Runnable {

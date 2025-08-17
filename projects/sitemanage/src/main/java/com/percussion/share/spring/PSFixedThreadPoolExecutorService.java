@@ -17,7 +17,7 @@
  */
 package com.percussion.share.spring;
 
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

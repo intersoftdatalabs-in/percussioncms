@@ -25,7 +25,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSKeywordModel extends PSDesignModel
 {

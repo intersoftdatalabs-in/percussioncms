@@ -75,7 +75,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.persistence.Table;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 

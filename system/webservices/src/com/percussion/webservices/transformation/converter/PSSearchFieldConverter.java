@@ -22,7 +22,7 @@ import com.percussion.webservices.common.OperatorTypes;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Converts objects between the classes 

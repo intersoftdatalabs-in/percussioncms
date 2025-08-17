@@ -32,8 +32,8 @@ import java.util.Map;
 
 import javax.jcr.query.QueryResult;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

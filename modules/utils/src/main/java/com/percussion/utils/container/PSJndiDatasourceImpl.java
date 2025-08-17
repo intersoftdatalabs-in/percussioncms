@@ -18,7 +18,7 @@
 package com.percussion.utils.container;
 
 import com.percussion.utils.string.PSStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSJndiDatasourceImpl implements IPSJndiDatasource {
 

@@ -18,8 +18,8 @@
 package com.percussion.server.webservices.crosssite;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.countMatches;
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.StringUtils.countMatches;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -41,7 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

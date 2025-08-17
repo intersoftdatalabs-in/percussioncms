@@ -29,7 +29,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

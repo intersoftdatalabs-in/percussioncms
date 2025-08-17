@@ -36,7 +36,7 @@ import com.percussion.webdav.objectstore.IPSRxWebDavDTD;
 import com.percussion.webdav.objectstore.PSPropertyFieldNameMapping;
 import com.percussion.webdav.objectstore.PSWebdavConfigDef;
 import com.percussion.webdav.objectstore.PSWebdavContentType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

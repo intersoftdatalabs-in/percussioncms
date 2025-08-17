@@ -20,7 +20,7 @@ import com.percussion.pagemanagement.data.PSRegion;
 import com.percussion.pagemanagement.data.PSRegionBranches;
 import com.percussion.pagemanagement.data.PSRegionTree;
 import java.util.List;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * A node on the merged region tree region that has been merged with {@link PSRegionTree} and {@link

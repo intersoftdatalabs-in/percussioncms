@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.delivery.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.rx.delivery.IPSDeliveryResult;
 import com.percussion.rx.delivery.PSDeliveryException;

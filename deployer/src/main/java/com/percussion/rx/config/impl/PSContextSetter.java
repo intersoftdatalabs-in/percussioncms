@@ -68,7 +68,7 @@ public class PSContextSetter extends PSSimplePropertySetter {
 
   private void setDefaultScheme(IPSPublishingContext context, String propName, Object propValue)
       throws Exception {
-    if (propValue == null || org.apache.commons.lang.StringUtils.isBlank((String) propValue)) {
+    if (propValue == null || org.apache.commons.lang3.StringUtils.isBlank((String) propValue)) {
       context.setDefaultSchemeId(null);
       return;
     }

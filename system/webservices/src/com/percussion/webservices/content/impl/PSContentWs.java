@@ -137,8 +137,8 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.PSUiWsLocator;
 import com.percussion.workflow.PSWorkFlowUtils;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -160,8 +160,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.percussion.cms.objectstore.PSProcessorProxy.RELATIONSHIP_COMPTYPE;
 import static com.percussion.webservices.PSWebserviceUtils.getRequest;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * The public content webservice implementations.

@@ -50,7 +50,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Handy utility functions for use with the Java Authorization and

@@ -25,7 +25,7 @@ import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSPurgableTempFile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

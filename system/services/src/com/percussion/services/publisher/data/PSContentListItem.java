@@ -20,7 +20,7 @@ import com.percussion.services.assembly.jexl.PSLocationUtils;
 import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.utils.guid.IPSGuid;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 
 /**

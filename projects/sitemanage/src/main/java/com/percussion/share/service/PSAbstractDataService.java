@@ -19,7 +19,7 @@ package com.percussion.share.service;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfNull;
 import static java.text.MessageFormat.format;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;

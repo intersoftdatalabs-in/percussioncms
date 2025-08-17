@@ -44,8 +44,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import static org.apache.commons.lang.StringUtils.*;
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 /**
  * Similar to PSFleInfo but a single copy of the

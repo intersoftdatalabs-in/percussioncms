@@ -28,7 +28,7 @@ import java.util.TreeSet;
 
 import javax.naming.NamingException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Base class for consistency checker classes

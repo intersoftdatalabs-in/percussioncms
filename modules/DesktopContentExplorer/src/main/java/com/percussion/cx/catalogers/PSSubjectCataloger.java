@@ -109,14 +109,14 @@ public class PSSubjectCataloger
 
         PSSubjectCataloger that = (PSSubjectCataloger) object;
 
-        return new org.apache.commons.lang.builder.EqualsBuilder()
+        return new org.apache.commons.lang3.builder.EqualsBuilder()
                 .appendSuper(super.equals(object))
                 .append(m_collSubjects, that.m_collSubjects)
                 .isEquals();
     }
 
     public int hashCode() {
-        return new org.apache.commons.lang.builder.HashCodeBuilder(17, 37)
+        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
                 .append(m_collSubjects)
                 .toHashCode();

@@ -20,7 +20,7 @@ import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
 import com.percussion.security.error.PSExceptionUtils;
 import java.util.Properties;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;

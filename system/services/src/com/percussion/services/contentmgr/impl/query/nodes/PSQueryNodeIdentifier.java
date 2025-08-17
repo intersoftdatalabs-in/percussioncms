@@ -21,7 +21,7 @@ import com.percussion.utils.jsr170.PSStringEncoder;
 
 import javax.jcr.query.InvalidQueryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a single query identifier

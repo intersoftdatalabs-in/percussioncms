@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.container;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Defines the configuration of single named port. */
 public class PSPortInfo {

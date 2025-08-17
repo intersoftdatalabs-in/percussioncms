@@ -37,15 +37,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.Projections;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -277,10 +275,12 @@ public class PSMetadataDao implements IPSMetadataDao {
   public List<String> getAllSites() {
     List<String> msgFromList = null;
     try (Session session = getSession()) {
+      CriteriaBuilder cb = session.getCriteriaBuilder();
+      CriteriaQuery<String> query = cb.createQuery(String.class);
+      Root<PSDbMetadataEntry> root = query.from(PSDbMetadataEntry.class);
+      query.select(root.get("site")).distinct(true);
 
-      Criteria criteria = session.createCriteria(PSDbMetadataEntry.class);
-      criteria.setProjection(Projections.distinct(Projections.property("site")));
-      msgFromList = criteria.list();
+      msgFromList = session.createQuery(query).getResultList();
     }
     return msgFromList;
   }
