@@ -17,8 +17,7 @@
 package com.percussion.sitemanage.importer.theme;
 
 import static org.apache.commons.lang.Validate.notNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
-import com.percussion.pathmanagement.service.impl.PSPathUtils;
+
 import com.percussion.server.PSRequest;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.utils.PSAsyncFileDownload;
