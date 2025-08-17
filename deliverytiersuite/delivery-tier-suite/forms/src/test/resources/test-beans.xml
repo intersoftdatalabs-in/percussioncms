@@ -129,7 +129,19 @@
          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource" ref="percDataSource" />
       <property name="hibernateProperties" ref="percHibernateProperties" />
+    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+       <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+   <!-- JPA EntityManagerFactory -->
+   <bean id="entityManagerFactory"
+         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+      <property name="dataSource" ref="percDataSource" />
+      <property name="jpaProperties" ref="percHibernateProperties" />
       <property name="packagesToScan" value="com.percussion.delivery.forms.data" />
+      <property name="jpaVendorAdapter">
+          <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+      </property>
    </bean>
 
 
