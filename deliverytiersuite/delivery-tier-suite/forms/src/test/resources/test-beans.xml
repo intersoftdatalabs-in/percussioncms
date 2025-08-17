@@ -144,9 +144,13 @@
         <constructor-arg ref="emailProperties"/>
     </bean>
 
+    <!-- Define Form DAO bean -->
+    <bean id="formDao" class="com.percussion.delivery.forms.impl.rdbms.PSFormDao">
+    </bean>
+    
     <!-- Define Form Service bean -->
     <bean id="formService" class="com.percussion.delivery.forms.impl.PSFormService" >
-        <constructor-arg ref="PSFormDao"/>
+        <constructor-arg ref="formDao"/>
         <property name="emailHelper">
             <ref bean="emailHelper" />
         </property>
