@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -68,7 +67,13 @@ public class PSFormDao implements IPSFormDao {
     if (entityManager.contains(form)) {
       entityManager.remove(form);
     } else {
-      entityManager.remove(entityManager.getReference(form.getClass(), form.getId()));
+      // Check if the form exists in the database before trying to delete it
+      IPSFormData existingForm = entityManager.find(form.getClass(), form.getId());
+      if (existingForm != null) {
+        entityManager.remove(existingForm);
+      }
+      // If existingForm is null, the form doesn't exist in the database
+      // This is expected behavior for the testDelete_NonExistingForm test
     }
   }
 
@@ -149,7 +154,9 @@ public class PSFormDao implements IPSFormDao {
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findFormsByName(java.lang.String)
    */
   public List<IPSFormData> findFormsByName(String name) {
-    Validate.notNull(name);
+    if (name == null) {
+      throw new IllegalArgumentException("name cannot be null");
+    }
 
     TypedQuery<IPSFormData> query =
         entityManager.createQuery(
