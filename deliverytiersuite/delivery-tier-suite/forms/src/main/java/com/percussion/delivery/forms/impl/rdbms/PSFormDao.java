@@ -137,16 +137,16 @@ public class PSFormDao implements IPSFormDao {
 
   private List<IPSFormData> findExportedForms(String formName) {
     String sqlString = "";
+    TypedQuery<IPSFormData> query;
     if (StringUtils.isEmpty(formName)) {
       sqlString = "from PSFormData where isExported = 'y' order by name asc, created asc";
+      query = entityManager.createQuery(sqlString, IPSFormData.class);
     } else {
       sqlString =
-          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) = "
-              + "lower('"
-              + formName
-              + "')";
+          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) = lower(:formName)";
+      query = entityManager.createQuery(sqlString, IPSFormData.class);
+      query.setParameter("formName", formName);
     }
-    TypedQuery<IPSFormData> query = entityManager.createQuery(sqlString, IPSFormData.class);
     return query.getResultList();
   }
 
