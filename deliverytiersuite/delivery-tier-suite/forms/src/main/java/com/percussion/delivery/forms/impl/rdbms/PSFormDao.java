@@ -65,7 +65,11 @@ public class PSFormDao implements IPSFormDao {
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#delete(com.percussion.delivery.forms.data.IPSFormData)
    */
   public void delete(IPSFormData form) {
-    entityManager.remove(entityManager.contains(form) ? form : entityManager.merge(form));
+    if (entityManager.contains(form)) {
+      entityManager.remove(form);
+    } else {
+      entityManager.remove(entityManager.getReference(form.getClass(), form.getId()));
+    }
   }
 
   /* (non-Javadoc)
