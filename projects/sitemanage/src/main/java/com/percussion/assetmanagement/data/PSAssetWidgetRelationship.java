@@ -18,7 +18,7 @@
 
 package com.percussion.assetmanagement.data;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
@@ -28,7 +28,7 @@ import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNegative;
 import net.sf.oval.constraint.NotNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Defines a relationship between a page or template, widget, and asset. Used for associating assets

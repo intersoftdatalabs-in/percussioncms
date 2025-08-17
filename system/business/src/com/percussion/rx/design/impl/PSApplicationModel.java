@@ -29,7 +29,7 @@ import com.percussion.utils.request.PSRequestInfo;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSApplicationModel extends PSLimitedDesignModel
 {

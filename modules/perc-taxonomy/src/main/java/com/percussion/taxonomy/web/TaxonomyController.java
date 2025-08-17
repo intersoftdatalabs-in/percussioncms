@@ -16,7 +16,7 @@
  */
 package com.percussion.taxonomy.web;
 
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;

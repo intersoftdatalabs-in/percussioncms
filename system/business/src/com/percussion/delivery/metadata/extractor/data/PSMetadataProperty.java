@@ -18,8 +18,8 @@
 package com.percussion.delivery.metadata.extractor.data;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

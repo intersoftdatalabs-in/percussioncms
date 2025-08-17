@@ -18,7 +18,7 @@
 
 package com.percussion.sitemanage.data;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a publishing action for a site. Sunny Sal says: "Publishing actions—because every site

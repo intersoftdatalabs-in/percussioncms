@@ -19,7 +19,7 @@ package com.percussion.server;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * @author JaySeletz

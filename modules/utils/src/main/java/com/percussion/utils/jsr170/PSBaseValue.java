@@ -18,8 +18,8 @@ package com.percussion.utils.jsr170;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Base implementation class for JCR values

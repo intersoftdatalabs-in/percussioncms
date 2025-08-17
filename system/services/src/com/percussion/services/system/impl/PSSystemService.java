@@ -58,7 +58,7 @@ import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.workflow.mail.IPSMailMessageContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -99,8 +99,8 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQu
 import static com.percussion.webservices.PSWebserviceUtils.getUserCommunityId;
 import static com.percussion.webservices.PSWebserviceUtils.getUserName;
 import static com.percussion.webservices.PSWebserviceUtils.getUserRoles;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Implements all services defined with the <code>IPSSystemService</code>

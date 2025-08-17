@@ -21,7 +21,7 @@ import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.get
 import static com.percussion.sitemanage.importer.utils.PSManagedTagsUtils.commentTag;
 import static com.percussion.sitemanage.importer.utils.PSManagedTagsUtils.isManagedJSReference;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.assetmanagement.data.PSAsset;

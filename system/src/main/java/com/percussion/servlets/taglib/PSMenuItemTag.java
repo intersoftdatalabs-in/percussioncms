@@ -18,7 +18,7 @@ package com.percussion.servlets.taglib;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
 
 /**

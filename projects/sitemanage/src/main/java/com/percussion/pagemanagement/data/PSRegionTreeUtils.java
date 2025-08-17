@@ -18,7 +18,7 @@
 package com.percussion.pagemanagement.data;
 
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getWidgetRegions;
-import static org.apache.commons.lang.Validate.*;
+import static org.apache.commons.lang3.Validate.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.io.StringWriter;

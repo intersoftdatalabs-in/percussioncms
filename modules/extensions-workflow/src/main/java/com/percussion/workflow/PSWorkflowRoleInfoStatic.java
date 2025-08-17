@@ -18,7 +18,7 @@ package com.percussion.workflow;
 
 import static com.percussion.server.PSServer.getProperty;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSAttribute;

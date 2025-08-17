@@ -18,7 +18,7 @@ package com.percussion.sitemanage.service.impl;
 
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
 import static com.percussion.util.PSSqlHelper.qualifyTableName;
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.cms.IPSConstants;

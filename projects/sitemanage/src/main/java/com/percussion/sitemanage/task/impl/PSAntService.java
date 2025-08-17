@@ -16,9 +16,9 @@
  */
 package com.percussion.sitemanage.task.impl;
 
-import static org.apache.commons.lang.Validate.noNullElements;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.noNullElements;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.cms.IPSConstants;

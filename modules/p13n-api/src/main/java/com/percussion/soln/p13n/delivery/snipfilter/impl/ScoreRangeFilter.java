@@ -17,13 +17,13 @@
 
 package com.percussion.soln.p13n.delivery.snipfilter.impl;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.lang.math.DoubleRange;
+import org.apache.commons.lang3.math.DoubleRange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

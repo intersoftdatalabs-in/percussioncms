@@ -16,7 +16,7 @@
  */
 package com.percussion.services.workflow.data;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.convertTransitions;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.copyAgingTransitions;
 import static com.percussion.services.workflow.data.PSTransformTransitionUtils.copyTransitions;
@@ -47,10 +47,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cascade;
 import org.xml.sax.SAXException;
 

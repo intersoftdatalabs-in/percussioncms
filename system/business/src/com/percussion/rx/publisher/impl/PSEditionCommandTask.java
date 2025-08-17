@@ -28,7 +28,7 @@ import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.util.PSDateFormatISO8601;
 import com.percussion.util.PSStringTemplate;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

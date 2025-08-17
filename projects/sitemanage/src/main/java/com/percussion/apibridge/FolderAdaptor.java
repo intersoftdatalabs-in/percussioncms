@@ -19,8 +19,8 @@ package com.percussion.apibridge;
 
 import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
 import static com.percussion.webservices.PSWebserviceUtils.isItemCheckedOutToUser;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCloningOptions;
@@ -100,7 +100,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.NotFoundException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -27,7 +27,7 @@ import java.util.Locale;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Compares two rows according to a list of property names with directions. This

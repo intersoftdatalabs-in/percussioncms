@@ -16,7 +16,7 @@
  */
 package com.percussion.share.dao.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.data.IPSContentItem;
 import com.percussion.share.data.PSDataItemSummary;

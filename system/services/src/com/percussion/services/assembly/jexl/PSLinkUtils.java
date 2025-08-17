@@ -26,7 +26,7 @@ import com.percussion.utils.request.PSRequestInfo;
 
 import java.net.MalformedURLException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Link manipulation utilities

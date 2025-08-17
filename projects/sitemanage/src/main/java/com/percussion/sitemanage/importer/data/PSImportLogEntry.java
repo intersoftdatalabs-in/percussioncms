@@ -21,7 +21,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Date;
 import java.util.Optional;
 import javax.persistence.*;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 

@@ -37,7 +37,7 @@ import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.io.PathUtils;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -26,7 +26,7 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Field output transformer to update managed item paths on edit. Calls the managed link service to

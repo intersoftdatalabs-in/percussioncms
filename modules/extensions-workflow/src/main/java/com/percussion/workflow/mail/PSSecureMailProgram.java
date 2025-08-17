@@ -22,7 +22,7 @@ import com.percussion.security.PSEncryptProperties;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.logging.log4j.LogManager;

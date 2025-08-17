@@ -22,7 +22,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSExtensionModel extends PSLimitedDesignModel
 {

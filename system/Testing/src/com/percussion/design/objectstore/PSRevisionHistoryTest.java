@@ -22,7 +22,7 @@ import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

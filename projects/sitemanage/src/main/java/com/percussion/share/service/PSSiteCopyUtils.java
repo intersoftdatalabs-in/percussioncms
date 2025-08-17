@@ -19,8 +19,8 @@
 package com.percussion.share.service;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.service.exception.PSValidationException;

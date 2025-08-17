@@ -22,8 +22,8 @@ import static com.percussion.share.web.service.PSRestServicePathConstants.DELETE
 import static com.percussion.share.web.service.PSRestServicePathConstants.LOAD_PATH;
 import static com.percussion.share.web.service.PSRestServicePathConstants.SAVE_PATH;
 import static com.percussion.share.web.service.PSRestServicePathConstants.VALIDATE_PATH;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.pagemanagement.data.PSNonSEOPagesRequest;

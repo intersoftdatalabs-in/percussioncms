@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.utils;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.extension.IPSExtensionDef;
@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.BooleanConverter;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

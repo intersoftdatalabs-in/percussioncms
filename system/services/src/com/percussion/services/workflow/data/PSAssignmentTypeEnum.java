@@ -16,7 +16,7 @@
  */
 package com.percussion.services.workflow.data;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Class to enumerate the assignment types.

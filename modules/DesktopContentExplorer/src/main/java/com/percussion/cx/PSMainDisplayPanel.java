@@ -27,7 +27,7 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -23,7 +23,7 @@ import com.percussion.webservices.security.LoginRequest;
 import com.percussion.webservices.security.LoginResponse;
 import com.percussion.webservices.security.SecuritySOAPStub;
 import com.percussion.webservices.security.data.PSLogin;
-import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;

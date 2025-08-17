@@ -85,8 +85,8 @@ package com.percussion.rx.publisher.impl;
  import com.percussion.utils.timing.PSTimer;
  import com.percussion.xml.PSXmlDocumentBuilder;
  import com.percussion.xml.PSXmlTreeWalker;
- import org.apache.commons.lang.StringUtils;
- import org.apache.commons.lang.exception.ExceptionUtils;
+ import org.apache.commons.lang3.StringUtils;
+ import org.apache.commons.lang3.exception.ExceptionUtils;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  import org.w3c.dom.Document;
@@ -117,7 +117,7 @@ package com.percussion.rx.publisher.impl;
  import static com.percussion.rx.publisher.PSPublisherUtils.getContentList;
  import static com.percussion.rx.publisher.PSPublisherUtils.getEditionContentList;
  import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
- import static org.apache.commons.lang.Validate.notNull;
+ import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Implement the actual job for publishing. Jobs run for the length of time that

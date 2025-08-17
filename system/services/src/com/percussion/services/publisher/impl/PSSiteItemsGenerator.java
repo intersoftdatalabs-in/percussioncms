@@ -39,7 +39,7 @@ import java.util.Map;
 
 import javax.jcr.query.QueryResult;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -21,7 +21,7 @@ import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.conv
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.jsonToResponse;
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.parameterizeTrackingRequest;
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.setVisitorProfileToCookie;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.IOException;
 import java.net.URI;

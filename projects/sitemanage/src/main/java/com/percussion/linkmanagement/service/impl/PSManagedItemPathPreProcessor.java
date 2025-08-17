@@ -25,7 +25,7 @@ import com.percussion.server.PSRequestValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Pre-processor for managed item path input. Initializes new item links for new items.

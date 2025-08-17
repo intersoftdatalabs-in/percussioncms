@@ -26,7 +26,7 @@ import com.percussion.services.ui.data.PSHierarchyNode;
 import com.percussion.services.ui.data.PSHierarchyNodeProperty;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;

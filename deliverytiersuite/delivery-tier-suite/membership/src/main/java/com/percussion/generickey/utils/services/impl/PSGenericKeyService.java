@@ -22,8 +22,8 @@ import com.percussion.generickey.services.IPSGenericKeyService;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

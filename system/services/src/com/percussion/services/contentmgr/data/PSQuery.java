@@ -25,7 +25,7 @@ import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode;
 import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeIdentifier;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.types.PSPair;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;

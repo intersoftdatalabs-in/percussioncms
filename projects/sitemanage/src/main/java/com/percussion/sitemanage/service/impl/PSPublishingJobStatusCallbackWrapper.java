@@ -20,7 +20,7 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublishingJobStatusCallback;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /** Wraps multiple publishing job status callbacks and notifies all. */
 public class PSPublishingJobStatusCallbackWrapper implements IPSPublishingJobStatusCallback {

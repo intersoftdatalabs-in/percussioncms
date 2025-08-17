@@ -16,7 +16,7 @@
  */
 package com.percussion.services.contentmgr.impl.query.nodes;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a variable substitution in the query. A variable is a subclass

@@ -22,7 +22,7 @@ import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 /**
  * Unit tests for the PSResultSet class

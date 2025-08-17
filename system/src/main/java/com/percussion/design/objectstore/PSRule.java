@@ -20,7 +20,7 @@ import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

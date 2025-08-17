@@ -37,7 +37,7 @@ import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * A subclass of the file delivery handler that does the delivery to a remote

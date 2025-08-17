@@ -20,7 +20,7 @@ import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.design.objectstore.PSRole;
 import com.percussion.i18n.PSLocale;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

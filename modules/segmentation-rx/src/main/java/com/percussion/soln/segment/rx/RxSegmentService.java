@@ -28,7 +28,7 @@ import java.util.TreeSet;
 import javax.jws.WebService;
 import javax.ws.rs.Path;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

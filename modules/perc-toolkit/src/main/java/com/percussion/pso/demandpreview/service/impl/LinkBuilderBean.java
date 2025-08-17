@@ -22,7 +22,7 @@ import com.percussion.services.publisher.data.PSContentListItem;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Link Builder service implementation as a Spring bean.

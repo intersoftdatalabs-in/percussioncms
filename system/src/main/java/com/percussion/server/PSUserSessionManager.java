@@ -17,7 +17,7 @@
 
 package com.percussion.server;
 
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.design.objectstore.server.IPSObjectStoreHandler;

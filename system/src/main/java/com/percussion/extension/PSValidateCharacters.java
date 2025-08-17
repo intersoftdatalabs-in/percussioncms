@@ -16,8 +16,8 @@
  */
 package com.percussion.extension;
 
-import static org.apache.commons.lang.StringUtils.containsAny;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.StringUtils.containsAny;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.data.PSConversionException;
 import com.percussion.security.SecureStringUtils;

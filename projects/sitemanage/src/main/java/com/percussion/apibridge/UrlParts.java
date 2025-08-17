@@ -19,7 +19,7 @@
 
 package com.percussion.apibridge;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Utility class for parsing and constructing CMS URLs. */
 class UrlParts {

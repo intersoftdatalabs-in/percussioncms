@@ -25,7 +25,7 @@ import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.impl.PSDeliveryInfoLoaderTest;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;

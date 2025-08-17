@@ -19,7 +19,7 @@ package com.percussion.design.objectstore;
 import com.percussion.utils.tools.PSTestUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.w3c.dom.Document;
 
 import org.junit.jupiter.api.Test;

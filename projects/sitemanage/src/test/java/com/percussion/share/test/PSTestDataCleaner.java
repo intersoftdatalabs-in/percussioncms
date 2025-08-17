@@ -18,7 +18,7 @@ package com.percussion.share.test;
 
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.fail;
-import static org.apache.commons.lang.Validate.noNullElements;
+import static org.apache.commons.lang3.Validate.noNullElements;
 
 import java.util.ArrayList;
 import java.util.Collection;

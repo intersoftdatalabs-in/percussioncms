@@ -16,8 +16,8 @@
  */
 package com.percussion.rx.publisher.impl;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.jexl.PSStringUtils;
@@ -26,7 +26,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

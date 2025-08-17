@@ -32,7 +32,7 @@ import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.workflow.PSWorkFlowUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;

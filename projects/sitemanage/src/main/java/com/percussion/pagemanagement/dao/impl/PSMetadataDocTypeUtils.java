@@ -20,7 +20,7 @@ package com.percussion.pagemanagement.dao.impl;
 import com.percussion.pagemanagement.data.PSMetadataDocType;
 import com.percussion.pagemanagement.data.PSMetadataDocTypeOptions;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Utilities for converting and handling HTML doc type metadata. */
 public class PSMetadataDocTypeUtils {

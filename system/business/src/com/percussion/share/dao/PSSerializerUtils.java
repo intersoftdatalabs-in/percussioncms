@@ -44,9 +44,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.commons.lang.StringUtils.removeEnd;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Various serializing/marshalling static methods.
