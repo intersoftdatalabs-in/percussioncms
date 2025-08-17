@@ -21,7 +21,7 @@ import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.percussion.utils.tools.IPSUtilsConstants;
 

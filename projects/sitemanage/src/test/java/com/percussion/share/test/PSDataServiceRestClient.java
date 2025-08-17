@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
-import static org.apache.commons.lang.Validate.*;
+import static org.apache.commons.lang3.Validate.*;
 
 import java.util.List;
 

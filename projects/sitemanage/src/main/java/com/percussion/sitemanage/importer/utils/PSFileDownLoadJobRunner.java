@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /** Executes a file download job, optionally creating an asset. */
 public class PSFileDownLoadJobRunner implements Runnable {

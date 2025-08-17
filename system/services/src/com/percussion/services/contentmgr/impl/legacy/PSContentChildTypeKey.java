@@ -18,8 +18,8 @@ package com.percussion.services.contentmgr.impl.legacy;
 
 import com.percussion.services.contentmgr.impl.IPSTypeKey;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents a child content type for lookup in the configuration

@@ -17,7 +17,7 @@
 
 package com.percussion.fastforward.globaltemplate;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.percussion.xml.PSNodePrinter;
 import com.percussion.xml.PSXmlDocumentBuilder;

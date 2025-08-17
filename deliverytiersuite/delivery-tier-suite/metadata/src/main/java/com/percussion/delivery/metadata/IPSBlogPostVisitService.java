@@ -20,7 +20,7 @@ import com.percussion.delivery.metadata.data.PSCookieConsentQuery;
 import com.percussion.delivery.metadata.data.PSVisitQuery;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public interface IPSBlogPostVisitService {
   public static final int INTIAL_DELAY_SECONDS = 0;

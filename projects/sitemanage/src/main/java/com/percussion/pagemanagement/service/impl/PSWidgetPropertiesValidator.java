@@ -21,7 +21,7 @@ import static com.percussion.pagemanagement.service.impl.PSWidgetUtils.coercePro
 import static com.percussion.pagemanagement.service.impl.PSWidgetUtils.getEnums;
 import static com.percussion.pagemanagement.service.impl.PSWidgetUtils.isEnum;
 import static java.util.Collections.sort;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.pagemanagement.data.PSWidgetDefinition.AbstractUserPref;

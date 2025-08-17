@@ -123,10 +123,9 @@
             <version>8.1.6-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
- <dependency>
+         <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -142,14 +141,14 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.7.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 

@@ -22,10 +22,10 @@ import static com.percussion.share.rx.PSLegacyExtensionUtils.addParameters;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.collections.MapUtils.getInteger;
 import static org.apache.commons.collections.MapUtils.getString;
-import static org.apache.commons.lang.StringUtils.endsWith;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.StringUtils.endsWith;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.extension.IPSExtensionDef;

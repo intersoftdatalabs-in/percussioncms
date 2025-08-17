@@ -21,7 +21,7 @@ import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import com.percussion.services.contentmgr.data.PSContentNode;
 import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.VelocityContext;

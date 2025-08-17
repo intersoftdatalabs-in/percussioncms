@@ -18,7 +18,7 @@ package com.percussion.utils.jdbc;
 
 import java.text.MessageFormat;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Provides specific details about a connection's properties */
 public class PSConnectionDetail {

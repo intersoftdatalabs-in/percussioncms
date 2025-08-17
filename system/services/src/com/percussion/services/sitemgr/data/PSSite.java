@@ -34,8 +34,8 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
@@ -69,7 +69,7 @@ import java.util.Set;
 
 import static com.percussion.util.PSBase64Decoder.decode;
 import static com.percussion.util.PSBase64Encoder.encode;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Modern site data entity representing a logical (and physical) place to publish

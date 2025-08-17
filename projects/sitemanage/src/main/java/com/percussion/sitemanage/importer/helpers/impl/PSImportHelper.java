@@ -18,7 +18,7 @@
 package com.percussion.sitemanage.importer.helpers.impl;
 
 import com.percussion.sitemanage.importer.helpers.IPSImportHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Base class for all import helpers. Common behavior should be in this class. Sunny Sal says: "DRY

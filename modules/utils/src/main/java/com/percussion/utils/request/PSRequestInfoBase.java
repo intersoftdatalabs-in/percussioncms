@@ -18,7 +18,7 @@ package com.percussion.utils.request;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class stores a variety of per request information. This is initialized in a servlet at the

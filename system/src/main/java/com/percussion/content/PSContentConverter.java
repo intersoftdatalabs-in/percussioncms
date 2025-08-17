@@ -21,7 +21,7 @@ import com.percussion.search.lucene.textconverter.IPSLuceneTextConverter;
 import com.percussion.search.lucene.textconverter.PSLuceneTextConverterFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

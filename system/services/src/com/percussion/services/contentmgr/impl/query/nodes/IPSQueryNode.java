@@ -20,7 +20,7 @@ import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor
 
 import javax.jcr.query.InvalidQueryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a query for the JSR-170 query module. Each implementation of this

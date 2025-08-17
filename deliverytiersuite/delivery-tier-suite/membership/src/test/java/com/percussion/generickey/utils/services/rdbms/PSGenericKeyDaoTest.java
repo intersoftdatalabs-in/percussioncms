@@ -27,7 +27,7 @@ import jakarta.persistence.criteria.Root;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;

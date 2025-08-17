@@ -86,8 +86,8 @@ import com.percussion.workflow.PSStatesContext;
 import com.percussion.workflow.PSWorkflowAppsContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Cache;
@@ -133,7 +133,7 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.clearIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.createIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQuery;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Implementation class for legacy object accessing

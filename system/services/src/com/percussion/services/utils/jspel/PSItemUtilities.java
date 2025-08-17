@@ -31,7 +31,7 @@ import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.commons.collections.MultiHashMap;
 import org.apache.commons.collections.MultiMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashSet;

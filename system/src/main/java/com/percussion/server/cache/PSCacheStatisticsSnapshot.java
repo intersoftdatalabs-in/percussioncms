@@ -19,7 +19,7 @@ package com.percussion.server.cache;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.math.BigDecimal;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

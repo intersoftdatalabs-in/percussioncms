@@ -30,7 +30,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.system.utils.PSParseUrlQueryString;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.RepositoryException;

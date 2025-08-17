@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.assetmanagement.data.PSAssetSummary;
 import com.percussion.pagemanagement.assembler.IPSRenderLinkContextFactory;

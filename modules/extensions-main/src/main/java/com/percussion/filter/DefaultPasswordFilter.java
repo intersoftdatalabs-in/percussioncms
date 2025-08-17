@@ -22,7 +22,7 @@ import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
 import java.io.File;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

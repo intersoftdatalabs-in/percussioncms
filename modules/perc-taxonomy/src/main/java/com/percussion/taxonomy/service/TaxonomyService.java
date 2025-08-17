@@ -16,7 +16,7 @@
  */
 package com.percussion.taxonomy.service;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.taxonomy.domain.Attribute;
 import com.percussion.taxonomy.domain.Node;

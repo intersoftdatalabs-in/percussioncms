@@ -22,7 +22,7 @@ import static com.percussion.pagemanagement.assembler.PSWidgetContentFinderUtils
 import static com.percussion.pagemanagement.assembler.PSWidgetContentFinderUtils.getMatchRelationship;
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getEmptyWidgetRegions;
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.data.PSOrphanedAssetSummary;
 import com.percussion.design.objectstore.PSRelationship;

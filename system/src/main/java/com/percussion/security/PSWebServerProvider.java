@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The PSWebServerProvider class is used to access the security services provided by the web server.

@@ -23,9 +23,9 @@ import static com.percussion.share.service.exception.PSParameterValidationUtils.
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeTouchedFile;
 import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
 import static com.percussion.webservices.PSWebserviceUtils.isItemCheckedOutToUser;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
@@ -100,7 +100,7 @@ import java.util.Map.Entry;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.ws.rs.WebApplicationException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

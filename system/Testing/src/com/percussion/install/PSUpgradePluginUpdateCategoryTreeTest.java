@@ -23,7 +23,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

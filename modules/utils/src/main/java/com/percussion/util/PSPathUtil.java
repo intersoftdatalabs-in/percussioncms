@@ -16,7 +16,7 @@
  */
 package com.percussion.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Utilities for working with paths */
 public class PSPathUtil {

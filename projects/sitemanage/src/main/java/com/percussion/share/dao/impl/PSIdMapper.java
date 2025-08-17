@@ -17,8 +17,8 @@
  */
 package com.percussion.share.dao.impl;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -31,7 +31,7 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.ext.Provider;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Implements {@link IPSIdMapper}. */

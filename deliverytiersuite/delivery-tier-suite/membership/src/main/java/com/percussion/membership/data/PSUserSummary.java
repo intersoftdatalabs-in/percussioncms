@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.percussion.delivery.services.PSCustomDateSerializer;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import java.util.Date;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Object to hold summary data about a registered user.

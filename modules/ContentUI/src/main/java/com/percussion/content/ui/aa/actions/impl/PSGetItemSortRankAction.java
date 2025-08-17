@@ -23,7 +23,7 @@ import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Returns the sort rank of the items relationship. Expects sys_relationshipid parameter. Returns

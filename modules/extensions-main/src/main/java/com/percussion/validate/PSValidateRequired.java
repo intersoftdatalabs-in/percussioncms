@@ -22,7 +22,7 @@ import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Check that the value argument exists

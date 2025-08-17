@@ -51,7 +51,7 @@ import com.percussion.util.PSStringComparator;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

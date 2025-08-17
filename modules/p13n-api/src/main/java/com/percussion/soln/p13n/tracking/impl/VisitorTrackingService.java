@@ -17,8 +17,8 @@
 
 package com.percussion.soln.p13n.tracking.impl;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Collections;
 import java.util.HashMap;

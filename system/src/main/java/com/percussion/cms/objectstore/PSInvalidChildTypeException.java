@@ -18,7 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.error.PSException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Indicates that an invalid complex child field name has been specified. */
 public class PSInvalidChildTypeException extends PSException {

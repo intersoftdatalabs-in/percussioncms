@@ -22,7 +22,7 @@ import com.percussion.utils.types.PSPair;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Handy utilities for the content manager

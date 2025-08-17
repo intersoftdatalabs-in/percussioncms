@@ -18,8 +18,8 @@ package com.percussion.proxyconfig.service.impl;
 
 import static com.percussion.share.dao.PSSerializerUtils.marshal;
 import static com.percussion.share.dao.PSSerializerUtils.unmarshalWithValidation;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.proxyconfig.data.PSProxyConfig;

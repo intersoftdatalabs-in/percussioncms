@@ -16,7 +16,7 @@
  */
 package com.percussion.membership.data;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 public class PSUserGroup {
   private String email;

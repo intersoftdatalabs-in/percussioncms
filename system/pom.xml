@@ -864,12 +864,13 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
-            <resource>
+            <!--   <resource>
                 <directory>webservices/src</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
+            -->
             <resource>
                 <directory>beans/src</directory>
                 <excludes>

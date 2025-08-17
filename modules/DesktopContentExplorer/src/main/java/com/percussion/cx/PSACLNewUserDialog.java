@@ -307,7 +307,7 @@ import java.util.List;
 
              ProviderType that = (ProviderType) object;
 
-             return new org.apache.commons.lang.builder.EqualsBuilder()
+             return new org.apache.commons.lang3.builder.EqualsBuilder()
                      .appendSuper(super.equals(object))
                      .append(m_typeId, that.m_typeId)
                      .append(m_typeName, that.m_typeName)
@@ -316,7 +316,7 @@ import java.util.List;
          }
 
          public int hashCode() {
-             return new org.apache.commons.lang.builder.HashCodeBuilder(17, 37)
+             return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
                      .appendSuper(super.hashCode())
                      .append(m_typeId)
                      .append(m_typeName)

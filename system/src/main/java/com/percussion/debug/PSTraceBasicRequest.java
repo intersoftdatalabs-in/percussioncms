@@ -18,7 +18,7 @@
 package com.percussion.debug;
 
 import com.percussion.server.PSRequest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Used to generate trace messages for the Basic Request information trace message type (0x0001).

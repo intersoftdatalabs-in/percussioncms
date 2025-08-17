@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.container;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Defines the mbean name and attribute to use to access a port value in a JBoss service config

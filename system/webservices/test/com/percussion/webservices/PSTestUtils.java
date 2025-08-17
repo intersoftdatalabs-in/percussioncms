@@ -23,7 +23,7 @@ import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.systemdesign.SystemDesignSOAPStub;
 
 import org.apache.axis.client.Stub;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility methods used for web service testing.

@@ -18,7 +18,7 @@ package com.percussion.utils.tools;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A utility class used to parse a string that contains multiple fragments. Each fragment is
