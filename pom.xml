@@ -76,7 +76,7 @@
         <activemq.version>5.16.8</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
-        <any23.version>2.3</any23.version>
+        <any23.version>2.7</any23.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.261</awssdk.version>
         <batik.version>1.14</batik.version>
