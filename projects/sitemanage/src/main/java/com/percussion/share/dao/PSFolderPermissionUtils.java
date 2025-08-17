@@ -19,8 +19,8 @@ package com.percussion.share.dao;
 
 import static com.percussion.role.service.IPSRoleService.ADMINISTRATOR_ROLE;
 import static com.percussion.role.service.IPSRoleService.DESIGNER_ROLE;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAcl;
@@ -31,7 +31,7 @@ import com.percussion.pathmanagement.data.PSFolderPermission.Principal;
 import com.percussion.pathmanagement.data.PSFolderPermission.PrincipalType;
 import com.percussion.utils.types.PSPair;
 import java.util.*;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;

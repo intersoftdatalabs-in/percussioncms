@@ -20,7 +20,7 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Validates that either no source file was supplied, <code>null</code> or empty, or that the

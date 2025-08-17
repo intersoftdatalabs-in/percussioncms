@@ -25,8 +25,8 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.List;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

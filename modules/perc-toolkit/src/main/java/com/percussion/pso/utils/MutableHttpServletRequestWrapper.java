@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * An HttpServletRequestWrapper that allows modification of the request parameters and headers. This

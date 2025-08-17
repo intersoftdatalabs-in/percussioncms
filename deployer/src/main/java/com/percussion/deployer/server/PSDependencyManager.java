@@ -47,7 +47,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.MessageFormat;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

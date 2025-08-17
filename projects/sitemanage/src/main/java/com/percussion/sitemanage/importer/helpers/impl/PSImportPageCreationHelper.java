@@ -17,7 +17,7 @@
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.service.IPSPageCatalogService;
 import com.percussion.sitemanage.data.PSPageContent;

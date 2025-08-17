@@ -21,7 +21,7 @@ package com.percussion.assetmanagement.forms.service.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfBlank;
 import static com.percussion.share.web.service.PSRestServicePathConstants.FIND_ALL_PATH;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.forms.data.PSFormSummary;
 import com.percussion.assetmanagement.forms.data.PSFormSummaryList;

@@ -18,7 +18,7 @@
 package com.percussion.soln.p13n.delivery.snipfilter.impl;
 
 import static com.percussion.soln.p13n.delivery.snipfilter.DeliverySnippetFilterUtil.*;
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,8 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSTemplateDao;

@@ -12,7 +12,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 
 /**

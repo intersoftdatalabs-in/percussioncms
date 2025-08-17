@@ -17,14 +17,14 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import static org.apache.commons.lang.StringUtils.containsAny;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.removeEnd;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.containsAny;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSRenderLink;
 import com.percussion.pagemanagement.data.PSRenderLinkContext.Mode;
@@ -42,7 +42,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

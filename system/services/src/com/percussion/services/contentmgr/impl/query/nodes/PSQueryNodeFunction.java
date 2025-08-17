@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.jcr.query.InvalidQueryException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Query function. This is a placeholder for now, which allows a query to have

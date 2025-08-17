@@ -18,7 +18,7 @@
 package com.percussion.pathmanagement.service.impl;
 
 import static com.percussion.pathmanagement.service.impl.PSSitePathItemService.SITE_ROOT;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
@@ -43,9 +43,9 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 
 /** Utility class to provide various utility methods for path services. */
 public class PSPathUtils {

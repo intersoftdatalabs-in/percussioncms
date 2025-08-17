@@ -14,7 +14,7 @@ import com.percussion.install.InstallUtil;
 import com.percussion.installanywhere.RxIARule;
 import com.percussion.installer.RxVariables;
 import com.percussion.installer.action.RxLogger;;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.File;
 import java.io.FileInputStream;

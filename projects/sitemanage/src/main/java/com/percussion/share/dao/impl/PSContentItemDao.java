@@ -20,10 +20,10 @@ package com.percussion.share.dao.impl;
 import static com.percussion.share.dao.impl.PSLegacyExceptionUtils.convertException;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;

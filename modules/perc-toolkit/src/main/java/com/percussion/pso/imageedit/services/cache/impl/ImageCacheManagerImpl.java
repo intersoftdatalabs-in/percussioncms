@@ -21,7 +21,7 @@ import com.percussion.pso.imageedit.data.ImageMetaData;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -19,7 +19,7 @@ package com.percussion.services.assembly.jexl;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.ItemNotFoundException;

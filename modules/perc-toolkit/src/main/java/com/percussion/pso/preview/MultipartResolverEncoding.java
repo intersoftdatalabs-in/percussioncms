@@ -17,7 +17,7 @@
 package com.percussion.pso.preview;
 
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.multipart.MultipartResolver;

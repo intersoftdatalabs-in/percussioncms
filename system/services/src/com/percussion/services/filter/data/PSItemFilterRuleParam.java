@@ -18,7 +18,7 @@ package com.percussion.services.filter.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidHelper;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 

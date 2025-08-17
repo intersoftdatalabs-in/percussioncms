@@ -18,7 +18,7 @@
 package com.percussion.share.test.xml;
 
 import static java.util.Collections.unmodifiableCollection;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;

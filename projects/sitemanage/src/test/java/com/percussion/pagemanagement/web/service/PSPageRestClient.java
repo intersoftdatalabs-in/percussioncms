@@ -20,8 +20,8 @@
 package com.percussion.pagemanagement.web.service;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSRegion;

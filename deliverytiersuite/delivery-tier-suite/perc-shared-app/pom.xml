@@ -151,24 +151,12 @@
             <artifactId>spring-security-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>commons-beanutils</groupId>
                     <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -232,10 +220,6 @@
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
                     <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -381,8 +365,8 @@
         </dependency>
         <!-- -->
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.morphia</groupId>

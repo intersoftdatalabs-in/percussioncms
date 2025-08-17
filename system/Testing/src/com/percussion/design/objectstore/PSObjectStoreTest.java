@@ -45,7 +45,7 @@ import java.util.Properties;
 
 
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

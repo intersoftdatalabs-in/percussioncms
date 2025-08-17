@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

@@ -29,9 +29,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Widget handler for previewing hashed files stored in the file storage service.

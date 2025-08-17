@@ -49,8 +49,8 @@ public abstract class PSGenericContentGenerator<T> {
 
   public PSGenericContentGenerator(
       String serverUrl, InputStream xmlData, String username, String password) {
-    org.apache.commons.lang.Validate.notEmpty(serverUrl);
-    org.apache.commons.lang.Validate.notNull(xmlData);
+    org.apache.commons.lang3.Validate.notEmpty(serverUrl);
+    org.apache.commons.lang3.Validate.notNull(xmlData);
 
     this.serverUrl = serverUrl;
     this.xmlData = xmlData;
@@ -60,8 +60,8 @@ public abstract class PSGenericContentGenerator<T> {
 
   public PSGenericContentGenerator(
       String serverUrl, InputStream xmlData, String username, String password, String licenseId) {
-    org.apache.commons.lang.Validate.notEmpty(serverUrl);
-    org.apache.commons.lang.Validate.notNull(xmlData);
+    org.apache.commons.lang3.Validate.notEmpty(serverUrl);
+    org.apache.commons.lang3.Validate.notNull(xmlData);
 
     this.serverUrl = serverUrl;
     this.xmlData = xmlData;
@@ -105,16 +105,16 @@ public abstract class PSGenericContentGenerator<T> {
   @SuppressWarnings("rawtypes")
   protected static <K extends PSGenericContentGenerator> void runMainMethod(
       String[] args, Class<K> generatorClass) {
-    org.apache.commons.lang.Validate.notNull(args, "arguments must not be null");
-    org.apache.commons.lang.Validate.isTrue(args.length == 4, "some arguments were not specified");
+    org.apache.commons.lang3.Validate.notNull(args, "arguments must not be null");
+    org.apache.commons.lang3.Validate.isTrue(args.length == 4, "some arguments were not specified");
 
     var url = args[0];
     var uid = args[1];
     var pw = args[2];
     var defFileName = args[3];
 
-    org.apache.commons.lang.Validate.notEmpty(url, "Server URL must be specified");
-    org.apache.commons.lang.Validate.notEmpty(defFileName, "XML file name must be specified");
+    org.apache.commons.lang3.Validate.notEmpty(url, "Server URL must be specified");
+    org.apache.commons.lang3.Validate.notEmpty(defFileName, "XML file name must be specified");
 
     try {
       var ctor =
@@ -138,8 +138,8 @@ public abstract class PSGenericContentGenerator<T> {
   @SuppressWarnings("rawtypes")
   protected static <K extends PSGenericContentGenerator> void runMainMethodSecure(
       String[] args, Class<K> generatorClass) {
-    org.apache.commons.lang.Validate.notNull(args, "arguments must not be null");
-    org.apache.commons.lang.Validate.isTrue(args.length == 6, "some arguments were not specified");
+    org.apache.commons.lang3.Validate.notNull(args, "arguments must not be null");
+    org.apache.commons.lang3.Validate.isTrue(args.length == 6, "some arguments were not specified");
 
     var url = args[0];
     var adminUser = args[1];
@@ -148,8 +148,8 @@ public abstract class PSGenericContentGenerator<T> {
     var secureUrl = args[4];
     var allowSelfSignedCertificate = Boolean.parseBoolean(args[5]);
 
-    org.apache.commons.lang.Validate.notEmpty(url, "Server URL must be specified");
-    org.apache.commons.lang.Validate.notEmpty(xmlDefFileName, "XML file name must be specified");
+    org.apache.commons.lang3.Validate.notEmpty(url, "Server URL must be specified");
+    org.apache.commons.lang3.Validate.notEmpty(xmlDefFileName, "XML file name must be specified");
 
     try {
       var ctor =

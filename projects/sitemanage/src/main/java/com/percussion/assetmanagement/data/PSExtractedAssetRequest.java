@@ -19,7 +19,7 @@
 package com.percussion.assetmanagement.data;
 
 import java.io.InputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Used to request the creation of an asset whose content is extracted from an uploaded file. */
 public class PSExtractedAssetRequest extends PSAbstractAssetRequest {

@@ -21,8 +21,8 @@ import static com.percussion.design.objectstore.PSRelationshipConfig.FILTER_TYPE
 import static com.percussion.design.objectstore.PSRelationshipConfig.TYPE_FOLDER_CONTENT;
 import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
 import static com.percussion.webservices.PSWebserviceUtils.getRelationshipProcessor;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSKey;
@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

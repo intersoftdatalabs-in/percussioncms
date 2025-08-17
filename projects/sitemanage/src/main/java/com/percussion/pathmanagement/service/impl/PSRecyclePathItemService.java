@@ -18,7 +18,7 @@
 package com.percussion.pathmanagement.service.impl;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notEmpty;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;

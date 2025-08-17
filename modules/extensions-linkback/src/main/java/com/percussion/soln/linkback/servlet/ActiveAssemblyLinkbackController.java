@@ -22,7 +22,7 @@ import com.percussion.soln.linkback.utils.ItemSummaryFinder;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;

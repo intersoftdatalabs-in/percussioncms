@@ -30,7 +30,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Collection;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 
 /**

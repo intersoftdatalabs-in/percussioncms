@@ -41,7 +41,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -155,7 +155,8 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
     } catch (Exception e) // catch any exception
     {
       PSCommandLineProcessor.logMessage(
-          "processFailedError", e.getMessage() + " Stack: " + ExceptionUtils.getFullStackTrace(e));
+          "processFailedError",
+          e.getMessage() + " Stack: " + ExceptionUtils.getStackTrace(e).toString());
       throw new PSSectionProcessingException(e.getMessage(), e);
     } finally {
       endDotSession();

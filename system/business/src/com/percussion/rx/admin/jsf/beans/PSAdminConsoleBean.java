@@ -25,7 +25,7 @@ import com.percussion.server.command.PSConsoleCommandException;
 import com.percussion.server.command.PSConsoleCommandParser;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import java.io.IOException;

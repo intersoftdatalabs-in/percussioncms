@@ -19,9 +19,9 @@ package com.percussion.theme.service.impl;
 
 import static com.percussion.theme.data.PSRegionCSS.REGION_CLASS;
 import static com.percussion.utils.tools.IPSUtilsConstants.RX_STANDARD_ENC;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSRegionTree;
 import com.percussion.share.service.IPSDataService.PSThemeNotFoundException;
@@ -49,7 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSRegionCSSFileService {
   /**

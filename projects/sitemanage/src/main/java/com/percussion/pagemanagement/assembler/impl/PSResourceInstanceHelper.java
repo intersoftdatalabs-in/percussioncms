@@ -21,12 +21,12 @@ import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationU
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.validateAsPhysicalPath;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.StringUtils.startsWith;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
@@ -58,7 +58,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

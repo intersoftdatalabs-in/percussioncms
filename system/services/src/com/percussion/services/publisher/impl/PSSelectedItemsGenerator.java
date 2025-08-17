@@ -41,7 +41,7 @@ import java.util.Map;
 import javax.jcr.Value;
 import javax.jcr.query.QueryResult;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A generator that returns the items selected by the user for demand

@@ -17,7 +17,7 @@
 
 package com.percussion.cms.handlers;
 
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;

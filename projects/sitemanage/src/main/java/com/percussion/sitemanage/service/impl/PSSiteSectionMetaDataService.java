@@ -18,9 +18,9 @@ package com.percussion.sitemanage.service.impl;
 
 import static java.text.MessageFormat.format;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.StringUtils.*;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.IPSFolderPath;
@@ -30,7 +30,7 @@ import com.percussion.sitemanage.service.IPSSiteSectionMetaDataService;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

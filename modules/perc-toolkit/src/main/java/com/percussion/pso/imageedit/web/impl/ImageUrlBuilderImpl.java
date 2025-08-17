@@ -17,7 +17,7 @@
 package com.percussion.pso.imageedit.web.impl;
 
 import com.percussion.pso.imageedit.web.ImageUrlBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -17,7 +17,7 @@
 
 package com.percussion.design.objectstore;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * The PSPipe abstract class is used to define how an XML document is being mapped to one or more

@@ -24,7 +24,7 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import java.io.File;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Will turn a &lt;form&gt; tag into a &lt;div&gt; tag that has a special attribute marker to

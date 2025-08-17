@@ -16,9 +16,9 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import static org.apache.commons.lang.Validate.noNullElements;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.noNullElements;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.security.error.PSExceptionUtils;
@@ -41,7 +41,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

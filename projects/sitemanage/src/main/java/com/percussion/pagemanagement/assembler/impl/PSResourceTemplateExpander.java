@@ -18,9 +18,9 @@ package com.percussion.pagemanagement.assembler.impl;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -41,7 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

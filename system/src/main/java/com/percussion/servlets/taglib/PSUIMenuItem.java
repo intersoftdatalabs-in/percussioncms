@@ -20,7 +20,7 @@ import java.io.IOException;
 import javax.faces.component.html.HtmlCommandLink;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Handle the input and rendering for the menu item

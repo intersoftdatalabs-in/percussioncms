@@ -30,7 +30,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import org.apache.commons.collections.MultiHashMap;
 import org.apache.commons.collections.MultiMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

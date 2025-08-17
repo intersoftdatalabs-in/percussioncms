@@ -33,8 +33,8 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.utils.jexl.PSServiceJexlEvaluatorBase;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

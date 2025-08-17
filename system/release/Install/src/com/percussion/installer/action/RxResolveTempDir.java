@@ -15,7 +15,7 @@ package com.percussion.installer.action;
 import com.percussion.installanywhere.RxIAAction;
 import com.installshield.wizard.service.system.SystemUtilService;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

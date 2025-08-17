@@ -37,7 +37,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import java.io.File;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

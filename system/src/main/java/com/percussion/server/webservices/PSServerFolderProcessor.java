@@ -16,9 +16,9 @@
  */
 package com.percussion.server.webservices;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.PSCmsException;
@@ -128,8 +128,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.jcr.query.InvalidQueryException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;

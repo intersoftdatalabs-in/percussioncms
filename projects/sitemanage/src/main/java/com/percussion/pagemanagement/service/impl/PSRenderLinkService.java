@@ -21,11 +21,11 @@ import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationU
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.escapePathForUrl;
 import static com.percussion.share.web.service.PSRestServicePathConstants.ID_PATH_PARAM;
 import static java.text.MessageFormat.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;

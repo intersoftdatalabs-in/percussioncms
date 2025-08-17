@@ -17,7 +17,7 @@
  */
 package com.percussion.pagemanagement.parser;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;

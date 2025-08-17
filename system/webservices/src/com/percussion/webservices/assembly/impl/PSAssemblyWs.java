@@ -26,7 +26,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.webservices.assembly.IPSAssemblyWs;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

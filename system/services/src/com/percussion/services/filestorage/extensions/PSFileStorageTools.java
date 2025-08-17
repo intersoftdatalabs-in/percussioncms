@@ -16,9 +16,9 @@
  */
 package com.percussion.services.filestorage.extensions;
 
-import static org.apache.commons.lang.StringUtils.endsWith;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.endsWith;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
@@ -48,7 +48,7 @@ import java.sql.Blob;
 
 import javax.jcr.ValueFormatException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

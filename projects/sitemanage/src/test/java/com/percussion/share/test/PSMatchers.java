@@ -16,8 +16,8 @@
  */
 package com.percussion.share.test;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.share.test.xml.PSXhtmlValidator;

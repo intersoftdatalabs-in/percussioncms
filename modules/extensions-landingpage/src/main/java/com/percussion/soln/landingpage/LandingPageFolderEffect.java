@@ -76,8 +76,8 @@ import java.util.Map;
 import static java.text.MessageFormat.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.Validate.noNullElements;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.noNullElements;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Creates a landing page relationship with the navon and

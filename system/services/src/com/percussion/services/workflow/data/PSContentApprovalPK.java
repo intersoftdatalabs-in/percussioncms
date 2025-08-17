@@ -22,9 +22,9 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Primary key for {@link PSContentApproval}

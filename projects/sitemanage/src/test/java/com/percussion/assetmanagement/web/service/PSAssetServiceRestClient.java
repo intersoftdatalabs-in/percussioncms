@@ -18,7 +18,7 @@
 
 package com.percussion.assetmanagement.web.service;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetDropCriteria;

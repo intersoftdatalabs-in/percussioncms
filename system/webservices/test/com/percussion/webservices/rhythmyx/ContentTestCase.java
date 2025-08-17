@@ -133,8 +133,8 @@ import com.percussion.webservices.system.SystemSOAPStub;
 import junit.framework.AssertionFailedError;
 import org.apache.axis.attachments.AttachmentPart;
 import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 

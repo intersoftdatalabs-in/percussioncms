@@ -18,10 +18,10 @@
 package com.percussion.pagemanagement.assembler.impl.finder;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.injectDependencies;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -42,7 +42,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;

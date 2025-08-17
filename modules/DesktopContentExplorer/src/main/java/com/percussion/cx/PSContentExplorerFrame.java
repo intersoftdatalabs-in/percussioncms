@@ -28,7 +28,7 @@ import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSLogin;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -19,9 +19,9 @@ package com.percussion.pagemanagement.dao.impl;
 
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
 import static com.percussion.util.PSSqlHelper.qualifyTableName;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.cms.objectstore.PSFolder;

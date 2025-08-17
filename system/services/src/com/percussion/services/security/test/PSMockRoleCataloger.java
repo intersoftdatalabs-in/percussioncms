@@ -25,7 +25,7 @@ import com.percussion.security.PSSecurityCatalogException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Mock implementation of the {@link IPSRoleCataloger} for testing purposes.

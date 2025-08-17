@@ -29,7 +29,7 @@ import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.jsr170.IPSPropertyInterceptor;
 import com.percussion.utils.xml.PSSaxCopier;
 import com.percussion.utils.xml.PSSaxHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

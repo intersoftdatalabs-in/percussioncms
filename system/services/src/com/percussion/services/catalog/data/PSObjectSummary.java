@@ -28,8 +28,8 @@ import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

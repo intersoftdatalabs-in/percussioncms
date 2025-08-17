@@ -20,8 +20,8 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSScheduledTask.ByLabelComparator;
 
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
  * @author Andriy Palamarchuk

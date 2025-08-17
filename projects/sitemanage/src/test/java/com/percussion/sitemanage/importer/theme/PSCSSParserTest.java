@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.theme;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.sitemanage.data.PSSiteImportCtx;

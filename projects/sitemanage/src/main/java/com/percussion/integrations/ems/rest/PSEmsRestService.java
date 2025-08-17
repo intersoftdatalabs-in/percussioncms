@@ -17,7 +17,7 @@
 
 package com.percussion.integrations.ems.rest;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.client.PSDeliveryClient;
