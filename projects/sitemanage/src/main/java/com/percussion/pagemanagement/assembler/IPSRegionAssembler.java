@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,29 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
-
 import java.util.List;
 
 /**
  * Assembles a region.
- * 
+ *
+ * <p>Implementations must be thread-safe and stateless.
+ *
  * @author adamgent
  * @see IPSRegionsAssembler
- *
  */
-public interface IPSRegionAssembler
-{
-    
-    /**
-     * @param assemblyItem never <code>null</code>.
-     * @param context never <code>null</code>.
-     * @param mr never <code>null</code>.
-     * @return never <code>null</code> maybe empty.
-     */
-    public List<PSRegionResult> assembleRegion(
-            IPSAssemblyItem assemblyItem, 
-            PSPageAssemblyContext context,
-            PSMergedRegion mr) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
+public interface IPSRegionAssembler {
 
+  /**
+   * Assembles a single region.
+   *
+   * @param assemblyItem never {@code null}
+   * @param context never {@code null}
+   * @param mr never {@code null}
+   * @return never {@code null}, may be empty
+   * @throws IPSTemplateService.PSTemplateException if template expansion fails
+   * @throws PSAssemblyException if assembly fails
+   */
+  List<PSRegionResult> assembleRegion(
+      IPSAssemblyItem assemblyItem, PSPageAssemblyContext context, PSMergedRegion mr)
+      throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }
-

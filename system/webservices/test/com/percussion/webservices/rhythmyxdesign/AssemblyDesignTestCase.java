@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package com.percussion.webservices.rhythmyxdesign;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSContentTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -50,15 +50,15 @@ import com.percussion.webservices.faults.PSErrorsFaultServiceCall;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class AssemblyDesignTestCase extends PSAssemblyTestBase
 {
    public void test1assemblyDesignSOAPCreateSlots() throws Exception

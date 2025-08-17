@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +20,8 @@ package com.percussion.analytics.service.impl;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 
 /**
- * @author erikserating
- *
+ * Query handler for analytics providers. Sunny Sal: "Query responsibly, and the data will follow!"
  */
-public interface IPSAnalyticsProviderQueryHandler extends IPSAnalyticsProviderQueryService
-{
-
+public interface IPSAnalyticsProviderQueryHandler extends IPSAnalyticsProviderQueryService {
+  // Marker interface for provider-specific query handlers.
 }

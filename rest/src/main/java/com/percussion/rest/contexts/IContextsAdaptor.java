@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,43 @@
 package com.percussion.rest.contexts;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 import java.util.List;
 
-/***
- * Defines the adaptor interface for publishing Contexts
- */
+/** Defines the adaptor interface for publishing Contexts. */
 public interface IContextsAdaptor {
 
-    /***
-     * Delete a publishing Context by id
-     * @param baseURI referring url
-     * @param id A string guid id
-     */
-    public void deleteContext(URI baseURI, String id) throws BackendException;
+  /**
+   * Delete a publishing Context by id.
+   *
+   * @param baseURI referring url
+   * @param id A string guid id
+   */
+  void deleteContext(URI baseURI, String id) throws BackendException;
 
-    /***
-     * Get a publishing context by it's ID
-     * @param baseUri referring uri
-     * @param id A string guid id
-     * @return The publishing Conext
-     */
-    public Context getContextById(URI baseUri, String id) throws BackendException;
+  /**
+   * Get a publishing context by its ID.
+   *
+   * @param baseUri referring uri
+   * @param id A string guid id
+   * @return The publishing Context
+   */
+  Context getContextById(URI baseUri, String id) throws BackendException;
 
-    /***
-     * List all publishing contexts configured on the system
-     * @param baseURI
-     * @return a list of publishing contexts
-     */
-    public List<Context> listContexts(URI baseURI) throws BackendException;
+  /**
+   * List all publishing contexts configured on the system.
+   *
+   * @param baseURI referring url
+   * @return a list of publishing contexts
+   */
+  List<Context> listContexts(URI baseURI) throws BackendException;
 
-    /***
-     * Create or update a publishing context
-     * @param baseURI referring url
-     * @param context a fully initialized Context
-     * @return The updated context
-     */
-    public Context createOrUpdateContext(URI baseURI, Context context) throws BackendException;
+  /**
+   * Create or update a publishing context.
+   *
+   * @param baseURI referring url
+   * @param context a fully initialized Context
+   * @return The updated context
+   */
+  Context createOrUpdateContext(URI baseURI, Context context) throws BackendException;
 }

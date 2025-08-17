@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,105 +18,69 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author DavidBenua
+ * Request for site publish logs.
  *
+ * @author DavidBenua
  */
-@XmlRootElement(name="SitePublishLogRequest")
+@XmlRootElement(name = "SitePublishLogRequest")
 public class PSSitePublishLogRequest extends PSAbstractDataObject {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    private String siteId;
-    private int days;
-	private int maxcount;
-	private int skipCount;
-	private String pubServerId;
-	
-    private boolean showOnlyFailures;
-	
-    /**
-	 * @return the id of the site.
-	 */
-    public String getSiteId()
-	{
-        return siteId;
-    }
-	   
-	/**
-	 * @param siteId the id of the site to be published.
-     */
-    public void setSiteId(String siteId)
-    {
-        this.siteId = siteId;
-    }
-	
-	/**
-	 * @return the days
-	 */
-	public int getDays() {
-		return days;
-	}
-	/**
-     * @return the pubServerId
-     */
-    public String getPubServerId()
-    {
-        return pubServerId;
-    }
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * @param pubServerId the pubServerId to set
-     */
-    public void setPubServerId(String pubServerId)
-    {
-        this.pubServerId = pubServerId;
-    }
-	/**
-	 * @param days the days to set
-	 */
-	public void setDays(int days) {
-		this.days = days;
-	}
-	/**
-	 * @return the maxcount
-	 */
-	public int getMaxcount() {
-		return maxcount;
-	}
-	/**
-	 * @param maxcount the maxcount to set
-	 */
-	public void setMaxcount(int maxcount) {
-		this.maxcount = maxcount;
-	}
-	/**
-	 * @return the skipCount
-	 */
-	public int getSkipCount() {
-		return skipCount;
-	}
-	/**
-	 * @param skipCount the skipCount to set
-	 */
-	public void setSkipCount(int skipCount) {
-		this.skipCount = skipCount;
-	}
-	/**
-	 * @return the showOnlyFailures
-	 */
-	public boolean isShowOnlyFailures() {
-		return showOnlyFailures;
-	}
-	/**
-	 * @param showOnlyFailures the showOnlyFailures to set
-	 */
-	public void setShowOnlyFailures(boolean showOnlyFailures) {
-		this.showOnlyFailures = showOnlyFailures;
-	}   
-	
+  private String siteId;
+  private int days;
+  private int maxcount;
+  private int skipCount;
+  private String pubServerId;
+  private boolean showOnlyFailures;
+
+  public String getSiteId() {
+    return siteId;
+  }
+
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
+
+  public int getDays() {
+    return days;
+  }
+
+  public void setDays(int days) {
+    this.days = days;
+  }
+
+  public int getMaxcount() {
+    return maxcount;
+  }
+
+  public void setMaxcount(int maxcount) {
+    this.maxcount = maxcount;
+  }
+
+  public int getSkipCount() {
+    return skipCount;
+  }
+
+  public void setSkipCount(int skipCount) {
+    this.skipCount = skipCount;
+  }
+
+  public String getPubServerId() {
+    return pubServerId;
+  }
+
+  public void setPubServerId(String pubServerId) {
+    this.pubServerId = pubServerId;
+  }
+
+  public boolean isShowOnlyFailures() {
+    return showOnlyFailures;
+  }
+
+  public void setShowOnlyFailures(boolean showOnlyFailures) {
+    this.showOnlyFailures = showOnlyFailures;
+  }
 }

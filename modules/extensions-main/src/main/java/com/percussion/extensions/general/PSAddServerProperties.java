@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.extensions.general;
 
-//java
+// java
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionException;
@@ -26,81 +26,62 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
-
 import java.io.File;
 import java.util.Properties;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a generic exit that adds a specfied list of properties from
- * server.properties file as attributes to the root element of the
- * result document. The list of properties required is specified as
- * parameters to the exit.
- * <p>If the supplied parameter does not exist as a property in the
- * server.properties file the resulting value is empty.
- * Parameters with empty names will be ignored.</p>
+ * This is a generic exit that adds a specfied list of properties from server.properties file as
+ * attributes to the root element of the result document. The list of properties required is
+ * specified as parameters to the exit.
+ *
+ * <p>If the supplied parameter does not exist as a property in the server.properties file the
+ * resulting value is empty. Parameters with empty names will be ignored.
  */
-public class PSAddServerProperties implements
-              IPSResultDocumentProcessor
-{
-   /*
-    * Implementation of the method required by the interface IPSExtension.
-    */
-   public void init(IPSExtensionDef extensionDef, File file)
-      throws PSExtensionException
-   {
-      ms_fullExtensionName = extensionDef.getRef().toString();
-   }
+public class PSAddServerProperties implements IPSResultDocumentProcessor {
+  /*
+   * Implementation of the method required by the interface IPSExtension.
+   */
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    ms_fullExtensionName = extensionDef.getRef().toString();
+  }
 
-   /*
-    * Implementation of the method required by the interface
-    * IPSResultDocumentProcessor.
-    */
-   public boolean canModifyStyleSheet()
-   {
-      return false;
-   }
+  /*
+   * Implementation of the method required by the interface
+   * IPSResultDocumentProcessor.
+   */
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
 
-   /*
-    * Implementation of the method required by the interface
-    * IPSResultDocumentProcessor.
-    */
-   public Document processResultDocument(Object[] params,
-      IPSRequestContext request, Document resDoc)
-         throws PSParameterMismatchException,
-               PSExtensionProcessingException
-   {
-      if(params == null || resDoc == null)
-         return resDoc;
-      Element elem = resDoc.getDocumentElement();
-      if(elem == null)
-         return resDoc;
-      try
-      {
-         Properties serverProp = PSServer.getServerProps();
-         String propname = "";
-         String propvalue = "";
-         for(int i=0; i<params.length;i++)
-         {
-            propname = (params[i]!=null)?params[i].toString().trim():"";
-            if(propname.length()<1)
-               continue;
-            propvalue = serverProp.getProperty(propname,"");
-            elem.setAttribute(propname,propvalue);
-         }
+  /*
+   * Implementation of the method required by the interface
+   * IPSResultDocumentProcessor.
+   */
+  public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    if (params == null || resDoc == null) return resDoc;
+    Element elem = resDoc.getDocumentElement();
+    if (elem == null) return resDoc;
+    try {
+      Properties serverProp = PSServer.getServerProps();
+      String propname = "";
+      String propvalue = "";
+      for (int i = 0; i < params.length; i++) {
+        propname = (params[i] != null) ? params[i].toString().trim() : "";
+        if (propname.length() < 1) continue;
+        propvalue = serverProp.getProperty(propname, "");
+        elem.setAttribute(propname, propvalue);
       }
-      catch(Throwable t) //should never happen!
-      {
-         PSConsole.printMsg(ms_fullExtensionName, t);
-      }
+    } catch (Throwable t) // should never happen!
+    {
+      PSConsole.printMsg(ms_fullExtensionName, t);
+    }
 
-      return resDoc;
-   }
+    return resDoc;
+  }
 
-   /**
-    * The fully qualified name of this extension.
-    */
-   static private String ms_fullExtensionName = "";
+  /** The fully qualified name of this extension. */
+  private static String ms_fullExtensionName = "";
 }

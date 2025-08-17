@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,85 +17,68 @@
 
 package com.ibm.cadf.auditlogger.json;
 
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ibm.cadf.auditlogger.AuditLogger;
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.model.Event;
 import com.ibm.cadf.util.Constants;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
-public class JsonAuditLogger extends AuditLogger
-{
+public class JsonAuditLogger extends AuditLogger {
 
-    private static JsonAuditLogger instance;
+  private static JsonAuditLogger instance;
 
-    public static JsonAuditLogger getInstance()
-    {
+  public static JsonAuditLogger getInstance() {
 
-        if (instance == null)
-        {
-            instance = new JsonAuditLogger();
-        }
-
-        return instance;
+    if (instance == null) {
+      instance = new JsonAuditLogger();
     }
 
-    @Override
-    public String getOutputFilePath()
-    {
-        String outputFilePath = super.getOutputFilePath();
-        return outputFilePath == null ? Constants.JSON_AUDIT_FILES_NAME : outputFilePath;
+    return instance;
+  }
+
+  @Override
+  public String getOutputFilePath() {
+    String outputFilePath = super.getOutputFilePath();
+    return outputFilePath == null ? Constants.JSON_AUDIT_FILES_NAME : outputFilePath;
+  }
+
+  @Override
+  public void writeLog(Event auditEvent) throws CADFException {
+
+    BufferedWriter writer = null;
+    FileWriter fw = null;
+    FileReader fr = null;
+    try {
+      String filePath = getOutputFilePath();
+      fw = new FileWriter(filePath, true);
+      fr = new FileReader(filePath);
+      writer = new BufferedWriter(fw);
+      String JsonSeperator = ",";
+      if (fr.read() > 0) {
+        writer.write(JsonSeperator);
+      }
+      GsonBuilder builder = new GsonBuilder();
+      builder.disableHtmlEscaping();
+      Gson gson = builder.create();
+      writer.write(gson.toJson(auditEvent));
+      writer.write("\r \n");
+      writer.flush();
+    } catch (IOException e) {
+      throw new CADFException(e);
+    } finally {
+      if (writer != null) {
+        try {
+          writer.close();
+          fr.close();
+        } catch (IOException e) {
+          throw new CADFException(e);
+        }
+      }
     }
-
-    @Override
-    public void writeLog(Event auditEvent) throws CADFException
-    {
-
-        BufferedWriter writer = null;
-        FileWriter fw = null;
-        FileReader fr = null;
-        try
-        {
-            String filePath = getOutputFilePath();
-            fw = new FileWriter(filePath, true);
-            fr = new FileReader(filePath);
-            writer = new BufferedWriter(fw);
-            String JsonSeperator = ",";
-            if (fr.read() > 0)
-            {
-                writer.write(JsonSeperator);
-            }
-            GsonBuilder builder = new GsonBuilder();
-            builder.disableHtmlEscaping();
-            Gson gson = builder.create();
-            writer.write(gson.toJson(auditEvent));
-            writer.write("\r \n");
-            writer.flush();
-        }
-        catch (IOException e)
-        {
-            throw new CADFException(e);
-        }
-
-        finally
-        {
-            if (writer != null)
-            {
-                try
-                {
-                    writer.close();
-                    fr.close();
-                }
-                catch (IOException e)
-                {
-                    throw new CADFException(e);
-                }
-            }
-        }
-    }
+  }
 }

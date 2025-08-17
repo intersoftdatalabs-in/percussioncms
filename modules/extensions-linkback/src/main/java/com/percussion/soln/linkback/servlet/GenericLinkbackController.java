@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,17 @@
  */
 package com.percussion.soln.linkback.servlet;
 
+import static java.text.MessageFormat.format;
+
 import com.percussion.soln.linkback.codec.LinkbackTokenCodec;
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,275 +34,249 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.text.MessageFormat.format;
-
 /**
  * Generic Linkback Controller. Expects a linkback token as request parameter.
- * 
- * Though mainly used as base class for specific controllers, it can be
- * configured as a bean by itself. The default behavior is to redirect to
- * <code>redirectPath</code> with parameters decoded from the linkback codec.
- * The following property can be configured in the bean xml file:
+ *
+ * <p>Though mainly used as base class for specific controllers, it can be configured as a bean by
+ * itself. The default behavior is to redirect to <code>redirectPath</code> with parameters decoded
+ * from the linkback codec. The following property can be configured in the bean xml file:
+ *
  * <ul>
- * <li>redirectPath - mandatory if this class is used to configure a bean;
- * optional if subclasses are used, in which case, it depends on the subclass
- * implementation</li>
- * <li>helpViewName (optional) - help view name</li>
- * <li>linkbackCodec (optional) - implementation of {@link LinkbackTokenCodec}</li>
+ *   <li>redirectPath - mandatory if this class is used to configure a bean; optional if subclasses
+ *       are used, in which case, it depends on the subclass implementation
+ *   <li>helpViewName (optional) - help view name
+ *   <li>linkbackCodec (optional) - implementation of {@link LinkbackTokenCodec}
  * </ul>
  */
 public class GenericLinkbackController extends AbstractController {
 
-    private static final Logger log = LogManager.getLogger(GenericLinkbackController.class);
+  private static final Logger log = LogManager.getLogger(GenericLinkbackController.class);
 
-    private String linkbackParameterName = LinkbackUtils.LINKBACK_PARAM_NAME;
+  private String linkbackParameterName = LinkbackUtils.LINKBACK_PARAM_NAME;
 
-    private String redirectPath = "";
+  private String redirectPath = "";
 
-    private String helpViewName = "";
-    
-    private String errorViewName = "";
+  private String helpViewName = "";
 
-    private LinkbackTokenCodec linkbackCodec = null;
+  private String errorViewName = "";
 
-    private List<String> requiredParameterNames = new ArrayList<>();
+  private LinkbackTokenCodec linkbackCodec = null;
 
-    private List<String> optionalParameterNames = new ArrayList<>();
+  private List<String> requiredParameterNames = new ArrayList<>();
 
-    private Map<String, String> additionalParameters = new HashMap<>();
+  private List<String> optionalParameterNames = new ArrayList<>();
 
-    /**
-     * If linkback token is not blank, this method calls
-     * handleLinkBackRedirect() to create a ModelAndView object; otherwise,
-     * return the helpview if exists.
-     */
-    @Override
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-             {
-        initCodec();
+  private Map<String, String> additionalParameters = new HashMap<>();
 
-        String linkbackToken = request.getParameter(linkbackParameterName);
-        log.debug("linkbackToken={}" , linkbackToken);
+  /**
+   * If linkback token is not blank, this method calls handleLinkBackRedirect() to create a
+   * ModelAndView object; otherwise, return the helpview if exists.
+   */
+  @Override
+  protected ModelAndView handleRequestInternal(
+      HttpServletRequest request, HttpServletResponse response) {
+    initCodec();
 
-        if (linkbackToken == null) {
+    String linkbackToken = request.getParameter(linkbackParameterName);
+    log.debug("linkbackToken={}", linkbackToken);
 
-            return createHelpView();
-        }
-        else if(StringUtils.isBlank(linkbackToken)) {
-            return createErrorView(format("Linkback param ({0}) is an empty string.", getLinkbackParameterName()));
-        }
+    if (linkbackToken == null) {
 
-        Map<String, String> params = linkbackCodec.decode(linkbackToken);
-        log.debug("map: {}" , params);
-        return  handleLinkBackRedirect(params);
-
+      return createHelpView();
+    } else if (StringUtils.isBlank(linkbackToken)) {
+      return createErrorView(
+          format("Linkback param ({0}) is an empty string.", getLinkbackParameterName()));
     }
 
-    /**
-     * Return a ModelAndView object, using a RedirectView and the map as the
-     * model. Subclasses override this method to determine how the linkback
-     * should be handled.
-     * 
-     * @param tokenParams map of parameter values
-     * @return ModelAndView
-     */
-    protected ModelAndView handleLinkBackRedirect(Map<String, String> tokenParams) {
-        Map<String, String> params = new HashMap<>();
-        if (!checkAndCopyRequiredParams(tokenParams, params)) {
-            String message = "Required Parameter missing, required parameters are " + getRequiredParameterNames();
-            return createErrorView(message);
-        }
-        copyOptionalParameters(tokenParams, params);
-        params.putAll(getAdditionalParameters());
-        modifyParameterMap(params);
-        String path = getRedirectPath();
-        log.debug("redirect path: {}",  path);
-        return new ModelAndView(new RedirectView(path, true), params);
-    }
+    Map<String, String> params = linkbackCodec.decode(linkbackToken);
+    log.debug("map: {}", params);
+    return handleLinkBackRedirect(params);
+  }
 
-    /**
-     * Check that required parameters exist and copy them to the output map. The
-     * parameters must not be blank and must be numeric.
-     * 
-     * @param inParams
-     *            the input parameter map.
-     * @param outParams
-     *            the map to copy parameters to.
-     * @return true if the required parameters exist.
-     */
-    protected boolean checkAndCopyRequiredParams(Map<String, String> inParams, Map<String, String> outParams) {
-        for (String pname : getRequiredParameterNames()) {
-            String pvalue = inParams.get(pname);
-            if (StringUtils.isBlank(pvalue) || !StringUtils.isNumeric(pvalue)) {
-                return false;
-            }
-            outParams.put(pname, pvalue);
-        }
-        return true;
+  /**
+   * Return a ModelAndView object, using a RedirectView and the map as the model. Subclasses
+   * override this method to determine how the linkback should be handled.
+   *
+   * @param tokenParams map of parameter values
+   * @return ModelAndView
+   */
+  protected ModelAndView handleLinkBackRedirect(Map<String, String> tokenParams) {
+    Map<String, String> params = new HashMap<>();
+    if (!checkAndCopyRequiredParams(tokenParams, params)) {
+      String message =
+          "Required Parameter missing, required parameters are " + getRequiredParameterNames();
+      return createErrorView(message);
     }
+    copyOptionalParameters(tokenParams, params);
+    params.putAll(getAdditionalParameters());
+    modifyParameterMap(params);
+    String path = getRedirectPath();
+    log.debug("redirect path: {}", path);
+    return new ModelAndView(new RedirectView(path, true), params);
+  }
 
-    /**
-     * Copy the optional parameters.
-     * 
-     * @param inParams
-     *            the incoming parameters
-     * @param outParams
-     *            the parameter map to copy to.
-     */
-    protected void copyOptionalParameters(Map<String, String> inParams, Map<String, String> outParams) {
-        for (String pname : getOptionalParameterNames()) {
-            String pvalue = inParams.get(pname);
-            if (StringUtils.isNotBlank(pvalue)) {
-                outParams.put(pname, pvalue);
-            }
-        }
+  /**
+   * Check that required parameters exist and copy them to the output map. The parameters must not
+   * be blank and must be numeric.
+   *
+   * @param inParams the input parameter map.
+   * @param outParams the map to copy parameters to.
+   * @return true if the required parameters exist.
+   */
+  protected boolean checkAndCopyRequiredParams(
+      Map<String, String> inParams, Map<String, String> outParams) {
+    for (String pname : getRequiredParameterNames()) {
+      String pvalue = inParams.get(pname);
+      if (StringUtils.isBlank(pvalue) || !StringUtils.isNumeric(pvalue)) {
+        return false;
+      }
+      outParams.put(pname, pvalue);
     }
+    return true;
+  }
 
-    /**
-     * Modify the parameter map. This is intended for subclasses that need
-     * special parameters.
-     * 
-     * @param params
-     *            the parameter map.
-     */
-    protected void modifyParameterMap(Map<String, String> params) {
-        // do nothing for now.
+  /**
+   * Copy the optional parameters.
+   *
+   * @param inParams the incoming parameters
+   * @param outParams the parameter map to copy to.
+   */
+  protected void copyOptionalParameters(
+      Map<String, String> inParams, Map<String, String> outParams) {
+    for (String pname : getOptionalParameterNames()) {
+      String pvalue = inParams.get(pname);
+      if (StringUtils.isNotBlank(pvalue)) {
+        outParams.put(pname, pvalue);
+      }
     }
+  }
 
-    /**
-     * Create a help view if {@link #helpViewName} is defined in the bean config;
-     * otherwise, null;
-     * 
-     * @return ModelAndView
-     */
-    protected ModelAndView createHelpView() {
-        if (StringUtils.isBlank(getHelpViewName())) {
-            return null;
-        }
-        return new ModelAndView(getHelpViewName(), "message", null);
-    }
+  /**
+   * Modify the parameter map. This is intended for subclasses that need special parameters.
+   *
+   * @param params the parameter map.
+   */
+  protected void modifyParameterMap(Map<String, String> params) {
+    // do nothing for now.
+  }
 
-    /**
-     * Create a error view if {@link #errorViewName} is defined in the bean config;
-     * otherwise, null;
-     * 
-     * @param message
-     *            custom message
-     * @return ModelAndView
-     */
-    protected ModelAndView createErrorView(String message) {
-        if (StringUtils.isBlank(getErrorViewName())) {
-            return null;
-        }
-        return new ModelAndView(getErrorViewName(), "message", message);
+  /**
+   * Create a help view if {@link #helpViewName} is defined in the bean config; otherwise, null;
+   *
+   * @return ModelAndView
+   */
+  protected ModelAndView createHelpView() {
+    if (StringUtils.isBlank(getHelpViewName())) {
+      return null;
     }
-    
+    return new ModelAndView(getHelpViewName(), "message", null);
+  }
 
-    private void initCodec() {
-        if (linkbackCodec == null) {
-            // create a default codec, if not specified in the bean config
-            linkbackCodec = new StringLinkBackTokenImpl();
-        }
+  /**
+   * Create a error view if {@link #errorViewName} is defined in the bean config; otherwise, null;
+   *
+   * @param message custom message
+   * @return ModelAndView
+   */
+  protected ModelAndView createErrorView(String message) {
+    if (StringUtils.isBlank(getErrorViewName())) {
+      return null;
     }
+    return new ModelAndView(getErrorViewName(), "message", message);
+  }
 
-    public String getRedirectPath() {
-        return redirectPath;
+  private void initCodec() {
+    if (linkbackCodec == null) {
+      // create a default codec, if not specified in the bean config
+      linkbackCodec = new StringLinkBackTokenImpl();
     }
+  }
 
-    public void setRedirectPath(String redirectPath) {
-        this.redirectPath = redirectPath;
-    }
+  public String getRedirectPath() {
+    return redirectPath;
+  }
 
-    public String getHelpViewName() {
-        return helpViewName;
-    }
+  public void setRedirectPath(String redirectPath) {
+    this.redirectPath = redirectPath;
+  }
 
-    public void setHelpViewName(String helpViewName) {
-        this.helpViewName = helpViewName;
-    }
+  public String getHelpViewName() {
+    return helpViewName;
+  }
 
-    public LinkbackTokenCodec getLinkbackCodec() {
-        return linkbackCodec;
-    }
+  public void setHelpViewName(String helpViewName) {
+    this.helpViewName = helpViewName;
+  }
 
-    public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
-        this.linkbackCodec = linkbackCodec;
-    }
+  public LinkbackTokenCodec getLinkbackCodec() {
+    return linkbackCodec;
+  }
 
-    /**
-     * @return the linkbackParameterName
-     */
-    public String getLinkbackParameterName() {
-        return linkbackParameterName;
-    }
+  public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
+    this.linkbackCodec = linkbackCodec;
+  }
 
-    /**
-     * @param linkbackParameterName
-     *            the linkbackParameterName to set
-     */
-    public void setLinkbackParameterName(String linkbackParameterName) {
-        this.linkbackParameterName = linkbackParameterName;
-    }
+  /**
+   * @return the linkbackParameterName
+   */
+  public String getLinkbackParameterName() {
+    return linkbackParameterName;
+  }
 
-    /**
-     * @return the requiredParameterNames
-     */
-    public List<String> getRequiredParameterNames() {
-        return requiredParameterNames;
-    }
+  /**
+   * @param linkbackParameterName the linkbackParameterName to set
+   */
+  public void setLinkbackParameterName(String linkbackParameterName) {
+    this.linkbackParameterName = linkbackParameterName;
+  }
 
-    /**
-     * @param requiredParameterNames
-     *            the requiredParameterNames to set
-     */
-    public void setRequiredParameterNames(List<String> requiredParameterNames) {
-        this.requiredParameterNames = requiredParameterNames;
-    }
+  /**
+   * @return the requiredParameterNames
+   */
+  public List<String> getRequiredParameterNames() {
+    return requiredParameterNames;
+  }
 
-    /**
-     * @return the optionalParameterNames
-     */
-    public List<String> getOptionalParameterNames() {
-        return optionalParameterNames;
-    }
+  /**
+   * @param requiredParameterNames the requiredParameterNames to set
+   */
+  public void setRequiredParameterNames(List<String> requiredParameterNames) {
+    this.requiredParameterNames = requiredParameterNames;
+  }
 
-    /**
-     * @param optionalParameterNames
-     *            the optionalParameterNames to set
-     */
-    public void setOptionalParameterNames(List<String> optionalParameterNames) {
-        this.optionalParameterNames = optionalParameterNames;
-    }
+  /**
+   * @return the optionalParameterNames
+   */
+  public List<String> getOptionalParameterNames() {
+    return optionalParameterNames;
+  }
 
-    /**
-     * @return the additionalParameters
-     */
-    public Map<String, String> getAdditionalParameters() {
-        return additionalParameters;
-    }
+  /**
+   * @param optionalParameterNames the optionalParameterNames to set
+   */
+  public void setOptionalParameterNames(List<String> optionalParameterNames) {
+    this.optionalParameterNames = optionalParameterNames;
+  }
 
-    /**
-     * @param additionalParameters
-     *            the additionalParameters to set
-     */
-    public void setAdditionalParameters(Map<String, String> additionalParameters) {
-        this.additionalParameters = additionalParameters;
-    }
+  /**
+   * @return the additionalParameters
+   */
+  public Map<String, String> getAdditionalParameters() {
+    return additionalParameters;
+  }
 
-    
-    public String getErrorViewName() {
-        return errorViewName;
-    }
+  /**
+   * @param additionalParameters the additionalParameters to set
+   */
+  public void setAdditionalParameters(Map<String, String> additionalParameters) {
+    this.additionalParameters = additionalParameters;
+  }
 
-    
-    public void setErrorViewName(String errorViewName) {
-        this.errorViewName = errorViewName;
-    }
+  public String getErrorViewName() {
+    return errorViewName;
+  }
+
+  public void setErrorViewName(String errorViewName) {
+    this.errorViewName = errorViewName;
+  }
 }

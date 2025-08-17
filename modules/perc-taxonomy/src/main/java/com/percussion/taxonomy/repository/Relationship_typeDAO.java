@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Relationship_typeDAO {
 
-    public Collection getAllRelationship_types();
+  public Collection getAllRelationship_types();
 
-    public Relationship_type getRelationship_type(int id);
+  public Relationship_type getRelationship_type(int id);
 
-    public void removeRelationship_type(Relationship_type relationship_type);
+  public void removeRelationship_type(Relationship_type relationship_type);
 
-    public void saveRelationship_type(Relationship_type relationship_type);
+  public void saveRelationship_type(Relationship_type relationship_type);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,33 @@
 
 package com.percussion.taxonomy.repository;
 
+import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 import java.util.Map;
 
-import com.percussion.taxonomy.domain.*;
-
 public interface ValueDAO {
 
-   /////////////////////////////////////////////////////////////////////////////////////
-   
-    public Collection<Value> getAllValues();
+  /////////////////////////////////////////////////////////////////////////////////////
 
-    public Value getValue(int id);
+  public Collection<Value> getAllValues();
 
-    /////////////////////////////////////////////////////////////////////////////////////
+  public Value getValue(int id);
 
-    public void removeValue(Value value);
+  /////////////////////////////////////////////////////////////////////////////////////
 
-    public void saveValue(Value value);
+  public void removeValue(Value value);
 
-    /////////////////////////////////////////////////////////////////////////////////////
+  public void saveValue(Value value);
 
-    public Map<String, String> saveValuesFromParams(Map<String, String[]> params,
-                                                    Collection<Attribute> attributes,
-                                                    Node node, 
-                                                    int langID, 
-                                                    String user_name);
+  /////////////////////////////////////////////////////////////////////////////////////
 
-    /////////////////////////////////////////////////////////////////////////////////////
+  public Map<String, String> saveValuesFromParams(
+      Map<String, String[]> params,
+      Collection<Attribute> attributes,
+      Node node,
+      int langID,
+      String user_name);
+
+  /////////////////////////////////////////////////////////////////////////////////////
 
 }

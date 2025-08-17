@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.webservices.assembly;
+package com.percussion.services.shim.ws.assembly;
 
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;

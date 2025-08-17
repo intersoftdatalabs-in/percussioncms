@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +15,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.pagemanagement.dao.impl;
 
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.share.dao.PSFileDataRepository;
 import com.percussion.share.dao.PSXmlFileDataRepository;
+import java.io.IOException;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Set;
-
+/** DAO for category configuration, backed by XML files. */
 @Component("categoryConfigurationDao")
 @Lazy
-public class PSCategoryConfigurationDao extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration>
-{
-    public PSCategoryConfigurationDao()
-    {
-        super(PSCategoryConfiguration.class);
-    }
+public class PSCategoryConfigurationDao
+    extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration> {
 
-    @Override
-    protected PSCategoryConfiguration update(Set<PSFileDataRepository.PSFileEntry> files)
-            throws IOException, PSXmlFileDataRepositoryException {
-        if (files.isEmpty()) {
-            return new PSCategoryConfiguration();
-        }
-        PSFileEntry fe = files.iterator().next();
-        return fileToObject(fe);
-    }
+  public PSCategoryConfigurationDao() {
+    super(PSCategoryConfiguration.class);
+  }
 
-    @Override
-    @Value("${rxdeploydir}/rxconfig/Categories")
-    public void setRepositoryDirectory(String widgetsRepositoryDirectory)
-    {
-        // TODO Auto-generated method stub
-        super.setRepositoryDirectory(widgetsRepositoryDirectory);
+  @Override
+  protected PSCategoryConfiguration update(Set<PSFileDataRepository.PSFileEntry> files)
+      throws IOException, PSXmlFileDataRepositoryException {
+    if (files.isEmpty()) {
+      return new PSCategoryConfiguration();
     }
-    
-    
+    var fe = files.iterator().next();
+    return fileToObject(fe);
+  }
 
+  @Override
+  @Value("${rxdeploydir}/rxconfig/Categories")
+  public void setRepositoryDirectory(String widgetsRepositoryDirectory) {
+    super.setRepositoryDirectory(widgetsRepositoryDirectory);
+  }
 }

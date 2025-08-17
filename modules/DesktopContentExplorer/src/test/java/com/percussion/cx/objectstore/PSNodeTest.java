@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSNode} class.
  */
-public class PSNodeTest extends TestCase
+public class PSNodeTest
 {
    /**
     * Test the clone method to ensure child collections are properly supported.
     * 
     * @throws Exception if there are any errors 
     */
+   @Test
    public void testClone() throws Exception
    {
       PSNode node1 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,139 +16,125 @@
  */
 package com.percussion.utils.string;
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+@Tag("UnitTest")
+public class PSPatternMatchTest {
+  @Test
+  public void testMatchAll() {
+    PSPatternMatch pattern = new PSPatternMatch("*");
 
+    assertTrue(pattern.match("abc"));
+    assertTrue(pattern.match("abcyu"));
+    assertTrue(pattern.match("ab"));
+  }
 
-@Category(UnitTest.class)
-public class PSPatternMatchTest
-{
-   @Test
-   public void testMatchAll()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("*");
-      
-      assertTrue(pattern.match("abc"));
-      assertTrue(pattern.match("abcyu"));
-      assertTrue(pattern.match("ab"));
+  @Test
+  public void testBegin() {
+    PSPatternMatch pattern = new PSPatternMatch("abc*");
 
-   }
+    assertTrue(pattern.match("abc"));
+    assertTrue(pattern.match("abcyu"));
+    assertTrue(!pattern.match("ab"));
 
-   @Test
-   public void testBegin()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("abc*");
-      
-      assertTrue(pattern.match("abc"));
-      assertTrue(pattern.match("abcyu"));
-      assertTrue(!pattern.match("ab"));
+    pattern = new PSPatternMatch("abc");
+    assertTrue(pattern.match("abc"));
+    assertTrue(!pattern.match("abcyu"));
+    assertTrue(!pattern.match("ab"));
+  }
 
-      pattern = new PSPatternMatch("abc");
-      assertTrue(pattern.match("abc"));
-      assertTrue(!pattern.match("abcyu"));
-      assertTrue(!pattern.match("ab"));
-   }
+  @Test
+  public void testBegin_Percent() {
+    PSPatternMatch pattern = new PSPatternMatch("abc%", "%");
 
-   @Test
-   public void testBegin_Percent()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("abc%", "%");
-      
-      assertTrue(pattern.match("abc"));
-      assertTrue(pattern.match("abcyu"));
-      assertTrue(!pattern.match("ab"));
+    assertTrue(pattern.match("abc"));
+    assertTrue(pattern.match("abcyu"));
+    assertTrue(!pattern.match("ab"));
 
-      pattern = new PSPatternMatch("abc");
-      assertTrue(pattern.match("abc"));
-      assertTrue(!pattern.match("abcyu"));
-      assertTrue(!pattern.match("ab"));
-   }
+    pattern = new PSPatternMatch("abc");
+    assertTrue(pattern.match("abc"));
+    assertTrue(!pattern.match("abcyu"));
+    assertTrue(!pattern.match("ab"));
+  }
 
-   @Test
-   public void testEnd()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("*abc");
-      
-      assertTrue(pattern.match("abc"));
-      assertTrue(pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
-   }
+  @Test
+  public void testEnd() {
+    PSPatternMatch pattern = new PSPatternMatch("*abc");
 
-   @Test
-   public void testEnd_Percent()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("%abc", "%");
-      
-      assertTrue(pattern.match("abc"));
-      assertTrue(pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
-   }
+    assertTrue(pattern.match("abc"));
+    assertTrue(pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
+  }
 
-   @Test
-   public void testMixed()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("*abc*xyz*");
-      
-      assertTrue(!pattern.match("abc"));
-      assertTrue(!pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
+  @Test
+  public void testEnd_Percent() {
+    PSPatternMatch pattern = new PSPatternMatch("%abc", "%");
 
-      assertTrue(pattern.match("yxabc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz"));
-      assertTrue(pattern.match("abcxyz"));
+    assertTrue(pattern.match("abc"));
+    assertTrue(pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
+  }
 
-      pattern = new PSPatternMatch("*abc**xyz*");
+  @Test
+  public void testMixed() {
+    PSPatternMatch pattern = new PSPatternMatch("*abc*xyz*");
 
-      assertTrue(!pattern.match("abc"));
-      assertTrue(!pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
+    assertTrue(!pattern.match("abc"));
+    assertTrue(!pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
 
-      assertTrue(pattern.match("yxabc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz"));
-      assertTrue(pattern.match("abcxyz"));
-   }
+    assertTrue(pattern.match("yxabc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz"));
+    assertTrue(pattern.match("abcxyz"));
 
-   @Test
-   public void testMixed_Percent()
-   {
-      PSPatternMatch pattern = new PSPatternMatch("%abc%xyz%", "%");
-      
-      assertTrue(!pattern.match("abc"));
-      assertTrue(!pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
+    pattern = new PSPatternMatch("*abc**xyz*");
 
-      assertTrue(pattern.match("yxabc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz"));
-      assertTrue(pattern.match("abcxyz"));
+    assertTrue(!pattern.match("abc"));
+    assertTrue(!pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
 
-      pattern = new PSPatternMatch("%abc%%xyz%", "%");
+    assertTrue(pattern.match("yxabc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz"));
+    assertTrue(pattern.match("abcxyz"));
+  }
 
-      assertTrue(!pattern.match("abc"));
-      assertTrue(!pattern.match("yu-abc"));
-      assertTrue(!pattern.match("ab"));
+  @Test
+  public void testMixed_Percent() {
+    PSPatternMatch pattern = new PSPatternMatch("%abc%xyz%", "%");
 
-      assertTrue(pattern.match("yxabc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz--sdf"));
-      assertTrue(pattern.match("abc--xyz"));
-      assertTrue(pattern.match("abcxyz"));
-   }
+    assertTrue(!pattern.match("abc"));
+    assertTrue(!pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
 
-   @Test
-   public void testMatchedStrings()
-   {
-      String[] names = new String[] {"yxabc--xyz--sdf", "abcxyz", "yu-abc"};
-      
-      Collection<String> strList = PSPatternMatch.matchedStrings("*abc*xyz*",
-            Arrays.asList(names));
-      assertTrue(strList.size() == 2);
-   }
+    assertTrue(pattern.match("yxabc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz"));
+    assertTrue(pattern.match("abcxyz"));
+
+    pattern = new PSPatternMatch("%abc%%xyz%", "%");
+
+    assertTrue(!pattern.match("abc"));
+    assertTrue(!pattern.match("yu-abc"));
+    assertTrue(!pattern.match("ab"));
+
+    assertTrue(pattern.match("yxabc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz--sdf"));
+    assertTrue(pattern.match("abc--xyz"));
+    assertTrue(pattern.match("abcxyz"));
+  }
+
+  @Test
+  public void testMatchedStrings() {
+    String[] names = new String[] {"yxabc--xyz--sdf", "abcxyz", "yu-abc"};
+
+    Collection<String> strList = PSPatternMatch.matchedStrings("*abc*xyz*", Arrays.asList(names));
+    assertTrue(strList.size() == 2);
+  }
 }

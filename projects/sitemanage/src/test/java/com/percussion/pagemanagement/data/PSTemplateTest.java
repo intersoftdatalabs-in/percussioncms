@@ -1,167 +1,171 @@
+// REFACTORED: CP-JAVA11
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ * ...existing license...
+ */
 package com.percussion.pagemanagement.data;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSTemplateTest {
 
-    private static final PSMetadataDocType DOC_TYPE = new PSMetadataDocType();
-    private static final String HTML_HEADER = "html-header" ;
-    private static final String PROTECTED_REGION = "protected-region";
-    private static final String ID = "12345";
-    private static final String SERVER_VERSION = "8.1.3";
-    private static final String DESCRIPTION = "description";
-    private static final String THEME = "theme";
-    private static final String MIGRATION_VERSION = "1";
-    private static final String PROTECTED_REGION_TEXT = "region-text";
-    private static final String TYPE = "template";
-    private static final String THUMB_PATH = "/images";
-    private static final String LABEL = "label";
-    private static final String NAME = "name";
+  private static final PSMetadataDocType DOC_TYPE = new PSMetadataDocType();
+  private static final String HTML_HEADER = "html-header";
+  private static final String PROTECTED_REGION = "protected-region";
+  private static final String ID = "12345";
+  private static final String SERVER_VERSION = "8.1.3";
+  private static final String DESCRIPTION = "description";
+  private static final String THEME = "theme";
+  private static final String MIGRATION_VERSION = "1";
+  private static final String PROTECTED_REGION_TEXT = "region-text";
+  private static final String TYPE = "template";
+  private static final String THUMB_PATH = "/images";
+  private static final String LABEL = "label";
+  private static final String NAME = "name";
 
-    private PSTemplate testTemplate;
+  private PSTemplate testTemplate;
 
+  @Test
+  public void testCopyConstructor() {
+    var copy = new PSTemplate(testTemplate);
 
-    @Test
-    public void testCopyConstructor(){
+    // They are different objects, but values should be the same.
+    assertEquals(copy.getAdditionalHeadContent(), testTemplate.getAdditionalHeadContent());
+    assertEquals(copy.getAfterBodyStartContent(), testTemplate.getAfterBodyStartContent());
+    assertEquals(copy.getBodyMarkup(), testTemplate.getBodyMarkup());
+    assertEquals(copy.getCssRegion(), testTemplate.getCssRegion());
+    assertEquals(copy.getBeforeBodyCloseContent(), testTemplate.getBeforeBodyCloseContent());
+    assertEquals(copy.getCssOverride(), testTemplate.getCssOverride());
+    assertEquals(copy.getDocType(), testTemplate.getDocType());
+    assertEquals(copy.getHtmlHeader(), testTemplate.getHtmlHeader());
+    assertEquals(copy.getServerVersion(), testTemplate.getServerVersion());
+    assertEquals(copy.getSourceTemplateName(), testTemplate.getSourceTemplateName());
+    assertEquals(copy.getDescription(), testTemplate.getDescription());
+    assertEquals(copy.getType(), testTemplate.getType());
+    assertEquals(copy.getLabel(), testTemplate.getLabel());
+    assertEquals(copy.getId(), testTemplate.getId());
+    assertEquals(copy.getImageThumbPath(), testTemplate.getImageThumbPath());
+    assertEquals(copy.getWidgets(), testTemplate.getWidgets());
+    assertEquals(copy.getProtectedRegion(), testTemplate.getProtectedRegion());
+    assertEquals(copy.getProtectedRegionText(), testTemplate.getProtectedRegionText());
+    assertEquals(copy.getTheme(), testTemplate.getTheme());
 
-        PSTemplate copy = new PSTemplate(testTemplate);
+    // Now check actual values to make sure no field values are missing
+    assertEquals(ADDITIONAL_HEAD, copy.getAdditionalHeadContent());
+    assertEquals(AFTER_BODY_START, copy.getAfterBodyStartContent());
+    assertEquals(BODY_MARKUP, copy.getBodyMarkup());
+    assertEquals(CSS_REGION, copy.getCssRegion());
+    assertEquals(BEFORE_BODY_CLOSE, copy.getBeforeBodyCloseContent());
+    assertEquals(CSS_OVERRIDE, copy.getCssOverride());
+    assertEquals(DOC_TYPE, copy.getDocType());
+    assertEquals(HTML_HEADER, copy.getHtmlHeader());
+    assertEquals(SERVER_VERSION, copy.getServerVersion());
+    assertEquals(SOURCE_TEMPLATE, copy.getSourceTemplateName());
+    assertEquals(DESCRIPTION, copy.getDescription());
+    assertEquals(TYPE, copy.getType());
+    assertEquals(LABEL, copy.getLabel());
+    assertEquals(ID, copy.getId());
+    assertEquals(THUMB_PATH, copy.getImageThumbPath());
+    assertEquals(copy.getWidgets(), testTemplate.getWidgets());
+    assertEquals(PROTECTED_REGION, copy.getProtectedRegion());
+    assertEquals(PROTECTED_REGION_TEXT, copy.getProtectedRegionText());
+    assertEquals(THEME, copy.getTheme());
+  }
 
-        //They different objects, but values should be the same.
-        assertEquals(copy.getAdditionalHeadContent(),testTemplate.getAdditionalHeadContent());
-        assertEquals(copy.getAfterBodyStartContent(),testTemplate.getAfterBodyStartContent());
-        assertEquals(copy.getBodyMarkup(),testTemplate.getBodyMarkup());
-        assertEquals(copy.getCssRegion(),testTemplate.getCssRegion());
-        assertEquals(copy.getBeforeBodyCloseContent(),testTemplate.getBeforeBodyCloseContent());
-        assertEquals(copy.getCssOverride(),testTemplate.getCssOverride());
-        assertEquals(copy.getDocType(),testTemplate.getDocType());
-        assertEquals(copy.getHtmlHeader(),testTemplate.getHtmlHeader());
-        assertEquals(copy.getServerVersion(),testTemplate.getServerVersion());
-        assertEquals(copy.getSourceTemplateName(), testTemplate.getSourceTemplateName());
-        assertEquals(copy.getDescription(), testTemplate.getDescription());
-        assertEquals(copy.getType(), testTemplate.getType());
-        assertEquals(copy.getLabel(), testTemplate.getLabel());
-        assertEquals(copy.getId(), testTemplate.getId());
-        assertEquals(copy.getImageThumbPath(), testTemplate.getImageThumbPath());
-        assertEquals(copy.getWidgets(), testTemplate.getWidgets());
-        assertEquals(copy.getProtectedRegion(),testTemplate.getProtectedRegion());
-        assertEquals(copy.getProtectedRegionText(), testTemplate.getProtectedRegionText());
-        assertEquals(copy.getTheme(),testTemplate.getTheme());
+  @BeforeEach
+  public void setUp() {
+    testTemplate = new PSTemplate();
+    testTemplate.setSourceTemplateName(SOURCE_TEMPLATE);
+    testTemplate.setAdditionalHeadContent(ADDITIONAL_HEAD);
+    testTemplate.setAfterBodyStartContent(AFTER_BODY_START);
+    testTemplate.setBodyMarkup(BODY_MARKUP);
+    testTemplate.setCssOverride(CSS_OVERRIDE);
+    testTemplate.setCssRegion(CSS_REGION);
+    testTemplate.setDocType(DOC_TYPE);
+    testTemplate.setBeforeBodyCloseContent(BEFORE_BODY_CLOSE);
+    testTemplate.setHtmlHeader(HTML_HEADER);
+    testTemplate.setProtectedRegion(PROTECTED_REGION);
+    testTemplate.setProtectedRegionText(PROTECTED_REGION_TEXT);
+    testTemplate.setRegionTree(new PSRegionTree());
+    testTemplate.setServerVersion(SERVER_VERSION);
+    testTemplate.setTheme(THEME);
+    testTemplate.setContentMigrationVersion(MIGRATION_VERSION);
+    testTemplate.setDescription(DESCRIPTION);
+    testTemplate.setId(ID);
+    testTemplate.setType(TYPE);
+    testTemplate.setImageThumbPath(THUMB_PATH);
+    testTemplate.setLabel(LABEL);
+    testTemplate.setName(NAME);
+  }
 
-        //Now check actual values to make sure no fields values are missing
-        assertEquals(ADDITIONAL_HEAD, copy.getAdditionalHeadContent());
-        assertEquals(AFTER_BODY_START,copy.getAfterBodyStartContent());
-        assertEquals(BODY_MARKUP, copy.getBodyMarkup());
-        assertEquals(CSS_REGION,copy.getCssRegion());
-        assertEquals(BEFORE_BODY_CLOSE, copy.getBeforeBodyCloseContent());
-        assertEquals(CSS_OVERRIDE, copy.getCssOverride());
-        assertEquals(DOC_TYPE, copy.getDocType());
-        assertEquals(HTML_HEADER, copy.getHtmlHeader());
-        assertEquals(SERVER_VERSION,copy.getServerVersion());
-        assertEquals(SOURCE_TEMPLATE,copy.getSourceTemplateName());
-        assertEquals(DESCRIPTION,copy.getDescription());
-        assertEquals(TYPE,copy.getType());
-        assertEquals(LABEL, copy.getLabel());
-        assertEquals(ID, copy.getId());
-        assertEquals(THUMB_PATH,copy.getImageThumbPath());
-        assertEquals(copy.getWidgets(), testTemplate.getWidgets());
-        assertEquals(PROTECTED_REGION,copy.getProtectedRegion());
-        assertEquals(PROTECTED_REGION_TEXT,copy.getProtectedRegionText());
-        assertEquals(THEME,copy.getTheme());
+  private static final String SOURCE_TEMPLATE = "base.plain";
+  private static final String ADDITIONAL_HEAD = "<script>alert('head');</script>";
+  private static final String AFTER_BODY_START = "<script>alert('body start');</script>";
+  private static final String BODY_MARKUP = "<script>alert('body');</script>";
+  private static final String BEFORE_BODY_CLOSE = "<script>alert('body close');</script>";
+  private static final String CSS_OVERRIDE = "css-override";
+  private static final String CSS_REGION = "css-region";
 
-
+  @Test
+  public void testLongStrings() {
+    var testVal = "";
+    for (int i = 0; i < PSTemplateSummary.MAX_SOURCE_TEMPLATE + 10; i++) {
+      testVal = testVal + i;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        testTemplate = new PSTemplate();
-        testTemplate.setSourceTemplateName(SOURCE_TEMPLATE);
-        testTemplate.setAdditionalHeadContent(ADDITIONAL_HEAD);
-        testTemplate.setAfterBodyStartContent(AFTER_BODY_START);
-        testTemplate.setBodyMarkup(BODY_MARKUP);
-        testTemplate.setCssOverride(CSS_OVERRIDE);
-        testTemplate.setCssRegion(CSS_REGION);
-        testTemplate.setDocType(DOC_TYPE);
-        testTemplate.setBeforeBodyCloseContent(BEFORE_BODY_CLOSE);
-        testTemplate.setHtmlHeader(HTML_HEADER);
-        testTemplate.setProtectedRegion(PROTECTED_REGION);
-        testTemplate.setProtectedRegionText(PROTECTED_REGION_TEXT);
-        testTemplate.setRegionTree( new PSRegionTree());
-        testTemplate.setServerVersion(SERVER_VERSION);
-        testTemplate.setTheme(THEME);
-        testTemplate.setContentMigrationVersion(MIGRATION_VERSION);
-        testTemplate.setDescription(DESCRIPTION);
-        testTemplate.setId(ID);
-        testTemplate.setType(TYPE);
-        testTemplate.setImageThumbPath(THUMB_PATH);
-        testTemplate.setLabel(LABEL);
-        testTemplate.setName(NAME);
+    testTemplate.setSourceTemplateName(testVal);
+    assertEquals(
+        testVal.substring(0, PSTemplateSummary.MAX_SOURCE_TEMPLATE),
+        testTemplate.getSourceTemplateName());
+    assertEquals(
+        PSTemplateSummary.MAX_SOURCE_TEMPLATE, testTemplate.getSourceTemplateName().length());
+
+    testVal = "";
+    for (int i = 0; i < PSTemplateSummary.MAX_TYPE + 10; i++) {
+      testVal = testVal + i;
     }
 
-    private static final String SOURCE_TEMPLATE="base.plain";
-    private static final String ADDITIONAL_HEAD="<script>alert('head');</script>";
-    private static final String AFTER_BODY_START="<script>alert('body start');</script>";
-    private static final String BODY_MARKUP="<script>alert('body');</script>";
-    private static final String BEFORE_BODY_CLOSE="<script>alert('body close');</script>";
-    private static final String CSS_OVERRIDE="css-override";
-    private static final String CSS_REGION="css-region";
+    testTemplate.setType(testVal);
+    assertEquals(PSTemplateSummary.MAX_TYPE, testTemplate.getType().length());
+    assertEquals(testVal.substring(0, PSTemplateSummary.MAX_TYPE), testTemplate.getType());
 
-
-    @Test
-    public void testLongStrings(){
-        String testVal="";
-        for(int i = 0;i<PSTemplateSummary.MAX_SOURCE_TEMPLATE+10;i++){
-            testVal = testVal +i;
-        }
-
-        testTemplate.setSourceTemplateName(testVal);
-        assertEquals(testVal.substring(0,PSTemplateSummary.MAX_SOURCE_TEMPLATE),testTemplate.getSourceTemplateName());
-        assertEquals(PSTemplateSummary.MAX_SOURCE_TEMPLATE,testTemplate.getSourceTemplateName().length());
-
-        testVal="";
-        for(int i = 0;i<PSTemplateSummary.MAX_TYPE+10;i++){
-            testVal = testVal +i;
-        }
-
-        testTemplate.setType(testVal);
-        assertEquals(PSTemplateSummary.MAX_TYPE,testTemplate.getType().length());
-        assertEquals(testVal.substring(0,PSTemplateSummary.MAX_TYPE),testTemplate.getType());
-
-        testVal="";
-        for(int i = 0;i< PSTemplateSummary.MAX_LABEL +10;i++){
-            testVal = testVal +i;
-        }
-
-        testTemplate.setLabel(testVal);
-        assertEquals(testVal.substring(0,PSTemplateSummary.MAX_LABEL),testTemplate.getLabel());
-        assertEquals(PSTemplateSummary.MAX_LABEL,testTemplate.getLabel().length());
-
-        testVal="";
-        for(int i = 0;i< PSTemplateSummary.MAX_THEME+10;i++){
-            testVal = testVal +i;
-        }
-
-        testTemplate.setTheme(testVal);
-        assertEquals(testVal.substring(0,PSTemplateSummary.MAX_THEME),testTemplate.getTheme());
-        assertEquals(PSTemplateSummary.MAX_THEME,testTemplate.getTheme().length());
-
-        testVal="";
-        for(int i = 0;i< PSTemplateSummary.MAX_PROTECTED_REGION+10;i++){
-            testVal = testVal +i;
-        }
-
-        testTemplate.setProtectedRegion(testVal);
-        assertEquals(testVal.substring(0,PSTemplateSummary.MAX_PROTECTED_REGION),testTemplate.getProtectedRegion());
-        assertEquals(PSTemplateSummary.MAX_PROTECTED_REGION,testTemplate.getProtectedRegion().length());
-
-
-
+    testVal = "";
+    for (int i = 0; i < PSTemplateSummary.MAX_LABEL + 10; i++) {
+      testVal = testVal + i;
     }
 
-    @After
-    public void tearDown() throws Exception {
+    testTemplate.setLabel(testVal);
+    assertEquals(testVal.substring(0, PSTemplateSummary.MAX_LABEL), testTemplate.getLabel());
+    assertEquals(PSTemplateSummary.MAX_LABEL, testTemplate.getLabel().length());
+
+    testVal = "";
+    for (int i = 0; i < PSTemplateSummary.MAX_THEME + 10; i++) {
+      testVal = testVal + i;
     }
+
+    testTemplate.setTheme(testVal);
+    assertEquals(testVal.substring(0, PSTemplateSummary.MAX_THEME), testTemplate.getTheme());
+    assertEquals(PSTemplateSummary.MAX_THEME, testTemplate.getTheme().length());
+
+    testVal = "";
+    for (int i = 0; i < PSTemplateSummary.MAX_PROTECTED_REGION + 10; i++) {
+      testVal = testVal + i;
+    }
+
+    testTemplate.setProtectedRegion(testVal);
+    assertEquals(
+        testVal.substring(0, PSTemplateSummary.MAX_PROTECTED_REGION),
+        testTemplate.getProtectedRegion());
+    assertEquals(
+        PSTemplateSummary.MAX_PROTECTED_REGION, testTemplate.getProtectedRegion().length());
+  }
+
+  @AfterEach
+  public void tearDown() {
+    // No-op for now.
+  }
 }

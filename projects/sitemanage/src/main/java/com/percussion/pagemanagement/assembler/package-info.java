@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  * limitations under the License.
  */
 /**
- * The rendering system renders pages and templates which 
- * are composed of widgets.
- * 
+ * The rendering system renders pages and templates which are composed of widgets.
+ *
  * <h2>Widgets</h2>
- * <p>
- * The main extension point in the rendering system is through the creation of a widget.
- * <p>
- * A widget is defined through an XML file (see {@link com.percussion.pagemanagement.data.PSWidgetDefinition} ).
- * The XML file that defines the widget is stored in the directory: <code>ROOT/rxconfig/Widgets</code>
- * and the file name of the XML file is the definition id of the widget 
- * ( {@link com.percussion.pagemanagement.data.PSWidgetDefinition#getId()} ). 
- * <p>
- * A widget file can be added at runtime and any changes made during runtime are reloaded much like JSPs.
- * 
+ *
+ * <p>The main extension point in the rendering system is through the creation of a widget.
+ *
+ * <p>A widget is defined through an XML file (see {@link
+ * com.percussion.pagemanagement.data.PSWidgetDefinition} ). The XML file that defines the widget is
+ * stored in the directory: <code>ROOT/rxconfig/Widgets</code> and the file name of the XML file is
+ * the definition id of the widget ( {@link
+ * com.percussion.pagemanagement.data.PSWidgetDefinition#getId()} ).
+ *
+ * <p>A widget file can be added at runtime and any changes made during runtime are reloaded much
+ * like JSPs.
+ *
  * <h3>Widget Schema</h3>
- * 
- * 
  */
 package com.percussion.pagemanagement.assembler;

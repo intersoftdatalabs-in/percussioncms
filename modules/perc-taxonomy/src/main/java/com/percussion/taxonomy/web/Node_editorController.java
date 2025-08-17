@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,48 +17,48 @@
 
 package com.percussion.taxonomy.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
+import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.service.Node_editorService;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.validation.BindException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.percussion.taxonomy.TaxonomySecurityHelper;
-import com.percussion.taxonomy.domain.Node_editor;
-import com.percussion.taxonomy.service.Node_editorService;
-
-import java.util.Collection;
-
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class Node_editorController {
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    private Node_editorService node_editorService;
+  protected final Logger logger = LogManager.getLogger(getClass());
+  private Node_editorService node_editorService;
 
-    public Node_editorController() {
-        //TODO: Fix me
-       /* setCommandClass(Node_editor.class);
-        setCommandName("node_editor");
-        */
-    }
+  public Node_editorController() {
+    // TODO: Fix me
+    /* setCommandClass(Node_editor.class);
+    setCommandName("node_editor");
+    */
+  }
 
-    protected ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-            Object command, BindException errors) throws Exception {
-        //--------------------------- Templated - Modify or replace -----------------------------
-    	TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    	Collection all = node_editorService.getAllNode_editors();
-        Map<String, Object> myModel = new HashMap<String, Object>();
-        myModel.put("all", all);
-        return new ModelAndView("node_editor", "model", myModel);
-        //------------------------------------- End Template -----------------------------------------
-    }
+  protected ModelAndView handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Object command,
+      BindException errors)
+      throws Exception {
+    // --------------------------- Templated - Modify or replace -----------------------------
+    TaxonomySecurityHelper.raise_error_if_cannot_admin();
+    Collection all = node_editorService.getAllNode_editors();
+    Map<String, Object> myModel = new HashMap<String, Object>();
+    myModel.put("all", all);
+    return new ModelAndView("node_editor", "model", myModel);
+    // ------------------------------------- End Template -----------------------------------------
+  }
 
-    public void setNode_editorService(Node_editorService node_editorService) {
-        this.node_editorService = node_editorService;
-    }
+  public void setNode_editorService(Node_editorService node_editorService) {
+    this.node_editorService = node_editorService;
+  }
 }

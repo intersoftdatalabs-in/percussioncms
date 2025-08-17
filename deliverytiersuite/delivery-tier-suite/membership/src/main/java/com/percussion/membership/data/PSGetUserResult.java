@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
  */
 package com.percussion.membership.data;
 
-public class PSGetUserResult extends PSMembershipResult
-{
-    private PSUserSummary userSummary;
-    
-    public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary)
-    {
-        super(status, message);
-        this.userSummary = userSummary;
-    }
+public class PSGetUserResult extends PSMembershipResult {
+  private PSUserSummary userSummary;
 
-    public PSUserSummary getUserSummary()
-    {
-        return userSummary;
-    }
+  public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary) {
+    super(status, message);
+    this.userSummary = userSummary;
+  }
+
+  public PSUserSummary getUserSummary() {
+    return userSummary;
+  }
 }

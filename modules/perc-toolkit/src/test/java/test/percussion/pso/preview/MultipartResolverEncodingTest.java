@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,52 +16,43 @@
  */
 /*
  * test.percussion.pso.preview MultipartResolverEncodingTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
 import com.percussion.pso.preview.MultipartResolverEncoding;
+import javax.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
-public class MultipartResolverEncodingTest
-{
-   
-  
-   @Test
-   public final void testDetermineEncodingHttpServletRequest()
-   {
-      TestableMultipartResolver resolver = new TestableMultipartResolver();
-      MockHttpServletRequest request = new MockHttpServletRequest();
-      request.setCharacterEncoding("utf-8;some extra stuff here"); 
-      
-      String result = resolver.determineEncoding(request);
-      assertNotNull(result); 
-      assertEquals("utf-8", result); 
-   }
-   
-   private class TestableMultipartResolver extends MultipartResolverEncoding
-   {
-      public TestableMultipartResolver()
-      {
-         super(); 
-      }
+public class MultipartResolverEncodingTest {
 
-      /**
-       * @see MultipartResolverEncoding#determineEncoding(HttpServletRequest)
-       */
-      @Override
-      public String determineEncoding(HttpServletRequest request)
-      {
-         return super.determineEncoding(request);
-      }
-      
-      
-   }
+  @Test
+  public final void testDetermineEncodingHttpServletRequest() {
+    TestableMultipartResolver resolver = new TestableMultipartResolver();
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setCharacterEncoding("utf-8;some extra stuff here");
+
+    String result = resolver.determineEncoding(request);
+    assertNotNull(result);
+    assertEquals("utf-8", result);
+  }
+
+  private class TestableMultipartResolver extends MultipartResolverEncoding {
+    public TestableMultipartResolver() {
+      super();
+    }
+
+    /**
+     * @see MultipartResolverEncoding#determineEncoding(HttpServletRequest)
+     */
+    @Override
+    public String determineEncoding(HttpServletRequest request) {
+      return super.determineEncoding(request);
+    }
+  }
 }

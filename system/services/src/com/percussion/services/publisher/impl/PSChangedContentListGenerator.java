@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.percussion.services.contentchange.PSContentChangeServiceLocator;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.contentmgr.data.PSQueryResult;
 import com.percussion.services.publisher.PSPublisherException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.List;
 import java.util.Map;

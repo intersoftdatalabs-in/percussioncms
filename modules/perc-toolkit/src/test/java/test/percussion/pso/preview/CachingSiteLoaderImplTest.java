@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,85 +16,75 @@
  */
 /*
  * test.percussion.pso.preview CachingSiteLoaderImplTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.pso.preview.CachingSiteLoaderImpl;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CachingSiteLoaderImplTest
-{
-   private static final Logger log = LogManager.getLogger(CachingSiteLoaderImplTest.class);
-   
-   private CachingSiteLoaderImpl cut; 
-   
-   Mockery context;
-   
-   IPSSiteManager siteMgr; 
-   
-   public CachingSiteLoaderImplTest()
-   {
-      
-   }
-   @Before
-   public void setUp() throws Exception
-   {
-      cut = new CachingSiteLoaderImpl();
-      context = new Mockery();
-      siteMgr = context.mock(IPSSiteManager.class);
-      CachingSiteLoaderImpl.setSiteMgr(siteMgr);
-      
-   }
-   @Test
-   public final void testFindAllSites()
-   {
-      cut.setSiteReloadDelay(0L);
-      final IPSSite site1 = context.mock(IPSSite.class);
-      final List<IPSSite> sites = new ArrayList<IPSSite>();
-      sites.add(site1); 
-      
-      try
-      {
-         context.checking(new Expectations(){{
-            one(siteMgr).findAllSites();
-            will(returnValue(sites)); 
-         }});
-         
-         cut.afterPropertiesSet();
-         
-         List<IPSSite> results = cut.findAllSites(); 
-         assertNotNull(results);
-         assertEquals(1, results.size());
-         assertEquals(site1, results.get(0)); 
-         
-         context.assertIsSatisfied(); 
-         
-      } catch (Exception ex)
-      {
-          log.error("Unexpected Exception " + ex,ex);
-          fail("Exception"); 
-      }
-   }
-   
- 
-   
-      
+public class CachingSiteLoaderImplTest {
+  private static final Logger log = LogManager.getLogger(CachingSiteLoaderImplTest.class);
+
+  private CachingSiteLoaderImpl cut;
+
+  Mockery context;
+
+  IPSSiteManager siteMgr;
+
+  public CachingSiteLoaderImplTest() {}
+
+  @BeforeEach
+  public void setUp() throws Exception {
+    cut = new CachingSiteLoaderImpl();
+    context = new Mockery();
+    siteMgr = context.mock(IPSSiteManager.class);
+    CachingSiteLoaderImpl.setSiteMgr(siteMgr);
+  }
+
+  @Test
+  public final void testFindAllSites() {
+    cut.setSiteReloadDelay(0L);
+    final IPSSite site1 = context.mock(IPSSite.class);
+    final List<IPSSite> sites = new ArrayList<IPSSite>();
+    sites.add(site1);
+
+    try {
+      context.checking(
+          new Expectations() {
+            {
+              one(siteMgr).findAllSites();
+              will(returnValue(sites));
+            }
+          });
+
+      cut.afterPropertiesSet();
+
+      List<IPSSite> results = cut.findAllSites();
+      assertNotNull(results);
+      assertEquals(1, results.size());
+      assertEquals(site1, results.get(0));
+
+      context.assertIsSatisfied();
+
+    } catch (Exception ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("Exception");
+    }
+  }
 }

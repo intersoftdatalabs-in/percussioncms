@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +18,38 @@
 package com.percussion.rx.config;
 
 /**
- * This is an unchecked (runtime) exception. It may be used in the Design Object 
- * configuration sub-system.
+ * Unchecked (runtime) exception for the Design Object configuration subsystem. Sunny Sal says:
+ * "When in doubt, throw it out (an exception, that is)!"
  *
  * @author YuBingChen
  */
-public class PSConfigException extends RuntimeException
-{
-   /**
-    * Constructs an exception with the specified detail message.
-    * @param errorMsg the specified detail message.
-    */
-   public PSConfigException(String errorMsg)
-   {
-      super(errorMsg);
-   }
-   
-   /**
-    * Constructs an exception with the specified cause.
-    * @param e the cause of the exception.
-    */
-   public PSConfigException(Throwable e)
-   {
-      super(e);
-   }
+public class PSConfigException extends RuntimeException {
 
-   /**
-    * Constructs an exception with the specified detail message and the cause.
-    * @param errorMsg the specified detail message.
-    * @param e the cause of the exception.
-    */
-   public PSConfigException(String errorMsg, Throwable e)
-   {
-      super(errorMsg, e);
-   }
-   
+  /**
+   * Constructs an exception with the specified detail message.
+   *
+   * @param errorMsg the detail message.
+   */
+  public PSConfigException(String errorMsg) {
+    super(errorMsg);
+  }
+
+  /**
+   * Constructs an exception with the specified cause.
+   *
+   * @param cause the cause of the exception.
+   */
+  public PSConfigException(Throwable cause) {
+    super(cause);
+  }
+
+  /**
+   * Constructs an exception with the specified detail message and cause.
+   *
+   * @param errorMsg the detail message.
+   * @param cause the cause of the exception.
+   */
+  public PSConfigException(String errorMsg, Throwable cause) {
+    super(errorMsg, cause);
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,59 +24,56 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.test.PSObjectRestClient;
 import com.percussion.user.data.PSUserList;
 
-public class PSRoleServiceRestClient extends PSObjectRestClient implements IPSRoleService
-{
+/** REST client for the Role Service. Sunny Sal: "Role REST client, Java 11 style!" */
+public class PSRoleServiceRestClient extends PSObjectRestClient implements IPSRoleService {
 
-    private String path = "/Rhythmyx/services/rolemanagement/role";
-        
-    public String getPath()
-    {
-        return path;
-    }
+  private String path = "/Rhythmyx/services/rolemanagement/role";
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public PSRole create(PSRole role) throws PSDataServiceException
-    {
-        return postObjectToPath(concatPath(getPath(), "create"), role, PSRole.class);
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    public void delete(PSStringWrapper strWrapper) throws PSDataServiceException
-    {
-        postObjectToPath(concatPath(getPath(), "delete"), strWrapper);
-    }
+  @Override
+  public PSRole create(PSRole role) throws PSDataServiceException {
+    return postObjectToPath(concatPath(getPath(), "create"), role, PSRole.class);
+  }
 
-    public PSRole find(PSStringWrapper strWrapper) throws PSDataServiceException
-    {
-        return postObjectToPath(concatPath(getPath(), "find"), strWrapper, PSRole.class);
-    }
-    
-    public PSRole update(PSRole role) throws PSDataServiceException
-    {
-        return postObjectToPath(concatPath(getPath(),"update"), role, PSRole.class);
-    }
+  @Override
+  public void delete(PSStringWrapper strWrapper) throws PSDataServiceException {
+    postObjectToPath(concatPath(getPath(), "delete"), strWrapper);
+  }
 
-    public PSUserList getAvailableUsers(PSRole role) throws PSDataServiceException
-    {
-        return postObjectToPath(concatPath(getPath(), "availableUsers"), role, PSUserList.class);       
-    }
-    
-    public void validateForDelete(PSRole role)
-    {
-        postObjectToPath(concatPath(getPath(), "validateForDelete"), role);
-    }
-    
-    public void validateDeleteUsersFromRole(PSUserList userList)
-    {
-        postObjectToPath(concatPath(getPath(), "validateDeleteUsers"), userList);
-    }
+  @Override
+  public PSRole find(PSStringWrapper strWrapper) throws PSDataServiceException {
+    return postObjectToPath(concatPath(getPath(), "find"), strWrapper, PSRole.class);
+  }
 
-    @Override
-    public String getUserHomepage() {
-        return getObjectFromPath(concatPath(getPath(), "userhomepage"), String.class);
-    }
-    
+  @Override
+  public PSRole update(PSRole role) throws PSDataServiceException {
+    return postObjectToPath(concatPath(getPath(), "update"), role, PSRole.class);
+  }
+
+  @Override
+  public PSUserList getAvailableUsers(PSRole role) throws PSDataServiceException {
+    return postObjectToPath(concatPath(getPath(), "availableUsers"), role, PSUserList.class);
+  }
+
+  @Override
+  public void validateForDelete(PSRole role) {
+    postObjectToPath(concatPath(getPath(), "validateForDelete"), role);
+  }
+
+  @Override
+  public void validateDeleteUsersFromRole(PSUserList userList) {
+    postObjectToPath(concatPath(getPath(), "validateDeleteUsers"), userList);
+  }
+
+  @Override
+  public String getUserHomepage() {
+    return getObjectFromPath(concatPath(getPath(), "userhomepage"), String.class);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,21 @@ import com.ibm.cadf.auditlogger.csv.CSVAuditLogger;
 import com.ibm.cadf.auditlogger.json.JsonAuditLogger;
 import com.ibm.cadf.util.Constants;
 
-public class AuditLoggerFactory
-{
+public class AuditLoggerFactory {
 
-    /**
-     * The default file format is csv
-     * 
-     * @param auditorType
-     * @return
-     */
-    public static AuditLogger getAuditLogger(String auditorType)
-    {
+  /**
+   * The default file format is csv
+   *
+   * @param auditorType
+   * @return
+   */
+  public static AuditLogger getAuditLogger(String auditorType) {
 
-        if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_CSV))
-        {
-            return CSVAuditLogger.getInstance();
-        }
-        else if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_JSON))
-        {
-            return JsonAuditLogger.getInstance();
-        }
-        return CSVAuditLogger.getInstance();
+    if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_CSV)) {
+      return CSVAuditLogger.getInstance();
+    } else if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_JSON)) {
+      return JsonAuditLogger.getInstance();
     }
-
+    return CSVAuditLogger.getInstance();
+  }
 }

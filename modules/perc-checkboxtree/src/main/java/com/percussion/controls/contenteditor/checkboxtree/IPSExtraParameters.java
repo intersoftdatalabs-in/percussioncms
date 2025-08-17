@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,21 @@ package com.percussion.controls.contenteditor.checkboxtree;
 import java.util.Map;
 
 /**
- * This interace allows users to extend existing functionality with extra
- * parameters that may be required for custom behavior.
+ * This interace allows users to extend existing functionality with extra parameters that may be
+ * required for custom behavior.
  */
-public interface IPSExtraParameters
-{
-   /**
-    * Get the extra parameters.
-    * 
-    * @return the extra parameters, never <code>null</code>, may be empty.
-    */
-   public Map<String, String> getParameters();
-   
-   /**
-    * Set new extra parameters.
-    * 
-    * @param parameters the extra parameters to set, may be <code>null</code> 
-    *    or empty.
-    */
-   public void setParameters(Map<String, String> parameters);
-}
+public interface IPSExtraParameters {
+  /**
+   * Get the extra parameters.
+   *
+   * @return the extra parameters, never <code>null</code>, may be empty.
+   */
+  public Map<String, String> getParameters();
 
+  /**
+   * Set new extra parameters.
+   *
+   * @param parameters the extra parameters to set, may be <code>null</code> or empty.
+   */
+  public void setParameters(Map<String, String> parameters);
+}

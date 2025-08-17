@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,139 +16,104 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import static com.percussion.services.assembly.PSAssemblyException.UNEXPECTED_ASSEMBLY_ERROR;
+
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResource;
-import com.percussion.pagemanagement.data.PSResourceInstance;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssembler;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.services.assembly.IPSAssemblyService;
-import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.impl.plugin.PSAssemblerBase;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.percussion.services.assembly.PSAssemblyException.UNEXPECTED_ASSEMBLY_ERROR;
-
 /**
- * A dispatch like assembler that assembles resources.
- * <p>
- * Currently, the assembler delegates to the assembly template
- * that is registered to the resource definition 
- * ({@link PSAssetResource#getLegacyTemplate()}).
- * <p>
- * However, in the future the resource assembler will use the template code from
- * the resource itself.
- *  
- * @author adamgent
+ * A dispatch-like assembler that assembles resources.
  *
+ * <p>Currently, the assembler delegates to the assembly template that is registered to the resource
+ * definition ({@link PSAssetResource#getLegacyTemplate()}).
+ *
+ * <p>In the future, the resource assembler will use the template code from the resource itself.
+ *
+ * @author adamgent
  */
-public class PSResourceAssembler extends PSAssemblerBase implements IPSAssembler
-{
+public class PSResourceAssembler extends PSAssemblerBase implements IPSAssembler {
 
-    private PSAssemblyItemBridge assemblyItemBridge;
-    private IPSAssemblyService assemblyService;
-    
-    @Override
-    public IPSAssemblyResult assembleSingle(IPSAssemblyItem assemblyItem) throws PSAssemblyException {
-        try
-        {
-            if ( ! isExpanded(assemblyItem)) {
-                /*
-                 * This assembly item has not been expanded yet.
-                 */
-                getAssemblyItemBridge().setAssemblyResultExpander(assemblyItem);
-                assemblyItem.setPaginated(true);
-                return getUnexpandedResult(assemblyItem);
-            }
-            
-            PSResourceInstance r = getAssemblyItemBridge().createResourceInstance(assemblyItem);
-            getAssemblyItemBridge().setResourceInstance(assemblyItem, r);
-            
-            
-            String templateName = r.getResourceDefinition().getLegacyTemplate();
-            IPSAssemblyTemplate template = getAssemblyService().findTemplateByName(templateName);
-            if (template == null)
-            {
-               return getFailureResult(assemblyItem, "could not find template information");
-            }
-            
-            assemblyItem.setTemplate(template);
-            
-            List<IPSAssemblyItem> items = new ArrayList<>();
-            items.add(assemblyItem);
-            List<IPSAssemblyResult> results = getAssemblyService().assemble(items);
-            return results.get(0);
-        }
-        catch (Exception e)
-        {
-            throw new PSAssemblyException(UNEXPECTED_ASSEMBLY_ERROR,e);
-        }
-        
+  private PSAssemblyItemBridge assemblyItemBridge;
+  private IPSAssemblyService assemblyService;
+
+  @Override
+  public IPSAssemblyResult assembleSingle(IPSAssemblyItem assemblyItem) throws PSAssemblyException {
+    try {
+      if (!isExpanded(assemblyItem)) {
+        // This assembly item has not been expanded yet.
+        getAssemblyItemBridge().setAssemblyResultExpander(assemblyItem);
+        assemblyItem.setPaginated(true);
+        return getUnexpandedResult(assemblyItem);
+      }
+
+      var resourceInstance = getAssemblyItemBridge().createResourceInstance(assemblyItem);
+      getAssemblyItemBridge().setResourceInstance(assemblyItem, resourceInstance);
+
+      var templateName = resourceInstance.getResourceDefinition().getLegacyTemplate();
+      var template = getAssemblyService().findTemplateByName(templateName);
+      if (template == null) {
+        return getFailureResult(assemblyItem, "Could not find template information");
+      }
+
+      assemblyItem.setTemplate(template);
+
+      var items = List.of(assemblyItem);
+      var results = getAssemblyService().assemble(items);
+      return results.get(0);
+    } catch (Exception e) {
+      throw new PSAssemblyException(UNEXPECTED_ASSEMBLY_ERROR, e);
     }
-    
-    private boolean isExpanded(IPSAssemblyItem work)
-    {
-        return getAssemblyItemBridge().getResourceDefinitionId(work) != null;
+  }
+
+  private boolean isExpanded(IPSAssemblyItem work) {
+    return getAssemblyItemBridge().getResourceDefinitionId(work) != null;
+  }
+
+  protected IPSAssemblyResult getUnexpandedResult(IPSAssemblyItem work) {
+    var message = "The assembly item did not have a resource definition id.";
+    work.setStatus(Status.SUCCESS);
+    work.setMimeType("text/plain");
+    try {
+      work.setResultData(message.getBytes(StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      ms_log.error(PSExceptionUtils.getMessageForLog(e));
     }
-    
-    
-    protected IPSAssemblyResult getUnexpandedResult(IPSAssemblyItem work)
-    {
-        String message = "The assembly item did not have a resource definition id.";
-        work.setStatus(Status.SUCCESS);
-        work.setMimeType("text/plain");
-        try{
-        work.setResultData(message.getBytes(StandardCharsets.UTF_8));
-        }catch(
-            IOException e){
-            ms_log.error(PSExceptionUtils.getMessageForLog(e));
-        }
-        return (IPSAssemblyResult) work;
-    }
+    return (IPSAssemblyResult) work;
+  }
 
+  public PSAssemblyItemBridge getAssemblyItemBridge() {
+    return assemblyItemBridge;
+  }
 
+  public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge) {
+    this.assemblyItemBridge = assemblyItemBridge;
+  }
 
-    public PSAssemblyItemBridge getAssemblyItemBridge()
-    {
-        return assemblyItemBridge;
-    }
+  public IPSAssemblyService getAssemblyService() {
+    return assemblyService;
+  }
 
-    public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge)
-    {
-        this.assemblyItemBridge = assemblyItemBridge;
-    }
+  public void setAssemblyService(IPSAssemblyService assemblyService) {
+    this.assemblyService = assemblyService;
+  }
 
-    public IPSAssemblyService getAssemblyService()
-    {
-        return assemblyService;
-    }
-
-
-    public void setAssemblyService(IPSAssemblyService assemblyService)
-    {
-        this.assemblyService = assemblyService;
-    }
-
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-    {
-        super.init(def, codeRoot);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
-    
-    
-    
-
-
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 }
-

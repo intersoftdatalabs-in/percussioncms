@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;

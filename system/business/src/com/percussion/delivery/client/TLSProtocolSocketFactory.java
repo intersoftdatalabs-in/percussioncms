@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,51 +33,41 @@ import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
  * @author natechadwick
  *
  */
-public class TLSProtocolSocketFactory extends SSLProtocolSocketFactory{
+public class TLSProtocolSocketFactory extends SSLProtocolSocketFactory {
+    private static final String DEFAULT_PROTOCOLS = "TLSv1.1,TLSv1.2";
+    private final String[] protocols;
 
-   private final static String defaultProtocols = "TLSv1.1,TLSv1.2";
-   private final String[] protocols;
-   
-   public TLSProtocolSocketFactory() {
-      super(); 
-      String protocols = System.getProperty("https.protocols", defaultProtocols);
-      this.protocols = protocols.split(",");
-     }
+    public TLSProtocolSocketFactory() {
+        super();
+        String protocolsProp = System.getProperty("https.protocols", DEFAULT_PROTOCOLS);
+        this.protocols = protocolsProp.split(",");
+    }
 
-   /**
-    * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
-    */
-     @Override public Socket createSocket(String host, int port) throws IOException ,UnknownHostException 
-     {
-        SSLSocket sslSocket = (SSLSocket)super.createSocket(host, port);
-        sslSocket.setEnabledProtocols(protocols); 
-        return sslSocket;
-     }
-    
-     
-     @Override public Socket createSocket(String host, int port, java.net.InetAddress localAddress, int localPort, HttpConnectionParams params) throws IOException ,UnknownHostException ,org.apache.commons.httpclient.ConnectTimeoutException {
-        SSLSocket sslSocket = (SSLSocket)super.createSocket(host, port, localAddress, localPort, params);
+    @Override
+    public Socket createSocket(String host, int port) throws IOException {
+        SSLSocket sslSocket = (SSLSocket) super.createSocket(host, port);
         sslSocket.setEnabledProtocols(protocols);
-       return sslSocket;
-     }
-     
-   @Override
-   public Socket createSocket(String host, int port, java.net.InetAddress clientHost, int clientPort) throws IOException ,UnknownHostException {
-      SSLSocket sslSocket = (SSLSocket)super.createSocket(host,port,clientHost,clientPort);
-      sslSocket.setEnabledProtocols(protocols);
-      return sslSocket;
-   }
-   
-    /* (non-Javadoc)
-    * @see org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory#createSocket(java.net.Socket, java.lang.String, int, boolean)
-    */
-   @Override
-   public Socket createSocket(Socket socket, String host, int port,
-         boolean autoClose) throws IOException, UnknownHostException
-   {
-      SSLSocket sslSocket = (SSLSocket)super.createSocket(socket, host, port, autoClose);
-      sslSocket.setEnabledProtocols(protocols);
-      return sslSocket;
-   }
-      
+        return sslSocket;
+    }
+
+    @Override
+    public Socket createSocket(String host, int port, java.net.InetAddress localAddress, int localPort, HttpConnectionParams params) throws IOException {
+        SSLSocket sslSocket = (SSLSocket) super.createSocket(host, port, localAddress, localPort, params);
+        sslSocket.setEnabledProtocols(protocols);
+        return sslSocket;
+    }
+
+    @Override
+    public Socket createSocket(String host, int port, java.net.InetAddress clientHost, int clientPort) throws IOException {
+        SSLSocket sslSocket = (SSLSocket) super.createSocket(host, port, clientHost, clientPort);
+        sslSocket.setEnabledProtocols(protocols);
+        return sslSocket;
+    }
+
+    @Override
+    public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
+        SSLSocket sslSocket = (SSLSocket) super.createSocket(socket, host, port, autoClose);
+        sslSocket.setEnabledProtocols(protocols);
+        return sslSocket;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,42 +17,33 @@
 package com.percussion.pso.imageedit.data;
 
 /**
- * Exception for image editor classes. This is an unchecked exception. 
+ * Exception for image editor classes. This is an unchecked exception.
  *
  * @author DavidBenua
- *
  */
-public class ImageEditorException extends RuntimeException
-{
-   /**
-    * 
-    */
-   public ImageEditorException()
-   {
-      // TODO Auto-generated constructor stub
-   }
-   /**
-    * @param message
-    */
-   public ImageEditorException(String message)
-   {
-      super(message);
-      
-   }
-   /**
-    * @param cause
-    */
-   public ImageEditorException(Throwable cause)
-   {
-      super(cause);
-      
-   }
-   /**
-    * @param message
-    * @param cause
-    */
-   public ImageEditorException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+public class ImageEditorException extends RuntimeException {
+  /** */
+  public ImageEditorException() {}
+
+  /**
+   * @param message
+   */
+  public ImageEditorException(String message) {
+    super(message);
+  }
+
+  /**
+   * @param cause
+   */
+  public ImageEditorException(Throwable cause) {
+    super(cause);
+  }
+
+  /**
+   * @param message
+   * @param cause
+   */
+  public ImageEditorException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,17 @@
 
 package com.ibm.cadf.model;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
-public class HostTest
-{
+public class HostTest {
 
-    @Test
-    public void testHostPositive() throws CADFException, IOException
-    {
-        Host host = new Host();
-        assertEquals(true, host.isValid());
-    }
+  @Test
+  public void testHostPositive() throws CADFException, IOException {
+    Host host = new Host();
+    assertEquals(true, host.isValid());
+  }
 }

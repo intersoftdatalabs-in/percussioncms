@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.services;
 
-/**
- * Handle deploy service exceptions
- * @author vamsinukala
- *
- */
-public class PSDeployServiceException extends Exception
-{
-   private static final long serialVersionUID = 1L;
+/** Handles deploy service exceptions. */
+public class PSDeployServiceException extends Exception {
+  private static final long serialVersionUID = 1L;
 
-   public PSDeployServiceException() 
-   {
-      super();
-   }
+  public PSDeployServiceException() {
+    super();
+  }
 
-   public PSDeployServiceException(String message, Throwable cause) 
-   {
-      super(message, cause);
-   }
+  public PSDeployServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-   public PSDeployServiceException(String message) 
-   {
-      super(message);
-   }
+  public PSDeployServiceException(String message) {
+    super(message);
+  }
 
-   public PSDeployServiceException(Throwable cause) 
-   {
-      super(cause);
-   }
-
+  public PSDeployServiceException(Throwable cause) {
+    super(cause);
+  }
 }

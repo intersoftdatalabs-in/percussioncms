@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,49 @@
 
 package com.percussion.taxonomy.service;
 
-import org.hibernate.HibernateException;
-import java.util.Collection;
-import org.springframework.dao.DataAccessException;
-
 import com.percussion.taxonomy.domain.Language;
 import com.percussion.taxonomy.repository.LanguageDAO;
 import com.percussion.taxonomy.repository.LanguageServiceInf;
-import com.percussion.taxonomy.service.LanguageService;
+import java.util.Collection;
+import org.hibernate.HibernateException;
 
 public class LanguageService implements LanguageServiceInf {
 
-    public LanguageDAO languageDAO;
+  public LanguageDAO languageDAO;
 
-    public Collection getAllLanguages() {
-        try {
-            return languageDAO.getAllLanguages();
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Collection getAllLanguages() {
+    try {
+      return languageDAO.getAllLanguages();
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public Language getLanguage(int id) {
-        try {
-            return languageDAO.getLanguage(id);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Language getLanguage(int id) {
+    try {
+      return languageDAO.getLanguage(id);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void removeLanguage(Language language) {
-        try {
-            languageDAO.removeLanguage(language);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void removeLanguage(Language language) {
+    try {
+      languageDAO.removeLanguage(language);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void saveLanguage(Language language) {
-        try {
-            languageDAO.saveLanguage(language);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void saveLanguage(Language language) {
+    try {
+      languageDAO.saveLanguage(language);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void setLanguageDAO(LanguageDAO languageDAO) {
-        this.languageDAO = languageDAO;
-    }
+  public void setLanguageDAO(LanguageDAO languageDAO) {
+    this.languageDAO = languageDAO;
+  }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,103 +17,116 @@
  */
 package com.percussion.delivery.likes.data;
 
-import com.percussion.delivery.likes.data.IPSLikes;
-
 /**
+ * Represents a REST like entity in the system.
+ *
  * @author davidpardini
- * 
  */
-public class PSRestLikes implements IPSLikes
-{
+public class PSRestLikes implements IPSLikes {
 
-    private String id;
+  private String id;
+  private String likeId;
+  private String type;
+  private String site;
+  private int total;
 
-    private String likeId;
+  /**
+   * Gets the unique identifier for this like.
+   *
+   * @return the ID.
+   */
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    private String type;
+  /**
+   * Sets the unique identifier for this like.
+   *
+   * @param id the ID to set.
+   */
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    private String site;
+  /**
+   * Gets the like identifier.
+   *
+   * @return the like ID.
+   */
+  @Override
+  public String getLikeId() {
+    return likeId;
+  }
 
-    private int total;
+  /**
+   * Sets the like identifier.
+   *
+   * @param likeId the like ID to set.
+   */
+  @Override
+  public void setLikeId(String likeId) {
+    this.likeId = likeId;
+  }
 
-    /**
-     * @return the id
-     */
-    public String getId()
-    {
-        return id;
-    }
+  /**
+   * Gets the type of like.
+   *
+   * @return the type.
+   */
+  @Override
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  /**
+   * Sets the type of like.
+   *
+   * @param type the type to set.
+   */
+  @Override
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * @return the likeId
-     */
-    public String getLikeId()
-    {
-        return likeId;
-    }
+  /**
+   * Gets the site associated with this like.
+   *
+   * @return the site name.
+   */
+  @Override
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * @param likesId the likeId to set
-     */
-    public void setLikeId(String likeId)
-    {
-        this.likeId = likeId;
-    }
+  /**
+   * Sets the site for this like.
+   *
+   * @param site the site name to set.
+   */
+  @Override
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  /**
+   * Gets the total number of likes.
+   *
+   * @return the total count.
+   */
+  @Override
+  public int getTotal() {
+    return total;
+  }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    /**
-     * @return the site
-     */
-    public String getSite()
-    {
-        return site;
-    }
-
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site)
-    {
-        this.site = site;
-    }
-
-    /**
-     * @return the total
-     */
-    public int getTotal()
-    {
-        return total;
-    }
-
-    /**
-     * @param total the total to set
-     */
-    public void setTotal(int total)
-    {
-        this.total = total;
-    }
-
+  /**
+   * Sets the total number of likes.
+   *
+   * @param total the total count to set.
+   */
+  @Override
+  public void setTotal(int total) {
+    this.total = total;
+  }
 }

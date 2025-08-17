@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,44 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "AclList")
 @XmlSeeAlso(Acl.class)
 @ArraySchema(schema = @Schema(implementation = Acl.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AclList extends ArrayList<Acl> {
-    public AclList(Collection<? extends Acl> c) {
-        super(c);
-    }
-    public AclList(){}
+
+  public AclList(Collection<? extends Acl> c) {
+    super(c);
+  }
+
+  public AclList() {
+    super();
+  }
+
+  @Override
+  public String toString() {
+    return "AclList" + super.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof AclList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 }

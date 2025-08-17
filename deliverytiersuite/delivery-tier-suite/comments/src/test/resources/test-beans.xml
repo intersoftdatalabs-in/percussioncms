@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
@@ -9,6 +8,8 @@
       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+   <!-- Component-scan removed in test context to avoid instantiating REST components that require other web-layer beans. Beans are defined explicitly below. -->
 
    <bean id="propertyPlaceholderProps"
          class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
@@ -20,22 +21,16 @@
          </list>
       </property>
       <property name="locations">
-         <!-- One or more locations of the property files. Properties with
-            the same name override based on the order the file appears in the list last
-            one defined wins -->
          <list>
             <value>classpath:perc-security.properties</value>
             <value>classpath:perc-datasources.properties</value>
             <value>classpath:perc-comments-services.properties</value>
          </list>
       </property>
-      <!-- Local properties to default to if no file exists or the properties
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the
-         properties file where the password will be encrypted -->
       <property name="properties">
          <props>
-            <!-- default properties for database -->
-            <prop key="jdbcUrl">jdbc:derby:classpath:derbydata/perccomments;create=true</prop>
+            <!-- Default properties for database -->
+            <prop key="jdbcUrl">jdbc:derby:memory:perccomments;create=true</prop>
             <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
             <prop key="maximumPoolSize">10</prop>
             <prop key="db.username">test</prop>
@@ -43,24 +38,11 @@
             <prop key="db.schema">APP</prop>
             <prop key="datasource">percDataSource</prop>
             <prop key="hibernateProperties">percHibernateProperties</prop>
-            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+            <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
             <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
             <prop key="hibernate.cache.use_second_level_cache">false</prop>
             <prop key="hibernate.cache.use_query_cache">false</prop>
             <prop key="hibernate.hbm2ddl.auto">update</prop>
-
-            <!-- default properties for encryption -->
-            <prop key="encryption.type">ENC</prop>
-            <prop key="contentSecurityPolicy">default-src 'self';</prop>
-            <prop key="cspReportOnly">false</prop>
-            <prop key="csrfCookieHttpOnly">false</prop>
-            <prop key="xframeOptionsPolicy">SAMEORIGIN</prop>
-            <prop key="xssProtection">true</prop>
-            <prop key="accessControlAllowedOrigins">*</prop>
-            <prop key="hstsIncludeSubDomains">true</prop>
-            <prop key="hstsMaxAgeSeconds">31536000</prop>
-            <prop key="disableCSRFProtection">false</prop>
-            <prop key="referrerPolicy">strict-origin-when-cross-origin</prop>
          </props>
       </property>
    </bean>
@@ -70,19 +52,16 @@
       <property name="properties" ref="propertyPlaceholderProps" />
    </bean>
 
-   <context:component-scan base-package="com.percussion.delivery.comments.services" />
-   <context:component-scan base-package="com.percussion.delivery.likes.services" />
-
    <import resource="classpath:perc-datasources.xml" />
-   <import resource="classpath:security.xml" />
 
    <tx:annotation-driven transaction-manager="txManager"/>
 
+   <!-- Hibernate TransactionManager bean for Hibernate 5/6 (Spring ORM 6) -->
    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-      <property name="sessionFactory" ref="commentsSessionFactory" />
+     <property name="sessionFactory" ref="commentsSessionFactory" />
    </bean>
 
-   <!-- Hibernate SessionFactory -->
+   <!-- Hibernate SessionFactory bean for Hibernate 5/6 (Spring ORM 6) -->
    <bean id="commentsSessionFactory"
          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource">
@@ -91,11 +70,33 @@
       <property name="hibernateProperties">
          <ref bean="${hibernateProperties}" />
       </property>
-      <property name="configLocation">
+      <!-- Remove configLocation to avoid conflicts with dataSource -->
+      <!-- <property name="configLocation">
          <value>classpath:hibernate.cfg.xml</value>
+      -->
+      <property name="annotatedClasses">
+         <list>
+            <value>com.percussion.delivery.comments.service.rdbms.PSComment</value>
+            <value>com.percussion.delivery.comments.service.rdbms.PSCommentTag</value>
+            <value>com.percussion.delivery.comments.service.rdbms.PSDefaultModerationState</value>
+            <value>com.percussion.delivery.likes.service.rdbms.PSLikes</value>
+         </list>
       </property>
    </bean>
 
+   <!-- Likes DAO and Service -->
+   <bean id="likesDao"
+         class="com.percussion.delivery.likes.service.rdbms.PSLikesDao">
+      <property name="sessionFactory">
+         <ref bean="commentsSessionFactory" />
+      </property>
+   </bean>
+
+   <bean id="likesService" class="com.percussion.delivery.likes.services.PSLikesService"
+         autowire="constructor">
+   </bean>
+
+   <!-- Comments DAO and Service -->
    <bean id="commentsDao"
          class="com.percussion.delivery.comments.service.rdbms.PSCommentsDao">
       <property name="sessionFactory">
@@ -109,24 +110,10 @@
          autowire="constructor">
    </bean>
 
+   <!-- Comments REST service wired to the commentsService -->
    <bean id="commentRestService"
          class="com.percussion.delivery.comments.services.PSCommentsRestService">
       <constructor-arg ref="commentsService" />
-   </bean>
-
-   <bean id="likesDao"
-         class="com.percussion.delivery.likes.service.rdbms.PSLikesDao">
-      <property name="sessionFactory">
-         <ref bean="commentsSessionFactory" />
-      </property>
-   </bean>
-
-   <bean id="likesService" class="com.percussion.delivery.likes.services.PSLikesService"
-         autowire="constructor">
-   </bean>
-
-   <bean id="likesRestService" class="com.percussion.delivery.likes.services.PSLikesRestService">
-      <constructor-arg ref="likesService" />
    </bean>
 
 </beans>

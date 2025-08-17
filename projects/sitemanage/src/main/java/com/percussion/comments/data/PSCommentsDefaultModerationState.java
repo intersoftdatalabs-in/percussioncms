@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,50 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Small data class to hold info for the default moderation state
- * arguments.
- * @author erikserating
- *
- */
+/** Small data class to hold info for the default moderation state arguments. */
 @XmlRootElement(name = "defaultModerationState")
-public class PSCommentsDefaultModerationState
-{
-   private String site;
-   private String state;
-   
-   /**
-    * @return the site
-    */
-   public String getSite()
-   {
-      return site;
-   }
-   /**
-    * @param site the site to set
-    */
-   public void setSite(String site)
-   {
-      this.site = site;
-   }
-   /**
-    * @return the state
-    */
-   public String getState()
-   {
-      return state;
-   }
-   /**
-    * @param state the state to set
-    */
-   public void setState(String state)
-   {
-      this.state = state;
-   }
-   
-   
+public class PSCommentsDefaultModerationState {
+
+  private String site;
+  private String state;
+
+  /**
+   * @return the site
+   */
+  public String getSite() {
+    return site;
+  }
+
+  /**
+   * @param site the site to set
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
+
+  /**
+   * @return the state
+   */
+  public String getState() {
+    return state;
+  }
+
+  /**
+   * @param state the state to set
+   */
+  public void setState(String state) {
+    this.state = state;
+  }
 }

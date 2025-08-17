@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Attribute_langDAO {
 
-    public Collection getAllAttribute_langs();
+  public Collection getAllAttribute_langs();
 
-    public Attribute_lang getAttribute_lang(int id);
+  public Attribute_lang getAttribute_lang(int id);
 
-    public void removeAttribute_lang(Attribute_lang attribute_lang);
+  public void removeAttribute_lang(Attribute_lang attribute_lang);
 
-    public void saveAttribute_lang(Attribute_lang attribute_lang);
+  public void saveAttribute_lang(Attribute_lang attribute_lang);
 }

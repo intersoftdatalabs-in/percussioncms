@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,32 @@
 package com.percussion.sitemanage.importer;
 
 import java.io.IOException;
-
 import org.jsoup.nodes.Document;
 
 /**
- * Inner interface to wrap connectivity JSoup connectivity
+ * Wraps JSoup connectivity for retrieving HTML documents. Provides methods to get the document,
+ * HTTP status code, and response URL.
  */
-public interface IPSConnectivity
-{
-    /**
-     * Wraps Jsoup get, fulfills IOException around binary parsing
-     * 
-     * @return a Jsoup document
-     * @throws IOException when ignoreContent is set to false, and binary is
-     *             encountered
-     */
-    Document get() throws IOException;
+public interface IPSConnectivity {
+  /**
+   * Retrieves a JSoup Document.
+   *
+   * @return a JSoup Document, never null.
+   * @throws IOException if binary content is encountered and ignoreContent is false.
+   */
+  Document get() throws IOException;
 
-    /**
-     * Fulfills Jsoup getResponseStatusCode contract
-     * 
-     * @return a valid HTTP response code
-     */
-    int getResponseStatusCode();
+  /**
+   * Gets the HTTP response status code.
+   *
+   * @return a valid HTTP response code.
+   */
+  int getResponseStatusCode();
 
-    /**
-     * Fulfills Jsoup getResponseUrl contract
-     * 
-     * @return returns a String based representation for the URL
-     */
-    String getResponseUrl();
+  /**
+   * Gets the response URL as a String.
+   *
+   * @return the response URL, never null.
+   */
+  String getResponseUrl();
 }

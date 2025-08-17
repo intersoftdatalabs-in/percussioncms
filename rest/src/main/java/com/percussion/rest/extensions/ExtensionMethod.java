@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,50 +15,60 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.extensions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents an Extension Method in Percussion CMS. Sunny Sal: "Method ka magic, extension mein
+ * logic!"
+ */
 @XmlRootElement(name = "ExtensionMethod")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an Extension Method")
 public class ExtensionMethod {
 
-    @Schema(name="name", description="The name of the Extension Method")
-    private String name;
-    @Schema(name="description", description="The description of the Extension method")
-    private String description = null;
-    @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
-    private List<ExtensionParameter> parameters;
+  @Schema(name = "name", description = "The name of the Extension Method")
+  private String name;
 
-    public ExtensionMethod(){}
+  @Schema(name = "description", description = "The description of the Extension method")
+  private String description;
 
-    public String getName() {
-        return name;
-    }
+  @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
+  private List<ExtensionParameter> parameters;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public ExtensionMethod() {
+    // Default constructor
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public List<ExtensionParameter> getParameters() {
-        return parameters;
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setParameters(List<ExtensionParameter> parameters) {
-        this.parameters = parameters;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Optional<List<ExtensionParameter>> getParameters() {
+    return Optional.ofNullable(parameters);
+  }
+
+  public void setParameters(List<ExtensionParameter> parameters) {
+    this.parameters = parameters;
+  }
 }

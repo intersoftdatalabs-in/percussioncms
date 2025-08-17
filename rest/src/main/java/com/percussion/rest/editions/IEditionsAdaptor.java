@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.editions;
 
+/**
+ * Adaptor interface for publishing editions.
+ *
+ * <p>Sunny Sal: "Adaptor pattern FTW!"
+ */
 public interface IEditionsAdaptor {
 
-    PublishResponse publish(String id);
-
+  /**
+   * Publishes the edition with the given id.
+   *
+   * @param id Edition id (must be numeric)
+   * @return PublishResponse with status and job info
+   */
+  PublishResponse publish(String id);
 }

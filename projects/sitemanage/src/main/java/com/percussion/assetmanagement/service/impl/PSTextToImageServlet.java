@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,74 +19,62 @@ package com.percussion.assetmanagement.service.impl;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-
+import java.util.Optional;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Servlet responsible for converting supplied text to an image and serve it as
- * an image.
- * 
- */
-public class PSTextToImageServlet extends HttpServlet
-{
-    private static final long serialVersionUID = 1L;
+/** Servlet responsible for converting supplied text to an image and serving it as an image. */
+public class PSTextToImageServlet extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
-    {
-        String imageText = request.getParameter("imageText");
-        if (StringUtils.isBlank(imageText))
-        {
-            imageText = DEFAULT_IMAGE_TEXT;
-        }
-        else
-        {
-            imageText = imageText.trim();
-        }
+  private static final long serialVersionUID = 1L;
 
-        // Find the height and width of the image
-        Font font = new Font("Verdana", Font.PLAIN, 11);
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    var imageText =
+        Optional.ofNullable(request.getParameter("imageText"))
+            .filter(StringUtils::isNotBlank)
+            .map(String::trim)
+            .orElse(DEFAULT_IMAGE_TEXT);
 
-        FontMetrics metrics = new FontMetrics(font)
-        {
-        };
-        Rectangle2D bounds = metrics.getStringBounds(imageText, null);
-        int widthInPixels = (int) bounds.getWidth() + 2;
-        int heightInPixels = (int) bounds.getHeight();
+    // Use a temporary image to get FontMetrics
+    var font = new Font("Verdana", Font.PLAIN, 11);
+    var tempImg = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    var tempGraphics = tempImg.createGraphics();
+    tempGraphics.setFont(font);
+    var metrics = tempGraphics.getFontMetrics();
+    Rectangle2D bounds = metrics.getStringBounds(imageText, tempGraphics);
+    int widthInPixels = (int) Math.ceil(bounds.getWidth()) + 2;
+    int heightInPixels = (int) Math.ceil(bounds.getHeight());
+    tempGraphics.dispose();
 
-        // create buffered image
-        BufferedImage buffer = new BufferedImage(widthInPixels, heightInPixels, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = buffer.createGraphics();
-        graphics.setFont(font);
-        graphics.setColor(new Color(255, 102, 0));
-        graphics.drawString(imageText, 1, 10);
+    // Create the actual image
+    var buffer = new BufferedImage(widthInPixels, heightInPixels, BufferedImage.TYPE_INT_ARGB);
+    var graphics = buffer.createGraphics();
+    graphics.setFont(font);
+    graphics.setColor(new Color(255, 102, 0));
+    graphics.drawString(imageText, 1, metrics.getAscent());
+    graphics.dispose();
 
-        // Write the image to response
-        response.setContentType("image/png");
-        try(OutputStream os = response.getOutputStream()) {
-            ImageIO.setUseCache(false);
-            ImageIO.write(buffer, "png", os);
-        }
+    // Write the image to response
+    response.setContentType("image/png");
+    try (OutputStream os = response.getOutputStream()) {
+      ImageIO.setUseCache(false);
+      ImageIO.write(buffer, "png", os);
     }
+  }
 
-    /**
-     * The logger
-     */
-    private static final Logger ms_logger = LogManager.getLogger(PSTextToImageServlet.class);
+  /** The logger. */
+  private static final Logger ms_logger = LogManager.getLogger(PSTextToImageServlet.class);
 
-    private static final String DEFAULT_IMAGE_TEXT = "";
-
+  private static final String DEFAULT_IMAGE_TEXT = "";
 }

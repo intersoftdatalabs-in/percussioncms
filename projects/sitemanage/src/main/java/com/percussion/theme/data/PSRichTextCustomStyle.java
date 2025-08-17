@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,33 +19,30 @@
 package com.percussion.theme.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Data object for rich text custom styles.
- */
+/** Data object for rich text custom styles. */
 @XmlRootElement(name = "RichTextCustomStyle")
-public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable
-{
-    private String className;
-    private String classLabel;
-    public String getClassName()
-    {
-        return className;
-    }
-    public void setClassName(String className)
-    {
-        this.className = className;
-    }
-    public String getClassLabel()
-    {
-        return classLabel;
-    }
-    public void setClassLabel(String classLabel)
-    {
-        this.classLabel = classLabel;
-    }
+public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable {
+  private static final long serialVersionUID = 1L;
+
+  private String className;
+  private String classLabel;
+
+  public String getClassName() {
+    return className;
+  }
+
+  public void setClassName(String className) {
+    this.className = className;
+  }
+
+  public String getClassLabel() {
+    return classLabel;
+  }
+
+  public void setClassLabel(String classLabel) {
+    this.classLabel = classLabel;
+  }
 }

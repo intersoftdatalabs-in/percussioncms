@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,35 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
-public class DefaultWorkflowStates
-{
-	public final static String live = "Live";
-	public final static String quickEdit = "Quick Edit";
-	public final static String draft = "Draft";
-	public final static String archive = "Archive";
-	public final static String review = "Review";
-	public final static String pending = "Pending";
+/**
+ * Defines default workflow state names for Percussion CMS. These are used throughout the system for
+ * workflow transitions.
+ */
+public final class DefaultWorkflowStates {
+
+  /** The "Live" workflow state. */
+  public static final String LIVE = "Live";
+
+  /** The "Quick Edit" workflow state. */
+  public static final String QUICK_EDIT = "Quick Edit";
+
+  /** The "Draft" workflow state. */
+  public static final String DRAFT = "Draft";
+
+  /** The "Archive" workflow state. */
+  public static final String ARCHIVE = "Archive";
+
+  /** The "Review" workflow state. */
+  public static final String REVIEW = "Review";
+
+  /** The "Pending" workflow state. */
+  public static final String PENDING = "Pending";
+
+  private DefaultWorkflowStates() {
+    // Utility class; prevent instantiation.
+  }
 }

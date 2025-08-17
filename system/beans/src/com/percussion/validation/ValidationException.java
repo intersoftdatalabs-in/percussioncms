@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,45 @@ package com.percussion.validation;
  * @see ValidationFramework
  * @see ValidationConstraint
  */
-public class ValidationException extends Exception
-{
+public class ValidationException extends Exception {
+
+   /**
+    * Serial version UID for serialization compatibility.
+    */
+   private static final long serialVersionUID = 1L;
+
    /**
     * Constructs the exception with no message.
     */
-   public ValidationException()
-   { 
-      super(); 
+   public ValidationException() {
+      super();
    }
    
    /**
     * Constructs the exception with specified message.
     * 
-    * @param s the message to set, may be <code>null</code>
+    * @param message the message to set, may be {@code null}
     */
-   public ValidationException(String s)
-   { 
-      super(s); 
+   public ValidationException(String message) {
+      super(message);
+   }
+
+   /**
+    * Constructs the exception with specified message and cause.
+    *
+    * @param message the message to set, may be {@code null}
+    * @param cause the cause of this exception, may be {@code null}
+    */
+   public ValidationException(String message, Throwable cause) {
+      super(message, cause);
+   }
+
+   /**
+    * Constructs the exception with specified cause.
+    *
+    * @param cause the cause of this exception, may be {@code null}
+    */
+   public ValidationException(Throwable cause) {
+      super(cause);
    }
 }
-
- 

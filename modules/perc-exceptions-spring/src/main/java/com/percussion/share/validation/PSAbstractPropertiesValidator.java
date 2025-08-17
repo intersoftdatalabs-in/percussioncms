@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,44 +18,39 @@ package com.percussion.share.validation;
 
 import static org.apache.commons.lang3.Validate.*;
 
+import com.percussion.share.service.exception.PSPropertiesValidationException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.percussion.share.service.exception.PSPropertiesValidationException;
-
 /**
  * An adapter to validate property like objects.
- * 
- * @author adamgent
  *
+ * @author adamgent
  * @param <PROPERTIES> property like object.
  */
-public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Validator
-{
+public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Validator {
 
-    protected abstract Class<PROPERTIES> getType();
-    
-    public PSPropertiesValidationException validate(PROPERTIES obj) {
-        PSPropertiesValidationException e = new PSPropertiesValidationException(obj, obj.getClass().getCanonicalName());
-        validate(obj, e);
-        return e;
-    }
-    
-    @SuppressWarnings("unchecked")
-    public boolean supports(Class klass)
-    {
-        Validate.notNull(getType());
-        if (klass == getType()) return true;
-        return false;
-    }
+  protected abstract Class<PROPERTIES> getType();
 
-    protected abstract void doValidation(PROPERTIES properties, PSPropertiesValidationException e);
-    
-    @SuppressWarnings("unchecked")
-    public void validate(Object properties, Errors errors)
-    {
-        doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
-    }
+  public PSPropertiesValidationException validate(PROPERTIES obj) {
+    PSPropertiesValidationException e =
+        new PSPropertiesValidationException(obj, obj.getClass().getCanonicalName());
+    validate(obj, e);
+    return e;
+  }
 
+  @SuppressWarnings("unchecked")
+  public boolean supports(Class klass) {
+    Validate.notNull(getType());
+    if (klass == getType()) return true;
+    return false;
+  }
+
+  protected abstract void doValidation(PROPERTIES properties, PSPropertiesValidationException e);
+
+  @SuppressWarnings("unchecked")
+  public void validate(Object properties, Errors errors) {
+    doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
+  }
 }

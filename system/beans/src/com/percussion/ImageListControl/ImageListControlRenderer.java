@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import javax.swing.border.EmptyBorder;
 */
 
 class ImageListControlRenderer extends JPanel
-                               implements ListCellRenderer, Serializable
+                               implements ListCellRenderer<ImageListItem>
 {
   public ImageListControlRenderer()
   {
@@ -58,7 +58,8 @@ class ImageListControlRenderer extends JPanel
 /** Implementation of ListCellRenderer interface for the special layout of this
   * horizontal image list.
 */
-  public Component getListCellRendererComponent(JList list,
+  @Override
+  public Component getListCellRendererComponent(JList<? extends ImageListItem> list,
                                                  Object value,
                                                 int index,
                                                 boolean isSelected,
@@ -117,14 +118,14 @@ class ImageListControlRenderer extends JPanel
     // the text is greater than 2 lines.
     if (textWidth > iconWidth * 4)
     {
-      int totalChars;
+      // int totalChars; // Removed unused variable
       // *** not sure if I should do this... ***  (column.width != char.width)
       if (nChars >= 10)
         m_textLabel.setColumns(nChars - (nChars/2 - 1));
       else
         m_textLabel.setColumns(nChars);
       // ***
-      String endString = new String("...");
+      // String endString = new String("..."); // Removed unused variable
 
       m_textLabel.setRows(3);
     }

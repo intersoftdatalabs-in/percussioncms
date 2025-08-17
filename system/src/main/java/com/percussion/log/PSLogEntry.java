@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,20 @@
 package com.percussion.log;
 
 /**
- *   A stripped down, bare container of the basic log information, minus the
- *   correct class type. This is returned to the processMessage() member of
- *   log reader filters.
+ * A stripped down, bare container of the basic log information, minus the correct class type. This
+ * is returned to the processMessage() member of log reader filters.
  */
-public class PSLogEntry extends PSLogInformation
-{
-   protected PSLogEntry(int type, int applId, java.util.Date time,
-      PSLogSubMessage[] subMessages)
-   {
-      super(type , applId);
-      m_time = time;
-      m_subs = subMessages;
-   }
+public class PSLogEntry extends PSLogInformation {
+  protected PSLogEntry(int type, int applId, java.util.Date time, PSLogSubMessage[] subMessages) {
+    super(type, applId);
+    m_time = time;
+    m_subs = subMessages;
+  }
 
-   public PSLogSubMessage[] getSubMessages()
-   {
-      return m_subs;
-   }
+  public PSLogSubMessage[] getSubMessages() {
+    return m_subs;
+  }
 
-   /**
-    *   The array of sub-messages
-    */
-   private PSLogSubMessage[] m_subs = null;
-
+  /** The array of sub-messages */
+  private PSLogSubMessage[] m_subs = null;
 }

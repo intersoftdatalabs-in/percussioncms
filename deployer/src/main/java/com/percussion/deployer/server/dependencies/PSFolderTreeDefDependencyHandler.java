@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,124 +26,97 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.collections.PSIteratorUtils;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Class to handle packaging and installing folder tree defintion dependencies.
- * See {@link PSFolderTreeDependencyHandler} class description for more
- * information on folder trees.
+ * Class to handle packaging and installing folder tree defintion dependencies. See {@link
+ * PSFolderTreeDependencyHandler} class description for more information on folder trees.
  */
-public class PSFolderTreeDefDependencyHandler
-   extends PSFolderObjectDependencyHandler
-{
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    * @throws PSDeployException if any other error occurs.
-    */
-   public PSFolderTreeDefDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap) throws PSDeployException
-   {
-      super(def, dependencyMap);
-   }
+public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHandler {
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if any other error occurs.
+   */
+  public PSFolderTreeDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)
+      throws PSDeployException {
+    super(def, dependencyMap);
+  }
 
-   // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      return getChildDependencies(tok, dep.getDependencyId(),
-         PSDependency.TYPE_LOCAL).iterator();
+  // see base class
+  @Override
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException, PSNotFoundException {
+    if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+      throw new IllegalArgumentException("Invalid arguments provided.");
     }
 
-   // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    return getChildDependencies(tok, dep.getDependencyId(), PSDependency.TYPE_LOCAL).iterator();
+  }
 
-      // ancestors not supported
-      return PSIteratorUtils.emptyIterator();
-   }
+  // see base class
+  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-   // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    // ancestors not supported
+    return PSIteratorUtils.emptyIterator();
+  }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
+  // see base class
+  public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      PSDependency dep = null;
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
 
-      PSRelationshipProcessor proc = getRelationshipProcessor(tok);
-      PSComponentSummary sum = getFolderSummary(proc, id);
-      if (sum != null)
-         dep = createDependency(m_def, id, sum.getName());
+    PSDependency dep = null;
 
-      return dep;
-   }
+    PSRelationshipProcessor proc = getRelationshipProcessor(tok);
+    PSComponentSummary sum = getFolderSummary(proc, id);
+    if (sum != null) dep = createDependency(m_def, id, sum.getName());
 
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>Community</li>
-    * <li>DisplayFormatDef</li>
-    * <li>FolderTreeDef</li>
-    * <li>FolderTranslations</li>
-    * </ol>
-    *
-    * @return An iterator over zero or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
-   }
+    return dep;
+  }
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+  /**
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
+   * <ol>
+   *   <li>Community
+   *   <li>DisplayFormatDef
+   *   <li>FolderTreeDef
+   *   <li>FolderTranslations
+   * </ol>
+   *
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
+   */
+  public Iterator getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
-   /**
-    * Constant for this handler's supported type
-    */
-   final static String DEPENDENCY_TYPE = "FolderTreeDef";
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
 
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List ms_childTypes = new ArrayList<>();
+  /** Constant for this handler's supported type */
+  static final String DEPENDENCY_TYPE = "FolderTreeDef";
 
-   static
-   {
-      ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSDisplayFormatDefDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSFolderTreeDefDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSFolderTranslationsDependencyHandler.DEPENDENCY_TYPE);
-   }
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
+  private static List ms_childTypes = new ArrayList<>();
+
+  static {
+    ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);
+    ms_childTypes.add(PSDisplayFormatDefDependencyHandler.DEPENDENCY_TYPE);
+    ms_childTypes.add(PSFolderTreeDefDependencyHandler.DEPENDENCY_TYPE);
+    ms_childTypes.add(PSFolderTranslationsDependencyHandler.DEPENDENCY_TYPE);
+  }
 }

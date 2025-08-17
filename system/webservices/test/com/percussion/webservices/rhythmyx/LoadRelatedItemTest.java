@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,21 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.content.LoadItemsRequest;
 import com.percussion.webservices.content.PSItem;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for loading related items
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class LoadRelatedItemTest extends PSTestBase
 {
    /**

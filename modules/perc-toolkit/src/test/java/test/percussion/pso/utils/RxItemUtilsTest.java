@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,8 @@
  */
 package test.percussion.pso.utils;
 
-import static org.junit.Assert.*;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSItemAccessor;
@@ -32,85 +25,75 @@ import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.PSItemFieldMeta;
 import com.percussion.pso.utils.RxItemUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class RxItemUtilsTest
-{
-   private static final Logger log = LogManager.getLogger(RxItemUtilsTest.class);
-   
-   Mockery context; 
-   
-   @Before
-   public void setUp() throws Exception
-   {
-      context = new Mockery(){{ setImposteriser(ClassImposteriser.INSTANCE);}};    
-   }
-   
-   @Test
-   public final void testIsBinaryFieldTrue()
-   {
-      final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-      final PSItemField fld = context.mock(PSItemField.class);
-      final PSItemFieldMeta meta = context.mock(PSItemFieldMeta.class);
-      
-      context.checking(new Expectations(){{
-         one(item).getFieldByName("a");
-         will(returnValue(fld));
-         one(fld).getItemFieldMeta();
-         will(returnValue(meta));
-         allowing(meta).getBackendDataType();
-         will(returnValue(PSItemFieldMeta.DATATYPE_BINARY));
-      }});
-      boolean result = RxItemUtils.isBinaryField(item, "a");
-      assertTrue(result); 
+@ExtendWith(MockitoExtension.class)
+public class RxItemUtilsTest {
+  private static final Logger log = LogManager.getLogger(RxItemUtilsTest.class);
+
+  @Test
+  public final void testIsBinaryFieldTrue() {
+    IPSItemAccessor item = mock(IPSItemAccessor.class);
+    PSItemField fld = mock(PSItemField.class);
+    PSItemFieldMeta meta = mock(PSItemFieldMeta.class);
+
+    when(item.getFieldByName("a")).thenReturn(fld);
+    when(fld.getItemFieldMeta()).thenReturn(meta);
+    when(meta.getBackendDataType()).thenReturn(PSItemFieldMeta.DATATYPE_BINARY);
+
+    boolean result = RxItemUtils.isBinaryField(item, "a");
+    assertTrue(result);
+    verify(item).getFieldByName("a");
+    verify(fld).getItemFieldMeta();
+    verify(meta).getBackendDataType();
+  }
+
+  @Test
+  public final void testIsBinaryFieldFalse() {
+    IPSItemAccessor item = mock(IPSItemAccessor.class);
+    PSItemField fld = mock(PSItemField.class);
+    PSItemFieldMeta meta = mock(PSItemFieldMeta.class);
+
+    when(item.getFieldByName("a")).thenReturn(fld);
+    when(fld.getItemFieldMeta()).thenReturn(meta);
+    when(meta.getBackendDataType()).thenReturn(PSItemFieldMeta.DATATYPE_TEXT);
+
+    boolean result = RxItemUtils.isBinaryField(item, "a");
+    assertFalse(result);
+    verify(item).getFieldByName("a");
+    verify(fld).getItemFieldMeta();
+    verify(meta).getBackendDataType();
+  }
+
+  @Test
+  public final void testGetFieldBinary() {
+    final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
+    final PSItemField fld = context.mock(PSItemField.class);
+    final PSBinaryValue value = context.mock(PSBinaryValue.class);
+    final byte[] myArray = new byte[100];
+    try {
+      context.checking(
+          new Expectations() {
+            {
+              one(item).getFieldByName("a");
+              will(returnValue(fld));
+              one(fld).getValue();
+              will(returnValue(value));
+              one(value).getValue();
+              will(returnValue(myArray));
+            }
+          });
+
+      Object o = RxItemUtils.getFieldBinary(item, "a");
+      assertNotNull(o);
       context.assertIsSatisfied();
-   }
-   
-   @Test
-   public final void testIsBinaryFieldFalse()
-   {
-      final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-      final PSItemField fld = context.mock(PSItemField.class);
-      final PSItemFieldMeta meta = context.mock(PSItemFieldMeta.class);
-      
-      context.checking(new Expectations(){{
-         one(item).getFieldByName("a");
-         will(returnValue(fld));
-         one(fld).getItemFieldMeta();
-         will(returnValue(meta));
-         allowing(meta).getBackendDataType();
-         will(returnValue(PSItemFieldMeta.DATATYPE_TEXT));
-      }});
-      boolean result = RxItemUtils.isBinaryField(item, "a");
-      assertFalse(result);
-      context.assertIsSatisfied();
-   }
-   
-   
-   @Test
-   public final void testGetFieldBinary()
-   {
-      final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-      final PSItemField fld = context.mock(PSItemField.class);
-      final PSBinaryValue value = context.mock(PSBinaryValue.class);
-      final byte[] myArray = new byte[100]; 
-      try
-      {
-         context.checking(new Expectations(){{
-            one(item).getFieldByName("a");
-            will(returnValue(fld));
-            one(fld).getValue();
-            will(returnValue(value));
-            one(value).getValue();
-            will(returnValue(myArray));
-         }});
-         
-         Object o = RxItemUtils.getFieldBinary(item, "a"); 
-         assertNotNull(o);
-         context.assertIsSatisfied();
-      } catch (PSCmsException ex)
-      {
-         log.error("Unexpected Exception " + ex,ex);
-         fail("exception");
-      }
-   }
+    } catch (PSCmsException ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("exception");
+    }
+  }
 }

@@ -1,4 +1,5 @@
 # Percussion CMS Accessibility Conformance Report International Edition
+
 (Based on VPAT® Version 2.4Rev)
 
 **Report Date**: 1-19-22
@@ -7,7 +8,6 @@
 **Contact information**: Please contact your Institutional Sales representative.  
 **Notes**:  
 **Evaluation Methods Used**: Conformance to the listed accessibility standards has been evaluated by Percussion CMS Developers. We use a combination of static analysis tools (including but not limited to Axe, WAVE, and all of the tools. Additionally, we perform manual testing.
-
 
 ## Applicable Standards/Guidelines
 
@@ -142,7 +142,9 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="audio-description-or-media-alternative-prerecorded" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc"><strong>1.2.3 Audio Description or Media Alternative (Prerecorded)</strong></a> (Level A)
@@ -164,7 +166,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="info-and-relationships" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic"><strong>1.3.1 Info and Relationships</strong></a> (Level A)
@@ -310,7 +313,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="keyboard" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#keyboard-operation-keyboard-operable"><strong>2.1.1 Keyboard</strong></a> (Level A)
@@ -373,7 +377,6 @@ Tables 1 and 2 also document conformance with:
 <ul><li>Admin </li></ul>
 <ul><li>Widget Builder </li></ul>
 </td>
-
 </tr>
 <tr id="character-key-shortcuts" valign="top">
 <td><a href="https://www.w3.org/TR/WCAG21/#character-key-shortcuts"><strong>2.1.4 Character Key Shortcuts</strong></a> (Level A 2.1 only)
@@ -391,7 +394,8 @@ Tables 1 and 2 also document conformance with:
 <em>Revised Section 508 - does not apply</em>
 </td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="timing-adjustable" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#time-limits-required-behaviors"><strong>2.2.1 Timing Adjustable</strong></a> (Level A 2.1 only)
@@ -475,7 +479,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="bypass-blocks" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-skip"><strong>2.4.1 Bypass Blocks</strong></a> (Level A)
@@ -617,7 +622,8 @@ Tables 1 and 2 also document conformance with:
 <em>Revised Section 508 - does not apply</em>
 </td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="pointer-cancellation" valign="top">
 <td><a href="https://www.w3.org/TR/WCAG21/#pointer-gestures"><strong>2.5.2 Pointer Cancellation</strong></a> (Level A 2.1 only)
@@ -689,7 +695,8 @@ Tables 1 and 2 also document conformance with:
 <em>Revised Section 508 - does not apply</em>
 </td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="language-of-page" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#meaning-doc-lang-id"><strong>3.1.1 Language of Page</strong></a> (Level A)
@@ -942,7 +949,9 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="audio-description-prerecorded" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc-only"><strong>1.2.5 Audio Description (Prerecorded)</strong></a> (Level AA)
@@ -964,7 +973,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="orientation" valign="top">
 <td><a href="https://www.w3.org/TR/WCAG21/#orientation"><strong>1.3.4 Orientation</strong></a> (Level AA 2.1 only)
@@ -1009,7 +1019,8 @@ Tables 1 and 2 also document conformance with:
 <em>Revised Section 508 - does not apply</em>
 </td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="contrast-minimum" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast"><strong>1.4.3 Contrast (Minimum)</strong></a> (Level AA)
@@ -1041,7 +1052,6 @@ Tables 1 and 2 also document conformance with:
 <ul><li>Publish</li></ul>
 <ul><li>Widget Builder</li></ul>
 </td>
-
 </tr>
 <tr id="resize-text" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-scale"><strong>1.4.4 Resize text</strong></a> (Level AA)
@@ -1121,7 +1131,8 @@ Tables 1 and 2 also document conformance with:
 <em>Revised Section 508 - does not apply</em>
 </td>
 <td>Does Not Support</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="non-text-contrast" valign="top">
 <td><a href="https://www.w3.org/TR/WCAG21/#non-text-contrast"><strong>1.4.11 Non-text Contrast</strong></a> (Level AA 2.1 only)
@@ -1318,7 +1329,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="consistent-navigation" valign="top">
 <td><a href="http://www.w3.org/TR/WCAG20/#consistent-behavior-consistent-locations"><strong>3.2.3 Consistent Navigation</strong></a> (Level AA)
@@ -1427,7 +1439,8 @@ Tables 1 and 2 also document conformance with:
 <li>602.3 (Support Docs)</li>
 </ul></td>
 <td>Not Applicable</td>
-<td><!-- INSERT CONTENT HERE --></td>
+<td>
+<!-- INSERT CONTENT HERE --></td>
 </tr>
 <tr id="status-messages" valign="top">
 <td><a href="https://www.w3.org/TR/WCAG21/#status-messages"><strong>4.1.3 Status Messages</strong></a> (Level AA 2.1 only)

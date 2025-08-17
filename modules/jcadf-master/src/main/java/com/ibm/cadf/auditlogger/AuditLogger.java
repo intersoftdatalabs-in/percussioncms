@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,25 @@ package com.ibm.cadf.auditlogger;
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.model.Event;
 
-public abstract class AuditLogger
-{
+public abstract class AuditLogger {
 
-    private String outputFilePath;
+  private String outputFilePath;
 
-    public abstract void writeLog(Event auditEvent) throws CADFException;
+  public abstract void writeLog(Event auditEvent) throws CADFException;
 
-    public void audit(Event auditEvent) throws CADFException
-    {
-        try
-        {
-            writeLog(auditEvent);
-        }
-        catch (CADFException e)
-        {
-            throw e;
-        }
+  public void audit(Event auditEvent) throws CADFException {
+    try {
+      writeLog(auditEvent);
+    } catch (CADFException e) {
+      throw e;
     }
+  }
 
-    public String getOutputFilePath()
-    {
-        return outputFilePath;
-    }
+  public String getOutputFilePath() {
+    return outputFilePath;
+  }
 
-    public void setOutputFilePath(String outputFilePath)
-    {
-        this.outputFilePath = outputFilePath;
-    }
-
+  public void setOutputFilePath(String outputFilePath) {
+    this.outputFilePath = outputFilePath;
+  }
 }

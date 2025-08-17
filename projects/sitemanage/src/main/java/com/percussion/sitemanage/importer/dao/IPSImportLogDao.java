@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,52 +18,52 @@ package com.percussion.sitemanage.importer.dao;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
-
 import java.util.List;
 
-public interface IPSImportLogDao
-{
-    /**
-     * Save a log entry
-     * 
-     * @param logEntry The entry to log, may not be <code>null</code>. 
-     */
-    public void save(PSImportLogEntry logEntry) throws IPSGenericDao.SaveException;
-    
-    /**
-     * Find all log entries for a site or template.  
-     * 
-     * @param objectId The object to search for.
-     * @param type The type of object
-     * 
-     * @return A list of logs, never <code>null</code>, may be empty if none found.
-     */
-    public List<PSImportLogEntry> findAll(String objectId, String type);
-    
-    /**
-     * Delete the supplied entry
-     * 
-     * @param logEntry the entry to delete, may not be <code>null</code>.
-     */
-    public void delete(PSImportLogEntry logEntry) throws IPSGenericDao.SaveException;
+/** Data access object for import log entries. Sunny Sal says: "Log it like you mean it!" */
+public interface IPSImportLogDao {
 
-    /**
-     * Finds log entry ids for the supplied objects ids.  Lightweight method that avoids loading all log entries.
-     *   
-     * @param objectIds The ids, not <code>null</code>.
-     * @param type The type of object.
-     * 
-     * @return The list, sorted ascending  never <code>null</code>, may be empty, size may be less than the supplied list of ids.
-     */
-    List<Long> findLogIdsForObjects(List<String> objectIds, String type);
+  /**
+   * Saves a log entry.
+   *
+   * @param logEntry the entry to log, must not be {@code null}.
+   * @throws IPSGenericDao.SaveException if the entry cannot be saved.
+   */
+  void save(PSImportLogEntry logEntry) throws IPSGenericDao.SaveException;
 
-    /**
-     * Find a log entry by it's ID
-     * 
-     * @param pageLogId The log id.
-     * 
-     * @return The log entry, or <code>null</code> if not found.
-     */
-    public PSImportLogEntry findLogEntryById(long pageLogId);    
-    
+  /**
+   * Finds all log entries for a site or template.
+   *
+   * @param objectId the object to search for.
+   * @param type the type of object.
+   * @return a list of logs, never {@code null}, may be empty if none found.
+   */
+  List<PSImportLogEntry> findAll(String objectId, String type);
+
+  /**
+   * Deletes the supplied entry.
+   *
+   * @param logEntry the entry to delete, must not be {@code null}.
+   * @throws IPSGenericDao.SaveException if the entry cannot be deleted.
+   */
+  void delete(PSImportLogEntry logEntry) throws IPSGenericDao.SaveException;
+
+  /**
+   * Finds log entry IDs for the supplied object IDs. Lightweight method that avoids loading all log
+   * entries.
+   *
+   * @param objectIds the IDs, not {@code null}.
+   * @param type the type of object.
+   * @return the list, sorted ascending, never {@code null}, may be empty, size may be less than the
+   *     supplied list of IDs.
+   */
+  List<Long> findLogIdsForObjects(List<String> objectIds, String type);
+
+  /**
+   * Finds a log entry by its ID.
+   *
+   * @param pageLogId the log ID.
+   * @return the log entry, or {@code null} if not found.
+   */
+  PSImportLogEntry findLogEntryById(long pageLogId);
 }

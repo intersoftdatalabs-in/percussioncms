@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.assembly.AssemblySOAPStub;
@@ -27,15 +27,15 @@ import com.percussion.webservices.assembly.data.PSAssemblyTemplate;
 import com.percussion.webservices.assembly.data.PSTemplateSlot;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class AssemblyTestCase extends PSAssemblyTestBase
 {
    @Test

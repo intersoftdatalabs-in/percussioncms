@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,54 +20,50 @@ import java.util.Date;
 
 /**
  * Data object representing a reset key managed by the generic key service.
- * 
- * @author Leonardo Hildt
  *
+ * @author Leonardo Hildt
  */
-public interface IPSGenericKey
-{
-    /**
-     * Get the reset Id of this reset key.
-     * 
-     * @return The reset key id, never <code>null</code> or empty, "0" if this 
-     * reset key has not been persisted.
-     */
-    public String getResetKeyId();
-    
-    /**
-     * Set the reset Id of this reset key.
-     * 
-     * @param resetKeyId The id, may not be <code>null</code> or empty.
-     */
-    public void setResetKeyId(String resetKeyId);
-    
-    /**
-     * Set the date-time the password reset was last requested.
-     *  
-     * @param pwdResetDate The date, may be <code>null</code> to clear the date
-     */
-    public abstract void setExpirationDate(Date expirationDate);
+public interface IPSGenericKey {
+  /**
+   * Get the reset Id of this reset key.
+   *
+   * @return The reset key id, never <code>null</code> or empty, "0" if this reset key has not been
+   *     persisted.
+   */
+  public String getResetKeyId();
 
-    /**
-     * Get the the date-time the password reset was last requested.
-     * 
-     * @return The date, may be <code>null</code>.
-     */
-    public abstract Date getExpirationDate();
-    
-    /**
-     * Get the key used to identify a password reset request for this membership account.
-     * 
-     * @return The key, never empty, may be <code>null</code>.
-     */
-    public String getGenericKey();
-    
-    /**
-     * Set the key used to identify a password reset request for this membership account.
-     * 
-     * @param pwdResetKey The key, never empty, may be <code>null</code> to clear the key.
-     */
-    public void setGenericKey(String resetKey);
+  /**
+   * Set the reset Id of this reset key.
+   *
+   * @param resetKeyId The id, may not be <code>null</code> or empty.
+   */
+  public void setResetKeyId(String resetKeyId);
 
+  /**
+   * Set the date-time the password reset was last requested.
+   *
+   * @param pwdResetDate The date, may be <code>null</code> to clear the date
+   */
+  public abstract void setExpirationDate(Date expirationDate);
+
+  /**
+   * Get the the date-time the password reset was last requested.
+   *
+   * @return The date, may be <code>null</code>.
+   */
+  public abstract Date getExpirationDate();
+
+  /**
+   * Get the key used to identify a password reset request for this membership account.
+   *
+   * @return The key, never empty, may be <code>null</code>.
+   */
+  public String getGenericKey();
+
+  /**
+   * Set the key used to identify a password reset request for this membership account.
+   *
+   * @param pwdResetKey The key, never empty, may be <code>null</code> to clear the key.
+   */
+  public void setGenericKey(String resetKey);
 }
-

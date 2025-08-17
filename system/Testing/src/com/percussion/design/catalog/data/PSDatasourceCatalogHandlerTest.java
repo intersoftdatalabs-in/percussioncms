@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,26 @@ import com.percussion.design.catalog.PSCataloger;
 import com.percussion.design.objectstore.PSObjectStore;
 import com.percussion.design.objectstore.PSObjectStoreTest;
 import com.percussion.utils.jdbc.PSConnectionDetail;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlTreeWalker;
 
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * Test class for the {@link PSDatasourceCatalogHandler} class.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
 {
    // see base class

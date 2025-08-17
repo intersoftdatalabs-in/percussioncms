@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,33 +18,33 @@
 package com.percussion.utils.security;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PSContentSecurityPolicyUtilsTests {
 
 
-    @Before
+    @BeforeEach
     public void setup(){
 
     }
 
-    @After
+    @AfterEach
     public void teardown(){
 
     }
 
     @Test
-    @Ignore //FIXME Test is failing
+    @Disabled //FIXME Test is failing
     public void testEditCSP(){
         List<PSDeliveryInfo> psDeliveryInfoList = new ArrayList<>();
         String contentSecurityString = PSSecurityUtility.CONTENT_SECURITY_POLICY_DEFAULT;

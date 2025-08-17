@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,108 +20,83 @@ package com.percussion.error;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
 import com.percussion.server.IPSServerErrors;
-
 import java.util.Locale;
 
-
 /**
- * The PSApplicationAuthorizationError class is used to report a failed
- * attempt to login to an application.
- * <p>
- * An error message containing the host address and login id is logged
- * when this error is encountered.
+ * The PSApplicationAuthorizationError class is used to report a failed attempt to login to an
+ * application.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>An error message containing the host address and login id is logged when this error is
+ * encountered.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSApplicationAuthorizationError extends PSLogError {
-   
-   /**
-    * Report an authorization failure.
-    * <p>
-    * The application id is most commonly obtained by calling
-    * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-    * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-    *
-    * @param      applId      the id of the application that generated
-    *                           the error
-    *
-    * @param      ipAddress   the IP address of the host causing the
-    *                           authorization failure
-    *
-    * @param      loginId      the login id used which caused the error
-    *
-    * @param      errorCode   the error code provided by the driver
-    *                           when attempting the connection
-    *
-    * @param      errorString   the error string provided by the driver
-    *                           when attempting the connection
-    */
-   public PSApplicationAuthorizationError(int applId,
-                                          java.lang.String ipAddress,
-                                          java.lang.String loginId,
-                                          int errorCode,
-                                          java.lang.String errorString)
-   {
-      super(applId);
 
-      if (ipAddress == null)
-         m_host      = "";
-      else
-         m_host      = ipAddress;
+  /**
+   * Report an authorization failure.
+   *
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   *
+   * @param applId the id of the application that generated the error
+   * @param ipAddress the IP address of the host causing the authorization failure
+   * @param loginId the login id used which caused the error
+   * @param errorCode the error code provided by the driver when attempting the connection
+   * @param errorString the error string provided by the driver when attempting the connection
+   */
+  public PSApplicationAuthorizationError(
+      int applId,
+      java.lang.String ipAddress,
+      java.lang.String loginId,
+      int errorCode,
+      java.lang.String errorString) {
+    super(applId);
 
-      if (loginId == null)
-         m_uid         = "";
-      else
-         m_uid         = loginId;
+    if (ipAddress == null) m_host = "";
+    else m_host = ipAddress;
 
-      m_errorCode      = errorCode;
+    if (loginId == null) m_uid = "";
+    else m_uid = loginId;
 
-      if (errorString == null)
-         m_errorString = "";
-      else
-         m_errorString = errorString;
-   }
+    m_errorCode = errorCode;
 
-   /**
-    * Get the host name (or specifically, the IP address of the host).
-    */
-   public String getHost(){
-      return m_host;
-   }
+    if (errorString == null) m_errorString = "";
+    else m_errorString = errorString;
+  }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      PSLogSubMessage[] msgs = new PSLogSubMessage[2];
+  /** Get the host name (or specifically, the IP address of the host). */
+  public String getHost() {
+    return m_host;
+  }
 
-      /* the generic submessage first */
-      Object[] args = { m_host, m_uid };
-      msgs[0]   = new PSLogSubMessage(
-                                 IPSServerErrors.AUTHORIZATION_ERROR,
-                                 PSErrorManager.createMessage(
-                                       IPSServerErrors.AUTHORIZATION_ERROR,
-                                       args,
-                                       loc));
+  /** sublcasses must override this to build the messages in the specified locale */
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 
-      /* use the errorCode/errorString to format the second submessage */
-      Object[] nativeArgs = { new Integer(m_errorCode), m_errorString };
-      msgs[1]   = new PSLogSubMessage(
-                                 m_errorCode,
-                                 PSErrorManager.createMessage(
-                                       IPSServerErrors.NATIVE_ERROR,
-                                       nativeArgs,
-                                       loc));
+    /* the generic submessage first */
+    Object[] args = {m_host, m_uid};
+    msgs[0] =
+        new PSLogSubMessage(
+            IPSServerErrors.AUTHORIZATION_ERROR,
+            PSErrorManager.createMessage(IPSServerErrors.AUTHORIZATION_ERROR, args, loc));
 
-      return msgs;
-   }
+    /* use the errorCode/errorString to format the second submessage */
+    Object[] nativeArgs = {new Integer(m_errorCode), m_errorString};
+    msgs[1] =
+        new PSLogSubMessage(
+            m_errorCode,
+            PSErrorManager.createMessage(IPSServerErrors.NATIVE_ERROR, nativeArgs, loc));
 
-   private String   m_host;
-   private String   m_uid;
-   private int      m_errorCode;
-   private String   m_errorString;
+    return msgs;
+  }
+
+  private String m_host;
+  private String m_uid;
+  private int m_errorCode;
+  private String m_errorString;
 }

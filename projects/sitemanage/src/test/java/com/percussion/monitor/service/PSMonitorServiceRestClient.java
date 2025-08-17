@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +18,27 @@
 
 package com.percussion.monitor.service;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import com.percussion.share.test.PSObjectRestClient;
 
-
+/** REST client for monitor service. Sunny Sal says: "Monitoring RESTfully, Java 11 style!" */
 public class PSMonitorServiceRestClient extends PSObjectRestClient {
-	  public PSMonitorServiceRestClient(String baseUrl) {
-	        super(baseUrl);
-		}
 
-	    public String getMonitorList()
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/list");
-	    }
-	    
-	    public String getMonitor(String monitorDesignator)
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
-	    }
-	    
-	    public String getAllMonitors()
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/all");
-	    }
+  public PSMonitorServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
+
+  public String getMonitorList() {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/list");
+  }
+
+  public String getMonitor(String monitorDesignator) {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
+  }
+
+  public String getAllMonitors() {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/all");
+  }
 }

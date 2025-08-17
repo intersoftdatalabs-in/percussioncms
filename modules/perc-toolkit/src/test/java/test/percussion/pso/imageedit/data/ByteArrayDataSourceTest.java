@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,28 @@
  */
 package test.percussion.pso.imageedit.data;
 
-import static org.junit.Assert.*;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ByteArrayDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ByteArrayDataSourceTest
-{
-   private static final Logger log = LogManager.getLogger(ByteArrayDataSourceTest.class);
-   
-   ByteArrayDataSource cut; 
-   @Before
-   public void setUp() throws Exception
-   {
-     
-   }
-   @Test
-   public final void testByteArrayDataSourceStringStringInt()
-   {
-      log.debug("testing new bytearraydatasource"); 
-      cut = new ByteArrayDataSource("xname", "text/plain", 42);
-      assertEquals("xname", cut.getName());
-      assertEquals("text/plain", cut.getContentType()); 
-      assertEquals(0, cut.getBytes().length); 
-   }
+public class ByteArrayDataSourceTest {
+  private static final Logger log = LogManager.getLogger(ByteArrayDataSourceTest.class);
+
+  ByteArrayDataSource cut;
+
+  @BeforeEach
+  public void setUp() throws Exception {}
+
+  @Test
+  public final void testByteArrayDataSourceStringStringInt() {
+    log.debug("testing new bytearraydatasource");
+    cut = new ByteArrayDataSource("xname", "text/plain", 42);
+    assertEquals("xname", cut.getName());
+    assertEquals("text/plain", cut.getContentType());
+    assertEquals(0, cut.getBytes().length);
+  }
 }

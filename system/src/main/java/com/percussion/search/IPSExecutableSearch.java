@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,17 @@
  */
 package com.percussion.search;
 
-
 /**
- * Interface for executing searches against the Rhythmyx server.  Instances of 
- * classes implementing this interface may be obtained thru the 
- * {@link PSExecutableSearchFactory}.
+ * Interface for executing searches against the Rhythmyx server. Instances of classes implementing
+ * this interface may be obtained thru the {@link PSExecutableSearchFactory}.
  */
-public interface IPSExecutableSearch
-{
-   /**
-    * Executes a standard search based on the criteria specified when 
-    * constructing this object.  This method may be called more than once.
-    *    
-    * @return the search response, never <code>null</code>, may be empty.
-    *
-    * @throws PSSearchException if an error happens executing search.
-    */
-   public PSWSSearchResponse executeSearch() 
-      throws PSSearchException;
+public interface IPSExecutableSearch {
+  /**
+   * Executes a standard search based on the criteria specified when constructing this object. This
+   * method may be called more than once.
+   *
+   * @return the search response, never <code>null</code>, may be empty.
+   * @throws PSSearchException if an error happens executing search.
+   */
+  public PSWSSearchResponse executeSearch() throws PSSearchException;
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,76 +24,57 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.ui.service.IPSUiService;
 import com.percussion.user.service.IPSUserService;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-/**
- * Handles requests for path items under the "Design" root folder.
- * 
- * @author miltonpividori
- *
- */
+/** Handles requests for path items under the "Design" root folder. */
 @Component("designPathItemService")
-public class PSDesignPathItemService extends PSDispatchingPathService
-{
-    private String rootName;
-    private IPSFolderHelper folderHelper;
-    private IPSRecycleService recycleService;
+public class PSDesignPathItemService extends PSDispatchingPathService {
 
-    /**
-     *
-     * @param folderHelper
-     * @param uiService
-     * @param userService
-     * @param defaultListViewHelper
-     * @param recycleService
-     */
-    public PSDesignPathItemService(IPSFolderHelper folderHelper,
-            IPSUiService uiService, IPSUserService userService,
-            @Qualifier("fileSystemListViewHelper") IPSListViewHelper defaultListViewHelper,
-            IPSRecycleService recycleService)
-    {
-        super(uiService, userService, defaultListViewHelper, recycleService, folderHelper);
-        this.folderHelper = folderHelper;
-        this.setRootName("Design");
-    }
-    
-    public String getRootName()
-    {
-        return rootName;
-    }
+  private String rootName;
+  private final IPSFolderHelper folderHelper;
 
-    public void setRootName(String rootName)
-    {
-        this.rootName = rootName;
-    }
+  public PSDesignPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSUiService uiService,
+      IPSUserService userService,
+      @Qualifier("fileSystemListViewHelper") IPSListViewHelper defaultListViewHelper,
+      IPSRecycleService recycleService) {
+    super(uiService, userService, defaultListViewHelper, recycleService, folderHelper);
+    this.folderHelper = folderHelper;
+    setRootName("Design");
+  }
 
-    @Override
-    protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
-        PSPathItem root = new PSPathItem();
-        root.setName(rootName);
-        root.setPath("/");
-        root.setLeaf(false);
-        root.setFolderPath(getFullFolderPath("/"));
-        root.setAccessLevel(PSFolderPermission.Access.ADMIN);
-        return root;
+  public String getRootName() {
+    return rootName;
+  }
+
+  public void setRootName(String rootName) {
+    this.rootName = rootName;
+  }
+
+  @Override
+  protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
+    var root = new PSPathItem();
+    root.setName(rootName);
+    root.setPath("/");
+    root.setLeaf(false);
+    root.setFolderPath(getFullFolderPath("/"));
+    root.setAccessLevel(PSFolderPermission.Access.ADMIN);
+    return root;
+  }
+
+  @Override
+  protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
+    PSPathUtils.validatePath(path);
+    var fullFolderPath = getRootFolderPath();
+    if (!"/".equals(path)) {
+      fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
     }
-    
-    protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
-        PSPathUtils.validatePath(path);
-        
-        String fullFolderPath = getRootFolderPath();
-        if (!path.equals("/"))
-        {
-            fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
-        }
-        
-        return fullFolderPath;
-    }
-    
-    protected String getRootFolderPath()
-    {
-        return "//" + getRootName();
-    }
+    return fullFolderPath;
+  }
+
+  protected String getRootFolderPath() {
+    return "//" + getRootName();
+  }
 }

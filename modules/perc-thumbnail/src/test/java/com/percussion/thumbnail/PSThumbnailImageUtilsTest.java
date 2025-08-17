@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,22 @@
 
 package com.percussion.thumbnail;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSThumbnailImageUtilsTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
+  @BeforeEach
+  public void setUp() throws Exception {}
 
-    @After
-    public void tearDown() throws Exception {
-    }
+  @AfterEach
+  public void tearDown() throws Exception {}
 
-    @Test
-    public void resizeThumbnail() {
-        //TODO
-    }
+  @Test
+  public void resizeThumbnail() {
+    // TODO
+  }
 }

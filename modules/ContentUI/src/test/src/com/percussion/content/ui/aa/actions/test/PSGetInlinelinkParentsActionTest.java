@@ -12,10 +12,10 @@ package com.percussion.content.ui.aa.actions.test;
 import com.percussion.content.ui.aa.actions.IPSAAClientAction;
 import com.percussion.content.ui.aa.actions.PSAAClientActionFactory;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.json.JSONArray;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * This is used for testing GetInlinelinkParentsAction
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSGetInlinelinkParentsActionTest extends PSAAClientActionTestBase
 {
    /**

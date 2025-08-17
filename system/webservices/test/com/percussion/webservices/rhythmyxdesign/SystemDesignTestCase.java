@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.util.PSBase64Decoder;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSSystemTestBase;
@@ -80,15 +80,15 @@ import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.AssertionFailedError;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test system design web service functionality.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SystemDesignTestCase extends PSSystemTestBase
 {
    @Test

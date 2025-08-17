@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,496 +18,200 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.Collection;
 import net.sf.oval.constraint.NotEmpty;
 
-import java.util.Collection;
-
 /**
- * This class contains a set of known properties of an item.
+ * This class contains a set of known properties of an item. Sunny Sal says: "Properties—because
+ * every item deserves a good story!"
  */
 @JsonRootName(value = "ItemProperties")
-public class PSItemProperties extends PSAbstractPersistantObject
-{
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 1L;
+public class PSItemProperties extends PSAbstractPersistantObject {
 
-    /**
-     * See {@link #getId()} for detail.
-     */
-    private String id;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * See {@link #getName()} for detail.
-     */
-    private String name;
+  private String id;
+  private String name;
+  private String status;
+  private String workflow;
+  private String lastModifier;
+  private String lastModifiedDate;
+  private String lastPublishedDate;
+  private String type;
+  @NotEmpty private String path;
+  @NotEmpty private String summary;
+  private String author;
+  private Collection<String> tags;
+  private int commentsCount;
+  private int newCommentsCount;
+  private String size;
+  private String postDate;
+  private String scheduledPublishDate;
+  private String scheduledUnpublishDate;
+  private String thumbnailPath;
+  private String contentPostDateTz;
 
-    /**
-     * See {@link #getStatus()} for detail.
-     */
-    private String status;
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * See {@link #getWorkflow()} for detail.
-     */
-    private String workflow;
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * See {@link #getLastModifier()} for detail.
-     */
-    private String lastModifier;
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * See {@link #getLastModifiedDate()} for detail.
-     */
-    private String lastModifiedDate;
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * See {@link #getLastPublishedDate()} for detail.
-     */
-    private String lastPublishedDate;
+  public String getStatus() {
+    return status;
+  }
 
-    /**
-     * See {@link #getType()} for detail.
-     */
-    private String type;
+  public void setStatus(String stateName) {
+    this.status = stateName;
+  }
 
-    /**
-     * See {@link #getPath()} for detail.
-     */
-    @NotEmpty
-    private String path;
+  public String getWorkflow() {
+    return workflow;
+  }
 
-    @NotEmpty
-    private String summary;
+  public void setWorkflow(String workflowName) {
+    this.workflow = workflowName;
+  }
 
-    /**
-     * See {@link #getAuthor()} for detail.
-     */
-    private String author;
+  public String getLastModifier() {
+    return lastModifier;
+  }
 
-    /**
-     * See {@link #getTags()} for detail.
-     */
-    private Collection<String> tags;
+  public void setLastModifier(String user) {
+    this.lastModifier = user;
+  }
 
-    /**
-     * See {@link #getCommentsCount()} for detail.
-     */
-    private int commentsCount;
+  public String getLastModifiedDate() {
+    return lastModifiedDate;
+  }
 
-    /**
-     * See {@link #getNewCommentsCount()} for detail.
-     */
-    private int newCommentsCount;
+  public void setLastModifiedDate(String date) {
+    this.lastModifiedDate = date;
+  }
 
-    /**
-     * See {@link #getSize()} for detail.
-     */
-    private String size;
+  public String getLastPublishedDate() {
+    return lastPublishedDate;
+  }
 
+  public void setLastPublishedDate(String date) {
+    lastPublishedDate = date;
+  }
 
-    /**
-     * See {@link #getPostDate()} for detail.
-     */
-    private String postDate;
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * See {@link #getScheduledPublishDate()} for detail.
-     */
-    private String scheduledPublishDate;
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * See {@link #getSheduledUnpublishDate()} for detail.
-     */
-    private String scheduledUnpublishDate;
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * See {@link #getThumbnailPath()} for detail.
-     */
-    private String thumbnailPath;
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * Gets the ID of the item.
-     *
-     * @return item ID, not blank for a valid item.
-     */
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  public String getSummary() {
+    return summary;
+  }
 
-    /**
-     * Sets item ID.
-     *
-     * @param id the new ID, not blank for a valid item.
-     */
-    @Override
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public void setSummary(String summary) {
+    this.summary = summary;
+  }
 
-    /**
-     * Gets the name of the item. It is the name of the item for an asset, but
-     * it is the link text for a page.
-     *
-     * @return the name, not blank for a valid item.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  public String getAuthor() {
+    return author;
+  }
 
-    /**
-     * Sets the item name, which is the name of the item for an asset, but
-     * the link text for a page.
-     *
-     * @param name the new name, not blank for a valid item.
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-    /**
-     * Gets the (workflow) state name.
-     *
-     * @return the state name. It may be blank if the item is not workflowable
-     */
-    public String getStatus()
-    {
-        return status;
-    }
+  public Collection<String> getTags() {
+    return tags;
+  }
 
-    /**
-     * Sets the (workflow) state name.
-     *
-     * @param stateName the new state name. It may be blank if the item is
-     * not workflowable.
-     */
-    public void setStatus(String stateName)
-    {
-        this.status = stateName;
-    }
+  public void setTags(Collection<String> tags) {
+    this.tags = tags;
+  }
 
-    /**
-     * Gets the workflow name.
-     *
-     * @return the workflow name. It may be blank if the item is not workflowable
-     */
-    public String getWorkflow()
-    {
-        return workflow;
-    }
+  public int getCommentsCount() {
+    return commentsCount;
+  }
 
-    /**
-     * Sets the workflow name.
-     *
-     * @param workflowName the new workflow name. It may be blank if the item is
-     * not workflowable.
-     */
-    public void setWorkflow(String workflowName)
-    {
-        this.workflow = workflowName;
-    }
+  public void setCommentsCount(int commentsCount) {
+    this.commentsCount = commentsCount;
+  }
 
-    /**
-     * Gets the user name who modified the item last.
-     * <p>
-     * Note, this is the last user who modified the item, checked in/out the item;
-     * but not the user who (workflow) transitioned the item.
-     *
-     * @return the user name, not blank for a valid item. It may be 
-     * {@link #SYSTEM_USER} if the item was modified by the system.
-     */
-    public String getLastModifier()
-    {
-        return lastModifier;
-    }
+  public int getNewCommentsCount() {
+    return newCommentsCount;
+  }
 
-    /**
-     * Sets the user name who modified the item last.
-     *
-     * @param user the user name, should not be blank for a valid item.
-     */
-    public void setLastModifier(String user)
-    {
-        this.lastModifier = user;
-    }
+  public void setNewCommentsCount(int newCommentsCount) {
+    this.newCommentsCount = newCommentsCount;
+  }
 
-    /**
-     * Gets the last date/time the item has been modified.
-     * <p>
-     * Note, this is the last date/time the item has been modified, checked in/out;
-     * but not the date/time the item was (workflow) transitioned.
-     *
-     * @return the modified date and time, not blank for a valid item.
-     */
-    public String getLastModifiedDate()
-    {
-        return lastModifiedDate;
-    }
+  public String getSize() {
+    return size;
+  }
 
-    /**
-     * Sets the last modified date and time.
-     *
-     * @param date the new date and time, not blank for a valid item.
-     *
-     * @see #getLastModifiedDate()
-     */
-    public void setLastModifiedDate(String date)
-    {
-        this.lastModifiedDate = date;
-    }
+  public void setSize(String size) {
+    this.size = size;
+  }
 
-    /**
-     * The last published date of the item.
-     *
-     * @return last published date. It may be blank if the item has not been
-     * published.
-     */
-    public String getLastPublishedDate()
-    {
-        return lastPublishedDate;
-    }
+  public String getPostDate() {
+    return postDate;
+  }
 
-    /**
-     * Sets the last successful published date.
-     *
-     * @param date the new last published date, may be blank if the item has
-     * not been published.
-     */
-    public void setLastPublishedDate(String date)
-    {
-        lastPublishedDate = date;
-    }
+  public void setPostDate(String postDate) {
+    this.postDate = postDate;
+  }
 
-    /**
-     * Gets the type of the item.
-     *
-     * @return the content type for an asset; template name for a page, not
-     * blank for a valid asset or page.
-     */
-    public String getType()
-    {
-        return type;
-    }
+  public String getScheduledPublishDate() {
+    return scheduledPublishDate;
+  }
 
-    /**
-     * Sets the type of the item.
-     *
-     * @param type the new type. It is the content type for an asset;
-     * or template name for a page, not blank for a valid asset or page.
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setScheduledPublishDate(String scheduledPublishDate) {
+    this.scheduledPublishDate = scheduledPublishDate;
+  }
 
-    /**
-     * Gets the (finder) path of the item.
-     *
-     * @return the path. It may be <code>null</code>, never empty.
-     */
-    public String getPath()
-    {
-        return path;
-    }
+  public String getScheduledUnpublishDate() {
+    return scheduledUnpublishDate;
+  }
 
-    /**
-     * Sets the (finder) path of the item.
-     *
-     * @param path the (finder) path.  It may be <code>null</code>, never empty.
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public void setScheduledUnpublishDate(String scheduledUnpublishDate) {
+    this.scheduledUnpublishDate = scheduledUnpublishDate;
+  }
 
-    /**
-     * @return the summary
-     */
-    public String getSummary()
-    {
-        return summary;
-    }
+  public String getThumbnailPath() {
+    return thumbnailPath;
+  }
 
-    /**
-     * @param summary the summary to set
-     */
-    public void setSummary(String summary)
-    {
-        this.summary = summary;
-    }
+  public void setThumbnailPath(String thumbnailPath) {
+    this.thumbnailPath = thumbnailPath;
+  }
 
-    /**
-     * @return the author of the page
-     */
-    public String getAuthor()
-    {
-        return author;
-    }
+  public static final String SYSTEM_USER = "System";
 
-    /**
-     * @param author the author to set for the page
-     */
-    public void setAuthor(String author)
-    {
-        this.author = author;
-    }
+  public String getContentPostDateTz() {
+    return contentPostDateTz;
+  }
 
-    /**
-     * @return the page tags
-     */
-    public Collection<String> getTags()
-    {
-        return tags;
-    }
-
-    /**
-     * @param tags the page tags to set
-     */
-    public void setTags(Collection<String> tags)
-    {
-        this.tags = tags;
-    }
-
-    /**
-     * @return the total number of comments
-     */
-    public int getCommentsCount()
-    {
-        return commentsCount;
-    }
-
-    /**
-     * @param commentsCount the total number of comments to set
-     */
-    public void setCommentsCount(int commentsCount)
-    {
-        this.commentsCount = commentsCount;
-    }
-
-    /**
-     * @return the number of new comments
-     */
-    public int getNewCommentsCount()
-    {
-        return newCommentsCount;
-    }
-
-    /**
-     * @param newCommentsCount the number of new comments to set
-     */
-    public void setNewCommentsCount(int newCommentsCount)
-    {
-        this.newCommentsCount = newCommentsCount;
-    }
-
-    /**
-     * Gets the size of the file in the File System
-     *
-     * @return the size in KB.
-     */
-    public String getSize()
-    {
-        return size;
-    }
-
-    /**
-     * Sets the size of the file
-     *
-     * @param size the size of the file expressed in KB
-     */
-    public void setSize(String size)
-    {
-        this.size = size;
-    }
-
-    /**
-     * @return the post date of the item
-     */
-    public String getPostDate()
-    {
-        return postDate;
-    }
-
-    /**
-     * @param postDate the post date to set for the item
-     */
-    public void setPostDate(String postDate)
-    {
-        this.postDate = postDate;
-    }
-
-    /**
-     * Sets the size of the file
-     *
-     * @return the publishDate of the item
-     */
-    public String getScheduledPublishDate()
-    {
-        return scheduledPublishDate;
-    }
-
-    /**
-     * @param the publishDate of the item
-     */
-    public void setScheduledPublishDate(String scheduledPublishDate)
-    {
-        this.scheduledPublishDate = scheduledPublishDate;
-    }
-
-    /**
-     * Sets the size of the file
-     *
-     * @return the unpublishDate of the item
-     */
-    public String getScheduledUnpublishDate()
-    {
-        return scheduledUnpublishDate;
-    }
-
-    /**
-     * @param the unpublishDate of the item
-     */
-    public void setScheduledUnpublishDate(String scheduledUnpublishDate)
-    {
-        this.scheduledUnpublishDate = scheduledUnpublishDate;
-    }
-
-    /**
-     * @return the thumbnailPath
-     */
-    public String getThumbnailPath()
-    {
-        return thumbnailPath;
-    }
-
-    /**
-     * @param thumbnailPath the thumbnailPath to set
-     */
-    public void setThumbnailPath(String thumbnailPath)
-    {
-        this.thumbnailPath = thumbnailPath;
-    }
-
-    /**
-     * A user name of the system, which is used when an item is modified
-     * by the system. 
-     */
-    public static final String SYSTEM_USER = "System";
-
-    private String contentPostDateTz;
-
-    public String getContentPostDateTz() {
-        return contentPostDateTz;
-    }
-
-    public void setContentPostDateTz(String contentPostDateTz) {
-        this.contentPostDateTz = contentPostDateTz;
-    }
+  public void setContentPostDateTz(String contentPostDateTz) {
+    this.contentPostDateTz = contentPostDateTz;
+  }
 }

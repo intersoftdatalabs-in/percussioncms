@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,32 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
-public class PSSaasSiteConfig
-{
-    private PSSiteConfig siteConfig;
+import java.util.Objects;
+import java.util.Optional;
 
-    public PSSiteConfig getSiteConfig ()
-    {
-        return siteConfig;
-    }
+/** SaaS Site configuration wrapper. */
+public class PSSaasSiteConfig {
 
-    public void setSiteConfig (PSSiteConfig siteConfig)
-    {
-        this.siteConfig = siteConfig;
-    }
+  private PSSiteConfig siteConfig;
+
+  /**
+   * Gets the site config.
+   *
+   * @return Optional of site config, empty if not set.
+   */
+  public Optional<PSSiteConfig> getSiteConfig() {
+    return Optional.ofNullable(siteConfig);
+  }
+
+  /**
+   * Sets the site config.
+   *
+   * @param siteConfig the site config to set, must not be null.
+   */
+  public void setSiteConfig(PSSiteConfig siteConfig) {
+    this.siteConfig = Objects.requireNonNull(siteConfig, "siteConfig must not be null");
+  }
 }

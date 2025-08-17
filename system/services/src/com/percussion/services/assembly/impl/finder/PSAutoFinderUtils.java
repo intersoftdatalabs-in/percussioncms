@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.services.assembly.impl.finder;
 
 
 import com.percussion.cms.IPSConstants;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItem;
 import com.percussion.services.assembly.impl.finder.PSContentFinderBase.ContentItemOrder;
@@ -29,7 +29,7 @@ import com.percussion.services.contentmgr.data.PSQuery;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.sitemgr.PSSiteManagerException;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.collections.PSFacadeMap;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;

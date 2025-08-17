@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.IPSWebserviceErrors;
@@ -58,16 +58,11 @@ import com.percussion.webservices.PSInvalidLocaleException;
 import com.percussion.webservices.PSUserNotMemberOfCommunityException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
-import com.percussion.webservices.content.IPSContentWs;
-import com.percussion.webservices.content.PSContentWsLocator;
-import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.IPSSystemWs;
-import com.percussion.workflow.PSEntryNotFoundException;
-import com.percussion.workflow.PSTransitionInfo;
-import com.percussion.workflow.PSWorkFlowUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.transaction.annotation.Transactional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

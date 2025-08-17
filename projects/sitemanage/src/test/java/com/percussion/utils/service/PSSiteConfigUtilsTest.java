@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,985 +17,779 @@
  */
 package com.percussion.utils.service;
 
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.copySecureSiteConfiguration;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.createSecureSiteConfiguration;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.createTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.filesModifiedAfterPublished;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getAllowedGroups;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getNonSecureConfigurationFolder;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getPublishedDateFromTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getSitesConfigPath;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getSourceConfigurationFolder;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.getTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeSiteConfiguration;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeSiteConfigurationAndTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.renameNonSecureSiteConfiguration;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.renameOrCreateSecureSiteConfiguration;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.setPublishedDateInTouchedFile;
-import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeServerEntry;
+import static com.percussion.utils.service.impl.PSSiteConfigUtils.*;
 import static org.apache.commons.io.FileUtils.forceDelete;
 import static org.apache.commons.io.FileUtils.listFiles;
 import static org.apache.commons.io.FileUtils.touch;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.sitemanage.data.PSSectionNode;
 import com.percussion.utils.service.impl.PSSiteConfigUtils;
 import com.percussion.utils.service.impl.PSSiteConfigUtils.SecureXmlData;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+/** Test cases for the {@link PSSiteConfigUtils} class. Refactored for Java 11 and JUnit5. */
+@Tag("IntegrationTest")
+public class PSSiteConfigUtilsTest {
 
-/**
- * Test cases for the {@link PSSiteConfigUtils} class.
- * 
- * @author Santiago M. Murchio
- * 
- */
-@Category(IntegrationTest.class)
-public class PSSiteConfigUtilsTest extends ServletTestCase
-{
+  private File secureSiteDefaultConfigFolder;
+  private File nonsecureSiteDefaultConfigFolder;
+  private File tchFile1;
+  private File tchFile2;
+  private File siteConfig1;
+  private File siteConfig2;
+  private File mockFile;
+  private String sitename;
+  private final long server1 = 100;
+  private final long server2 = 200;
 
-    private File secureSiteDefaultConfigFolder = null;
-
-    private File nonsecureSiteDefaultConfigFolder = null;
-
-    private File tchFile1 = null;
-
-    private File tchFile2 = null;
-
-    private File siteConfig1 = null;
-
-    private File siteConfig2 = null;
-
-    private File mockFile = null;
-
-    String sitename = null;
-    
-    long server1 = 100;
-    
-    long server2 = 200;
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    @Override
-    public void setUp() throws Exception
-    {
-        if (secureSiteDefaultConfigFolder == null)
-        {
-            secureSiteDefaultConfigFolder = getSourceConfigurationFolder();
-        }
-
-        if (nonsecureSiteDefaultConfigFolder == null)
-        {
-            nonsecureSiteDefaultConfigFolder = getNonSecureConfigurationFolder();
-        }
-
-        sitename = "testSite" + System.currentTimeMillis();
+  @BeforeEach
+  public void setUp() throws Exception {
+    if (secureSiteDefaultConfigFolder == null) {
+      secureSiteDefaultConfigFolder = getSourceConfigurationFolder();
     }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    @Override
-    public void tearDown() throws Exception
-    {
-        cleanCreatedFiles();
+    if (nonsecureSiteDefaultConfigFolder == null) {
+      nonsecureSiteDefaultConfigFolder = getNonSecureConfigurationFolder();
     }
+    sitename = "testSite" + System.currentTimeMillis();
+  }
 
-    /**
-     * Delete the files or folder that were created during the tests
-     * 
-     * @throws IOException if an error occurs when deleting the file
-     */
-    private void cleanCreatedFiles() throws IOException
-    {
-        if (tchFile1 != null && tchFile1.exists())
-        {
-            forceDelete(tchFile1);
-        }
+  @AfterEach
+  public void tearDown() throws Exception {
+    cleanCreatedFiles();
+  }
 
-        if (tchFile2 != null && tchFile2.exists())
-        {
-            forceDelete(tchFile2);
-        }
-
-        if (siteConfig1 != null && siteConfig1.exists())
-        {
-            forceDelete(siteConfig1);
-        }
-
-        if (siteConfig2 != null && siteConfig2.exists())
-        {
-            forceDelete(siteConfig2);
-        }
-
-        if (mockFile != null && mockFile.exists())
-        {
-            forceDelete(mockFile);
-        }
+  private void cleanCreatedFiles() throws IOException {
+    if (tchFile1 != null && tchFile1.exists()) {
+      forceDelete(tchFile1);
     }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testCreateSiteConfiguration() throws IOException
-    {
-        createSecureSiteConfiguration(sitename);
-
-        siteConfig1 = new File(getSitesConfigPath(), sitename);
-        assertTrue(siteConfig1.exists());
-
-        Collection<File> defaultConfigFiles = listFiles(secureSiteDefaultConfigFolder, null, true);
-        Collection<File> siteConfigFiles = listFiles(siteConfig1, null, true);
-
-        assertTrue("Different collection sizes.", defaultConfigFiles.size() == siteConfigFiles.size());
-        assertTrue("Different collection elements", sameFilesInCollection(defaultConfigFiles, siteConfigFiles));
+    if (tchFile2 != null && tchFile2.exists()) {
+      forceDelete(tchFile2);
     }
-
-    @Test
-    public void testRemoveSiteConfiguration_nonExistingFolder()
-    {
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        assertTrue(!siteConfig.exists());
-
-        try
-        {
-            removeSiteConfiguration(sitename);
-            assertTrue(!siteConfig.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown.");
-        }
+    if (siteConfig1 != null && siteConfig1.exists()) {
+      forceDelete(siteConfig1);
     }
-
-    @Test
-    public void testRemoveSiteConfiguration() throws IOException
-    {
-        createSecureSiteConfiguration(sitename);
-
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        assertTrue(siteConfig.exists());
-
-        removeSiteConfiguration(sitename);
-        assertTrue(!siteConfig.exists());
+    if (siteConfig2 != null && siteConfig2.exists()) {
+      forceDelete(siteConfig2);
     }
-
-    @Test
-    public void testCreateTouchedFile() throws IOException
-    {
-        createTouchedFile(sitename);
-
-        tchFile1 = getTouchedFile(sitename);
-        assertTrue("Tch file should exist", tchFile1.exists());
+    if (mockFile != null && mockFile.exists()) {
+      forceDelete(mockFile);
     }
+  }
 
-    @Test
-    public void testRemoveSiteConfigurationAndTouchedFile_nonExistingConfigFolder() throws IOException
-    {
-        createTouchedFile(sitename);
+  @Test
+  public void testCreateSiteConfiguration() throws IOException {
+    createSecureSiteConfiguration(sitename);
 
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        File tchFile = getTouchedFile(sitename);
+    siteConfig1 = new File(getSitesConfigPath(), sitename);
+    assertTrue(siteConfig1.exists());
 
-        assertTrue(!siteConfig.exists());
-        assertTrue(tchFile.exists());
+    var defaultConfigFiles = listFiles(secureSiteDefaultConfigFolder, null, true);
+    var siteConfigFiles = listFiles(siteConfig1, null, true);
 
-        try
-        {
-            removeSiteConfigurationAndTouchedFile(sitename);
+    assertEquals(defaultConfigFiles.size(), siteConfigFiles.size(), "Different collection sizes.");
+    assertTrue(
+        sameFilesInCollection(defaultConfigFiles, siteConfigFiles),
+        "Different collection elements");
+  }
 
-            assertTrue(!siteConfig.exists());
-            assertTrue(!tchFile.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown.");
-        }
+  @Test
+  public void testRemoveSiteConfiguration_nonExistingFolder() {
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    assertFalse(siteConfig.exists());
+
+    try {
+      removeSiteConfiguration(sitename);
+      assertFalse(siteConfig.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown.");
     }
+  }
 
-    @Test
-    public void testRemoveSiteConfigurationAndTouchedFile_nonExistingTouchedFile() throws IOException
-    {
-        createSecureSiteConfiguration(sitename);
+  @Test
+  public void testRemoveSiteConfiguration() throws IOException {
+    createSecureSiteConfiguration(sitename);
 
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        File tchFile = getTouchedFile(sitename);
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    assertTrue(siteConfig.exists());
 
-        assertTrue(siteConfig.exists());
-        assertTrue(!tchFile.exists());
+    removeSiteConfiguration(sitename);
+    assertFalse(siteConfig.exists());
+  }
 
-        try
-        {
-            removeSiteConfigurationAndTouchedFile(sitename);
+  @Test
+  public void testCreateTouchedFile() throws IOException {
+    createTouchedFile(sitename);
 
-            assertTrue(!siteConfig.exists());
-            assertTrue(!tchFile.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown.");
-        }
+    tchFile1 = getTouchedFile(sitename);
+    assertTrue(tchFile1.exists(), "Tch file should exist");
+  }
+
+  @Test
+  public void testRemoveSiteConfigurationAndTouchedFile_nonExistingConfigFolder()
+      throws IOException {
+    createTouchedFile(sitename);
+
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    var tchFile = getTouchedFile(sitename);
+
+    assertFalse(siteConfig.exists());
+    assertTrue(tchFile.exists());
+
+    try {
+      removeSiteConfigurationAndTouchedFile(sitename);
+
+      assertFalse(siteConfig.exists());
+      assertFalse(tchFile.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown.");
     }
+  }
 
-    @Test
-    public void testRemoveSiteConfigurationAndTouchedFile_nonExistingTouchedAndConfig()
-    {
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        File tchFile = getTouchedFile(sitename);
+  @Test
+  public void testRemoveSiteConfigurationAndTouchedFile_nonExistingTouchedFile()
+      throws IOException {
+    createSecureSiteConfiguration(sitename);
 
-        assertTrue(!siteConfig.exists());
-        assertTrue(!tchFile.exists());
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    var tchFile = getTouchedFile(sitename);
 
-        try
-        {
-            removeSiteConfigurationAndTouchedFile(sitename);
+    assertTrue(siteConfig.exists());
+    assertFalse(tchFile.exists());
 
-            assertTrue(!siteConfig.exists());
-            assertTrue(!tchFile.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown.");
-        }
+    try {
+      removeSiteConfigurationAndTouchedFile(sitename);
+
+      assertFalse(siteConfig.exists());
+      assertFalse(tchFile.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown.");
     }
+  }
 
-    @Test
-    public void testRemoveSiteConfigurationAndTouchedFile() throws IOException
-    {
-        createSecureSiteConfiguration(sitename);
-        createTouchedFile(sitename);
+  @Test
+  public void testRemoveSiteConfigurationAndTouchedFile_nonExistingTouchedAndConfig() {
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    var tchFile = getTouchedFile(sitename);
 
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        File tchFile = getTouchedFile(sitename);
+    assertFalse(siteConfig.exists());
+    assertFalse(tchFile.exists());
 
-        assertTrue(siteConfig.exists());
-        assertTrue(tchFile.exists());
+    try {
+      removeSiteConfigurationAndTouchedFile(sitename);
 
-        removeSiteConfigurationAndTouchedFile(sitename);
-
-        assertTrue(!siteConfig.exists());
-        assertTrue(!tchFile.exists());
+      assertFalse(siteConfig.exists());
+      assertFalse(tchFile.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown.");
     }
+  }
 
-    @Test
-    public void testRemoveTouchedFile_nonExisting()
-    {
-        File tchFile = getTouchedFile(sitename);
-        assertTrue("Tch file should not exist", !tchFile.exists());
+  @Test
+  public void testRemoveSiteConfigurationAndTouchedFile() throws IOException {
+    createSecureSiteConfiguration(sitename);
+    createTouchedFile(sitename);
 
-        try
-        {
-            removeTouchedFile(sitename);
-            assertTrue(!tchFile.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown.");
-        }
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    var tchFile = getTouchedFile(sitename);
+
+    assertTrue(siteConfig.exists());
+    assertTrue(tchFile.exists());
+
+    removeSiteConfigurationAndTouchedFile(sitename);
+
+    assertFalse(siteConfig.exists());
+    assertFalse(tchFile.exists());
+  }
+
+  @Test
+  public void testRemoveTouchedFile_nonExisting() {
+    var tchFile = getTouchedFile(sitename);
+    assertFalse(tchFile.exists(), "Tch file should not exist");
+
+    try {
+      removeTouchedFile(sitename);
+      assertFalse(tchFile.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown.");
     }
+  }
 
-    @Test
-    public void testRemoveTouchedFile() throws IOException
-    {
-        createTouchedFile(sitename);
+  @Test
+  public void testRemoveTouchedFile() throws IOException {
+    createTouchedFile(sitename);
 
-        File tchFile = getTouchedFile(sitename);
-        assertTrue("Tch file should exist", tchFile.exists());
+    var tchFile = getTouchedFile(sitename);
+    assertTrue(tchFile.exists(), "Tch file should exist");
 
-        removeTouchedFile(sitename);
-        assertTrue(!tchFile.exists());
+    removeTouchedFile(sitename);
+    assertFalse(tchFile.exists());
+  }
+
+  @Test
+  public void testRenameSecureSiteConfiguration_equalNames() throws IOException {
+    createSecureSiteConfiguration(sitename);
+
+    siteConfig1 = new File(getSitesConfigPath(), sitename);
+    assertTrue(siteConfig1.exists());
+
+    try {
+      renameOrCreateSecureSiteConfiguration(sitename, sitename);
+      assertTrue(siteConfig1.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameSecureSiteConfiguration_equalNames() throws IOException
-    {
-        createSecureSiteConfiguration(sitename);
+  @Test
+  public void testRenameSecureSiteConfiguration_differentNamesNoTouchedFile() throws IOException {
+    var newSitename = sitename + "renamed";
+    createSecureSiteConfiguration(sitename);
 
-        siteConfig1 = new File(getSitesConfigPath(), sitename);
-        assertTrue(siteConfig1.exists());
+    var oldSiteConfig = new File(getSitesConfigPath(), sitename);
+    assertTrue(oldSiteConfig.exists());
 
-        try
-        {
-            renameOrCreateSecureSiteConfiguration(sitename, sitename);
-            assertTrue(siteConfig1.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+    try {
+      renameOrCreateSecureSiteConfiguration(sitename, newSitename);
+
+      siteConfig1 = new File(getSitesConfigPath(), newSitename);
+      assertFalse(oldSiteConfig.exists());
+      assertTrue(siteConfig1.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameSecureSiteConfiguration_differentNamesNoTouchedFile() throws IOException
-    {
-        String newSitename = sitename + "renamed";
-        createSecureSiteConfiguration(sitename);
+  @Test
+  public void testRenameSecureSiteConfiguration_differentNamesWithTouchedFile() throws IOException {
+    var newSitename = sitename + "renamed";
+    createSecureSiteConfiguration(sitename);
+    createTouchedFile(sitename);
 
-        File oldSiteConfig = new File(getSitesConfigPath(), sitename);
-        assertTrue(oldSiteConfig.exists());
+    var oldSiteConfig = new File(getSitesConfigPath(), sitename);
+    var oldSiteTch = getTouchedFile(sitename);
+    assertTrue(oldSiteConfig.exists());
+    assertTrue(oldSiteTch.exists());
 
-        try
-        {
-            renameOrCreateSecureSiteConfiguration(sitename, newSitename);
+    try {
+      renameOrCreateSecureSiteConfiguration(sitename, newSitename);
 
-            siteConfig1 = new File(getSitesConfigPath(), newSitename);
-            assertTrue(!oldSiteConfig.exists());
-            assertTrue(siteConfig1.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+      siteConfig1 = new File(getSitesConfigPath(), newSitename);
+      var newSiteTch = getTouchedFile(sitename);
+      assertFalse(oldSiteConfig.exists());
+      assertFalse(oldSiteTch.exists());
+      assertFalse(newSiteTch.exists());
+      assertTrue(siteConfig1.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameSecureSiteConfiguration_differentNamesWithTouchedFile() throws IOException
-    {
-        String newSitename = sitename + "renamed";
-        createSecureSiteConfiguration(sitename);
-        createTouchedFile(sitename);
+  @Test
+  public void testRenameNonSecureSiteConfiguration_equalNames() throws IOException {
+    createTouchedFile(sitename);
 
-        File oldSiteConfig = new File(getSitesConfigPath(), sitename);
-        File oldSiteTch = getTouchedFile(sitename);
-        assertTrue(oldSiteConfig.exists());
-        assertTrue(oldSiteTch.exists());
+    var siteConfig = new File(getSitesConfigPath(), sitename);
+    var oldSiteTch = getTouchedFile(sitename);
+    tchFile1 = oldSiteTch;
+    assertFalse(siteConfig.exists());
+    assertTrue(oldSiteTch.exists());
 
-        try
-        {
-            renameOrCreateSecureSiteConfiguration(sitename, newSitename);
-
-            siteConfig1 = new File(getSitesConfigPath(), newSitename);
-            File newSiteTch = getTouchedFile(sitename);
-            assertTrue(!oldSiteConfig.exists());
-            assertTrue(!oldSiteTch.exists());
-            assertTrue(!newSiteTch.exists());
-            assertTrue(siteConfig1.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+    try {
+      renameNonSecureSiteConfiguration(sitename, sitename);
+      assertFalse(siteConfig.exists());
+      assertTrue(oldSiteTch.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameNonSecureSiteConfiguration_equalNames() throws IOException
-    {
-        createTouchedFile(sitename);
+  @Test
+  public void testRenameNonSecureSiteConfiguration_differentNamesNoTouchedFile()
+      throws IOException {
+    var newSitename = sitename + "renamed";
 
-        File siteConfig = new File(getSitesConfigPath(), sitename);
-        File oldSiteTch = getTouchedFile(sitename);
-        tchFile1 = oldSiteTch;
-        assertTrue(!siteConfig.exists());
-        assertTrue(oldSiteTch.exists());
+    var oldSiteTch = getTouchedFile(sitename);
+    assertFalse(oldSiteTch.exists());
 
-        try
-        {
-            renameNonSecureSiteConfiguration(sitename, sitename);
-            assertTrue(!siteConfig.exists());
-            assertTrue(oldSiteTch.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+    try {
+      renameOrCreateSecureSiteConfiguration(sitename, newSitename);
+
+      siteConfig1 = new File(getSitesConfigPath(), newSitename);
+      var newSiteTch = getTouchedFile(sitename);
+      assertFalse(oldSiteTch.exists());
+      assertFalse(newSiteTch.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameNonSecureSiteConfiguration_differentNamesNoTouchedFile() throws IOException
-    {
-        String newSitename = sitename + "renamed";
+  @Test
+  public void testRenameNonSecureSiteConfiguration_differentNamesWithTouchedFile()
+      throws IOException {
+    var newSitename = sitename + "renamed";
+    createTouchedFile(sitename);
 
-        File oldSiteTch = getTouchedFile(sitename);
-        assertTrue(!oldSiteTch.exists());
+    var oldSiteConfig = new File(getSitesConfigPath(), sitename);
+    var oldSiteTch = getTouchedFile(sitename);
+    assertFalse(oldSiteConfig.exists());
+    assertTrue(oldSiteTch.exists());
 
-        try
-        {
-            renameOrCreateSecureSiteConfiguration(sitename, newSitename);
+    try {
+      renameNonSecureSiteConfiguration(sitename, newSitename);
 
-            siteConfig1 = new File(getSitesConfigPath(), newSitename);
-            File newSiteTch = getTouchedFile(sitename);
-            assertTrue(!oldSiteTch.exists());
-            assertTrue(!newSiteTch.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+      var siteConfig = new File(getSitesConfigPath(), newSitename);
+      var newSiteTch = getTouchedFile(sitename);
+      assertFalse(oldSiteConfig.exists());
+      assertFalse(oldSiteTch.exists());
+      assertFalse(newSiteTch.exists());
+      assertFalse(siteConfig.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testRenameNonSecureSiteConfiguration_differentNamesWithTouchedFile() throws IOException
-    {
-        String newSitename = sitename + "renamed";
-        createTouchedFile(sitename);
-
-        File oldSiteConfig = new File(getSitesConfigPath(), sitename);
-        File oldSiteTch = getTouchedFile(sitename);
-        assertTrue(!oldSiteConfig.exists());
-        assertTrue(oldSiteTch.exists());
-
-        try
-        {
-            renameNonSecureSiteConfiguration(sitename, newSitename);
-
-            File siteConfig = new File(getSitesConfigPath(), newSitename);
-            File newSiteTch = getTouchedFile(sitename);
-            assertTrue(!oldSiteConfig.exists());
-            assertTrue(!oldSiteTch.exists());
-            assertTrue(!newSiteTch.exists());
-            assertTrue(!siteConfig.exists());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testFilesModifiedAfterPublished_unsecureNoTouchedFile() {
+    try {
+      assertTrue(
+          filesModifiedAfterPublished(sitename, server1),
+          "Touched File does not exist, should have returned true");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testFilesModifiedAfterPublished_unsecureNoTouchedFile()
-    {
-        try
-        {
-            assertTrue("Touched File does not exist, should have returned true",
-                    filesModifiedAfterPublished(sitename, server1));
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testFilesModifiedAfterPublished_unsecureModifiedForServer1() {
+    try {
+      createTouchedFile(sitename);
+      tchFile1 = getTouchedFile(sitename);
+
+      // add the date for the first server
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      var date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+
+      // modify the xml file
+      mockFile = new File(getNonSecureConfigurationFolder(), sitename + ".xml");
+      touch(mockFile);
+
+      // set the date for the second server
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server2, new Date());
+
+      // At this point, server 1 was published before modifications were made.
+      assertTrue(
+          filesModifiedAfterPublished(sitename, server1),
+          "Default config modified, should have returned true");
+      assertFalse(
+          filesModifiedAfterPublished(sitename, server2),
+          "Default config not modified, should have returned false");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testFilesModifiedAfterPublished_unsecureModifiedForServer1() 
-    {
-        try
-        {
-            createTouchedFile(sitename);
-            tchFile1 = getTouchedFile(sitename);
-
-            // add the date for the first server
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            Date date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
-
-            // modify the xml file 
-            mockFile = new File(getNonSecureConfigurationFolder(), sitename + ".xml");
-            touch(mockFile);
-
-            // set the date for the second server
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server2, new Date());
-
-            // At this point, server 1 was published before modifications where
-            // made. That is not the case for server 2            
-            assertTrue("Default config modified, should have returned true",
-                    filesModifiedAfterPublished(sitename, server1));
-            assertFalse("Default config not modified, should have returned false",
-                    filesModifiedAfterPublished(sitename, server2));
-        }
-        catch(Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testFilesModifiedAfterPublished_unsecureModifiedDefaultConfig() {
+    createOnlyTouchedFile();
+    try {
+      mockFile = new File(getNonSecureConfigurationFolder(), sitename + ".xml");
+      touch(mockFile);
+      assertTrue(
+          filesModifiedAfterPublished(sitename, server1),
+          "Default config modified, should have returned true");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
-    
-    @Test
-    public void testFilesModifiedAfterPublished_unsecureModifiedDefaultConfig()
-    {
-        createOnlyTouchedFile();
-        try
-        {
-            mockFile = new File(getNonSecureConfigurationFolder(), sitename + ".xml");
-            touch(mockFile);
-            assertTrue("Default config modified, should have returned true",
-                    filesModifiedAfterPublished(sitename, server1));
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  }
+
+  @Test
+  public void testFilesModifiedAfterPublished_secureModifiedDefaultConfig() {
+    createSiteConfigurationAndTouchedFile();
+    try {
+      mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
+      touch(mockFile);
+      assertTrue(
+          filesModifiedAfterPublished(sitename, 0),
+          "Default config modified, should have returned true");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testFilesModifiedAfterPublished_secureModifiedDefaultConfig()
-    {
-        createSiteConfigurationAndTouchedFile();
-        try
-        {
-            mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
-            touch(mockFile);
-            assertTrue("Default config modified, should have returned true", filesModifiedAfterPublished(sitename, 0));
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testFilesModifiedAfterPublished_secureModifiedForServer1() {
+    try {
+      createTouchedFile(sitename);
+      tchFile1 = getTouchedFile(sitename);
+
+      // add the date for the first server
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      var date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+
+      // modify the xml file
+      mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
+      touch(mockFile);
+
+      // set the date for the second server
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server2, new Date());
+
+      // At this point, server 1 was published before modifications were made.
+      assertTrue(
+          filesModifiedAfterPublished(sitename, server1),
+          "Default config modified, should have returned true");
+      assertFalse(
+          filesModifiedAfterPublished(sitename, server2),
+          "Default config not modified, should have returned false");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testFilesModifiedAfterPublished_secureModifiedForServer1() 
-    {
-        try
-        {
-            createTouchedFile(sitename);
-            tchFile1 = getTouchedFile(sitename);
+  @Test
+  public void testCopySecureSiteConfiguration() {
+    try {
+      var sitename2 = sitename + "-copy";
+      createSiteConfigurationAndTouchedFile();
 
-            // add the date for the first server
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            Date date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+      mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
+      touch(mockFile);
+      copySecureSiteConfiguration(sitename, sitename2);
 
-            // modify the xml file 
-            mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
-            touch(mockFile);
+      siteConfig2 = new File(getSitesConfigPath(), sitename2);
+      var tchFile = getTouchedFile(sitename2);
 
-            // set the date for the second server
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server2, new Date());
+      assertTrue(siteConfig2.exists());
+      assertFalse(tchFile.exists());
 
-            // At this point, server 1 was published before modifications where
-            // made. That is not the case for server 2            
-            assertTrue("Default config modified, should have returned true",
-                    filesModifiedAfterPublished(sitename, server1));
-            assertFalse("Default config not modified, should have returned false",
-                    filesModifiedAfterPublished(sitename, server2));
-        }
-        catch(Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+      var site1ConfigFiles = listFiles(siteConfig1, null, true);
+      var site2ConfigFiles = listFiles(siteConfig2, null, true);
+
+      assertEquals(site1ConfigFiles.size(), site2ConfigFiles.size(), "Different collection sizes.");
+      assertTrue(
+          sameFilesInCollection(site1ConfigFiles, site2ConfigFiles),
+          "Different collection elements");
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testCopySecureSiteConfiguration()
-    {
-        try
-        {
-            String sitename2 = sitename + "-copy";
-            createSiteConfigurationAndTouchedFile();
+  @Test
+  public void testGetPublishedDateFromTouchedFile_nonExistingDate() throws IOException {
+    createTouchedFile(sitename);
 
-            mockFile = new File(getSitesConfigPath() + "/" + sitename, sitename + ".xml");
-            touch(mockFile);
-            copySecureSiteConfiguration(sitename, sitename2);
+    tchFile1 = getTouchedFile(sitename);
+    assertTrue(tchFile1.exists());
 
-            siteConfig2 = new File(getSitesConfigPath(), sitename2);
-            File tchFile = getTouchedFile(sitename2);
+    var publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+    assertNull(publishedDate, "Published date should be null");
+  }
 
-            assertTrue(siteConfig2.exists());
-            assertTrue(!tchFile.exists());
+  @Test
+  public void testGetPublishedDateFromTouchedFile() throws IOException {
+    var date = createOnlyTouchedFile();
 
-            Collection<File> site1ConfigFiles = listFiles(siteConfig1, null, true);
-            Collection<File> site2ConfigFiles = listFiles(siteConfig2, null, true);
+    var publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+    assertEquals(date, publishedDate, "Published dates should be the same");
+  }
 
-            assertTrue("Different collection sizes.", site1ConfigFiles.size() == site2ConfigFiles.size());
-            assertTrue("Different collection elements", sameFilesInCollection(site1ConfigFiles, site2ConfigFiles));
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testSetPublishedDateInTouchedFile() {
+    try {
+      createTouchedFile(sitename);
+
+      tchFile1 = getTouchedFile(sitename);
+      assertTrue(tchFile1.exists());
+
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      var date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+
+      var publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      assertEquals(date, publishedDate, "Published dates should be the same");
+
+      millis.add(Calendar.DAY_OF_MONTH, -2);
+      date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server2, date);
+
+      publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
+      assertEquals(date, publishedDate, "Published dates should be the same");
+
+    } catch (FileNotFoundException | IOException e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testGetPublishedDateFromTouchedFile_nonExistingDate() throws IOException
-    {
-        createTouchedFile(sitename);
+  @Test
+  public void testRemoveServerEntry_nonExistingTchFile() {
+    tchFile1 = getTouchedFile(sitename);
 
-        tchFile1 = getTouchedFile(sitename);
-        assertTrue(tchFile1.exists());
-
-        Date publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
-        assertNull("Published date should be null", publishedDate);
+    try {
+      assertFalse(tchFile1.exists());
+      removeServerEntry(sitename, server1);
+      assertFalse(tchFile1.exists());
+      removeServerEntry(sitename, server2);
+      assertFalse(tchFile1.exists());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testGetPublishedDateFromTouchedFile() throws IOException
-    {
-        Date date = createOnlyTouchedFile();
+  @Test
+  public void testRemoveServerEntry_nonExistingServerEntry() {
+    try {
+      createTouchedFile(sitename);
+      tchFile1 = getTouchedFile(sitename);
 
-        Date publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
-        assertEquals("Published dates should be the same", date, publishedDate);
+      // add the date for the first server
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      var date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+
+      var dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      var dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
+
+      assertEquals(date, dateServer1);
+      assertNull(dateServer2);
+
+      removeServerEntry(sitename, server2);
+
+      dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
+
+      assertEquals(date, dateServer1);
+      assertNull(dateServer2);
+
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
+  }
 
-    @Test
-    public void testSetPublishedDateInTouchedFile()
-    {
-        try
-        {
-            createTouchedFile(sitename);
+  @Test
+  public void testRemoveServerEntry() {
+    try {
+      createTouchedFile(sitename);
+      tchFile1 = getTouchedFile(sitename);
 
-            tchFile1 = getTouchedFile(sitename);
-            assertTrue(tchFile1.exists());
+      // add the date for the first server
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      var date = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
 
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            Date date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+      // add the date for the second server
+      millis.add(Calendar.DAY_OF_MONTH, -2);
+      var date2 = new Date(millis.getTimeInMillis());
+      setPublishedDateInTouchedFile(tchFile1.getPath(), server2, date2);
 
-            Date publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
-            assertEquals("Published dates should be the same", date, publishedDate);
+      var dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      var dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
 
-            millis.add(Calendar.DAY_OF_MONTH, -2);
-            date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server2, date);
+      assertEquals(date, dateServer1);
+      assertEquals(date2, dateServer2);
 
-            publishedDate = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
-            assertEquals("Published dates should be the same", date, publishedDate);
+      removeServerEntry(sitename, server1);
 
-        }
-        catch (FileNotFoundException e)
-        {
-            fail("No exception should have been thrown");
-        }
-        catch (IOException e)
-        {
-            fail("No exception should have been thrown");
-        }
+      dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
+
+      assertNull(dateServer1);
+      assertEquals(date2, dateServer2);
+
+      removeServerEntry(sitename, server2);
+
+      dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);
+      dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);
+
+      assertNull(dateServer1);
+      assertNull(dateServer2);
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
-    
-    @Test
-    public void testRemoveServerEntry_nonExistingTchFile()
-    {
-        tchFile1 = getTouchedFile(sitename);
+  }
 
-        try
-        {
-            assertFalse(tchFile1.exists());
-            removeServerEntry(sitename, server1);
-            assertFalse(tchFile1.exists());
-            removeServerEntry(sitename, server2);
-            assertFalse(tchFile1.exists());
-        }
-        catch(Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+  @Test
+  public void testSplitAllowedGroups() {
+    String allowedGroups;
+    String[] expected;
+    String[] actual;
+
+    allowedGroups = null;
+    expected = new String[] {};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+
+    allowedGroups = "";
+    expected = new String[] {};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+
+    allowedGroups = "firstGroup,secondGroup";
+    expected = new String[] {"firstGroup", "secondGroup"};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+
+    allowedGroups = "first\\,group,secondGroup";
+    expected = new String[] {"first\\,group", "secondGroup"};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+
+    allowedGroups = "first\\,group,second\\,Group";
+    expected = new String[] {"first\\,group", "second\\,Group"};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+
+    allowedGroups = "first\\,,group,secondGroup";
+    expected = new String[] {"first\\,", "group", "secondGroup"};
+    actual = getAllowedGroups(allowedGroups);
+    testEqualArrays(expected, actual);
+  }
+
+  @Test
+  public void testBuildXmlData() {
+    boolean useHttpsForSecureSite = true;
+
+    var expectedXmlData = new SecureXmlData();
+    var root = generateSectionTree(expectedXmlData, useHttpsForSecureSite);
+
+    assertEquals(
+        expectedXmlData,
+        PSSiteConfigUtils.buildXmlDataForSite(
+            expectedXmlData.getSitename(),
+            expectedXmlData.getLoginPage(),
+            root,
+            useHttpsForSecureSite));
+  }
+
+  private PSSectionNode generateSectionTree(SecureXmlData expected, boolean useHttpsForSecureSite) {
+    var siteName = "TestSite" + System.currentTimeMillis();
+    var loginPage = "/index.html";
+
+    // Secure XML Data
+    expected.setSitename(siteName);
+    expected.setLoginPage(loginPage);
+    expected.setUseHttpsForSecureSite(useHttpsForSecureSite);
+    expected.addSecureOrMemberSection("/section1/", "");
+    expected.addSecureOrMemberSection("/section2/section2-2/", "editor,admin");
+    expected.addSecureOrMemberSection("/section3/section3-1/", "");
+
+    // Section 1
+    var section1childs = new ArrayList<PSSectionNode>();
+    section1childs.add(createNode("//Sites/" + siteName + "/section1/section1-1", false, "", null));
+    section1childs.add(createNode("//Sites/" + siteName + "/section1/section1-2", false, "", null));
+
+    var section1 = createNode("//Sites/" + siteName + "/section1", true, "", section1childs);
+
+    // Section 2
+    var section22childs = new ArrayList<PSSectionNode>();
+    section22childs.add(
+        createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-1", false, "", null));
+    section22childs.add(
+        createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-2", false, "", null));
+    section22childs.add(
+        createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-3", false, "", null));
+
+    var section2childs = new ArrayList<PSSectionNode>();
+    section2childs.add(createNode("//Sites/" + siteName + "/section2/section2-1", false, "", null));
+    section2childs.add(
+        createNode(
+            "//Sites/" + siteName + "/section2/section2-2", true, "editor,admin", section22childs));
+
+    var section2 = createNode("//Sites/" + siteName + "/section2", false, "", section2childs);
+
+    // Section 3
+    var section3childs = new ArrayList<PSSectionNode>();
+    section3childs.add(createNode("//Sites/" + siteName + "/section3/section3-1", true, "", null));
+    section3childs.add(createNode("//Sites/" + siteName + "/section3/section3-2", false, "", null));
+
+    var section3 = createNode("//Sites/" + siteName + "/section3", false, "", section3childs);
+
+    // Root Section
+    var rootChilds = new ArrayList<PSSectionNode>();
+    rootChilds.add(section1);
+    rootChilds.add(section2);
+    rootChilds.add(section3);
+
+    return createNode("//Sites/" + siteName, true, "", rootChilds);
+  }
+
+  private PSSectionNode createNode(
+      String folderPath, boolean requiresLogin, String allowAccessTo, List<PSSectionNode> childs) {
+    var node = new PSSectionNode();
+    node.setFolderPath(folderPath);
+    node.setRequiresLogin(requiresLogin);
+    node.setAllowAccessTo(allowAccessTo);
+    node.setChildNodes(childs);
+    return node;
+  }
+
+  private void testEqualArrays(String[] expected, String[] actual) {
+    assertNotNull(expected);
+    assertNotNull(actual);
+    assertEquals(expected.length, actual.length);
+    assertArrayEquals(expected, actual);
+  }
+
+  private Date createSiteConfigurationAndTouchedFile() {
+    try {
+      createSecureSiteConfiguration(sitename);
+      var publishedDate = createOnlyTouchedFile();
+
+      siteConfig1 = new File(getSitesConfigPath(), sitename);
+      assertTrue(siteConfig1.exists());
+
+      return publishedDate;
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
     }
-    
-    @Test
-    public void testRemoveServerEntry_nonExistingServerEntry()
-    {
-        try
-        {
-            createTouchedFile(sitename);
-            tchFile1 = getTouchedFile(sitename);
+    return null;
+  }
 
-            // add the date for the first server
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            Date date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
+  private Date createOnlyTouchedFile() {
+    try {
+      createTouchedFile(sitename);
 
-            Date dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);            
-            Date dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);            
+      tchFile1 = getTouchedFile(sitename);
+      assertTrue(tchFile1.exists());
 
-            assertTrue(dateServer1.equals(date));
-            assertTrue(dateServer2 == null);
+      var millis = Calendar.getInstance();
+      millis.add(Calendar.DAY_OF_MONTH, -1);
+      millis.add(Calendar.MONTH, -1);
+      setPublishedDateInTouchedFile(
+          tchFile1.getPath(), server1, new Date(millis.getTimeInMillis()));
 
-            removeServerEntry(sitename, server2);
+      return new Date(millis.getTimeInMillis());
+    } catch (Exception e) {
+      fail("No exception should have been thrown");
+    }
+    return null;
+  }
 
-            dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);            
-            dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);            
-
-            assertTrue(dateServer1.equals(date));
-            assertTrue(dateServer2 == null);
-            
+  private boolean sameFilesInCollection(
+      Collection<File> defaultConfigFiles, Collection<File> siteConfigFiles) {
+    for (var defaultFile : defaultConfigFiles) {
+      boolean contains = false;
+      for (var siteFile : siteConfigFiles) {
+        if (defaultFile.getName().equals(siteFile.getName())) {
+          contains = true;
+          break;
         }
-        catch(Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
+      }
+      if (!contains) {
+        return false;
+      }
     }
-    
-    @Test
-    public void testRemoveServerEntry()
-    {
-        try
-        {
-            createTouchedFile(sitename);
-            tchFile1 = getTouchedFile(sitename);
-
-            // add the date for the first server
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            Date date = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, date);
-
-            // add the date for the first server
-            millis.add(Calendar.DAY_OF_MONTH, -2);
-            Date date2 = new Date(millis.getTimeInMillis());
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server2, date2);
-
-            Date dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);            
-            Date dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);            
-
-            assertTrue(dateServer1.equals(date));
-            assertTrue(dateServer2.equals(date2));
-
-            removeServerEntry(sitename, server1);
-
-            dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);            
-            dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);            
-
-            assertTrue(dateServer1 == null);
-            assertTrue(dateServer2.equals(date2));
-            
-            removeServerEntry(sitename, server2);
-
-            dateServer1 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server1);            
-            dateServer2 = getPublishedDateFromTouchedFile(tchFile1.getPath(), server2);            
-            
-            assertTrue(dateServer1 == null);
-            assertTrue(dateServer2 == null);
-        }
-        catch(Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
-    }
-    
-    
-    @Test
-    public void testSplitAllowedGroups()
-    {
-        String allowedGroups = null; 
-        String[] expected = new String[]{};
-        String[] actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-
-        allowedGroups = ""; 
-        expected = new String[]{};
-        actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-
-        allowedGroups = "firstGroup,secondGroup"; 
-        expected = new String[]{"firstGroup", "secondGroup"};
-        actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-
-        allowedGroups = "first\\,group,secondGroup"; 
-        expected = new String[]{"first\\,group", "secondGroup"};
-        actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-
-        allowedGroups = "first\\,group,second\\,Group"; 
-        expected = new String[]{"first\\,group", "second\\,Group"};
-        actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-
-        allowedGroups = "first\\,,group,secondGroup"; 
-        expected = new String[]{"first\\,", "group", "secondGroup"};
-        actual = getAllowedGroups(allowedGroups);
-        
-        testEqualArrays(expected, actual);
-    }
-
-    @Test
-    public void testBuildXmlData()
-    {
-        boolean useHttpsForSecureSite = true;
-        
-        SecureXmlData expectedXmlData = new SecureXmlData();
-        PSSectionNode root = generateSectionTree(expectedXmlData, useHttpsForSecureSite);
-        
-        assertEquals(expectedXmlData, PSSiteConfigUtils.buildXmlDataForSite(expectedXmlData.getSitename(),
-                expectedXmlData.getLoginPage(), root, useHttpsForSecureSite));
-    }
-    
-    /**
-     * 
-     * root 
-     *  - section1 (secure, no groups) <<<<<
-     *      - section1-1
-     *      - section 1-2
-     *  - section2 (unsecure)
-     *      - section2-1
-     *      - section2-2 (secure, groups: 'editor', 'admin') <<<<<
-     *          - section2-2-1
-     *          - section2-2-2
-     *          - section2-2-3
-     *  - section3 (unsecure)
-     *      - section3-1 (secure, no groups) <<<<<
-     *      - section3-2 (unsecure) 
-     * 
-     */
-    private PSSectionNode generateSectionTree(SecureXmlData expected, boolean useHttpsForSecureSite)
-    {
-
-        String siteName = "TestSite" + System.currentTimeMillis();
-        String loginPage = "/index.html";
-
-        // Secure XML Data
-        expected.setSitename(siteName);
-        expected.setLoginPage(loginPage);
-        expected.setUseHttpsForSecureSite(useHttpsForSecureSite);
-        expected.addSecureOrMemberSection("/section1/", "");
-        expected.addSecureOrMemberSection("/section2/section2-2/", "editor,admin");
-        expected.addSecureOrMemberSection("/section3/section3-1/", "");
-
-        // Section 1
-        List<PSSectionNode> section1childs = new ArrayList<PSSectionNode>();
-        section1childs.add(createNode("//Sites/" + siteName + "/section1/section1-1", false, "", null));
-        section1childs.add(createNode("//Sites/" + siteName + "/section1/section1-2", false, "", null));
-
-        PSSectionNode section1 = createNode("//Sites/" + siteName + "/section1", true, "", section1childs);
-
-        // Section 2
-        List<PSSectionNode> section22childs = new ArrayList<PSSectionNode>();
-        section22childs.add(createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-1", false, "", null));
-        section22childs.add(createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-2", false, "", null));
-        section22childs.add(createNode("//Sites/" + siteName + "/section2/section2-2/section2-2-3", false, "", null));
-
-        List<PSSectionNode> section2childs = new ArrayList<PSSectionNode>();
-        section2childs.add(createNode("//Sites/" + siteName + "/section2/section2-1", false, "", null));
-        section2childs.add(createNode("//Sites/" + siteName + "/section2/section2-2", true, "editor,admin",
-                section22childs));
-
-        PSSectionNode section2 = createNode("//Sites/" + siteName + "/section2", false, "", section2childs);
-
-        // Section 3
-        List<PSSectionNode> section3childs = new ArrayList<PSSectionNode>();
-        section3childs.add(createNode("//Sites/" + siteName + "/section3/section3-1", true, "", null));
-        section3childs.add(createNode("//Sites/" + siteName + "/section3/section3-2", false, "", null));
-
-        PSSectionNode section3 = createNode("//Sites/" + siteName + "/section3", false, "", section3childs);
-
-        // Root Section
-        List<PSSectionNode> rootChilds = new ArrayList<PSSectionNode>();
-        rootChilds.add(section1);
-        rootChilds.add(section2);
-        rootChilds.add(section3);
-        
-        PSSectionNode root = createNode("//Sites/" + siteName, true, "", rootChilds);
-        
-        return root;
-    }
-
-    private PSSectionNode createNode(String folderPath, boolean requiresLogin, String allowAccessTo,
-            List<PSSectionNode> childs)
-    {
-        PSSectionNode node = new PSSectionNode();
-        node.setFolderPath(folderPath);
-        node.setRequiresLogin(requiresLogin);
-        node.setAllowAccessTo(allowAccessTo);
-        node.setChildNodes(childs);
-        return node;
-    }
-    
-    private void testEqualArrays(String[] expected, String[] actual)
-    {
-        assertNotNull(expected);
-        assertNotNull(actual);
-        assertTrue(expected.length == actual.length);
-        assertTrue(Arrays.equals(expected, actual));        
-    }
-
-    /**
-     * Creates the site configuration folder and its corresponding tch file.
-     * 
-     * @return the date that has been set as the timestamp in the tch file.
-     */
-    private Date createSiteConfigurationAndTouchedFile()
-    {
-        try
-        {
-            createSecureSiteConfiguration(sitename);
-            Date publishedDate = createOnlyTouchedFile();
-
-            siteConfig1 = new File(getSitesConfigPath(), sitename);
-            assertTrue(siteConfig1.exists());
-
-            return publishedDate;
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
-        return null;
-    }
-
-    /**
-     * Only creates the corresponding tch file for the site.
-     * 
-     * @return the date that has been set as the timestamp in the tch file.
-     */
-    private Date createOnlyTouchedFile()
-    {
-        try
-        {
-            createTouchedFile(sitename);
-
-            tchFile1 = getTouchedFile(sitename);
-            assertTrue(tchFile1.exists());
-
-            Calendar millis = Calendar.getInstance();
-            millis.add(Calendar.DAY_OF_MONTH, -1);
-            millis.add(Calendar.MONTH, -1);
-            setPublishedDateInTouchedFile(tchFile1.getPath(), server1, new Date(millis.getTimeInMillis()));
-
-            return new Date(millis.getTimeInMillis());
-        }
-        catch (Exception e)
-        {
-            fail("No exception should have been thrown");
-        }
-        return null;
-    }
-
-    /**
-     * Iterates over the two collections of File objects, comparing the names of
-     * each one. It does not compare the size of the collections.
-     * 
-     * @param defaultConfigFiles the first collection. Assumed not
-     *            <code>null</code>
-     * @param siteConfigFiles the second collection. Assumed not
-     *            <code>null</code>
-     * @return <code>true</code> if the two collections have the same elements.
-     *         <code>false</code> otherwise.
-     */
-    private boolean sameFilesInCollection(Collection<File> defaultConfigFiles, Collection<File> siteConfigFiles)
-    {
-        for (File defaultFile : defaultConfigFiles)
-        {
-            boolean contains = false;
-            for (File siteFile : siteConfigFiles)
-            {
-                if (defaultFile.getName().equals(siteFile.getName()))
-                {
-                    contains = true;
-                    break;
-                }
-            }
-            if (!contains)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-
+    return true;
+  }
 }

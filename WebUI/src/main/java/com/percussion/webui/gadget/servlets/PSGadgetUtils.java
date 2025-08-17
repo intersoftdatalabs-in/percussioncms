@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,140 +17,119 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * Utility functions for gadgets
- */
-public class PSGadgetUtils {
+/** Utility functions for gadgets */
+public final class PSGadgetUtils {
+  private PSGadgetUtils() {
+    // Private constructor to force static access
+  }
 
-    private PSGadgetUtils(){
-        //Private constructor to force static access
+  private static final Logger log = LogManager.getLogger(PSGadgetUtils.class);
+  public static final File gadgetsRoot = new File(PSServer.getRxDir() + "/cm/gadgets/repository");
+
+  /**
+   * Validates the input URL against the gadget registry and allowed hosts. Blocks malicious calls
+   * to gadget servlets.
+   *
+   * @param request the servlet request
+   * @param url a non-null URI
+   * @return true if the URL is valid, false otherwise
+   */
+  public static boolean isValidGadgetPathInUrl(HttpServletRequest request, URI url) {
+    if (url == null) {
+      throw new IllegalArgumentException("URL is required.");
     }
+    var ret = false;
+    var gadgetFiles = getInstalledGadgetFiles();
+    for (var f : gadgetFiles) {
+      try {
+        if (getGadgetFileNameForCompare(f.getCanonicalPath()).endsWith(url.getPath())) {
+          ret = true;
+          break;
+        }
+      } catch (IOException e) {
+        log.error(
+            "An invalid gadget path was provided: {} Error: {}",
+            f.getAbsolutePath(),
+            PSExceptionUtils.getMessageForLog(e));
+        break;
+      }
+    }
+    // Validate the host name portions
+    var allowedHosts = new ArrayList<String>();
+    var publicCMSHostName = PSServer.getServerProps().getProperty("publicCmsHostname", "");
+    if (!StringUtils.isEmpty(publicCMSHostName)) {
+      allowedHosts.add(publicCMSHostName);
+    }
+    var allowedOrigins = PSServer.getServerProps().getProperty("allowedOrigins", "*");
+    if (allowedOrigins.equalsIgnoreCase("*")) {
+      allowedHosts.add("*");
+    } else {
+      var hosts = allowedOrigins.split(",");
+      for (var s : hosts) {
+        s = s.trim();
+        if (s.startsWith("http")) {
+          s = s.replace("http://", "");
+          s = s.replace("https://", "");
+        }
+        if (s.contains(":")) {
+          s = s.substring(0, s.indexOf(":"));
+        }
+        allowedHosts.add(s);
+      }
+    }
+    if (!SecureStringUtils.hostMatchesRequest(request, url, allowedHosts)) ret = false;
+    return ret;
+  }
 
-    private static final Logger log = LogManager.getLogger(PSGadgetUtils.class);
-
-    public static final File gadgetsRoot = new File(PSServer.getRxDir() + "/cm/gadgets/repository");
-
-
-
-    /**
-     * Given an input url will validate against the uri in the gadget registry
-     * if the uri is not valid, it will return false. This is intended to block
-     * malicious calls to the gadget servlets.
-     *
-     * @param url a non null url
-     * @return true if the url has a valid path in the url, false if not
-     */
-    public static boolean isValidGadgetPathInUrl(HttpServletRequest request, URI url){
-
-        if(url == null){
-           throw new IllegalArgumentException("URL is required.");
-       }
-
-        boolean ret = false; //assume invalid.
-
-        List<File> gadgetFiles = getInstalledGadgetFiles();
-        for(File f : gadgetFiles) {
-            try {
-                if (getGadgetFileNameForCompare(f.getCanonicalPath()).endsWith(url.getPath())) {
-                    ret = true;
-                    break;
-                }
-            } catch (IOException e) {
-                log.error("An invalid gadget path was provided: {} Error: {}", f.getAbsolutePath(),
-                       PSExceptionUtils.getMessageForLog(e) );
-                break;
+  /**
+   * Returns a list of installed gadget config XML files.
+   *
+   * @return list of gadget config files
+   */
+  @NotNull
+  public static List<File> getInstalledGadgetFiles() {
+    var ret = new ArrayList<File>();
+    var root = new File(gadgetsRoot.getPath());
+    var gadgetFiles = root.listFiles();
+    if (gadgetFiles != null) {
+      for (var gadgetFile : gadgetFiles) {
+        if (!gadgetFile.isDirectory()) continue;
+        var gadgetConfigFiles = gadgetFile.listFiles();
+        if (gadgetConfigFiles != null) {
+          for (var gadgetConfigFile : gadgetConfigFiles) {
+            if (gadgetConfigFile.isDirectory()) continue;
+            if (gadgetConfigFile.getName().endsWith(".xml")) {
+              ret.add(gadgetConfigFile);
             }
+          }
         }
-
-        //validate the host name portions
-        List<String> allowedHosts = new ArrayList<>();
-        String publicCMSHostName = PSServer.getServerProps().getProperty("publicCmsHostname","");
-        if(! StringUtils.isEmpty(publicCMSHostName)){
-            allowedHosts.add(publicCMSHostName);
-        }
-        String allowedOrigins = PSServer.getServerProps().getProperty("allowedOrigins","*");
-        if(allowedOrigins.equalsIgnoreCase("*")){
-            allowedHosts.add("*");
-        }else{
-            String[] hosts = allowedOrigins.split(",");
-            for(String s: hosts){
-                s = s.trim();
-                if(s.startsWith("http")){
-                    s = s.replace("http://","");
-                    s = s.replace("https://", "");
-                }
-                if(s.contains(":")){
-                    s = s.substring(0,s.indexOf(":"));
-                }
-                allowedHosts.add(s);
-            }
-        }
-
-        if(! SecureStringUtils.hostMatchesRequest(request,url,allowedHosts))
-            ret = false;
-
-        return ret;
+      }
     }
+    return ret;
+  }
 
-    @NotNull
-    public static List<File> getInstalledGadgetFiles() {
-
-        List<File> ret = new ArrayList<>();
-
-        File root = new File(gadgetsRoot.getPath());
-
-        File[] gadgetFiles = root.listFiles();
-
-        if (gadgetFiles != null) {
-            for (File gadgetFile : gadgetFiles) {
-                if (!gadgetFile.isDirectory()) {
-                    // only concerned with directories
-                    continue;
-                }
-
-                File[] gadgetConfigFiles = gadgetFile.listFiles();
-                if(gadgetConfigFiles != null) {
-                    for (File gadgetConfigFile : gadgetConfigFiles) {
-                        if (gadgetConfigFile.isDirectory()) {
-                            // only concerned with files
-                            continue;
-                        }
-
-                        if (gadgetConfigFile.getName().endsWith(".xml")) {
-                            ret.add(gadgetConfigFile);
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Convert the path to url / format.
-     * @param canonicalPath A canonicalPath to be converted. never null.
-     * @return A string containing the path in normalized form.
-     */
-    protected static String getGadgetFileNameForCompare(String canonicalPath){
-        if(canonicalPath == null)
-            throw new IllegalArgumentException("Gadget path is required");
-        return canonicalPath.replace("\\","/");
-
-    }
-
+  /**
+   * Converts a canonical file path to normalized URL format.
+   *
+   * @param canonicalPath canonical file path
+   * @return normalized path string
+   */
+  protected static String getGadgetFileNameForCompare(String canonicalPath) {
+    if (canonicalPath == null) throw new IllegalArgumentException("Gadget path is required");
+    return canonicalPath.replace("\\", "/");
+  }
 }

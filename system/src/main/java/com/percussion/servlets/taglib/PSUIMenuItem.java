@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,62 +16,51 @@
  */
 package com.percussion.servlets.taglib;
 
-import org.apache.commons.lang.StringUtils;
-
+import java.io.IOException;
 import javax.faces.component.html.HtmlCommandLink;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import java.io.IOException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Handle the input and rendering for the menu item
- * 
+ *
  * @author dougrand
  */
-public class PSUIMenuItem extends HtmlCommandLink
-{
+public class PSUIMenuItem extends HtmlCommandLink {
 
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeBegin(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.startElement("li", this);
-      String href = (String) getAttributes().get("url") ;
-      if (href != null)
-      {
-         String title = (String) getAttributes().get("title") ;
-         writer.startElement("a", this);
-         writer.writeAttribute("href", href, null);
-         if (StringUtils.isNotBlank(title))
-         {
-            writer.writeAttribute("title", title, null);
-         }
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeBegin(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.startElement("li", this);
+    String href = (String) getAttributes().get("url");
+    if (href != null) {
+      String title = (String) getAttributes().get("title");
+      writer.startElement("a", this);
+      writer.writeAttribute("href", href, null);
+      if (StringUtils.isNotBlank(title)) {
+        writer.writeAttribute("title", title, null);
       }
-      else if (getAction() != null)
-      {
-         super.encodeBegin(context);
-      }
-   }
+    } else if (getAction() != null) {
+      super.encodeBegin(context);
+    }
+  }
 
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeEnd(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      String href = (String) getAttributes().get("url") ;
-      if (href != null)
-      {
-         writer.endElement("a");
-      }
-      else
-      {
-         super.encodeEnd(context);
-      }
-      writer.endElement("li");
-   }
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeEnd(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    String href = (String) getAttributes().get("url");
+    if (href != null) {
+      writer.endElement("a");
+    } else {
+      super.encodeEnd(context);
+    }
+    writer.endElement("li");
+  }
 }

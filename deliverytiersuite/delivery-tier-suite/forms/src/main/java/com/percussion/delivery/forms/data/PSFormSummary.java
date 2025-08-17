@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,46 +18,37 @@ package com.percussion.delivery.forms.data;
 
 /**
  * Class to hold form summary info.
- * 
+ *
  * @author leonardohildt
- * 
  */
-public class PSFormSummary
-{
-    private String name;
+public class PSFormSummary {
+  private String name;
 
-    private Long totalForms;
-    
-    private Long exportedForms;
+  private Long totalForms;
 
-    public String getName()
-    {
-        return name;
-    }
-   
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  private Long exportedForms;
 
-    public Long getTotalForms()
-    {
-        return totalForms;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setTotalForms(Long totalForms)
-    {
-        this.totalForms = totalForms;
-    }
-    
-    public Long getExportedForms()
-    {
-        return exportedForms;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setExportedforms(Long exportedForms)
-    {
-        this.exportedForms = exportedForms;
-    }
+  public Long getTotalForms() {
+    return totalForms;
+  }
 
+  public void setTotalForms(Long totalForms) {
+    this.totalForms = totalForms;
+  }
+
+  public Long getExportedForms() {
+    return exportedForms;
+  }
+
+  public void setExportedforms(Long exportedForms) {
+    this.exportedForms = exportedForms;
+  }
 }

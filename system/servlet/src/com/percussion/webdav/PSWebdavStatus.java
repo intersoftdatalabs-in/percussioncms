@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class contains WebDAV status code.
+ *
+ * // REFACTORED: CP-JAVA11
  */
 public class PSWebdavStatus
 {
@@ -33,7 +35,7 @@ public class PSWebdavStatus
     */
    public static String getStatusText(int statusCode)
    {
-     Integer key = new Integer(statusCode);
+     Integer key = Integer.valueOf(statusCode);
      if(!ms_mapStatusCodes.containsKey(key))
          return "";
      else
@@ -50,7 +52,7 @@ public class PSWebdavStatus
     */
    private static void addStatusCodeMap(int code, String text)
    {
-     ms_mapStatusCodes.put(new Integer(code), text);
+     ms_mapStatusCodes.put(Integer.valueOf(code), text);
    }
    
    /**
@@ -58,7 +60,7 @@ public class PSWebdavStatus
     * <code>Integer</code>) to the status text (as the value in 
     * <code>String</code>).
     */
-   private static ConcurrentHashMap ms_mapStatusCodes = new ConcurrentHashMap();
+   private static final ConcurrentHashMap<Integer, String> ms_mapStatusCodes = new ConcurrentHashMap<>();
    
    // The status codes
    public static final int SC_CONTINUE = 100;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,20 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.Visibility;
+import java.util.Collection;
 
 public interface VisibilityServiceInf {
 
-	public Collection getAllVisibilities();
+  public Collection getAllVisibilities();
 
-	public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id); 
-	
-    public Visibility getVisibility(int id);
+  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id);
 
-    public void removeVisibility(Visibility Visibility);
+  public Visibility getVisibility(int id);
 
-    public void removeVisibilities(Collection<Visibility> Visibilities);
-    
-    public void saveVisibility(Visibility Visibility);
+  public void removeVisibility(Visibility Visibility);
+
+  public void removeVisibilities(Collection<Visibility> Visibilities);
+
+  public void saveVisibility(Visibility Visibility);
 }

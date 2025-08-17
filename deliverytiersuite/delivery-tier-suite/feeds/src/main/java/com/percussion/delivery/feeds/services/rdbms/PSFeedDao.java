@@ -19,7 +19,13 @@ package com.percussion.delivery.feeds.services.rdbms;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
 import com.percussion.delivery.feeds.services.IPSFeedDao;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -29,186 +35,175 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author erikserating
- *
  */
 @Repository
 public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
 
-	private static final Logger log = LogManager.getLogger(PSFeedDao.class);
+  private static final Logger log = LogManager.getLogger(PSFeedDao.class);
 
-	public PSFeedDao(){}
+  public PSFeedDao() {}
 
-	@Autowired
-	public PSFeedDao(SessionFactory sessionFactory){
-		super.setSessionFactory(sessionFactory);
-	}
+  @Autowired
+  public PSFeedDao(SessionFactory sessionFactory) {
+    super.setSessionFactory(sessionFactory);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.percussion.feeds.services.IPSFeedDao#find(java.lang.String,
-	 * java.lang.String)
-	 */
-	@Override
-	@Transactional
-	public IPSFeedDescriptor find(String name, String site) {
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.percussion.feeds.services.IPSFeedDao#find(java.lang.String,
+   * java.lang.String)
+   */
+  @Override
+  @Transactional
+  public Optional<IPSFeedDescriptor> find(String name, String site) {
 
-			Session session = getSession();
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<IPSFeedDescriptor> criteriaQuery = criteriaBuilder.createQuery(IPSFeedDescriptor.class);
-			Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
-			criteriaQuery.select(root).where(criteriaBuilder.and(criteriaBuilder.equal(root.get("site"), site),
-					criteriaBuilder.equal(root.get("name"), name)));
+    Session session = getSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<IPSFeedDescriptor> criteriaQuery =
+        criteriaBuilder.createQuery(IPSFeedDescriptor.class);
+    Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
+    criteriaQuery
+        .select(root)
+        .where(
+            criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("site"), site),
+                criteriaBuilder.equal(root.get("name"), name)));
 
-			List<IPSFeedDescriptor> results = session.createQuery(criteriaQuery).
-					getResultList();
+    List<IPSFeedDescriptor> results = session.createQuery(criteriaQuery).getResultList();
 
-			if (results.isEmpty())
-				return null;
-			return results.get(0);
+    return results.stream().findFirst();
+  }
 
-	}
+  private Session getSession() {
+    return getSessionFactory().getCurrentSession();
+  }
 
-	private Session getSession(){
-		return getSessionFactory().getCurrentSession();
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.feeds.services.IPSFeedDao#findBySite(java.lang.String)
+   */
+  @Override
+  @Transactional
+  public List<IPSFeedDescriptor> findBySite(String site) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.percussion.feeds.services.IPSFeedDao#findBySite(java.lang.String)
-	 */
-	@Override
-	@Transactional
-	public List<IPSFeedDescriptor> findBySite(String site) {
+    Session session = getSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<IPSFeedDescriptor> criteriaQuery =
+        criteriaBuilder.createQuery(IPSFeedDescriptor.class);
+    Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
+    criteriaQuery.where(criteriaBuilder.equal(root.get("site"), site));
+    criteriaQuery.select(root);
+    return session.createQuery(criteriaQuery).getResultList();
+  }
 
-			Session session = getSession();
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<IPSFeedDescriptor> criteriaQuery = criteriaBuilder.createQuery(IPSFeedDescriptor.class);
-			Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
-			criteriaQuery.where(criteriaBuilder.equal(root.get("site"),site));
-			criteriaQuery.select(root);
-			return  session.createQuery(criteriaQuery).
-					getResultList();
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.percussion.feeds.services.IPSFeedDao#getConnectionInfo()
+   */
+  @Override
+  @Transactional
+  public Optional<IPSConnectionInfo> getConnectionInfo() {
 
-	}
+    Session session = getSession();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.percussion.feeds.services.IPSFeedDao#getConnectionInfo()
-	 */
-	@Override
-	@Transactional
-	public IPSConnectionInfo getConnectionInfo() {
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<PSConnectionInfo> criteriaQuery =
+        criteriaBuilder.createQuery(PSConnectionInfo.class);
+    Root<PSConnectionInfo> root = criteriaQuery.from(PSConnectionInfo.class);
+    criteriaQuery.select(root);
+    List<PSConnectionInfo> results = session.createQuery(criteriaQuery).getResultList();
+    Optional<PSConnectionInfo> result = results.stream().findFirst();
+    return result.map(info -> (IPSConnectionInfo) info);
+  }
 
-			Session session = getSession();
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.feeds.services.IPSFeedDao#saveConnectionInfo(java.lang.
+   * String, java.lang.String, java.lang.String, boolean)
+   */
+  @Override
+  @Transactional
+  public void saveConnectionInfo(String url, String user, String pass, boolean encrypted) {
 
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<PSConnectionInfo> criteriaQuery = criteriaBuilder.createQuery(PSConnectionInfo.class);
-			Root<PSConnectionInfo> root = criteriaQuery.from(PSConnectionInfo.class);
-			criteriaQuery.select(root);
-			List<PSConnectionInfo> results = session.createQuery(criteriaQuery).
-					getResultList();
-			if (results.isEmpty())
-				return null;
-			return results.get(0);
+    Session session = getSession();
+    IPSConnectionInfo info = new PSConnectionInfo(url, user, pass, encrypted);
+    session.saveOrUpdate(info);
+  }
 
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.feeds.services.IPSFeedDao#saveDescriptors(java.util.List)
+   */
+  @Transactional
+  public void saveDescriptors(List<IPSFeedDescriptor> descriptors) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.percussion.feeds.services.IPSFeedDao#saveConnectionInfo(java.lang.
-	 * String, java.lang.String, java.lang.String, boolean)
-	 */
-	@Override
-	@Transactional
-	public void saveConnectionInfo(String url, String user, String pass, boolean encrypted) {
+    Session session = getSession();
+    List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
+    for (IPSFeedDescriptor p : prepared) {
+      try {
+        session.saveOrUpdate(p);
+      } catch (Exception e) {
+        log.error(
+            "Skipping feed: {} on site {} with link: {} due to error: {} ",
+            p.getName(),
+            p.getSite(),
+            p.getLink(),
+            PSExceptionUtils.getMessageForLog(e));
+      }
+    }
+  }
 
-			Session session = getSession();
-			IPSConnectionInfo info = new PSConnectionInfo(url, user, pass, encrypted);
-			session.saveOrUpdate(info);
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.feeds.services.IPSFeedDao#deleteDescriptors(java.util.
+   * List)
+   */
+  @Override
+  @Transactional
+  public void deleteDescriptors(List<IPSFeedDescriptor> descriptors) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.percussion.feeds.services.IPSFeedDao#saveDescriptors(java.util.List)
-	 */
-	@Transactional
-	public void saveDescriptors(List<IPSFeedDescriptor> descriptors) {
+    Session session = getSession();
+    List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
+    for (IPSFeedDescriptor p : prepared) {
+      session.delete(p);
+    }
+  }
 
-			Session session = getSession();
-			List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
-			for (IPSFeedDescriptor p : prepared) {
-				try {
-					session.saveOrUpdate(p);
-				}catch(Exception e){
-					log.error("Skipping feed: {} on site {} with link: {} due to error: {} ",
-							p.getName(),
-							p.getSite(),
-							p.getLink(),
-							PSExceptionUtils.getMessageForLog(e));
-				}
-			}
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.percussion.feeds.services.IPSFeedDao#findAll()
+   */
+  @Override
+  @Transactional
+  public List<IPSFeedDescriptor> findAll() {
+    Session session = getSession();
+    CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+    CriteriaQuery<IPSFeedDescriptor> criteriaQuery =
+        criteriaBuilder.createQuery(IPSFeedDescriptor.class);
+    Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
+    criteriaQuery.select(root);
 
-	}
+    return session.createQuery(criteriaQuery).getResultList();
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.percussion.feeds.services.IPSFeedDao#deleteDescriptors(java.util.
-	 * List)
-	 */
-	@Override
-	@Transactional
-	public void deleteDescriptors(List<IPSFeedDescriptor> descriptors) {
-
-		Session session = getSession();
-			List<IPSFeedDescriptor> prepared = prepareDescriptors(descriptors);
-			for (IPSFeedDescriptor p : prepared) {
-				session.delete(p);
-			}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.percussion.feeds.services.IPSFeedDao#findAll()
-	 */
-	@Override
-	@Transactional
-	public List<IPSFeedDescriptor> findAll() {
-		Session session = getSession();
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<IPSFeedDescriptor> criteriaQuery = criteriaBuilder.createQuery(IPSFeedDescriptor.class);
-			Root<PSFeedDescriptor> root = criteriaQuery.from(PSFeedDescriptor.class);
-			criteriaQuery.select(root);
-
-		return session.createQuery(criteriaQuery).
-					getResultList();
-
-	}
-
-	private List<IPSFeedDescriptor> prepareDescriptors(List<IPSFeedDescriptor> descriptors) {
-		List<IPSFeedDescriptor> prepared = new ArrayList<>(descriptors.size());
-		for (IPSFeedDescriptor d : descriptors) {
-			prepared.add(new PSFeedDescriptor(d));
-		}
-		return prepared;
-	}
+  private List<IPSFeedDescriptor> prepareDescriptors(List<IPSFeedDescriptor> descriptors) {
+    List<IPSFeedDescriptor> prepared = new ArrayList<>(descriptors.size());
+    for (IPSFeedDescriptor d : descriptors) {
+      prepared.add(new PSFeedDescriptor(d));
+    }
+    return prepared;
+  }
 }

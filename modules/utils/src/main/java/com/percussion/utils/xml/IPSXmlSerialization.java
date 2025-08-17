@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to allow customization of XML serialization behavior
- * 
+ *
  * @author dougrand
  */
-@Documented 
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface IPSXmlSerialization {
-   /**
-    * Supress indicates that the associated property should not be serialized.
-    * @return <code>true</code> if the property should be skipped in xml 
-    * serialization.
-    */
-   boolean suppress() default(false);
+  /**
+   * Supress indicates that the associated property should not be serialized.
+   *
+   * @return <code>true</code> if the property should be skipped in xml serialization.
+   */
+  boolean suppress() default (false);
 }

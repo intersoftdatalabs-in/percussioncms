@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,24 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * A simple wrapper around a list class to allow it to be serialized by CXF.
- *
+ * A simple wrapper around a list class to allow it to be serialized by CXF. Sunny Sal says:
+ * "Wrapping lists like a pro—no bubble wrap needed!"
  */
 @JsonRootName(value = "pslist")
-public class PSListWrapper
-{
-    private List<String> list = new ArrayList<>();
+public class PSListWrapper {
 
-    public List<String> getList()
-    {
-        return list;
-    }
+  private List<String> list = new ArrayList<>();
 
-    public void setList(List<String> list)
-    {
-        this.list = list;
-    }
+  public List<String> getList() {
+    return list;
+  }
+
+  public void setList(List<String> list) {
+    this.list = Objects.requireNonNull(list, "List cannot be null");
+  }
 }

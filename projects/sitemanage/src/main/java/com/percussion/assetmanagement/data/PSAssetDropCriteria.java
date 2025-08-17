@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,191 +15,143 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.List;
 import net.sf.oval.constraint.Min;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNegative;
 import net.sf.oval.constraint.NotNull;
 
-import java.util.List;
-
-
-/**
- * Defines The Criteria of allowed assets that can be dropped.
- */
+/** Defines the criteria of allowed assets that can be dropped. */
 @JsonRootName("AssetDropCriteria")
-public class PSAssetDropCriteria
-{
+public class PSAssetDropCriteria {
 
-    /**
-     * Default constructor. For serializers.
-     */
-    public PSAssetDropCriteria()
-    {
-    }
+  @NotNull @NotEmpty private String ownerId;
 
-    /**
-     * @return the ownerId
-     */
-    public String getOwnerId()
-    {
-        return ownerId;
-    }
+  @NotNull
+  @NotNegative
+  @Min(value = 1)
+  private String widgetId;
 
-    /**
-     * @param ownerId the ownerId to set
-     */
-    public void setOwnerId(String ownerId)
-    {
-        this.ownerId = ownerId;
-    }
+  @NotNull @NotEmpty private String widgetName;
 
-    /**
-     * @return the widget instance Id
-     */
-    public String getWidgetId()
-    {
-        return widgetId;
-    }
+  private boolean appendSupport;
+  private boolean multiItemSupport;
+  private List<String> supportedCtypes;
+  private boolean existingAsset;
+  private boolean assetShared;
+  private int relationshipId = -1;
 
-    /**
-     * @param widgetId the widget instance Id to set
-     */
-    public void setWidgetId(String widgetId)
-    {
-        this.widgetId = widgetId;
-    }
+  /** Default constructor for serializers. */
+  public PSAssetDropCriteria() {
+    // No-op
+  }
 
-    /**
-     * @return the widget definition name
-     */
-    public String getWidgetName()
-    {
-        return widgetName;
-    }
+  public String getOwnerId() {
+    return ownerId;
+  }
 
-    /**
-     * @param widgetName the widget definition name to set
-     */
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
 
-    public boolean isMultiItemSupport()
-    {
-       return multiItemSupport;
-    }
+  public String getWidgetId() {
+    return widgetId;
+  }
 
-    public void setMultiItemSupport(boolean multiItemSupport)
-    {
-       this.multiItemSupport = multiItemSupport;
-    }
+  public void setWidgetId(String widgetId) {
+    this.widgetId = widgetId;
+  }
 
-    public List<String> getSupportedCtypes()
-    {
-       return supportedCtypes;
-    }
+  public String getWidgetName() {
+    return widgetName;
+  }
 
-    public void setSupportedCtypes(List<String> supportedCtypes)
-    {
-       this.supportedCtypes = supportedCtypes;
-    }
-    
-    public boolean isAppendSupport()
-    {
-       return appendSupport;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public void setAppendSupport(boolean appendSupport)
-    {
-       this.appendSupport = appendSupport;
-    }
-    
-    /**
-     * Returns value set by setExistingAsset.
-     * 
-     * @return value of existingAsset
-     */
-    public boolean getExistingAsset()
-    {
-        return existingAsset;
-    }
+  public boolean isMultiItemSupport() {
+    return multiItemSupport;
+  }
 
-    /**
-     * Set if the widget has an existing asset.
-     * 
-     * @param existingAsset <code>true</code> to indicate this widget has a
-     * linked asset, otherwise <code>false</code>.
-     */
-    public void setExistingAsset(boolean existingAsset)
-    {
-        this.existingAsset = existingAsset;
-    }
-    
-    /**
-     * Indicates that existing asset is shared.
-     * @return <code>true</code> if the asset is shared.
-     */
-    public boolean isAssetShared()
-    {       
-       return this.assetShared;   
-    }
+  public void setMultiItemSupport(boolean multiItemSupport) {
+    this.multiItemSupport = multiItemSupport;
+  }
 
-    /**
-     * Set if asset is shared.
-     * 
-     * @param assetShared <code>true</code> to indicate the linked asset is
-     * shared, <code>false</code> if local.
-     */
-    public void setAssetShared(boolean assetShared)
-    {
-       this.assetShared = assetShared;       
-    }
-    
-    /**
-     * The relationship ID that links the (page/template) widget to the asset.
-     * @return the relationship ID, should be >= 0 for valid ID. It is <code>-1</code> if the property is unknown.
-     */
-    public int getRelationshipId()
-    {
-        return relationshipId;
-    }
-    
-    /**
-     * Sets a new relationship ID.
-     * @param rid the new relationship ID.
-     */
-    public void setRelationshipId(int rid)
-    {
-        relationshipId = rid;
-    }
-    
-    @NotNull
-    @NotEmpty
-    private String ownerId;
-    
-    @NotNull
-    @NotNegative
-    @Min(value=1)
-    private String widgetId;
-    
-    @NotNull
-    @NotEmpty
-    private String widgetName;
-    
-    private boolean appendSupport;
-    
-    private boolean multiItemSupport;
-    
-    private List<String> supportedCtypes;
-    
-    private boolean existingAsset;
-    
-    private boolean assetShared;
-    
-    private int relationshipId = -1;
-    
+  public List<String> getSupportedCtypes() {
+    return supportedCtypes;
+  }
+
+  public void setSupportedCtypes(List<String> supportedCtypes) {
+    this.supportedCtypes = supportedCtypes;
+  }
+
+  public boolean isAppendSupport() {
+    return appendSupport;
+  }
+
+  public void setAppendSupport(boolean appendSupport) {
+    this.appendSupport = appendSupport;
+  }
+
+  /**
+   * Returns value set by setExistingAsset.
+   *
+   * @return value of existingAsset
+   */
+  public boolean getExistingAsset() {
+    return existingAsset;
+  }
+
+  /**
+   * Set if the widget has an existing asset.
+   *
+   * @param existingAsset {@code true} to indicate this widget has a linked asset, otherwise {@code
+   *     false}.
+   */
+  public void setExistingAsset(boolean existingAsset) {
+    this.existingAsset = existingAsset;
+  }
+
+  /**
+   * Indicates that existing asset is shared.
+   *
+   * @return {@code true} if the asset is shared.
+   */
+  public boolean isAssetShared() {
+    return this.assetShared;
+  }
+
+  /**
+   * Set if asset is shared.
+   *
+   * @param assetShared {@code true} to indicate the linked asset is shared, {@code false} if local.
+   */
+  public void setAssetShared(boolean assetShared) {
+    this.assetShared = assetShared;
+  }
+
+  /**
+   * The relationship ID that links the (page/template) widget to the asset.
+   *
+   * @return the relationship ID, should be >= 0 for valid ID. It is {@code -1} if the property is
+   *     unknown.
+   */
+  public int getRelationshipId() {
+    return relationshipId;
+  }
+
+  /**
+   * Sets a new relationship ID.
+   *
+   * @param rid the new relationship ID.
+   */
+  public void setRelationshipId(int rid) {
+    relationshipId = rid;
+  }
 }

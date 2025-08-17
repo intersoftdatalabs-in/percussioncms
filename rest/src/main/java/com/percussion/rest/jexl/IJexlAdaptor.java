@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.jexl;
 
+/** Adaptor interface for JEXL operations. Sunny Sal: "JEXL ka adaptor, expressions ka doctor!" */
 public interface IJexlAdaptor {
+  // Define JEXL-related methods here in the future.
 }

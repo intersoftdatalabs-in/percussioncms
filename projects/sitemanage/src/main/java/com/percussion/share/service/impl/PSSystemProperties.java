@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,22 @@ package com.percussion.share.service.impl;
 
 import com.percussion.server.PSServer;
 import com.percussion.share.service.IPSSystemProperties;
-
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang.Validate;
 
-import javax.ws.rs.ext.Provider;
-
 /**
- * @author JaySeletz
+ * Provides access to system properties.
  *
+ * @author JaySeletz
  */
 @Provider
 @PSSiteManageBean("psSystemProperties")
-public class PSSystemProperties implements IPSSystemProperties
-{
+public class PSSystemProperties implements IPSSystemProperties {
 
-    @Override
-    public String getProperty(String name)
-    {
-        Validate.notEmpty(name);
-        return PSServer.getServerProps().getProperty(name);
-    }
-
+  @Override
+  public String getProperty(String name) {
+    Validate.notEmpty(name, "Property name must not be empty");
+    return PSServer.getServerProps().getProperty(name);
+  }
 }

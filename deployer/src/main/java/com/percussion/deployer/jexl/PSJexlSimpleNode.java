@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,42 +17,39 @@
 package com.percussion.deployer.jexl;
 
 import org.apache.commons.jexl3.parser.SimpleNode;
+
 /**
- * 
  * A wrapper for SimpleNode.
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
+public class PSJexlSimpleNode {
+  /** A SimpleNode that JEXL expects to parse and Rx does "visit" */
+  private SimpleNode m_node = null;
 
-public class PSJexlSimpleNode
-{
-   /**
-    * A SimpleNode that JEXL expects to parse and Rx does "visit"
-    */
-   private SimpleNode m_node = null;
-   
-   private String m_code = null; 
-   
-   public PSJexlSimpleNode(SimpleNode n, String c)
-   {
-      m_node = n; 
-   }
+  private String m_code = null;
 
-   /**
-    * Accessor for the simple node
-    * @return the simple node
-    */
-   public SimpleNode getNode()
-   {
-      return m_node;
-   }
+  // REFACTORED: CP-JAVA11
+  public PSJexlSimpleNode(SimpleNode node, String code) {
+    this.m_node = node;
+    this.m_code = code;
+  }
 
-   /**
-    * Accessor for the expression/script
-    * @return the expression that this node tree represents
-    */
-   public String getCode()
-   {
-      return m_code;
-   }   
+  /**
+   * Accessor for the simple node
+   *
+   * @return the simple node
+   */
+  public SimpleNode getNode() {
+    return m_node;
+  }
+
+  /**
+   * Accessor for the expression/script
+   *
+   * @return the expression that this node tree represents
+   */
+  public String getCode() {
+    return m_code;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,209 +17,161 @@
 
 package com.percussion.HTTPClient;
 
-
 /**
  * This class implements a singly linked list.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
-class LinkedList
-{
-    /** head of list */
-    private LinkElement head = null;
+class LinkedList {
+  /** head of list */
+  private LinkElement head = null;
 
-    /** tail of list (for faster adding) */
-    private LinkElement tail = null;
+  /** tail of list (for faster adding) */
+  private LinkElement tail = null;
 
+  /**
+   * Add the specified element to the head of the list.
+   *
+   * @param elem the object to add to the list.
+   */
+  public synchronized void addToHead(Object elem) {
+    head = new LinkElement(elem, head);
 
-    /**
-     * Add the specified element to the head of the list.
-     *
-     * @param elem the object to add to the list.
-     */
-    public synchronized void addToHead(Object elem)
-    {
-	head = new LinkElement(elem, head);
+    if (head.next == null) tail = head;
+  }
 
-	if (head.next == null)
-	    tail = head;
+  /**
+   * Add the specified element to the end of the list.
+   *
+   * @param elem the object to add to the list.
+   */
+  public synchronized void addToEnd(Object elem) {
+    if (head == null) head = tail = new LinkElement(elem, null);
+    else tail = (tail.next = new LinkElement(elem, null));
+  }
+
+  /**
+   * Remove the specified element from the list. Does nothing if the element is not in the list.
+   *
+   * @param elem the object to remove from the list.
+   */
+  public synchronized void remove(Object elem) {
+    if (head == null) return;
+
+    if (head.element == elem) {
+      head = head.next;
+      return;
     }
 
-
-    /**
-     * Add the specified element to the end of the list.
-     *
-     * @param elem the object to add to the list.
-     */
-    public synchronized void addToEnd(Object elem)
-    {
-	if (head == null)
-	    head = tail = new LinkElement(elem, null);
-	else
-	    tail = (tail.next = new LinkElement(elem, null));
+    LinkElement curr = head;
+    while (curr.next != null) {
+      if (curr.next.element == elem) {
+        if (curr.next == tail) tail = curr;
+        curr.next = curr.next.next;
+        return;
+      }
+      curr = curr.next;
     }
+  }
 
+  /**
+   * Return the first element in the list. The list is not modified in any way.
+   *
+   * @return the first element
+   */
+  public synchronized Object getFirst() {
+    if (head == null) return null;
+    return head.element;
+  }
 
-    /**
-     * Remove the specified element from the list. Does nothing if the element
-     * is not in the list.
-     *
-     * @param elem the object to remove from the list.
-     */
-    public synchronized void remove(Object elem)
-    {
-	if (head == null)  return;
+  private LinkElement next_enum = null;
 
-	if (head.element == elem)
-	{
-	    head = head.next;
-	    return;
-	}
+  /**
+   * Starts an enumeration of all the elements in this list. Note that only one enumeration can be
+   * active at any time.
+   *
+   * @return the first element, or null if the list is empty
+   */
+  public synchronized Object enumerate() {
+    if (head == null) return null;
 
-	LinkElement curr = head;
-	while (curr.next != null)
-	{
-	    if (curr.next.element == elem)
-	    {
-		if (curr.next == tail)  tail = curr;
-		curr.next = curr.next.next;
-		return;
-	    }
-	    curr = curr.next;
-	}
-    }
+    next_enum = head.next;
+    return head.element;
+  }
 
+  /**
+   * Gets the next element in the enumeration. The enumeration must have been first initalized with
+   * a call to <code>enumerate()</code>.
+   *
+   * @return the next element, or null if none left
+   * @see #enumerate()
+   */
+  public synchronized Object next() {
+    if (next_enum == null) return null;
 
-    /**
-     * Return the first element in the list. The list is not modified in any
-     * way.
-     *
-     * @return the first element
-     */
-    public synchronized Object getFirst()
-    {
-	if (head == null)  return null;
-	return head.element;
-    }
+    Object elem = next_enum.element;
+    next_enum = next_enum.next;
 
+    return elem;
+  }
 
-    private LinkElement next_enum = null;
+  public static void main(String args[]) throws Exception {
+    // LinkedList Test Suite
 
-    /**
-     * Starts an enumeration of all the elements in this list. Note that only
-     * one enumeration can be active at any time.
-     *
-     * @return the first element, or null if the list is empty
-     */
-    public synchronized Object enumerate()
-    {
-	if (head == null)  return null;
+    System.err.println("\n*** Linked List Tests ...");
 
-	next_enum = head.next;
-	return head.element;
-    }
+    LinkedList list = new LinkedList();
+    list.addToHead("One");
+    list.addToEnd("Last");
+    if (!list.getFirst().equals("One")) throw new Exception("First element wrong");
+    if (!list.enumerate().equals("One")) throw new Exception("First element wrong");
+    if (!list.next().equals("Last")) throw new Exception("Last element wrong");
+    if (list.next() != null) throw new Exception("End of list wrong");
+    list.remove("One");
+    if (!list.getFirst().equals("Last")) throw new Exception("First element wrong");
+    list.remove("Last");
+    if (list.getFirst() != null) throw new Exception("End of list wrong");
 
+    list = new LinkedList();
+    list.addToEnd("Last");
+    list.addToHead("One");
+    if (!list.getFirst().equals("One")) throw new Exception("First element wrong");
+    if (!list.enumerate().equals("One")) throw new Exception("First element wrong");
+    if (!list.next().equals("Last")) throw new Exception("Last element wrong");
+    if (list.next() != null) throw new Exception("End of list wrong");
+    if (!list.enumerate().equals("One")) throw new Exception("First element wrong");
+    list.remove("One");
+    if (!list.next().equals("Last")) throw new Exception("Last element wrong");
+    list.remove("Last");
+    if (list.next() != null) throw new Exception("End of list wrong");
 
-    /**
-     * Gets the next element in the enumeration. The enumeration must have
-     * been first initalized with a call to <code>enumerate()</code>.
-     *
-     * @return the next element, or null if none left
-     * @see #enumerate()
-     */
-    public synchronized Object next()
-    {
-	if (next_enum == null)  return null;
+    list = new LinkedList();
+    list.addToEnd("Last");
+    list.addToHead("Two");
+    list.addToHead("One");
+    if (!list.getFirst().equals("One")) throw new Exception("First element wrong");
+    if (!list.enumerate().equals("One")) throw new Exception("First element wrong");
+    if (!list.next().equals("Two")) throw new Exception("Second element wrong");
+    if (!list.next().equals("Last")) throw new Exception("Last element wrong");
+    if (list.next() != null) throw new Exception("End of list wrong");
+    list.remove("Last");
+    list.remove("Two");
+    list.remove("One");
+    if (list.getFirst() != null) throw new Exception("Empty list wrong");
 
-	Object elem = next_enum.element;
-	next_enum = next_enum.next;
-
-	return elem;
-    }
-
-
-    public static void main(String args[])  throws Exception
-    {
-	// LinkedList Test Suite
-
-	System.err.println("\n*** Linked List Tests ...");
-
-	LinkedList list = new LinkedList();
-	list.addToHead("One");
-	list.addToEnd("Last");
-	if (!list.getFirst().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.enumerate().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.next().equals("Last"))
-	    throw new Exception("Last element wrong");
-	if (list.next() != null)
-	    throw new Exception("End of list wrong");
-	list.remove("One");
-	if (!list.getFirst().equals("Last"))
-	    throw new Exception("First element wrong");
-	list.remove("Last");
-	if (list.getFirst() != null)
-	    throw new Exception("End of list wrong");
-
-	list = new LinkedList();
-	list.addToEnd("Last");
-	list.addToHead("One");
-	if (!list.getFirst().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.enumerate().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.next().equals("Last"))
-	    throw new Exception("Last element wrong");
-	if (list.next() != null)
-	    throw new Exception("End of list wrong");
-	if (!list.enumerate().equals("One"))
-	    throw new Exception("First element wrong");
-	list.remove("One");
-	if (!list.next().equals("Last"))
-	    throw new Exception("Last element wrong");
-	list.remove("Last");
-	if (list.next() != null)
-	    throw new Exception("End of list wrong");
-
-	list = new LinkedList();
-	list.addToEnd("Last");
-	list.addToHead("Two");
-	list.addToHead("One");
-	if (!list.getFirst().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.enumerate().equals("One"))
-	    throw new Exception("First element wrong");
-	if (!list.next().equals("Two"))
-	    throw new Exception("Second element wrong");
-	if (!list.next().equals("Last"))
-	    throw new Exception("Last element wrong");
-	if (list.next() != null)
-	    throw new Exception("End of list wrong");
-	list.remove("Last");
-	list.remove("Two");
-	list.remove("One");
-	if (list.getFirst() != null)
-	    throw new Exception("Empty list wrong");
-
-	System.err.println("\n*** Tests finished successfuly");
-    }
+    System.err.println("\n*** Tests finished successfuly");
+  }
 }
 
+/** The represents a single element in the linked list. */
+class LinkElement {
+  Object element;
+  LinkElement next;
 
-/**
- * The represents a single element in the linked list.
- */
-class LinkElement
-{
-    Object      element;
-    LinkElement next;
-
-    LinkElement(Object elem, LinkElement next)
-    {
-	this.element = elem;
-	this.next    = next;
-    }
+  LinkElement(Object elem, LinkElement next) {
+    this.element = elem;
+    this.next = next;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 /**
- * @author JaySeletz
- *
+ * Result object for widget package info queries. Sunny Sal says: "Results so fresh, even your
+ * widgets will be jealous!"
  */
 @XmlRootElement(name = "WidgetPackageInfoResult")
-public class PSWidgetPackageInfoResult
-{
-    private List<PSWidgetPackageInfo> packageInfoList = new ArrayList<>();
+public class PSWidgetPackageInfoResult {
 
-    /**
-     * Get the list of results
-     * 
-     * @return The list, not <code>null</code>, may be empty.
-     */
-    public List<PSWidgetPackageInfo> getPackageInfoList()
-    {
-        return packageInfoList;
-    }
+  private List<PSWidgetPackageInfo> packageInfoList = new ArrayList<>();
 
-    public void setPackageInfoList(List<PSWidgetPackageInfo> packageInfoList)
-    {
-        Validate.notNull(packageInfoList);
-        this.packageInfoList = packageInfoList;
-    }
-    
-    
+  /**
+   * Get the list of results.
+   *
+   * @return The list, not null, may be empty.
+   */
+  public List<PSWidgetPackageInfo> getPackageInfoList() {
+    return Collections.unmodifiableList(packageInfoList);
+  }
+
+  public void setPackageInfoList(List<PSWidgetPackageInfo> packageInfoList) {
+    Validate.notNull(packageInfoList);
+    this.packageInfoList = new ArrayList<>(packageInfoList);
+  }
 }

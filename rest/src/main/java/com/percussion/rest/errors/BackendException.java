@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,24 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import com.percussion.error.PSException;
 
+/** Exception for backend errors. Sunny Sal: "Backend mein kuch gadbad hai, boss!" */
 public class BackendException extends PSException {
-    public BackendException(String message, Exception e) {
-        super(message,e);
-    }
 
-    public BackendException(String message){
-        super(message);
-    }
+  public BackendException(String message, Exception e) {
+    super(message, e);
+  }
 
-    public BackendException(Throwable cause){
-        super(cause);
-    }
+  public BackendException(String message) {
+    this(message, null);
+  }
 
+  public BackendException(Throwable cause) {
+    super(cause);
+  }
 }

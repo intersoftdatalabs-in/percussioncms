@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,16 @@ package com.percussion.workflow.service;
 import java.util.List;
 
 /**
- * @author JaySeletz
+ * Provides metadata for system-locked workflow states.
  *
+ * @author JaySeletz
  */
-public interface IPSSteppedWorkflowMetadata
-{
+public interface IPSSteppedWorkflowMetadata {
 
-    /**
-     * Finds all the states which are locked down by the system (were not created by
-     * the user) 
-     * 
-     * @author federicoromanelli
-     * 
-     * @return a <code>List<String><code> object including all the states' names. 
-     * Maybe empty or <code>null</code>
-     */
-    public List<String> getSystemStatesList();
-
+  /**
+   * Finds all the states which are locked down by the system (not user-created).
+   *
+   * @return a list of state names, possibly empty or {@code null}
+   */
+  List<String> getSystemStatesList();
 }

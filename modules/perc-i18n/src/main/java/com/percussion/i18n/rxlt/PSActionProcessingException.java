@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,30 @@
 package com.percussion.i18n.rxlt;
 
 /**
- * Exception thrown by the action implementation methods. This wraps the message
- * from any other exception thrown during processing.
+ * Exception thrown by the action implementation methods. This wraps the message from any other
+ * exception thrown during processing.
  */
-public class PSActionProcessingException extends RuntimeException
-{
-   /**
-    * Default constructor.
-    */
-   public PSActionProcessingException()
-   {
-      super();
-   }
+public class PSActionProcessingException extends RuntimeException {
+  /** Default constructor. */
+  public PSActionProcessingException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the error message.
-    * @param msg must not be <code>null</code>.
-    */
-   public PSActionProcessingException(String msg)
-   {
-      super(msg);
-   }
+  /**
+   * Constructor that takes the error message.
+   *
+   * @param msg must not be <code>null</code>.
+   */
+  public PSActionProcessingException(String msg) {
+    super(msg);
+  }
 
-   /**
-    * Constructor that takes the error message.
-    * @param msg must not be <code>null</code>.
-    */
-   public PSActionProcessingException(String msg, Throwable e)
-   {
-      super(msg, e);
-   }
+  /**
+   * Constructor that takes the error message.
+   *
+   * @param msg must not be <code>null</code>.
+   */
+  public PSActionProcessingException(String msg, Throwable e) {
+    super(msg, e);
+  }
 }

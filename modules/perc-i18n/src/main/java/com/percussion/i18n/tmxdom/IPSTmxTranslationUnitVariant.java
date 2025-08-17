@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,66 +19,61 @@ package com.percussion.i18n.tmxdom;
 import java.util.Iterator;
 
 /**
- * This interface defines specific methods to access and modify the translation
- * unit variant of the TMX document. Refer to TMX 1.4 DTD for details at:
- * <p>
- * <a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
- * </p>
+ * This interface defines specific methods to access and modify the translation unit variant of the
+ * TMX document. Refer to TMX 1.4 DTD for details at:
+ *
+ * <p><a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
  */
-public interface IPSTmxTranslationUnitVariant
-   extends IPSTmxNode
-{
-   /**
-    * Method to get all note objects that are associated with the translation
-    * unit variant node. There may one note per each supported language in the
-    * TMX document.
-    * @return Iterator object containg a list of all {@link IPSTmxNote} objects.
-    * Never <code>null</code> may be <code>empty</code>.
-    */
-   Iterator getNotes();
+public interface IPSTmxTranslationUnitVariant extends IPSTmxNode {
+  /**
+   * Method to get all note objects that are associated with the translation unit variant node.
+   * There may one note per each supported language in the TMX document.
+   *
+   * @return Iterator object containg a list of all {@link IPSTmxNote} objects. Never <code>null
+   *     </code> may be <code>empty</code>.
+   */
+  Iterator getNotes();
 
-   /**
-    * Method to get all property objects that are associated with this translation
-    * unit variant node.
-    * @return Iterator object containg a list of all {@link IPSTmxProperty}
-    * objects. Never <code>null</code> may be <code>empty</code>.
-    */
-   Iterator getProperties();
+  /**
+   * Method to get all property objects that are associated with this translation unit variant node.
+   *
+   * @return Iterator object containg a list of all {@link IPSTmxProperty} objects. Never <code>null
+   *     </code> may be <code>empty</code>.
+   */
+  Iterator getProperties();
 
-   /**
-    * Method to get the segment object associated with this node.
-    * @return segment object, never <code>null</code>.
-    */
-   IPSTmxSegment getSegment();
+  /**
+   * Method to get the segment object associated with this node.
+   *
+   * @return segment object, never <code>null</code>.
+   */
+  IPSTmxSegment getSegment();
 
-   /**
-    * Method to add supplied note object to this node only if does not already
-    * exist.
-    * @param    note   tmx note to be added to the tree, must not be
-    * <code>null</code>.
-    */
-   void addNote(IPSTmxNote note);
+  /**
+   * Method to add supplied note object to this node only if does not already exist.
+   *
+   * @param note tmx note to be added to the tree, must not be <code>null</code>.
+   */
+  void addNote(IPSTmxNote note);
 
-   /**
-    * Method to add supplied tmx property  object to this node only if does not
-    * already exist.
-    * @param property tmx property object, must not be <code>null</code> or
-    * <code>empty</code>.
-    */
-   void addProperty(IPSTmxProperty property);
+  /**
+   * Method to add supplied tmx property object to this node only if does not already exist.
+   *
+   * @param property tmx property object, must not be <code>null</code> or <code>empty</code>.
+   */
+  void addProperty(IPSTmxProperty property);
 
-   /**
-    * Method to add supplied tmx segment object to this node only if does not
-    * already exist.
-    * @param segment tmx object, must not be <code>null</code> or
-    * <code>empty</code>.
-    */
-   void addSegment(IPSTmxSegment segment);
+  /**
+   * Method to add supplied tmx segment object to this node only if does not already exist.
+   *
+   * @param segment tmx object, must not be <code>null</code> or <code>empty</code>.
+   */
+  void addSegment(IPSTmxSegment segment);
 
-   /**
-    * Returns langauge attribute of this node
-    * @return language String associated with node, Never <code>null</code> or
-    * <code>empty</code>.
-    */
-   String getLang();
+  /**
+   * Returns langauge attribute of this node
+   *
+   * @return language String associated with node, Never <code>null</code> or <code>empty</code>.
+   */
+  String getLang();
 }

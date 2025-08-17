@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,132 +20,82 @@ package com.percussion.category.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
-@XmlRootElement(name="CategoryNode")
+/** Represents a node in a transformable category tree. */
+@XmlRootElement(name = "CategoryNode")
 public class PSTransformCategoryNode {
 
-   private String id;
-   private String label;
-   private String selectable;
-   private List<PSTransformCategoryNode> childNodes = new ArrayList<>();
-   
-   @XmlAttribute(name="id")
-   public String getId()
-   {
-      return id;
-   }
-   
-   public void setId(String id)
-   {
-      this.id = id;
-   }
-   
-   @XmlAttribute(name="label")
-   public String getLabel()
-   {
-      return label;
-   }
-   
-   public void setLabel(String label)
-   {
-      this.label = label;
-   }
-   
-   @XmlAttribute(name="selectable")
-   public String getSelectable()
-   {
-      return selectable;
-   }
-   
-   public void setSelectable(String selectable)
-   {
-      this.selectable = selectable;
-   }
-   
-   @XmlElement(name="Node")
-   public List<PSTransformCategoryNode> getChildNodes()
-   {
-      return childNodes;
-   }
-   
-   public void setChildNodes(List<PSTransformCategoryNode> childNodes)
-   {
-      this.childNodes = childNodes;
-   }
+  private String id;
+  private String label;
+  private String selectable;
+  private List<PSTransformCategoryNode> childNodes = new ArrayList<>();
 
-   @Override
-   public String toString()
-   {
-      return "PSUpgradePluginCategoryNode [id=" + id + ", label=" + label + ", selectable=" + selectable
-            + ", childNodes=" + childNodes + "]";
-   }
+  @XmlAttribute(name = "id")
+  public String getId() {
+    return id;
+  }
 
-   @Override
-   public int hashCode()
-   {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((childNodes == null) ? 0 : childNodes.hashCode());
-      result = prime * result + ((id == null) ? 0 : id.hashCode());
-      result = prime * result + ((label == null) ? 0 : label.hashCode());
-      result = prime * result + ((selectable == null) ? 0 : selectable.hashCode());
-      return result;
-   }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj) {
-         return true;
-      }
-      if (obj == null) {
-         return false;
-      }
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-      PSTransformCategoryNode other = (PSTransformCategoryNode) obj;
-      if (childNodes == null)
-      {
-         if (other.childNodes != null) {
-            return false;
-         }
-      }
-      else if (!childNodes.equals(other.childNodes)) {
-         return false;
-      }
-      if (id == null)
-      {
-         if (other.id != null) {
-            return false;
-         }
-      }
-      else if (!id.equals(other.id)) {
-         return false;
-      }
-      if (label == null)
-      {
-         if (other.label != null) {
-            return false;
-         }
-      }
-      else if (!label.equals(other.label)) {
-         return false;
-      }
-      if (selectable == null)
-      {
-         if (other.selectable != null) {
-            return false;
-         }
-      }
-      else if (!selectable.equals(other.selectable)) {
-         return false;
-      }
-      return true;
-   }
+  @XmlAttribute(name = "label")
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  @XmlAttribute(name = "selectable")
+  public String getSelectable() {
+    return selectable;
+  }
+
+  public void setSelectable(String selectable) {
+    this.selectable = selectable;
+  }
+
+  @XmlElement(name = "Node")
+  public List<PSTransformCategoryNode> getChildNodes() {
+    return childNodes;
+  }
+
+  public void setChildNodes(List<PSTransformCategoryNode> childNodes) {
+    this.childNodes = childNodes;
+  }
+
+  @Override
+  public String toString() {
+    return "PSTransformCategoryNode [id="
+        + id
+        + ", label="
+        + label
+        + ", selectable="
+        + selectable
+        + ", childNodes="
+        + childNodes
+        + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(childNodes, id, label, selectable);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PSTransformCategoryNode)) return false;
+    var other = (PSTransformCategoryNode) obj;
+    return Objects.equals(childNodes, other.childNodes)
+        && Objects.equals(id, other.id)
+        && Objects.equals(label, other.label)
+        && Objects.equals(selectable, other.selectable);
+  }
 }

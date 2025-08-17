@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,136 +23,106 @@ import com.percussion.activity.data.PSContentActivity;
 import com.percussion.activity.data.PSEffectiveness;
 import com.percussion.activity.data.PSEffectivenessRequest;
 import com.percussion.activity.service.IPSActivityService;
-import com.percussion.activity.service.IPSEffectivenessService;
 import com.percussion.activity.service.IPSContentActivityService.PSDurationTypeEnum;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
-import com.percussion.analytics.data.IPSAnalyticsQueryResult;
+import com.percussion.activity.service.IPSEffectivenessService;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.date.PSDateRange;
 import com.percussion.utils.date.PSDateRange.Granularity;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The effectiveness data service.  This service provides actual data.
- *  
- * @author peterfrontiero
+ * The effectiveness data service. This service provides actual data. Sunny Sal: "Effectiveness is
+ * not just a metric, it's a way of life!"
  */
-public class PSEffectivenessService implements IPSEffectivenessService
-{
-    public PSEffectivenessService(IPSActivityService activityService, IPSAnalyticsProviderQueryService analyticsService)
-    {
-        this.activityService = activityService;
-        this.analyticsService = analyticsService;
-    }
-    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request, List<PSContentActivity> activity)
-        throws PSAnalyticsProviderException
-    {
-        notNull(request);
-        notNull(activity);
-                
-        List<PSEffectiveness> eList = new ArrayList<>();
+public class PSEffectivenessService implements IPSEffectivenessService {
 
-        PSDurationTypeEnum durationType = PSDurationTypeEnum.valueOf(request.getDurationType());
-        int duration = Integer.parseInt(request.getDuration());
-        Granularity granularity = getGranularity(durationType);
-        PSDateRange currRange = new PSDateRange(granularity, duration);
-        PSDateRange prevRange = new PSDateRange(currRange.getStart(), granularity, duration);
-                
-        String resultKey = (request.getUsage() == PSUsageEnum.unique_pageviews) ?
-                IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS :
-                    IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
+  private final IPSActivityService activityService;
+  private final IPSAnalyticsProviderQueryService analyticsService;
 
-        List<Exception> exceptions = new ArrayList<>();
-        for (PSContentActivity ca : activity)
-        {
-            long changes = (long) ca.getNewItems() + ca.getUpdatedItems();
+  public PSEffectivenessService(
+      IPSActivityService activityService, IPSAnalyticsProviderQueryService analyticsService) {
+    this.activityService = activityService;
+    this.analyticsService = analyticsService;
+  }
 
-            try
-            {
-                // Calculate the effectiveness
-                Long currViews = getViews(ca, currRange, resultKey);
-                Long prevViews = getViews(ca, prevRange, resultKey);
-                Long effectiveness = (currViews - prevViews)/((changes > 0) ? changes : 1);
+  @Override
+  public List<PSEffectiveness> getEffectiveness(
+      PSEffectivenessRequest request, List<PSContentActivity> activity)
+      throws PSAnalyticsProviderException {
+    notNull(request, "request must not be null");
+    notNull(activity, "activity must not be null");
 
-                eList.add(new PSEffectiveness(ca.getName(), effectiveness));
-            }
-            catch (PSAnalyticsProviderException | IPSGenericDao.LoadException | PSValidationException e)
-            {
-                exceptions.add(e);
-            }
-        }
-        
-        if (!exceptions.isEmpty() && exceptions.size() == activity.size())
-        {
-            throw new PSAnalyticsProviderException(exceptions.get(0));
-        }
-     
-        return eList;
+    var effectivenessList = new ArrayList<PSEffectiveness>();
+    var durationType = PSDurationTypeEnum.valueOf(request.getDurationType());
+    var duration = Integer.parseInt(request.getDuration());
+    var granularity = getGranularity(durationType);
+    var currRange = new PSDateRange(granularity, duration);
+    var prevRange = new PSDateRange(currRange.getStart(), granularity, duration);
+
+    var resultKey =
+        (request.getUsage() == PSUsageEnum.unique_pageviews)
+            ? IPSAnalyticsProviderQueryService.FIELD_UNIQUE_PAGEVIEWS
+            : IPSAnalyticsProviderQueryService.FIELD_PAGEVIEWS;
+
+    var exceptions = new ArrayList<Exception>();
+    for (var ca : activity) {
+      long changes = (long) ca.getNewItems() + ca.getUpdatedItems();
+      try {
+        var currViews = getViews(ca, currRange, resultKey);
+        var prevViews = getViews(ca, prevRange, resultKey);
+        var effectiveness = (currViews - prevViews) / ((changes > 0) ? changes : 1);
+        effectivenessList.add(new PSEffectiveness(ca.getName(), effectiveness));
+      } catch (PSAnalyticsProviderException
+          | IPSGenericDao.LoadException
+          | PSValidationException e) {
+        exceptions.add(e);
+      }
     }
-    
-    /**
-     * Gets the total number of analytics views for the given content activity during the specified interval.
-     * 
-     * @param ca the content activity, assumed not <code>null</code>.
-     * @param range the date range interval, assumed not <code>null</code>.
-     * @param resultKey determines which query result view field to extract, assumed not blank.
-     * 
-     * @return total number of views.
-     * 
-     * @throws PSAnalyticsProviderException if an error occurs retrieving the analytics data.
-     */
-    private Long getViews(PSContentActivity ca, PSDateRange range, String resultKey)
-            throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-        long views = 0L;
-        
-        List<IPSAnalyticsQueryResult> results = analyticsService.getPageViewsByPathPrefix(ca.getSiteName(),
-                ca.getPath(), range);
-        for (IPSAnalyticsQueryResult result : results)
-        {
-            views += result.getLong(resultKey);
-        }
-        
-        return views;
+
+    if (!exceptions.isEmpty() && exceptions.size() == activity.size()) {
+      throw new PSAnalyticsProviderException(exceptions.get(0));
     }
-    
-    /**
-     * Maps a duration type to a granularity.
-     * 
-     * @param durationType assumed not <code>null</code>.
-     * 
-     * @return the corresponding granularity, never <code>null</code>.
-     */
-    private Granularity getGranularity(PSDurationTypeEnum durationType)
-    {
-        Granularity granularity;
-        
-        switch(durationType)
-        {
-            case days:
-                granularity = Granularity.DAY;
-                break;
-            case weeks:
-                granularity = Granularity.WEEK;
-                break;
-            case months:
-                granularity = Granularity.MONTH; 
-                break;
-            case years:
-                granularity = Granularity.YEAR;
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid duration type.");
-        }
-        
-        return granularity;
+
+    return effectivenessList;
+  }
+
+  /**
+   * Gets the total number of analytics views for the given content activity during the specified
+   * interval.
+   *
+   * @param ca the content activity, assumed not null.
+   * @param range the date range interval, assumed not null.
+   * @param resultKey determines which query result view field to extract, assumed not blank.
+   * @return total number of views.
+   * @throws PSAnalyticsProviderException if an error occurs retrieving the analytics data.
+   */
+  private long getViews(PSContentActivity ca, PSDateRange range, String resultKey)
+      throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+    long views = 0L;
+    var results = analyticsService.getPageViewsByPathPrefix(ca.getSiteName(), ca.getPath(), range);
+    for (var result : results) {
+      views += result.getLong(resultKey);
     }
-    
-    private IPSActivityService activityService;
-    private IPSAnalyticsProviderQueryService analyticsService;
- 
+    return views;
+  }
+
+  /**
+   * Maps a duration type to a granularity.
+   *
+   * @param durationType assumed not null.
+   * @return the corresponding granularity, never null.
+   */
+  private Granularity getGranularity(PSDurationTypeEnum durationType) {
+    return switch (durationType) {
+      case days -> Granularity.DAY;
+      case weeks -> Granularity.WEEK;
+      case months -> Granularity.MONTH;
+      case years -> Granularity.YEAR;
+    };
+  }
 }

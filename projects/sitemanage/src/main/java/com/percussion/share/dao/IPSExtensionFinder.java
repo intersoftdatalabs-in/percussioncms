@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
  */
 package com.percussion.share.dao;
 
-
-public interface IPSExtensionFinder
-{
-    public <T> T findExtension(String extensionId, Class<T> klass);
+/** Finds and returns an extension by its ID and type. */
+public interface IPSExtensionFinder {
+  <T> T findExtension(String extensionId, Class<T> klass);
 }

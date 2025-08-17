@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,191 +14,122 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * The section node contains summary information of a section and all direct
- * child section nodes. This can be used to construct a tree of sections for
- * a specific site.
- *
- * @author yubingchen
+ * The section node contains summary information of a section and all direct child section nodes.
+ * This can be used to construct a tree of sections for a specific site.
  */
 @XmlRootElement(name = "SectionNode")
 @JsonRootName("SectionNode")
-public class PSSectionNode extends PSAbstractPersistantObject
-{
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 1L;
+public class PSSectionNode extends PSAbstractPersistantObject {
 
+  private static final long serialVersionUID = 1L;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.share.data.PSAbstractPersistantObject#getId()
-     */
-    @Override
-    @XmlElement
-    public String getId()
-    {
-        return id;
-    }
+  private List<PSSectionNode> childNodes = new ArrayList<>();
+  private String title;
+  private String folderPath;
+  private String id;
+  private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
+  private boolean requiresLogin;
+  private String allowAccessTo;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.percussion.share.data.PSAbstractPersistantObject#setId(java.io.Serializable
-     * )
-     */
-    @Override
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  @Override
+  @XmlElement
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Gets the title of the section. It is navigation title of the navigation
-     * node and the link title of the landing page of the node.
-     * 
-     * @return the title of the section. It should not be blank for a properly
-     * configured section.
-     */
-    public String getTitle()
-    {
-        return title;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * Sets the title of the section.
-     * 
-     * @param title the new title. It should not be blank for a valid section. 
-     */
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
+  /**
+   * Gets the title of the section.
+   *
+   * @return the title of the section.
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * @return the section type
-     */
-    public PSSectionTypeEnum getSectionType()
-    {
-       return sectionType;
-    }
+  /**
+   * Sets the title of the section.
+   *
+   * @param title the new title.
+   */
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    /**
-     * @param sectionType to set, if <code>null</code> set to {@link PSSectionTypeEnum#section}}
-     */
-    public void setSectionType(PSSectionTypeEnum sectionType)
-    {
-       if(sectionType == null)
-    	   sectionType = PSSectionTypeEnum.section;
-       this.sectionType = sectionType;
-    }
+  /**
+   * @return the section type
+   */
+  public PSSectionTypeEnum getSectionType() {
+    return sectionType;
+  }
 
-    /**
-     * Gets all (direct) child nodes.
-     * 
-     * @return child nodes, never <code>null</code>, but may be empty.
-     */
-    @XmlElementWrapper(name = "childNodes")
-    @XmlElements ({@XmlElement(name="SectionNode", type=PSSectionNode.class)})
-    public List<PSSectionNode> getChildNodes()
-    {
-        return childNodes;
-    }
-    
-    /**
-     * Sets direct child nodes.
-     * 
-     * @param nodes the new list of child nodes, it may be <code>null</code>,
-     * which will be treated as empty list.
-     */
-    public void setChildNodes(List<PSSectionNode> nodes)
-    {
-        if (nodes == null)
-        {
-            childNodes.clear();
-        }
-        else
-        {
-            childNodes = nodes;
-        }
-    }
+  /**
+   * @param sectionType to set, if null set to {@link PSSectionTypeEnum#section}
+   */
+  public void setSectionType(PSSectionTypeEnum sectionType) {
+    this.sectionType = sectionType == null ? PSSectionTypeEnum.section : sectionType;
+  }
 
-    public boolean isRequiresLogin()
-    {
-        return requiresLogin;
-    }
+  /**
+   * Gets all (direct) child nodes.
+   *
+   * @return child nodes, never null, but may be empty.
+   */
+  @XmlElementWrapper(name = "childNodes")
+  @XmlElements({@XmlElement(name = "SectionNode", type = PSSectionNode.class)})
+  public List<PSSectionNode> getChildNodes() {
+    return childNodes;
+  }
 
-    public void setRequiresLogin(boolean requiresLogin)
-    {
-        this.requiresLogin = requiresLogin;
-    }
+  /**
+   * Sets direct child nodes.
+   *
+   * @param nodes the new list of child nodes, null treated as empty list.
+   */
+  public void setChildNodes(List<PSSectionNode> nodes) {
+    this.childNodes = nodes == null ? new ArrayList<>() : nodes;
+  }
 
-    public String getAllowAccessTo()
-    {
-        return allowAccessTo;
-    }
+  public boolean isRequiresLogin() {
+    return requiresLogin;
+  }
 
-    public void setAllowAccessTo(String allowAccessTo)
-    {
-        this.allowAccessTo = allowAccessTo;
-    }
-    
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  public void setRequiresLogin(boolean requiresLogin) {
+    this.requiresLogin = requiresLogin;
+  }
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
-    
-    /**
-     * A list of direct child nodes, may be empty, never <code>null</code>.
-     */
-    private List<PSSectionNode> childNodes = new ArrayList<>();
-    
-    /**
-     * The navigation title. It is also the link title of the landing page.
-     */
-    private String title;
+  public Optional<String> getAllowAccessTo() {
+    return Optional.ofNullable(allowAccessTo);
+  }
 
-    /**
-     * The link text of the section.
-     */
-    private String folderPath;
+  public void setAllowAccessTo(String allowAccessTo) {
+    this.allowAccessTo = allowAccessTo;
+  }
 
-    /**
-     * The string representation of the guid of the navon item of the section.
-     */
-    private String id;
-    
-    private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section; 
-    
-    /**
-     * Field to note if the section requires login.
-     */
-    private boolean requiresLogin;
-    
-    /**
-     * Field to save the groups that are allowed to enter the section.
-     */
-    private String allowAccessTo;
+  public Optional<String> getFolderPath() {
+    return Optional.ofNullable(folderPath);
+  }
+
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 }

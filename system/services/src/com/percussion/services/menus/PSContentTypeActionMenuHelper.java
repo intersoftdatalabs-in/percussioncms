@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;

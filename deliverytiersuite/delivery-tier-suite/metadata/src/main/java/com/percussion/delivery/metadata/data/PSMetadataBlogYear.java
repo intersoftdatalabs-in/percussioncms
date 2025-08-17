@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,124 +22,108 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-
 import org.apache.commons.lang.ObjectUtils;
 
 /**
- * Represents a year and the list of months with the number of posts for each month.
- * Also each year has the total of posts for the given year.
- * 
+ * Represents a year and the list of months with the number of posts for each month. Also each year
+ * has the total of posts for the given year.
+ *
  * @author leonardohildt
- * 
  */
-public class PSMetadataBlogYear
-{
-    private Integer year;
-    
-    private Integer yearCount;
+public class PSMetadataBlogYear {
+  private Integer year;
 
-    private List<PSMetadataBlogMonth> months;
+  private Integer yearCount;
 
-    /**
-     * @param year
-     */
-    public PSMetadataBlogYear(Integer year)
-    {
-        super();
-        this.year = year;
-        this.yearCount = 0;
-        
-        Calendar cal = Calendar.getInstance();
-        Integer currentYear = cal.get(Calendar.YEAR);
-        Integer currentMonth = cal.get(Calendar.MONTH);
-                
-        List<PSMetadataBlogMonth> emptyMonths = new ArrayList<>();
-        String[] localeMonths = new DateFormatSymbols(Locale.getDefault()).getMonths();
-        Integer indexMonth = localeMonths.length-2;
-        if (currentYear.equals(year))
-        {
-            indexMonth = currentMonth;
-        }
-        
-        for (int i = indexMonth; i >= 0; i--) {
-            PSMetadataBlogMonth newMonth = new PSMetadataBlogMonth(localeMonths[i], 0);
-            emptyMonths.add(newMonth);
-        };
-        this.months = emptyMonths;
-    }
-    
-    class MonthOrderBlogsComparator implements Comparator<PSMetadataBlogMonth>
-    {
-        public int compare(PSMetadataBlogMonth o1, PSMetadataBlogMonth o2)
-        {
-            return o1.getMonth().compareTo(o2.getMonth());
-        }
+  private List<PSMetadataBlogMonth> months;
+
+  /**
+   * @param year
+   */
+  public PSMetadataBlogYear(Integer year) {
+    super();
+    this.year = year;
+    this.yearCount = 0;
+
+    Calendar cal = Calendar.getInstance();
+    Integer currentYear = cal.get(Calendar.YEAR);
+    Integer currentMonth = cal.get(Calendar.MONTH);
+
+    List<PSMetadataBlogMonth> emptyMonths = new ArrayList<>();
+    String[] localeMonths = new DateFormatSymbols(Locale.getDefault()).getMonths();
+    Integer indexMonth = localeMonths.length - 2;
+    if (currentYear.equals(year)) {
+      indexMonth = currentMonth;
     }
 
-    /**
-     * @return the year
-     */
-    public Integer getYear()
-    {
-        return year;
+    for (int i = indexMonth; i >= 0; i--) {
+      PSMetadataBlogMonth newMonth = new PSMetadataBlogMonth(localeMonths[i], 0);
+      emptyMonths.add(newMonth);
     }
+    ;
+    this.months = emptyMonths;
+  }
 
-    /**
-     * @param year the year to set
-     */
-    public void setYear(Integer year)
-    {
-        this.year = year;
+  class MonthOrderBlogsComparator implements Comparator<PSMetadataBlogMonth> {
+    public int compare(PSMetadataBlogMonth o1, PSMetadataBlogMonth o2) {
+      return o1.getMonth().compareTo(o2.getMonth());
     }
+  }
 
-    /**
-     * @param yearCount the year count to set
-     */
-    public void setYearCount(Integer yearCount)
-    {
-        this.yearCount = yearCount;
-    }
-    
-    /**
-     * @return the count for the year
-     */
-    public Integer getYearCount()
-    {
-        return yearCount;
-    }
-    
-    /**
-     * @return the months
-     */
-    public List<PSMetadataBlogMonth> getMonths()
-    {
-        return months;
-    }
+  /**
+   * @return the year
+   */
+  public Integer getYear() {
+    return year;
+  }
 
-    /**
-     * @param months the months to set
-     */
-    public void setMonths(List<PSMetadataBlogMonth> months)
-    {
-        this.months = months;
-    }
+  /**
+   * @param year the year to set
+   */
+  public void setYear(Integer year) {
+    this.year = year;
+  }
 
-    /**
-     * @param month the month to be add
-     */
-    public void addMonth(PSMetadataBlogMonth month)
-    {
-        this.months.add(month);
-    }
-    
-    @Override
-    public boolean equals(Object obj)
-    {
-        if(!(obj instanceof PSMetadataBlogYear))
-        {
-            return false;
-        }
-        return ObjectUtils.equals(((PSMetadataBlogYear)obj).year, this.year);
-    }
+  /**
+   * @param yearCount the year count to set
+   */
+  public void setYearCount(Integer yearCount) {
+    this.yearCount = yearCount;
+  }
 
+  /**
+   * @return the count for the year
+   */
+  public Integer getYearCount() {
+    return yearCount;
+  }
+
+  /**
+   * @return the months
+   */
+  public List<PSMetadataBlogMonth> getMonths() {
+    return months;
+  }
+
+  /**
+   * @param months the months to set
+   */
+  public void setMonths(List<PSMetadataBlogMonth> months) {
+    this.months = months;
+  }
+
+  /**
+   * @param month the month to be add
+   */
+  public void addMonth(PSMetadataBlogMonth month) {
+    this.months.add(month);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PSMetadataBlogYear)) {
+      return false;
+    }
+    return ObjectUtils.equals(((PSMetadataBlogYear) obj).year, this.year);
+  }
 }

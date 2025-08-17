@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,37 @@
  */
 /*
  * test.percussion.pso.preview PreviewLocationTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.*;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.PreviewLocation;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PreviewLocationTest
-{
-   
-   PreviewLocation cut; 
-   
-   @Before
-   public void setUp() throws Exception
-   {
-      cut = new PreviewLocation();
-      cut.setPath("myPath");
-      cut.setSiteName("mySite"); 
-      cut.setUrl("//myUrl"); 
-   }
-   @Test
-   public final void testCompareTo()
-   {
-      PreviewLocation other = new PreviewLocation(); 
-      other.setPath("myPath"); 
-      other.setSiteName("mySite"); 
-      
-      int result = cut.compareTo(other); 
-      assertEquals(0, result); 
-   }
+public class PreviewLocationTest {
+
+  PreviewLocation cut;
+
+  @BeforeEach
+  public void setUp() {
+    cut = new PreviewLocation();
+    cut.setPath("myPath");
+    cut.setSiteName("mySite");
+    cut.setUrl("//myUrl");
+  }
+
+  @Test
+  void testCompareTo() {
+    PreviewLocation other = new PreviewLocation();
+    other.setPath("myPath");
+    other.setSiteName("mySite");
+
+    int result = cut.compareTo(other);
+    assertEquals(0, result);
+  }
 }

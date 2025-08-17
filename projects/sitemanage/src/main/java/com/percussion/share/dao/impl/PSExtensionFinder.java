@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,19 @@ package com.percussion.share.dao.impl;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionRef;
 
-public class PSExtensionFinder
-{
+/** Finds and prepares an extension by its ID and type. */
+public class PSExtensionFinder {
 
-    private IPSExtensionManager extensionManager;
-    
-    @SuppressWarnings("unchecked")
-    public <T> T findExtension(String extensionId, Class<T> klass) {
-        try
-        {
-           PSExtensionRef ref = new PSExtensionRef(extensionId);
-           return (T) extensionManager.prepareExtension(ref, null);
-        }
-        catch (Exception e)
-        {
-           throw new RuntimeException("Failed to find extension: " + extensionId + " class: " + klass, e);
-        }
+  private IPSExtensionManager extensionManager;
+
+  @SuppressWarnings("unchecked")
+  public <T> T findExtension(String extensionId, Class<T> klass) {
+    try {
+      var ref = new PSExtensionRef(extensionId);
+      return (T) extensionManager.prepareExtension(ref, null);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Failed to find extension: " + extensionId + " class: " + klass, e);
     }
-    
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,18 @@ package com.percussion.delivery.metadata;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
-public class PSMetadataExtractorServiceLocator extends PSBaseServiceLocator
-{
-    private static volatile IPSMetadataExtractorService mes=null;
+public class PSMetadataExtractorServiceLocator extends PSBaseServiceLocator {
+    private static volatile IPSMetadataExtractorService mes = null;
 
-      public static IPSMetadataExtractorService getMetadataExtractorService() 
-         throws PSMissingBeanConfigurationException
-      {
-          if (mes==null)
-          {
-              synchronized (PSMetadataExtractorServiceLocator.class)
-              {
-                  if (mes==null)
-                  {
-                      mes = (IPSMetadataExtractorService) getCtx().getBean("sys_metadataExtractor");
-                  }
-              }
-          }
-         return mes;
-      }
+    public static IPSMetadataExtractorService getMetadataExtractorService()
+            throws PSMissingBeanConfigurationException {
+        if (mes == null) {
+            synchronized (PSMetadataExtractorServiceLocator.class) {
+                if (mes == null) {
+                    mes = (IPSMetadataExtractorService) getCtx().getBean("sys_metadataExtractor");
+                }
+            }
+        }
+        return mes;
+    }
 }

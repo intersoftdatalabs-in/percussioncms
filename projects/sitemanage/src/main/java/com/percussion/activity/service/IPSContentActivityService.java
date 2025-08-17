@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,62 +22,54 @@ import com.percussion.activity.data.PSContentActivity;
 import com.percussion.activity.data.PSContentActivityRequest;
 import com.percussion.activity.data.PSEffectiveness;
 import com.percussion.activity.data.PSEffectivenessRequest;
-
 import java.util.List;
 
 /**
- * This service provides various methods to get the activity of the content on a single site or all sites.
- * @author BJoginipally
+ * Service for retrieving content activity and effectiveness for a single site or all sites.
  *
+ * <p>Sunny Sal: "Content activity is the heartbeat of your CMS!"
  */
-public interface IPSContentActivityService extends IPSTrafficService
-{
-    /**
-     * Gets the content activity for the given path, and specified duration.
-     * @param request the content activity request.  The path must not be blank, supply "/" for all sites.  The
-     * duration type must not be <code>blank</code> and must be of PSDurationTypeEnum.  The duration must be greater
-     * than 0.
-     * @return List of {@link PSContentActivity} objects. If the path is root, then the returned list consists of 
-     * an activity object for each site and two for assets. The first asset activity is for all the resource type
-     * assets and the second one is for non-resource type assets. If the supplied path is for a site then the returned 
-     * list consists of an activity object for each folder under the site and two activity objects for assets similar 
-     * to the above.
-     */
-    public List<PSContentActivity> getContentActivity(PSContentActivityRequest request);
-    
-    /**
-     * Gets the overall effectiveness for the given request.
-     * @param request the effectiveness request.  The path must not be blank, supply "/" for all sites.  The
-     * duration type must not be <code>blank</code> and must be of PSDurationTypeEnum.  The duration must be greater
-     * than 0.  The threshold must be greater than or equal to 0.
-     * @return list of effectiveness objects, never <code>null</code>, may be empty.  The entries will be sorted in 
-     * descending order by effectiveness value, ascending order by name.
-     */
-    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request);
-    
-    /**
-     * The type of the duration like days, weeks etc...
-     */
-    public enum PSDurationTypeEnum
-    {
-        days,
-        weeks,
-        months,
-        years
-    }
-    
-    /**
-     * The usage metric to use when calculating effectiveness.
-     */
-    public enum PSUsageEnum
-    {
-        pageviews,
-        unique_pageviews
-    }
-    
-    /**
-     * The default timeout after which content activity queries should abort
-     */
-    static final int DEFAULT_TIMEOUT = 30;
-    
+public interface IPSContentActivityService extends IPSTrafficService {
+
+  /**
+   * Gets the content activity for the given path and specified duration.
+   *
+   * @param request the content activity request. The path must not be blank, supply "/" for all
+   *     sites. The duration type must not be blank and must be of PSDurationTypeEnum. The duration
+   *     must be greater than 0.
+   * @return List of {@link PSContentActivity} objects. If the path is root, then the returned list
+   *     consists of an activity object for each site and two for assets. The first asset activity
+   *     is for all the resource type assets and the second one is for non-resource type assets. If
+   *     the supplied path is for a site then the returned list consists of an activity object for
+   *     each folder under the site and two activity objects for assets similar to the above.
+   */
+  List<PSContentActivity> getContentActivity(PSContentActivityRequest request);
+
+  /**
+   * Gets the overall effectiveness for the given request.
+   *
+   * @param request the effectiveness request. The path must not be blank, supply "/" for all sites.
+   *     The duration type must not be blank and must be of PSDurationTypeEnum. The duration must be
+   *     greater than 0. The threshold must be greater than or equal to 0.
+   * @return list of effectiveness objects, never {@code null}, may be empty. The entries will be
+   *     sorted in descending order by effectiveness value, ascending order by name.
+   */
+  List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request);
+
+  /** The type of the duration, e.g., days, weeks, etc. */
+  enum PSDurationTypeEnum {
+    days,
+    weeks,
+    months,
+    years
+  }
+
+  /** The usage metric to use when calculating effectiveness. */
+  enum PSUsageEnum {
+    pageviews,
+    unique_pageviews
+  }
+
+  /** The default timeout (in seconds) after which content activity queries should abort. */
+  int DEFAULT_TIMEOUT = 30;
 }

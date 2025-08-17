@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.contentchange;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 /**
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentChangeServiceTest
 {
 

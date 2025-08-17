@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import com.percussion.webservices.security.LoginResponse;
 import com.percussion.webservices.security.SecuritySOAPStub;
 import com.percussion.webservices.security.data.PSLogin;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.swing.JDialog;
@@ -48,7 +49,7 @@ public class PSCESessionManager implements Runnable
 
    private static final String EXTEND_SESSION = "Extend Session";
 
-   static Logger log = Logger.getLogger(PSCESessionManager.class);
+   static Logger log = LogManager.getLogger(PSCESessionManager.class);
 
    private ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 

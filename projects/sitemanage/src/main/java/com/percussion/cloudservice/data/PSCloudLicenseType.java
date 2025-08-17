@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +18,20 @@
 
 package com.percussion.cloudservice.data;
 
+/** Enum representing cloud license types for Percussion CMS. */
 public enum PSCloudLicenseType {
-    PAGE_OPTIMIZER,
-    SOCIAL_PROMOTION;
-    
-    public String toFriendlyString() {
-        String value = this.toString();
-        
-        switch (this) {
-            case PAGE_OPTIMIZER:
-                value = "Page Optimizer";
-                break;
-                
-            case SOCIAL_PROMOTION:
-                value = "Social Promotion";
-                break;
-        }
-        
-        return value;
-    }
+  PAGE_OPTIMIZER,
+  SOCIAL_PROMOTION;
+
+  /**
+   * Returns a user-friendly string for the license type.
+   *
+   * @return the friendly string representation.
+   */
+  public String toFriendlyString() {
+    return switch (this) {
+      case PAGE_OPTIMIZER -> "Page Optimizer";
+      case SOCIAL_PROMOTION -> "Social Promotion";
+    };
+  }
 }

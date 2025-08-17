@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,80 +20,71 @@ import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
 import com.percussion.delivery.utils.IPSEmailHelper;
 import com.percussion.delivery.utils.PSEmailServiceNotInitializedException;
-import org.apache.commons.lang.Validate;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.Validate;
 
 /**
- * Mock email helper for testing services that send email.  Should be wired into services in the test/beans.xml.
- * Static methods on the impl class can be used to access any email requests sent - note that this is assumed to
- * be used in a single-threaded test context.
- * 
- * @author JaySeletz
+ * Mock email helper for testing services that send email. Should be wired into services in the
+ * test/beans.xml. Static methods on the impl class can be used to access any email requests sent -
+ * note that this is assumed to be used in a single-threaded test context.
  *
+ * @author JaySeletz
  */
-public class PSMockEmailHelper implements IPSEmailHelper
-{
-    private static List<IPSEmailRequest> emailRequests = new ArrayList<IPSEmailRequest>();
-    private static int requestId = 1;
-    private static boolean configured = true;
-    private static String error = null;
+public class PSMockEmailHelper implements IPSEmailHelper {
+  private static List<IPSEmailRequest> emailRequests = new ArrayList<IPSEmailRequest>();
+  private static int requestId = 1;
+  private static boolean configured = true;
+  private static String error = null;
 
-    @Override
-    public String sendMail(IPSEmailRequest emailRequest) throws PSEmailServiceNotInitializedException, PSEmailException
-    {
-        Validate.notNull(emailRequest);
-        
-        if (error != null)
-        {
-            String errorMsg = error;
-            error = null;
-            throw new PSEmailException(errorMsg);
-        }
-        
-        if (!configured)
-        {
-            configured = true;
-            throw new PSEmailServiceNotInitializedException();
-        }
-        
-        emailRequests.add(emailRequest);
-        
-        return String.valueOf(requestId++);
+  @Override
+  public String sendMail(IPSEmailRequest emailRequest)
+      throws PSEmailServiceNotInitializedException, PSEmailException {
+    Validate.notNull(emailRequest);
+
+    if (error != null) {
+      String errorMsg = error;
+      error = null;
+      throw new PSEmailException(errorMsg);
     }
 
-    /**
-     * Get the list of email requests that have been made, clears the list from memory
-     * 
-     * @return The list, not <code>null</code>, may be empty.
-     */
-    public static List<IPSEmailRequest> getEmailRequests()
-    {
-        List<IPSEmailRequest> result = new ArrayList<IPSEmailRequest>(emailRequests);
-        emailRequests.clear();
-        return result;
+    if (!configured) {
+      configured = true;
+      throw new PSEmailServiceNotInitializedException();
     }
 
-    /**
-     * Temporarily sets this helper as not configured.  Reset to <code>true</code>
-     * after next call to {@link #sendMail(IPSEmailRequest)}
-     * 
-     * @param isConfigured <code>true</code> to be configured, <code>false</code> if not.
-     */
-    public static void setConfigured(boolean isConfigured)
-    {
-        configured = isConfigured;
-    }
+    emailRequests.add(emailRequest);
 
-    /**
-     * Set an error to be thrown on next call to {@link #sendMail(IPSEmailRequest)}.
-     * 
-     * @param errorMsg The error msg to use
-     */
-    public static void setError(String errorMsg)
-    {
-        error = errorMsg;
-    }
+    return String.valueOf(requestId++);
+  }
 
+  /**
+   * Get the list of email requests that have been made, clears the list from memory
+   *
+   * @return The list, not <code>null</code>, may be empty.
+   */
+  public static List<IPSEmailRequest> getEmailRequests() {
+    List<IPSEmailRequest> result = new ArrayList<IPSEmailRequest>(emailRequests);
+    emailRequests.clear();
+    return result;
+  }
+
+  /**
+   * Temporarily sets this helper as not configured. Reset to <code>true</code> after next call to
+   * {@link #sendMail(IPSEmailRequest)}
+   *
+   * @param isConfigured <code>true</code> to be configured, <code>false</code> if not.
+   */
+  public static void setConfigured(boolean isConfigured) {
+    configured = isConfigured;
+  }
+
+  /**
+   * Set an error to be thrown on next call to {@link #sendMail(IPSEmailRequest)}.
+   *
+   * @param errorMsg The error msg to use
+   */
+  public static void setError(String errorMsg) {
+    error = errorMsg;
+  }
 }

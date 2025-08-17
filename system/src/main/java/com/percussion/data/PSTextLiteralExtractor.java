@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,20 @@
 
 package com.percussion.data;
 
-
-
 /**
- * The PSTextLiteralExtractor class is used to extract data from 
- * a pre-defined text literal.
- * 
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * The PSTextLiteralExtractor class is used to extract data from a pre-defined text literal.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSTextLiteralExtractor extends PSLiteralExtractor
-{
-   /**
-    * Construct an object from its object store counterpart.
-    *
-    * @param   source      the object defining the source of this value
-    */
-   public PSTextLiteralExtractor(
-      com.percussion.design.objectstore.PSTextLiteral source)
-   {
-      super(source);
-   }
+public class PSTextLiteralExtractor extends PSLiteralExtractor {
+  /**
+   * Construct an object from its object store counterpart.
+   *
+   * @param source the object defining the source of this value
+   */
+  public PSTextLiteralExtractor(com.percussion.design.objectstore.PSTextLiteral source) {
+    super(source);
+  }
 }
-

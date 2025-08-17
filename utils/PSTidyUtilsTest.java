@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 
 package com.percussion.testing;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -33,13 +33,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Testing {@link PSTidyUtils}. This test has to be run within server environment
  * because it is rely on PSServer.getRxDir() to load tidy property file.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTidyUtilsTest
 {
 
@@ -47,7 +47,7 @@ public class PSTidyUtilsTest
 
     Properties m_tidyProperties = new Properties();;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
        InputStream input = null;

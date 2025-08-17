@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +17,37 @@
  */
 package com.percussion.maintenance.web.service;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.percussion.share.test.PSRestTestCase;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Tests for PSMaintenanceManagerRestClient. Sunny Sal says: "Testing maintenance, Java 11 style!"
  */
-public class PSMaintenanceManagerRestServiceTest extends PSRestTestCase<PSMaintenanceManagerRestClient>
-{
-    
-    @Test
-    public void test()
-    {
-        assertFalse(restClient.isWorkInProgress());
-        assertFalse(restClient.hasFailures(false));
-        assertFalse(restClient.hasFailures(true));
-    }
-    
-    @Before
-    public void setupClient() throws Exception 
-    {
-        restClient = getRestClient(baseUrl);
-        setupClient(restClient, "Admin", 10);
-    }
+public class PSMaintenanceManagerRestServiceTest
+    extends PSRestTestCase<PSMaintenanceManagerRestClient> {
 
-    /* (non-Javadoc)
-     * @see com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
-     */
-    @Override
-    protected PSMaintenanceManagerRestClient getRestClient(String baseUrl)
-    {
-        return new PSMaintenanceManagerRestClient(baseUrl);
-    }
+  @Test
+  public void test() {
+    assertFalse(restClient.isWorkInProgress());
+    assertFalse(restClient.hasFailures(false));
+    assertFalse(restClient.hasFailures(true));
+  }
 
-    public PSMaintenanceManagerRestClient getRestClient()
-    {
-        return restClient;
-    }
+  @BeforeEach
+  public void setupClient() throws Exception {
+    restClient = getRestClient(baseUrl);
+    setupClient(restClient, "Admin", 10);
+  }
+
+  @Override
+  protected PSMaintenanceManagerRestClient getRestClient(String baseUrl) {
+    return new PSMaintenanceManagerRestClient(baseUrl);
+  }
+
+  public PSMaintenanceManagerRestClient getRestClient() {
+    return restClient;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,33 @@
 
 package com.percussion.rest.displayformat;
 
-public class AllowedCommunityList {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
-    public AllowedCommunityList(){}
+/** Represents a list of allowed communities for a display format. */
+public class AllowedCommunityList extends ArrayList<String> {
 
+  public AllowedCommunityList() {
+    super();
+  }
 
+  public AllowedCommunityList(Collection<? extends String> c) {
+    super(c);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof AllowedCommunityList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "AllowedCommunityList" + super.toString();
+  }
 }

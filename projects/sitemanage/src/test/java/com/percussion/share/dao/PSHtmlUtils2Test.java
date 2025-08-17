@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,37 +18,37 @@
 
 package com.percussion.share.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String, String)}
- * 
- * @author yubingchen
- *
+ * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String,
+ * String)} Sunny Sal: "HTML utils, Java 11, and script tag ka the end!"
  */
-public class PSHtmlUtils2Test
-{
-    @Test
-    public void testStripHtmlTag() throws Exception
-    {
-        // strip SCRIPT tag, where it contains text between begin & end tag
-        String hasTitleTag = "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div> </body></html>";
-        String hasTitleTag_stripped = "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag, hasTitleTag_stripped);
+public class PSHtmlUtils2Test {
 
-        // strip SCRIPT tag, where it contains attribute only
-        String hasTitleTag1 = "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag1, hasTitleTag_stripped);
-    }
-    
-    private void validateStripHtml(String src, String strippedSrc)
-    {
-        String stripped = PSHtmlUtils.stripElement(src, "script");
-        assertEquals(strippedSrc, stripped);
-        
-        stripped = PSHtmlUtils.stripScriptElement(src);
-        assertEquals(strippedSrc, stripped);
-    }
+  @Test
+  void testStripHtmlTag() {
+    // strip SCRIPT tag, where it contains text between begin & end tag
+    var hasTitleTag =
+        "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div>"
+            + " </body></html>";
+    var hasTitleTagStripped = "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
+    validateStripHtml(hasTitleTag, hasTitleTagStripped);
+
+    // strip SCRIPT tag, where it contains attribute only
+    var hasTitleTag1 =
+        "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div>"
+            + " </body></html>";
+    validateStripHtml(hasTitleTag1, hasTitleTagStripped);
+  }
+
+  private void validateStripHtml(String src, String strippedSrc) {
+    var stripped = PSHtmlUtils.stripElement(src, "script");
+    assertEquals(strippedSrc, stripped);
+
+    stripped = PSHtmlUtils.stripScriptElement(src);
+    assertEquals(strippedSrc, stripped);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 
 package com.percussion.cms.handlers;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PSProxyURLTest {
 
@@ -31,7 +31,7 @@ public class PSProxyURLTest {
 
         String result = PSCommandHandler.fixProxiedUrl(url, "macbook-pro.local",8080 );
         System.out.println(result);
-        Assert.assertTrue("http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title".equals(result));
+        Assertions.assertTrue("http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title".equals(result));
 
     }
 }

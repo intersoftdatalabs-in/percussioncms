@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,51 @@ package com.percussion.webui.gadget.servlets;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName("gadget")
-public class GadgetEntry {
+public final class GadgetEntry {
+  private final String name;
+  private final String baseuri;
+  private final String file;
 
+  private GadgetEntry(Builder builder) {
+    this.name = builder.name;
+    this.baseuri = builder.baseuri;
+    this.file = builder.file;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getBaseuri() {
+    return baseuri;
+  }
+
+  public String getFile() {
+    return file;
+  }
+
+  public static class Builder {
     private String name;
     private String baseuri;
     private String file;
 
-    public String getName() {
-        return name;
+    public Builder withName(String name) {
+      this.name = name;
+      return this;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Builder withBaseuri(String baseuri) {
+      this.baseuri = baseuri;
+      return this;
     }
 
-    public String getBaseuri() {
-        return baseuri;
+    public Builder withFile(String file) {
+      this.file = file;
+      return this;
     }
 
-    public void setBaseuri(String baseuri) {
-        this.baseuri = baseuri;
+    public GadgetEntry build() {
+      return new GadgetEntry(this);
     }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
-    }
+  }
 }

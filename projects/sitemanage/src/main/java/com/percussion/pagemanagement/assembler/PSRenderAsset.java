@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,56 +17,45 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import javax.jcr.Node;
-
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.share.service.IPSLinkableItem;
 import com.percussion.utils.guid.IPSGuid;
+import javax.jcr.Node;
 
 /**
- * 
  * A special version of asset used in rendering mode.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSRenderAsset extends PSAsset implements IPSLinkableItem
-{
-    
-    private Node node;
-    private String folderPath;
-    private IPSGuid ownerId;
-    
-    public Node getNode()
-    {
-        return node;
-    }
+public class PSRenderAsset extends PSAsset implements IPSLinkableItem {
 
-    public void setNode(Node node)
-    {
-        this.node = node;
-    }    
-    
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  private Node node;
+  private String folderPath;
+  private IPSGuid ownerId;
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  public Node getNode() {
+    return node;
+  }
 
-    public IPSGuid getOwnerId()
-    {
-        return ownerId;
-    }
+  public void setNode(Node node) {
+    this.node = node;
+  }
 
-    public void setOwnerId(IPSGuid id)
-    {
-        ownerId = id;
-    }
-    
-    private static final long serialVersionUID = 1L;
+  public String getFolderPath() {
+    return folderPath;
+  }
 
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
+
+  public IPSGuid getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(IPSGuid id) {
+    ownerId = id;
+  }
+
+  private static final long serialVersionUID = 1L;
 }

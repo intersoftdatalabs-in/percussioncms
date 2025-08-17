@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,9 @@ import java.lang.annotation.Target;
 /**
  * This annotation tells custom spring validator to follow the path and validate a nested property
  * object.
+ *
  * @author SergeyZ
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface PSValidateNestedProperty {
-
-}
+public @interface PSValidateNestedProperty {}

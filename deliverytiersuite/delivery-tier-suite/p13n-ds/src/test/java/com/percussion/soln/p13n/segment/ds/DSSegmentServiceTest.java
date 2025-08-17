@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 package com.percussion.soln.p13n.segment.ds;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.Segments;
@@ -42,7 +42,7 @@ public class DSSegmentServiceTest {
     Segment segmentC;
     JUnit4Mockery context = new JUnit4Mockery();
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segmentService = new DSSegmentService();
         segmentA = makeSegment(1, "//a");

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,10 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all security test cases.
@@ -101,7 +101,7 @@ public class PSSecurityTestBase extends PSTestBase
       }
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void setup() throws Exception
    {
 
@@ -118,7 +118,7 @@ public class PSSecurityTestBase extends PSTestBase
       }
    }
 
-  @AfterClass
+  @AfterAll
    protected static void tearDown() throws Exception
    {
       deleteTestCommunities(m_session);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,85 +14,82 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.uninstall;
 
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * Interface for the uninstall results. Package name and type are required and
- * rest of the data is filled based on the stage at which the failure occurred.
- * 
- * @author bjoginipally
- * 
+ * Interface for the uninstall results. Package name and type are required and the rest of the data
+ * is filled based on the stage at which the failure occurred.
  */
-public interface IPSUninstallResult
-{
-   /**
-    * Returns the package guid, may be <code>null</code>, if the supplied
-    * package name does have a corresponding guid.
-    * 
-    * @return IPSGuid of the package may be <code>null</code>.
-    */
-   public IPSGuid getPackageGuid();
+public interface IPSUninstallResult {
 
-   /**
-    * Returns the name of the package.
-    * 
-    * @return name of the package, never <code>null</code>.
-    */
-   public String getPackageName();
+  /**
+   * Returns the package GUID, may be <code>null</code> if the supplied package name does not have a
+   * corresponding GUID.
+   *
+   * @return IPSGuid of the package, may be <code>null</code>.
+   */
+  IPSGuid getPackageGuid();
 
-   /**
-    * Returns the type of the result.
-    * 
-    * @return type of the result never <code>null</code>.
-    */
-   public PSUninstallResultType getResultType();
+  /**
+   * Returns the name of the package.
+   *
+   * @return Name of the package, never <code>null</code>.
+   */
+  String getPackageName();
 
-   /**
-    * Returns the message.
-    * 
-    * @return the message of the result, may be <code>null</code> or empty.
-    */
-   public String getMessage();
+  /**
+   * Returns the type of the result.
+   *
+   * @return Type of the result, never <code>null</code>.
+   */
+  PSUninstallResultType getResultType();
 
-   /**
-    * Exception associated with the result.
-    * 
-    * @return may be <code>null</code>. Incase of no exceptions.
-    */
-   public Exception getException();
+  /**
+   * Returns the message.
+   *
+   * @return The message of the result, may be <code>null</code> or empty.
+   */
+  String getMessage();
 
-   /**
-    * Gets the guid of the object that caused the error.
-    * 
-    * @return IPSGuid object guid object guid may be <code>null</code>.
-    */
-   public IPSGuid getObjectGuid();
+  /**
+   * Exception associated with the result.
+   *
+   * @return May be <code>null</code> if no exceptions occurred.
+   */
+  Exception getException();
 
-   /**
-    * Gets the name of the object that caused the error.
-    * 
-    * @return String object name may be <code>null</code>.
-    */
-   public String getObjectName();
+  /**
+   * Gets the GUID of the object that caused the error.
+   *
+   * @return IPSGuid object GUID, may be <code>null</code>.
+   */
+  IPSGuid getObjectGuid();
 
-   /**
-    * The uninstall message type enum.
-    */
-   public enum PSUninstallResultType
-   {
-      SUCCESS(1), INFO(2), WARN(3), ERROR(4);
-      PSUninstallResultType(int type)
-      {
-         m_type = type;
-      }
-      public int getValue()
-      {
-         return m_type;
-      }
-      
-      private int m_type;
-   }
+  /**
+   * Gets the name of the object that caused the error.
+   *
+   * @return String object name, may be <code>null</code>.
+   */
+  String getObjectName();
 
+  /** The uninstall message type enum. */
+  enum PSUninstallResultType {
+    SUCCESS(1),
+    INFO(2),
+    WARN(3),
+    ERROR(4);
+
+    PSUninstallResultType(int type) {
+      this.type = type;
+    }
+
+    public int getValue() {
+      return type;
+    }
+
+    private final int type;
+  }
 }

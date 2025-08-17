@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@
 
 package com.percussion.util;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.collections4.CollectionUtils;
+import org.junit.jupiter.api.Test;
 
 public class FunctionalUtilsTest {
 
-    @Test
-    public void commaStringToStream() {
+  @Test
+  public void commaStringToStream() {
 
-        Set<String> expected = new HashSet<>();
-        expected.add("test1");
-        expected.add("test2");
-        Set<String> stringSet = FunctionalUtils.commaStringToStream("test2,test1").collect(Collectors.toSet());
-        assertTrue(CollectionUtils.isEqualCollection(expected,stringSet));
-        System.out.println(stringSet);
-    }
+    Set<String> expected = new HashSet<>();
+    expected.add("test1");
+    expected.add("test2");
+    Set<String> stringSet =
+        FunctionalUtils.commaStringToStream("test2,test1").collect(Collectors.toSet());
+    assertTrue(CollectionUtils.isEqualCollection(expected, stringSet));
+    System.out.println(stringSet);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,12 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
  * Check that the value argument exists
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -40,36 +39,27 @@ import org.apache.commons.lang.StringUtils;
  * <td>The value to check</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
  */
-public class PSValidateRequired implements IPSFieldValidator
-{
-   public Object processUdf(Object[] params,
-         @SuppressWarnings("unused") IPSRequestContext request)
-   {
-      Object value;
-      
-      try
-      {
-         PSExtensionParams ep = new PSExtensionParams(params);
-         
-         value = ep.getUncheckedParam(0);
-      }
-      catch (PSConversionException e)
-      {
-         throw new IllegalArgumentException(e.getLocalizedMessage());
-      }
-      
-      if(value==null || StringUtils.isBlank(value.toString()))
-         return false;
-      return true;
-   }
+public class PSValidateRequired implements IPSFieldValidator {
+  public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request) {
+    Object value;
 
-   public void init(@SuppressWarnings("unused") IPSExtensionDef def,
-         @SuppressWarnings("unused") File codeRoot)
-   {
-      //No initialization required for this UDF
-   }
+    try {
+      PSExtensionParams ep = new PSExtensionParams(params);
 
+      value = ep.getUncheckedParam(0);
+    } catch (PSConversionException e) {
+      throw new IllegalArgumentException(e.getLocalizedMessage());
+    }
+
+    if (value == null || StringUtils.isBlank(value.toString())) return false;
+    return true;
+  }
+
+  public void init(
+      @SuppressWarnings("unused") IPSExtensionDef def, @SuppressWarnings("unused") File codeRoot) {
+    // No initialization required for this UDF
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 

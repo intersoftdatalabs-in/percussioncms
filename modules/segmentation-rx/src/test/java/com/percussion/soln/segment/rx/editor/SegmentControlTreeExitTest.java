@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.soln.segment.ISegmentNode;
@@ -37,7 +37,7 @@ import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.ISegmentTreeFactory;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeExit;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeExitTest {
     Mockery context = new JUnit4Mockery();
     SegmentControlTreeExit exit;
@@ -45,12 +45,12 @@ public class SegmentControlTreeExitTest {
     ISegmentTreeFactory treeFactoryMock;
     SegmentMocks segMocks = new SegmentMocks(context);
     
-    @BeforeClass
+    @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         exit = new SegmentControlTreeExit();
         segmentServiceMock = context.mock(ISegmentService.class);

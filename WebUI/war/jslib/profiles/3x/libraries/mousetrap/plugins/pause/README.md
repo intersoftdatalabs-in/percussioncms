@@ -11,3 +11,4 @@ Mousetrap.pause();
 // allow Mousetrap events to fire again
 Mousetrap.unpause();
 ```
+

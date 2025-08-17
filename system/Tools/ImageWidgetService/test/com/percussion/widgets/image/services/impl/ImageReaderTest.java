@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
  */
 package com.percussion.widgets.image.services.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.web.impl.ImageReader;
@@ -32,10 +32,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.shaded.commons.io.FilenameUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author matthew.ernewein
@@ -54,7 +54,7 @@ public class ImageReaderTest
 
    private static final Logger log = LogManager.getLogger(ImageReaderTest.class);
 
-   @BeforeClass
+   @BeforeAll
    public static void runBeforeClass()
    {
 
@@ -104,19 +104,19 @@ public class ImageReaderTest
    }
 
    @Test
-   @Ignore //TODO: Should be passing once svg support is working
+   @Disabled //TODO: Should be passing once svg support is working
    public void testSVG() throws IOException{
       testImage("anenome.svg");
    }
 
    @Test
-   @Ignore //TODO: Should be passing once jpeg2000 support is working
+   @Disabled //TODO: Should be passing once jpeg2000 support is working
    public void testJPEG2000() throws IOException{
       testImage("relax.jp2");
    }
 
    @Test
-   @Ignore //TODO: Should be passing once webp support is working
+   @Disabled //TODO: Should be passing once webp support is working
    public void testWebp() throws IOException{
       testImage("1.webp");
    }
@@ -140,7 +140,7 @@ public class ImageReaderTest
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void testSmallGif() throws IOException
    {
       //This GIF in particular had an issue with site sucker.
@@ -155,7 +155,7 @@ public class ImageReaderTest
       BufferedImage bufferedImage = ImageIO.read(getClass().getClassLoader()
               .getResourceAsStream(resourcePath));
       testResize(resourcePath);
-      Assert.assertNotNull("Buffered image is null after read:" + resourcePath,
+      assertNotNull("Buffered image is null after read:" + resourcePath,
             bufferedImage);
    }
 
@@ -172,7 +172,7 @@ public class ImageReaderTest
          ImageData resizedImage = resizeManager.generateImage(getClass()
                .getClassLoader().getResourceAsStream(resourcePath));
 
-         Assert.assertTrue(
+         Assertions.assertTrue(
                "Invalid ImageData for generateImage(InputStream input)",
                validateImageData(resizedImage));
       }
@@ -181,7 +181,7 @@ public class ImageReaderTest
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
-         Assert.fail("Caught exception on resize");
+         Assertions.fail("Caught exception on resize");
 
       }
       return success;
@@ -198,7 +198,7 @@ public class ImageReaderTest
             || (imageData.getBinary().length == 0))
       {
          valid = false;
-         Assert.fail("Invalid ImageData returned after resize");
+         Assertions.fail("Invalid ImageData returned after resize");
       }
       return valid;
    }
@@ -215,7 +215,7 @@ public class ImageReaderTest
       }
       catch (ImageReaderException imageReaderException)
       {
-         Assert.fail("Caught image reader exception");
+         Assertions.fail("Caught image reader exception");
          log.error(imageReaderException.getMessage());
          log.debug(imageReaderException.getMessage(), imageReaderException);
       }
@@ -237,14 +237,14 @@ public class ImageReaderTest
       }
       catch (ImageReadException e)
       {
-         Assert.fail("Caught image read exception getting image information:"
+         Assertions.fail("Caught image read exception getting image information:"
                + e.getMessage());
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       catch (IOException e)
       {
-         Assert.fail("Caught IO exception getting image information:"
+         Assertions.fail("Caught IO exception getting image information:"
                + e.getMessage());
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));

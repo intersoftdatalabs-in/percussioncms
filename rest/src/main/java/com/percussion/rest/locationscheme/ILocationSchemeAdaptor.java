@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,28 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.locationscheme;
 
+/**
+ * Adaptor interface for Location Scheme operations. Sunny Sal: "Location scheme ka adaptor,
+ * publishing ka factor!"
+ */
 public interface ILocationSchemeAdaptor {
 
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
+  /**
+   * Creates or updates a LocationScheme.
+   *
+   * @param scheme The LocationScheme to create or update.
+   * @return The created or updated LocationScheme.
+   */
+  LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
 
-    public void deletedLocationScheme(String guid);
-
+  /**
+   * Deletes a LocationScheme by GUID.
+   *
+   * @param guid The GUID of the LocationScheme to delete.
+   */
+  void deletedLocationScheme(String guid);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 package com.percussion.soln.p13n.delivery.ds;
 
 import static integrationtest.spring.SpringSetup.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.mvc.Controller;
@@ -46,7 +46,7 @@ public class DSDeliveryTest  {
     MockHttpServletRequest request;
     MockHttpServletResponse response;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/delivery-servlet.xml",
@@ -58,7 +58,7 @@ public class DSDeliveryTest  {
 //        dataSetup.setupData();
     }
     
-    @Before
+    @BeforeEach
     public void setUp() {
         request = new MockHttpServletRequest();
         request.setMethod("GET");

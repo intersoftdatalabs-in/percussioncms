@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,32 +23,26 @@ import java.util.Set;
  * Represents a hashSet of {@link PSMetadataBlogYear} instances.
  *
  * @author leonardohildt
- * 
  */
-public class PSMetadataBlogEntry
-{
-    private Set<PSMetadataBlogYear> years;
+public class PSMetadataBlogEntry {
+  private Set<PSMetadataBlogYear> years;
 
-    public PSMetadataBlogEntry()
-    {
-        super();
-        this.years = new HashSet<>();
-    }
+  public PSMetadataBlogEntry() {
+    super();
+    this.years = new HashSet<>();
+  }
 
-    /**
-     * @return the years
-     */
-    public Set<PSMetadataBlogYear> getYears()
-    {
-        return years;
-    }
+  /**
+   * @return the years
+   */
+  public Set<PSMetadataBlogYear> getYears() {
+    return years;
+  }
 
-    /**
-     * @param years the years to set
-     */
-    public void setYears(Set<PSMetadataBlogYear> years)
-    {
-        this.years = years;
-    }
-
+  /**
+   * @param years the years to set
+   */
+  public void setYears(Set<PSMetadataBlogYear> years) {
+    this.years = years;
+  }
 }

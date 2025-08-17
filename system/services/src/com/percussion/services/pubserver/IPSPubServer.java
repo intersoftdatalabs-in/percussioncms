@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,53 +20,123 @@ import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.pubserver.impl.PSPubServerDao;
 import com.percussion.utils.guid.IPSGuid;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
- * Represents a publishing server. The server manager performs all CRUD
- * operations on server objects.
- * 
+ * Represents a publishing server with modern Java 11 patterns. The server manager performs all CRUD
+ * operations on server objects with enhanced type safety and Optional-based access.
+ *
  * @author leonardohildt
  */
-public interface IPSPubServer
-{
-   public static final String DEFAULT_DTS = "NONE";
+public interface IPSPubServer {
+
+   String DEFAULT_DTS = "NONE";
+
    /**
-    * The publishing type. Used to indicate which mechanism to be used to
-    * publish to the live site.
+    * The publishing type with enhanced utility methods. Used to indicate which mechanism
+    * to be used to publish to the live site.
     */
-   public enum PublishType{
-       /**
-        * Publishing defaults to local
-        */
-       filesystem,
-       /**
-        * Publishing will be done via FTP
-        */
-       ftp,
-       /**
-        * Publishing will be done via SFTP
-        */
-       sftp,
-       /**
-        * publishing will be done to database
-        */
-       database;
-    }
-   
+   enum PublishType {
+      /** Publishing defaults to local filesystem */
+      FILESYSTEM("filesystem", "Local filesystem publishing"),
+
+      /** Publishing will be done via FTP */
+      FTP("ftp", "FTP publishing"),
+
+      /** Publishing will be done via SFTP */
+      SFTP("sftp", "Secure FTP publishing"),
+
+      /** Publishing will be done to database */
+      DATABASE("database", "Database publishing");
+
+      private final String value;
+      private final String description;
+
+      PublishType(String value, String description) {
+         this.value = value;
+         this.description = description;
+      }
+
+      /**
+       * Get the string value for this publish type.
+       *
+       * @return the string value, never null
+       */
+      public String getValue() {
+         return value;
+      }
+
+      /**
+       * Get a human-readable description of this publish type.
+       *
+       * @return the description, never null
+       */
+      public String getDescription() {
+         return description;
+      }
+
+      /**
+       * Check if this is a filesystem-based publish type.
+       *
+       * @return true if filesystem
+       */
+      public boolean isFilesystem() {
+         return this == FILESYSTEM;
+      }
+
+      /**
+       * Check if this is an FTP-based publish type (FTP or SFTP).
+       *
+       * @return true if FTP or SFTP
+       */
+      public boolean isFtpBased() {
+         return this == FTP || this == SFTP;
+      }
+
+      /**
+       * Check if this is a database publish type.
+       *
+       * @return true if database
+       */
+      public boolean isDatabase() {
+         return this == DATABASE;
+      }
+
+      /**
+       * Find a PublishType by its string value.
+       *
+       * @param value the string value to search for
+       * @return Optional containing the matching PublishType, empty if not found
+       */
+      public static Optional<PublishType> fromValue(String value) {
+         if (value == null) return Optional.empty();
+
+         return Stream.of(values())
+            .filter(type -> type.value.equalsIgnoreCase(value))
+            .findFirst();
+      }
+   }
+
+   /**
+    * Property names to be encoded for security.
+    */
+   String[] ENCODED_PROPERTY_NAMES = {PSPubServerDao.PUBLISH_PASSWORD_PROPERTY};
+
+   Set<String> ENCODED_PROPERTY_NAMES_SET = Set.of(ENCODED_PROPERTY_NAMES);
+
    /**
     * Get the unique id for the server.
     * 
-    * @return the guid, never <code>null</code>
+    * @return the guid, never null
     */
    IPSGuid getGUID();
 
    /**
     * Get the server id for this server.
     * 
-    * @return the server id, never <code>null</code> or empty.
+    * @return the server id, never null or empty
     */
    long getServerId();
 
@@ -78,144 +148,167 @@ public interface IPSPubServer
    void setServerId(long serverId);
 
    /**
-    * The server name, never <code>null</code> or empty.
-    * 
-    * @return Returns the server name.
+    * The server name, never null or empty.
+    *
+    * @return the server name, never null
     */
    String getName();
 
    /**
-    * @param name The name to set, never <code>null</code> or empty
+    * Set the server name.
+    *
+    * @param name the name to set, never null or empty
     */
    void setName(String name);
 
    /**
     * Get the description that describes this server.
     * 
-    * @return the description, can be <code>null</code> or empty.
+    * @return Optional containing the description, empty if not set
     */
-   String getDescription();
+   Optional<String> getDescription();
 
    /**
     * Set the description.
     * 
-    * @param description the description to set
+    * @param description the description to set, may be null
     */
    void setDescription(String description);
 
    /**
     * Get the publish type for the server.
     * 
-    * @return the publish type, never <code>null</code> or empty.
+    * @return the publish type, never null or empty
     */
    String getPublishType();
 
    /**
-    * Returns the Publish Server URL for the server
-    * @return
+    * Get the publish type as an enum for type-safe operations.
+    *
+    * @return Optional containing the PublishType enum, empty if unknown type
     */
-   String getPublishServer();
+   default Optional<PublishType> getPublishTypeEnum() {
+      return PublishType.fromValue(getPublishType());
+   }
+
+   /**
+    * Returns the publish server URL for the server.
+    *
+    * @return Optional containing the server URL, empty if not configured
+    */
+   Optional<String> getPublishServer();
 
    /**
     * Set the publish type for this server.
     * 
-    * @param publishType the publish type to set
+    * @param publishType the publish type to set, never null
     */
    void setPublishType(String publishType);
 
+   /**
+    * Set the publish type using the enum for type safety.
+    *
+    * @param publishType the publish type enum to set, never null
+    */
+   default void setPublishType(PublishType publishType) {
+      setPublishType(publishType.getValue());
+   }
+
+   /**
+    * Get all properties for this server.
+    *
+    * @return unmodifiable set of properties, never null
+    */
    Set<PSPubServerProperty> getProperties();
    
    /**
-    * Retrieves the property from this server that has the given name. It
-    * returns <code>null</code> if no property was found with that name. The
-    * comparison is made ignoring the letter case.
-    * 
-    * @param propertyName {@link String} can be blank, in which case it will
-    *           return <code>null</code>.
-    * @return {@link PSPubServerProperty} object if the property was found,
-    *         <code>null</code> otherwise.
+    * Retrieves the property from this server that has the given name with safe access.
+    * The comparison is made ignoring letter case.
+    *
+    * @param propertyName the property name to search for, may be blank
+    * @return Optional containing the property if found, empty otherwise
     */
-   PSPubServerProperty getProperty(String propertyName);
+   Optional<PSPubServerProperty> getProperty(String propertyName);
 
    /**
-    * Returns the property value without being decoded (see
-    * {@link #getDecodedPropertyValue(String)}), or <code>null</code> if that is
-    * the property value, or the property does not exist.
-    * 
-    * @param propertyName {@link String} can be blank, in which case it will
-    *           return <code>null</code>.
-    * @return {@link String} (that may be <code>null</code>) with the property
-    *         value if it exists, or <code>null</code> if it could not be found.
+    * Returns the property value without being decoded, with safe access.
+    *
+    * @param propertyName the property name to search for, may be blank
+    * @return Optional containing the property value if it exists, empty otherwise
     */
-   String getPropertyValue(String propertyName);
+   Optional<String> getPropertyValue(String propertyName);
 
    /**
-    * Similar to {@link #getPropertyValue(String)} but in case that the returned
-    * value is <code>null</code>, the default value is returned.
-    * 
-    * @param propertyName {@link String} can be blank, in which case it will
-    *           return the default value.
-    * @param defaultValue {@link String} can be blank, it will be returned if
-    *           the property does not exists or its value is blank.
-    * @return {@link String} that may be <code>null</code>.
+    * Similar to {@link #getPropertyValue(String)} but returns the default value
+    * if the property is not found or is empty.
+    *
+    * @param propertyName the property name to search for, may be blank
+    * @param defaultValue the default value to return if property not found
+    * @return the property value or default value, never null
     */
    String getPropertyValue(String propertyName, String defaultValue);
 
    /**
-    * Helper method to find out if the server is ment to publish in XML format
-    * or not.
-    * 
-    * @return <code>true</code> if the server is ment to publish in XML format.
-    *         <code>false</code> otherwise.
+    * Helper method to determine if the server publishes in XML format.
+    *
+    * @return true if the server publishes in XML format
     */
    boolean isXmlFormat();
    
    /**
-    * Helper method to find out if the server is ment to publish to a database
-    * or not.
-    * 
-    * @return <code>true</code> if the server is ment to publish to database.
-    *         <code>false</code> otherwise.
+    * Helper method to determine if the server publishes to a database.
+    *
+    * @return true if the server publishes to database
     */
-   boolean isDatabaseType();
-   
-   /**
-    * Helper method to determine if the server is publishing to ftp or sftp
-    * 
-    * @return <code>true</code> if ftp, <code>false</code> if not.
-    */
-   public boolean isFtpType();
-   
-   /**
-    * The site Id
-    * 
-    * @return Returns the site id, never <code>null</code>
-    */
-   public long getSiteId();
+   default boolean isDatabaseType() {
+      return getPublishTypeEnum()
+         .map(PublishType::isDatabase)
+         .orElse(false);
+   }
 
    /**
-    * Property names to be encoded
+    * Helper method to determine if the server is publishing to FTP or SFTP.
+    *
+    * @return true if FTP-based, false otherwise
     */
-   static String[] encodedPropertyNames = {PSPubServerDao.PUBLISH_PASSWORD_PROPERTY};
+   default boolean isFtpType() {
+      return getPublishTypeEnum()
+         .map(PublishType::isFtpBased)
+         .orElse(false);
+   }
 
-   static final Set<String> encodedPropertyNamesList = new HashSet<>(
-         Arrays.asList(encodedPropertyNames));
+   /**
+    * Get the site ID associated with this server.
+    *
+    * @return the site id, never null
+    */
+   long getSiteId();
 
-   String getServerType();
+   /**
+    * Get the server type.
+    *
+    * @return Optional containing the server type, empty if not set
+    */
+   Optional<String> getServerType();
+
+   /**
+    * Set the server type.
+    *
+    * @param serverType the server type to set, may be null
+    */
    void setServerType(String serverType);
 
    /**
-    * Determine if this server has been full published since created or configuration has changed.
-    * 
-    * @return <code>true</code> if it has been full published, <code>false</code> if not.
+    * Determine if this server has been fully published since created or configuration changed.
+    *
+    * @return true if it has been fully published, false otherwise
     */
    boolean hasFullPublished();
    
    /**
-    * Set if this server has been full published since created or configuration has changed.
-    * 
-    * @param hasFullPublished <code>true</code> if it has been full published, <code>false</code> if not.
+    * Set if this server has been fully published since created or configuration changed.
+    *
+    * @param hasFullPublished true if it has been fully published, false otherwise
     */
-   void setHasFullPublisehd(boolean hasFullPublished);
-
+   void setHasFullPublished(boolean hasFullPublished);
 }

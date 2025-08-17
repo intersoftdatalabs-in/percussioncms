@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,16 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
- * The IRxConvert interface must be implemented by any class which
- * can be used to convert installed files.
- *
+ * The IRxConvert interface must be implemented by any class which can be used to convert installed
+ * files.
  */
 public interface IRxConvert {
   /**
    * Converts the installed files.
-   * 
+   *
    * @param files - The list of files to convert.
-   * @param conn - The connection pointing to the backend database
-   *              specified by rxrepository.properties.
+   * @param conn - The connection pointing to the backend database specified by
+   *     rxrepository.properties.
    */
-   public abstract void convert(ArrayList files, Connection conn) throws IOException;
+  public abstract void convert(ArrayList files, Connection conn) throws IOException;
 }
-

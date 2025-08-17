@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,46 +15,44 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
 import java.util.HashSet;
+import java.util.Set;
 
+/** Utility for filtering out bad keywords from link text. */
 public class PSLinkBadKeywords {
-    private static final HashSet<String>  mFilterSet = new HashSet<String>() {
+  private static final Set<String> FILTER_SET =
+      new HashSet<>() {
         {
-            add("more");
-            add("this");
-            add("that");
-            add("click here");
-            add("there");
-            add("here");
-            add("over there");
+          add("more");
+          add("this");
+          add("that");
+          add("click here");
+          add("there");
+          add("here");
+          add("over there");
         }
-    };
+      };
 
+  /** Checks if the given string is in the filter list. */
+  public static boolean isStringInFilterList(final String stringToFind) {
+    return FILTER_SET.contains(stringToFind.toLowerCase());
+  }
 
-    /**
-     * Applies the filters to a given String
-     * 
-     * @param stringForFilter
-     *            the String to be filtered
-     * @return a filtered String
-     */
-    public static boolean isStringInFilterList(final String stringToFind) {
-        return mFilterSet.contains(stringToFind.toLowerCase());        
-    }
-    
-    public static String filterLinkTextString(String stringForFilter)
-    {
-        String returnString;
-        returnString = stringForFilter.replace("Link to ", ""); // WordPress filter
-        returnString = returnString.replace("link to ", ""); // WordPress filter
-        returnString = returnString.replace("Browse to ", "");
-        returnString = returnString.replace("browse to ", "");
-        returnString = returnString.replace("Navigate to ", "");
-        returnString = returnString.replace("navigate to ", "");
-        returnString = returnString.replace("Click here for ", "");
-        returnString = returnString.replace("click here for ", "");
-        return returnString;
-    }
+  /** Filters out common bad keywords from link text. */
+  public static String filterLinkTextString(String stringForFilter) {
+    var returnString =
+        stringForFilter
+            .replace("Link to ", "")
+            .replace("link to ", "")
+            .replace("Browse to ", "")
+            .replace("browse to ", "")
+            .replace("Navigate to ", "")
+            .replace("navigate to ", "")
+            .replace("Click here for ", "")
+            .replace("click here for ", "");
+    return returnString;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
+/**
+ * Exception for invalid directory user import name. Sunny Sal: "Naam mein kya rakha hai? Import ke
+ * liye sahi naam chahiye!"
+ */
 public class DirectoryUserImportInvalidNameException extends RestExceptionBase {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5971027684508885906L;
 
-	public DirectoryUserImportInvalidNameException(){
-		super(RestErrorCode.USER_DIRECTORYIMPORT_INVALIDNAME, null, null, Response.Status.BAD_REQUEST);
-	}
+  private static final long serialVersionUID = -5971027684508885906L;
 
+  public DirectoryUserImportInvalidNameException() {
+    super(RestErrorCode.USER_DIRECTORYIMPORT_INVALIDNAME, null, null, Response.Status.BAD_REQUEST);
+  }
 }

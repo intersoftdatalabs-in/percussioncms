@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,26 @@
 
 package com.percussion.ant.packagetool;
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+@Tag("UnitTest")
+public class PSPackageBuildToolHelperTest {
+  @Test
+  public void getDestinationDirectoryTest() {
+    String rootDir = System.getProperty("java.io.tmpdir").concat(File.separator).concat("dest");
+    String zipFileWithPath =
+        System.getProperty("java.io.tmpdir")
+            .concat(File.separator)
+            .concat("perc.gadget.activity8.ppkg");
 
-@Category(UnitTest.class)
-public class PSPackageBuildToolHelperTest  
-{
-   @Test
-   public void getDestinationDirectoryTest()
-   {
-       String rootDir = System.getProperty("java.io.tmpdir").concat(File.separator).concat("dest");
-       String zipFileWithPath = System.getProperty("java.io.tmpdir").concat(File.separator).concat("perc.gadget.activity8.ppkg");
-   
-       String expectedDestinationDir = rootDir.concat(File.separator).concat("perc.gadget.activity8");
-       String actualDestinationDir = PSPackageBuildToolHelper.getDestinationDirectoryPath(zipFileWithPath, rootDir);
-   
-       assertEquals(expectedDestinationDir, actualDestinationDir);
-    }   
+    String expectedDestinationDir = rootDir.concat(File.separator).concat("perc.gadget.activity8");
+    String actualDestinationDir =
+        PSPackageBuildToolHelper.getDestinationDirectoryPath(zipFileWithPath, rootDir);
+
+    assertEquals(expectedDestinationDir, actualDestinationDir);
+  }
 }

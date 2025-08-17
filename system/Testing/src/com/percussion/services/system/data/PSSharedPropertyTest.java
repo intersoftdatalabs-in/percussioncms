@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.services.system.data;
 
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
@@ -26,16 +26,16 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Unit tests for the {@link PSSharedProperty} class.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSharedPropertyTest extends TestCase
 {
    /**

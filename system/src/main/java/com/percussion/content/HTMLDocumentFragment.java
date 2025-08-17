@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,17 @@ package com.percussion.content;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
-public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment
-{
-   public short getNodeType()
-   {
-      return Node.DOCUMENT_FRAGMENT_NODE;
-   }
+// REFACTORED: CP-JAVA11
+public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment {
+  @Override
+  public short getNodeType() {
+    return Node.DOCUMENT_FRAGMENT_NODE;
+  }
 
-   /**
-    * Method introduced later in DOM level 2. Not implemented.
-    */
-    public String getLocalName()
-    {
-      // TODO: implement
-      throw new RuntimeException("Method getLocalName not supported");
-    }
+  /** Method introduced later in DOM level 2. Not implemented. */
+  @Override
+  public String getLocalName() {
+    // TODO: implement
+    throw new UnsupportedOperationException("Method getLocalName not supported");
+  }
 }

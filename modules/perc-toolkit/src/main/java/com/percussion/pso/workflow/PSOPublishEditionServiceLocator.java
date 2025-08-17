@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,26 @@
  * limitations under the License.
  */
 package com.percussion.pso.workflow;
+
+// REFACTORED: CP-JAVA11
 import com.percussion.services.PSBaseServiceLocator;
+
 /*
  *  PSOPublishEditionServiceLocator.java
- *  
+ *
  * @author DavidBenua
  *
  */
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class PSOPublishEditionServiceLocator extends PSBaseServiceLocator
-{
-   /**
-    * static methods only, never constructed. 
-    */
-   private PSOPublishEditionServiceLocator()
-   {
-      
-   }
-   
-   public static PublishEditionService getPublishEditionService()
-   { 
-      return (PublishEditionService) getBean(PSOPUBLISHSERVICEBEAN);    
-   }
-   
-   private static final String PSOPUBLISHSERVICEBEAN = "PSOPublishEditionService"; 
+public class PSOPublishEditionServiceLocator extends PSBaseServiceLocator {
+  /** static methods only, never constructed. */
+  private PSOPublishEditionServiceLocator() {}
+
+  public static PublishEditionService getPublishEditionService() {
+    return (PublishEditionService) getBean(PSOPUBLISHSERVICEBEAN);
+  }
+
+  private static final String PSOPUBLISHSERVICEBEAN = "PSOPublishEditionService";
 }

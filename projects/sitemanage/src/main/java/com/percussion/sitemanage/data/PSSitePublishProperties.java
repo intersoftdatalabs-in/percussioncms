@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,228 +18,112 @@
 
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * It contains the publishing information for a site  
- * 
- * @author radharanisonnathi
+ * Contains the publishing information for a site.
  *
+ * @author radharanisonnathi
  */
 @XmlRootElement(name = "SitePublishProperties")
-public class PSSitePublishProperties extends PSAbstractPersistantObject
-{
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * returns the site id
-     */
-    @XmlElement
-    @Override
-    public String getId()
-    { 
-        return id;
-    }
-    
-    /**
-     * @param id sets the site id
-     */
-    @Override
-    public void setId(String id)
-    {
-      this.id = id;  
-    }
-    
-    /**
-     * @return the deliveryRootPath
-     */
-    public String getDeliveryRootPath()
-    {
-        return deliveryRootPath;
-    }
+public class PSSitePublishProperties extends PSAbstractPersistantObject {
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * @param deliveryRootPath the deliveryRootPath to set
-     */
-    public void setDeliveryRootPath(String deliveryRootPath)
-    {
-        this.deliveryRootPath = deliveryRootPath;
-    }
+  private String id;
+  private String deliveryRootPath;
+  private String ftpServerName;
+  private String ftpPassword;
+  private String privateKey;
+  private Integer ftpServerPort;
+  private String ftpUserName;
+  private String siteName;
+  private PublishType publishType;
+  private Boolean secure;
 
-    /**
-     * @return the ftpServerName
-     */
-    public String getFtpServerName()
-    {
-        return ftpServerName;
-    }
+  @XmlElement
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * @param ftpServerName the ftpServerName to set
-     */
-    public void setFtpServerName(String ftpServerName)
-    {
-        this.ftpServerName = ftpServerName;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * @return the ftpPassword
-     */
-    public String getFtpPassword()
-    {
-        return ftpPassword;
-    }
+  public Optional<String> getDeliveryRootPath() {
+    return Optional.ofNullable(deliveryRootPath);
+  }
 
-    /**
-     * @param ftpPassword the ftpPassword to set
-     */
-    public void setFtpPassword(String ftpPassword)
-    {
-        this.ftpPassword = ftpPassword;
-    }
-    
-    public String getPrivateKey()
-    {
-        return privateKey;
-    }
+  public void setDeliveryRootPath(String deliveryRootPath) {
+    this.deliveryRootPath = deliveryRootPath;
+  }
 
-    public void setPrivateKey(String privateKey)
-    {
-        this.privateKey = privateKey;
-    }
+  public Optional<String> getFtpServerName() {
+    return Optional.ofNullable(ftpServerName);
+  }
 
-    /**
-     * @return the ftpServerPort
-     */
-    public Integer getFtpServerPort()
-    {
-        return ftpServerPort;
-    }
-    
-    /**
-     * @param siteName the siteName to set
-     */
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
-    
-    /**
-     * @return the siteName
-     */
-    public String getSiteName()
-    {
-        return siteName;
-    } 
-    
-    /**
-     * @param ftpServerPort the ftpServerPort to set
-     */
-    public void setFtpServerPort(Integer ftpServerPort)
-    {
-        this.ftpServerPort = ftpServerPort;
-    }
-    
-    /**
-     * @return the publishType
-     */
-    public PublishType getPublishType()
-    {
-        return publishType;
-    }
+  public void setFtpServerName(String ftpServerName) {
+    this.ftpServerName = ftpServerName;
+  }
 
-    /**
-     * @param publishType the publishType to set
-     */
-    public void setPublishType(PublishType publishType)
-    {
-        this.publishType = publishType;
-    }
-    
-    /**
-     * @return the ftpUserName
-     */
-    public String getFtpUserName()
-    {
-        return ftpUserName;
-    }
+  public Optional<String> getFtpPassword() {
+    return Optional.ofNullable(ftpPassword);
+  }
 
-    /**
-     * @param ftpUserName the ftpUserName to set
-     */
-    public void setFtpUserName(String ftpUserName)
-    {
-        this.ftpUserName = ftpUserName;
-    }
-    
-    /**
-     * @return the secure
-     */
-    public Boolean getSecure()
-    {
-        return secure;
-    }
+  public void setFtpPassword(String ftpPassword) {
+    this.ftpPassword = ftpPassword;
+  }
 
-    /**
-     * @param secure the secure to set
-     */
-    public void setSecure(Boolean secure)
-    {
-        this.secure = secure;
-    }
-    
-    /**
-     * See {@link #getId()} for detail
-     */
-    private String id;
-    
-    /**
-     * See {@link #getDeliveryRootPath()} for detail
-     */
-    
-    private String deliveryRootPath;
-    
-    /**
-     * See {@link #getFtpServerName()} for detail
-     */
-    private String ftpServerName;
-    
-    /**
-     * See {@link #getFtpPassword()} for detail
-     */
-    private String ftpPassword;
-    
-    private String privateKey;
+  public Optional<String> getPrivateKey() {
+    return Optional.ofNullable(privateKey);
+  }
 
-    /**
-     * See {@link #getFtpServerPort()}for detail
-     */
-    private Integer ftpServerPort;
-    
-    /**
-     * See {@link #getFtpUserName()} for detail
-     */
-    private String ftpUserName;
-    
-    /**
-     * See {@link #getSiteName()} for detail
-     */
-    private String siteName;
-    
-    /**
-     * See {@link #getPublishType()}} for detail
-     */
-    private PublishType publishType;
-    
-    /**
-     * See {@link #getSecure()}} for detail
-     */
-    private Boolean secure;
-    
+  public void setPrivateKey(String privateKey) {
+    this.privateKey = privateKey;
+  }
+
+  public Optional<Integer> getFtpServerPort() {
+    return Optional.ofNullable(ftpServerPort);
+  }
+
+  public void setFtpServerPort(Integer ftpServerPort) {
+    this.ftpServerPort = ftpServerPort;
+  }
+
+  public Optional<String> getFtpUserName() {
+    return Optional.ofNullable(ftpUserName);
+  }
+
+  public void setFtpUserName(String ftpUserName) {
+    this.ftpUserName = ftpUserName;
+  }
+
+  public Optional<String> getSiteName() {
+    return Optional.ofNullable(siteName);
+  }
+
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
+
+  public Optional<PublishType> getPublishType() {
+    return Optional.ofNullable(publishType);
+  }
+
+  public void setPublishType(PublishType publishType) {
+    this.publishType = publishType;
+  }
+
+  public Optional<Boolean> getSecure() {
+    return Optional.ofNullable(secure);
+  }
+
+  public void setSecure(Boolean secure) {
+    this.secure = secure;
+  }
 }

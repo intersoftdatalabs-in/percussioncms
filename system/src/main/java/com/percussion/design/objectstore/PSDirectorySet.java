@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,424 +19,355 @@ package com.percussion.design.objectstore;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * Collection container for <code>PSReference</code> objects which all
- * reference a <code>PSDirectory</code> object.
+ * Collection container for <code>PSReference</code> objects which all reference a <code>PSDirectory
+ * </code> object.
  */
-public class PSDirectorySet extends PSCollectionComponent
-{
-   /**
-    * Construct a Java object from its XML representation.
-    *
-    * @param sourceNode   the XML element node to construct this object from,
-    *    not <code>null</code>.
-    * @throws PSUnknownNodeTypeException if the XML element node is not of
-    *    the appropriate type
-    */
-   public PSDirectorySet(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      super(PSReference.class);
+public class PSDirectorySet extends PSCollectionComponent {
+  /**
+   * Construct a Java object from its XML representation.
+   *
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
+   */
+  public PSDirectorySet(Element sourceNode) throws PSUnknownNodeTypeException {
+    super(PSReference.class);
 
-      initRequiredAttributeNames();
-      fromXml(sourceNode, null, null);
-   }
+    initRequiredAttributeNames();
+    fromXml(sourceNode, null, null);
+  }
 
-   /**
-    * Constucts an empty property set.
-    * 
-    * @param name the name of this property set, see {@link #setName(String)} for
-    *    more information.
-    * @param userAttributeName the attribute name under which users are found
-    *    in this directory set
-    *    more information.
-    */
-   public PSDirectorySet(String name, String userAttributeName)
-   {
-      super(PSReference.class);
+  /**
+   * Constucts an empty property set.
+   *
+   * @param name the name of this property set, see {@link #setName(String)} for more information.
+   * @param userAttributeName the attribute name under which users are found in this directory set
+   *     more information.
+   */
+  public PSDirectorySet(String name, String userAttributeName) {
+    super(PSReference.class);
 
-      initRequiredAttributeNames();
-      setName(name);
-      setObjectAttributeName(userAttributeName);
-   }
+    initRequiredAttributeNames();
+    setName(name);
+    setObjectAttributeName(userAttributeName);
+  }
 
-   /**
-    * @return the directory set name, never <code>null</code> or empty. This
-    *    name may be used to reference this directory set from other contexts.
-    */
-   public String getName()
-   {
-      return m_name;
-   }
+  /**
+   * @return the directory set name, never <code>null</code> or empty. This name may be used to
+   *     reference this directory set from other contexts.
+   */
+  public String getName() {
+    return m_name;
+  }
 
-   /**
-    * Set a new directory set name.
-    *
-    * @param name the new name for this directory set, not <code>null</code> or
-    *    empty.
-    */
-   public void setName(String name)
-   {
-      if (name == null)
-         throw new IllegalArgumentException("name cannot be null");
+  /**
+   * Set a new directory set name.
+   *
+   * @param name the new name for this directory set, not <code>null</code> or empty.
+   */
+  public void setName(String name) {
+    if (name == null) throw new IllegalArgumentException("name cannot be null");
 
+    name = name.trim();
+    if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
+
+    m_name = name;
+  }
+
+  /**
+   * Get the requested required attribute name.
+   *
+   * @param key the key of the attribute name, not <code>null<code> or empty,
+   *    must be one oc <code>REQUIRED_ATTRIBUTE_NAMES_ENUM</code>.
+   * @return the requested attribute name or <code>null<code> if no attribute
+   *    name was set yet.
+   */
+  public String getRequiredAttributeName(String key) {
+    if (key == null) throw new IllegalArgumentException("key cannot be null");
+
+    key = key.trim();
+    if (key.length() == 0) throw new IllegalArgumentException("key cannot be empty");
+
+    boolean valid = false;
+    for (int i = 0; i < REQUIRED_ATTRIBUTE_NAMES_ENUM.length && !valid; i++) {
+      if (key.equals(REQUIRED_ATTRIBUTE_NAMES_ENUM[i])) valid = true;
+    }
+    if (!valid) throw new IllegalArgumentException("key is not known");
+
+    return (String) m_requiredAttributeNames.get(key);
+  }
+
+  /**
+   * Set a new attribute name for the email address.
+   *
+   * @param name the new attribute name, may be <code>null<code> but not empty.
+   *    Supply <code>null<code> to clear the email attribute name.
+   */
+  public void setEmailAttributeName(String name) {
+    if (name != null) {
       name = name.trim();
-      if (name.length() == 0)
-         throw new IllegalArgumentException("name cannot be empty");
+      if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
+    }
 
-      m_name = name;
-   }
-   
-   /**
-    * Get the requested required attribute name.
-    * 
-    * @param key the key of the attribute name, not <code>null<code> or empty,
-    *    must be one oc <code>REQUIRED_ATTRIBUTE_NAMES_ENUM</code>.
-    * @return the requested attribute name or <code>null<code> if no attribute
-    *    name was set yet.
-    */
-   public String getRequiredAttributeName(String key)
-   {
-      if (key == null)
-         throw new IllegalArgumentException("key cannot be null");
-         
-      key = key.trim();
-      if (key.length() == 0)
-         throw new IllegalArgumentException("key cannot be empty");
+    m_requiredAttributeNames.put(EMAIL_ATTRIBUTE_KEY, name);
+  }
 
-      boolean valid = false;
-      for (int i=0; i<REQUIRED_ATTRIBUTE_NAMES_ENUM.length && !valid; i++)
-      {
-         if (key.equals(REQUIRED_ATTRIBUTE_NAMES_ENUM[i]))
-            valid = true;
-      }
-      if (!valid)
-         throw new IllegalArgumentException("key is not known");
-
-      return (String) m_requiredAttributeNames.get(key);
-   }
-   
-   /**
-    * Set a new attribute name for the email address.
-    * 
-    * @param name the new attribute name, may be <code>null<code> but not empty.
-    *    Supply <code>null<code> to clear the email attribute name.
-    */
-   public void setEmailAttributeName(String name)
-   {
-      if (name != null)
-      {   
-         name = name.trim();   
-         if (name.length() == 0)
-            throw new IllegalArgumentException("name cannot be empty");
-      }
-
-      m_requiredAttributeNames.put(EMAIL_ATTRIBUTE_KEY, name);
-   }
-   
-   /**
-    * Set a new attribute name for the role attribute.
-    * 
-    * @param name the new attribute name, may be <code>null<code> but not empty.
-    *    Supply <code>null<code> to clear the role attribute name.
-    */
-   public void setRoleAttributeName(String name)
-   {
-      if (name != null)
-      {   
-         name = name.trim();   
-         if (name.length() == 0)
-            throw new IllegalArgumentException("name cannot be empty");
-      }
-
-      m_requiredAttributeNames.put(ROLE_ATTRIBUTE_KEY, name);
-   }
-   
-   /**
-    * Set a new object attribute name. This attribute name is used to lookup
-    * objects in the directory.
-    * 
-    * @param name the new object attribute name, not <code>null<code> or empty.
-    */
-   public void setObjectAttributeName(String name)
-   {
-      if (name == null)
-         throw new IllegalArgumentException("name cannot be null");
-         
+  /**
+   * Set a new attribute name for the role attribute.
+   *
+   * @param name the new attribute name, may be <code>null<code> but not empty.
+   *    Supply <code>null<code> to clear the role attribute name.
+   */
+  public void setRoleAttributeName(String name) {
+    if (name != null) {
       name = name.trim();
-      if (name.length() == 0)
-         throw new IllegalArgumentException("name cannot be empty");
-         
-      m_requiredAttributeNames.put(OBJECT_ATTRIBUTE_KEY, name);
-   }
+      if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
+    }
 
-   /** @see IPSComponent */
-   public void fromXml(Element sourceNode, IPSDocument parentDoc,
-      List parentComponents) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+    m_requiredAttributeNames.put(ROLE_ATTRIBUTE_KEY, name);
+  }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+  /**
+   * Set a new object attribute name. This attribute name is used to lookup
+   * objects in the directory.
+   *
+   * @param name the new object attribute name, not <code>null<code> or empty.
+   */
+  public void setObjectAttributeName(String name) {
+    if (name == null) throw new IllegalArgumentException("name cannot be null");
+
+    name = name.trim();
+    if (name.length() == 0) throw new IllegalArgumentException("name cannot be empty");
+
+    m_requiredAttributeNames.put(OBJECT_ATTRIBUTE_KEY, name);
+  }
+
+  /**
+   * @see IPSComponent
+   */
+  public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+      throws PSUnknownNodeTypeException {
+    if (sourceNode == null)
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_NODE_NAME);
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
+
+    parentComponents = updateParentList(parentComponents);
+    int parentSize = parentComponents.size() - 1;
+
+    int firstFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+    int nextFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+
+    String data = null;
+    Element node = null;
+    try {
+      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+
+      data = tree.getElementData(XML_ATTR_NAME, false);
+      if (data == null || data.trim().length() == 0) {
+        String parentName = tree.getCurrent().getNodeName();
+        Object[] args = {parentName, XML_ATTR_NAME, "null or empty"};
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+      }
+      setName(data);
+
+      node = tree.getNextElement(PSReference.XML_NODE_NAME, firstFlags);
+      while (node != null) {
+        PSReference reference =
+            new PSReference((Element) tree.getCurrent(), parentDoc, parentComponents);
+        add(reference);
+
+        node = tree.getNextElement(PSReference.XML_NODE_NAME, nextFlags);
       }
 
-      parentComponents = updateParentList(parentComponents);
-      int parentSize = parentComponents.size() - 1;
+      tree.setCurrent(sourceNode);
+      initRequiredAttributeNames();
+      Element attributes = tree.getNextElement(XML_ELEM_ATTRIBUTES);
+      if (attributes != null) {
+        Element attribute = tree.getNextElement(XML_ELEM_ATTRIBUTE);
+        while (attribute != null) {
+          data = tree.getElementData().trim();
+          m_requiredAttributeNames.put(
+              attribute.getAttribute(XML_ATTR_NAME), (data.length() == 0) ? null : data);
 
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-
-      String data = null;
-      Element node = null;
-      try
-      {
-         PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-
-         data = tree.getElementData(XML_ATTR_NAME, false);
-         if (data == null || data.trim().length() == 0)
-         {
-            String parentName = tree.getCurrent().getNodeName();
-            Object[] args = {  parentName, XML_ATTR_NAME, "null or empty" };
-            throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-         }
-         setName(data);
-
-         node = tree.getNextElement(PSReference.XML_NODE_NAME, firstFlags);
-         while (node != null)
-         {
-            PSReference reference = new PSReference((Element) tree.getCurrent(),
-               parentDoc, parentComponents);
-            add(reference);
-
-            node = tree.getNextElement(PSReference.XML_NODE_NAME, nextFlags);
-         }
-         
-         tree.setCurrent(sourceNode);
-         initRequiredAttributeNames();
-         Element attributes = tree.getNextElement(XML_ELEM_ATTRIBUTES);
-         if (attributes != null)
-         {
-            Element attribute = tree.getNextElement(XML_ELEM_ATTRIBUTE);
-            while (attribute != null)
-            {
-               data = tree.getElementData().trim();
-               m_requiredAttributeNames.put(attribute.getAttribute(XML_ATTR_NAME), 
-                  (data.length() == 0) ? null : data);
-               
-               attribute = tree.getNextElement(XML_ELEM_ATTRIBUTE);
-            }
-         }
+          attribute = tree.getNextElement(XML_ELEM_ATTRIBUTE);
+        }
       }
-      finally
-      {
-         resetParentList(parentComponents, parentSize);
+    } finally {
+      resetParentList(parentComponents, parentSize);
+    }
+  }
+
+  /**
+   * @see IPSComponent
+   */
+  public Element toXml(Document doc) {
+    Element root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(XML_ATTR_NAME, getName());
+
+    for (int i = 0; i < size(); i++) {
+      IPSComponent reference = (IPSComponent) get(i);
+      root.appendChild(reference.toXml(doc));
+    }
+
+    if (m_requiredAttributeNames != null) {
+      Element attributes = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_ELEM_ATTRIBUTES);
+
+      Iterator keys = m_requiredAttributeNames.keySet().iterator();
+      while (keys.hasNext()) {
+        String key = (String) keys.next();
+        String value = (String) m_requiredAttributeNames.get(key);
+
+        Element attr = null;
+        if (value != null)
+          attr = PSXmlDocumentBuilder.addElement(doc, attributes, XML_ELEM_ATTRIBUTE, value);
+        else attr = PSXmlDocumentBuilder.addEmptyElement(doc, attributes, XML_ELEM_ATTRIBUTE);
+        attr.setAttribute(XML_ATTR_NAME, key);
       }
-   }
+    }
 
-   /** @see IPSComponent */
-   public Element toXml(Document doc)
-   {
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(XML_ATTR_NAME, getName());
+    return root;
+  }
 
-      for (int i=0; i<size(); i++)
-      {
-         IPSComponent reference = (IPSComponent) get(i);
-         root.appendChild(reference.toXml(doc));
-      }
+  /**
+   * @see PSCollectionComponent
+   */
+  public void copyFrom(PSCollectionComponent c) {
+    super.copyFrom(c);
 
-      if (m_requiredAttributeNames != null)
-      {
-         Element attributes = PSXmlDocumentBuilder.addEmptyElement(doc, root,
-            XML_ELEM_ATTRIBUTES);
+    if (!(c instanceof PSDirectorySet))
+      throw new IllegalArgumentException("c must be a PSDirectorySet object");
 
-         Iterator keys = m_requiredAttributeNames.keySet().iterator();
-         while (keys.hasNext())
-         {
-            String key = (String) keys.next();
-            String value = (String) m_requiredAttributeNames.get(key);
-            
-            Element attr = null;
-            if (value != null)
-               attr = PSXmlDocumentBuilder.addElement(doc, attributes,
-                  XML_ELEM_ATTRIBUTE, value);
-            else
-               attr = PSXmlDocumentBuilder.addEmptyElement(doc, attributes,
-                  XML_ELEM_ATTRIBUTE);
-            attr.setAttribute(XML_ATTR_NAME, key);
-         }
-      }
+    PSDirectorySet o = (PSDirectorySet) c;
 
-      return root;
-   }
+    setName(o.getName());
+  }
 
-   /** @see PSCollectionComponent */
-   public void copyFrom(PSCollectionComponent c)
-   {
-      super.copyFrom(c);
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSDirectorySet)) return false;
+    if (!super.equals(o)) return false;
+    PSDirectorySet that = (PSDirectorySet) o;
+    return Objects.equals(m_name, that.m_name)
+        && Objects.equals(m_requiredAttributeNames, that.m_requiredAttributeNames);
+  }
 
-      if (!(c instanceof PSDirectorySet))
-         throw new IllegalArgumentException("c must be a PSDirectorySet object");
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), m_name, m_requiredAttributeNames);
+  }
 
-      PSDirectorySet o = (PSDirectorySet) c;
+  /**
+   * Get the directory reference for the supplied name. Names are compared case sensitive.
+   *
+   * @param name the directory name, may be <code>null</code> or empty in which case this always
+   *     returns <code>null</code>.
+   * @return the directory refernence if found, <code>null</code> otherwise.
+   */
+  public PSReference getDirectoryRef(String name) {
+    if (name == null || name.trim().length() == 0) return null;
 
-      setName(o.getName());
-   }
+    Iterator references = iterator();
+    while (references.hasNext()) {
+      PSReference reference = (PSReference) references.next();
+      if (reference.getName().equals(name)) return reference;
+    }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSDirectorySet)) return false;
-      if (!super.equals(o)) return false;
-      PSDirectorySet that = (PSDirectorySet) o;
-      return Objects.equals(m_name, that.m_name) &&
-              Objects.equals(m_requiredAttributeNames, that.m_requiredAttributeNames);
-   }
+    return null;
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(super.hashCode(), m_name, m_requiredAttributeNames);
-   }
+  /**
+   * Adds the supplied directory reference. If a directory reference with the same name as the
+   * supplied one exists, it is replaced with the new directory reference, otherwise it is
+   * appendend, the comparison is done using the directory name in a case-sensitive manner.
+   *
+   * @param reference the directory refernece to set, not <code>null</code>.
+   */
+  public void addDirectoryRef(PSReference reference) {
+    if (reference == null) throw new IllegalArgumentException("reference cannot be null");
 
-   /**
-    * Get the directory reference for the supplied name. Names are compared case
-    * sensitive.
-    *
-    * @param name the directory name, may be <code>null</code> or empty in
-    *    which case this always returns <code>null</code>.
-    * @return the directory refernence if found, <code>null</code> otherwise.
-    */
-   public PSReference getDirectoryRef(String name)
-   {
-      if (name == null || name.trim().length() == 0)
-         return null;
+    PSReference current = getDirectoryRef(reference.getName());
+    if (current != null) remove(current);
 
-      Iterator references = iterator();
-      while (references.hasNext())
-      {
-         PSReference reference = (PSReference) references.next();
-         if (reference.getName().equals(name))
-            return reference;
-      }
+    add(reference);
+  }
 
-      return null;
-   }
+  /**
+   * Overridden to make sure that only references of type <code>PSDirectory</code> are added.
+   *
+   * @see PSCollection for more details.
+   */
+  protected void checkType(Object o) throws ClassCastException {
+    super.checkType(o);
 
-   /**
-    * Adds the supplied directory reference. If a directory reference with
-    * the same name as the supplied one exists, it is replaced with the new
-    * directory reference, otherwise it is appendend, the comparison is done
-    * using the directory name in a case-sensitive manner.
-    *
-    * @param reference the directory refernece to set, not <code>null</code>.
-    */
-   public void addDirectoryRef(PSReference reference)
-   {
-      if (reference == null)
-         throw new IllegalArgumentException("reference cannot be null");
+    PSReference ref = (PSReference) o;
+    if (!ref.getType().equals(PSDirectory.class.getName()))
+      throw new IllegalArgumentException(
+          "reference must be of type " + PSDirectory.class.getName());
+  }
 
-      PSReference current = getDirectoryRef(reference.getName());
-      if (current != null)
-         remove(current);
+  /**
+   * Initializes all required attribute names with <code>null<code> values.
+   *
+   */
+  private void initRequiredAttributeNames() {
+    m_requiredAttributeNames = new HashMap();
 
-      add(reference);
-   }
+    for (int i = 0; i < REQUIRED_ATTRIBUTE_NAMES_ENUM.length; i++)
+      m_requiredAttributeNames.put(REQUIRED_ATTRIBUTE_NAMES_ENUM[i], null);
+  }
 
-   /**
-    * Overridden to make sure that only references of type
-    * <code>PSDirectory</code> are added.
-    *
-    * @see PSCollection for more details.
-    */
-   protected void checkType(Object o) throws ClassCastException
-   {
-      super.checkType(o);
+  /** The XML node name */
+  public static final String XML_NODE_NAME = "PSXDirectorySet";
 
-      PSReference ref = (PSReference) o;
-      if (!ref.getType().equals(PSDirectory.class.getName()))
-         throw new IllegalArgumentException(
-            "reference must be of type " + PSDirectory.class.getName());
-   }
-   
-   /**
-    * Initializes all required attribute names with <code>null<code> values.
-    *
-    */
-   private void initRequiredAttributeNames()
-   {
-      m_requiredAttributeNames = new HashMap();
-      
-      for (int i=0; i<REQUIRED_ATTRIBUTE_NAMES_ENUM.length; i++)
-         m_requiredAttributeNames.put(REQUIRED_ATTRIBUTE_NAMES_ENUM[i], null);
-   }
+  /** The key used to store the object's attribute name. */
+  public static final String OBJECT_ATTRIBUTE_KEY = "objectAttributeName";
 
-   /** The XML node name */
-   public static final String XML_NODE_NAME = "PSXDirectorySet";
-   
-   /**
-    * The key used to store the object's attribute name.
-    */
-   public final static String OBJECT_ATTRIBUTE_KEY = "objectAttributeName";
-   
-   /**
-    * The default object attribute name.
-    */
-   public final static String DEFAULT_OBJECT_ATTRIBUTE_NAME = "uid";
-   
-   /**
-    * The key used to store the email attribute name.
-    */
-   public final static String EMAIL_ATTRIBUTE_KEY = "emailAttributeName";
-   
-   /**
-    * The key used to store the role attribute name.
-    */
-   public final static String ROLE_ATTRIBUTE_KEY = "roleAttributeName";
-   
-   /**
-    * An array with key's of all required attribute names. 
-    */
-   public static final String[] REQUIRED_ATTRIBUTE_NAMES_ENUM =
-   {
-      OBJECT_ATTRIBUTE_KEY,
-      EMAIL_ATTRIBUTE_KEY,
-      ROLE_ATTRIBUTE_KEY
-   };
+  /** The default object attribute name. */
+  public static final String DEFAULT_OBJECT_ATTRIBUTE_NAME = "uid";
 
-   /**
-    * Holds the directory set name. This name must be unique across all defined
-    * directory sets because its used to reference it from other contexts.
-    * Initialized during construction, never <code>null</code> or empty after
-    * that.
-    */
-   private String m_name = null;
-   
-   /**
-    * A map that holds all required attribute names. All attribute names are 
-    * initialized to <code>null<code> and can be set through the appropriate
-    * set method such as {@link #setEmailAttributeName(String)}. Initialized
-    * while constructed, never <code>null<code> or empty after that.
-    */
-   private Map m_requiredAttributeNames = null;
+  /** The key used to store the email attribute name. */
+  public static final String EMAIL_ATTRIBUTE_KEY = "emailAttributeName";
 
-   // XML element and attribute constants.
-   private static final String XML_ATTR_NAME = "name";
-   private static final String XML_ELEM_ATTRIBUTES = "RequiredAttributeNames";
-   private static final String XML_ELEM_ATTRIBUTE = "Attribute";
+  /** The key used to store the role attribute name. */
+  public static final String ROLE_ATTRIBUTE_KEY = "roleAttributeName";
+
+  /** An array with key's of all required attribute names. */
+  public static final String[] REQUIRED_ATTRIBUTE_NAMES_ENUM = {
+    OBJECT_ATTRIBUTE_KEY, EMAIL_ATTRIBUTE_KEY, ROLE_ATTRIBUTE_KEY
+  };
+
+  /**
+   * Holds the directory set name. This name must be unique across all defined directory sets
+   * because its used to reference it from other contexts. Initialized during construction, never
+   * <code>null</code> or empty after that.
+   */
+  private String m_name = null;
+
+  /**
+   * A map that holds all required attribute names. All attribute names are
+   * initialized to <code>null<code> and can be set through the appropriate
+   * set method such as {@link #setEmailAttributeName(String)}. Initialized
+   * while constructed, never <code>null<code> or empty after that.
+   */
+  private Map m_requiredAttributeNames = null;
+
+  // XML element and attribute constants.
+  private static final String XML_ATTR_NAME = "name";
+  private static final String XML_ELEM_ATTRIBUTES = "RequiredAttributeNames";
+  private static final String XML_ELEM_ATTRIBUTE = "Attribute";
 }

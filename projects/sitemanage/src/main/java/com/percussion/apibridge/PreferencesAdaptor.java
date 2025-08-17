@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,105 +15,91 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.errors.UnexpectedException;
 import com.percussion.rest.preferences.IPreferenceAdaptor;
 import com.percussion.rest.preferences.UserPreference;
 import com.percussion.rest.preferences.UserPreferenceList;
-import com.percussion.server.PSPersistentProperty;
-import com.percussion.server.PSPersistentPropertyMeta;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSUserSession;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.servlets.PSSecurityFilter;
-import com.percussion.util.PSSiteManageBean;
-
-
+import com.percussion.system.utils.PSSiteManageBean;
+import javax.ws.rs.NotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.NotFoundException;
-import java.util.List;
-
+/** Adaptor for user preferences management in Percussion CMS. */
 @PSSiteManageBean
 public class PreferencesAdaptor implements IPreferenceAdaptor {
 
-    private static final Logger log = LogManager.getLogger(PreferencesAdaptor.class);
+  private static final Logger log = LogManager.getLogger(PreferencesAdaptor.class);
 
-    @Autowired
-    IPSCmsObjectMgr objectMgr;
+  @Autowired private IPSCmsObjectMgr objectMgr;
 
-    @Override
-    public UserPreferenceList getAllUserPreferences() {
-        PSUserSession session = getSession();
+  @Override
+  public UserPreferenceList getAllUserPreferences() {
+    var session = getSession();
+    var userPrefs =
+        objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
+    return ApiUtils.convertUserProperties(userPrefs);
+  }
 
-        List<PSPersistentProperty> userPrefs =  objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
-
-        return ApiUtils.convertUserProperties(userPrefs);
+  @Override
+  public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
+    var session = getSession();
+    try {
+      for (var pref : prefs) {
+        objectMgr.savePersistentPropertyMeta(ApiUtils.convertUserPreferenceToMeta(pref));
+        objectMgr.savePersistentProperty(ApiUtils.convertUserPreference(pref));
+      }
+      return this.getAllUserPreferences();
+    } catch (Exception e) {
+      log.error("An error occurred when updating user preferences.", e);
+      throw new UnexpectedException();
     }
+  }
 
-    @Override
-    public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
-        PSUserSession session = getSession();
+  @Override
+  public UserPreference loadPreference(String preference) {
+    var session = getSession();
+    var userPrefs =
+        objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
+    return userPrefs.stream()
+        .filter(p -> p.getName().equalsIgnoreCase(preference))
+        .findFirst()
+        .map(ApiUtils::convertUserProperty)
+        .orElseThrow(NotFoundException::new);
+  }
 
-        //Update user preferences
-        try {
+  @Override
+  public UserPreference savePreference(UserPreference pref) {
+    var session = getSession();
+    var p = ApiUtils.convertUserPreference(pref);
+    var pm = ApiUtils.convertUserPreferenceToMeta(pref);
 
-                   for(UserPreference pref : prefs){
-                       objectMgr.savePersistentPropertyMeta(ApiUtils.convertUserPreferenceToMeta(pref));
-                       objectMgr.savePersistentProperty(ApiUtils.convertUserPreference(pref));
-                   }
+    objectMgr.savePersistentPropertyMeta(pm);
+    objectMgr.savePersistentProperty(p);
 
-                   return this.getAllUserPreferences();
-        }catch(Exception e){
-            log.error("An error happened when updating user preferences.",e);
-            throw new UnexpectedException();
-        }
+    return ApiUtils.convertPSPersistentProperty(p);
+  }
+
+  @Override
+  public void deletePreference(UserPreference pref) {
+    var session = getSession();
+    if (session.getUserProperties().contains(pref)) {
+      objectMgr.deletePersistentProperty(ApiUtils.convertUserPreference(pref));
+    } else {
+      throw new NotFoundException();
     }
+  }
 
-    @Override
-    public UserPreference loadPreference(String preference) {
-        PSUserSession session = getSession();
-
-        for(PSPersistentProperty p : objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry())){
-            if(p.getName().toLowerCase().equals(preference.toLowerCase())){
-                return ApiUtils.convertUserProperty(p);
-            }
-        }
-        //If we get this far we didn't find the preference.
-        throw new NotFoundException();
-    }
-
-    @Override
-    public UserPreference savePreference(UserPreference pref) {
-        PSUserSession session = getSession();
-        PSPersistentProperty p = ApiUtils.convertUserPreference(pref);
-        PSPersistentPropertyMeta pm = ApiUtils.convertUserPreferenceToMeta(pref);
-
-        objectMgr.savePersistentPropertyMeta(pm);
-        objectMgr.savePersistentProperty(p);
-
-        return ApiUtils.convertPSPersistentProperty(p);
-    }
-
-    @Override
-    public void deletePreference(UserPreference pref) {
-        PSUserSession session = getSession();
-
-        if(session.getUserProperties().contains(pref)){
-            objectMgr.deletePersistentProperty(ApiUtils.convertUserPreference(pref));
-        }else{
-            throw new NotFoundException();
-        }
-    }
-
-    private PSUserSession getSession(){
-        PSRequest req = PSSecurityFilter.getCurrentRequest();
-
-        return req.getUserSession();
-    }
-
-
+  private PSUserSession getSession() {
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    return req.getUserSession();
+  }
 }

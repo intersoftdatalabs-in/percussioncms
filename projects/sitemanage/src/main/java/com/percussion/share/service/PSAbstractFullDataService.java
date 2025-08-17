@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.service;
 
 import com.percussion.share.dao.IPSGenericDao;
@@ -21,28 +22,32 @@ import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSItemSummaryUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-public abstract class PSAbstractFullDataService<FULL,SUM extends IPSItemSummary> 
-    extends PSAbstractDataService<FULL, SUM, String> implements IPSDataService<FULL, SUM, String>
-{
+/**
+ * Abstract data service for objects with summary support.
+ *
+ * @param <FULL> Full object type
+ * @param <SUM> Summary type (must implement IPSItemSummary)
+ */
+public abstract class PSAbstractFullDataService<FULL, SUM extends IPSItemSummary>
+    extends PSAbstractDataService<FULL, SUM, String> implements IPSDataService<FULL, SUM, String> {
 
-    protected IPSDataItemSummaryService itemSummaryService;
-    
-    public PSAbstractFullDataService(IPSDataItemSummaryService itemSummaryService, IPSGenericDao<FULL, String> dao)
-    {
-        super(dao);
-        this.itemSummaryService = itemSummaryService;
-    }
+  protected final IPSDataItemSummaryService itemSummaryService;
 
-    public SUM find(String id) throws PSDataServiceException {
+  public PSAbstractFullDataService(
+      IPSDataItemSummaryService itemSummaryService, IPSGenericDao<FULL, String> dao) {
+    super(dao);
+    this.itemSummaryService = itemSummaryService;
+  }
 
-        validateIdParameter("find", id);
-        IPSItemSummary itemSummary = itemSummaryService.find(id);
-        SUM sum = createSummary(id);
-        PSItemSummaryUtils.copyProperties(itemSummary, sum);
-        return sum;
+  @Override
+  public SUM find(String id) throws PSDataServiceException {
+    validateIdParameter("find", id);
+    var itemSummary = itemSummaryService.find(id);
+    var sum = createSummary(id);
+    PSItemSummaryUtils.copyProperties(itemSummary, sum);
+    return sum;
+  }
 
-    }
-    
-    protected abstract SUM createSummary(String id);
-
+  /** Create a new summary instance for the given id. */
+  protected abstract SUM createSummary(String id);
 }

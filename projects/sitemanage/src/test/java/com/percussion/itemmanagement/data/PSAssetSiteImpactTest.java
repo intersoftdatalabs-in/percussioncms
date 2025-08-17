@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,22 @@
 
 package com.percussion.itemmanagement.data;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import com.percussion.test.PSServletTestCase;
-
-/***
- * Basic test
- * 
- * @author natechadwick
- *
+/**
+ * Basic test for PSAssetSiteImpact. Sunny Sal says: "Testing initialization, because null pointers
+ * are the real villains!"
  */
-
 public class PSAssetSiteImpactTest {
 
-	
-	/***
-	 * Make sure the members are initialized
-	 */
-	@Test
-	public void testNonNullCollections(){
-		PSAssetSiteImpact impact = new PSAssetSiteImpact();
-		
-		assertTrue(impact.getOwnerPages()!=null);
-		assertTrue(impact.getOwnerSites()!=null);
-		assertTrue(impact.getOwnerTemplates()!=null);
-		
-	}
-	
+  /** Make sure the members are initialized. */
+  @Test
+  public void testNonNullCollections() {
+    var impact = new PSAssetSiteImpact();
+    assertNotNull(impact.getOwnerPages());
+    assertNotNull(impact.getOwnerSites());
+    assertNotNull(impact.getOwnerTemplates());
+  }
 }

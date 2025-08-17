@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,93 +17,77 @@
  */
 package com.percussion.delivery.comments.service.rdbms;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import com.percussion.delivery.comments.data.IPSDefaultModerationState;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.percussion.delivery.comments.data.IPSDefaultModerationState;
-
-
 /**
  * Simple entity to store default moderation state for comments service.
- * @author erikserating
  *
+ * @author erikserating
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments2")
 @Table(name = "PERC_DEFAULT_MODERATION_STATE")
-public class PSDefaultModerationState implements IPSDefaultModerationState
-{
-   
-   @Id
-   private String site;
-   
-   @Basic
-   private String defaultState;
-   
-   public PSDefaultModerationState()
-   {
-      
-   }
-   
-   public PSDefaultModerationState(String site, String defaultState)
-   {
-      if(StringUtils.isBlank(site))
-         throw new IllegalArgumentException("site cannot be null or empty.");
-      if(StringUtils.isBlank(defaultState))
-         throw new IllegalArgumentException("defaultState cannot be null or empty.");
-      this.site = site;
-      this.defaultState = defaultState;      
-   }
+public class PSDefaultModerationState implements IPSDefaultModerationState {
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-public String getSite()
-   {
-      return site;
-   }
+  @Id private String site;
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-public void setSite(String site)
-   {
-      this.site = site;
-   }
+  @Basic private String defaultState;
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-public String getDefaultState()
-   {
-      return defaultState;
-   }
+  public PSDefaultModerationState() {}
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-public void setDefaultState(String defaultState)
-   {
-      this.defaultState = defaultState;
-   }   
-   
+  public PSDefaultModerationState(String site, String defaultState) {
+    if (StringUtils.isBlank(site))
+      throw new IllegalArgumentException("site cannot be null or empty.");
+    if (StringUtils.isBlank(defaultState))
+      throw new IllegalArgumentException("defaultState cannot be null or empty.");
+    this.site = site;
+    this.defaultState = defaultState;
+  }
 
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+   */
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+   */
+  public String getSite() {
+    return site;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+   */
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+   */
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+   */
+  public String getDefaultState() {
+    return defaultState;
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+   */
+  /* (non-Javadoc)
+   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+   */
+  public void setDefaultState(String defaultState) {
+    this.defaultState = defaultState;
+  }
 }

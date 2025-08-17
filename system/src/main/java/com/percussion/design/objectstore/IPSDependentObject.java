@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,31 +20,29 @@ package com.percussion.design.objectstore;
 import java.util.Collection;
 
 /**
- * Defines a component that can be used as a content editor dependency object.
- * This component may be associated with a collection of parameters 
- * (<code>IPSParameter</code> objects).
- */ 
-public interface IPSDependentObject extends IPSComponent, IPSReplacementValue
-{
-   /**
-    * Gets the name of this component, unique within a given type. 
-    * @return the name, never <code>null</code> or empty.
-    */ 
-   public String getName();
-   
-   
-   /**
-    * Gets a string representation of the type (class) of this component.
-    * @return the type, never <code>null</code> or empty.
-    */ 
-   public String getType();
-   
-   
-   /**
-    * Gets the parameters associated with this component.
-    * 
-    * @return the parameters as a collection of <code>IPSParameter</code> 
-    * objects, never <code>null</code>, may be empty.
-    */ 
-   public Collection getParameters();
+ * Defines a component that can be used as a content editor dependency object. This component may be
+ * associated with a collection of parameters (<code>IPSParameter</code> objects).
+ */
+public interface IPSDependentObject extends IPSComponent, IPSReplacementValue {
+  /**
+   * Gets the name of this component, unique within a given type.
+   *
+   * @return the name, never <code>null</code> or empty.
+   */
+  public String getName();
+
+  /**
+   * Gets a string representation of the type (class) of this component.
+   *
+   * @return the type, never <code>null</code> or empty.
+   */
+  public String getType();
+
+  /**
+   * Gets the parameters associated with this component.
+   *
+   * @return the parameters as a collection of <code>IPSParameter</code> objects, never <code>null
+   *     </code>, may be empty.
+   */
+  public Collection getParameters();
 }

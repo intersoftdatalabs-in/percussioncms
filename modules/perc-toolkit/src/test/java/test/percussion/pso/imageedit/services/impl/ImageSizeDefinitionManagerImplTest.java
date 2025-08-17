@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,63 @@
  */
 package test.percussion.pso.imageedit.services.impl;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.services.impl.ImageSizeDefinitionManagerImpl;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class ImageSizeDefinitionManagerImplTest
-{
-   
-   List<ImageSizeDefinition> sizes;
-   
-   ImageSizeDefinitionManagerImpl cut; 
-   /**
-    * @throws Exception
-    */
-   @Before
-   public void setUp() throws Exception
-   {
-      cut = new ImageSizeDefinitionManagerImpl(); 
-      sizes = new ArrayList<ImageSizeDefinition>(3);
-      sizes.add(new ImageSizeDefinition(){{setCode("a");setLabel("Label A");}});
-      sizes.add(new ImageSizeDefinition(){{setCode("b");setLabel("Label B");}});
-      sizes.add(new ImageSizeDefinition(){{setCode("c");setLabel("Label C");}});
-      cut.setSizes(sizes); 
-   }
-   /**
-    * Test method for {@link ImageSizeDefinitionManagerImpl#getImageSize(String)}.
-    */
-   @Test
-   public final void testGetImageSize()
-   {
-      ImageSizeDefinition r = cut.getImageSize("a"); 
-      assertNotNull(r);
-      assertEquals("Label A", r.getLabel()); 
-      
-      r = cut.getImageSize("q");
-      assertNull(r); 
-      
-      
-   }
+public class ImageSizeDefinitionManagerImplTest {
+
+  List<ImageSizeDefinition> sizes;
+
+  ImageSizeDefinitionManagerImpl cut;
+
+  /**
+   * @throws Exception
+   */
+  @BeforeEach
+  public void setUp() throws Exception {
+    cut = new ImageSizeDefinitionManagerImpl();
+    sizes = new ArrayList<ImageSizeDefinition>(3);
+    sizes.add(
+        new ImageSizeDefinition() {
+          {
+            setCode("a");
+            setLabel("Label A");
+          }
+        });
+    sizes.add(
+        new ImageSizeDefinition() {
+          {
+            setCode("b");
+            setLabel("Label B");
+          }
+        });
+    sizes.add(
+        new ImageSizeDefinition() {
+          {
+            setCode("c");
+            setLabel("Label C");
+          }
+        });
+    cut.setSizes(sizes);
+  }
+
+  /** Test method for {@link ImageSizeDefinitionManagerImpl#getImageSize(String)}. */
+  @Test
+  public final void testGetImageSize() {
+    ImageSizeDefinition r = cut.getImageSize("a");
+    assertNotNull(r);
+    assertEquals("Label A", r.getLabel());
+
+    r = cut.getImageSize("q");
+    assertNull(r);
+  }
 }

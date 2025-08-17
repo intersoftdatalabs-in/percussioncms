@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -25,302 +26,305 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 /**
- * Utility class with static methods intended to be used in the AA interface.
+ * Utility class with static methods intended to be used in the Active Assembly (AA) interface.
+ * This class provides JEXL methods for parsing assembly parameters, handling object IDs,
+ * and managing widget node types in the AA system.
+ *
+ * @author Percussion Software
  */
-public class PSWidgetUtils
-{
-   /**
-    * @param item
-    * @return
-    */
-   @IPSJexlMethod(description = "helper to convert map of multi valued map from the supplied assembly item to a map of single values", params =
-   {
-      @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
-   }, returns = "Map of name and single value counter parts of the assembly parameters")
-   static public Map<String, String> getParams(IPSAssemblyItem item)
-   {
-      if (item == null)
-      {
-         throw new IllegalArgumentException("item must not be null");
-      }
-      Map<String, String> params = new HashMap<>();
-      Map oldParams = item.getParameters();
-      Iterator iter = oldParams.keySet().iterator();
-      while (iter.hasNext())
-      {
-         String key = (String) iter.next();
-         String[] val = (String[]) oldParams.get(key);
-         if (val != null && val.length > 0)
-            params.put(key, val[0]);
-      }
+public final class PSWidgetUtils {
 
-      params.put(IPSHtmlParameters.SYS_VARIANTID, String.valueOf(item
-         .getTemplate().getGUID().getUUID()));
+    private static final Logger log = LogManager.getLogger(PSWidgetUtils.class);
 
-      return params;
-   }
+    // Private constructor to prevent instantiation
+    private PSWidgetUtils() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
-   /**
-    * @param item
-    * @return
-    * @throws PSMissingBeanConfigurationException
-    * @throws PSAssemblyException
-    */
-   @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly page and return a JSON string", params =
-   {
-      @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
-   }, returns = "JSON object string to uniquely identify the parent page")
-   static public String parseParentObjectId(IPSAssemblyItem item)
-      throws PSAssemblyException, PSMissingBeanConfigurationException
-   {
-      if (item == null)
-      {
-         throw new IllegalArgumentException("item must not be null");
-      }
-      Map params = getParams(item);
-      JSONObject obj = new JSONObject();
-      obj.putAll(parseObjectId(params, PSWidgetNodeType.WIDGET_NODE_TYPE_PAGE));
-      return obj.toString();
-   }
+    /**
+     * Converts a multi-valued parameter map from an assembly item to a single-valued map.
+     * Takes the first value from each parameter array.
+     *
+     * @param item the assembly item to extract parameters from, must not be null
+     * @return map of parameter names to their first values, never null
+     * @throws IllegalArgumentException if item is null
+     */
+    @IPSJexlMethod(description = "helper to convert map of multi valued map from the supplied assembly item to a map of single values", params = {
+        @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
+    }, returns = "Map of name and single value counter parts of the assembly parameters")
+    public static Map<String, String> getParams(IPSAssemblyItem item) {
+        Objects.requireNonNull(item, "item must not be null");
 
-   /**
-    * @param item
-    * @return
-    * @throws PSMissingBeanConfigurationException
-    * @throws PSAssemblyException
-    */
-   @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly page/snippet and slot and return a JSON string", params =
-   {
-      @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters"),
-      @IPSJexlParam(name = "slotName", type = "String", description = "Slot name")
-   }, returns = "JSON object string to uniquely identify the slot on the page/snippet")
-   static public String parseSlotObjectId(IPSAssemblyItem item,
-      String slotName) throws PSAssemblyException,
-      PSMissingBeanConfigurationException
-   {
-      if (item == null)
-      {
-         throw new IllegalArgumentException("item must not be null");
-      }
-      if (StringUtils.isEmpty(slotName))
-      {
-         throw new IllegalArgumentException(
-            "slotName must not be null or empty");
-      }
-      int slotid = PSAssemblyServiceLocator.getAssemblyService()
-         .findSlotByName(slotName).getGUID().getUUID();
-      Map params = getParams(item);
-      params.put(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotid));
-      JSONObject obj = new JSONObject();
-      obj.putAll(parseObjectId(params, PSWidgetNodeType.WIDGET_NODE_TYPE_SLOT));
-      return obj.toString();
-   }
+        var params = new HashMap<String, String>();
+        var oldParams = item.getParameters();
 
-   /**
-    * @param item
-    * @return
-    * @throws PSMissingBeanConfigurationException
-    * @throws PSAssemblyException
-    */
-   @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly snippet and return a JSON string", params =
-   {
-      @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
-   }, returns = "JSON object string to uniquely identify the snippet in a page")
-   static public String parseSnippetObjectId(IPSAssemblyItem item,
-      String slotName) throws PSAssemblyException,
-      PSMissingBeanConfigurationException
-   {
-      if (item == null)
-      {
-         throw new IllegalArgumentException("item must not be null");
-      }
-      if (StringUtils.isEmpty(slotName))
-      {
-         throw new IllegalArgumentException(
-            "slotName must not be null or empty");
-      }
-      int slotid = PSAssemblyServiceLocator.getAssemblyService()
-         .findSlotByName(slotName).getGUID().getUUID();
-      Map params = getParams(item);
-      params.put(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotid));
-      JSONObject obj = new JSONObject();
-      obj.putAll(parseObjectId(params,
-         PSWidgetNodeType.WIDGET_NODE_TYPE_SNIPPET));
-      return obj.toString();
-   }
+        oldParams.entrySet().stream()
+            .filter(entry -> entry.getKey() instanceof String)
+            .filter(entry -> entry.getValue() instanceof String[])
+            .forEach(entry -> {
+                var key = (String) entry.getKey();
+                var values = (String[]) entry.getValue();
+                if (values != null && values.length > 0) {
+                    params.put(key, values[0]);
+                }
+            });
 
-   /**
-    * 
-    * @param params
-    * @param nodeType
-    * @return
-    * @throws PSMissingBeanConfigurationException
-    * @throws PSAssemblyException
-    */
-   static public Map parseObjectId(Map params, PSWidgetNodeType nodeType)
-      throws PSAssemblyException, PSMissingBeanConfigurationException
-   {
-      if (params == null)
-      {
-         throw new IllegalArgumentException("params must not be null");
-      }
-      Map<String, String> id = parseCommonParams(params);
-      // Added to all types of nodes is the node type
-      id.put(ATTR_NODETYPE, String.valueOf(nodeType.getOrdinal()));
-      String temp;
-      switch (nodeType)
-      {
-         case WIDGET_NODE_TYPE_PAGE:
-            // Revision required
-            temp = parseParam(params, IPSHtmlParameters.SYS_REVISION, null,
-               true);
-            id.put(IPSHtmlParameters.SYS_REVISION, temp.toString());
-            break;
-         case WIDGET_NODE_TYPE_SLOT:
-            // slotid required
-            temp = parseParam(params, IPSHtmlParameters.SYS_SLOTID, null, true);
-            id.put(IPSHtmlParameters.SYS_SLOTID, temp.toString());
-            break;
-         case WIDGET_NODE_TYPE_SNIPPET:
-            // relationshipid required
-            temp = parseParam(params, IPSHtmlParameters.SYS_RELATIONSHIPID,
-               null, true);
-            id.put(IPSHtmlParameters.SYS_RELATIONSHIPID, temp.toString());
-            // slotid required
-            temp = parseParam(params, IPSHtmlParameters.SYS_SLOTID, null, true);
-            id.put(IPSHtmlParameters.SYS_SLOTID, temp.toString());
-            break;
-         case WIDGET_NODE_TYPE_FIELD:
-            // CE field name required
-            temp = parseParam(params, IPSHtmlParameters.SYS_FIELD_NAME, null,
-               true);
-            id.put(IPSHtmlParameters.SYS_FIELD_NAME, temp.toString());
-            break;
-         default:
-            break;
-      }
-      return id;
-   }
+        params.put(IPSHtmlParameters.SYS_VARIANTID,
+            String.valueOf(item.getTemplate().getGUID().getUUID()));
 
-   /**
-    * Helper to parse all parameters common to all node types.
-    * 
-    * @param params parameter map, assumed not <code>null</code>.
-    * @throws PSMissingBeanConfigurationException
-    * @throws PSAssemblyException
-    */
-   static private Map<String, String> parseCommonParams(Map params)
-      throws PSAssemblyException, PSMissingBeanConfigurationException
-   {
-      Map<String, String> id = new HashMap<>();
-      // ContentId
-      String temp = parseParam(params, IPSHtmlParameters.SYS_CONTENTID, null,
-         true);
-      id.put(IPSHtmlParameters.SYS_CONTENTID, temp);
+        return params;
+    }
 
-      // revision
-      temp = parseParam(params, IPSHtmlParameters.SYS_REVISION, null, true);
-      id.put(IPSHtmlParameters.SYS_REVISION, temp);
+    /**
+     * Parses assembly parameters for a page and returns a JSON string identifying the parent page.
+     *
+     * @param item the assembly item to process, must not be null
+     * @return JSON string uniquely identifying the parent page, never null
+     * @throws PSAssemblyException if assembly service operations fail
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     * @throws IllegalArgumentException if item is null
+     */
+    @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly page and return a JSON string", params = {
+        @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
+    }, returns = "JSON object string to uniquely identify the parent page")
+    public static String parseParentObjectId(IPSAssemblyItem item)
+            throws PSAssemblyException, PSMissingBeanConfigurationException {
+        Objects.requireNonNull(item, "item must not be null");
 
-      // template name / VariantId
-      temp = parseParam(params, IPSHtmlParameters.SYS_TEMPLATE, null, false);
-      if (!StringUtils.isEmpty(temp))
-      {
-         int tid = PSAssemblyServiceLocator.getAssemblyService()
-            .findTemplateByName(temp).getGUID().getUUID();
-         temp = String.valueOf(tid);
-      }
-      else
-      {
-         temp = parseParam(params, IPSHtmlParameters.SYS_VARIANTID, null, true);
-      }
-      id.put(IPSHtmlParameters.SYS_VARIANTID, temp.toString());
+        var params = getParams(item);
+        var obj = new JSONObject();
+        obj.putAll(parseObjectId(params, PSWidgetNodeType.WIDGET_NODE_TYPE_PAGE));
+        return obj.toString();
+    }
 
-      // Optional params
-      // FolderId
-      temp = parseParam(params, IPSHtmlParameters.SYS_FOLDERID, null, false);
-      if (!StringUtils.isEmpty(temp))
-         id.put(IPSHtmlParameters.SYS_FOLDERID, temp.toString());
+    /**
+     * Parses assembly parameters for a page/snippet and slot, returning a JSON string identifying the slot.
+     *
+     * @param item the assembly item to process, must not be null
+     * @param slotName the name of the slot, must not be null or empty
+     * @return JSON string uniquely identifying the slot on the page/snippet, never null
+     * @throws PSAssemblyException if assembly service operations fail
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     * @throws IllegalArgumentException if parameters are invalid
+     */
+    @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly page/snippet and slot and return a JSON string", params = {
+        @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters"),
+        @IPSJexlParam(name = "slotName", type = "String", description = "Slot name")
+    }, returns = "JSON object string to uniquely identify the slot on the page/snippet")
+    public static String parseSlotObjectId(IPSAssemblyItem item, String slotName)
+            throws PSAssemblyException, PSMissingBeanConfigurationException {
+        Objects.requireNonNull(item, "item must not be null");
+        if (StringUtils.isEmpty(slotName)) {
+            throw new IllegalArgumentException("slotName must not be null or empty");
+        }
 
-      // Params with default values
-      // SiteId
-      temp = parseParam(params, IPSHtmlParameters.SYS_SITEID, "0", false);
-      id.put(IPSHtmlParameters.SYS_SITEID, temp);
+        var slotId = PSAssemblyServiceLocator.getAssemblyService()
+            .findSlotByName(slotName).getGUID().getUUID();
+        var params = getParams(item);
+        params.put(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotId));
 
-      // Context
-      temp = parseParam(params, IPSHtmlParameters.SYS_CONTEXT, "0", false);
-      id.put(IPSHtmlParameters.SYS_CONTEXT, temp.toString());
+        var obj = new JSONObject();
+        obj.putAll(parseObjectId(params, PSWidgetNodeType.WIDGET_NODE_TYPE_SLOT));
+        return obj.toString();
+    }
 
-      // Authtype
-      temp = parseParam(params, IPSHtmlParameters.SYS_AUTHTYPE, "0", false);
-      id.put(IPSHtmlParameters.SYS_AUTHTYPE, temp);
+    /**
+     * Parses assembly parameters for a snippet and returns a JSON string identifying the snippet.
+     *
+     * @param item the assembly item to process, must not be null
+     * @param slotName the name of the slot containing the snippet, must not be null or empty
+     * @return JSON string uniquely identifying the snippet in a page, never null
+     * @throws PSAssemblyException if assembly service operations fail
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     * @throws IllegalArgumentException if parameters are invalid
+     */
+    @IPSJexlMethod(description = "helper to parse assembly parameters for the supplied assembly snippet and return a JSON string", params = {
+        @IPSJexlParam(name = "item", type = "PSAssemblyWorkItem", description = "Current assembly item to look for the assembly parameters")
+    }, returns = "JSON object string to uniquely identify the snippet in a page")
+    public static String parseSnippetObjectId(IPSAssemblyItem item, String slotName)
+            throws PSAssemblyException, PSMissingBeanConfigurationException {
+        Objects.requireNonNull(item, "item must not be null");
+        if (StringUtils.isEmpty(slotName)) {
+            throw new IllegalArgumentException("slotName must not be null or empty");
+        }
 
-      return id;
-   }
+        var slotId = PSAssemblyServiceLocator.getAssemblyService()
+            .findSlotByName(slotName).getGUID().getUUID();
+        var params = getParams(item);
+        params.put(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotId));
 
-   /**
-    * Helper method to parse parameter with a given name in the supplied
-    * parameter map.
-    * 
-    * @param params parameter map assumed not <code>null</code> or empty.
-    * @param name nameof the parameter to parse, assumed not <code>null</code>
-    * or empty.
-    * @param defValue defualt value to be used if the parameter does not exist
-    * in the supplied map, may be <code>null</code> or empty.
-    * @param isRequired <code>true</code> if the parameter must have a non
-    * <code>null</code> or non empty value directly or via the default value.
-    * @return parsed parameter, may be <code>null</code> or empty.
-    * @throws IllegalArgumentException if the value is required and the value is
-    * resolved to <code>null</code> or empty via parameter map or defualt
-    * value.
-    */
-   static private String parseParam(Map params, String name, String defValue,
-      boolean isRequired)
-   {
-      String val = defValue;
-      Object temp = params.get(name);
-      if (temp != null && !StringUtils.isEmpty(temp.toString()))
-         val = temp.toString();
-      if (val == null && isRequired)
-         throw new IllegalArgumentException(name + " must not be null or empty");
-      return val;
-   }
+        var obj = new JSONObject();
+        obj.putAll(parseObjectId(params, PSWidgetNodeType.WIDGET_NODE_TYPE_SNIPPET));
+        return obj.toString();
+    }
 
-   /**
-    * @param cid
-    * @return
-    * @throws PSMissingBeanConfigurationException
-    * @throws NumberFormatException
-    */
-   static public PSComponentSummary getItemSummary(int cid)
-      throws PSMissingBeanConfigurationException, NumberFormatException
-   {
-      IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
-      PSComponentSummary summary = objMgr.loadComponentSummary(cid);
-      return summary;
-   }
+    /**
+     * Parses object ID parameters based on the specified node type.
+     *
+     * @param params parameter map, must not be null
+     * @param nodeType the type of widget node, must not be null
+     * @return map containing parsed object ID parameters, never null
+     * @throws PSAssemblyException if assembly service operations fail
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     * @throws IllegalArgumentException if params is null
+     */
+    public static Map<String, String> parseObjectId(Map<String, Object> params, PSWidgetNodeType nodeType)
+            throws PSAssemblyException, PSMissingBeanConfigurationException {
+        Objects.requireNonNull(params, "params must not be null");
+        Objects.requireNonNull(nodeType, "nodeType must not be null");
 
-   // Generic node type attribute name
-   public static final String ATTR_NODETYPE = "nodeType";
+        var id = parseCommonParams(params);
+        id.put(ATTR_NODETYPE, String.valueOf(nodeType.getOrdinal()));
 
-   public static final String ATTR_ACTION = "action";
+        switch (nodeType) {
+            case WIDGET_NODE_TYPE_PAGE:
+                // Revision required
+                var revision = parseParam(params, IPSHtmlParameters.SYS_REVISION, null, true);
+                id.put(IPSHtmlParameters.SYS_REVISION, revision);
+                break;
+            case WIDGET_NODE_TYPE_SLOT:
+                // slotid required
+                var slotId = parseParam(params, IPSHtmlParameters.SYS_SLOTID, null, true);
+                id.put(IPSHtmlParameters.SYS_SLOTID, slotId);
+                break;
+            case WIDGET_NODE_TYPE_SNIPPET:
+                // relationshipid required
+                var relationshipId = parseParam(params, IPSHtmlParameters.SYS_RELATIONSHIPID, null, true);
+                id.put(IPSHtmlParameters.SYS_RELATIONSHIPID, relationshipId);
+                // slotid required
+                var snippetSlotId = parseParam(params, IPSHtmlParameters.SYS_SLOTID, null, true);
+                id.put(IPSHtmlParameters.SYS_SLOTID, snippetSlotId);
+                break;
+            case WIDGET_NODE_TYPE_FIELD:
+                // CE field name required
+                var fieldName = parseParam(params, IPSHtmlParameters.SYS_FIELD_NAME, null, true);
+                id.put(IPSHtmlParameters.SYS_FIELD_NAME, fieldName);
+                break;
+            default:
+                log.warn("Unhandled node type: {}", nodeType);
+                break;
+        }
+        return id;
+    }
 
-   // Tree widget node attributes
-   public static final String TREENODE_ATTR_TITLE = "title";
+    /**
+     * Parses parameters common to all node types.
+     *
+     * @param params parameter map, must not be null
+     * @return map containing common parameters, never null
+     * @throws PSAssemblyException if assembly service operations fail
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     */
+    private static Map<String, String> parseCommonParams(Map<String, Object> params)
+            throws PSAssemblyException, PSMissingBeanConfigurationException {
+        var id = new HashMap<String, String>();
 
-   public static final String ATTR_OBJECTID = "objectId";
+        // ContentId (required)
+        var contentId = parseParam(params, IPSHtmlParameters.SYS_CONTENTID, null, true);
+        id.put(IPSHtmlParameters.SYS_CONTENTID, contentId);
 
-   public static final String TREENODE_ATTR_ISFOLDER = "isFolder";
+        // Revision (required)
+        var revision = parseParam(params, IPSHtmlParameters.SYS_REVISION, null, true);
+        id.put(IPSHtmlParameters.SYS_REVISION, revision);
 
-   public static final String TREENODE_ATTR_ICONSRC = "childIconSrc";
+        // Template name / VariantId
+        var templateName = parseParam(params, IPSHtmlParameters.SYS_TEMPLATE, null, false);
+        String variantId;
+        if (StringUtils.isNotEmpty(templateName)) {
+            var templateId = PSAssemblyServiceLocator.getAssemblyService()
+                .findTemplateByName(templateName).getGUID().getUUID();
+            variantId = String.valueOf(templateId);
+        } else {
+            variantId = parseParam(params, IPSHtmlParameters.SYS_VARIANTID, null, true);
+        }
+        id.put(IPSHtmlParameters.SYS_VARIANTID, variantId);
+
+        // Optional parameters
+        Optional.ofNullable(parseParam(params, IPSHtmlParameters.SYS_FOLDERID, null, false))
+            .filter(StringUtils::isNotEmpty)
+            .ifPresent(folderId -> id.put(IPSHtmlParameters.SYS_FOLDERID, folderId));
+
+        // Parameters with default values
+        id.put(IPSHtmlParameters.SYS_SITEID,
+            parseParam(params, IPSHtmlParameters.SYS_SITEID, "0", false));
+        id.put(IPSHtmlParameters.SYS_CONTEXT,
+            parseParam(params, IPSHtmlParameters.SYS_CONTEXT, "0", false));
+        id.put(IPSHtmlParameters.SYS_AUTHTYPE,
+            parseParam(params, IPSHtmlParameters.SYS_AUTHTYPE, "0", false));
+
+        return id;
+    }
+
+    /**
+     * Parses a parameter with the given name from the parameter map.
+     *
+     * @param params parameter map, must not be null
+     * @param name parameter name, must not be null or empty
+     * @param defValue default value if parameter doesn't exist, may be null
+     * @param isRequired true if parameter must have a non-null/non-empty value
+     * @return parsed parameter value, may be null if not required
+     * @throws IllegalArgumentException if required value is null or empty
+     */
+    private static String parseParam(Map<String, Object> params, String name,
+            String defValue, boolean isRequired) {
+        var val = Optional.ofNullable(params.get(name))
+            .map(Object::toString)
+            .filter(StringUtils::isNotEmpty)
+            .orElse(defValue);
+
+        if (isRequired && StringUtils.isEmpty(val)) {
+            throw new IllegalArgumentException(name + " must not be null or empty");
+        }
+        return val;
+    }
+
+    /**
+     * Retrieves a component summary for the specified content ID.
+     *
+     * @param contentId the content ID to look up, must be positive
+     * @return component summary for the content item, never null
+     * @throws PSMissingBeanConfigurationException if service configuration is missing
+     * @throws IllegalArgumentException if contentId is not positive
+     */
+    public static PSComponentSummary getItemSummary(int contentId)
+            throws PSMissingBeanConfigurationException {
+        if (contentId <= 0) {
+            throw new IllegalArgumentException("Content ID must be positive: " + contentId);
+        }
+
+        var objMgr = PSCmsObjectMgrLocator.getObjectManager();
+        return objMgr.loadComponentSummary(contentId);
+    }
+
+    // Constants for attribute names
+
+    /** Generic node type attribute name */
+    public static final String ATTR_NODETYPE = "nodeType";
+
+    /** Action attribute name */
+    public static final String ATTR_ACTION = "action";
+
+    /** Tree widget node title attribute */
+    public static final String TREENODE_ATTR_TITLE = "title";
+
+    /** Object ID attribute name */
+    public static final String ATTR_OBJECTID = "objectId";
+
+    /** Tree node folder flag attribute */
+    public static final String TREENODE_ATTR_ISFOLDER = "isFolder";
+
+    /** Tree node icon source attribute */
+    public static final String TREENODE_ATTR_ICONSRC = "childIconSrc";
 }

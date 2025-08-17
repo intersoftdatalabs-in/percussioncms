@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * It contains the information of executing a scheduled task. This creates
+ * Contains the information of executing a scheduled task. This creates
  * immutable objects. Note, the second level cache is off (configured in
- * ehcache.xml) because the system does not load individual log entry.
- * 
+ * ehcache.xml) because the system does not load individual log entries.
+ *
  * @author Yu-Bing Chen
  */
 @Entity

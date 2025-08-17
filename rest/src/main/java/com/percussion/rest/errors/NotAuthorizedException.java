@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class NotAuthorizedException extends RestExceptionBase
-{
-    public NotAuthorizedException()
-    {
-        super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
-    }
+/** Exception for unauthorized access. Sunny Sal: "Permission denied! Access nahi milega!" */
+public class NotAuthorizedException extends RestExceptionBase {
+
+  public NotAuthorizedException() {
+    super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
+  }
 }

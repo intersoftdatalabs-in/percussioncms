@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@
 package com.percussion.security;
 
 /**
- * The PSClassLoader class lets the sandbox allow class loading for data transformation
- * through the creation and calling of user defined functions (UDFs).
+ * The PSClassLoader class lets the sandbox allow class loading for data transformation through the
+ * creation and calling of user defined functions (UDFs).
  *
- * @author      Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
-public class PSClassLoader extends ClassLoader
-{
-   /**
-    * Construct a PSClassLoader object.
-    */
-   PSClassLoader()
-   {
-      super();
-   }
+public class PSClassLoader extends ClassLoader {
+  /** Construct a PSClassLoader object. */
+  PSClassLoader() {
+    super();
+  }
 }

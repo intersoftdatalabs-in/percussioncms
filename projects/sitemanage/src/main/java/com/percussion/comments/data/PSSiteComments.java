@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,48 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-/**
- * Represents a list of comments that belongs to the specified
- * site.
- * 
- * @author miltonpividori
- *
- */
+/** Represents a list of comments that belongs to the specified site. */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "site",
-    "comments"
-})
-public class PSSiteComments
-{
-    private String site;
+@XmlType(
+    name = "",
+    propOrder = {"site", "comments"})
+public class PSSiteComments {
 
-    private List<String> comments;
+  private String site;
+  private List<String> comments;
 
-    public PSSiteComments()
-    {
-        comments = new ArrayList<>();
-    }
+  public PSSiteComments() {
+    comments = new ArrayList<>();
+  }
 
-    public String getSite()
-    {
-        return site;
-    }
+  public String getSite() {
+    return site;
+  }
 
-    public void setSite(String site)
-    {
-        this.site = site;
-    }
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * Returns the actual (modificable) list of comment's IDs.
-     * 
-     * @return The actual list of comment's IDs.
-     */
-    public List<String> getComments()
-    {
-        return comments;
-    }
+  /**
+   * Returns the actual (modifiable) list of comment IDs.
+   *
+   * @return The actual list of comment IDs.
+   */
+  public List<String> getComments() {
+    return comments;
+  }
 
-    public void setComments(List<String> comments)
-    {
-        this.comments = comments;
-    }
+  public void setComments(List<String> comments) {
+    this.comments = comments;
+  }
 }

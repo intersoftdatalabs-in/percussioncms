@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,45 +21,77 @@ package com.percussion.recycle.service;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.List;
 
-/**
- * @author chriswright
- */
+/** Service for managing recycling and restoration of items and folders. */
 public interface IPSRecycleService {
 
-    void recycleItem(int dependentId);
+  /**
+   * Recycles an item by its dependent ID.
+   *
+   * @param dependentId the dependent item ID
+   */
+  void recycleItem(int dependentId);
 
-    void recycleFolder(IPSGuid guid);
+  /**
+   * Recycles a folder by its GUID.
+   *
+   * @param guid the folder GUID
+   */
+  void recycleFolder(IPSGuid guid);
 
-    void restoreItem(String guid);
+  /**
+   * Restores an item by its GUID.
+   *
+   * @param guid the item GUID
+   */
+  void restoreItem(String guid);
 
-    void restoreFolder(String guid);
+  /**
+   * Restores a folder by its GUID.
+   *
+   * @param guid the folder GUID
+   */
+  void restoreFolder(String guid);
 
-    List<IPSItemSummary> findChildren(String path);
+  /**
+   * Finds children under the given path in the recycling bin.
+   *
+   * @param path the path to search
+   * @return list of item summaries
+   */
+  List<IPSItemSummary> findChildren(String path);
 
-    IPSItemSummary findItem(String path) throws IPSDataService.DataServiceLoadException;
+  /**
+   * Finds a recycled item by its path.
+   *
+   * @param path the item path
+   * @return the item summary
+   * @throws IPSDataService.DataServiceLoadException if loading fails
+   */
+  IPSItemSummary findItem(String path) throws IPSDataService.DataServiceLoadException;
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
-     */
-    boolean isInRecycler(String guid);
+  /**
+   * Checks if the specified GUID is in the recycler.
+   *
+   * @param guid a valid GUID to search for, never null
+   * @return true if GUID is in the recycler, false otherwise
+   */
+  boolean isInRecycler(String guid);
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
-     */
-    boolean isNavInRecycler(String guid);
+  /**
+   * Checks if the specified navigation GUID is in the recycler.
+   *
+   * @param guid a valid GUID to search for, never null
+   * @return true if GUID is in the recycler, false otherwise
+   */
+  boolean isNavInRecycler(String guid);
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
-     */
-    boolean isInRecycler(IPSGuid guid);
-
+  /**
+   * Checks if the specified GUID is in the recycler.
+   *
+   * @param guid a valid GUID to search for, never null
+   * @return true if GUID is in the recycler, false otherwise
+   */
+  boolean isInRecycler(IPSGuid guid);
 }

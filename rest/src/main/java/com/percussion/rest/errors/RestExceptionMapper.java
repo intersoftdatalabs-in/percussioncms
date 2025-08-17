@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,52 @@
  * limitations under the License.
  */
 
-package com.percussion.rest.errors;
+// REFACTORED: CP-JAVA11
 
-import java.util.List;
+package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps RestExceptionBase to a proper HTTP response. Sunny Sal: "Exception ko response mein badal
+ * diya, boss!"
+ */
 @Provider
-public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase>
-{
-    @Context
-    private HttpHeaders headers;
+public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase> {
 
-    public Response toResponse(RestExceptionBase e)
-    {
+  @Context private HttpHeaders headers;
 
-        ResponseBuilder rb = Response.status(e.getStatus()).entity(
-                new RestError(e.getErrorCode().getNumVal(), e.getClass().getSimpleName(), e.getMessage(), e.getDetailMessage(), e
-                        .getErrorData()));
+  @Override
+  public Response toResponse(RestExceptionBase e) {
+    var restError =
+        new RestError(
+            e.getErrorCode().getNumVal(),
+            e.getClass().getSimpleName(),
+            e.getMessage(),
+            e.getDetailMessage(),
+            e.getErrorData().orElse(null));
 
-        List<MediaType> accepts = headers.getAcceptableMediaTypes();
-        MediaType mt = null;
-        if (accepts != null && accepts.size() > 0)
-        {
-            for (MediaType accept : accepts)
-            {
-                if (accept.equals(MediaType.APPLICATION_JSON) || accept.equals(MediaType.APPLICATION_XML))
-                {
-                    mt = accept;
-                    break;
-                }
-            }
-        }
-        if (mt == null)
-            mt = MediaType.valueOf(MediaType.APPLICATION_XML);
-        // if not specified, use the default json
-        rb = rb.type(mt); // set the response type to the entity type.
+    var rb = Response.status(e.getStatus()).entity(restError);
 
-        return rb.build();
-    }
+    var accepts = headers.getAcceptableMediaTypes();
+    var mt =
+        accepts != null && !accepts.isEmpty()
+            ? accepts.stream()
+                .filter(
+                    accept ->
+                        MediaType.APPLICATION_JSON_TYPE.equals(accept)
+                            || MediaType.APPLICATION_XML_TYPE.equals(accept))
+                .findFirst()
+                .orElse(MediaType.APPLICATION_XML_TYPE)
+            : MediaType.APPLICATION_XML_TYPE;
+
+    rb = rb.type(mt); // Set the response type to the entity type.
+
+    return rb.build();
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,127 +20,94 @@ package com.percussion.rx.config;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.design.IPSAssociationSet;
 import com.percussion.services.error.PSNotFoundException;
-
 import java.util.List;
 import java.util.Map;
 
 /**
- * The interface that all property setter must implement. A property setter
- * is used to set the properties for a design object and its associations (if
- * there is any). A property setter is typically specified in a Spring bean
- * file and is created by the Spring framework.
- * 
+ * Property setter interface for design objects and their associations. Used by Spring beans to set
+ * or remove properties on design objects.
+ *
+ * <p>Sunny Sal says: "Set it and forget it? Not quite! Validate and document it too."
+ *
  * @author bjoginipally
  */
-public interface IPSPropertySetter
-{
-   /**
-    * Apply the properties of the setter on the design object and/or its
-    * associations (if there is any). 
-    * 
-    * @param obj the design object, it may be <code>null</code>.
-    * 
-    * @param state the state of the specified design object. It may be 
-    * <code>null</code> if the design object is <code>null</code>, but it is
-    * not <code>null</code> if the design object is not <code>null</code>.
-    * 
-    * @param aSets the list of association sets, may be <code>null</code> if
-    * there is no association to be set on the design object. This method is
-    * responsible to fill in the merged, replaced, or deleted association if
-    * there is any.
-    * 
-    * @return <code>true</code> if the given object has been modified.
-    */
-   boolean applyProperties(Object obj, ObjectState state,
-         List<IPSAssociationSet> aSets);
-   
-   /**
-    * De-apply the properties of the setter on the design object and/or its
-    * associations (if there is any). The current properties are the properties
-    * that were successfully applied to the object previously.
-    * 
-    * @param obj the design object, it may be <code>null</code>. The state
-    * of the object is assumed to be {@link ObjectState#PREVIOUS}.
-    * 
-    * @param aSets the list of association sets, may be <code>null</code> if
-    * there is no association to be set on the design object. This method is
-    * responsible to fill in deleted association if there is any.
-    * 
-    * @return <code>true</code> if the given object has been modified.
-    */
-   boolean deApplyProperties(Object obj, List<IPSAssociationSet> aSets);
+public interface IPSPropertySetter {
 
-   /**
-    * Gets all configurable properties. The properties may be wired in by Spring
-    * framework, where value of the properties may be in the place holder
-    * format, e.g., ${com.percussion.solution.RSS.name}.
-    * <p>
-    * Note, the value of the properties may be replaced with the value defined
-    * in default/local configure files after the calls to
-    * {@link #setProperties(Map)} (by the framework).
-    * 
-    * @return the properties, may be <code>null</code> or empty if there is no
-    * configurable properties for this setter.
-    */
-   Map<String, Object> getProperties();
-   
-   /**
-    * Sets the configurable properties. The value of the properties may be
-    * replaced with the value retrieved from local config. The number of the new
-    * properties may be less than the number of original properties that were
-    * wired in by Spring framework.
-    * 
-    * @param props the new properties, may be <code>null</code> or empty if
-    * there is no configurable properties for this setter.
-    */
-   void setProperties(Map<String, Object> props);
-   
-   /**
-    * Gets the configurable properties that were previously applied.
-    * 
-    * @return the previously applied properties, may be <code>null</code> or
-    * empty if there is no previous configurable properties.
-    */
-   Map<String, Object> getPrevProperties();
+  /**
+   * Applies the properties of this setter to the design object and/or its associations.
+   *
+   * @param obj the design object, may be {@code null}.
+   * @param state the state of the specified design object. May be {@code null} if obj is {@code
+   *     null}.
+   * @param aSets the list of association sets, may be {@code null} if there are no associations.
+   *     This method is responsible for merging, replacing, or deleting associations if needed.
+   * @return {@code true} if the given object has been modified.
+   */
+  boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets);
 
-   /**
-    * Sets the configurable properties that were previously applied.
-    * 
-    * @param props the previously applied properties, may be <code>null</code>
-    * or empty if there is no configurable properties for this setter.
-    */
-   void setPrevProperties(Map<String, Object> props);
- 
-   /**
-    * Validates the properties against another setter properties, which 
-    * may have already applied to the specified design object.
-    * 
-    * @param objName the name of the design object, never <code>null</code> or
-    * empty.
-    * @param state the state of the design object if apply the properties,
-    * never <code>null</code>.
-    * @param setter the other setter that contains properties have already 
-    * applied to the specified design object, never <code>null</code>.
-    * 
-    * @return a list of validation results. It may be empty if there is no
-    * error or warnings.
-    */
-   List<PSConfigValidation> validate(String objName, ObjectState state,
-         IPSPropertySetter setter);
+  /**
+   * Removes the properties of this setter from the design object and/or its associations. The
+   * current properties are those previously applied.
+   *
+   * @param obj the design object, may be {@code null}. State is assumed to be {@link
+   *     ObjectState#PREVIOUS}.
+   * @param aSets the list of association sets, may be {@code null} if there are no associations.
+   *     This method is responsible for deleting associations if needed.
+   * @return {@code true} if the given object has been modified.
+   */
+  boolean deApplyProperties(Object obj, List<IPSAssociationSet> aSets);
 
-   /**
-    * Scan through all properties {@link #getProperties()}, for each property,
-    * creates the property definitions as name/value pairs and add the created
-    * property definition to the specified (property definition) holder.
-    * <p>
-    * Note, The properties from {@link #getProperties()} are expected in its
-    * raw format, which may contain ${place-holder} in the value of the 
-    * properties and the ${place-holders} have not bean replaced by the 
-    * framework.
-    * 
-    * @param obj the object in question, it may be <code>null</code>. 
-    * @param defs the holder for created property definitions, never 
-    * <code>null</code>.
-    */
-   void addPropertyDefs(Object obj, Map<String, Object> defs) throws PSNotFoundException;
+  /**
+   * Gets all configurable properties. Properties may use placeholder format (e.g.,
+   * ${some.property}). Values may be replaced by the framework after {@link #setProperties(Map)}.
+   *
+   * @return the properties, may be {@code null} or empty if none.
+   */
+  Map<String, Object> getProperties();
+
+  /**
+   * Sets the configurable properties. Values may be replaced from local config. The number of new
+   * properties may be less than the original set.
+   *
+   * @param props the new properties, may be {@code null} or empty.
+   */
+  void setProperties(Map<String, Object> props);
+
+  /**
+   * Gets the configurable properties that were previously applied.
+   *
+   * @return the previously applied properties, may be {@code null} or empty.
+   */
+  Map<String, Object> getPrevProperties();
+
+  /**
+   * Sets the configurable properties that were previously applied.
+   *
+   * @param props the previously applied properties, may be {@code null} or empty.
+   */
+  void setPrevProperties(Map<String, Object> props);
+
+  /**
+   * Validates the properties against another setter's properties, which may have already been
+   * applied.
+   *
+   * @param objName the name of the design object, never {@code null} or empty.
+   * @param state the state of the design object if applying the properties, never {@code null}.
+   * @param setter the other setter with properties already applied, never {@code null}.
+   * @return a list of validation results. May be empty if no errors or warnings.
+   */
+  List<PSConfigValidation> validate(String objName, ObjectState state, IPSPropertySetter setter);
+
+  /**
+   * Scans all properties ({@link #getProperties()}), creates property definitions as name/value
+   * pairs, and adds them to the specified holder.
+   *
+   * <p>Note: Properties may contain placeholders (e.g., ${placeholder}) that have not yet been
+   * replaced.
+   *
+   * @param obj the object in question, may be {@code null}.
+   * @param defs the holder for created property definitions, never {@code null}.
+   * @throws PSNotFoundException if a referenced object is not found.
+   */
+  void addPropertyDefs(Object obj, Map<String, Object> defs) throws PSNotFoundException;
 }

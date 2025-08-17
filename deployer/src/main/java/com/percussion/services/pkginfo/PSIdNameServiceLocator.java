@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +20,15 @@ package com.percussion.services.pkginfo;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- * Locator for the {@link IPSIdNameService}
- */
-public class PSIdNameServiceLocator extends PSBaseServiceLocator
-{
-   /**
-    * Find and return the id name service.
-    * 
-    * @return the service, never <code>null</code>.
-    */
-   public static IPSIdNameService getIdNameService()
-   {
-      return (IPSIdNameService) getCtx().getBean("sys_idNameService");
-   }
+/** Locator for the {@link IPSIdNameService}. */
+public class PSIdNameServiceLocator extends PSBaseServiceLocator {
 
+  /**
+   * Finds and returns the id-name service.
+   *
+   * @return The service; never {@code null}.
+   */
+  public static IPSIdNameService getIdNameService() {
+    return (IPSIdNameService) getCtx().getBean("sys_idNameService");
+  }
 }

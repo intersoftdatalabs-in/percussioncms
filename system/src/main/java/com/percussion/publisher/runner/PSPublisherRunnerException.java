@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,17 @@
 package com.percussion.publisher.runner;
 
 /**
- * This exception is thrown by publisher runner if publish HTTP request fails
- * for any reason. This is just same as its base class except for the name.
+ * This exception is thrown by publisher runner if publish HTTP request fails for any reason. This
+ * is just same as its base class except for the name.
  */
-public class PSPublisherRunnerException extends Exception
-{
-   /**
-    * Empty constructor
-    */
-   public PSPublisherRunnerException()
-   {
-      super();
-   }
+public class PSPublisherRunnerException extends Exception {
+  /** Empty constructor */
+  public PSPublisherRunnerException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the error message.
-    */
-   public PSPublisherRunnerException(String msg)
-   {
-      super(msg);
-   }
+  /** Constructor that takes the error message. */
+  public PSPublisherRunnerException(String msg) {
+    super(msg);
+  }
 }

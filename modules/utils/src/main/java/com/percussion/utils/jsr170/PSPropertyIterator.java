@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,47 +16,39 @@
  */
 package com.percussion.utils.jsr170;
 
-
 import com.percussion.utils.beans.PSPropertyWrapper;
-
+import java.util.Map;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
-import java.util.Map;
 
 /**
  * This is an implementation of the JSR-170 property iterator
- * 
+ *
  * @author dougrand
  */
-public class PSPropertyIterator extends PSItemIterator<Property>
-   implements PropertyIterator
-{
-   /**
-    * Ctor
-    * @param things the map of properties, never <code>null</code>
-    * @param filterpattern the filter pattern, may be <code>null</code>
-    */
-   public PSPropertyIterator(Map<String, Property> things, String filterpattern) {
-      super(things, filterpattern);
-   }
+public class PSPropertyIterator extends PSItemIterator<Property> implements PropertyIterator {
+  /**
+   * Ctor
+   *
+   * @param things the map of properties, never <code>null</code>
+   * @param filterpattern the filter pattern, may be <code>null</code>
+   */
+  public PSPropertyIterator(Map<String, Property> things, String filterpattern) {
+    super(things, filterpattern);
+  }
 
-   public Property nextProperty()
-   {
-      Property p = next();
-      
-      if (p != null && p instanceof PSPropertyWrapper)
-      {
-         PSPropertyWrapper wrapper = (PSPropertyWrapper) p;
-         try
-         {
-            wrapper.init();
-         }
-         catch(IllegalStateException e)
-         {
-            return nextProperty();
-         }
+  public Property nextProperty() {
+    Property p = next();
+
+    if (p != null && p instanceof PSPropertyWrapper) {
+      PSPropertyWrapper wrapper = (PSPropertyWrapper) p;
+      try {
+        wrapper.init();
+      } catch (IllegalStateException e) {
+        return nextProperty();
       }
-      
-      return p;
-   }
+    }
+
+    return p;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,27 +26,27 @@ import org.simpleframework.xml.ElementList;
  * @author Steffen Gates May 9, 2011
  */
 public class Attr {
-    
-    @Attribute(required = true)
-    public String name;
-    
-    @Attribute(required = true)
-    public int langID;
-    
-    @ElementList(inline = true)
-    public List<Value> values;
-    
-    public Attr() {}
-    
-    public Attr(String name, int langID){
-        this.name = name;
-        this.langID = langID;
+
+  @Attribute(required = true)
+  public String name;
+
+  @Attribute(required = true)
+  public int langID;
+
+  @ElementList(inline = true)
+  public List<Value> values;
+
+  public Attr() {}
+
+  public Attr(String name, int langID) {
+    this.name = name;
+    this.langID = langID;
+  }
+
+  public void addValue(Value val) {
+    if (values == null) {
+      values = new ArrayList<Value>();
     }
-    
-    public void addValue(Value val){
-        if(values == null){
-            values = new ArrayList<Value>();
-        }
-        values.add(val);
-    }
+    values.add(val);
+  }
 }

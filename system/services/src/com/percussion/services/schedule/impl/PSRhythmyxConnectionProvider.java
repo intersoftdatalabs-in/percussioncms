@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ import org.quartz.utils.ConnectionProvider;
 
 /**
  * Provides Rhythmyx database connection to Quartz.
- * Uses statically defined datasource manager, which should be set with
+ * <p>Uses statically defined datasource manager, which should be set with
  * {@link #setDatasourceManager(IPSDatasourceManager)} before calling
- * {@link #getConnection()} the first time.
- * 
+ * {@link #getConnection()} the first time.</p>
+ *
  * @author Andriy Palamarchuk
  */
 public class PSRhythmyxConnectionProvider implements ConnectionProvider

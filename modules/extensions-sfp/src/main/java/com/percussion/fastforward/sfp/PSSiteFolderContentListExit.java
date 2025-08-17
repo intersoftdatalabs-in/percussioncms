@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,35 @@
 package com.percussion.fastforward.sfp;
 
 import com.percussion.server.IPSRequestContext;
-
 import java.util.Set;
 
 /**
  * This Exit is used to generate the content list for a specified site folder.
- * 
- * @deprecated This Exit may have poor performance with large amount of items. 
- *             Use {@link PSSiteFolderContentListBulkExit} instead.
+ *
+ * @deprecated This Exit may have poor performance with large amount of items. Use {@link
+ *     PSSiteFolderContentListBulkExit} instead.
  */
-public class PSSiteFolderContentListExit extends
-      PSSiteFolderContentListBaseExit
-{
-   // implements the abstract method getSiteFolderCListObject()
-   protected PSSiteFolderCListBase getSiteFolderCListInstance(
-         IPSRequestContext request, boolean isIncremental,
-         String publishableContentValidValues, String contentResourceName,
-         int maxRowsPerPage, String protocol, String host, String port,
-         Set paramSetToPass)
-   {
-      return new PSSiteFolderContentList(request, isIncremental,
-            publishableContentValidValues, contentResourceName, maxRowsPerPage,
-            protocol, host, port,
-            paramSetToPass);
-   }
+public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
+  // implements the abstract method getSiteFolderCListObject()
+  protected PSSiteFolderCListBase getSiteFolderCListInstance(
+      IPSRequestContext request,
+      boolean isIncremental,
+      String publishableContentValidValues,
+      String contentResourceName,
+      int maxRowsPerPage,
+      String protocol,
+      String host,
+      String port,
+      Set paramSetToPass) {
+    return new PSSiteFolderContentList(
+        request,
+        isIncremental,
+        publishableContentValidValues,
+        contentResourceName,
+        maxRowsPerPage,
+        protocol,
+        host,
+        port,
+        paramSetToPass);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,43 +22,35 @@ import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
 
 /**
- * Will turn a &lt;div&gt; tag that has a special attribute marker
- * to indicate it is actually a form, back into the form tag. 
- * Must use with the <code>PSFormEncode</code> output translation.
- * 
- * This is used to get around an issues with form tags not working
- * in EditLive single instance.
- * @author erikserating
+ * Will turn a &lt;div&gt; tag that has a special attribute marker to indicate it is actually a
+ * form, back into the form tag. Must use with the <code>PSFormEncode</code> output translation.
  *
+ * <p>This is used to get around an issues with form tags not working in EditLive single instance.
+ *
+ * @author erikserating
  */
-public class PSFormDecode implements IPSFieldInputTransformer
-{
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSUdfProcessor#
-    * processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
-    */
-   @SuppressWarnings("unused")
-   public Object processUdf(Object[] params, IPSRequestContext request)
-            throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      String value = ep.getStringParam(0, null, false);
-      return PSFormEncodeDecodeHelper.decode(value);
-   }
+public class PSFormDecode implements IPSFieldInputTransformer {
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSUdfProcessor#
+   * processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
+   */
+  @SuppressWarnings("unused")
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, false);
+    return PSFormEncodeDecodeHelper.decode(value);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#
-    * init(com.percussion.extension.IPSExtensionDef, java.io.File)
-    */
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File codeRoot)
-            throws PSExtensionException
-   {
-      // No op
-   }
-
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSExtension#
+   * init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   */
+  @SuppressWarnings("unused")
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // No op
+  }
 }

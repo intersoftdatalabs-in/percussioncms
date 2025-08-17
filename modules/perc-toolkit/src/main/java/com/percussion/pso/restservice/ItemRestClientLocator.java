@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,24 @@
  */
 package com.percussion.pso.restservice;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.pso.restservice.impl.ItemRestServiceImpl;
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- */
+/** */
 public class ItemRestClientLocator extends PSBaseServiceLocator {
-	  
-	   /**
-	    * Method getItemServiceBase.
-	    * @return ItemRestServiceImpl
-	    */
-	   public static ItemRestServiceImpl getItemServiceBase()
-	   {
-	      return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN); 
-	   }
-	   
-	   /**
-	    * Field IMPORT_BASE_CLIENT_BEAN.
-	    * (value is ""restItemClient"")
-	    */
-	   public static final String IMPORT_BASE_CLIENT_BEAN = "restItemClient";
+
+  /**
+   * Method getItemServiceBase.
+   *
+   * @return ItemRestServiceImpl
+   */
+  public static ItemRestServiceImpl getItemServiceBase() {
+    return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN);
+  }
+
+  /** Field IMPORT_BASE_CLIENT_BEAN. (value is ""restItemClient"") */
+  public static final String IMPORT_BASE_CLIENT_BEAN = "restItemClient";
 }
+
+	// REFACTORED: CP-JAVA11

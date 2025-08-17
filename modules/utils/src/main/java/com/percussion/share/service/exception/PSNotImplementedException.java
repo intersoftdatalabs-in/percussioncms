@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,22 @@
 
 package com.percussion.share.service.exception;
 
-
 /**
  * Should be used when a method is not yet implemented
- * 
- * @author natechadwick
  *
+ * @author natechadwick
  */
 public class PSNotImplementedException extends RuntimeException {
 
-	public PSNotImplementedException(String message) {
-		super(message);
-	}
+  public PSNotImplementedException(String message) {
+    super(message);
+  }
 
-	public PSNotImplementedException(Throwable cause) {
-		super(cause);
-	}
+  public PSNotImplementedException(Throwable cause) {
+    super(cause);
+  }
 
-	public PSNotImplementedException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+  public PSNotImplementedException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

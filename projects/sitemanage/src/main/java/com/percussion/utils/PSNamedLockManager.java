@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,142 +17,106 @@
  */
 package com.percussion.utils;
 
-import org.apache.commons.lang.Validate;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.lang3.Validate;
 
 /**
- * Manages a map of named locks, so that locks can be acquired based on a name, also simplifies some of the semantics.
- * Locks are reentrant and waiting threads are managed fairly favoring the longest waiting thread. 
- * 
- * @author JaySeletz
+ * Manages a map of named locks, so that locks can be acquired based on a name. Locks are reentrant
+ * and waiting threads are managed fairly, favoring the longest waiting thread.
  *
+ * <p>Sunny Sal says: "Lock your code like you lock your bike in Mumbai—otherwise, someone will run
+ * away with it!"
  */
-public class PSNamedLockManager
-{
-    private ConcurrentMap<String, ReentrantLock> lockMap;
-    private long waitMillis;
-    
-    /**
-     * Create the lock manager, specifying the timeout for acquiring a lock.  
-     * 
-     * @param waitMillis The timeout, in milliseconds, specifies the wait time when acquiring locks, <=0 for no wait.
-     */
-    public PSNamedLockManager(long waitMillis)
-    {
-        this.waitMillis = waitMillis;
-        lockMap = new ConcurrentHashMap<>();
+public class PSNamedLockManager {
+
+  private final ConcurrentMap<String, ReentrantLock> lockMap;
+  private final long waitMillis;
+
+  /**
+   * Creates the lock manager, specifying the timeout for acquiring a lock.
+   *
+   * @param waitMillis The timeout, in milliseconds, specifies the wait time when acquiring locks,
+   *     <=0 for no wait.
+   */
+  public PSNamedLockManager(long waitMillis) {
+    this.waitMillis = waitMillis;
+    this.lockMap = new ConcurrentHashMap<>();
+  }
+
+  /**
+   * Attempts to acquire the lock. This may block for the timeout specified during construction.
+   *
+   * @param name The name for which the lock is to be acquired, not null or empty.
+   * @return true if the lock is acquired, false if not.
+   */
+  public boolean getLock(String name) {
+    Validate.notEmpty(name, "Lock name must not be empty");
+
+    var lock = new ReentrantLock(true);
+    var current = lockMap.get(name);
+    // Double-checked locking to avoid unnecessary locking
+    if (current == null) {
+      current = lockMap.putIfAbsent(name, lock);
     }
-    
-    /**
-     * Attempt to acquire the lock.  This may block for the timeout specified during construction.
-     * 
-     * @param name The name for which the lock is to be acquired, not <code>null<code/> or empty.
-     * 
-     * @return <code>true</code> if the lock is acquired, <code>false</code> if not.
-     *  
-     */
-    public boolean getLock(String name)
-    {
-        Validate.notEmpty(name);
-        
-        ReentrantLock lock = new ReentrantLock(true);
-        ReentrantLock current = lockMap.get(name);
-        // putIfAbsent requires internal lock even if item exists
-        // use double checked locking to use non blocking reads when
-        // lock already exists.
-        //FB: JLM_JSR166_UTILCONCURRENT_MONITORENTER NC 1-16-16
-        if (current==null)
-        {
-                current = lockMap.putIfAbsent(name, lock);
-        }
-        if (current != null) {
-            lock = current;
-        }
-        
-        boolean didLock = false;
-        
-        try
-        {
-            didLock = lock.tryLock(waitMillis, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-        }
-        
-        return didLock;
+    if (current != null) {
+      lock = current;
     }
-    
-    /**
-     * Release the lock held by the current tread.
-     * 
-     * @param name The name of the lock to release, not <code>null<code/> or empty.
-     * 
-     */
-    public boolean releaseLock(String name)
-    {
-        Validate.notEmpty(name);
-        
-        boolean unlocked = false;
-        
-        ReentrantLock lock = lockMap.get(name);
-        if (lock != null)
-        {
-            try
-            {
-                lock.unlock();
-                unlocked = true;
-            }
-            catch (Exception e)
-            {
-                // didn't unlock, fall through
-            }
-        }
-        
-        return unlocked;
+
+    try {
+      return lock.tryLock(waitMillis, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
     }
-    
-    /**
-     * Determine if the current thread holds the named lock.
-     * 
-     * @param name the name of the lock to check, not <code>null<code/> or empty.
-     * 
-     * @return <code>true</code> if the current thread has the lock, <code>false</code> if not.
-     */
-    public boolean haveLock(String name)
-    {
-        Validate.notEmpty(name);
-        
-        boolean haveLock = false;
-        ReentrantLock lock = lockMap.get(name);
-        if (lock != null)
-        {
-            haveLock = lock.isHeldByCurrentThread();
-        }
-        
-        return haveLock;
+  }
+
+  /**
+   * Releases the lock held by the current thread.
+   *
+   * @param name The name of the lock to release, not null or empty.
+   * @return true if the lock was released, false otherwise.
+   */
+  public boolean releaseLock(String name) {
+    Validate.notEmpty(name, "Lock name must not be empty");
+
+    var lock = lockMap.get(name);
+    if (lock != null) {
+      try {
+        lock.unlock();
+        return true;
+      } catch (IllegalMonitorStateException e) {
+        // Didn't unlock, fall through
+      }
     }
-    
-    /**
-     * Determine if any thread holds the named lock.
-     * 
-     * @param name the name of the lock to check, not <code>null<code/> or empty.
-     * 
-     * @return <code>true</code> if any thread has the lock, <code>false</code> if not.
-     */
-    public boolean isLocked(String name)
-    {
-        boolean isLocked = false;
-        ReentrantLock lock = lockMap.get(name);
-        if (lock != null)
-        {
-            isLocked = lock.isLocked();
-        }
-        
-        return isLocked;
-    }
+    return false;
+  }
+
+  /**
+   * Determines if the current thread holds the named lock.
+   *
+   * @param name the name of the lock to check, not null or empty.
+   * @return true if the current thread has the lock, false otherwise.
+   */
+  public boolean haveLock(String name) {
+    Validate.notEmpty(name, "Lock name must not be empty");
+
+    var lock = lockMap.get(name);
+    return lock != null && lock.isHeldByCurrentThread();
+  }
+
+  /**
+   * Determines if any thread holds the named lock.
+   *
+   * @param name the name of the lock to check, not null or empty.
+   * @return true if any thread has the lock, false otherwise.
+   */
+  public boolean isLocked(String name) {
+    Validate.notEmpty(name, "Lock name must not be empty");
+
+    var lock = lockMap.get(name);
+    return lock != null && lock.isLocked();
+  }
 }

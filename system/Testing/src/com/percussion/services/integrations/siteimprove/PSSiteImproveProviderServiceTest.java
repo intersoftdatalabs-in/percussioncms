@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,22 @@ package com.percussion.services.integrations.siteimprove;
 
 import com.percussion.services.integrations.IPSIntegrationProviderService;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-//Remove @Ignore in order to run tests, these tests manually test siteimprove endpoints.
-@Ignore
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//Remove @Disabled in order to run tests, these tests manually test siteimprove endpoints.
+@Disabled
+@TestMethodOrder(MethodName.class)
 public class PSSiteImproveProviderServiceTest extends TestCase {
 
 	// Testing Resources
@@ -64,7 +64,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 	@Test
 	public void validateCredentialsTest() throws Exception {
 		//Ensure a valid username and email validates properly.
-		Assert.assertTrue(providerService.validateCredentials(testingCredentials));
+		Assertions.assertTrue(providerService.validateCredentials(testingCredentials));
 	}
 
 	@Test
@@ -116,14 +116,14 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 	@Test
 	public void a_SiteImproveGetSiteTest() throws Exception {
 		siteId = providerService.retrieveSiteInfo(TESTING_SITE, testingCredentials);
-		Assert.assertTrue(!siteId.isEmpty());
+		Assertions.assertTrue(!siteId.isEmpty());
 	}
 
 	@Test
 	public void b_SiteImproveGetPageTest() throws Exception {
 
 		String pageId = providerService.retrievePageInfo(siteId, TESTING_PAGE, testingCredentials);
-		Assert.assertTrue(!pageId.isEmpty());
+		Assertions.assertTrue(!pageId.isEmpty());
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrieveSiteInfo(TESTING_SITE, badTestingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		//try combination of nulls
@@ -171,7 +171,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrieveSiteInfo(UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 	}
@@ -182,7 +182,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrievePageInfo(UUID.randomUUID().toString(), TESTING_PAGE, testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		//try combination of empty string and nulls
@@ -204,7 +204,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.updateSiteInfo(UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		try {
@@ -226,7 +226,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.updatePageInfo(null, UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		try {

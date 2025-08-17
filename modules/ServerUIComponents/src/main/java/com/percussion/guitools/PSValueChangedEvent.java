@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+/** */
 package com.percussion.guitools;
 
 import java.awt.*;
 
-/**
- * Event that is fired off when a value changes on an AWT/SWing
- * component.
- */
-public class PSValueChangedEvent extends AWTEvent
-{
+/** Event that is fired off when a value changes on an AWT/SWing component. */
+public class PSValueChangedEvent extends AWTEvent {
 
-  
+  /**
+   * @param event
+   */
+  public PSValueChangedEvent(Event event) {
+    super(event);
+  }
 
-   /**
-    * @param event
-    */
-   public PSValueChangedEvent(Event event)
-   {
-      super(event);
-   }
+  /**
+   * @param source
+   * @param id
+   */
+  public PSValueChangedEvent(Object source, int id) {
+    super(source, id);
+  }
 
-   /**
-    * @param source
-    * @param id
-    */
-   public PSValueChangedEvent(Object source, int id)
-   {
-      super(source, id);
-   }
-   
-   /**
-    * Machine generated serial version uid
-    */
-   private static final long serialVersionUID = 2116355251345021672L;
-
+  /** Machine generated serial version uid */
+  private static final long serialVersionUID = 2116355251345021672L;
 }

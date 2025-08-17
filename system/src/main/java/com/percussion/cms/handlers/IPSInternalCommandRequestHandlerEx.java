@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,23 @@ import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
 /**
- * Internal request access interface.  This will allow command handlers to
- * make requests through other request handlers directly through a method call.  
+ * Internal request access interface. This will allow command handlers to make requests through
+ * other request handlers directly through a method call.
  */
-public interface IPSInternalCommandRequestHandlerEx
-{
-   /**
-    * Makes a request to the internal application using the porvided request.
-    * See the implementing class for specific details about the returned 
-    * document.
-    *
-    * @request the request to make, not <code>null</code>.
-    * @return the document created through the internal request or 
-    *    <code>null</code> if no data was returned.
-    * @throws PSInternalRequestCallException if the internal request call 
-    *    failed.
-    * @throws PSAuthorizationException if the requester is not authorized to
-    *    perform this request.
-    * @throws PSAuthenticationFailedException if the authentication of the 
-    *    requester failed.
-    */
-   public Document makeInternalRequestEx(PSRequest request)
-      throws PSInternalRequestCallException, PSAuthorizationException,
-      PSAuthenticationFailedException;
-} 
+public interface IPSInternalCommandRequestHandlerEx {
+  /**
+   * Makes a request to the internal application using the porvided request. See the implementing
+   * class for specific details about the returned document.
+   *
+   * @request the request to make, not <code>null</code>.
+   * @return the document created through the internal request or <code>null</code> if no data was
+   *     returned.
+   * @throws PSInternalRequestCallException if the internal request call failed.
+   * @throws PSAuthorizationException if the requester is not authorized to perform this request.
+   * @throws PSAuthenticationFailedException if the authentication of the requester failed.
+   */
+  public Document makeInternalRequestEx(PSRequest request)
+      throws PSInternalRequestCallException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException;
+}

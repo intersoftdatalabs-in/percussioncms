@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,80 +18,75 @@
 
 package com.percussion.monitor.service;
 
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
+import java.util.Map;
+import java.util.TreeMap;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Map;
-import java.util.TreeMap;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-
+/**
+ * REST service for monitor management. Sunny Sal says: "Monitor service: keeping your system in
+ * check, one stat at a time!"
+ */
 @Path("/monitor")
 @Component("monitorService")
 @Lazy
 public class PSMonitorService {
-	
-	private static Map<String, PSMonitor> monitors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
-	private static PSMonitorDesignators designatorNames = new PSMonitorDesignators();
-	
-	public static IPSMonitor registerMonitor(String monitorDesignation, String name)
-	{
-		
-		if ((monitorDesignation == null) ||  (monitorDesignation.toLowerCase().equals("all")))
-		{
-			throw new IllegalArgumentException("Illegal monitor designator");
-		}
-		
-		PSMonitor monitor = null;
-		if (monitors.containsKey(monitorDesignation))
-		{
-			return monitors.get(monitorDesignation);
-		}
-		monitor = new PSMonitor();
-		monitor.setStat("name", name);
-		monitor.setStat("designator", monitorDesignation);
-		monitors.put(monitorDesignation, monitor);
-		designatorNames.designator.add(monitorDesignation);
-		monitor.setMessage("No information available");
-		return monitor;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@GET
-	@Path("/list")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	public static PSMonitorDesignators getMonitorDesignators()
-	{
-	    return designatorNames;
-	}
-	
-	@GET
-	@Path("/{monitorDesignator}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	public static IPSMonitor getMonitor(@PathParam("monitorDesignator") String monitorDesignator)
-	{
-		if (!monitors.containsKey(monitorDesignator))
-		{
-			registerMonitor(monitorDesignator, "No Name Available");
-		}
-		return monitors.get(monitorDesignator);
-	}
-	
-	@GET
-	@Path("/all")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	public static PSMonitorList getMonitors()
-	{
-		PSMonitorList monitorList = new PSMonitorList();
-		monitorList.addEntriesToList(monitors);
-		return monitorList;
-		
-	}
-	
-	
+
+  private static final Map<String, PSMonitor> monitors =
+      new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+  private static final PSMonitorDesignators designatorNames = new PSMonitorDesignators();
+
+  /**
+   * Registers a monitor with the given designation and name.
+   *
+   * @param monitorDesignation the unique designation
+   * @param name the monitor name
+   * @return the registered monitor
+   */
+  public static IPSMonitor registerMonitor(String monitorDesignation, String name) {
+    if (monitorDesignation == null || monitorDesignation.equalsIgnoreCase("all")) {
+      throw new IllegalArgumentException("Illegal monitor designator");
+    }
+    if (monitors.containsKey(monitorDesignation)) {
+      return monitors.get(monitorDesignation);
+    }
+    var monitor = new PSMonitor();
+    monitor.setStat("name", name);
+    monitor.setStat("designator", monitorDesignation);
+    monitors.put(monitorDesignation, monitor);
+    designatorNames.designator.add(monitorDesignation);
+    monitor.setMessage("No information available");
+    return monitor;
+  }
+
+  @GET
+  @Path("/list")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public static PSMonitorDesignators getMonitorDesignators() {
+    return designatorNames;
+  }
+
+  @GET
+  @Path("/{monitorDesignator}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public static IPSMonitor getMonitor(@PathParam("monitorDesignator") String monitorDesignator) {
+    if (!monitors.containsKey(monitorDesignator)) {
+      registerMonitor(monitorDesignator, "No Name Available");
+    }
+    return monitors.get(monitorDesignator);
+  }
+
+  @GET
+  @Path("/all")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public static PSMonitorList getMonitors() {
+    var monitorList = new PSMonitorList();
+    monitorList.addEntriesToList(monitors);
+    return monitorList;
+  }
 }

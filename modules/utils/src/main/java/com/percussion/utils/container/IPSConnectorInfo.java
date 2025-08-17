@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,14 @@
 
 package com.percussion.utils.container;
 
-
 import java.nio.file.Path;
 import java.util.List;
 
 public interface IPSConnectorInfo<T extends IPSConnector> {
 
-    Path getConnectorFileContext();
+  Path getConnectorFileContext();
 
-    List<T> getConnectors();
+  List<T> getConnectors();
 
-    void setConnectors(List<T> connectors);
-
-
+  void setConnectors(List<T> connectors);
 }

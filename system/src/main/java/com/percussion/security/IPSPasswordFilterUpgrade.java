@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ package com.percussion.security;
  */
 public interface IPSPasswordFilterUpgrade {
 
-    /***
-     * Will encrypt the password using the hashing / encryption
-     * routine used in the previous version of the software.
-     *
-     * This is to allow Security Providers to re-encrypt passwords
-     * on login after a security update.
-     *
-     * @param password
-     * @return
-     */
-    String legacyEncrypt(String password);
+  /***
+   * Will encrypt the password using the hashing / encryption
+   * routine used in the previous version of the software.
+   *
+   * This is to allow Security Providers to re-encrypt passwords
+   * on login after a security update.
+   *
+   * @param password
+   * @return
+   */
+  String legacyEncrypt(String password);
 
-    String getLegacyAlgorithm();
+  String getLegacyAlgorithm();
 }

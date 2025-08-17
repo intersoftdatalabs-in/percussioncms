@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,35 +22,29 @@ import java.util.Map;
 
 /**
  * Deep copier
- * 
+ *
  * @author dougrand
  */
-public class PSCopier
-{
-   /**
-    * Deep copy the passed map. Most map elements will be copied by value
-    * but any map values will be deep copied themselves.
-    * 
-    * @param input the input map, never <code>null</code>
-    * @return a deep copied map, never <code>null</code>
-    */
-   @SuppressWarnings("unchecked")
-   public static Map deepCopy(Map input)
-   {
-      Map rval = new HashMap();
-      Iterator<Map.Entry> eiter = input.entrySet().iterator();
-      while(eiter.hasNext())
-      {
-         Map.Entry entry = eiter.next();
-         if (entry.getValue() instanceof Map)
-         {
-            rval.put(entry.getKey(), deepCopy((Map) entry.getValue()));
-         }
-         else
-         {
-            rval.put(entry.getKey(), entry.getValue());
-         }
+public class PSCopier {
+  /**
+   * Deep copy the passed map. Most map elements will be copied by value but any map values will be
+   * deep copied themselves.
+   *
+   * @param input the input map, never <code>null</code>
+   * @return a deep copied map, never <code>null</code>
+   */
+  @SuppressWarnings("unchecked")
+  public static Map deepCopy(Map input) {
+    Map rval = new HashMap();
+    Iterator<Map.Entry> eiter = input.entrySet().iterator();
+    while (eiter.hasNext()) {
+      Map.Entry entry = eiter.next();
+      if (entry.getValue() instanceof Map) {
+        rval.put(entry.getKey(), deepCopy((Map) entry.getValue()));
+      } else {
+        rval.put(entry.getKey(), entry.getValue());
       }
-      return rval;
-   }
+    }
+    return rval;
+  }
 }

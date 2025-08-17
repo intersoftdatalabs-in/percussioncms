@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ package test.percussion.soln.p13n.delivery;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,9 +36,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.delivery.IDeliveryResponseListItem;
 import com.percussion.soln.p13n.delivery.IDeliveryResponseSnippetItem;
@@ -57,7 +57,7 @@ import com.percussion.soln.segment.Segments;
  * Scenario description: 
  * @author adamgent, Jul 15, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DeliveryContextTest {
 
     Mockery mockery = new JUnit4Mockery();
@@ -69,7 +69,7 @@ public class DeliveryContextTest {
     VisitorProfile visitorProfile;
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         
         segmentService = mockery.mock(ISegmentService.class);

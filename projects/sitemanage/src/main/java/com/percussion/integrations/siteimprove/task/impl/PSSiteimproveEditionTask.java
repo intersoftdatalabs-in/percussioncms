@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,18 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.task.impl;
 
 import com.google.common.collect.Iterators;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
-import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.pagemanagement.assembler.impl.PSAssemblyConfig;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.rx.publisher.IPSEditionTaskStatusCallback;
-import com.percussion.services.assembly.IPSAssemblyService;
-import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -41,349 +39,320 @@ import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.percussion.utils.guid.IPSGuid;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A post publish edition task that runs if a site improve configuration is found.
- * <p>
- * The task alerts site improve that pages have been updated, or to crawl the whole site.
+ * A post publish edition task that runs if a Siteimprove configuration is found.
+ *
+ * <p>The task alerts Siteimprove that pages have been updated, or to crawl the whole site.
  */
 public class PSSiteimproveEditionTask implements IPSEditionTask {
 
-	private static final String SITEIMPROVE_CONFIGURATION_BASE_KEY = "perc.siteimprove.site.";
-	private static final String SITEIMPROVE_CREDENTIALS_BASE_KEY = "perc.siteimprove.credentials.";
-	private static final String TOKEN = "token";
-	private static final String SITE_NAME = "sitename";
-	private static final String DO_PRODUCTION = "doProduction";
-	private static final String DO_STAGING = "doStaging";
-	private static final String DO_ASSETS_SCAN_EXCLUDE = "doAssetsScanExclude";
-	private static final String DO_PREVIEW = "doPreview";
-	private static final String IS_SITEIMPROVE_ENABLED = "isSiteImproveEnabled";
-	private static final String HTTPS = "https";
-	private static final String HTTP = "http";
-	ConcurrentHashMap<Long, String> templateDetails = new ConcurrentHashMap<>();
-	private static IPSIntegrationProviderService siteimproveService = new PSSiteImproveProviderService();
-	private static final Logger logger = LogManager.getLogger(PSSiteimproveEditionTask.class);
-	private IPSMetadataService metadataService;
-	private IPSPubServerService pubServerService;
+  private static final String SITEIMPROVE_CONFIGURATION_BASE_KEY = "perc.siteimprove.site.";
+  private static final String SITEIMPROVE_CREDENTIALS_BASE_KEY = "perc.siteimprove.credentials.";
+  private static final String TOKEN = "token";
+  private static final String SITE_NAME = "sitename";
+  private static final String DO_PRODUCTION = "doProduction";
+  private static final String DO_STAGING = "doStaging";
+  private static final String DO_ASSETS_SCAN_EXCLUDE = "doAssetsScanExclude";
+  private static final String DO_PREVIEW = "doPreview";
+  private static final String IS_SITEIMPROVE_ENABLED = "isSiteImproveEnabled";
+  private static final String HTTPS = "https";
+  private static final String HTTP = "http";
+  private final ConcurrentHashMap<Long, String> templateDetails = new ConcurrentHashMap<>();
+  private static final IPSIntegrationProviderService siteimproveService =
+      new PSSiteImproveProviderService();
+  private static final Logger logger = LogManager.getLogger(PSSiteimproveEditionTask.class);
+  private IPSMetadataService metadataService;
+  private IPSPubServerService pubServerService;
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) {
-		PSSpringWebApplicationContextUtils.injectDependencies(this);
-	}
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-	@Override
-	public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, long duration, boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception {
+  @Override
+  public void perform(
+      IPSEdition edition,
+      IPSSite site,
+      Date startTime,
+      Date endTime,
+      long jobId,
+      long duration,
+      boolean success,
+      Map<String, String> params,
+      IPSEditionTaskStatusCallback status)
+      throws Exception {
+    logger.info("Starting Siteimprove post edition task.");
 
-		logger.info("Starting Site improve post edition task.");
+    var credentialsMetadata =
+        metadataService.find(SITEIMPROVE_CREDENTIALS_BASE_KEY + site.getName());
+    var siteConfiguration =
+        metadataService.find(SITEIMPROVE_CONFIGURATION_BASE_KEY + site.getName());
 
-		PSMetadata credentialsMetadata = metadataService.find(SITEIMPROVE_CREDENTIALS_BASE_KEY + site.getName());
-		PSMetadata siteConfiguration = metadataService.find(SITEIMPROVE_CONFIGURATION_BASE_KEY + site.getName());
+    if (credentialsMetadata == null || siteConfiguration == null) {
+      logger.debug(
+          "Did not find Siteimprove credentials or configurations for: {}. Exiting Siteimprove post"
+              + " edition task.",
+          site.getName());
+      return;
+    }
 
-		if (credentialsMetadata == null || siteConfiguration == null) {
-			logger.debug("Did not find Site improve credentials or configurations for: {}.  Exiting Site improve post edition task.",
-                    site.getName());
-			return;
-		}
+    var credentials = obtainToken(credentialsMetadata.getData());
+    var siteConfigurations = obtainSiteConfiguration(siteConfiguration.getData());
 
-		Map<String, String> credentials = obtainToken(credentialsMetadata.getData());
-		PSSiteImproveSiteConfigurations siteConfigurations = obtainSiteConfiguration(siteConfiguration.getData());
+    var publishServerInfo =
+        pubServerService.getPubServer(
+            site.getSiteId().toString(), Long.toString(edition.getPubServerId().longValue()));
 
-		PSPublishServerInfo publishServerInfo
-				= pubServerService.getPubServer(site.getSiteId().toString(), Long.toString(edition.getPubServerId().longValue()));
+    var jobPages = status.getIterableJobStatus();
+    var pageCount = Iterators.size(jobPages.iterator());
+    var siteBaseUrl = getBaseURL(site);
+    handleProductionOrStagingEnabled(
+        credentials,
+        siteConfigurations,
+        publishServerInfo,
+        jobPages,
+        pageCount,
+        siteBaseUrl,
+        edition);
+  }
 
-		Iterable<IPSPubItemStatus> jobPages = status.getIterableJobStatus();
-		int pageCount = Iterators.size(jobPages.iterator());
-		String siteBaseUrl = getBaseURL(site);
-		handleProductionOrStagingEnabled(credentials, siteConfigurations, publishServerInfo, jobPages, pageCount, siteBaseUrl, edition);
+  private void handleProductionOrStagingEnabled(
+      Map<String, String> credentials,
+      PSSiteImproveSiteConfigurations siteConfigurations,
+      PSPublishServerInfo publishServerInfo,
+      Iterable<IPSPubItemStatus> jobPages,
+      int pageCount,
+      String siteBaseUrl,
+      IPSEdition edition)
+      throws Exception {
+    if (isProductionEnabled(siteConfigurations, publishServerInfo)
+        || isStagingEnabled(siteConfigurations, publishServerInfo)) {
+      alertSiteImproveToNewPublishes(
+          credentials, jobPages, siteBaseUrl, edition, siteConfigurations);
+      logger.info("Submitted {} URL(s) to Siteimprove.", pageCount);
+      logger.info("Ending Siteimprove post edition task.");
+    } else {
+      logger.info(
+          "No production or staging settings are configured for Siteimprove, publishing no URLs to"
+              + " Siteimprove.");
+    }
+  }
 
-	}
-	
-	private void handleProductionOrStagingEnabled(Map<String, String> credentials, PSSiteImproveSiteConfigurations siteConfigurations, PSPublishServerInfo publishServerInfo, Iterable<IPSPubItemStatus> jobPages, int pageCount, String siteBaseUrl, IPSEdition edition) throws Exception {
-		if (isProductionEnabled(siteConfigurations, publishServerInfo) || isStagingEnabled(siteConfigurations, publishServerInfo)) {
+  private String getBaseURL(IPSSite site) {
+    var siteBaseUrl = site.getBaseUrl();
+    // If the user doesn't have canonical URLs set, we set to http as default.
+    if (site.getSiteProtocol() == null) site.setSiteProtocol(HTTP);
+    // Retrieve Siteimprove site id.
+    if (!siteBaseUrl.contains(HTTPS) && HTTPS.equals(site.getSiteProtocol())) {
+      siteBaseUrl = convertHTTPtoHTTPS(siteBaseUrl);
+    }
+    return siteBaseUrl;
+  }
 
-			alertSiteImproveToNewPublishes(credentials, jobPages, siteBaseUrl, edition, siteConfigurations);
+  /**
+   * Alert Siteimprove that we have published new pages for them to spider, or do a full crawl of
+   * the site.
+   */
+  private void alertSiteImproveToNewPublishes(
+      Map<String, String> credentials,
+      Iterable<IPSPubItemStatus> jobPages,
+      String siteBaseUrl,
+      IPSEdition edition,
+      PSSiteImproveSiteConfigurations siteConfigurations)
+      throws Exception {
+    if (edition.getDisplayTitle().contains("_FULL")) {
+      siteimproveService.updateSiteInfo(siteBaseUrl, credentials);
+    } else if (isAssetsScanExcludeEnabled(siteConfigurations)) {
+      // This condition checks whether we have to exclude assets from scanning
+      for (var jobPage : jobPages) {
+        // This condition excludes assets from scanning and scans only pages.
+        if (isTemplateMatch(jobPage) && !jobPage.getLocation().startsWith("/Assets")) {
+          alertSiteImproveUpdatePageInfo(credentials, jobPage, siteBaseUrl);
+        }
+      }
+    } else {
+      // Individual page checks
+      for (var jobPage : jobPages) {
+        alertSiteImproveUpdatePageInfo(credentials, jobPage, siteBaseUrl);
+      }
+    }
+  }
 
-			logger.info("Submitted {} URL(s) to site improve.",pageCount);
-			logger.info("Ending Site improve post edition task.");
+  /** Determine if we are a production publish and that production is enabled. */
+  private boolean isProductionEnabled(
+      PSSiteImproveSiteConfigurations siteConfigurations, PSPublishServerInfo publishServerInfo) {
+    var enabled =
+        PSPubServer.PRODUCTION.equalsIgnoreCase(publishServerInfo.getServerType())
+            && Boolean.TRUE.equals(siteConfigurations.getDoProduction());
+    if (enabled) {
+      logger.debug(
+          "Production configuration is enabled for this site for Siteimprove, alerting Siteimprove"
+              + " to update indices.");
+    }
+    return enabled;
+  }
 
-		} else {
-			logger.info("No production or staging settings are configured for Site improve, publishing no URLs to Site improve.");
-		}
-	}
+  /** Determine if we are a staging publish and that staging is enabled. */
+  private boolean isStagingEnabled(
+      PSSiteImproveSiteConfigurations siteConfigurations, PSPublishServerInfo publishServerInfo) {
+    var enabled =
+        PSPubServer.STAGING.equalsIgnoreCase(publishServerInfo.getServerType())
+            && Boolean.TRUE.equals(siteConfigurations.getDoStaging());
+    if (enabled) {
+      logger.debug(
+          "Staging configuration is enabled for this site for Siteimprove, alerting Siteimprove to"
+              + " update indices.");
+    }
+    return enabled;
+  }
 
-	private String getBaseURL(IPSSite site) {
-		String siteBaseUrl = site.getBaseUrl();
-		
-		// if the user doesn't have canonical urls set, we set to http as default.
-		if(site.getSiteProtocol() == null)
-			site.setSiteProtocol(HTTP);
+  /** Determine if assets scan exclude is enabled. */
+  private boolean isAssetsScanExcludeEnabled(PSSiteImproveSiteConfigurations siteConfigurations) {
+    var enabled = Boolean.TRUE.equals(siteConfigurations.getDoAssetsScanExclude());
+    if (enabled) {
+      logger.debug(
+          "Assets scan exclude is enabled for this site for Siteimprove, alerting Siteimprove to"
+              + " update indices.");
+    }
+    return enabled;
+  }
 
-		//retrieve site improve site id.
-		if (!siteBaseUrl.contains(HTTPS) && site.getSiteProtocol().equals(HTTPS)) {
-			siteBaseUrl = convertHTTPtoHTTPS(siteBaseUrl);
-		}
-		return siteBaseUrl;
-	}
-	
-	/**
-	 * Alert Site improve that we have published new pages for them to spider, or do a full crawl of the site.
-	 *
-	 * @param credentials Credentials to access the Site improve API.
-	 * @param jobPages    The list of pages we are publishing.
-	 * @param siteBaseUrl Our site's base URL.  i.e. https://www.percussion.com/
-	 * @throws Exception We failed to alert SiteImprove to our new publishes
-	 */
-	private void alertSiteImproveToNewPublishes(Map<String, String> credentials, Iterable<IPSPubItemStatus> jobPages,
-												String siteBaseUrl, IPSEdition edition, PSSiteImproveSiteConfigurations siteConfigurations) throws Exception {
-		if (edition.getDisplayTitle().contains("_FULL")) {
-			siteimproveService.updateSiteInfo(siteBaseUrl, credentials);
-		} else if(isAssetsScanExcludeEnabled(siteConfigurations)){
-			//This condition checks whether we have to exclude assets from scanning
-			//individual page checks
-			for (IPSPubItemStatus jobPage : jobPages) {
-				//This condition excludes assets from scanning and scans only pages.
-				if(isTemplateMatch(jobPage) && !jobPage.getLocation().startsWith("/Assets")) {
-					alertSiteImproveUpdatePageInfo(credentials,jobPage,siteBaseUrl);
-				}
-			}
-		} else{
-			//individual page checks
-			for (IPSPubItemStatus jobPage : jobPages) {
-				// This method updates the pages.
-				alertSiteImproveUpdatePageInfo(credentials,jobPage,siteBaseUrl);
-			}
-		}
-	}
+  /** Convert a URL that is http to https. */
+  private String convertHTTPtoHTTPS(String siteBaseUrl) {
+    return StringUtils.replace(siteBaseUrl, HTTP, HTTPS);
+  }
 
-	/**
-	 * Determine if we are a production publish and that production is enabled.
-	 *
-	 * @param siteConfigurations Our configuration settings.
-	 * @param publishServerInfo  Our publishing settings.
-	 * @return true or false
-	 */
-	private boolean isProductionEnabled(PSSiteImproveSiteConfigurations siteConfigurations, PSPublishServerInfo publishServerInfo) {
+  /** Obtain the token and site name from a metadata JSON. */
+  private Map<String, String> obtainToken(String credentialsData) throws Exception {
+    var credentialsJSON = JSONObject.fromObject(credentialsData);
+    var credentials = new HashMap<String, String>();
+    if (!credentialsJSON.has(SITE_NAME)) {
+      var message = "The credentials were missing the associated site name.";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    if (!credentialsJSON.has(TOKEN)) {
+      var message = "The credentials were missing the apikey.";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    credentials.put(SITE_NAME, credentialsJSON.getString(SITE_NAME));
+    credentials.put(TOKEN, credentialsJSON.getString(TOKEN));
+    credentials.put("siteProtocol", credentialsJSON.optString("siteProtocol", ""));
+    credentials.put("defaultDocument", credentialsJSON.optString("defaultDocument", ""));
+    credentials.put("canonicalDist", credentialsJSON.optString("canonicalDist", ""));
+    return credentials;
+  }
 
-		boolean isEnabled = PSPubServer.PRODUCTION.equalsIgnoreCase(publishServerInfo.getServerType()) && siteConfigurations.getDoProduction();
+  /** Parse metadata JSON for our Siteimprove configuration settings. */
+  private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData)
+      throws Exception {
+    var siteConfigurationJson = JSONObject.fromObject(siteConfigurationData);
+    if (!siteConfigurationJson.has(DO_PRODUCTION)) {
+      var message = "Siteimprove configuration details were missing the production setting";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    if (!siteConfigurationJson.has(DO_STAGING)) {
+      var message = "Siteimprove configuration details were missing the staging setting";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    if (!siteConfigurationJson.has(DO_ASSETS_SCAN_EXCLUDE)) {
+      var message =
+          "Siteimprove configuration details were missing the assets scan exclude setting";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    if (!siteConfigurationJson.has(DO_PREVIEW)) {
+      var message = "Siteimprove configuration details were missing the preview setting";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    if (!siteConfigurationJson.has(IS_SITEIMPROVE_ENABLED)) {
+      var message =
+          "Siteimprove configuration details were missing the Siteimprove enabled setting";
+      logger.error(message);
+      throw new Exception(message);
+    }
+    var siteConfiguration = new PSSiteImproveSiteConfigurations();
+    siteConfiguration.setDoProduction(siteConfigurationJson.getBoolean(DO_PRODUCTION));
+    siteConfiguration.setDoStaging(siteConfigurationJson.getBoolean(DO_STAGING));
+    siteConfiguration.setDoAssetsScanExclude(
+        siteConfigurationJson.getBoolean(DO_ASSETS_SCAN_EXCLUDE));
+    siteConfiguration.setDoPreview(siteConfigurationJson.getBoolean(DO_PREVIEW));
+    siteConfiguration.setIsSiteImproveEnabled(
+        siteConfigurationJson.getBoolean(IS_SITEIMPROVE_ENABLED));
+    return siteConfiguration;
+  }
 
-		if (isEnabled) {
-			logger.debug("Production configuration is enabled for this site for site improve, alerting site improve to update indices.");
-		}
+  /** Determine if the template name of the job page is matching with the standard template name. */
+  private boolean isTemplateMatch(IPSPubItemStatus jobPage) throws PSAssemblyException {
+    var isEnabled = false;
+    var templateId = jobPage.getTemplateId();
+    var templateName = "";
+    if (!templateDetails.isEmpty() && templateDetails.containsKey(templateId)) {
+      templateName = templateDetails.get(templateId);
+    } else {
+      var assembly = PSAssemblyServiceLocator.getAssemblyService();
+      var guid = PSGuidManagerLocator.getGuidMgr().makeGuid(templateId, PSTypeEnum.TEMPLATE);
+      var template = assembly.loadUnmodifiableTemplate(guid);
+      templateName = template.getName();
+      templateDetails.put(templateId, templateName);
+    }
+    if (PSAssemblyConfig.PERC_RESOURCE_ASSEMBLY_TEMPLATE.equals(templateName)) {
+      isEnabled = true;
+    }
+    return isEnabled;
+  }
 
-		return isEnabled;
-	}
+  /**
+   * Alert Siteimprove that we have published new pages for them to spider, or do a full crawl of
+   * the site.
+   */
+  private void alertSiteImproveUpdatePageInfo(
+      Map<String, String> credentials, IPSPubItemStatus jobPage, String siteBaseUrl)
+      throws Exception {
+    // Remove last forward slash
+    var url = StringUtils.removeEnd(siteBaseUrl, "/") + jobPage.getLocation();
+    if (IPSSiteItem.Status.SUCCESS.equals(jobPage.getStatus())) {
+      siteimproveService.updatePageInfo(siteBaseUrl, url, credentials);
+    } else {
+      logger.debug(
+          "Did not submit page:{} to Siteimprove because of page's status of {}",
+          jobPage.getContentId(),
+          jobPage.getStatus());
+    }
+  }
 
-	/**
-	 * Determine if we are a staging publish and that staging is enabled.
-	 *
-	 * @param siteConfigurations Our configuration settings.
-	 * @param publishServerInfo  Our publishing settings.
-	 * @return true or false
-	 */
-	private boolean isStagingEnabled(PSSiteImproveSiteConfigurations siteConfigurations, PSPublishServerInfo publishServerInfo) {
+  @Override
+  public TaskType getType() {
+    return TaskType.POSTEDITION;
+  }
 
-		boolean isEnabled = PSPubServer.STAGING.equalsIgnoreCase(publishServerInfo.getServerType()) && siteConfigurations.getDoStaging();
+  public IPSPubServerService getPubServerService() {
+    return pubServerService;
+  }
 
-		if (isEnabled) {
-			logger.debug("Staging configuration is enabled for this site for site improve, alerting site improve to update indices.");
-		}
+  public void setPubServerService(IPSPubServerService pubServerService) {
+    this.pubServerService = pubServerService;
+  }
 
-		return isEnabled;
-	}
+  public IPSMetadataService getMetadataService() {
+    return metadataService;
+  }
 
-	/**
-	 * Determine if assets scan exclude is enabled.
-	 *
-	 * @param siteConfigurations Our configuration settings.
-	 * @return true or false
-	 */
-	private boolean isAssetsScanExcludeEnabled(PSSiteImproveSiteConfigurations siteConfigurations) {
-
-		boolean isEnabled = siteConfigurations.getDoAssetsScanExclude();
-
-		if (isEnabled) {
-			logger.debug("Assets scan exclude is enabled for this site for site improve, alerting site improve to update indices.");
-		}
-
-		return isEnabled;
-	}
-
-	/**
-	 * Convert an url that is http to https.
-	 * For example:
-	 * http://www.percussion.com/ -> https://www.percussion.com/
-	 *
-	 * @param siteBaseUrl Our url to convert.
-	 * @return Our converted url.
-	 */
-	private String convertHTTPtoHTTPS(String siteBaseUrl) {
-
-		return StringUtils.replace(siteBaseUrl, HTTP, HTTPS);
-
-	}
-	
-	/**
-	 * Obtain the token and site name from a metadata json.
-	 *
-	 * @param credentialsData A credentials map to be parsed by our Site improve services.
-	 * @return The parsed token and site name
-	 * @throws Exception Missing a part of the credentials.
-	 */
-	private Map<String, String> obtainToken(String credentialsData) throws Exception {
-
-		JSONObject credentialsJSON = JSONObject.fromObject(credentialsData);
-
-		Map<String, String> credentials = new HashMap<>();
-
-
-		if (!credentialsJSON.has(SITE_NAME)) {
-			String message = "The credentials were missing the associated site name.";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		if (!credentialsJSON.has(TOKEN)) {
-			String message = "The credentials were missing the apikey.";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		credentials.put(SITE_NAME, credentialsJSON.getString(SITE_NAME));
-		credentials.put(TOKEN, credentialsJSON.getString(TOKEN));
-		credentials.put("siteProtocol", credentialsJSON.getString("siteProtocol"));
-		credentials.put("defaultDocument", credentialsJSON.getString("defaultDocument"));
-		credentials.put("canonicalDist", credentialsJSON.getString("canonicalDist"));
-
-		return credentials;
-	}
-
-	/**
-	 * Parse metadata json for our Site improve configuration settings.
-	 *
-	 * @param siteConfigurationData Our json to parse
-	 * @return A Site improve configuration object
-	 * @throws Exception Missing configuration setting, all settings are either true or false.
-	 */
-	private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData) throws Exception {
-
-		JSONObject siteConfigurationJson = JSONObject.fromObject(siteConfigurationData);
-
-		if (!siteConfigurationJson.has(DO_PRODUCTION)) {
-			String message = "Site improve configuration details were missing the production setting";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		if (!siteConfigurationJson.has(DO_STAGING)) {
-			String message = "Site improve configuration details were missing the staging setting";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		if (!siteConfigurationJson.has(DO_ASSETS_SCAN_EXCLUDE)) {
-			String message = "Site improve configuration details were missing the assets scan exclude setting";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		if (!siteConfigurationJson.has(DO_PREVIEW)) {
-			String message = "Site improve configuration details were missing the preview setting";
-			logger.error(message);
-			throw new Exception(message);
-		}
-		
-		if (!siteConfigurationJson.has(IS_SITEIMPROVE_ENABLED)) {
-			String message = "Site improve configuration details were missing the Site improve enabled setting";
-			logger.error(message);
-			throw new Exception(message);
-		}
-
-		PSSiteImproveSiteConfigurations siteConfiguration = new PSSiteImproveSiteConfigurations();
-		siteConfiguration.setDoProduction(siteConfigurationJson.getBoolean(DO_PRODUCTION));
-		siteConfiguration.setDoStaging(siteConfigurationJson.getBoolean(DO_STAGING));
-		siteConfiguration.setDoAssetsScanExclude(siteConfigurationJson.getBoolean(DO_ASSETS_SCAN_EXCLUDE));
-		siteConfiguration.setDoPreview(siteConfigurationJson.getBoolean(DO_PREVIEW));
-		siteConfiguration.setIsSiteImproveEnabled(siteConfigurationJson.getBoolean(IS_SITEIMPROVE_ENABLED));
-
-		return siteConfiguration;
-	}
-
-	/**
-	 * Determine if the template name of the job page is matching with the standard template name.
-	 *
-	 * @param jobPage Individual Pages that we want to update through site improve.
-	 * @return true or false
-	 */
-	private boolean isTemplateMatch(IPSPubItemStatus jobPage) throws PSAssemblyException {
-		boolean isEnabled = false;
-		Long templateId = jobPage.getTemplateId();
-		String templateName = "";
-		if(!templateDetails.isEmpty() && templateDetails.containsKey(templateId)){
-			templateName = templateDetails.get(templateId);
-		} else {
-			IPSAssemblyService assembly = PSAssemblyServiceLocator.getAssemblyService();
-			IPSGuid guid = PSGuidManagerLocator.getGuidMgr().makeGuid(templateId, PSTypeEnum.TEMPLATE);
-			IPSAssemblyTemplate template = assembly.loadUnmodifiableTemplate(guid);
-			templateName = template.getName();
-			templateDetails.put(templateId,templateName);
-		}
-		if(templateName.equals(PSAssemblyConfig.PERC_RESOURCE_ASSEMBLY_TEMPLATE)){
-			isEnabled = true;
-		}
-		return isEnabled;
-	}
-
-	/**
-	 * Alert Site improve that we have published new pages for them to spider, or do a full crawl of the site.
-	 *
-	 * @param credentials Credentials to access the Site improve API.
-	 * @param jobPage Individual Pages that we want to update through site improve.
-	 * @param siteBaseUrl Our site's base URL.  i.e. https://www.percussion.com/
-	 * @throws Exception We failed to alert SiteImprove to our new publishes
-	 */
-	private void alertSiteImproveUpdatePageInfo(Map<String, String> credentials, IPSPubItemStatus jobPage,
-												String siteBaseUrl) throws Exception {
-	//remove last forward slash
-		String url = StringUtils.removeEnd(siteBaseUrl, "/") + jobPage.getLocation();
-		if (jobPage.getStatus().equals(IPSSiteItem.Status.SUCCESS)) {
-			siteimproveService.updatePageInfo(siteBaseUrl, url, credentials);
-		} else {
-			logger.debug("Did not submit page:{} to site improve because of page's status of {}" ,jobPage.getContentId(), jobPage.getStatus());
-		}
-	}
-
-	@Override
-	public TaskType getType() {
-		return TaskType.POSTEDITION;
-	}
-
-	public IPSPubServerService getPubServerService() {
-		return pubServerService;
-	}
-
-	public void setPubServerService(IPSPubServerService pubServerService) {
-		this.pubServerService = pubServerService;
-	}
-
-	public IPSMetadataService getMetadataService() {
-		return metadataService;
-	}
-
-	public void setMetadataService(IPSMetadataService metadataService) {
-		this.metadataService = metadataService;
-	}
-
+  public void setMetadataService(IPSMetadataService metadataService) {
+    this.metadataService = metadataService;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.schedule.data;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
@@ -24,16 +24,16 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * It contains information for executing and notification of a job.
+ * Contains information for executing and notifying about a job.
+ * <p>Implements {@link Serializable} for persistence. Two jobs are equal only if their IDs are equal.</p>
  *
  * @author Andriy Palamarchuk
  */
-public class PSJob implements Serializable
-{
+public class PSJob implements Serializable {
    /**
     * Creates a non-initialized schedule. 
     * Is required by serialization.
@@ -44,7 +44,7 @@ public class PSJob implements Serializable
    }
 
    /**
-    * Two schedule are equal only when their ID are equal.
+    * Two jobs are equal only when their IDs are equal.
     */
    @Override
    public boolean equals(Object o)

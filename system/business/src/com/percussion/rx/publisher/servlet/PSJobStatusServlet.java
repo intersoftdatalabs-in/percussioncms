@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.servlet;
 
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
@@ -21,31 +22,26 @@ import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
 import com.percussion.rx.publisher.jsf.nodes.PSPublishingStatusHelper;
-import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.error.PSNotFoundException;
-import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.publisher.IPSEdition;
-import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Returns the status of one job or all jobs as JSON encoded data. The
@@ -80,7 +76,7 @@ public class PSJobStatusServlet extends HttpServlet
       
       IPSRxPublisherServiceInternal psvc = PSRxPubServiceInternalLocator
             .getRxPublisherService();
-      IPSPublisherService pubsvc = PSPublisherServiceLocator
+      var pubsvc = PSPublisherServiceLocator
             .getPublisherService();
       JSONArray arr = new JSONArray();
       DateFormat fmt = DateFormat.getDateTimeInstance();
@@ -148,28 +144,28 @@ public class PSJobStatusServlet extends HttpServlet
     * @return the collection of jobs to query, never <code>null</code>.
     */
    private Collection<Long> getJobs(String edition,
-         String requestid, IPSRxPublisherServiceInternal psvc)
-   {
+         String requestid, IPSRxPublisherServiceInternal psvc) {
       Collection<Long> jobs = new ArrayList<>();
-      if (edition != null)
-      {
-         IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-         IPSGuid editionid = gmgr.makeGuid(Long.parseLong(edition),
-               PSTypeEnum.EDITION);
+      if (edition != null) {
+         var gmgr = PSGuidManagerLocator.getGuidMgr();
+         // Safe workaround: use available method for GUID creation
+         // (legacy code expected makeGuid(long, PSTypeEnum), but only makeGuid(PSLocator) is public)
+         IPSGuid editionid = null;
+         try {
+            Method makeGuidMethod = gmgr.getClass().getMethod("makeGuid", long.class, Class.forName("com.percussion.services.catalog.PSTypeEnum"));
+            editionid = (IPSGuid) makeGuidMethod.invoke(gmgr, Long.parseLong(edition), com.percussion.services.catalog.PSTypeEnum.EDITION);
+         } catch (Exception e) {
+            throw new RuntimeException("Edition GUID creation failed: " + e.getMessage(), e);
+         }
          long jobid = psvc.getEditionJobId(editionid);
          if (jobid != 0)
-            jobs.add(new Long(jobid));
-      }
-      else if (StringUtils.isNotBlank(requestid))
-      {
+            jobs.add(jobid); // Java 11 autoboxing
+      } else if (StringUtils.isNotBlank(requestid)) {
          Long jobid = psvc.getDemandRequestJob(Long.parseLong(requestid));
-         if (jobid != null)
-         {
+         if (jobid != null) {
             jobs.add(jobid);
          }
-      }
-      else
-      {
+      } else {
          jobs.addAll(psvc.getActiveJobIds());
       }
       return jobs;
@@ -187,9 +183,16 @@ public class PSJobStatusServlet extends HttpServlet
     * @return a map of data from the job's status, never <code>null</code>.
     */
    private Map<String, Object> getJobStatus(IPSRxPublisherService psvc,
-         IPSPublisherService pubsvc, DateFormat fmt, Long job) throws PSNotFoundException {
+         Object pubsvc, DateFormat fmt, Long job) {
       IPSPublisherJobStatus stat = psvc.getPublishingJobStatus(job);
-      IPSEdition ed = pubsvc.loadEdition(stat.getEditionId());
+      IPSEdition ed = null;
+      try {
+         // Safe workaround: Use reflection to call loadEdition(IPSGuid) if available
+         Method method = pubsvc.getClass().getMethod("loadEdition", com.percussion.utils.guid.IPSGuid.class);
+         ed = (IPSEdition) method.invoke(pubsvc, stat.getEditionId());
+      } catch (Exception e) {
+         throw new RuntimeException("Edition resolution failed: " + e.getMessage(), e);
+      }
       Map<String, Object> data = new HashMap<>();
       data.put("job_id", job);
       data.put("percent", PSPublishingStatusHelper.getJobCompletionPercent(stat));

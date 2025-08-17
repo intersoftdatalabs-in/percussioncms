@@ -1,5 +1,9 @@
+package com.percussion.security;
+
+import javax.crypto.SecretKey;
+
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,54 +18,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.security;
-
-import javax.crypto.SecretKey;
-
 /**
- * IPSKey is a transparent interface for encryption/decryption
- * algorithms which can be used within the product.
+ * Represents a key for encryption/decryption algorithms used within the product.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <p>
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public interface IPSKey
-{
-   /**
-    * Generate an IPSEncryptor object which can make use of this key.
-    *
-    * @return            the associated encryptor
-    */
-   public IPSEncryptor getEncryptor();
+public interface IPSKey {
+  /**
+   * Generates an IPSEncryptor object which can make use of this key.
+   *
+   * @return the associated encryptor.
+   */
+  IPSEncryptor getEncryptor();
 
-   /**
-    * Generate an IPSDecryptor object which can make use of this key.
-    *
-    * @return            the associated decryptor
-    */
-   public IPSDecryptor getDecryptor();
+  /**
+   * Generates an IPSDecryptor object which can make use of this key.
+   *
+   * @return the associated decryptor.
+   */
+  IPSDecryptor getDecryptor();
 
-   /**
-    * Returns a byte aray containing the secret key
-    * @return
-    */
-   public byte[] getSecret();
+  /**
+   * Returns a byte array containing the secret key.
+   *
+   * @return the secret key as a byte array.
+   */
+  byte[] getSecret();
 
-   /**
-    * Sets the secret to the specified byte array.
-    * @param secret
-    */
-   public void setSecret(byte[] secret);
+  /**
+   * Sets the secret to the specified byte array.
+   *
+   * @param secret the secret key as a byte array.
+   */
+  void setSecret(byte[] secret);
 
-   /**
-    * Generates a new key.
-    *
-    * @return a byte array containing the new encryption key
-    */
-   public SecretKey generateKey();
-
-
+  /**
+   * Generates a new key.
+   *
+   * @return a byte array containing the new encryption key
+   */
+  public SecretKey generateKey();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,67 +17,65 @@
 
 package com.percussion.taxonomy.service;
 
-import java.util.Collection;
-
-import org.hibernate.HibernateException;
-
 import com.percussion.taxonomy.domain.Visibility;
 import com.percussion.taxonomy.repository.VisibilityDAO;
 import com.percussion.taxonomy.repository.VisibilityServiceInf;
+import java.util.Collection;
+import org.hibernate.HibernateException;
 
 public class VisibilityService implements VisibilityServiceInf {
 
-	public VisibilityDAO VisibilityDAO;
+  public VisibilityDAO VisibilityDAO;
 
-	public Collection getAllVisibilities() {
-		try {
-			return VisibilityDAO.getAllVisibilities();
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}
+  public Collection getAllVisibilities() {
+    try {
+      return VisibilityDAO.getAllVisibilities();
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-	public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
-		try {
-			return VisibilityDAO.getAllVisibilitiesForTaxonomyId(taxonomy_id);
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}	
-		
-	public Visibility getVisibility(int id) {
-		try {
-			return VisibilityDAO.getVisibility(id);
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}
+  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
+    try {
+      return VisibilityDAO.getAllVisibilitiesForTaxonomyId(taxonomy_id);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-	public void removeVisibility(Visibility Visibility) {
-		try {
-			VisibilityDAO.removeVisibility(Visibility);
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}
+  public Visibility getVisibility(int id) {
+    try {
+      return VisibilityDAO.getVisibility(id);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-	public void removeVisibilities(Collection<Visibility> Visibilities) {
-		try {
-			VisibilityDAO.removeVisibilities(Visibilities);
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}
+  public void removeVisibility(Visibility Visibility) {
+    try {
+      VisibilityDAO.removeVisibility(Visibility);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-	public void saveVisibility(Visibility Visibility) {
-		try {
-			VisibilityDAO.saveVisibility(Visibility);
-		} catch (HibernateException e) {
-			throw new HibernateException(e);
-		}
-	}
+  public void removeVisibilities(Collection<Visibility> Visibilities) {
+    try {
+      VisibilityDAO.removeVisibilities(Visibilities);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
 
-	public void setVisibilityDAO(VisibilityDAO VisibilityDAO) {
-		this.VisibilityDAO = VisibilityDAO;
-	}
+  public void saveVisibility(Visibility Visibility) {
+    try {
+      VisibilityDAO.saveVisibility(Visibility);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
+    }
+  }
+
+  public void setVisibilityDAO(VisibilityDAO VisibilityDAO) {
+    this.VisibilityDAO = VisibilityDAO;
+  }
 }

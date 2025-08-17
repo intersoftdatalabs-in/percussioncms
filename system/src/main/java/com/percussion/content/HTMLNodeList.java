@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,23 @@
  */
 package com.percussion.content;
 
+import java.util.LinkedList;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.LinkedList;
+// REFACTORED: CP-JAVA11
+public class HTMLNodeList extends LinkedList<Node> implements NodeList {
+  public HTMLNodeList() {
+    super();
+  }
 
-public class HTMLNodeList extends LinkedList implements NodeList
-{
-   public HTMLNodeList()
-   {
-      super();
-   }
+  @Override
+  public Node item(int index) {
+    return get(index);
+  }
 
-   public Node item(int index)
-   {
-      return (Node)get(index);
-   }
-
-   public int getLength()
-   {
-      return size();
-   }
+  @Override
+  public int getLength() {
+    return size();
+  }
 }

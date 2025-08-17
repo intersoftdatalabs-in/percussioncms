@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSObjectStore;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
 import com.percussion.util.PSCollection;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.assembly.data.PSTemplateSlot;
 import com.percussion.webservices.common.PSObjectSummary;
 import com.percussion.webservices.rhythmyxdesign.SystemDesignLocator;
@@ -59,17 +59,17 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Implements utilities used by all system test cases.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSystemTestBase extends PSTestBase
 {
    /**
@@ -228,7 +228,7 @@ public class PSSystemTestBase extends PSTestBase
       binding.deleteSharedProperties(req);
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void setup() throws Exception
    {
 
@@ -246,7 +246,7 @@ public class PSSystemTestBase extends PSTestBase
       }
    }
 
-   @AfterClass
+   @AfterAll
    public static void tearDown() throws Exception
    {
       PSAssemblyTestBase assemblyTest = new PSAssemblyTestBase();

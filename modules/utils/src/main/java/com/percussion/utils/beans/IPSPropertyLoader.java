@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,17 @@
  */
 package com.percussion.utils.beans;
 
-
 /**
- * This interface is implemented by loaders. A loader is called when a property
- * is first accessed. A loader can be shared by multiple properties. 
- * 
+ * This interface is implemented by loaders. A loader is called when a property is first accessed. A
+ * loader can be shared by multiple properties.
+ *
  * @author dougrand
  */
-public interface IPSPropertyLoader
-{
-   /**
-    * Get the object that the wrapper should access.
-    * 
-    * @return the object, never <code>null</code>
-    */
-   Object getLazy();
+public interface IPSPropertyLoader {
+  /**
+   * Get the object that the wrapper should access.
+   *
+   * @return the object, never <code>null</code>
+   */
+  Object getLazy();
 }

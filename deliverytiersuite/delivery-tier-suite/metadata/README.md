@@ -1,8 +1,9 @@
 # metadata
-This modules contains all the backend support required by DTS for 
+
+This modules contains all the backend support required by DTS for
 * Metadata Indexing
 * Cookie Consent services
-* Blog Post Visit services 
+* Blog Post Visit services
 
 Read/Write data to/from DB from published pages.
 Provides REST services for above actions.
@@ -19,3 +20,4 @@ This module also contains logic to implement liquibase to connect to database
 ```
 mvn clean install
 ```
+

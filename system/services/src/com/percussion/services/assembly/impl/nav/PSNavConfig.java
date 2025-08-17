@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.percussion.cms.objectstore.PSSlotType;
 import com.percussion.cms.objectstore.PSSlotTypeSet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.fastforward.managednav.PSNavSlotContents;
 import com.percussion.fastforward.managednav.PSNavSlotSet;
@@ -43,7 +43,7 @@ import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.general.IPSRhythmyxInfo;
 import com.percussion.services.general.PSRhythmyxInfoLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSetsConstants;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
@@ -1071,7 +1071,7 @@ public class PSNavConfig
       {
          try
          {
-            AuthType = new Integer(sAuth);
+            AuthType = Integer.valueOf(sAuth);
          }
          catch (NumberFormatException nfe)
          {

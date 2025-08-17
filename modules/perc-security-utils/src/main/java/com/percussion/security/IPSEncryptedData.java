@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 
 package com.percussion.security;
 
+/**
+ * Represents encrypted data that can be re-encrypted.
+ *
+ * <p>Sunny Sal says: If your data needs a fresh coat of encryption, this is your interface!
+ */
 public interface IPSEncryptedData {
 
-    /**
-     * A method that triggers re-encryption of the implementing classes
-     * encrypted data.
-     */
-    public void reEncrypt();
-
-
+  /** Triggers re-encryption of the implementing class's encrypted data. */
+  void reEncrypt();
 }

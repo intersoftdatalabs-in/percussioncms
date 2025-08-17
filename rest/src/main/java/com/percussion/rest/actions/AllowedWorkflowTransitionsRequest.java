@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,58 @@
 
 package com.percussion.rest.actions;
 
+import java.util.Arrays;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** Request object for allowed workflow transitions. */
 @XmlRootElement
 public class AllowedWorkflowTransitionsRequest {
 
-    int[] contentIds;
-    int[] assignmentTypeIds;
+  private int[] contentIds;
+  private int[] assignmentTypeIds;
+
+  public AllowedWorkflowTransitionsRequest() {}
+
+  public Optional<int[]> getContentIds() {
+    return Optional.ofNullable(contentIds);
+  }
+
+  public void setContentIds(int[] contentIds) {
+    this.contentIds = contentIds;
+  }
+
+  public Optional<int[]> getAssignmentTypeIds() {
+    return Optional.ofNullable(assignmentTypeIds);
+  }
+
+  public void setAssignmentTypeIds(int[] assignmentTypeIds) {
+    this.assignmentTypeIds = assignmentTypeIds;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AllowedWorkflowTransitionsRequest)) return false;
+    var that = (AllowedWorkflowTransitionsRequest) o;
+    return Arrays.equals(contentIds, that.contentIds)
+        && Arrays.equals(assignmentTypeIds, that.assignmentTypeIds);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Arrays.hashCode(contentIds);
+    result = 31 * result + Arrays.hashCode(assignmentTypeIds);
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "AllowedWorkflowTransitionsRequest{"
+        + "contentIds="
+        + Arrays.toString(contentIds)
+        + ", assignmentTypeIds="
+        + Arrays.toString(assignmentTypeIds)
+        + '}';
+  }
 }

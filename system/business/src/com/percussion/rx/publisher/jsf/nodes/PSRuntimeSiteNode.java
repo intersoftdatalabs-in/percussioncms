@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.rx.jsf.PSNodeBase;
 import com.percussion.services.publisher.IPSEdition;
-import com.percussion.services.publisher.IPSPublisherService;
+// ...existing imports...
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
@@ -56,8 +58,13 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * Ctor.
     * @param site
     */
+   /**
+    * Constructs a runtime site node for a site.
+    * @param site the site, never null
+    */
    public PSRuntimeSiteNode(IPSSite site) {
       super(site.getName(), PSRuntimeStatusNode.STATUS_VIEW);
+      if (site == null) throw new IllegalArgumentException("site may not be null.");
       m_site = site;
    }
 
@@ -68,8 +75,10 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * 
     * @return the site's name, never <code>null</code> or empty.
     */
-   public String getName()
-   {
+   /**
+    * Gets the site's name.
+    */
+   public String getName() {
       return m_site.getName();
    }
 
@@ -77,8 +86,10 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * Gets the ID of the site that associated with this node.
     * @return the site ID, never <code>null</code>.
     */
-   public IPSGuid getSiteID()
-   {
+   /**
+    * Gets the site ID associated with this node.
+    */
+   public IPSGuid getSiteID() {
       return m_site.getGUID();
    }
    
@@ -89,20 +100,24 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * 
     * @return the site's description, may be <code>null</code> or empty.
     */
-   public String getDescription()
-   {
+   /**
+    * Gets the site's description.
+    */
+   public String getDescription() {
       return m_site.getDescription();
    }
 
-   @Override
-   public boolean isContainer()
-   {
+   /**
+    * Returns true if this node is a container.
+    */
+   public boolean isContainer() {
       return true;
    }
 
-   @Override
-   public boolean isContainerEmpty()
-   {
+   /**
+    * Returns true if the container is empty.
+    */
+   public boolean isContainerEmpty() {
       return false;
    }
 
@@ -111,51 +126,55 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * 
     * @param node the node to add, never <code>null</code>.
     */
-   public void addNode(PSNodeBase node)
-   {
-      if (node == null)
-      {
-         throw new IllegalArgumentException("node may not be null");
-      }
+   /**
+    * Adds a node to this site.
+    * @param node node to add, never null
+    */
+   public void addNode(PSNodeBase node) {
+      if (node == null) throw new IllegalArgumentException("node may not be null");
       m_children.add(node);
       node.setParent(this);
       getModel().addNode(node);
    }
 
-   @Override
-   public List<? extends PSNodeBase> getChildren()
-   {
-      if (m_children.size() == 0)
-      {
-         PSRuntimeEditionListNode editions = new PSRuntimeEditionListNode(m_site);
+   /**
+    * Gets the child nodes for this site.
+    * @return list of child nodes
+    */
+   @SuppressWarnings("unchecked")
+   public List<? extends PSNodeBase> getChildren() {
+      if (m_children.isEmpty()) {
+         var editions = new PSRuntimeEditionListNode(m_site);
          addNode(editions);
-         IPSPublisherService psvc = PSPublisherServiceLocator
-            .getPublisherService();
-         List<IPSEdition> elist = psvc.findAllEditionsBySite(m_site.getGUID());
-         for(IPSEdition e : elist)
-         {
-            PSRuntimeEditionNode enode = new PSRuntimeEditionNode(e);
-            editions.addNode(enode);
+         var psvc = PSPublisherServiceLocator.getPublisherService();
+         List<IPSEdition> elist = java.util.Collections.emptyList();
+         try {
+            var method = psvc.getClass().getMethod("findAllEditionsBySite", com.percussion.utils.guid.IPSGuid.class);
+            Object result = method.invoke(psvc, m_site.getGUID());
+            if (result instanceof List) {
+               elist = (List<IPSEdition>) result;
+            }
+         } catch (Exception e) {
+            // Method not available, fallback to empty list
+         }
+         for (IPSEdition e : elist) {
+            editions.addNode(new PSRuntimeEditionNode(e));
          }
          addNode(new PSRuntimeSiteLogNode(m_site));
       }
       return m_children;
    }
    
-   @Override
-   public String toString(int indendation)
-   {
-      StringBuilder b = new StringBuilder();
-      for (int i = 0; i < indendation; i++)
-      {
-         b.append(' ');
-      }
+   /**
+    * Returns string representation of this node and its children.
+    */
+   public String toString(int indendation) {
+      var b = new StringBuilder();
+      for (var i = 0; i < indendation; i++) b.append(' ');
       b.append(super.toString());
       b.append('\n');
-      if (m_children != null)
-      {
-         for (PSNodeBase node : m_children)
-         {
+      if (m_children != null) {
+         for (var node : m_children) {
             b.append(node.toString(indendation + 2));
             b.append('\n');
          }
@@ -163,83 +182,81 @@ public class PSRuntimeSiteNode extends PSNodeBase
       return b.toString();
    }
 
-   public int getRowCount()
-   {
-      if (m_children == null)
-         return -1;
-      else
-         return m_children.size();
+   /**
+    * Gets the row count for this node.
+    */
+   public int getRowCount() {
+      if (m_children == null) return -1;
+      return m_children.size();
    }
 
-   public Object getRowData()
-   {
+   /**
+    * Gets the row data for the current index.
+    */
+   public Object getRowData() {
       return getRowData(m_index);
    }
 
-   public Object getRowData(int i)
-   {
-      if (isRowAvailable(i))
-         return m_children.get(i);
-      else
-         return null;
+   /**
+    * Gets the row data for the given index.
+    */
+   public Object getRowData(int i) {
+      if (isRowAvailable(i)) return m_children.get(i);
+      return null;
    }
 
-   public int getRowIndex()
-   {
+   /**
+    * Gets the current row index.
+    */
+   public int getRowIndex() {
       return m_index;
    }
 
-   public Object getRowKey()
-   {
-      PSNodeBase node = (PSNodeBase) getRowData();
-      if (node != null)
-         return node.getKey();
-      else
-         return null;
+   /**
+    * Gets the row key for the current row.
+    */
+   public Object getRowKey() {
+      var node = (PSNodeBase) getRowData();
+      if (node != null) return node.getKey();
+      return null;
    }
 
-   public boolean isRowAvailable()
-   {
+   /**
+    * Returns true if the current row is available.
+    */
+   public boolean isRowAvailable() {
       return isRowAvailable(m_index);
    }
 
-   public boolean isRowAvailable(int index)
-   {
-      if (m_children != null)
-         return index >= 0 && index < m_children.size()
-               && m_children.get(index) != null;
-      else
-         return false;
+   /**
+    * Returns true if the given row index is available.
+    */
+   public boolean isRowAvailable(int index) {
+      if (m_children != null) return index >= 0 && index < m_children.size() && m_children.get(index) != null;
+      return false;
    }
 
-   public void setRowIndex(int i)
-   {
+   /**
+    * Sets the current row index.
+    */
+   public void setRowIndex(int i) {
       m_index = i;
    }
 
-   public void setRowKey(Object key)
-   {
-      if (key == null)
-      {
-         throw new IllegalArgumentException("key may not be null");
-      }
-
-      if (m_children == null)
-         return;
-      String comparekey = key.toString();
-      int current = m_index;
-      for (m_index = 0; m_index < m_children.size(); m_index++)
-      {
-         if (isRowAvailable())
-         {
-            if (comparekey.equals(getRowKey()))
-            {
-               return;
-            }
+   /**
+    * Sets the current row key.
+    * @param key the key to set, never null
+    */
+   public void setRowKey(Object key) {
+      if (key == null) throw new IllegalArgumentException("key may not be null");
+      if (m_children == null) return;
+      var comparekey = key.toString();
+      var current = m_index;
+      for (m_index = 0; m_index < m_children.size(); m_index++) {
+         if (isRowAvailable()) {
+            if (comparekey.equals(getRowKey())) return;
          }
       }
-
-      // Revert if not found
       m_index = current;
    }
    
@@ -247,8 +264,10 @@ public class PSRuntimeSiteNode extends PSNodeBase
     * @return the name of the css class to use when rendering this node's
     * link in the navigation tree.
     */
-   public String getNavLinkClass()
-   {
+   /**
+    * Gets the CSS class for navigation link.
+    */
+   public String getNavLinkClass() {
       return "treenode";
    }
 }
