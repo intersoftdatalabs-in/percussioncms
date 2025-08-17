@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,47 +18,36 @@ package com.percussion.dashboardmanagement.dao.impl;
 
 import static java.util.Arrays.*;
 
-import java.util.List;
-
 import com.percussion.dashboardmanagement.dao.IPSDashboardDao;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.share.dao.PSGenericItemDao;
 import com.percussion.share.service.IPSIdMapper;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean("dashboardDao")
-public class PSDashboardDao extends PSGenericItemDao<PSDashboard> implements IPSDashboardDao
-{
+public class PSDashboardDao extends PSGenericItemDao<PSDashboard> implements IPSDashboardDao {
 
-    public static final String FOLDER_PATH = "//Folders/$System$/UserProfiles";
+  public static final String FOLDER_PATH = "//Folders/$System$/UserProfiles";
 
-    @Autowired
-    public PSDashboardDao(IPSContentWs contentWs, IPSContentMgr contentMgr, IPSIdMapper idMapper)
-    {
-        super(contentWs, contentMgr, idMapper, PSDashboard.class, "percUserProfile", FOLDER_PATH);
-    }
+  @Autowired
+  public PSDashboardDao(IPSContentWs contentWs, IPSContentMgr contentMgr, IPSIdMapper idMapper) {
+    super(contentWs, contentMgr, idMapper, PSDashboard.class, "percUserProfile", FOLDER_PATH);
+  }
 
-    
+  @Override
+  protected IPSGuid findContentItemGuid(String id) {
+    // Use search-based lookup for dashboard GUIDs.
+    return findContentItemGuidWithSearch(id);
+  }
 
-    @Override
-    protected IPSGuid findContentItemGuid(String id)
-    {
-        return findContentItemGuidWithSearch(id);
-    }
-
-
-
-    @Override
-    protected List<String> getFolderPaths(PSDashboard object)
-    {
-        return asList(FOLDER_PATH);
-    }
-    
-
-    
-
+  @Override
+  protected List<String> getFolderPaths(PSDashboard object) {
+    // All dashboards live in the user profiles folder.
+    return List.of(FOLDER_PATH);
+  }
 }

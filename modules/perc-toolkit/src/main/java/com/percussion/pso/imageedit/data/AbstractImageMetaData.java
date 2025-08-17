@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,40 @@
  * limitations under the License.
  */
 package com.percussion.pso.imageedit.data;
-public class AbstractImageMetaData
-{
-   private String imageKey;
-   private ImageMetaData metaData;
 
-   public AbstractImageMetaData()
-   {
-      super();
-   }
+public class AbstractImageMetaData {
+  private String imageKey;
+  private ImageMetaData metaData;
 
-   /**
-    * @return the imageKey
-    */
-   public String getImageKey()
-   {
-      return imageKey;
-   }
+  public AbstractImageMetaData() {
+    super();
+  }
 
-   /**
-    * @param imageKey the imageKey to set
-    */
-   public void setImageKey(String imageKey)
-   {
-      this.imageKey = imageKey;
-   }
+  /**
+   * @return the imageKey
+   */
+  public String getImageKey() {
+    return imageKey;
+  }
 
-   /**
-    * @return the metaData
-    */
-   public ImageMetaData getMetaData()
-   {
-      return metaData;
-   }
+  /**
+   * @param imageKey the imageKey to set
+   */
+  public void setImageKey(String imageKey) {
+    this.imageKey = imageKey;
+  }
 
-   /**
-    * @param metaData the metaData to set
-    */
-   public void setMetaData(ImageMetaData metaData)
-   {
-      this.metaData = metaData;
-   }
+  /**
+   * @return the metaData
+   */
+  public ImageMetaData getMetaData() {
+    return metaData;
+  }
+
+  /**
+   * @param metaData the metaData to set
+   */
+  public void setMetaData(ImageMetaData metaData) {
+    this.metaData = metaData;
+  }
 }

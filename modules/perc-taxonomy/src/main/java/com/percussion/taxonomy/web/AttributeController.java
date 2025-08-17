@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,50 +17,50 @@
 
 package com.percussion.taxonomy.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.validation.BindException;
+import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.service.AttributeService;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.percussion.taxonomy.TaxonomySecurityHelper;
-import com.percussion.taxonomy.domain.Attribute;
-import com.percussion.taxonomy.service.AttributeService;
-
-import java.util.Collection;
-
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class AttributeController  {
+public class AttributeController {
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    private AttributeService attributeService;
+  protected final Logger logger = LogManager.getLogger(getClass());
+  private AttributeService attributeService;
 
-    public AttributeController() {
-        //TODO: Fix me
-     /*   setCommandClass(Attribute.class);
-        setCommandName("attribute");
+  public AttributeController() {
+    // TODO: Fix me
+    /*   setCommandClass(Attribute.class);
+      setCommandName("attribute");
 
-      */
-    }
+    */
+  }
 
-    protected ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-            Object command, BindException errors) throws Exception {
-        //--------------------------- Templated - Modify or replace -----------------------------
-    	TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    	//      Collection all = attributeService.getAttribute(1);
-        Collection all = attributeService.getAllAttributes(2, 1);
-        Map<String, Object> myModel = new HashMap<String, Object>();
-        myModel.put("all", all);
-        return new ModelAndView("attribute", "model", myModel);
-        //------------------------------------- End Template -----------------------------------------
-    }
+  protected ModelAndView handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Object command,
+      BindException errors)
+      throws Exception {
+    // --------------------------- Templated - Modify or replace -----------------------------
+    TaxonomySecurityHelper.raise_error_if_cannot_admin();
+    //      Collection all = attributeService.getAttribute(1);
+    Collection all = attributeService.getAllAttributes(2, 1);
+    Map<String, Object> myModel = new HashMap<String, Object>();
+    myModel.put("all", all);
+    return new ModelAndView("attribute", "model", myModel);
+    // ------------------------------------- End Template -----------------------------------------
+  }
 
-    public void setAttributeService(AttributeService attributeService) {
-        this.attributeService = attributeService;
-    }
+  public void setAttributeService(AttributeService attributeService) {
+    this.attributeService = attributeService;
+  }
 }

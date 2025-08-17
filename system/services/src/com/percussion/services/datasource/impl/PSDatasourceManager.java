@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.percussion.services.datasource.impl;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.utils.container.IPSHibernateDialectConfig;
 import com.percussion.utils.container.PSContainerUtilsFactory;
-import com.percussion.utils.container.PSStaticContainerUtils;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
 import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
@@ -28,280 +27,352 @@ import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.jdbc.PSMissingDatasourceConfigException;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
-import javax.sql.DataSource; // TODO: JAVAX-11
-import java.io.File;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
- * Implementation of the service interface.
+ * Implementation of the datasource manager service using modern Java 11 patterns.
+ *
+ * <p>This manager provides comprehensive database connection management with
+ * Optional-based safe access, Stream API for efficient processing, and enhanced
+ * validation for robust datasource operations.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
-public class PSDatasourceManager implements IPSDatasourceManager
-{
+public class PSDatasourceManager implements IPSDatasourceManager {
 
-   private Properties defaultHibernateProperties = null;
-   private IPSHibernateDialectConfig m_dialectCfg = null;
+    /**
+     * Default hibernate properties for backward compatibility.
+     */
+    private final Properties defaultHibernateProperties;
 
-   public PSDatasourceManager() {
-      //setup default hibernate properties
-      Properties props = new Properties();
+    /**
+     * Hibernate dialect configuration.
+     */
+    private IPSHibernateDialectConfig dialectConfig;
 
-      //backward compatibility
-      props.put("hibernate.allow_update_outside_transaction","true");
+    /**
+     * Thread-safe reference to the datasource resolver.
+     */
+    private static final AtomicReference<IPSDatasourceResolver> DATASOURCE_RESOLVER_REF =
+        new AtomicReference<>();
 
-      defaultHibernateProperties = props;
-   }
+    /**
+     * Default constructor that initializes default hibernate properties.
+     */
+    public PSDatasourceManager() {
+        defaultHibernateProperties = createDefaultHibernateProperties();
+    }
 
-   public IPSHibernateDialectConfig getDialectCfg()
-   {
-      return m_dialectCfg;
-   }
+    /**
+     * Create default hibernate properties with backward compatibility settings.
+     *
+     * @return Properties configured with default values
+     */
+    private Properties createDefaultHibernateProperties() {
+        var props = new Properties();
+        props.put("hibernate.allow_update_outside_transaction", "true");
+        return props;
+    }
 
-   public void setDialectCfg(IPSHibernateDialectConfig dialectCfg)
-   {
-      m_dialectCfg = dialectCfg;
-   }
+    /**
+     * Get the dialect configuration safely.
+     *
+     * @return Optional containing the dialect config, or empty if not set
+     */
+    public Optional<IPSHibernateDialectConfig> getDialectConfigSafely() {
+        return Optional.ofNullable(dialectConfig);
+    }
 
+    /**
+     * Get the dialect configuration.
+     *
+     * @return The dialect config, may be null
+     * @deprecated Use {@link #getDialectConfigSafely()} for null-safe access
+     */
+    @Deprecated
+    public IPSHibernateDialectConfig getDialectCfg() {
+        return dialectConfig;
+    }
 
-   protected Properties getProperties(File propertyFile){
-      return PSStaticContainerUtils.getProperties(propertyFile);
-   }
+    /**
+     * Set the dialect configuration with validation.
+     *
+     * @param dialectConfig The dialect config, may not be null
+     */
+    public void setDialectCfg(IPSHibernateDialectConfig dialectConfig) {
+        this.dialectConfig = Objects.requireNonNull(dialectConfig,
+            "dialectConfig may not be null");
+    }
 
-   
-   // see IPSDatasourceManager
-   public PSConnectionDetail getConnectionDetail(IPSConnectionInfo info)
-      throws NamingException, SQLException
-   {
-      IPSDatasourceConfig dsConfig = PSContainerUtilsFactory.getInstance().getDatasourceResolver().resolveDatasource(info);
+    @Override
+    public PSConnectionDetail getConnectionDetail(IPSConnectionInfo info)
+            throws NamingException, SQLException {
 
-     String dsName = dsConfig.getDataSource();
-     String url = getConnectionUrl(dsName);
-     String driver = PSJdbcUtils.getDriverFromUrl(url);
-     String database = dsConfig.getDatabase();
+        var dsConfig = getDatasourceResolver().resolveDatasource(info);
+        var dsName = dsConfig.getDataSource();
+        var url = getConnectionUrl(dsName);
+        var driver = PSJdbcUtils.getDriverFromUrl(url);
+        var database = dsConfig.getDatabase();
 
-     return new PSConnectionDetail(dsName, driver, database,
-        dsConfig.getOrigin(), url);
+        return new PSConnectionDetail(dsName, driver, database,
+            dsConfig.getOrigin(), url);
+    }
 
-   }
+    /**
+     * Get connection URL for the specified datasource with try-with-resources.
+     *
+     * @param dsName The datasource name
+     * @return The connection URL
+     * @throws NamingException if datasource lookup fails
+     * @throws SQLException if connection fails
+     */
+    protected String getConnectionUrl(String dsName) throws NamingException, SQLException {
+        try (var conn = getDbConnection(dsName)) {
+            return conn.getMetaData().getURL();
+        }
+    }
 
-   protected String getConnectionUrl(String dsName) throws NamingException, SQLException{
-      try(Connection conn = getDbConnection(dsName))
-      {
-         return  conn.getMetaData().getURL(); 
-      }
-   }
+    @Override
+    public Connection getDbConnection(IPSConnectionInfo info)
+            throws NamingException, SQLException {
 
-   /**
-    *
-    * @param info the connection info, may be <code>null</code> to use the
-    * repository connection.
-    *
-    * @return a database connection.  The caller is responsible for releasing the connection.
-    * @throws NamingException If a JNDI lookup error occurs
-    * @throws SQLException If a SQL exception occurs
-    */
-   public Connection getDbConnection(IPSConnectionInfo info)
-      throws NamingException, SQLException
-   {
-      IPSDatasourceConfig dsConfig = resolveDatasource(info);      
-      String dsName = dsConfig.getDataSource();
-      Connection conn = getDbConnection(dsName);
-      String dbName = dsConfig.getDatabase();
-      if(conn.getMetaData().getURL().contains("oracle")){
-         conn = new PSOracleConnectionWrapper(conn);
-      }
-      if (!StringUtils.isBlank(dbName))
-      {
-         if (!dbName.equals(conn.getCatalog()))
+        var dsConfig = resolveDatasource(info);
+        var dsName = dsConfig.getDataSource();
+        var conn = getDbConnection(dsName);
+
+        // Wrap Oracle connections for enhanced functionality
+        if (conn.getMetaData().getURL().contains("oracle")) {
+            conn = new PSOracleConnectionWrapper(conn);
+        }
+
+        // Set catalog if specified
+        configureCatalog(conn, dsConfig.getDatabase());
+
+        return conn;
+    }
+
+    /**
+     * Configure database catalog if specified.
+     *
+     * @param conn The connection to configure
+     * @param dbName The database name, may be null or empty
+     * @throws SQLException if catalog configuration fails
+     */
+    private void configureCatalog(Connection conn, String dbName) throws SQLException {
+        if (StringUtils.isNotBlank(dbName) && !dbName.equals(conn.getCatalog())) {
             conn.setCatalog(dbName);
-      }
-      return conn;
-   }
+        }
+    }
 
+    @Override
+    public List<String> getDatasources() {
+        return getDatasourceResolver().getDatasourceConfigurations()
+            .stream()
+            .map(IPSDatasourceConfig::getName)
+            .collect(Collectors.toList());
+    }
 
-   // see IPSDatasourceManager
-   public List<String> getDatasources()
-   {
-      List<String> dsList = new ArrayList<>();
-      for (IPSDatasourceConfig config : getDatasourceResolver().getDatasourceConfigurations())
-      {
-         dsList.add(config.getName());
-      }
-      
-      return dsList;
-   }
+    @Override
+    public String getRepositoryDatasource() {
+        return getDatasourceResolver().getRepositoryDatasource();
+    }
 
+    /**
+     * Get a database connection from the specified datasource.
+     *
+     * @param dsName The name of the datasource, assumed not null or empty
+     * @return A connection, never null
+     * @throws NamingException if the datasource is not found
+     * @throws SQLException on other database errors
+     */
+    private Connection getDbConnection(String dsName)
+            throws NamingException, SQLException {
+        return getDatasource(dsName).getConnection();
+    }
 
-    // see IPSDatasourceManager
-   public String getRepositoryDatasource()
-   {
-      return getDatasourceResolver().getRepositoryDatasource();
-   }
+    /**
+     * Lookup the specified datasource with enhanced error handling.
+     *
+     * @param dsName The datasource name, assumed not null or empty
+     * @return The datasource, never null
+     * @throws NamingException if the datasource cannot be resolved
+     */
+    private DataSource getDatasource(String dsName) throws NamingException {
+        var locator = new PSJndiObjectLocator(dsName);
+        return locator.lookupDataSource();
+    }
 
+    /**
+     * Resolve the connection info to a datasource config with enhanced validation.
+     *
+     * @param info The info to resolve, may be null
+     * @return The config, never null
+     * @throws PSMissingDatasourceConfigException if the info cannot be resolved
+     */
+    private IPSDatasourceConfig resolveDatasource(IPSConnectionInfo info)
+            throws PSMissingDatasourceConfigException {
 
-   /**
-    * Grab a connection from the datasource referenced.
-    * 
-    * @param dsName The name of the datasource, assumed not <code>null</code> or 
-    * empty.
-    * 
-    * @return A connection, never <code>null</code>.
-    * 
-    * @throws NamingException if the datasource is not found
-    * @throws SQLException on other database errors
-    */
-   private  Connection getDbConnection(String dsName) 
-      throws NamingException, SQLException
-   {
-         return getDatasource(dsName).getConnection();
-   }   
+        var dsConfig = getDatasourceResolver().resolveDatasource(info);
 
-   /**
-    * Lookup the specified datasource.
-    * 
-    * @param dsName The datasource name, assumed not <code>null</code> or empty.
-    * 
-    * @return The datasource, never <code>null</code>.
-    * @throws NamingException if the datasource cannot be resolved.
-    */
-   private  DataSource getDatasource(String dsName) throws NamingException
-   {
-      PSJndiObjectLocator loc = new PSJndiObjectLocator(dsName);
-      return loc.lookupDataSource();
-   }
-   
-   /**
-    * Resolve the connection info to a datasource config
-    * 
-    * @param info The info to resolve, may be <code>null</code>.
-    * 
-    * @return The config, never <code>null</code>.
-    * 
-    * @throws PSMissingDatasourceConfigException if the info cannot be resolved.
-    */
-   private IPSDatasourceConfig resolveDatasource(IPSConnectionInfo info) 
-      throws PSMissingDatasourceConfigException
-   {
-      
-      IPSDatasourceConfig dsConfig = PSContainerUtilsFactory.getInstance().getDatasourceResolver().resolveDatasource(
-         info);
-      if (dsConfig == null)
-      {
-         String dsName = "";
-         if (info != null && info.getDataSource() != null)
-            dsName = info.getDataSource();
-         throw new PSMissingDatasourceConfigException(dsName);
-      }
-      
-      return dsConfig;
-   }   
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.utils.jdbc.IPSDatasourceManager#getHibernateSession()
-    */
-   public Session getHibernateSession()
-   {
-      SessionFactory fact =
-         (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
-      return fact.openSession();
-   }
-   
-   /**
-    * The resolver to use, <code>null</code> until first call to 
-    * , never
-    * <code>null</code> after that.
-    */
-   private static IPSDatasourceResolver m_datasourceResolver;
+        if (dsConfig == null) {
+            var dsName = Optional.ofNullable(info)
+                .map(IPSConnectionInfo::getDataSource)
+                .orElse("");
+            throw new PSMissingDatasourceConfigException(dsName);
+        }
 
-   private synchronized IPSDatasourceResolver getDatasourceResolver()
-   {
-       if (m_datasourceResolver==null)
-       {
-          m_datasourceResolver = PSContainerUtilsFactory.getInstance().getDatasourceResolver();
-       }
-       return m_datasourceResolver;
-   }
+        return dsConfig;
+    }
 
+    @Override
+    public Session getHibernateSession() {
+        var sessionFactory = (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
+        return sessionFactory.openSession();
+    }
 
-   /**
-    * Get the hibernate properties for the supplied info object. See
-    * {@link IPSDatasourceManager#getHibernateProperties(IPSConnectionInfo)} for
-    * details.
-    * 
-    * @param info Specifies the datasource configuration to use, may be
-    *           <code>null</code> to use the repository datasource.
-    * 
-    * @return The properties, never <code>null</code>, will contain the
-    *         datasource specific properties derived from the supplied
-    *         connection info as well as any other properties specified by the
-    *         server's configuration.
-    * 
-    * @throws IllegalStateException if
-    *             has not
-    *            been called (this is normally called when the spring framework
-    *            is initialized).
-    * @throws NamingException If there is an error looking up the datasource.
-    * @throws SQLException If there is an error obtaining the connection details
-    *            for the specified datasource.
-    */
-   public Properties getHibernateProperties(IPSConnectionInfo info) throws NamingException, SQLException
-   {
-      
-      Properties props = new Properties();
-      props.putAll(defaultHibernateProperties);
+    /**
+     * Get the datasource resolver using thread-safe lazy initialization.
+     *
+     * @return The datasource resolver, never null
+     */
+    private IPSDatasourceResolver getDatasourceResolver() {
+        return DATASOURCE_RESOLVER_REF.updateAndGet(existing ->
+            existing != null ? existing :
+            PSContainerUtilsFactory.getInstance().getDatasourceResolver());
+    }
 
-      if(info != null) {
-         PSConnectionDetail connDetail = getConnectionDetail(info);
+    @Override
+    public Properties getHibernateProperties(IPSConnectionInfo info)
+            throws NamingException, SQLException {
 
-         // need to add the prefix to the datasource name
-         String dsName = connDetail.getDatasourceName();
-         String jndiPrefix = PSJndiObjectLocator.getPrefix();
-         if (!StringUtils.isBlank(jndiPrefix))
+        var props = new Properties();
+        props.putAll(defaultHibernateProperties);
+
+        if (info != null) {
+            configureHibernatePropertiesForConnection(props, info);
+        }
+
+        return props;
+    }
+
+    /**
+     * Configure hibernate properties for a specific connection.
+     *
+     * @param props The properties to configure
+     * @param info The connection info
+     * @throws NamingException if datasource lookup fails
+     * @throws SQLException if connection details cannot be obtained
+     */
+    private void configureHibernatePropertiesForConnection(Properties props, IPSConnectionInfo info)
+            throws NamingException, SQLException {
+
+        var connDetail = getConnectionDetail(info);
+
+        // Configure datasource name with JNDI prefix
+        configureDatasourceName(props, connDetail);
+
+        // Configure catalog and schema
+        configureDatabaseProperties(props, connDetail);
+
+        // Configure dialect
+        configureDialect(props, connDetail);
+
+        // Configure database-specific properties
+        configureDatabaseSpecificProperties(props, connDetail);
+    }
+
+    /**
+     * Configure datasource name with JNDI prefix.
+     */
+    private void configureDatasourceName(Properties props, PSConnectionDetail connDetail) {
+        var dsName = connDetail.getDatasourceName();
+        var jndiPrefix = PSJndiObjectLocator.getPrefix();
+
+        if (StringUtils.isNotBlank(jndiPrefix)) {
             dsName = jndiPrefix + dsName;
-         props.setProperty("hibernate.connection.datasource", dsName);
+        }
 
-         String catalog = connDetail.getDatabase();
-         if (!StringUtils.isBlank(catalog))
-            props.setProperty("hibernate.default_catalog", catalog);
+        props.setProperty("hibernate.connection.datasource", dsName);
+    }
 
-         String origin = connDetail.getOrigin();
-         if (!StringUtils.isBlank(origin))
-            props.setProperty("hibernate.default_schema", origin);
+    /**
+     * Configure database catalog and schema properties.
+     */
+    private void configureDatabaseProperties(Properties props, PSConnectionDetail connDetail) {
+        Optional.ofNullable(connDetail.getDatabase())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(catalog -> props.setProperty("hibernate.default_catalog", catalog));
 
-         String dialect = m_dialectCfg.getDialectClassName(connDetail.getDriver());
-         if (dialect == null)
-            throw new RuntimeException(
-                    "Cannot determine Hibernate SQL dialect for driver: "
-                            + connDetail.getDriver());
-         props.setProperty("hibernate.dialect", dialect);
+        Optional.ofNullable(connDetail.getOrigin())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(schema -> props.setProperty("hibernate.default_schema", schema));
+    }
 
-         // for DB2, set the transaction isolation level to read uncommitted
-         if (connDetail.getDriver().equalsIgnoreCase(PSJdbcUtils.DB2))
+    /**
+     * Configure Hibernate dialect with validation.
+     */
+    private void configureDialect(Properties props, PSConnectionDetail connDetail) {
+        var driver = connDetail.getDriver();
+        var dialect = getDialectConfigSafely()
+            .flatMap(config -> config instanceof com.percussion.services.datasource.PSHibernateDialectConfig ?
+                ((com.percussion.services.datasource.PSHibernateDialectConfig) config).getDialectClassNameSafely(driver) :
+                Optional.ofNullable(config.getDialectClassName(driver)))
+            .orElseThrow(() -> new RuntimeException(
+                "Cannot determine Hibernate SQL dialect for driver: " + driver));
+
+        props.setProperty("hibernate.dialect", dialect);
+    }
+
+    /**
+     * Configure database-specific properties.
+     */
+    private void configureDatabaseSpecificProperties(Properties props, PSConnectionDetail connDetail) {
+        var driver = connDetail.getDriver();
+
+        // Set transaction isolation for DB2
+        if (PSJdbcUtils.DB2.equalsIgnoreCase(driver)) {
             props.setProperty("hibernate.connection.isolation",
-                    PSJdbcUtils.TRANSACTION_READ_UNCOMMITTED_VALUE);
-      }
-      return props;
-   }
+                PSJdbcUtils.TRANSACTION_READ_UNCOMMITTED_VALUE);
+        }
+    }
 
-   // see IPSDatasourceManager
-   public Properties getDefaultHibernateProperties()
-   {
-      return defaultHibernateProperties;
-   }
+    @Override
+    public Properties getDefaultHibernateProperties() {
+        return new Properties(defaultHibernateProperties); // Return defensive copy
+    }
 
-   public void setDefaultHibernateProperties(Properties properties)
-   {
-      defaultHibernateProperties = properties;
-   }
+    /**
+     * Set default hibernate properties with validation.
+     *
+     * @param properties The properties to set, may not be null
+     */
+    public void setDefaultHibernateProperties(Properties properties) {
+        Objects.requireNonNull(properties, "properties may not be null");
 
+        defaultHibernateProperties.clear();
+        defaultHibernateProperties.putAll(properties);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSDatasourceManager{dialectConfig=%s, defaultPropsCount=%d}",
+            getDialectConfigSafely().map(Object::getClass).map(Class::getSimpleName).orElse("null"),
+            defaultHibernateProperties.size());
+    }
 }
 

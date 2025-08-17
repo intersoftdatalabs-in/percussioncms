@@ -9,8 +9,8 @@
     <artifactId>webservices</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <axis.version>1.4.1</axis.version>
-        <axiscore.version>1.4.2</axiscore.version>
+        <axis.version>1.4</axis.version>
+        <axiscore.version>1.4</axiscore.version>
     </properties>
     <build>
         <plugins>
@@ -116,13 +116,13 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>jakarta.mail</groupId>
+                        <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
                         <version>1.4.1</version>
                     </dependency>
                     <dependency>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
                         <version>1.1</version>
                     </dependency>
                     <dependency>
@@ -136,8 +136,8 @@
                         <version>1.1</version>
                     </dependency>
                     <dependency>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
                         <version>1.1</version>
                     </dependency>
                     <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
@@ -247,7 +247,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-        </dependency>
+        <version>${axis.version}</version></dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxrpc-api</artifactId>

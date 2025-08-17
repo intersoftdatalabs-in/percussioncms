@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,10 @@
  */
 package com.percussion.membership.services;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.membership.services.impl.PSMembershipService;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
@@ -31,52 +27,46 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author natechadwick
- *
  */
+public class PSBaseMembershipRestServiceTest extends JerseyTest {
 
-public  class PSBaseMembershipRestServiceTest extends JerseyTest
-{
+  public PSBaseMembershipRestServiceTest() {}
 
-    public PSBaseMembershipRestServiceTest() {
+  /***
+   * Takes the context file as an arg and spins up grizzly to
+   * test rest methods.
+   *
+   */
+  @Override
+  protected Application configure() {
+    return new ResourceConfig(PSMembershipService.class);
+  }
 
-    }
+  @Test
+  @Disabled
+  public void testGetRestVersion() {
 
-    /***
-     * Takes the context file as an arg and spins up grizzly to
-     * test rest methods.
-     *
-     */
-    @Override
-    protected Application configure() {
-        return new ResourceConfig(PSMembershipService.class);
-    }
+    Client client = ClientBuilder.newClient();
+    WebTarget webTarget = client.target("/membership/version");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    Response response = invocationBuilder.get();
+    assertNotNull(response);
+    Assertions.assertEquals(200, response.getStatus());
+    Assertions.assertEquals(testGetVersion(), response.getEntity());
+  }
 
-
-
-    @Test
-    @Ignore
-	public void testGetRestVersion(){
-
-
-        Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target("/membership/version");
-        Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200,response.getStatus());
-        Assert.assertEquals(testGetVersion(), response.getEntity());
-	}
-
-
-	private String testGetVersion(){
-		String version = PSVersionHelper.getVersion(this.getClass());
-		Assert.assertNotNull(version);
-		System.out.print(version);
-		return version;
-	}
-  
+  private String testGetVersion() {
+    String version = PSVersionHelper.getVersion(this.getClass());
+    assertNotNull(version);
+    System.out.print(version);
+    return version;
+  }
 }

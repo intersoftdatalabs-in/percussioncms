@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,54 +20,36 @@ package com.percussion.pathmanagement.data.xmladapters;
 
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperties;
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperty;
-import com.percussion.pathmanagement.data.xmladapters.PSMapAdapter;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Custom XmlAdapter which takes a PSPathItem object (it has
- * a map of String objects) and maps it into a PSPathItemDisplayProperties
- * object.
- * 
- * @author federicoromanelli
+ * Custom XmlAdapter to convert between a Map<String, String> and PSPathItemDisplayProperties. Used
+ * for XML serialization/deserialization of display properties.
  *
+ * @author federicoromanelli
  */
-public class PSMapAdapter extends XmlAdapter<PSPathItemDisplayProperties, Map<String, String>>
-{
+public class PSMapAdapter extends XmlAdapter<PSPathItemDisplayProperties, Map<String, String>> {
 
-    @Override
-    public Map<String, String> unmarshal(PSPathItemDisplayProperties v) throws Exception
-    {
-        HashMap<String, String> hashMap = new HashMap<>();
-        
-        for (PSPathItemDisplayProperty displayProp : v.getDisplayProperty())
-            hashMap.put(displayProp.getName(), displayProp.getValue());
-        
-        return hashMap;
+  @Override
+  public Map<String, String> unmarshal(PSPathItemDisplayProperties v) {
+    var hashMap = new HashMap<String, String>();
+    for (var displayProp : v.getDisplayProperty()) {
+      hashMap.put(displayProp.getName(), displayProp.getValue());
     }
+    return hashMap;
+  }
 
-    @Override
-    public PSPathItemDisplayProperties marshal(Map<String, String> v) throws Exception
-    {
-        PSPathItemDisplayProperties displayProperties = new PSPathItemDisplayProperties();
-        try
-        {
-        
-            for (String propName : v.keySet())
-            {
-                PSPathItemDisplayProperty prop = new PSPathItemDisplayProperty();
-                prop.setName(propName);
-                prop.setValue(v.get(propName));
-                
-                displayProperties.getDisplayProperty().add(prop);
-            }
-        }
-        catch (Exception e){}
-        
-        return displayProperties;
+  @Override
+  public PSPathItemDisplayProperties marshal(Map<String, String> v) {
+    var displayProperties = new PSPathItemDisplayProperties();
+    for (var propName : v.keySet()) {
+      var prop = new PSPathItemDisplayProperty();
+      prop.setName(propName);
+      prop.setValue(v.get(propName));
+      displayProperties.getDisplayProperty().add(prop);
     }
-
+    return displayProperties;
+  }
 }

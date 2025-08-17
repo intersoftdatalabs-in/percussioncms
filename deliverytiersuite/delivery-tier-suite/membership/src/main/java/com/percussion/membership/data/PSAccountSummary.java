@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,55 +20,42 @@ import org.apache.commons.lang.Validate;
 
 /**
  * Object to change the state about of an account.
- * 
+ *
  * @author rafaelsalis
  */
-public class PSAccountSummary
-{
-    private String email;
-    private String action;
-    
-    public PSAccountSummary()
-    {
-        
-    }
+public class PSAccountSummary {
+  private String email;
+  private String action;
 
-    /**
-     * 
-     * @return the email of the account, never empty or <code>null</code>.
-     */
-    public String getEmail()
-    {
-        return email;
-    }
+  public PSAccountSummary() {}
 
-    /**
-     * 
-     * @param email the email of the account, never empty or <code>null</code>.
-     */
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
-        this.email = email;
-    }
-    
-    /**
-     * 
-     * @return the action of the account, never empty or <code>null</code>.
-     */
-    public String getAction()
-    {
-        return action;
-    }
-    
-    /**
-     * 
-     * @param action set the action to perform over the account,
-     * never empty or <code>null</code>.
-     */
-    public void setAction(String action)
-    {
-        Validate.notEmpty(action);
-        this.action = action;
-    }
+  /**
+   * @return the email of the account, never empty or <code>null</code>.
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  /**
+   * @param email the email of the account, never empty or <code>null</code>.
+   */
+  public void setEmail(String email) {
+    Validate.notEmpty(email);
+    this.email = email;
+  }
+
+  /**
+   * @return the action of the account, never empty or <code>null</code>.
+   */
+  public String getAction() {
+    return action;
+  }
+
+  /**
+   * @param action set the action to perform over the account, never empty or <code>null</code>.
+   */
+  public void setAction(String action) {
+    Validate.notEmpty(action);
+    this.action = action;
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,66 +17,57 @@
  */
 package com.percussion.monitor.process;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.search.PSSearchEditorChangeEvent;
 import com.percussion.search.PSSearchIndexEventQueue;
-
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- * 
+ * Integration test for search index process monitor. Sunny Sal says: "Indexing tests faster than a
+ * Bollywood dance number!"
  */
-@Category(IntegrationTest.class)
-public class PSSearchIndexProcessMonitorTest extends ServletTestCase
-{
+@Tag("IntegrationTest")
+public class PSSearchIndexProcessMonitorTest {
 
-    @Test
-    public void test() throws Exception
-    {
-        PSSearchIndexEventQueue eventQueue = PSSearchIndexEventQueue.getInstance();
+  @Test
+  void testSearchIndexMonitor() throws Exception {
+    var eventQueue = PSSearchIndexEventQueue.getInstance();
 
-        try
-        {
-            assertEquals("Running", eventQueue.getStatus());
-            assertEquals(eventQueue.getStatus(), PSSearchIndexProcessMonitor.getStatus());
+    try {
+      assertEquals("Running", eventQueue.getStatus());
+      assertEquals(eventQueue.getStatus(), PSSearchIndexProcessMonitor.getStatus());
 
-            eventQueue.pause();
-            try {
-                assertEquals("Paused", eventQueue.getStatus());
-                int queueCount = eventQueue.size(); // may be > 0 from other tests?
-                Thread.sleep(6000);
-                assertEquals(queueCount, PSSearchIndexProcessMonitor.getCount());
-    
-                eventQueue.queueEvent(new PSSearchEditorChangeEvent(PSSearchEditorChangeEvent.ACTION_DELETE, 999999, 1,
-                        310, true));
-                queueCount++;
-                assertEquals(queueCount, eventQueue.size());
-                Thread.sleep(3000);
-                assertEquals(queueCount, eventQueue.size());
-                Thread.sleep(3000);
-                assertEquals(queueCount, PSSearchIndexProcessMonitor.getCount());
-                
-                eventQueue.clearQueues();
-                assertEquals(0, eventQueue.size());
-            //  Process monitor updates every 2s
-                Thread.sleep(6000);
-                assertEquals(0, PSSearchIndexProcessMonitor.getCount());
-            } finally {
-                eventQueue.resume();
-            }
-            assertEquals("Running", eventQueue.getStatus());
-            //  Process monitor updates every 5s
-            Thread.sleep(6000);
-            assertEquals(eventQueue.getStatus(), PSSearchIndexProcessMonitor.getStatus());
-        }
-        finally
-        {
-            eventQueue.resume();
-        }
+      eventQueue.pause();
+      try {
+        assertEquals("Paused", eventQueue.getStatus());
+        var queueCount = eventQueue.size();
+        Thread.sleep(6000);
+        assertEquals(queueCount, PSSearchIndexProcessMonitor.getCount());
 
+        eventQueue.queueEvent(
+            new PSSearchEditorChangeEvent(
+                PSSearchEditorChangeEvent.ACTION_DELETE, 999999, 1, 310, true));
+        queueCount++;
+        assertEquals(queueCount, eventQueue.size());
+        Thread.sleep(3000);
+        assertEquals(queueCount, eventQueue.size());
+        Thread.sleep(3000);
+        assertEquals(queueCount, PSSearchIndexProcessMonitor.getCount());
+
+        eventQueue.clearQueues();
+        assertEquals(0, eventQueue.size());
+        Thread.sleep(6000);
+        assertEquals(0, PSSearchIndexProcessMonitor.getCount());
+      } finally {
+        eventQueue.resume();
+      }
+      assertEquals("Running", eventQueue.getStatus());
+      Thread.sleep(6000);
+      assertEquals(eventQueue.getStatus(), PSSearchIndexProcessMonitor.getStatus());
+    } finally {
+      eventQueue.resume();
     }
-
+  }
 }

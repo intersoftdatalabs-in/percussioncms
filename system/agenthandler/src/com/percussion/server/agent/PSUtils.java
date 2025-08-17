@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,133 +17,120 @@
 
 package com.percussion.server.agent;
 
-import com.percussion.security.xml.PSSecureXMLUtils;
-import com.percussion.security.xml.PSXmlSecurityOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import java.util.Locale;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
- * Simple Utility class for storing static methods and variables.
+ * Utility class providing common helper methods for agent operations.
+ * This class follows the utility class pattern with all static methods.
+ *
+ * @since Java 11
  */
-public class PSUtils
-{
+public final class PSUtils {
+
    /**
-    * Helper function that returns the W3C DOM Element value in the tree.
-    *
-    * @param elem - the Element
-    * @param elemname  the element tag name, can be <code>null</code>.
-    *
-    * @return  the value of the element, can be <code>empty</code>.
-    *
+    * Private constructor to prevent instantiation of utility class.
     */
-   public static String getElemValue(Element elem, String elemname)
-   {
-      String value = "";
-
-      if(null == elem || null == elemname || elemname.trim().length()<1)
-         return value;
-
-      NodeList nl = elem.getElementsByTagName(elemname);
-      if(null == nl || nl.getLength() < 1)
-         return value;
-
-      //we consider only the first text child for element value.
-      Element child = (Element)nl.item(0);
-      Node node = child.getFirstChild();
-      if(null == node || Node.TEXT_NODE != node.getNodeType())
-         return value;
-
-      return ((Text)node).getData().trim();
+   private PSUtils() {
+      throw new UnsupportedOperationException("Utility class cannot be instantiated");
    }
 
    /**
-    * Get the program resources. If the resource bundle is already loaded,
-    * returns the loaded one otherwise tries to load a new one.
+    * Gets a DocumentBuilder instance configured for XML parsing.
     *
-    * @return resource bundle as ResourceBundle never <code>null</code>.
-    *
-    * @throws MissingResourceException if it cannot find the reosurces file.
-    *
+    * @return a new DocumentBuilder instance
+    * @throws ParserConfigurationException if a DocumentBuilder cannot be created
     */
-   public static ResourceBundle getRes()
-      throws MissingResourceException
-   {
-      if(null == ms_Res)
-      {
-         ms_Res = ResourceBundle.getBundle("com.percussion.server.agent." +
-            "PSStringResources", Locale.getDefault());
-      }
-      return ms_Res;
+   public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+      var factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      factory.setValidating(false);
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      return factory.newDocumentBuilder();
    }
 
    /**
-    * Returns DocumentBuilder object for parsing XML documents
-    * @return DocumentBuilder object for parsing XML documents. Never
-    * <code>null</code>
+    * Extracts the text content from the first child element with the specified name.
+    *
+    * @param parent the parent element to search within, must not be {@code null}
+    * @param elementName the name of the child element to find, must not be blank
+    * @return the text content of the element, or {@code null} if not found
+    * @throws IllegalArgumentException if parent is {@code null} or elementName is blank
     */
-   public static DocumentBuilder getDocumentBuilder()
-   {
-      try
-      {
-         DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-                 new PSXmlSecurityOptions(
-                         true,
-                         true,
-                         true,
-                         false,
-                         true,
-                         false
-                 ));
-
-         dbf.setNamespaceAware(true);
-         dbf.setValidating(false);
-         return dbf.newDocumentBuilder();
+   public static String getElemValue(Element parent, String elementName) {
+      if (parent == null) {
+         throw new IllegalArgumentException("Parent element must not be null");
       }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e.getMessage());
+      if (StringUtils.isBlank(elementName)) {
+         throw new IllegalArgumentException("Element name must not be blank");
+      }
+
+      var nodeList = parent.getElementsByTagName(elementName);
+      if (nodeList.getLength() > 0) {
+         var node = nodeList.item(0);
+         return getTextContent(node);
+      }
+      return null;
+   }
+
+   /**
+    * Safely extracts text content from a DOM node.
+    *
+    * @param node the node to extract text from
+    * @return the text content, or {@code null} if node is {@code null}
+    */
+   private static String getTextContent(Node node) {
+      return Optional.ofNullable(node)
+         .map(Node::getTextContent)
+         .map(String::trim)
+         .filter(text -> !text.isEmpty())
+         .orElse(null);
+   }
+
+   /**
+    * Gets a resource bundle for agent internationalization.
+    *
+    * @return the resource bundle
+    * @throws MissingResourceException if the resource bundle cannot be found
+    */
+   public static ResourceBundle getRes() throws MissingResourceException {
+      return ResourceBundle.getBundle("com.percussion.server.agent.AgentResources");
+   }
+
+   /**
+    * Validates that a string parameter is not null or blank.
+    *
+    * @param value the value to validate
+    * @param paramName the parameter name for error messages
+    * @throws IllegalArgumentException if the value is null or blank
+    */
+   public static void validateNotBlank(String value, String paramName) {
+      if (StringUtils.isBlank(value)) {
+         throw new IllegalArgumentException(paramName + " must not be null or blank");
       }
    }
 
    /**
-    * Program resource bundle containng all the strings and messages
-    */
-   private static ResourceBundle ms_Res = null;
-
-   /**
-    * The namespace for agents
-    */
-   public static  final String NS_URI_PERCUSSION_AGENT =
-                           "urn:www.percussion.com/agent";
-
-   /**
-    * Default date format string we use through the agent manager
+    * Validates that an object parameter is not null.
     *
+    * @param value the value to validate
+    * @param paramName the parameter name for error messages
+    * @throws IllegalArgumentException if the value is null
     */
-   public static final String DEFAULT_DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
-
-   /**
-    * New line characters
-    *
-    */
-   public static final String NEWLINE = "\r\n";
-
-   /**
-    * default Java character encoding
-    *
-    */
-   public static final String DEFAULT_JAVA_CHAR_ENC = "UTF8";
-
-   /**
-    * Publisher default timeout for http requests (in milliseconds).
-    */
-   public static final int DEFAULT_TIMEOUT_MILLIS = 100000;
+   public static void validateNotNull(Object value, String paramName) {
+      if (value == null) {
+         throw new IllegalArgumentException(paramName + " must not be null");
+      }
+   }
 }

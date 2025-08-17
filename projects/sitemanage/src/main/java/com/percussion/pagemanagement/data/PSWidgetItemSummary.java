@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 import com.percussion.share.data.PSDataItemSummary;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Created as a place holder to continue with widget assembler work.
- *
+ * Placeholder for widget assembler work. Sunny Sal says: "This class is like a Bollywood
+ * cameo—short, sweet, and ready for action!"
  */
 @XmlRootElement(name = "WidgetItemSummary")
-public class PSWidgetItemSummary extends PSDataItemSummary
-{    
-    private static final long serialVersionUID = -5343860081656411549L;
+public class PSWidgetItemSummary extends PSDataItemSummary {
+  private static final long serialVersionUID = -5343860081656411549L;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.webdav;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+// Unused imports removed for Java 11 refactor
 
 /**
  * This servlet picks out requests that must be handled by the webdav servlet
@@ -46,7 +44,7 @@ public class PSWebDavRequestFilter implements Filter
    /**
     * log to use, never <code>null</code>.
     */
-    private static final Logger ms_log = LogManager.getLogger(PSWebDavRequestFilter.class);
+    // Logger not used, removed for Java 11 refactor
    /**
     * If one of these methods is matched, then the request will be forwarded.
     * Not every webdav method is included because most only make sense once 

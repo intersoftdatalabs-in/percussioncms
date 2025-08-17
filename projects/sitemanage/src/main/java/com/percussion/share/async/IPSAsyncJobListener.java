@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,12 @@
 
 package com.percussion.share.async;
 
-
-/**
- * Provides notification of events that may occur while a job is running.
- */
-public interface IPSAsyncJobListener
-{
-   /**
-    * Notifies the listener that the job has been completed.
-    * 
-    * @param jobId The Id of the job that has completed.
-    */
-   public void jobCompleted(long jobId);
+/** Provides notification of events that may occur while a job is running. */
+public interface IPSAsyncJobListener {
+  /**
+   * Notifies the listener that the job has been completed.
+   *
+   * @param jobId The Id of the job that has completed.
+   */
+  void jobCompleted(long jobId);
 }

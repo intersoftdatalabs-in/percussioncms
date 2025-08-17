@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.client;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
@@ -21,7 +22,7 @@ import com.percussion.delivery.data.PSDeliveryInfo;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.ws.rs.core.MediaType;
+import javax.ws.rs.core.MediaType;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -309,7 +310,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException() {
             super();
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -318,7 +319,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(String message, Throwable cause) {
             super(message, cause);
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -326,7 +327,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(String message) {
             super(message);
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -334,7 +335,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(Throwable cause) {
             super(cause);
-            // TODO Auto-generated constructor stub
+            
         }
     }
 }

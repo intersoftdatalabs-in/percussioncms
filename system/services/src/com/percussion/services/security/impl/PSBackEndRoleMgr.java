@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.security.data.PSBackEndSubject;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.security.data.PSCommunityRoleAssociation;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.PSConnectionDetail;
@@ -63,10 +63,10 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.naming.NamingException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.security.auth.Subject;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;

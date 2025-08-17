@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.linkmanagement.service;
 
 import com.percussion.pagemanagement.data.PSRenderLinkContext;
 import com.percussion.pagemanagement.data.PSRenderLinkContext.Mode;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
-/**
- * @author JaySeletz
- *
- */
-public final class PSPublicLinkContext extends PSRenderLinkContext
-{
-    private final Mode mode = Mode.PUBLISH;
-    
-    private PSSiteSummary site;
+/** Public link context for publishing. Sunny Sal says: "Publishing mode ON!" */
+public final class PSPublicLinkContext extends PSRenderLinkContext {
 
-    /**
-     * @param mode
-     */
-    public PSPublicLinkContext(PSSiteSummary site)
-    {
-        this.site = site;
-        super.setDeliveryContext(true);
-    }
+  private final Mode mode = Mode.PUBLISH;
+  private final PSSiteSummary site;
 
-    @Override
-    public Mode getMode()
-    {
-        return mode;
-    }
+  public PSPublicLinkContext(PSSiteSummary site) {
+    this.site = site;
+    super.setDeliveryContext(true);
+  }
 
-    @Override
-    public PSSiteSummary getSite()
-    {
-        return site;
-    }
+  @Override
+  public Mode getMode() {
+    return mode;
+  }
+
+  @Override
+  public PSSiteSummary getSite() {
+    return site;
+  }
 }

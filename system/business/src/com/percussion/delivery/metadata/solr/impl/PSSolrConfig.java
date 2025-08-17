@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,22 @@
 package com.percussion.delivery.metadata.solr.impl;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "SolrConfig")
-public class PSSolrConfig
-{
-   @XmlElement(name = "SolrServer")
-   private List<SolrServer> solrServer;
+public class PSSolrConfig {
+    @XmlElement(name = "SolrServer")
+    private List<SolrServer> solrServer;
 
-   public List<SolrServer> getSolrServer()
-   {
-      return solrServer;
-   }
+    public List<SolrServer> getSolrServer() {
+        return solrServer;
+    }
 
-   public void setSolrServer(List<SolrServer> solrServer)
-   {
-      this.solrServer = solrServer;
-   }
-   
+    public void setSolrServer(List<SolrServer> solrServer) {
+        this.solrServer = solrServer;
+    }
 }

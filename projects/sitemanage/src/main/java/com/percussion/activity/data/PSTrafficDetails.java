@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,60 +18,54 @@
 
 package com.percussion.activity.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSItemProperties;
+import java.util.Optional;
 
-
-
-/**
- * This object holds traffic details of the items under named site by date.
- */
+/** Holds traffic details for items under a named site by date. */
 @JsonRootName(value = "TrafficDetails")
-public class PSTrafficDetails extends PSItemProperties
-{
-	public PSTrafficDetails()
-	{
-		
-	}
-	
-	/**
-	 * Total number of visits for this page.
-	 * @return visits
-	 */
-    public int getVisits()
-    {
-        return visits;
-    }
+public class PSTrafficDetails extends PSItemProperties {
 
-    /**
-     * Delta of visits for this item.
-     * @return visitsDelta
-     */
-    public int getVisitsDelta()
-    {
-        return visitsDelta;
-    }
+  private int visits;
+  private int visitsDelta;
 
-    /**
-     * Sets Delta of visits for this item.
-     * @param visitsDelta
-     */
-    public void setVisitsDelta(int visitsDelta)
-    {
-        this.visitsDelta = visitsDelta;
-    }
-    
-    /**
-     * Sets total number of visits for this page.
-     * @param visits
-     */
-    public void setVisits(int visits)
-    {
-        this.visits = visits;
-    }	
-	
-	private int visits;
-	private int visitsDelta;
+  public PSTrafficDetails() {
+    // Default constructor
+  }
+
+  /**
+   * Gets the total number of visits for this page.
+   *
+   * @return Optional containing visits count, or empty if not set.
+   */
+  public Optional<Integer> getVisits() {
+    return Optional.of(visits);
+  }
+
+  /**
+   * Gets the delta of visits for this item.
+   *
+   * @return Optional containing visits delta, or empty if not set.
+   */
+  public Optional<Integer> getVisitsDelta() {
+    return Optional.of(visitsDelta);
+  }
+
+  /**
+   * Sets the delta of visits for this item.
+   *
+   * @param visitsDelta the delta of visits
+   */
+  public void setVisitsDelta(int visitsDelta) {
+    this.visitsDelta = visitsDelta;
+  }
+
+  /**
+   * Sets the total number of visits for this page.
+   *
+   * @param visits the total visits
+   */
+  public void setVisits(int visits) {
+    this.visits = visits;
+  }
 }

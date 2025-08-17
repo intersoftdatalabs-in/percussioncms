@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,65 +14,141 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * TODO
+ * Servlet that handles Active Assembly (AA) client requests by delegating to
+ * appropriate widget handlers based on the 'widget' parameter.
+ *
+ * This servlet acts as a dispatcher, routing requests to specific widget handlers
+ * that implement the {@link IPSWidgetHandler} interface.
+ *
+ * @author Percussion Software
  */
-public class PSAaClientServlet extends HttpServlet
-{
-   @Override
-   public void service(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
-   {
-      /* Discard if the connection has closed */
-      if (response.isCommitted())
-         return;
-      String widget = request.getParameter("widget");
+public class PSAaClientServlet extends HttpServlet {
 
-      if (!StringUtils.isEmpty(widget))
-      {
-         try
-         {
-            PSWidgetHandlerFactory.getHandler(widget).handleRequest(request,
-               response);
-         }
-         catch (Exception e)
-         {
-            String resp = e.getLocalizedMessage();
-            pushResponse(response, resp, "text/plain", 500);
-         }
-         return;
-      }
-      // Cannot handle the request
-      String resp = "Servlet is not meant to handle the request";
-      pushResponse(response, resp, "text/plain", 404);
-   }
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LogManager.getLogger(PSAaClientServlet.class);
 
-   public static void pushResponse(HttpServletResponse httpResponse,
-      String resp, String ctype, int respCode) throws IOException
-   {
-      /* Discard if the connection has closed */
-      if (httpResponse.isCommitted()) {
-         return;
-      }
+    private static final String WIDGET_PARAM = "widget";
+    private static final String CONTENT_TYPE_PLAIN = "text/plain";
+    private static final String ERROR_NO_HANDLER = "Servlet is not meant to handle the request";
 
-      httpResponse.setContentType(ctype);
-      byte[] respBytes = resp.getBytes(StandardCharsets.UTF_8);
-      httpResponse.setContentLength(respBytes.length);
-      httpResponse.setStatus(respCode);
-      OutputStream os = httpResponse.getOutputStream();
-      os.write(respBytes);
-      os.flush();
-   }
+    /**
+     * Processes HTTP requests by delegating to appropriate widget handlers.
+     *
+     * @param request the HTTP servlet request, must not be null
+     * @param response the HTTP servlet response, must not be null
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    public void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Objects.requireNonNull(request, "Request cannot be null");
+        Objects.requireNonNull(response, "Response cannot be null");
+
+        // Early return if connection is already closed
+        if (response.isCommitted()) {
+            log.debug("Response already committed, skipping processing");
+            return;
+        }
+
+        var widgetParam = Optional.ofNullable(request.getParameter(WIDGET_PARAM))
+            .filter(StringUtils::isNotEmpty);
+
+        if (widgetParam.isPresent()) {
+            handleWidgetRequest(widgetParam.get(), request, response);
+        } else {
+            handleInvalidRequest(response);
+        }
+    }
+
+    /**
+     * Handles a valid widget request by delegating to the appropriate handler.
+     *
+     * @param widgetName the name of the widget to handle
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
+     * @throws IOException if an I/O error occurs
+     */
+    private void handleWidgetRequest(String widgetName, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        try {
+            log.debug("Processing widget request: {}", widgetName);
+            PSWidgetHandlerFactory.getHandler(widgetName).handleRequest(request, response);
+        } catch (Exception e) {
+            log.error("Error processing widget request for '{}': {}", widgetName, e.getMessage(), e);
+            var errorMessage = Optional.ofNullable(e.getLocalizedMessage())
+                .filter(StringUtils::isNotEmpty)
+                .orElse("An error occurred processing the widget request");
+            pushResponse(response, errorMessage, CONTENT_TYPE_PLAIN, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Handles invalid requests that don't specify a valid widget parameter.
+     *
+     * @param response the HTTP servlet response
+     * @throws IOException if an I/O error occurs
+     */
+    private void handleInvalidRequest(HttpServletResponse response) throws IOException {
+        log.debug("Invalid request - no widget parameter specified");
+        pushResponse(response, ERROR_NO_HANDLER, CONTENT_TYPE_PLAIN, HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    /**
+     * Sends a response to the client with the specified content and status code.
+     * This method is thread-safe and handles UTF-8 encoding properly.
+     *
+     * @param httpResponse the HTTP response object, must not be null
+     * @param responseContent the content to send, must not be null
+     * @param contentType the MIME type of the content, must not be null
+     * @param statusCode the HTTP status code to return
+     * @throws IOException if an I/O error occurs during response writing
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public static void pushResponse(HttpServletResponse httpResponse, String responseContent,
+            String contentType, int statusCode) throws IOException {
+        Objects.requireNonNull(httpResponse, "HTTP response cannot be null");
+        Objects.requireNonNull(responseContent, "Response content cannot be null");
+        Objects.requireNonNull(contentType, "Content type cannot be null");
+
+        // Early return if connection is already closed
+        if (httpResponse.isCommitted()) {
+            log.debug("Response already committed, cannot send response");
+            return;
+        }
+
+        try {
+            httpResponse.setContentType(contentType + "; charset=UTF-8");
+            var responseBytes = responseContent.getBytes(StandardCharsets.UTF_8);
+            httpResponse.setContentLength(responseBytes.length);
+            httpResponse.setStatus(statusCode);
+
+            try (var outputStream = httpResponse.getOutputStream()) {
+                outputStream.write(responseBytes);
+                outputStream.flush();
+            }
+
+            log.debug("Response sent successfully with status code: {}", statusCode);
+        } catch (IOException e) {
+            log.error("Failed to send response: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
 }

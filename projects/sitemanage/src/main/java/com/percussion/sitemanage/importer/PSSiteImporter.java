@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +17,9 @@
  */
 package com.percussion.sitemanage.importer;
 
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.Validate.notNull;
+
 import com.percussion.server.IPSHttpErrors;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.IPSSystemProperties;
@@ -25,13 +29,21 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.dao.IPSImportLogDao;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
+import java.io.IOException;
+import java.util.Date;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection;
-import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -40,401 +52,298 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.HostnameVerifier; // TODO: JAVAX-11
-import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
-import javax.net.ssl.SSLContext; // TODO: JAVAX-11
-import javax.net.ssl.SSLSession; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.TrustManager; // TODO: JAVAX-11
-import javax.net.ssl.X509TrustManager; // TODO: JAVAX-11
-import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.Validate.notNull;
-
-
 @Component("siteImporter")
 @Lazy
-public class PSSiteImporter
-{
-    public static final String REDIRECTED_FROM_URL = "Redirect the original URL from  '{originalUrl}' to '{newUrl}'";
+public class PSSiteImporter {
 
-    private static final Logger log = LogManager.getLogger(PSSiteImporter.class);
-    private static final String SITE_IMPORTER = "Site Importer";
-    private static final String HTML = "html";
-    private static final String HEAD = "head";
-    private static final String BODY = "body";
+  public static final String REDIRECTED_FROM_URL =
+      "Redirect the original URL from  '{originalUrl}' to '{newUrl}'";
 
-    private static IPSSystemProperties systemProperties = null;
+  private static final Logger log = LogManager.getLogger(PSSiteImporter.class);
+  private static final String SITE_IMPORTER = "Site Importer";
+  private static final String HTML = "html";
+  private static final String HEAD = "head";
+  private static final String BODY = "body";
 
-    /**
-     * Gets the page in the given URL, and parses its content into a
-     * PSPageContent object.
-     * 
-     * @param siteImportCtx must not be <code>null</code> and the site url must
-     *            not be <code>null</code> either.
-     * @return PSPageContent object with all fields filled in from the page
-     *         found in the provided URL.
-     */
-    public static PSPageContent getPageContentFromSite(PSSiteImportCtx siteImportCtx) throws IOException
-    {
-        notNull(siteImportCtx);
-        notNull(siteImportCtx.getSiteUrl());
-        notNull(siteImportCtx.getUserAgent());
+  private static IPSSystemProperties systemProperties = null;
 
-        URLConnectionProperties properties = null;
-        
-        try {
-            properties = overrideConnectionProperties();
-            
-            Connection con = buildJsoupConnection(siteImportCtx.getSiteUrl(), true, true, siteImportCtx.getUserAgent());
-            Document doc = con.get();
-            
-            PSPageContent pageContent = createPageContent(doc, siteImportCtx.getLogger());
-            pageContent.setPath(siteImportCtx.getSiteUrl());
-            return pageContent;
-        }
-        catch (IOException e) {
-            throw e;
-        }
-        finally {
-            restoreConnectionProperties(properties);
-        }
+  /**
+   * Gets the page in the given URL, and parses its content into a PSPageContent object.
+   *
+   * @param siteImportCtx must not be <code>null</code> and the site url must not be <code>null
+   *     </code> either.
+   * @return PSPageContent object with all fields filled in from the page found in the provided URL.
+   */
+  public static PSPageContent getPageContentFromSite(PSSiteImportCtx siteImportCtx)
+      throws IOException {
+    notNull(siteImportCtx);
+    notNull(siteImportCtx.getSiteUrl());
+    notNull(siteImportCtx.getUserAgent());
+
+    URLConnectionProperties properties = null;
+
+    try {
+      properties = overrideConnectionProperties();
+
+      var con =
+          buildJsoupConnection(
+              siteImportCtx.getSiteUrl(), true, true, siteImportCtx.getUserAgent());
+      var doc = con.get();
+
+      var pageContent = createPageContent(doc, siteImportCtx.getLogger());
+      pageContent.setPath(siteImportCtx.getSiteUrl());
+      return pageContent;
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      restoreConnectionProperties(properties);
+    }
+  }
+
+  /** Given a JSoup document, extracts the content and creates a PSPageContent object. */
+  public static PSPageContent createPageContent(Document doc, IPSSiteImportLogger logger) {
+    var pageContent = new PSPageContent();
+    var docHead = doc.head();
+    var titleElems = docHead.select("title");
+    var title = "";
+    if (!titleElems.isEmpty()) {
+      title = titleElems.get(0).text();
     }
 
-    /**
-     * Given a JSoup document creates extracts the content appropriately and
-     * creates PSPageContent object and returns it.
-     * 
-     * @param doc assumed not <code>null</code>
-     * @param logger {@link IPSSiteImportLogger} to use, assumed
-     *            not <code>null</code>.
-     * @return PSPageContent object with all fields filled in from the supplied
-     *         document.
-     */
-    public static PSPageContent createPageContent(Document doc, IPSSiteImportLogger logger)
-    {
-        PSPageContent pageContent = new PSPageContent();
-        Element docHead = doc.head();
-        Elements titleElems = docHead.select("title");
-        String title = "";
-        if (!titleElems.isEmpty())
-        {
-            title = titleElems.get(0).text();
-        }
+    // Extract all style, script, and link elements
+    var addHeadElems = new Elements();
+    addHeadElems.addAll(docHead.select("style"));
+    addHeadElems.addAll(docHead.select("link"));
+    addHeadElems.addAll(docHead.select("script"));
 
-        // Extracts all the style script and link elements to
-        Elements addHeadElems = new Elements();
-        addHeadElems.addAll(docHead.select("style"));
-        addHeadElems.addAll(docHead.select("link"));
-        addHeadElems.addAll(docHead.select("script"));
-
-        StringBuilder additionalHeadContent = new StringBuilder();
-        for (Element element : addHeadElems)
-        {
-            additionalHeadContent.append(element.outerHtml());
-        }
-        
-        String bodyContent = getBodyContent(doc, logger);
-        
-        pageContent.setTitle(title);
-        pageContent.setHeadContent(additionalHeadContent.toString());
-        pageContent.setBodyContent(bodyContent);
-        pageContent.setSourceDocument(doc);
-        return pageContent;
+    var additionalHeadContent = new StringBuilder();
+    for (var element : addHeadElems) {
+      additionalHeadContent.append(element.outerHtml());
     }
 
-    /**
-     * Retrieves the body content of the document. If the document has no body
-     * content, it tryies to build one using content that is outside header
-     * element, but inside html element.
-     * 
-     * @param doc {@link Document} to get the body from, assumed not
-     *            <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to use, assumed
-     *            not <code>null</code>.
-     * @return {@link String}, never <code>null</code> but may be empty.
-     */
-    private static String getBodyContent(Document doc, IPSSiteImportLogger logger)
-    {
-        Element body = doc.body();
+    var bodyContent = getBodyContent(doc, logger);
 
-        if (body != null)
-        {
-            return body.html();
-        }
+    pageContent.setTitle(title);
+    pageContent.setHeadContent(additionalHeadContent.toString());
+    pageContent.setBodyContent(bodyContent);
+    pageContent.setSourceDocument(doc);
+    return pageContent;
+  }
 
-        logger.appendLogMessage(PSLogEntryType.ERROR, SITE_IMPORTER,
-                "Cannot find <body> element, the imported template and page will not look the same as the original page.");
+  /**
+   * Retrieves the body content of the document. If the document has no body, tries to build one
+   * using content outside header but inside html element.
+   */
+  private static String getBodyContent(Document doc, IPSSiteImportLogger logger) {
+    var body = doc.body();
 
-        return buildBodyFromDocument(doc).html();
+    if (body != null) {
+      return body.html();
     }
 
-    /**
-     * Builds the body element and puts inside it the tags that are inside the
-     * html element, and outside the header.
-     * 
-     * @param doc {@link Document} to get the body from, assumed not
-     *            <code>null</code>.
-     * @return {@link Element}, never <code>null</code>.
-     */
-    private static Element buildBodyFromDocument(Document doc)
-    {
-        addBodyToDocument(doc);
+    logger.appendLogMessage(
+        PSLogEntryType.ERROR,
+        SITE_IMPORTER,
+        "Cannot find <body> element, the imported template and page will not look the same as the"
+            + " original page.");
 
-        Element body = doc.body();
-        Element html = doc.getElementsByTag(HTML).get(0);
+    return buildBodyFromDocument(doc).html();
+  }
 
-        Elements htmlChildren = html.children();
-        for (Element element : htmlChildren)
-        {
-            if (equalsIgnoreCase(element.nodeName(), HEAD) || equalsIgnoreCase(element.nodeName(), BODY))
-            {
-                continue;
+  /**
+   * Builds the body element and puts inside it the tags that are inside the html element, and
+   * outside the header.
+   */
+  private static Element buildBodyFromDocument(Document doc) {
+    addBodyToDocument(doc);
+
+    var body = doc.body();
+    var html = doc.getElementsByTag(HTML).get(0);
+
+    var htmlChildren = html.children();
+    for (var element : htmlChildren) {
+      if (equalsIgnoreCase(element.nodeName(), HEAD)
+          || equalsIgnoreCase(element.nodeName(), BODY)) {
+        continue;
+      }
+      body.appendChild(element);
+    }
+    return body;
+  }
+
+  /** Adds the body element to the document, as a child of the html element. */
+  private static void addBodyToDocument(Document doc) {
+    // this should add the body if it does not exist
+    doc.normalise();
+
+    // check just in case the document could not be normalised
+    if (doc.body() == null) {
+      var html = doc.getElementsByTag(HTML).get(0);
+      html.appendElement("body");
+    }
+  }
+
+  /**
+   * Gets the redirected url for the given site url. Follows redirections and returns the final url.
+   */
+  public static String getRedirectedUrl(
+      String siteUrl, IPSSiteImportLogger logger, String userAgent) throws IOException {
+    notNull(siteUrl);
+    notNull(logger);
+    notNull(userAgent);
+
+    URLConnectionProperties properties = null;
+
+    try {
+      properties = overrideConnectionProperties();
+
+      var conn = buildJsoupConnection(siteUrl, true, false, userAgent);
+      conn.get();
+      var response = conn.response();
+
+      if (response.statusCode() != IPSHttpErrors.HTTP_MOVED_TEMPORARILY
+          && response.statusCode() != IPSHttpErrors.HTTP_MOVED_PERMANENTLY) {
+        return siteUrl;
+      }
+
+      var redirectedConn = buildJsoupConnection(siteUrl, true, true, userAgent);
+      redirectedConn.get();
+      var newUrl = redirectedConn.response().url();
+
+      logger.appendLogMessage(
+          PSLogEntryType.STATUS,
+          SITE_IMPORTER,
+          REDIRECTED_FROM_URL
+              .replace("{originalUrl}", siteUrl)
+              .replace("{newUrl}", newUrl.toString()));
+
+      return newUrl.toString();
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      restoreConnectionProperties(properties);
+    }
+  }
+
+  /** Generates a JSoup Connection using the given parameters. */
+  public static Connection buildJsoupConnection(
+      String url, boolean ignoreContentType, boolean followRedirects, String userAgent) {
+    var conn = Jsoup.connect(url);
+    conn.ignoreContentType(ignoreContentType);
+    conn.followRedirects(followRedirects);
+    conn.userAgent(userAgent);
+    int timeOut = getImportTimeout();
+    if (timeOut > 0) conn.timeout(timeOut);
+
+    return conn;
+  }
+
+  /** Get the timeout to use for importing pages, files, and assets. */
+  public static int getImportTimeout() {
+    int timeOut = 30;
+    if (systemProperties != null) {
+      timeOut =
+          NumberUtils.toInt(
+              systemProperties.getProperty(IPSSystemProperties.IMPORT_TIME_OUT), timeOut);
+    }
+    return (timeOut * 1000);
+  }
+
+  @Autowired
+  public synchronized void setSystemProperties(IPSSystemProperties systemProps) {
+    systemProperties = systemProps;
+  }
+
+  /** Saves the log and any error log entries. */
+  public static void saveImportLog(
+      String objectId,
+      IPSSiteImportLogger logger,
+      IPSImportLogDao logDao,
+      String siteId,
+      String desc)
+      throws IPSGenericDao.SaveException {
+    Validate.notEmpty(objectId);
+    Validate.notNull(logger);
+    Validate.notNull(logDao);
+    Validate.notNull(desc);
+
+    var entry =
+        new PSImportLogEntry(objectId, logger.getType().name(), new Date(), logger.getLog());
+    logDao.save(entry);
+
+    if (!StringUtils.isBlank(siteId)) {
+      var errors = logger.getErrors(PSLogObjectType.SITE_ERROR, siteId, desc);
+      if (errors != null) {
+        for (var errorLogEntry : errors) {
+          logDao.save(errorLogEntry);
+        }
+      }
+    }
+  }
+
+  /** Holds the current URL connection properties for restoration. */
+  public static class URLConnectionProperties {
+    private SSLSocketFactory defaultSSLSocketFactory = null;
+    private HostnameVerifier defaultHostnameVerifier = null;
+
+    public SSLSocketFactory getDefaultSSLSocketFactory() {
+      return defaultSSLSocketFactory;
+    }
+
+    public void setDefaultSSLSocketFactory(SSLSocketFactory defaultSSLSocketFactory) {
+      this.defaultSSLSocketFactory = defaultSSLSocketFactory;
+    }
+
+    public HostnameVerifier getDefaultHostnameVerifier() {
+      return defaultHostnameVerifier;
+    }
+
+    public void setDefaultHostnameVerifier(HostnameVerifier defaultHostnameVerifier) {
+      this.defaultHostnameVerifier = defaultHostnameVerifier;
+    }
+  }
+
+  /** Override connection properties and install an all-trusting certificate manager. */
+  public static URLConnectionProperties overrideConnectionProperties() {
+    TrustManager[] trustAllCerts =
+        new TrustManager[] {
+          new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+              return null;
             }
-            body.appendChild(element);
-        }
-        return body;
-    }
 
-    /**
-     * Adds the body element to the document, as a child of the html element.
-     * 
-     * @param doc {@link Document} to add the element to, assumed not
-     *            <code>null</code>.
-     */
-    private static void addBodyToDocument(Document doc)
-    {
-        // this should add the body if it does not exist
-        doc.normalise();
+            public void checkClientTrusted(
+                java.security.cert.X509Certificate[] certs, String authType) {}
 
-        // check just in case the document could not be normalised
-        if (doc.body() == null)
-        {
-            Element html = doc.getElementsByTag(HTML).get(0);
-            html.appendElement("body");
-        }
-    }
-
-    /**
-     * Gets the redirected url for the given site url. It finds out if the given
-     * site url gets redirected, in which case it will follow those redirections
-     * and return the correct url (the final one). If the url is not redirected,
-     * the same site url is returned.
-     * 
-     * @param siteUrl {@link String} with the site url, must not be
-     *            <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} with the logger to use. Must
-     *            not be <code>null</code>.
-     * * @param userAgent {@link String} with the user agent to set. Must
-     *            not be <code>null</code>.
-     * @return {@link String} with the final url, never <code>null</code> nor
-     *         empty.
-     * @throws IOException if an error occurs when trying to reach the url for
-     *             the site.
-     */
-    public static String getRedirectedUrl(String siteUrl, IPSSiteImportLogger logger, String userAgent) throws IOException
-    {
-        notNull(siteUrl);
-        notNull(logger);
-        notNull(userAgent);
-        
-        URLConnectionProperties properties = null;
-        
-        try {
-            properties = overrideConnectionProperties();
-            
-            // make the first request but don't follow redirects
-            Connection conn = buildJsoupConnection(siteUrl, true, false, userAgent);
-            conn.get();
-            Response response = conn.response();
-            
-            if (response.statusCode() != IPSHttpErrors.HTTP_MOVED_TEMPORARILY
-                    && response.statusCode() != IPSHttpErrors.HTTP_MOVED_PERMANENTLY)
-            {
-                return siteUrl;
-            }
-    
-            // we need to find the final url and replace the old one
-            Connection redirectedConn = buildJsoupConnection(siteUrl, true, true, userAgent);
-            redirectedConn.get();
-            URL newUrl = redirectedConn.response().url();
-            
-            // log the redirection
-            logger.appendLogMessage(PSLogEntryType.STATUS, SITE_IMPORTER,
-                    REDIRECTED_FROM_URL.replace("{originalUrl}", siteUrl).replace("{newUrl}", newUrl.toString()));
-            
-            return newUrl.toString();
-        }
-        catch (IOException e) {
-            throw e;
-        }
-        finally {
-            restoreConnectionProperties(properties);
-        }
-    }
-
-    /**
-     * Generates a {@link Connection} using the given parameters.
-     * 
-     * @param url {@link String} with the url to use in the connection.
-     * @param ignoreContentType if <code>true</code>, the connection will ignore
-     *            content types.
-     * @param followRedirects if <code>true</code>, the connection will follow
-     *            all redirections.
-     * @param userAgent {@link String} the user agent to set in the request,
-     *            never<code>null</code> or empty.
-     * @return a {@link Connection} object, never <code>null</code>.
-     */
-    public static Connection buildJsoupConnection(String url, boolean ignoreContentType, boolean followRedirects,
-            String userAgent)
-    {
-        Connection conn = Jsoup.connect(url);
-        conn.ignoreContentType(ignoreContentType);
-        conn.followRedirects(followRedirects);
-        conn.userAgent(userAgent);
-        int timeOut = getImportTimeout();
-        if (timeOut > 0)
-            conn.timeout(timeOut);
-        
-        return conn;
-    }
-    
-    /**
-     * Get the timeout to use for importing pages, files, and assets.
-     * 
-     * @return The timeout in milliseconds, or -1 if no timeout is set.
-     */
-    public static int getImportTimeout()
-    {
-        int timeOut = 30;
-        if (systemProperties != null)
-        {
-            timeOut = NumberUtils.toInt(systemProperties.getProperty(IPSSystemProperties.IMPORT_TIME_OUT), timeOut);
-        }
-        return (timeOut * 1000);
-    }
-    
-    @Autowired
-    public synchronized void setSystemProperties(IPSSystemProperties systemProps)
-    {
-        systemProperties = systemProps;
-    }
-
-    /**
-     * Saves the log and any error log entries
-     * 
-     * @param objectId The object id to use, not empty
-     * @param logger the logger to use, not <code>null</code>.
-     * @param logDao log dao, not <code>null</code>.
-     * @param siteId The id of the site being imported into, if <code>null</code> empty, no additional error logging
-     * is performed.
-     * @param desc The description of the object being imported, not <code>null<code/> or empty.
-     */
-    public static void saveImportLog(String objectId, IPSSiteImportLogger logger, IPSImportLogDao logDao, String siteId, String desc) throws IPSGenericDao.SaveException {
-        Validate.notEmpty(objectId);
-        Validate.notNull(logger);
-        Validate.notNull(logDao);
-        Validate.notNull(desc);
-        
-        PSImportLogEntry entry = new PSImportLogEntry(objectId, logger.getType().name(), new Date(), logger.getLog());
-        logDao.save(entry);
-        
-        if (!StringUtils.isBlank(siteId))
-        {
-            List<PSImportLogEntry> errors = logger.getErrors(PSLogObjectType.SITE_ERROR, siteId, desc);
-            if (errors != null)
-            {
-                for (PSImportLogEntry errorLogEntry : errors)
-                {
-                    logDao.save(errorLogEntry);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Hold the current URL connection properties.
-     * This is used to restore values after they have been overridden.
-     *
-     */
-    public static class URLConnectionProperties
-    {
-        private SSLSocketFactory defaultSSLSocketFactory = null;
-        private HostnameVerifier defaultHostnameVerifier = null;
-        
-        public SSLSocketFactory getDefaultSSLSocketFactory()
-        {
-            return defaultSSLSocketFactory;
-        }
-        public void setDefaultSSLSocketFactory(SSLSocketFactory defaultSSLSocketFactory)
-        {
-            this.defaultSSLSocketFactory = defaultSSLSocketFactory;
-        }
-        public HostnameVerifier getDefaultHostnameVerifier()
-        {
-            return defaultHostnameVerifier;
-        }
-        public void setDefaultHostnameVerifier(HostnameVerifier defaultHostnameVerifier)
-        {
-            this.defaultHostnameVerifier = defaultHostnameVerifier;
-        }
-    }
-    
-    /**
-     * Override connection properties and install an all-trusting certificate manager.
-     * @return The URL connection properties from before, to be used in restoration.
-     */
-    public static URLConnectionProperties overrideConnectionProperties()
-    {
-        TrustManager[] trustAllCerts = new TrustManager[] {
-            new X509TrustManager() {
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
-            }
+            public void checkServerTrusted(
+                java.security.cert.X509Certificate[] certs, String authType) {}
+          }
         };
 
-        // Install the all-trusting trust manager
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            
-            URLConnectionProperties connectionData = new URLConnectionProperties();
-            connectionData.setDefaultSSLSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory());
-            connectionData.setDefaultHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
-            
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier( 
-                new HostnameVerifier() {
-                    public boolean verify(String urlHostName, SSLSession session) {
-                        return true;
-                    }
-                });
-            
-            return connectionData;
-        }
-        catch (Exception e) {
-            // We can not recover from this exception
-            log.error("Error setting override certificates", e);
-            return null;
-        }
+    try {
+      var sc = SSLContext.getInstance("TLS");
+      sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+      var connectionData = new URLConnectionProperties();
+      connectionData.setDefaultSSLSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory());
+      connectionData.setDefaultHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+
+      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+      HttpsURLConnection.setDefaultHostnameVerifier(
+          (String urlHostName, SSLSession session) -> true);
+
+      return connectionData;
+    } catch (Exception e) {
+      log.error("Error setting override certificates", e);
+      return null;
     }
-    
-    /**
-     * Restore connection properties to their values from before the override.
-     * @param properties Properties to restore.
-     */
-    public static void restoreConnectionProperties(URLConnectionProperties properties)
-    {
-        if (properties != null) {
-            HttpsURLConnection.setDefaultSSLSocketFactory(properties.getDefaultSSLSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier(properties.getDefaultHostnameVerifier());
-        }
+  }
+
+  /** Restore connection properties to their values from before the override. */
+  public static void restoreConnectionProperties(URLConnectionProperties properties) {
+    if (properties != null) {
+      HttpsURLConnection.setDefaultSSLSocketFactory(properties.getDefaultSSLSocketFactory());
+      HttpsURLConnection.setDefaultHostnameVerifier(properties.getDefaultHostnameVerifier());
     }
+  }
 }

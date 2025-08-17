@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,22 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.List;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "DashboardConfig")
-@XmlType(name = "", propOrder = {
-    "gadgets"
-})
-public class PSDashboardConfiguration extends PSAbstractDataObject
-{
-    private List<PSGadget> gadgets;
+@XmlType(
+    name = "",
+    propOrder = {"gadgets"})
+public class PSDashboardConfiguration extends PSAbstractDataObject {
+  private List<PSGadget> gadgets;
 
-    public List<PSGadget> getGadgets()
-    {
-        return gadgets;
-    }
+  public List<PSGadget> getGadgets() {
+    return gadgets;
+  }
 
-    public void setGadgets(List<PSGadget> gadgets)
-    {
-        this.gadgets = gadgets;
-    }
+  public void setGadgets(List<PSGadget> gadgets) {
+    this.gadgets = gadgets;
+  }
 }

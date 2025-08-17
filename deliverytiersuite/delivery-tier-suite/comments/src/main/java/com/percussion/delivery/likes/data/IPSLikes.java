@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,40 +18,86 @@
 package com.percussion.delivery.likes.data;
 
 /**
+ * Represents a like entity in the system. Provides accessors and mutators for like properties.
+ *
  * @author Administrator
- * 
  */
-public interface IPSLikes
-{
+public interface IPSLikes {
 
-    /**
-     * @return the page path, the relative path to the page that this likes is
-     *         on, not including the site. Never <code>null</code> or empty.
-     */
-    public String getSite();
+  /**
+   * Gets the site associated with this like.
+   *
+   * @return the site name, never null or empty.
+   */
+  String getSite();
 
-    public String getType();
+  /**
+   * Gets the type of like (e.g., page, comment, image).
+   *
+   * @return the type as a string.
+   */
+  String getType();
 
-    public String getLikeId();
-    
-    public int getTotal();
-    
-    public String getId();
-    
-    public void setId(String id);
-    
-    public void setSite(String site);
+  /**
+   * Gets the like identifier.
+   *
+   * @return the like ID.
+   */
+  String getLikeId();
 
-    public void setType(String type);
+  /**
+   * Gets the total number of likes.
+   *
+   * @return the total count.
+   */
+  int getTotal();
 
-    public void setLikeId(String id);
-    
-    public void setTotal(int total);
+  /**
+   * Gets the unique identifier for this like.
+   *
+   * @return the ID.
+   */
+  String getId();
 
-    /**
-     * Comment approval states.
-     */
-    public enum TYPE {
-        PAGE, COMMENT, IMAGE
-    }
+  /**
+   * Sets the unique identifier for this like.
+   *
+   * @param id the ID to set.
+   */
+  void setId(String id);
+
+  /**
+   * Sets the site for this like.
+   *
+   * @param site the site name.
+   */
+  void setSite(String site);
+
+  /**
+   * Sets the type of like.
+   *
+   * @param type the type to set.
+   */
+  void setType(String type);
+
+  /**
+   * Sets the like identifier.
+   *
+   * @param id the like ID.
+   */
+  void setLikeId(String id);
+
+  /**
+   * Sets the total number of likes.
+   *
+   * @param total the total count.
+   */
+  void setTotal(int total);
+
+  /** Like types. */
+  enum Type {
+    page,
+    comment,
+    image
+  }
 }

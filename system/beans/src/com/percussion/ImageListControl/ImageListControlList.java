@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +23,23 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 
-import javax.swing.JList; // TODO: JAVAX-11
+import javax.swing.JList;
 
 /** A List that has a different Scrollable interface implementation for
   * horizontal display.
 */
 
-public class ImageListControlList extends JList
+public class ImageListControlList extends JList<ImageListItem>
 {
 //
 // CONSTRUCTORS
 //
   
-  public ImageListControlList()
-  {
+  public ImageListControlList() {
     super();
   }
 
-  public ImageListControlList(Object[] array)
-  {
+  public ImageListControlList(ImageListItem[] array) {
     super(array);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,79 +20,73 @@ import static java.util.Arrays.asList;
 
 import com.percussion.pagemanagement.data.IPSHtmlMetadata;
 import com.percussion.pagemanagement.data.PSTemplate;
-import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pagemanagement.service.impl.PSPageManagementUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * @author LucasPiccoli
- * 
+ * Helper used to extract and update template metadata. Sunny Sal says: "Templates need love
+ * too—keep them fresh!"
  */
 @Component("templateExtractorHelper")
 @Lazy
-public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper
-{
+public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper {
 
-    private final String STATUS_MESSAGE = "changing template information";
+  private static final String STATUS_MESSAGE = "changing template information";
 
-    @Autowired
-    public PSTemplateExtractorHelper(IPSTemplateService templateService)
-    {
-        super(templateService);
-    }
+  @Autowired
+  public PSTemplateExtractorHelper(IPSTemplateService templateService) {
+    super(templateService);
+  }
 
-    @Override
-    public String getHelperMessage()
-    {
-        return STATUS_MESSAGE;
-    }
+  @Override
+  public String getHelperMessage() {
+    return STATUS_MESSAGE;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#getTargetItem(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
-    @Override
-    protected IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws PSDataServiceException {
-        // Load site's home page template
-        return templateService.load(context.getTemplateId());
-    }
+  @Override
+  protected IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws PSDataServiceException {
+    // Load site's home page template
+    return templateService.load(context.getTemplateId());
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#addHtmlWidgetToTemplate(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
-    @Override
-    protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException {
-        // Load site's home page template
-        PSTemplate template = templateService.load(context.getTemplateId());
-        
-        // Set Theme
-        template.setTheme(context.getThemeSummary().getName());
-        
-        // Create Raw HTML widget and add the widget to the template
-        PSWidgetItem rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
-        template.getRegionTree().setRegionWidgets(REGION_CONTENT, asList(rawHtmlWidget));
+  @Override
+  protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException {
+    // Load site's home page template
+    var template = templateService.load(context.getTemplateId());
 
-        context.getLogger().appendLogMessage(PSLogEntryType.STATUS, ADD_HTML_WIDGET,
-                "The HTML widget was successfully added to the template.");
+    // Set Theme
+    template.setTheme(context.getThemeSummary().getName());
 
-        // Save template and finish
-        templateService.save(template);
-        context.getLogger().appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
-                "Metadata was successfully saved to the template.");
-    }
+    // Create Raw HTML widget and add the widget to the template
+    var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
+    template.getRegionTree().setRegionWidgets(REGION_CONTENT, asList(rawHtmlWidget));
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#saveTargetItem(com.percussion.pagemanagement.data.IPSHtmlMetadata)
-     */
-    @Override
-    protected void saveTargetItem(IPSHtmlMetadata targetItem) throws PSDataServiceException {
-        // targetItem is a PSTemplate object here
-        templateService.save((PSTemplate) targetItem);       
-    }
+    context
+        .getLogger()
+        .appendLogMessage(
+            PSLogEntryType.STATUS,
+            ADD_HTML_WIDGET,
+            "The HTML widget was successfully added to the template.");
+
+    // Save template and finish
+    templateService.save(template);
+    context
+        .getLogger()
+        .appendLogMessage(
+            PSLogEntryType.STATUS,
+            EXTRACT_METADATA,
+            "Metadata was successfully saved to the template.");
+  }
+
+  @Override
+  protected void saveTargetItem(IPSHtmlMetadata targetItem) throws PSDataServiceException {
+    // targetItem is a PSTemplate object here
+    templateService.save((PSTemplate) targetItem);
+  }
 }

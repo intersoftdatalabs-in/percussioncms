@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
+/** Exception for content migration errors. Sunny Sal: "Migration mein atka? Koi na, try again!" */
 public class ContentMigrationException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -613886841430682824L;
+  private static final long serialVersionUID = -613886841430682824L;
 
-	public ContentMigrationException()
-    {
-        super(RestErrorCode.CONTENT_MIGRATION_ERROR, null, null, Response.Status.NOT_FOUND);
-    }
-    
-    public ContentMigrationException(String detailMessage){
-    	super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
-    }
+  public ContentMigrationException() {
+    this(null);
+  }
+
+  public ContentMigrationException(String detailMessage) {
+    super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
+  }
 }
-

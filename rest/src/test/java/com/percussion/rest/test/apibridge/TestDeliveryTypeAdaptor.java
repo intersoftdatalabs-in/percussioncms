@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,37 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.deliverytypes.DeliveryType;
 import com.percussion.rest.deliverytypes.IDeliveryTypeAdaptor;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+/** Test adaptor for DeliveryType API bridge. */
 @Component
-public class TestDeliveryTypeAdaptor implements IDeliveryTypeAdaptor  {
-    @Override
-    public DeliveryType getDeliveryTypeById(URI baseURI, String id) {
-        return null;
-    }
+public class TestDeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
-    @Override
-    public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) {
-        return null;
-    }
+  @Override
+  public DeliveryType getDeliveryTypeById(URI baseURI, String id) {
+    return null;
+  }
 
-    @Override
-    public void deleteDeliveryTypeById(URI baseURI, String id) {
+  @Override
+  public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) {
+    return null;
+  }
 
-    }
+  @Override
+  public void deleteDeliveryTypeById(URI baseURI, String id) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public List<DeliveryType> getDeliveryTypes(URI baseURI) {
-        return null;
-    }
+  @Override
+  public List<DeliveryType> getDeliveryTypes(URI baseURI) {
+    return null;
+  }
 }

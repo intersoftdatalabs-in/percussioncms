@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.widgets.image.services.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.services.ImageResizeManager;
 import org.apache.commons.lang.Validate;
@@ -26,22 +26,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
-import javax.imageio.IIOImage; // TODO: JAVAX-11
-import javax.imageio.ImageIO; // TODO: JAVAX-11
-import javax.imageio.ImageTypeSpecifier; // TODO: JAVAX-11
-import javax.imageio.ImageWriteParam; // TODO: JAVAX-11
-import javax.imageio.ImageWriter; // TODO: JAVAX-11
-import javax.imageio.metadata.IIOInvalidTreeException; // TODO: JAVAX-11
-import javax.imageio.metadata.IIOMetadata; // TODO: JAVAX-11
-import javax.imageio.metadata.IIOMetadataNode; // TODO: JAVAX-11
-import javax.imageio.stream.MemoryCacheImageOutputStream; // TODO: JAVAX-11
-import javax.xml.transform.OutputKeys; // TODO: JAVAX-11
-import javax.xml.transform.Source; // TODO: JAVAX-11
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;

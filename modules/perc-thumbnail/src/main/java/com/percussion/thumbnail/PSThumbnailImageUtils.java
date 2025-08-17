@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,64 +22,56 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
-import javax.imageio.IIOImage; // TODO: JAVAX-11
-import javax.imageio.ImageIO; // TODO: JAVAX-11
-import javax.imageio.ImageWriter; // TODO: JAVAX-11
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam; // TODO: JAVAX-11
-
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class PSThumbnailImageUtils {
-    private static final Logger log = LogManager.getLogger(PSThumbnailImageUtils.class);
+  private static final Logger log = LogManager.getLogger(PSThumbnailImageUtils.class);
 
-    public static void resizeThumbnail(String thumbnailFilePath) throws InterruptedException {
+  public static void resizeThumbnail(String thumbnailFilePath) throws InterruptedException {
 
-        File inImageFile = new File(thumbnailFilePath);
+    File inImageFile = new File(thumbnailFilePath);
 
-        int i = 0;
-        while ((!inImageFile.exists() || !inImageFile.canWrite()) && i < 120) {
-            Thread.sleep(500);
-            i++;
-        }
-
-        if (inImageFile.exists() && !inImageFile.canWrite()) {
-            File outImageFile = new File(thumbnailFilePath);
-
-            try (FileInputStream inputStream = new FileInputStream(inImageFile)) {
-                try (FileOutputStream output = new FileOutputStream(outImageFile)) {
-
-                    BufferedImage sourceImage = ImageIO.read(inputStream);
-                    Image thumbnail = sourceImage.getScaledInstance(290, 207, Image.SCALE_SMOOTH);
-                    BufferedImage bufferedThumbnail = new BufferedImage(thumbnail.getWidth(null),
-                            thumbnail.getHeight(null),
-                            BufferedImage.TYPE_INT_RGB);
-                    bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
-
-
-                    ImageWriter imageWriter = ImageIO.getImageWritersByFormatName("jpeg").next();
-
-                    float quality = 1.0f;
-                    JPEGImageWriteParam jpegParams = (JPEGImageWriteParam) imageWriter.getDefaultWriteParam();
-                    jpegParams.setCompressionMode(JPEGImageWriteParam.MODE_EXPLICIT);
-                    jpegParams.setCompressionQuality(quality);
-
-                    imageWriter.setOutput(output);
-
-                    IIOImage outimage = new IIOImage(bufferedThumbnail, null, null);
-                    imageWriter.write(null, outimage, jpegParams);
-                    imageWriter.dispose();
-                }
-            } catch (Exception e) {
-                //FB: DMI_INVOKING_TOSTRING_ON_ARRAY NC 1-16-16
-                log.debug("Failed to resize thumbnail at: " + thumbnailFilePath, e);
-            }
-        }
-
+    int i = 0;
+    while ((!inImageFile.exists() || !inImageFile.canWrite()) && i < 120) {
+      Thread.sleep(500);
+      i++;
     }
+
+    if (inImageFile.exists() && !inImageFile.canWrite()) {
+      File outImageFile = new File(thumbnailFilePath);
+
+      try (FileInputStream inputStream = new FileInputStream(inImageFile)) {
+        try (FileOutputStream output = new FileOutputStream(outImageFile)) {
+
+          BufferedImage sourceImage = ImageIO.read(inputStream);
+          Image thumbnail = sourceImage.getScaledInstance(290, 207, Image.SCALE_SMOOTH);
+          BufferedImage bufferedThumbnail =
+              new BufferedImage(
+                  thumbnail.getWidth(null), thumbnail.getHeight(null), BufferedImage.TYPE_INT_RGB);
+          bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
+
+          ImageWriter imageWriter = ImageIO.getImageWritersByFormatName("jpeg").next();
+
+          float quality = 1.0f;
+          JPEGImageWriteParam jpegParams = (JPEGImageWriteParam) imageWriter.getDefaultWriteParam();
+          jpegParams.setCompressionMode(JPEGImageWriteParam.MODE_EXPLICIT);
+          jpegParams.setCompressionQuality(quality);
+
+          imageWriter.setOutput(output);
+
+          IIOImage outimage = new IIOImage(bufferedThumbnail, null, null);
+          imageWriter.write(null, outimage, jpegParams);
+          imageWriter.dispose();
+        }
+      } catch (Exception e) {
+        // FB: DMI_INVOKING_TOSTRING_ON_ARRAY NC 1-16-16
+        log.debug("Failed to resize thumbnail at: " + thumbnailFilePath, e);
+      }
+    }
+  }
 }
-
-
-

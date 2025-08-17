@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSContentTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -56,10 +56,10 @@ import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSLockFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -70,15 +70,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for all content design web services.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ContentDesignTestCase extends PSContentTestBase
 {
-  @BeforeClass
+  @BeforeAll
    public static void setup() throws Exception
    {
       deleteTestKeywords();
@@ -93,7 +93,7 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
    }
 
-   @AfterClass
+   @AfterAll
    protected static void tearDown() throws Exception
    {
       deleteTestKeywords();

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,19 @@
 
 package com.percussion.auditlog.exception;
 
-public class AuditException extends Exception
-{
+public class AuditException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public AuditException(String message, Throwable e)
-    {
-        super(message, e);
-    }
+  public AuditException(String message, Throwable e) {
+    super(message, e);
+  }
 
-    public AuditException(String message)
-    {
-        super(message);
-    }
+  public AuditException(String message) {
+    super(message);
+  }
 
-    public AuditException(Throwable e)
-    {
-        super(e);
-    }
+  public AuditException(Throwable e) {
+    super(e);
+  }
 }

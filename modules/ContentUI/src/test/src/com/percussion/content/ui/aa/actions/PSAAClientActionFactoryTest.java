@@ -9,7 +9,7 @@
  *****************************************************************************/
 package com.percussion.content.ui.aa.actions;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit Test for the AA Client action factory.

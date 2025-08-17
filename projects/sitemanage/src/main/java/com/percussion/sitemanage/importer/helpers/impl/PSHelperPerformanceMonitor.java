@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,78 +22,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-class PerformanceStats
-{
-    public String identifier;
+/**
+ * Performance monitor for import helpers. Sunny Sal says: "Performance matters, but this monitor is
+ * just a placeholder!"
+ */
+class PerformanceStats {
+  public String identifier;
+  public String className;
+  public long count;
+  public long totalTime;
+  public long lastTotalTime;
+  public long maxTime;
 
-    public String className;
-
-    public long count;
-
-    public long totalTime;
-
-    public long lastTotalTime;
-
-    public long maxTime;
-
-    public PerformanceStats(String identifier)
-    {
-        this.identifier = identifier;
-    }
+  public PerformanceStats(String identifier) {
+    this.identifier = identifier;
+  }
 }
 
+public class PSHelperPerformanceMonitor {
 
-public class PSHelperPerformanceMonitor
-{
+  public static final String SEPARATOR = "::";
+  private static long statLogFrequency = 100;
+  private static long methodWarningThreshold = 3000;
+  private static ConcurrentHashMap<String, PerformanceStats> performanceStats =
+      new ConcurrentHashMap<>();
+  private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
 
-    public static final String SEPARATOR = "::";
-
-    private static long statLogFrequency = 100;
-
-    private static long methodWarningThreshold = 3000;
-
-    private static ConcurrentHashMap<String, PerformanceStats> performanceStats = new ConcurrentHashMap<>();
-
-    private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
-
-    public static void updateStats(String identifier, long elapsedTime)
-    {
-    	/*
-        PerformanceStats stats = performanceStats.get(identifier);
-        if (stats == null)
-        {
-            stats = new PerformanceStats(identifier);
-            stats.className = identifier;
-            stats.count = 0;
-            stats.totalTime = 0;
-            stats.lastTotalTime = 0;
-            stats.maxTime = 0;
-            performanceStats.put(identifier, stats);
-        }
-        stats.count++;
-        stats.totalTime += elapsedTime;
-        if (elapsedTime > stats.maxTime)
-        {
-            stats.maxTime = elapsedTime;
-        }
-
-        if (elapsedTime > methodWarningThreshold)
-        {
-            log.debug("Wow, a portion of import took much longer than anticipated: " + identifier + "(), cnt = " + stats.count + ", lastTime = " + elapsedTime
-                    + ", maxTime = " + stats.maxTime);
-        }
-
-        if (stats.count % statLogFrequency == 0)
-        {
-            long avgTime = stats.totalTime / stats.count;
-            log.info("Performance Statistics for: " + identifier + " at execution count " + stats.count + 
-                    ", average Time = " + avgTime + ", maximum time = " + stats.maxTime);
-            // reset the last total time
-            stats.lastTotalTime = stats.totalTime;
-        }
-    */
-    }
-
-   
-
+  /**
+   * Updates performance statistics for the given identifier. Currently a stub for future
+   * performance logging.
+   *
+   * @param identifier the identifier for the monitored method/class.
+   * @param elapsedTime the elapsed time in milliseconds.
+   */
+  public static void updateStats(String identifier, long elapsedTime) {
+    // Performance monitoring is currently disabled.
+    // Sunny Sal says: "If you want stats, uncomment and implement me!"
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,188 +19,176 @@ package com.percussion.rest.sites;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Represents a Site in Percussion CMS. Sunny Sal: "Site ka hero, URL ka zero!" */
 @XmlRootElement(name = "Site")
-@Schema(name="Site")
+@Schema(name = "Site")
 public class Site {
 
-    public Site(){}
+  private String name;
+  private String description;
+  private String baseUrl;
+  private String defaultFileExtention;
+  private boolean isCanonical = true;
+  private boolean overrideSystemJQuery = false;
+  private boolean overrideSystemFoundation = false;
+  private boolean overrideSystemJQueryUI = false;
+  private String siteAdditionalHeadContent;
+  private String siteBeforeBodyCloseContent;
+  private String siteAfterBodyOpenContent;
 
-    private String name;
+  /** Determines canonical URL's protocol ("http" or "https"). */
+  private String siteProtocol = "https";
 
-    private String description;
+  /**
+   * Determines the site's default document (like "index.html") used when rendering canonical tags.
+   */
+  private String defaultDocument = "index.html";
 
-    private String baseUrl;
+  private String canonicalDist = "pages";
+  private boolean canonicalReplace = true;
+  private boolean pageBasedSite = false;
+  private Guid guid;
 
-    private String defaultFileExtention;
+  public Site() {
+    // Default constructor
+  }
 
-    private boolean isCanonical = true;
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    private boolean overrideSystemJQuery = false;
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    private boolean overrideSystemFoundation = false;
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    private boolean overrideSystemJQueryUI = false;
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    private String siteAdditionalHeadContent;
+  public Optional<String> getBaseUrl() {
+    return Optional.ofNullable(baseUrl);
+  }
 
-    private String siteBeforeBodyCloseContent;
+  public void setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
-    private String siteAfterBodyOpenContent;
+  public Optional<String> getDefaultFileExtention() {
+    return Optional.ofNullable(defaultFileExtention);
+  }
 
-    /**
-     * Determines canonical URL's protocol ("http" or "https").
-     */
-    private String siteProtocol = "https";
+  public void setDefaultFileExtention(String defaultFileExtention) {
+    this.defaultFileExtention = defaultFileExtention;
+  }
 
-    /**
-     * Determines the site's default document (like "index.html") used when rendering canonical tags.
-     */
-    private String defaultDocument = "index.html";
+  public boolean isCanonical() {
+    return isCanonical;
+  }
 
-    private String canonicalDist = "pages";
+  public void setCanonical(boolean canonical) {
+    isCanonical = canonical;
+  }
 
-    private boolean canonicalReplace = true;
+  public boolean isOverrideSystemJQuery() {
+    return overrideSystemJQuery;
+  }
 
-    private boolean pageBasedSite = false;
+  public void setOverrideSystemJQuery(boolean overrideSystemJQuery) {
+    this.overrideSystemJQuery = overrideSystemJQuery;
+  }
 
-    private Guid guid;
+  public boolean isOverrideSystemFoundation() {
+    return overrideSystemFoundation;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
+    this.overrideSystemFoundation = overrideSystemFoundation;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public boolean isOverrideSystemJQueryUI() {
+    return overrideSystemJQueryUI;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setOverrideSystemJQueryUI(boolean overrideSystemJQueryUI) {
+    this.overrideSystemJQueryUI = overrideSystemJQueryUI;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public Optional<String> getSiteAdditionalHeadContent() {
+    return Optional.ofNullable(siteAdditionalHeadContent);
+  }
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
+  public void setSiteAdditionalHeadContent(String siteAdditionalHeadContent) {
+    this.siteAdditionalHeadContent = siteAdditionalHeadContent;
+  }
 
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
+  public Optional<String> getSiteBeforeBodyCloseContent() {
+    return Optional.ofNullable(siteBeforeBodyCloseContent);
+  }
 
-    public String getDefaultFileExtention() {
-        return defaultFileExtention;
-    }
+  public void setSiteBeforeBodyCloseContent(String siteBeforeBodyCloseContent) {
+    this.siteBeforeBodyCloseContent = siteBeforeBodyCloseContent;
+  }
 
-    public void setDefaultFileExtention(String defaultFileExtention) {
-        this.defaultFileExtention = defaultFileExtention;
-    }
+  public Optional<String> getSiteAfterBodyOpenContent() {
+    return Optional.ofNullable(siteAfterBodyOpenContent);
+  }
 
-    public boolean isCanonical() {
-        return isCanonical;
-    }
+  public void setSiteAfterBodyOpenContent(String siteAfterBodyOpenContent) {
+    this.siteAfterBodyOpenContent = siteAfterBodyOpenContent;
+  }
 
-    public void setCanonical(boolean canonical) {
-        isCanonical = canonical;
-    }
+  public Optional<String> getSiteProtocol() {
+    return Optional.ofNullable(siteProtocol);
+  }
 
-    public boolean isOverrideSystemJQuery() {
-        return overrideSystemJQuery;
-    }
+  public void setSiteProtocol(String siteProtocol) {
+    this.siteProtocol = siteProtocol;
+  }
 
-    public void setOverrideSystemJQuery(boolean overrideSystemJQuery) {
-        this.overrideSystemJQuery = overrideSystemJQuery;
-    }
+  public Optional<String> getDefaultDocument() {
+    return Optional.ofNullable(defaultDocument);
+  }
 
-    public boolean isOverrideSystemFoundation() {
-        return overrideSystemFoundation;
-    }
+  public void setDefaultDocument(String defaultDocument) {
+    this.defaultDocument = defaultDocument;
+  }
 
-    public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
-        this.overrideSystemFoundation = overrideSystemFoundation;
-    }
+  public Optional<String> getCanonicalDist() {
+    return Optional.ofNullable(canonicalDist);
+  }
 
-    public boolean isOverrideSystemJQueryUI() {
-        return overrideSystemJQueryUI;
-    }
+  public void setCanonicalDist(String canonicalDist) {
+    this.canonicalDist = canonicalDist;
+  }
 
-    public void setOverrideSystemJQueryUI(boolean overrideSystemJQueryUI) {
-        this.overrideSystemJQueryUI = overrideSystemJQueryUI;
-    }
+  public boolean isCanonicalReplace() {
+    return canonicalReplace;
+  }
 
-    public String getSiteAdditionalHeadContent() {
-        return siteAdditionalHeadContent;
-    }
+  public void setCanonicalReplace(boolean canonicalReplace) {
+    this.canonicalReplace = canonicalReplace;
+  }
 
-    public void setSiteAdditionalHeadContent(String siteAdditionalHeadContent) {
-        this.siteAdditionalHeadContent = siteAdditionalHeadContent;
-    }
+  public boolean isPageBasedSite() {
+    return pageBasedSite;
+  }
 
-    public String getSiteBeforeBodyCloseContent() {
-        return siteBeforeBodyCloseContent;
-    }
+  public void setPageBasedSite(boolean pageBasedSite) {
+    this.pageBasedSite = pageBasedSite;
+  }
 
-    public void setSiteBeforeBodyCloseContent(String siteBeforeBodyCloseContent) {
-        this.siteBeforeBodyCloseContent = siteBeforeBodyCloseContent;
-    }
+  public Optional<Guid> getGuid() {
+    return Optional.ofNullable(guid);
+  }
 
-    public String getSiteAfterBodyOpenContent() {
-        return siteAfterBodyOpenContent;
-    }
-
-    public void setSiteAfterBodyOpenContent(String siteAfterBodyOpenContent) {
-        this.siteAfterBodyOpenContent = siteAfterBodyOpenContent;
-    }
-
-    public String getSiteProtocol() {
-        return siteProtocol;
-    }
-
-    public void setSiteProtocol(String siteProtocol) {
-        this.siteProtocol = siteProtocol;
-    }
-
-    public String getDefaultDocument() {
-        return defaultDocument;
-    }
-
-    public void setDefaultDocument(String defaultDocument) {
-        this.defaultDocument = defaultDocument;
-    }
-
-    public String getCanonicalDist() {
-        return canonicalDist;
-    }
-
-    public void setCanonicalDist(String canonicalDist) {
-        this.canonicalDist = canonicalDist;
-    }
-
-    public boolean isCanonicalReplace() {
-        return canonicalReplace;
-    }
-
-    public void setCanonicalReplace(boolean canonicalReplace) {
-        this.canonicalReplace = canonicalReplace;
-    }
-
-    public boolean isPageBasedSite() {
-        return pageBasedSite;
-    }
-
-    public void setPageBasedSite(boolean pageBasedSite) {
-        this.pageBasedSite = pageBasedSite;
-    }
-
-    public Guid getGuid() {
-        return guid;
-    }
-
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 }

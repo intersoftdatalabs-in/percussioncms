@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,57 +25,32 @@ package com.percussion.proxyconfig.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder =
-{"proxyConfigs"
-})
+@XmlType(name = "", propOrder = {"proxyConfigs"})
 @XmlRootElement(name = "ProxyConfigurations")
-public class ProxyConfigurations
-{
+public class ProxyConfigurations {
+    @XmlElement(name = "ProxyConfig")
+    protected List<ProxyConfig> proxyConfigs;
 
-   @XmlElement(name = "ProxyConfig")
-   protected List<ProxyConfig> proxyConfigs;
+    /**
+     * Gets the value of the proxyConfigs property. It holds all configurations
+     * from the proxy configuration file.
+     *
+     * <p>This accessor method returns an immutable copy of the live list.</p>
+     *
+     * @return immutable list of ProxyConfig
+     */
+    public List<ProxyConfig> getConfigs() {
+        return proxyConfigs == null ? List.of() : List.copyOf(proxyConfigs);
+    }
 
-   /**
-    * Gets the value of the proxyConfigs property. It holds all configurations
-    * from the proxy configuration file.
-    * 
-    * <p>
-    * This accessor method returns a copy of the live list.
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ProxyConfig }
-    * 
-    */
-   public List<ProxyConfig> getConfigs() throws CloneNotSupportedException {
-      if (proxyConfigs == null)
-      {
-         proxyConfigs = new ArrayList<>();
-      }
-
-      List<ProxyConfig> copy = new ArrayList<>(proxyConfigs.size());
-
-      for (ProxyConfig config : proxyConfigs)
-      {
-         copy.add(((ProxyConfig) config.clone()));
-      }
-      return copy;
-   }
-
-   public void setConfigs(List<ProxyConfig> configurations) throws CloneNotSupportedException {
-      proxyConfigs = new ArrayList<>();
-
-      for (ProxyConfig config : configurations)
-      {
-         this.proxyConfigs.add((ProxyConfig) config.clone());
-      }
-   }
-   
+    public void setConfigs(List<ProxyConfig> configs) {
+        this.proxyConfigs = configs == null ? new ArrayList<>() : new ArrayList<>(configs);
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,34 @@ package com.percussion.rest.contexts;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "ContextList")
 @XmlSeeAlso(Context.class)
-@ArraySchema(schema=@Schema(implementation = Context.class))
+@ArraySchema(schema = @Schema(implementation = Context.class))
 public class ContextList extends ArrayList<Context> {
-    public ContextList(Collection<? extends Context> c) {
-        super(c);
-    }
-    public ContextList(){}
+  public ContextList(Collection<? extends Context> c) {
+    super(c);
+  }
+
+  public ContextList() {}
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ContextList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "ContextList" + super.toString();
+  }
 }

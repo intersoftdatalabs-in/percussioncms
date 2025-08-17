@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 
 package test.percussion.soln.p13n.tracking.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 
-import jakarta.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -31,9 +31,9 @@ import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -48,7 +48,7 @@ import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils;
  * Scenario description: 
  * @author adamgent, Mar 27, 2009
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingWebMediatorTest {
 
     Mockery context = new JUnit4Mockery();
@@ -60,7 +60,7 @@ public class VisitorTrackingWebMediatorTest {
     MockHttpServletResponse response;
     VisitorProfile profile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mediator = new VisitorTrackingWebMediator();
         tracking = context.mock(IVisitorTrackingService.class);

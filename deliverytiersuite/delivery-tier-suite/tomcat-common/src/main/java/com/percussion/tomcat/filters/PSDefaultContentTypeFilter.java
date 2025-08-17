@@ -15,51 +15,48 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.tomcat.filters;
-
-import java.io.IOException;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
-/***
+/**
  * Sets the content type to text/html if it hasn't been set.
  *
  * @author natechadwick
- *
  */
-public class PSDefaultContentTypeFilter implements Filter{
+public class PSDefaultContentTypeFilter implements Filter {
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if(response.getContentType() == null){
-            final ServletContext servletContext = request.getServletContext();
-            if (request instanceof HttpServletRequest) {
-                String url = ((HttpServletRequest)request).getRequestURL().toString();
-                String queryString = ((HttpServletRequest)request).getQueryString();
-                final String mimeType = servletContext.getMimeType(url);
-                if(mimeType==null)
-                    response.setContentType("text/html; charset=UTF-8");
-            }
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+    if (response.getContentType() == null) {
+      var servletContext = request.getServletContext();
+      if (request instanceof HttpServletRequest) {
+        var url = ((HttpServletRequest) request).getRequestURL().toString();
+        var mimeType = servletContext.getMimeType(url);
+        if (mimeType == null) {
+          response.setContentType("text/html; charset=UTF-8");
         }
-        chain.doFilter(request, response);
+      }
     }
+    chain.doFilter(request, response);
+  }
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO Auto-generated method stub
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    // No initialization required
+  }
 
-    }
-
-    @Override
-    public void destroy() {
-        // TODO Auto-generated method stub
-
-    }
-
+  @Override
+  public void destroy() {
+    // No resources to clean up
+  }
 }

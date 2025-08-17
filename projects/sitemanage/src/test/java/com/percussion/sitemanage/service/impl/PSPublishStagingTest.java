@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,92 +17,85 @@
 
 package com.percussion.sitemanage.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;
-
 import java.util.Collection;
 import java.util.HashMap;
+import org.junit.jupiter.api.Test;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
+// REFACTORED: CP-JAVA11
+class PSPublishStagingTest {
 
-import org.junit.Test;
+  static class TestablePSPublishStagingService extends PSPublishStagingService {
 
-import junit.framework.TestCase;
+    private boolean stagingEnabled = false;
 
-public class PSPublishStagingTest extends TestCase {
-
-    public class TestablePSPublishStagingService extends
-	    PSPublishStagingService {
-
-	public TestablePSPublishStagingService(IPSMetadataService metadata) {
-	    super(metadata);
-	    // TODO Auto-generated constructor stub
-	}
-
-	private boolean stagingEnabled = false;
-	@Override
-	public boolean isStagingFeatureEnabled() {
-	    return stagingEnabled;
-	}
-
-	/**
-	 * @param stagingEnabled
-	 *            the stagingEnabled to set
-	 */
-	public void setStagingFeatureEnabled(boolean stagingEnabled) {
-	    this.stagingEnabled = stagingEnabled;
-	}
+    TestablePSPublishStagingService(IPSMetadataService metadata) {
+      super(metadata);
     }
 
-    public class MockMetadataService implements IPSMetadataService {
-
-	private HashMap<String, PSMetadata> metadata = new HashMap<String, PSMetadata>();
-
-	@Override
-	public PSMetadata find(String key) {
-	    return metadata.get(key);
-	}
-
-	@Override
-	public Collection<PSMetadata> findByPrefix(String prefix) {
-	    // Not implemented
-	    return null;
-	}
-
-	@Override
-	public void save(PSMetadata data) {
-	    metadata.put(data.getKey(), data);
-	}
-
-	@Override
-	public void delete(String key) {
-	    metadata.remove(key);
-	}
-
-	@Override
-	public void deleteByPrefix(String prefix) {
-	    // NOT Implemented
-
-	}
-
+    @Override
+    public boolean isStagingFeatureEnabled() {
+      return stagingEnabled;
     }
 
-    @Test
-    public void testStagingActive() {
-	TestablePSPublishStagingService stgService = new TestablePSPublishStagingService(new MockMetadataService());
+    /**
+     * Sets the staging feature enabled flag.
+     *
+     * @param stagingEnabled the stagingEnabled to set
+     */
+    public void setStagingFeatureEnabled(boolean stagingEnabled) {
+      this.stagingEnabled = stagingEnabled;
+    }
+  }
 
-	// false,false
-	assertTrue(stgService.isStagingActive() == false);
-	stgService.setStagingOn();
-	// false,true
-	assertTrue(stgService.isStagingActive() == false);
-	stgService.setStagingFeatureEnabled(true);
-	// true,true
-	assertTrue(stgService.isStagingActive() == true);
-	stgService.setStagingOff();
-	// true, false
-	assertTrue(stgService.isStagingActive() == false);
+  static class MockMetadataService implements IPSMetadataService {
+
+    private final HashMap<String, PSMetadata> metadata = new HashMap<>();
+
+    @Override
+    public PSMetadata find(String key) {
+      return metadata.get(key);
     }
 
+    @Override
+    public Collection<PSMetadata> findByPrefix(String prefix) {
+      // Not implemented
+      return null;
+    }
+
+    @Override
+    public void save(PSMetadata data) {
+      metadata.put(data.getKey(), data);
+    }
+
+    @Override
+    public void delete(String key) {
+      metadata.remove(key);
+    }
+
+    @Override
+    public void deleteByPrefix(String prefix) {
+      // Not implemented
+    }
+  }
+
+  @Test
+  void testStagingActive() {
+    var stgService = new TestablePSPublishStagingService(new MockMetadataService());
+
+    // false,false
+    assertFalse(stgService.isStagingActive());
+    stgService.setStagingOn();
+    // false,true
+    assertFalse(stgService.isStagingActive());
+    stgService.setStagingFeatureEnabled(true);
+    // true,true
+    assertTrue(stgService.isStagingActive());
+    stgService.setStagingOff();
+    // true, false
+    assertFalse(stgService.isStagingActive());
+  }
 }

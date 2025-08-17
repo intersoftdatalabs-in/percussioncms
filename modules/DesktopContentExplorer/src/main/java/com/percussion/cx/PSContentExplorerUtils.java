@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ package com.percussion.cx;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSUserInfo;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.xpath.XPathFactory; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -43,7 +44,7 @@ import java.util.StringTokenizer;
 
 public class PSContentExplorerUtils
 {
-   static Logger log = Logger.getLogger(PSContentExplorerUtils.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerUtils.class);
    public static Map<String, String> getQueryMap(String url)  
    {  
       Map<String, String> map = new HashMap<>();

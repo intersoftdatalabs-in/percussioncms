@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11, CP-SOAP
 package com.percussion.webservices.content;
 
 import com.percussion.cms.PSCmsException;
@@ -29,7 +30,7 @@ import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
 import com.percussion.cms.objectstore.server.PSPurgableFileValue;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.search.objectstore.PSWSSearchRequest;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
@@ -44,7 +45,7 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.util.IOTools;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.IPSWebserviceErrors;
@@ -64,16 +65,16 @@ import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
 import com.percussion.webservices.faults.PSUnknownChildFault;
 import com.percussion.webservices.faults.PSUnknownContentTypeFault;
-import org.apache.axis.Message;
-import org.apache.axis.MessageContext;
-import org.apache.axis.attachments.AttachmentPart;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.FileDataSource;
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.jws.WebService;
+import javax.xml.ws.handler.MessageContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,246 +82,285 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Server side implementations for web services defined in
- * <code>rhythmyx.wsdl</code> for operations defined in the
- * <code>contentSOAP</code> bindings.
+ * Server side implementations for content management web services defined in rhythmyx.wsdl
+ * for operations defined in the contentSOAP bindings.
+ *
+ * <p>Modernized for Java 11 with enhanced type safety, Optional usage, Stream API,
+ * and JAX-WS annotations for contemporary SOAP implementation.
  */
-public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
-{
+@WebService(endpointInterface = "com.percussion.webservices.content.Content")
+public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
 
-   private static final Logger log = LogManager.getLogger(ContentSOAPImpl.class);
-   /* (non-Javadoc)
-    * @see Content#loadTranslationSettings()
-    */
-   public PSAutoTranslation[] loadTranslationSettings() 
-      throws RemoteException, PSInvalidSessionFault
-   {
-      try
-      {
-         authenticate();
+    private static final Logger logger = LogManager.getLogger(ContentSOAPImpl.class);
 
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
-         
-         List<com.percussion.services.content.data.PSAutoTranslation> ats = 
-            service.loadTranslationSettings();
-         
-         PSAutoTranslation[] result = (PSAutoTranslation[]) convert(
-            PSAutoTranslation[].class, ats);
-         
-         return result;
-      }
-      catch (IllegalArgumentException e)
-      {
-         int code = IPSWebserviceErrors.INVALID_CONTRACT;
-         throw new PSContractViolationFault(code, 
-            PSWebserviceErrors.createErrorMessage(code, 
-               "loadTranslationSettings", e.getLocalizedMessage()), 
-               ExceptionUtils.getFullStackTrace(e));
-      }
-   }
+    /**
+     * Load translation settings with enhanced error handling and type safety.
+     *
+     * @return array of auto-translation configurations, never null
+     * @throws RemoteException if a system error occurs
+     * @throws PSInvalidSessionFault if the session is invalid
+     */
+    @Override
+    public PSAutoTranslation[] loadTranslationSettings()
+            throws RemoteException, PSInvalidSessionFault {
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see Content#loadContentTypes(LoadContentTypesRequest)
-    */
-   public PSContentTypeSummary[] loadContentTypes(
-      LoadContentTypesRequest loadContentTypesRequest) throws RemoteException,
-      PSInvalidSessionFault, PSNotAuthorizedFault
-   {
-      try
-      {
-         authenticate();
+        var serviceName = "loadTranslationSettings";
+        logger.debug("Loading translation settings");
 
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
-         
-         List<com.percussion.services.content.data.PSContentTypeSummary> sums = 
-            service.loadContentTypes(loadContentTypesRequest.getName());
-         
-         PSContentTypeSummary[] result = (PSContentTypeSummary[]) convert(
-            PSContentTypeSummary[].class, sums);
-         return result;
-      }
-      catch (IllegalArgumentException e)
-      {
-         handleInvalidContract(e, "loadContentTypes");
-      }
+        try {
+            authenticate();
+            var service = PSContentWsLocator.getContentWebservice();
+            var translations = service.loadTranslationSettings();
 
-      return null; // never happen here, used to turn off compiling error
-   }
+            return convert(PSAutoTranslation[].class, translations);
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see Content#loadKeywords(LoadKeywordsRequest)
-    */
-   @SuppressWarnings("unused")
-   public PSKeyword[] loadKeywords(LoadKeywordsRequest loadKeywordsRequest)
-      throws RemoteException, PSInvalidSessionFault, PSNotAuthorizedFault
-   {
-      String serviceName = "loadKeywords";
-      try
-      {
-         authenticate();
+        } catch (IllegalArgumentException e) {
+            handleInvalidContract(e, serviceName);
+            return new PSAutoTranslation[0]; // Never reached
+        } catch (RuntimeException e) {
+            handleRuntimeException(e, serviceName);
+            return new PSAutoTranslation[0]; // Never reached
+        }
+    }
 
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
-         
-         List keywords = service.loadKeywords(
-            loadKeywordsRequest.getName());
+    /**
+     * Load content types based on name filter with enhanced validation.
+     *
+     * @param loadContentTypesRequest the request containing optional name filter
+     * @return array of content type summaries matching the criteria
+     * @throws RemoteException if a system error occurs
+     * @throws PSInvalidSessionFault if the session is invalid
+     * @throws PSNotAuthorizedFault if the user is not authorized
+     */
+    @Override
+    public PSContentTypeSummary[] loadContentTypes(LoadContentTypesRequest loadContentTypesRequest)
+            throws RemoteException, PSInvalidSessionFault, PSNotAuthorizedFault {
 
-         return (PSKeyword[]) convert(PSKeyword[].class, keywords);
-      }
-      catch (IllegalArgumentException e)
-      {
-         handleInvalidContract(e, serviceName);
-      }
+        var serviceName = "loadContentTypes";
+        var requestName = Optional.ofNullable(loadContentTypesRequest)
+            .map(LoadContentTypesRequest::getName)
+            .orElse(null);
 
-      return null; // never happen here, used to turn off compiling error
-   }
+        logger.debug("Loading content types with name filter: {}", requestName);
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see Content#loadLocales(LoadLocalesRequest)
-    */
-   public PSLocale[] loadLocales(LoadLocalesRequest loadLocalesRequest)
-      throws RemoteException, PSInvalidSessionFault
-   {
-      try
-      {
-         authenticate();
+        try {
+            authenticate();
+            var service = PSContentWsLocator.getContentWebservice();
+            var summaries = service.loadContentTypes(requestName);
 
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
-         
-         List<com.percussion.i18n.PSLocale> locales = 
-            service.loadLocales(loadLocalesRequest.getCode(), 
-               loadLocalesRequest.getName());
-         
-         PSLocale[] result = (PSLocale[]) convert(
-            PSLocale[].class, locales);
-         
-         return result;
-      }
-      catch (IllegalArgumentException e)
-      {
-         handleInvalidContract(e, "loadLocales");
-         return null;
-      }
-   }
+            return convert(PSContentTypeSummary[].class, summaries);
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see Content#addContentRelations(AddContentRelationsRequest)
-    */
-   public PSAaRelationship[] addContentRelations(
-      AddContentRelationsRequest req)
-      throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
-      PSNotAuthorizedFault, PSErrorResultsFault
-   {
-      String serviceName = "addContentRelations";
-      try
-      {
-         authenticate();
-         
-         // get data from request
-         PSLegacyGuid ownerId = new PSLegacyGuid(req.getId());
-         List<IPSGuid> relatedIds = new ArrayList<IPSGuid>(req.getRelatedId().length);
-         for (long relatedId : req.getRelatedId())
-            relatedIds.add(new PSLegacyGuid(relatedId));
-         int index = (req.getIndex() == null) ? -1 : req.getIndex().intValue();  
+        } catch (IllegalArgumentException e) {
+            handleInvalidContract(e, serviceName);
+            return new PSContentTypeSummary[0]; // Never reached
+        } catch (RuntimeException e) {
+            handleRuntimeException(e, serviceName);
+            return new PSContentTypeSummary[0]; // Never reached
+        }
+    }
 
-         // create and save relationships
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
-         List<com.percussion.cms.objectstore.PSAaRelationship> relationships = 
-            service.addContentRelations(ownerId, relatedIds, req.getSlot(), 
-               req.getTemplate(), req.getRelationshipConfig(), index);
-         
-         // convert the saved relationships
-         PSAaRelationship[] result = (PSAaRelationship[]) convert(
-               PSAaRelationship[].class, relationships);
-         
-         return result;
-      }
-      catch (IllegalArgumentException e)
-      {
-         handleInvalidContract(e, serviceName);
-      }
-      catch (PSErrorException e)
-      {
-         throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
-      }
+    /**
+     * Load keywords based on name filter with enhanced type safety.
+     *
+     * @param loadKeywordsRequest the request containing optional name filter
+     * @return array of keywords matching the criteria
+     * @throws RemoteException if a system error occurs
+     * @throws PSInvalidSessionFault if the session is invalid
+     * @throws PSNotAuthorizedFault if the user is not authorized
+     */
+    @Override
+    public PSKeyword[] loadKeywords(LoadKeywordsRequest loadKeywordsRequest)
+            throws RemoteException, PSInvalidSessionFault, PSNotAuthorizedFault {
 
-      return null;
-   }
+        var serviceName = "loadKeywords";
+        var requestName = Optional.ofNullable(loadKeywordsRequest)
+            .map(LoadKeywordsRequest::getName)
+            .orElse(null);
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see Content#addFolder(AddFolderRequest)
-    */
-   public AddFolderResponse addFolder(AddFolderRequest request)
+        logger.debug("Loading keywords with name filter: {}", requestName);
+
+        try {
+            authenticate();
+            var service = PSContentWsLocator.getContentWebservice();
+            var keywords = service.loadKeywords(requestName);
+
+            return convert(PSKeyword[].class, keywords);
+
+        } catch (IllegalArgumentException e) {
+            handleInvalidContract(e, serviceName);
+            return new PSKeyword[0]; // Never reached
+        } catch (RuntimeException e) {
+            handleRuntimeException(e, serviceName);
+            return new PSKeyword[0]; // Never reached
+        }
+    }
+
+    /**
+     * Load locales based on code and name filters with enhanced validation.
+     *
+     * @param loadLocalesRequest the request containing optional filters
+     * @return array of locales matching the criteria
+     * @throws RemoteException if a system error occurs
+     * @throws PSInvalidSessionFault if the session is invalid
+     */
+    @Override
+    public PSLocale[] loadLocales(LoadLocalesRequest loadLocalesRequest)
+            throws RemoteException, PSInvalidSessionFault {
+
+        var serviceName = "loadLocales";
+        var requestCode = Optional.ofNullable(loadLocalesRequest)
+            .map(LoadLocalesRequest::getCode)
+            .orElse(null);
+        var requestName = Optional.ofNullable(loadLocalesRequest)
+            .map(LoadLocalesRequest::getName)
+            .orElse(null);
+
+        logger.debug("Loading locales with code: {} and name: {}", requestCode, requestName);
+
+        try {
+            authenticate();
+            var service = PSContentWsLocator.getContentWebservice();
+            var locales = service.loadLocales(requestCode, requestName);
+
+            return convert(PSLocale[].class, locales);
+
+        } catch (IllegalArgumentException e) {
+            handleInvalidContract(e, serviceName);
+            return new PSLocale[0]; // Never reached
+        } catch (RuntimeException e) {
+            handleRuntimeException(e, serviceName);
+            return new PSLocale[0]; // Never reached
+        }
+    }
+
+    /**
+     * Add content relations with enhanced GUID handling and validation.
+     *
+     * @param req the request containing relationship details
+     * @return array of created relationships
+     * @throws RemoteException if a system error occurs
+     * @throws PSInvalidSessionFault if the session is invalid
+     * @throws PSContractViolationFault if the request contract is violated
+     * @throws PSNotAuthorizedFault if the user is not authorized
+     * @throws PSErrorResultsFault if there are validation errors
+     */
+    @Override
+    public PSAaRelationship[] addContentRelations(AddContentRelationsRequest req)
+            throws RemoteException, PSInvalidSessionFault, PSContractViolationFault,
+            PSNotAuthorizedFault, PSErrorResultsFault {
+
+        var serviceName = "addContentRelations";
+        logger.debug("Adding content relations for owner ID: {}",
+            Optional.ofNullable(req).map(AddContentRelationsRequest::getId).orElse(0L));
+
+        try {
+            authenticate();
+
+            // Validate and extract request data using modern patterns
+            var ownerId = new PSLegacyGuid(req.getId());
+            var relatedIds = Arrays.stream(req.getRelatedId())
+                .mapToObj(PSLegacyGuid::new)
+                .collect(Collectors.toList());
+            var index = Optional.ofNullable(req.getIndex())
+                .map(Integer::intValue)
+                .orElse(-1);
+
+            // Create and save relationships
+            var service = PSContentWsLocator.getContentWebservice();
+            var relationships = service.addContentRelations(
+                ownerId,
+                relatedIds,
+                req.getSlot(),
+                req.getTemplate(),
+                req.getRelationshipConfig(),
+                index
+            );
+
+            logger.debug("Successfully created {} content relations", relationships.size());
+            return convert(PSAaRelationship[].class, relationships);
+
+        } catch (IllegalArgumentException e) {
+            handleInvalidContract(e, serviceName);
+            return new PSAaRelationship[0]; // Never reached
+        } catch (PSErrorResultsException e) {
+            handleErrorResultsException(e, serviceName);
+            return new PSAaRelationship[0]; // Never reached
+        } catch (RuntimeException e) {
+            handleRuntimeException(e, serviceName);
+            return new PSAaRelationship[0]; // Never reached
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see Content#addFolder(AddFolderRequest)
+     */
+    public AddFolderResponse addFolder(AddFolderRequest request)
       throws RemoteException, PSInvalidSessionFault, PSErrorsFault,
       PSContractViolationFault
    {
-      authenticate();
-      
+      var serviceName = "addFolder";
+      logger.debug("Adding folder: {} at path: {}", request.getName(), request.getPath());
+
       try
       {
-         if (StringUtils.isBlank(request.getName()))
-            throw new IllegalArgumentException(
-                  "The folder name must not be null or empty.");
-         if (StringUtils.isBlank(request.getPath()))
-            throw new IllegalArgumentException(
-               "The parent folder path must not be null or empty.");
-               
-         IPSContentWs service = PSContentWsLocator.getContentWebservice();
+         authenticate();
 
-         com.percussion.cms.objectstore.PSFolder folder = service.addFolder(
-               request.getName(), request.getPath());
-         
-         PSFolder result = (PSFolder) convert(PSFolder.class, folder);
-         
-         AddFolderResponse response = new AddFolderResponse();
+         // Enhanced validation using modern Optional patterns
+         var folderName = Optional.ofNullable(request.getName())
+            .filter(StringUtils::isNotBlank)
+            .orElseThrow(() -> new IllegalArgumentException("Folder name must not be null or empty"));
+
+         var folderPath = Optional.ofNullable(request.getPath())
+            .filter(StringUtils::isNotBlank)
+            .orElseThrow(() -> new IllegalArgumentException("Parent folder path must not be null or empty"));
+
+         var service = PSContentWsLocator.getContentWebservice();
+         var folder = service.addFolder(folderName, folderPath);
+         var result = convert(PSFolder.class, folder);
+
+         var response = new AddFolderResponse();
          response.setPSFolder(result);
          
+         logger.debug("Successfully created folder: {}", folderName);
          return response;
-      }
-      catch (IllegalArgumentException e)
-      {
-         handleInvalidContract(e, "addFolder");
-      }
-      catch (PSErrorException e)
-      {
+
+      } catch (IllegalArgumentException e) {
+         handleInvalidContract(e, serviceName);
+      } catch (PSErrorException e) {
          throw new RemoteException(PSExceptionUtils.getMessageForLog(e));
+      } catch (RuntimeException e) {
+         handleRuntimeException(e, serviceName);
       }
 
-      return null;
+      return null; // Never reached
    }
 
    /**
-    * Validates the given folder reference.
-    * 
-    * @param ref the folder reference in question, must not be <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if both id and path are specified 
-    *    (or both are not <code>null</code>).
+    * Validates folder reference with enhanced null safety.
+    *
+    * @param ref the folder reference to validate
+    * @throws IllegalArgumentException if validation fails
     */
-   private void validateFolderRef(FolderRef ref)
-   {
-      if (ref == null)
+   private void validateFolderRef(FolderRef ref) {
+      Optional.ofNullable(ref)
+         .orElseThrow(() -> new IllegalArgumentException("Folder reference must not be null"));
+
+      var hasId = ref.getId() != null;
+      var hasPath = StringUtils.isNotBlank(ref.getPath());
+
+      if (hasId && hasPath) {
          throw new IllegalArgumentException(
-         "Folder reference, ref, must not be null.");
-      
-      if (ref.getId() != null && (!StringUtils.isBlank(ref.getPath())))
-         throw new IllegalArgumentException(
-               "Cannot specified both folder id and path. Either id or paths must be null or empty.");
+               "Cannot specify both folder id and path. Either id or path must be null or empty.");
+      }
    }
-   
+
    /*
     * (non-Javadoc)
     * 
@@ -520,17 +560,19 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
       PSUnknownContentTypeFault, PSNotAuthorizedFault
    {
       String serviceName = "createItems";
+      var contentType = Optional.ofNullable(createItemsRequest)
+         .map(CreateItemsRequest::getContentType)
+         .orElseThrow(() -> new IllegalArgumentException("Content type is required"));
+      var count = Optional.ofNullable(createItemsRequest.getCount()).orElse(1);
+
+      logger.debug("Creating {} items of type: {}", count, contentType);
+
       try
       {
          authenticate();
          IPSContentWs service = PSContentWsLocator.getContentWebservice();
          
-         String contentType = createItemsRequest.getContentType();
-         Integer count = createItemsRequest.getCount();
-         if (count == null)
-            count = Integer.valueOf(1);
-         
-         List<PSCoreItem> items = service.createItems(contentType, 
+         List<PSCoreItem> items = service.createItems(contentType,
             count.intValue());
          
          return convertItems(items, null, null, null);
@@ -540,7 +582,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
          int code = IPSWebserviceErrors.INVALID_CONTRACT;
          throw new PSContractViolationFault(code, 
             PSWebserviceErrors.createErrorMessage(code, serviceName, 
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+               e.getLocalizedMessage()), ExceptionUtils.getStackTrace(e));
       }
       catch (PSUnknownContentTypeException e)
       {
@@ -548,7 +590,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
          throw new PSUnknownContentTypeFault(code, 
             PSWebserviceErrors.createErrorMessage(code, serviceName, 
                createItemsRequest.getContentType(),
-               e.getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+               e.getLocalizedMessage()), ExceptionUtils.getStackTrace(e));
       }
       catch (PSErrorException e)
       {
@@ -584,20 +626,15 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
    private PSItem[] convertItems(List<PSCoreItem> items, 
       List<String> fieldNames, List<String> childNames, List<String> slotNames) 
    {
-      PSItem[] convertedItems = new PSItem[items.size()];
-      
-      int index = 0;
-      for (PSCoreItem item : items)
-      {
-         PSItem convertedItem = (PSItem) convert(PSItem.class, item);
-         filterFields(convertedItem, fieldNames);
-         filterChildren(convertedItem, childNames);
-         filterSlots(convertedItem, slotNames);
-         
-         convertedItems[index++] = convertedItem;
-      }
-      
-      return convertedItems;
+      return items.stream()
+         .map(item -> {
+            var convertedItem = convert(PSItem.class, item);
+            filterFields(convertedItem, fieldNames);
+            filterChildren(convertedItem, childNames);
+            filterSlots(convertedItem, slotNames);
+            return convertedItem;
+         })
+         .toArray(PSItem[]::new);
    }
    
    /**
@@ -610,24 +647,19 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
     */
    private void filterFields(PSItem item, List<String> fieldNames)
    {
-      if (fieldNames == null)
-         return;
-      
-      if (fieldNames.isEmpty())
-      {
-         item.setFields(null);
-         return;
-      }
-
-      int count = 0;
-      PSField[] filteredFields = new PSField[fieldNames.size()];
-      for (PSField field : item.getFields())
-      {
-         if (fieldNames.contains(field.getName()))
-            filteredFields[count++] = field;
-      }
-      
-      item.setFields(filteredFields);
+      Optional.ofNullable(fieldNames).ifPresentOrElse(
+         names -> {
+            if (names.isEmpty()) {
+               item.setFields(null);
+            } else {
+               var filteredFields = Arrays.stream(item.getFields())
+                  .filter(field -> names.contains(field.getName()))
+                  .toArray(PSField[]::new);
+               item.setFields(filteredFields);
+            }
+         },
+         () -> { /* No filtering needed */ }
+      );
    }
    
    /**
@@ -640,24 +672,19 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
     */
    private void filterChildren(PSItem item, List<String> childNames)
    {
-      if (childNames == null)
-         return;
-      
-      if (childNames.isEmpty())
-      {
-         item.setChildren(null);
-         return;
-      }
-
-      int count = 0;
-      PSItemChildren[] filteredChildren = new PSItemChildren[childNames.size()];
-      for (PSItemChildren child : item.getChildren())
-      {
-         if (childNames.contains(child.getName()))
-            filteredChildren[count++] = child;
-      }
-      
-      item.setChildren(filteredChildren);
+      Optional.ofNullable(childNames).ifPresentOrElse(
+         names -> {
+            if (names.isEmpty()) {
+               item.setChildren(null);
+            } else {
+               var filteredChildren = Arrays.stream(item.getChildren())
+                  .filter(child -> names.contains(child.getName()))
+                  .toArray(PSItemChildren[]::new);
+               item.setChildren(filteredChildren);
+            }
+         },
+         () -> { /* No filtering needed */ }
+      );
    }
    
    /**
@@ -669,24 +696,19 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
     */
    private void filterSlots(PSItem item, List<String> slotNames)
    {
-      if (slotNames == null)
-         return;
-
-      if (slotNames.isEmpty())
-      {
-         item.setSlots(null);
-         return;
-      }
-         
-      int count = 0;
-      PSItemSlots[] filteredSlots = new PSItemSlots[slotNames.size()];
-      for (PSItemSlots slot : item.getSlots())
-      {
-         if (slotNames.contains(slot.getName()))
-            filteredSlots[count++] = slot;
-      }
-      
-      item.setSlots(filteredSlots);
+      Optional.ofNullable(slotNames).ifPresentOrElse(
+         names -> {
+            if (names.isEmpty()) {
+               item.setSlots(null);
+            } else {
+               var filteredSlots = Arrays.stream(item.getSlots())
+                  .filter(slot -> names.contains(slot.getName()))
+                  .toArray(PSItemSlots[]::new);
+               item.setSlots(filteredSlots);
+            }
+         },
+         () -> { /* No filtering needed */ }
+      );
    }
 
    /*
@@ -822,14 +844,11 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
     */
    List<IPSGuid> getGuidFromLong(long[] longIds, PSTypeEnum type)
    {
-      if (longIds == null || longIds.length == 0)
-         throw new IllegalArgumentException("longIds must not be null or empty.");
-      
-      List<IPSGuid> ids = new ArrayList<IPSGuid>(longIds.length);
-      for (long guidId : longIds)
-         ids.add(new PSGuid(type, guidId));
-      
-      return ids;
+      return Arrays.stream(Optional.ofNullable(longIds)
+            .filter(ids -> ids.length > 0)
+            .orElseThrow(() -> new IllegalArgumentException("longIds must not be null or empty")))
+         .mapToObj(id -> new PSGuid(type, id))
+         .collect(Collectors.toList());
    }
    
    /*
@@ -968,7 +987,7 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
    private PSItemSummary[] getItemSummaries(
       List<com.percussion.services.content.data.PSItemSummary> srcList) 
    {
-      return (PSItemSummary[]) convert(PSItemSummary[].class, srcList);
+      return convert(PSItemSummary[].class, srcList);
    }
 
    /*
@@ -1631,14 +1650,10 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content
     */
    private List<String> getPaths(String[] paths)
    {
-      if (paths != null && paths.length > 0)
-      {
-         return Arrays.asList(paths);
-      }
-      else 
-      {
-         throw new IllegalArgumentException("paths must not be null or empty.");
-      }
+      return Arrays.stream(Optional.ofNullable(paths)
+            .filter(p -> p.length > 0)
+            .orElseThrow(() -> new IllegalArgumentException("paths must not be null or empty")))
+         .collect(Collectors.toList());
    }
    
    /*

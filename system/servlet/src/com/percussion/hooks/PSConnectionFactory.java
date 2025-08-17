@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.net.SocketFactory; // TODO: JAVAX-11
-import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 /**
  * The PSConnectionFactory class manages connections to Rhythmyx servers.

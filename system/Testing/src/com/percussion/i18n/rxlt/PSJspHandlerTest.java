@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 package com.percussion.i18n.rxlt;
 
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test framework for JSP scanner. This has to run against a rhythmyx 
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
  * 
  * @author dougrand
  */
-@Category({IntegrationTest.class})
+@Tag({IntegrationTest.class})
 public class PSJspHandlerTest
 {
    /**

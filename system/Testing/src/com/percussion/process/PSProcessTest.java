@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
  */
 package com.percussion.process;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -52,7 +52,7 @@ public class PSProcessTest
    Map m_vars = new HashMap();
 
    @Test
-   @Ignore
+   @Disabled
    public void testSindex() throws Exception
    {
       IPSProcess sindex = m_mgr.getProcess("sindex_create");
@@ -78,7 +78,7 @@ public class PSProcessTest
     * @throws Exception
     */
    @Test
-   @Ignore
+   @Disabled
    public void testLsRun() throws Exception
    {
       IPSProcess sindex = m_mgr.getProcess("dirlisting");
@@ -132,8 +132,8 @@ public class PSProcessTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#setUp()
     */
-   @Before
-   @Ignore
+   @BeforeEach 
+   @Disabled
    public void setUp() throws Exception
    {
       // Create a manager

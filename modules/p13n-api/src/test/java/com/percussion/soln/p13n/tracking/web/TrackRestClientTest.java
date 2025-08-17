@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 
 package test.percussion.soln.p13n.tracking.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -49,7 +49,7 @@ public class TrackRestClientTest {
     protected MockHttpServletResponse servletResponse;
     protected TestWebServer tw = new TestWebServer(PORT);
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         client.setTrackingURI("http://localhost:" + PORT + "/soln-p13n/track/track");
         servletRequest = new MockHttpServletRequest();
@@ -100,7 +100,7 @@ public class TrackRestClientTest {
         assertRequestBody(expected, tw.getRequestBody());
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         tw.stop();
     }

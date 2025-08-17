@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
-public class AssetAlreadyExistsException extends RestExceptionBase
-{
-	public AssetAlreadyExistsException()
-    {
-        super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.FORBIDDEN);
-    }
-	
-	public AssetAlreadyExistsException(String message)
-	{
-		super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.FORBIDDEN);
-	}
+/**
+ * Exception thrown when an asset already exists. Sunny Sal: "Duplicate asset? Abey yaar, ek hi
+ * kaafi hai!"
+ */
+public class AssetAlreadyExistsException extends RestExceptionBase {
+
+  public AssetAlreadyExistsException() {
+    this(null);
+  }
+
+  public AssetAlreadyExistsException(String message) {
+    super(RestErrorCode.ASSET_ALREADY_EXISTS, message, null, Response.Status.FORBIDDEN);
+  }
 }

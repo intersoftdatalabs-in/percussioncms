@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import com.percussion.cms.objectstore.ws.PSWsFolderProcessorTest;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSLocator;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.testing.IPSClientBasedJunitTest;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.util.IPSRemoteRequester;
-import com.percussion.util.PSRemoteRequester;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -40,19 +40,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.TestSuite;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for the <code>PSRemoteAgent</code> class.
  */
-@Category({IntegrationTest.class})
+@Tag({IntegrationTest.class})
 public class PSRemoteAgentTest extends PSClientTestCase
 {
 

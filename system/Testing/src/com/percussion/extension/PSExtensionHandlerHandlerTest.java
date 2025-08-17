@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
  */
 package com.percussion.extension;
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the PSExtensionHandlerHandler class.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSExtensionHandlerHandlerTest
 {
    public PSExtensionHandlerHandlerTest()
@@ -38,7 +38,7 @@ public class PSExtensionHandlerHandlerTest
 
    }
 
-   @Ignore //TODO: Tis test needs a proper setup method that generates a temp set of directories and files to test.
+   @Disabled //TODO: Tis test needs a proper setup method that generates a temp set of directories and files to test.
    @Test
    public void testRecursiveCopy() throws Exception
    {

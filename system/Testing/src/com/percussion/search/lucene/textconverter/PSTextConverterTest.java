@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package com.percussion.search.lucene.textconverter;
 
 import com.percussion.search.lucene.IPSLuceneConstants;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ import java.io.InputStream;
  *
  */
 //TODO: Fix these tests - the failures are valid
-@Ignore
+@Disabled
 public class PSTextConverterTest extends TestCase
 {
    /**

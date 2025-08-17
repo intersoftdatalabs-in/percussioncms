@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  */
 package com.percussion.webdav;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.hooks.PSServletBase;
-import com.percussion.utils.servlet.PSServletUtils;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.webdav.error.IPSWebdavErrors;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.method.PSMethodFactory;
@@ -28,10 +28,10 @@ import com.percussion.webdav.objectstore.PSWebdavConfigDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,13 +41,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+// ...existing code...
 
 /**
  * This is the WebDAV servlet class, which provides WebDAV services
  * for all WebDAV Client.
  */
-@SuppressWarnings(value={"unchecked"})
+// REFACTORED: CP-JAVA11
+// ...existing code...
 public class PSWebdavServlet extends PSServletBase
 {
 
@@ -206,10 +207,10 @@ public class PSWebdavServlet extends PSServletBase
    {
       boolean status = false;
 
-      Iterator it = getRegisteredRxRootPaths();
+      Iterator<String> it = getRegisteredRxRootPaths();
       while (it.hasNext())
       {
-         String apath = (String) it.next();
+         String apath = it.next();
          if ((apath.indexOf(rxRoot) != -1)
                || (rxRoot.indexOf(apath) != -1))
          {
@@ -227,22 +228,22 @@ public class PSWebdavServlet extends PSServletBase
     * @return a list over zero or more Rhtyhmyx Root Paths, never 
     *    <code>null</code>.
     */
-   public Iterator getRegisteredRxRootPaths()
+   public Iterator<String> getRegisteredRxRootPaths()
    {
       String servletName = getServletConfig().getServletName();
-      Iterator entries = ms_webdavConfigMap.entrySet().iterator();
-      List paths = new ArrayList();
-      Map.Entry entry;
+      Iterator<Map.Entry<String, PSWebdavConfig>> entries = ms_webdavConfigMap.entrySet().iterator();
+      List<String> paths = new ArrayList<>();
+      Map.Entry<String, PSWebdavConfig> entry;
       String key;
       PSWebdavConfig config;
       
       while (entries.hasNext())
       {
-         entry = (Entry) entries.next();
-         key = (String) entry.getKey();
+         entry = entries.next();
+         key = entry.getKey();
          if (! key.equals(servletName))
          {
-            config = (PSWebdavConfig) entry.getValue();
+            config = entry.getValue();
             paths.add(config.getRootPath());
          }
       }
@@ -348,5 +349,5 @@ public class PSWebdavServlet extends PSServletBase
     * <code>PSWebdavConfig</code>. It can never be <code>null</code>, but may
     * be empty. 
     */
-   private static Map ms_webdavConfigMap = new HashMap();
+   private static Map<String, PSWebdavConfig> ms_webdavConfigMap = new HashMap<>();
 }

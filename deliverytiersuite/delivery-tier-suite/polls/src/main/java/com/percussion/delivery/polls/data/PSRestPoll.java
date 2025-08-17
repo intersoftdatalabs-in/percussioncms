@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,83 +14,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
+/**
+ * Represents a REST poll with its name, question, results, and session restriction. Sunny Sal:
+ * Refactored for Java 11, Google style, and better grammar.
+ */
 @XmlRootElement(name = "poll")
-public class PSRestPoll 
-{
-	private String pollName;
-	private String pollQuestion;
-	private Map<String, Integer> pollResults;
-	private int totalVotes;
-    private Map<String, Boolean> pollSubmits;
-    private boolean restrictBySession;
+public class PSRestPoll {
+  private String pollName;
+  private String pollQuestion;
+  private Map<String, Integer> pollResults;
+  private int totalVotes;
+  private Map<String, Boolean> pollSubmits;
+  private boolean restrictBySession;
 
-    public PSRestPoll(){
+  public PSRestPoll() {}
 
-	}
-	
-    public String getPollName() 
-	{
-		return pollName;
-	}
+  public String getPollName() {
+    return pollName;
+  }
 
-	public void setPollName(String pollName) 
-	{
-		this.pollName = pollName;
-	}
+  public void setPollName(String pollName) {
+    this.pollName = pollName;
+  }
 
-	public String getPollQuestion() 
-	{
-		return pollQuestion;
-	}
+  public String getPollQuestion() {
+    return pollQuestion;
+  }
 
-	public void setPollQuestion(String pollQuestion) 
-	{
-		this.pollQuestion = pollQuestion;
-	}
+  public void setPollQuestion(String pollQuestion) {
+    this.pollQuestion = pollQuestion;
+  }
 
-	public Map<String, Integer> getPollResults() 
-	{
-		return pollResults;
-	}
+  public Map<String, Integer> getPollResults() {
+    return pollResults;
+  }
 
-	public void setPollResults(Map<String, Integer> pollResults) 
-	{
-		this.pollResults = pollResults;
-	}
-	
-	public Map<String, Boolean> getPollSubmits() 
-	{
-		return pollSubmits;
-	}
+  public void setPollResults(Map<String, Integer> pollResults) {
+    this.pollResults = pollResults;
+  }
 
-	public void setpollSubmits(Map<String, Boolean> pollSubmits) 
-	{
-		this.pollSubmits = pollSubmits;
-	}
+  public Map<String, Boolean> getPollSubmits() {
+    return pollSubmits;
+  }
 
-    public int getTotalVotes()
-    {
-        return totalVotes;
-    }
+  public void setPollSubmits(Map<String, Boolean> pollSubmits) {
+    this.pollSubmits = pollSubmits;
+  }
 
-    public void setTotalVotes(int totalVotes)
-    {
-        this.totalVotes = totalVotes;
-    }
+  public int getTotalVotes() {
+    return totalVotes;
+  }
 
-    public boolean isRestrictBySession()
-    {
-        return restrictBySession;
-    }
+  public void setTotalVotes(int totalVotes) {
+    this.totalVotes = totalVotes;
+  }
 
-    public void setRestrictBySession(boolean restrictBySession)
-    {
-        this.restrictBySession = restrictBySession;
-    }
+  public boolean isRestrictBySession() {
+    return restrictBySession;
+  }
+
+  public void setRestrictBySession(boolean restrictBySession) {
+    this.restrictBySession = restrictBySession;
+  }
 }

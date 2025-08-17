@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,17 @@
  */
 package com.percussion.servlets;
 
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import javax.security.auth.login.LoginException;
 
 /**
  * This exception is thrown when a user who has not been assigned to a valid role attempts to login.
  */
-public class PSMissingRoleException extends LoginException
-{
-   /**
-    * Compiler generated serial version ID used for serialization.
-    */
-   private static final long serialVersionUID = 3001331071170554554L;
+public class PSMissingRoleException extends LoginException {
+  /** Compiler generated serial version ID used for serialization. */
+  private static final long serialVersionUID = 3001331071170554554L;
 
-   /**
-    * See {@link LoginException#LoginException(String) base class} for desc.
-    */
-   public PSMissingRoleException(String msg)
-   {
-      super(msg);
-   }
+  /** See {@link LoginException#LoginException(String) base class} for desc. */
+  public PSMissingRoleException(String msg) {
+    super(msg);
+  }
 }

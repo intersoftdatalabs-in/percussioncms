@@ -1,27 +1,29 @@
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="SiteImportConfiguration")
+/** Configuration for site import operations. */
+@XmlRootElement(name = "SiteImportConfiguration")
 public class PSSiteImportConfiguration {
 
-    private String mapQueryParamToPageName;
+  private String mapQueryParamToPageName;
+  private PSSite site;
 
-    public PSSite getSite() {
-        return site;
-    }
+  public Optional<String> getMapQueryParamToPageName() {
+    return Optional.ofNullable(mapQueryParamToPageName);
+  }
 
-    public void setSite(PSSite site) {
-        this.site = site;
-    }
+  public void setMapQueryParamToPageName(String mapQueryParamToPageName) {
+    this.mapQueryParamToPageName = mapQueryParamToPageName;
+  }
 
-    private PSSite site;
+  public PSSite getSite() {
+    return site;
+  }
 
-    public String getMapQueryParamToPageName() {
-        return mapQueryParamToPageName;
-    }
-
-    public void setMapQueryParamToPageName(String mapQueryParamToPageName) {
-        this.mapQueryParamToPageName = mapQueryParamToPageName;
-    }
+  public void setSite(PSSite site) {
+    this.site = site;
+  }
 }

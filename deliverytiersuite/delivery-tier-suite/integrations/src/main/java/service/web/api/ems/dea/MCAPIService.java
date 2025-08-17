@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@
 
 package service.web.api.ems.dea;
 
-public interface MCAPIService extends javax.xml.rpc.Service {
+public interface MCAPIService extends jakarta.xml.rpc.Service {
     public java.lang.String getMCAPIServiceSoapAddress();
 
-    public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap() throws jakarta.xml.rpc.ServiceException;
 
-    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws jakarta.xml.rpc.ServiceException;
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,155 +19,321 @@ package com.percussion.services.contentmgr;
 
 import com.percussion.utils.jsr170.IPSPropertyInterceptor;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.util.stream.Stream;
 
 /**
- * This configuration object controls the content manager's behavior. It is
- * primarily used by the assembly service to adjust the retrieved property
- * values from the configuration manager. 
- * 
- * @see PSContentMgrOption for details on the options that can be provided
- * 
+ * Modern Java 11 configuration object that controls content manager behavior.
+ *
+ * <p>This configuration is primarily used by the assembly service to adjust
+ * retrieved property values and control content processing behavior. It provides:
+ * <ul>
+ *   <li>Configurable content manager options with type-safe enum operations</li>
+ *   <li>Property interceptors for body access, namespace cleanup, and div tag processing</li>
+ *   <li>Optional-based safe access methods for all interceptors</li>
+ *   <li>Stream-based operations for efficient option processing</li>
+ * </ul>
+ *
+ * <p>All operations follow Java 11 best practices with null safety, immutable
+ * collections where appropriate, and comprehensive validation.
+ *
+ * @see PSContentMgrOption for details on available configuration options
  * @author dougrand
- * 
+ * @since Java 11 Modernization
  */
-public class PSContentMgrConfig
-{
-   /**
-    * The options to the content manager control various aspects of retrieving
-    * content
-    */
-   private Set<PSContentMgrOption> m_options = new HashSet<>();
+public final class PSContentMgrConfig {
 
-   /**
-    * if specified, this filters all access to body fields
-    * takes a {@link Property} argument
-    */
-   private IPSPropertyInterceptor m_bodyAccess = null;
+    /**
+     * The options controlling various aspects of content retrieval and processing.
+     * Uses EnumSet for optimal performance and type safety.
+     */
+    private final Set<PSContentMgrOption> options = EnumSet.noneOf(PSContentMgrOption.class);
 
-   /**
-    * If specified, this class will be instantiated and called for properties
-    * that have the <i>cleanupNamespaces</i> property set on the given field.
-    */
-   private IPSPropertyInterceptor m_namespaceCleanup = null;
-   
-   /**
-    * If specified, then this filters out any div tags whose
-    * class attribute value equals 'rxbodyfield'. The children
-    * of the div tag will still remain. 
-    */
-   private IPSPropertyInterceptor m_divTagCleanup = null;
+    /**
+     * Optional interceptor that filters all access to body fields.
+     * Takes a {@link javax.jcr.Property} argument when processing.
+     */
+    private IPSPropertyInterceptor bodyAccess;
 
-   /**
-    * Empty ctor
-    */
-   public PSContentMgrConfig() {
-      addOption(PSContentMgrOption.LOAD_MINIMAL);
-   }
+    /**
+     * Optional interceptor for properties with the <i>cleanupNamespaces</i> field property.
+     * Instantiated and called for namespace cleanup operations.
+     */
+    private IPSPropertyInterceptor namespaceCleanup;
 
-   /**
-    * @return Returns the bodyAccessClass.
-    */
-   public IPSPropertyInterceptor getBodyAccess()
-   {
-      return m_bodyAccess;
-   }
+    /**
+     * Optional interceptor that filters out div tags with class attribute 'rxbodyfield'.
+     * The children of filtered div tags are preserved in the output.
+     */
+    private IPSPropertyInterceptor divTagCleanup;
 
-   /**
-    * @param bodyAccess The bodyAccess to set.
-    */
-   public void setBodyAccess(IPSPropertyInterceptor bodyAccess)
-   {
-      m_bodyAccess = bodyAccess;
-   }
+    /**
+     * Creates a new configuration with default options.
+     * Initializes with {@link PSContentMgrOption#LOAD_MINIMAL} as the default behavior.
+     */
+    public PSContentMgrConfig() {
+        addOption(PSContentMgrOption.LOAD_MINIMAL);
+    }
 
-   /**
-    * @return Returns the options.
-    */
-   public Set<PSContentMgrOption> getOptions()
-   {
-      return m_options;
-   }
+    /**
+     * Copy constructor for creating configuration instances from existing ones.
+     *
+     * @param source the source configuration to copy from, must not be null
+     * @throws IllegalArgumentException if source is null
+     */
+    public PSContentMgrConfig(PSContentMgrConfig source) {
+        Objects.requireNonNull(source, "Source configuration cannot be null");
+        this.options.addAll(source.options);
+        this.bodyAccess = source.bodyAccess;
+        this.namespaceCleanup = source.namespaceCleanup;
+        this.divTagCleanup = source.divTagCleanup;
+    }
 
-   /**
-    * Add the given option
-    * 
-    * @param option an option, never <code>null</code>
-    */
-   public void addOption(PSContentMgrOption option)
-   {
-      if (option == null)
-      {
-         throw new IllegalArgumentException("option may not be null");
-      }
-      m_options.add(option);
-   }
+    /**
+     * Gets the body access interceptor for filtering body field access.
+     *
+     * @return the body access interceptor, may be null if not configured
+     */
+    public IPSPropertyInterceptor getBodyAccess() {
+        return bodyAccess;
+    }
 
-   /**
-    * Removes the given option
-    * 
-    * @param option an option, never <code>null</code>
-    */
-   public void removeOption(PSContentMgrOption option)
-   {
-      if (option == null)
-      {
-         throw new IllegalArgumentException("option may not be null");
-      }
-      m_options.remove(option);
-   }
+    /**
+     * Safely gets the body access interceptor with Optional wrapper.
+     *
+     * @return an Optional containing the body access interceptor, or empty if not configured
+     */
+    public Optional<IPSPropertyInterceptor> getBodyAccessSafely() {
+        return Optional.ofNullable(bodyAccess);
+    }
 
-   /**
-    * @return Returns the textCleanup.
-    */
-   public IPSPropertyInterceptor getNamespaceCleanup()
-   {
-      return m_namespaceCleanup;
-   }   
+    /**
+     * Sets the body access interceptor for filtering body field access.
+     *
+     * @param bodyAccess the body access interceptor, may be null to disable
+     */
+    public void setBodyAccess(IPSPropertyInterceptor bodyAccess) {
+        this.bodyAccess = bodyAccess;
+    }
 
-   /**
-    * If this is set to a non-<code>null</code> value, then it will be called
-    * when accessing fields that have the 
-    * @param nsCleanup The textCleanup to set.
-    */
-   public void setNamespaceCleanup(IPSPropertyInterceptor nsCleanup)
-   {
-      m_namespaceCleanup = nsCleanup;
-   }
-   
-   /**
-    * @return The div tag cleanup class, may be <code>null</code>.
-    * see {@link #m_divTagCleanup} for details.
-    */
-   public IPSPropertyInterceptor getDivTagCleanup()
-   {
-      return m_divTagCleanup;
-   }
-   
-   /**
-    * See {@link #m_divTagCleanup} for details.
-    * @param divCleanup may be <code>null</code>.
-    */
-   public void setDivTagCleanup(IPSPropertyInterceptor divCleanup)
-   {
-      m_divTagCleanup = divCleanup;
-   }
+    /**
+     * Gets an immutable view of the configured options.
+     *
+     * @return an immutable set of options, never null but may be empty
+     */
+    public Set<PSContentMgrOption> getOptions() {
+        return Collections.unmodifiableSet(options);
+    }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSContentMgrConfig)) return false;
-      PSContentMgrConfig that = (PSContentMgrConfig) o;
-      return Objects.equals(m_options, that.m_options) && Objects.equals(m_bodyAccess, that.m_bodyAccess) && Objects.equals(m_namespaceCleanup, that.m_namespaceCleanup) && Objects.equals(m_divTagCleanup, that.m_divTagCleanup);
-   }
+    /**
+     * Streams the configured options for efficient processing.
+     *
+     * @return a stream of configured options, never null but may be empty
+     */
+    public Stream<PSContentMgrOption> streamOptions() {
+        return options.stream();
+    }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(m_options, m_bodyAccess, m_namespaceCleanup, m_divTagCleanup);
-   }
+    /**
+     * Checks if a specific option is enabled in this configuration.
+     *
+     * @param option the option to check, must not be null
+     * @return true if the option is enabled, false otherwise
+     * @throws IllegalArgumentException if option is null
+     */
+    public boolean hasOption(PSContentMgrOption option) {
+        Objects.requireNonNull(option, "Option cannot be null");
+        return options.contains(option);
+    }
+
+    /**
+     * Gets the count of enabled options.
+     *
+     * @return the number of enabled options
+     */
+    public int getOptionCount() {
+        return options.size();
+    }
+
+    /**
+     * Adds the specified option to the configuration.
+     *
+     * @param option the option to add, must not be null
+     * @return true if the option was added (wasn't already present), false otherwise
+     * @throws IllegalArgumentException if option is null
+     */
+    public boolean addOption(PSContentMgrOption option) {
+        Objects.requireNonNull(option, "Option cannot be null");
+        return options.add(option);
+    }
+
+    /**
+     * Removes the specified option from the configuration.
+     *
+     * @param option the option to remove, must not be null
+     * @return true if the option was removed (was present), false otherwise
+     * @throws IllegalArgumentException if option is null
+     */
+    public boolean removeOption(PSContentMgrOption option) {
+        Objects.requireNonNull(option, "Option cannot be null");
+        return options.remove(option);
+    }
+
+    /**
+     * Adds multiple options to the configuration in a single operation.
+     *
+     * @param optionsToAdd the options to add, must not be null or contain null elements
+     * @throws IllegalArgumentException if optionsToAdd is null or contains null elements
+     */
+    public void addOptions(PSContentMgrOption... optionsToAdd) {
+        Objects.requireNonNull(optionsToAdd, "Options array cannot be null");
+        for (var option : optionsToAdd) {
+            addOption(option);
+        }
+    }
+
+    /**
+     * Removes multiple options from the configuration in a single operation.
+     *
+     * @param optionsToRemove the options to remove, must not be null or contain null elements
+     * @throws IllegalArgumentException if optionsToRemove is null or contains null elements
+     */
+    public void removeOptions(PSContentMgrOption... optionsToRemove) {
+        Objects.requireNonNull(optionsToRemove, "Options array cannot be null");
+        for (var option : optionsToRemove) {
+            removeOption(option);
+        }
+    }
+
+    /**
+     * Clears all configured options.
+     */
+    public void clearOptions() {
+        options.clear();
+    }
+
+    /**
+     * Gets the namespace cleanup interceptor.
+     *
+     * @return the namespace cleanup interceptor, may be null if not configured
+     */
+    public IPSPropertyInterceptor getNamespaceCleanup() {
+        return namespaceCleanup;
+    }
+
+    /**
+     * Safely gets the namespace cleanup interceptor with Optional wrapper.
+     *
+     * @return an Optional containing the namespace cleanup interceptor, or empty if not configured
+     */
+    public Optional<IPSPropertyInterceptor> getNamespaceCleanupSafely() {
+        return Optional.ofNullable(namespaceCleanup);
+    }
+
+    /**
+     * Sets the namespace cleanup interceptor for fields with the cleanupNamespaces property.
+     *
+     * @param namespaceCleanup the namespace cleanup interceptor, may be null to disable
+     */
+    public void setNamespaceCleanup(IPSPropertyInterceptor namespaceCleanup) {
+        this.namespaceCleanup = namespaceCleanup;
+    }
+
+    /**
+     * Gets the div tag cleanup interceptor.
+     *
+     * @return the div tag cleanup interceptor, may be null if not configured
+     */
+    public IPSPropertyInterceptor getDivTagCleanup() {
+        return divTagCleanup;
+    }
+
+    /**
+     * Safely gets the div tag cleanup interceptor with Optional wrapper.
+     *
+     * @return an Optional containing the div tag cleanup interceptor, or empty if not configured
+     */
+    public Optional<IPSPropertyInterceptor> getDivTagCleanupSafely() {
+        return Optional.ofNullable(divTagCleanup);
+    }
+
+    /**
+     * Sets the div tag cleanup interceptor for filtering rxbodyfield div tags.
+     *
+     * @param divTagCleanup the div tag cleanup interceptor, may be null to disable
+     */
+    public void setDivTagCleanup(IPSPropertyInterceptor divTagCleanup) {
+        this.divTagCleanup = divTagCleanup;
+    }
+
+    /**
+     * Checks if any interceptors are configured.
+     *
+     * @return true if at least one interceptor is configured, false otherwise
+     */
+    public boolean hasInterceptors() {
+        return bodyAccess != null || namespaceCleanup != null || divTagCleanup != null;
+    }
+
+    /**
+     * Checks if this configuration is in minimal loading mode.
+     *
+     * @return true if LOAD_MINIMAL option is enabled, false otherwise
+     */
+    public boolean isMinimalLoading() {
+        return hasOption(PSContentMgrOption.LOAD_MINIMAL);
+    }
+
+    /**
+     * Creates a new configuration with minimal loading enabled.
+     *
+     * @return a new configuration instance with LOAD_MINIMAL option
+     */
+    public static PSContentMgrConfig createMinimal() {
+        return new PSContentMgrConfig(); // Default constructor adds LOAD_MINIMAL
+    }
+
+    /**
+     * Creates a new configuration with specified options.
+     *
+     * @param options the options to enable, must not be null or contain null elements
+     * @return a new configuration instance with the specified options
+     * @throws IllegalArgumentException if options is null or contains null elements
+     */
+    public static PSContentMgrConfig createWithOptions(PSContentMgrOption... options) {
+        var config = new PSContentMgrConfig();
+        config.clearOptions(); // Remove default LOAD_MINIMAL
+        config.addOptions(options);
+        return config;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof PSContentMgrConfig)) {
+            return false;
+        }
+        var other = (PSContentMgrConfig) obj;
+        return Objects.equals(options, other.options)
+                && Objects.equals(bodyAccess, other.bodyAccess)
+                && Objects.equals(namespaceCleanup, other.namespaceCleanup)
+                && Objects.equals(divTagCleanup, other.divTagCleanup);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(options, bodyAccess, namespaceCleanup, divTagCleanup);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSContentMgrConfig{options=%s, bodyAccess=%s, namespaceCleanup=%s, divTagCleanup=%s}",
+                options, bodyAccess != null, namespaceCleanup != null, divTagCleanup != null);
+    }
 }

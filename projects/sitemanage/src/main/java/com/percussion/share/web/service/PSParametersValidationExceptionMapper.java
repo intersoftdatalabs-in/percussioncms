@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +21,42 @@ package com.percussion.share.web.service;
 import com.percussion.cms.IPSConstants;
 import com.percussion.share.service.exception.PSParametersValidationException;
 import com.percussion.share.validation.PSErrors;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
-
+/**
+ * Maps {@link PSParametersValidationException} to a serializable error object. Sunny Sal says:
+ * "Parameter validation failed? Let's keep it parameterized and polite!"
+ */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("parametersValidationExceptionMapper")
-public class PSParametersValidationExceptionMapper extends PSAbstractExceptionMapper<PSParametersValidationException> implements ExceptionMapper<PSParametersValidationException> {
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
-    private static final String ERROR_MESSAGE = "PSParametersValidationExceptionMapper exception mapper mapped exception:";
+public class PSParametersValidationExceptionMapper
+    extends PSAbstractExceptionMapper<PSParametersValidationException>
+    implements ExceptionMapper<PSParametersValidationException> {
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(PSParametersValidationException exception) {
-        log.debug(ERROR_MESSAGE, exception);
-        return exception.getValidationErrors();
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  private static final String ERROR_MESSAGE =
+      "PSParametersValidationExceptionMapper exception mapper mapped exception:";
 
-    }
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(PSParametersValidationException exception) {
+    log.debug(ERROR_MESSAGE, exception);
+    return exception.getValidationErrors();
+  }
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(PSParametersValidationException exception)
-    {
-        return super.getStatus(exception);
-    }
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Response.Status getStatus(PSParametersValidationException exception) {
+    return super.getStatus(exception);
+  }
 }

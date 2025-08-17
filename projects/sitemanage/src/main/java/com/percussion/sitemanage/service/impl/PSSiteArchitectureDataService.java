@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,27 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service.impl;
 
 import com.percussion.share.service.PSAbstractSimpleDataService;
 import com.percussion.sitemanage.dao.IPSSiteArchitectureDao;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 import com.percussion.sitemanage.service.IPSSiteArchitectureDataService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Transactional
 @Component("siteArchitectureDataService")
 @Lazy
-public class PSSiteArchitectureDataService extends
-      PSAbstractSimpleDataService<PSSiteArchitecture, String> implements
-      IPSSiteArchitectureDataService
-{
-   @Autowired
-   public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao)
-   {
-      super(dao);
-   }
+public class PSSiteArchitectureDataService
+    extends PSAbstractSimpleDataService<PSSiteArchitecture, String>
+    implements IPSSiteArchitectureDataService {
+
+  @Autowired
+  public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao) {
+    super(dao);
+  }
 }

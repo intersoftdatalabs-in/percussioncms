@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,14 @@
 package com.percussion.delivery.polls.services;
 
 import com.percussion.delivery.polls.data.IPSPoll;
-import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.data.PSPollsResponse;
 import com.percussion.delivery.polls.data.PSPollsResponse.PollResponseStatus;
 import com.percussion.delivery.polls.data.PSRestPoll;
 import com.percussion.delivery.services.PSAbstractRestService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import jakarta.servlet.http.Cookie;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HEAD;
 import jakarta.ws.rs.POST;
@@ -41,205 +35,168 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 import java.util.HashMap;
-import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-/**
- * REST service for polls feature implementation.
- */
+/** REST service for polls feature implementation. */
 @Path("/polls")
 @Component
+// REFACTORED: CP-JAVA11
+public class PSPollsRestService extends PSAbstractRestService implements IPSPollsRestService {
+  private static final String SERVER_ERROR_MESSAGE =
+      "Failed to process your request due to an unexpected error.";
+  private static final Logger log = LogManager.getLogger(PSPollsRestService.class);
+  private IPSPollsService pollsService;
 
-public class PSPollsRestService extends PSAbstractRestService implements IPSPollsRestService
-{
-    private static final String SERVER_ERROR_MESSAGE = "Failed to process you request due to an unexpected error.";
-    private  static final Logger log = LogManager.getLogger(PSPollsRestService.class);
-    private IPSPollsService pollsService;
+  public PSPollsRestService() {}
 
-    public PSPollsRestService(){
+  @Autowired
+  public PSPollsRestService(IPSPollsService pollsService) {
+    this.pollsService = pollsService;
+  }
 
+  @HEAD
+  @Path("/csrf")
+  public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+    var cookies = request.getCookies();
+    if (cookies == null) {
+      return;
     }
-
-    @Autowired
-    public PSPollsRestService(IPSPollsService pollsService)
-    {
-        this.pollsService = pollsService;
+    for (var cookie : cookies) {
+      if ("XSRF-TOKEN".equals(cookie.getName())) {
+        response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
+        response.setHeader("X-CSRF-TOKEN", cookie.getValue());
+      }
     }
+  }
 
-
-    @HEAD
-    @Path("/csrf")
-    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response)  {
-        Cookie[] cookies = request.getCookies();
-        if(cookies == null){
-            return;
-        }
-        for(Cookie cookie: cookies){
-            if("XSRF-TOKEN".equals(cookie.getName())){
-                response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
-                response.setHeader("X-CSRF-TOKEN", cookie.getValue());
-            }
-        }
+  @Override
+  @GET
+  @Path("/{pollName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public PSPollsResponse getPoll(@PathParam("pollName") String pollName) {
+    try {
+      var poll = pollsService.findPoll(pollName);
+      if (poll == null) {
+        return new PSPollsResponse(
+            PollResponseStatus.ERROR, "No results found for poll with name: " + pollName);
+      }
+      var restPoll = convertToRestPoll(poll);
+      return new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
+    } catch (Exception t) {
+      log.error(
+          "Error occurred while getting poll by name: {}, Error: {}",
+          t.getLocalizedMessage(),
+          t.getMessage());
+      log.debug(t.getMessage(), t);
+      return new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
     }
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.polls.services.IPSPollsRestService#getPoll(java.lang.String)
-     */
-    @Override
-    @GET
-    @Path("/{pollName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse getPoll(@PathParam("pollName") String pollName)
-    {
-        PSPollsResponse pollResponse = null;
-        try
-        {
-            IPSPoll poll = pollsService.findPoll(pollName);
-            if(poll == null)
-            {
-                pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, "No results found for poll with name: " + pollName);
-            }
-            else
-            {
-                PSRestPoll restPoll = convertToRestPoll(poll);
-                pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
-            }
-        }
-        catch(Exception t)
-        {
-            log.error("Error occurred while getting poll by name : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
-            log.debug(t.getMessage(), t);
-            pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
-        }
-        return pollResponse;
-
+  @Override
+  @GET
+  @Path("/question/{pollQuestion}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion) {
+    if (log.isDebugEnabled()) {
+      log.debug("Poll question is: {}", pollQuestion);
     }
-
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.polls.services.IPSPollsRestService#getPollByQuestion(java.lang.String)
-     */
-    @Override
-    @GET
-    @Path("/question/{pollQuestion}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion)
-    {
-        if(log.isDebugEnabled()){
-            log.debug("Poll question is : {}", pollQuestion);
-        }
-        PSPollsResponse pollResponse = null;
-        try
-        {
-            IPSPoll poll = pollsService.findPollByQuestion(pollQuestion);
-            if(poll == null)
-            {
-                pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, "No results found for poll with question : " + pollQuestion);
-            }
-            else
-            {
-                PSRestPoll restPoll = convertToRestPoll(poll);
-                pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
-            }
-        }
-        catch(Exception t)
-        {
-            log.error("Error occurred while getting poll by question : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
-            log.debug(t.getMessage(), t);
-            pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
-        }
-        return pollResponse;
+    try {
+      var poll = pollsService.findPollByQuestion(pollQuestion);
+      if (poll == null) {
+        return new PSPollsResponse(
+            PollResponseStatus.ERROR, "No results found for poll with question: " + pollQuestion);
+      }
+      var restPoll = convertToRestPoll(poll);
+      return new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
+    } catch (Exception t) {
+      log.error(
+          "Error occurred while getting poll by question: {}, Error: {}",
+          t.getLocalizedMessage(),
+          t.getMessage());
+      log.debug(t.getMessage(), t);
+      return new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
     }
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.polls.services.IPSPollsRestService#savePoll(com.percussion.delivery.polls.data.PSRestPoll, javax.servlet.http.HttpServletRequest)
-     */
-    @Override
-    @POST
-    @Path("/save")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req)
-    {
-        if(log.isDebugEnabled()){
-            log.debug("Context path in http servlet request is : {}", req.getContextPath());
-        }
-        PSPollsResponse pollResponse = null;
-        try
-        {
-            pollsService.savePoll(restPoll.getPollName(), restPoll.getPollQuestion(), restPoll.getPollSubmits());
-            IPSPoll poll = pollsService.findPollByQuestion(restPoll.getPollQuestion());
-            if(restPoll.isRestrictBySession())
-            {
-                HttpSession session= req.getSession(true);
-                session.setAttribute(restPoll.getPollQuestion(), "true");
-            }
-            restPoll = convertToRestPoll(poll);
-            pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
-
-        }
-        catch(Exception t)
-        {
-            log.error("Error occurred while saving a poll(" + restPoll.getPollName() + ") : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
-            log.debug(t.getMessage(), t);
-            pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
-        }
-        return pollResponse;
+  @Override
+  @POST
+  @Path("/save")
+  @Produces(MediaType.APPLICATION_JSON)
+  public PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req) {
+    if (log.isDebugEnabled()) {
+      log.debug("Context path in http servlet request is: {}", req.getContextPath());
     }
-
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.polls.services.IPSPollsRestService#canUserVote(java.lang.String, javax.servlet.http.HttpServletRequest)
-     */
-    @Override
-    @GET
-    @Path("/canuservote/{pollQuestion}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String canUserVote(@PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req)
-    {
-        if(log.isDebugEnabled()){
-            log.debug("Context path in http servlet request is : {}", req.getContextPath());
-        }
-        HttpSession session= req.getSession(true);
-        Object sessVar = session.getAttribute(pollQuestion);
-        String canVote = "true";
-        if (sessVar != null)
-        {
-            canVote = "false";
-        }
-        return canVote;
+    try {
+      pollsService.savePoll(
+          restPoll.getPollName(), restPoll.getPollQuestion(), restPoll.getPollSubmits());
+      var poll = pollsService.findPollByQuestion(restPoll.getPollQuestion());
+      if (restPoll.isRestrictBySession()) {
+        var session = req.getSession(true);
+        session.setAttribute(restPoll.getPollQuestion(), "true");
+      }
+      var updatedRestPoll = convertToRestPoll(poll);
+      return new PSPollsResponse(PollResponseStatus.SUCCESS, updatedRestPoll);
+    } catch (Exception t) {
+      log.error(
+          "Error occurred while saving a poll ({}): {}, Error: {}",
+          restPoll.getPollName(),
+          t.getLocalizedMessage(),
+          t.getMessage());
+      log.debug(t.getMessage(), t);
+      return new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
     }
+  }
 
-    private PSRestPoll convertToRestPoll(IPSPoll poll)
-    {
-        PSRestPoll restPoll = new PSRestPoll();
-        restPoll.setPollName(poll.getPollName());
-        restPoll.setPollQuestion(poll.getPollQuestion());
-        Map<String, Integer> results = new HashMap<>();
-        int totalVotes = 0;
-        for (IPSPollAnswer pollAnswer : poll.getPollAnswers())
-        {
-            totalVotes += pollAnswer.getCount();
-            results.put(pollAnswer.getAnswer(), new Integer(pollAnswer.getCount()));
-        }
-        restPoll.setPollResults(results);
-        restPoll.setTotalVotes(totalVotes);
-        return restPoll;
+  @Override
+  @GET
+  @Path("/canuservote/{pollQuestion}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String canUserVote(
+      @PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req) {
+    if (log.isDebugEnabled()) {
+      log.debug("Context path in http servlet request is: {}", req.getContextPath());
     }
+    var session = req.getSession(true);
+    var sessVar = session.getAttribute(pollQuestion);
+    return (sessVar == null) ? "true" : "false";
+  }
 
-    public String getVersion() {
-
-        String version = super.getVersion();
-
-        log.info("getVersion() from PSPollsRestService ...{}", version);
-
-        return version;
+  private PSRestPoll convertToRestPoll(IPSPoll poll) {
+    var restPoll = new PSRestPoll();
+    restPoll.setPollName(poll.getPollName());
+    restPoll.setPollQuestion(poll.getPollQuestion());
+    var results = new HashMap<String, Integer>();
+    var totalVotes = 0;
+    for (var pollAnswer : poll.getPollAnswers()) {
+      totalVotes += pollAnswer.getCount();
+      results.put(pollAnswer.getAnswer(), pollAnswer.getCount());
     }
+    restPoll.setPollResults(results);
+    restPoll.setTotalVotes(totalVotes);
+    return restPoll;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
-        log.debug("Polls service for site rename. Nothing to do for site: {}", prevSiteName);
-        return Response.status(Status.NO_CONTENT).build();
-    }
+  public String getVersion() {
+    var version = super.getVersion();
+    log.info("getVersion() from PSPollsRestService ...{}", version);
+    return version;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
+    log.debug("Polls service for site rename. Nothing to do for site: {}", prevSiteName);
+    // No operation needed for polls on site rename.
+    return Response.status(Response.Status.NO_CONTENT).build();
+  }
 }

@@ -24,33 +24,33 @@ import jakarta.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSXEntry {
 
-	@XmlElement(name="PSXDisplayText")
-	private String label;
-	
-	@XmlElement(name="Value")
-	private String value;
-	
-	public PSXEntry(){}
+  @XmlElement(name = "PSXDisplayText")
+  private String label;
 
-	public PSXEntry(String value, String label){
-		this.label = label;
-		this.value = value;
-	}
-	public String getValue() {
-		return value;
-	}
+  @XmlElement(name = "Value")
+  private String value;
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+  public PSXEntry() {}
 
-	public String getLabel() {
-		return label;
-	}
+  public PSXEntry(String value, String label) {
+    this.label = label;
+    this.value = value;
+  }
 
-	public void setLabel(String label) {
-		this.label = label;
-	};
-	
-	
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+  ;
 }

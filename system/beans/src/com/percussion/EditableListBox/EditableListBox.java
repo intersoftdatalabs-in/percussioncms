@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 
 package com.percussion.EditableListBox;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.BevelBorder; // TODO: JAVAX-11
-import javax.swing.border.CompoundBorder; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
-import javax.swing.table.JTableHeader; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
-import javax.swing.table.TableColumn; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -373,7 +374,7 @@ public class EditableListBox extends JPanel implements ActionListener
 
   public void removeItemAt(int index)
   {
-     int i = m_list.getRowCount() - 1;
+     //
 
      ((DefaultTableModel)m_list.getModel()).removeRow(index);
     // ((DefaultTableModel)m_list.getModel()).moveRow(i, i, m_list.getRowCount() - 1);
@@ -560,7 +561,7 @@ public class EditableListBox extends JPanel implements ActionListener
   public JButton getLeftButton() { return m_leftButton; }
   public void setLeftButton(String buttonType)    // use constants
   {
-     JButton oldButton = m_leftButton;
+     //
 
      if (m_leftButton != null)
         m_leftButton.removeActionListener(this);
@@ -872,14 +873,7 @@ public class EditableListBox extends JPanel implements ActionListener
   * JTable).  This method is developed for easing programmer's understanding
   * of how this List works.
 */
-  private Object[][] filterListData(Object[] data)
-  {
-     Object[][] filter = new Object[data.length][1];
-     for (int i = 0; i < data.length; i++)
-         filter[i][0] = data[i];
 
-     return filter;
-  }
 
 /** Performs the delete functionality of the delete button.
 */
@@ -932,9 +926,9 @@ public class EditableListBox extends JPanel implements ActionListener
       m_textField = null;
 
       if (m_comboBoxData != null)
-        m_comboBox = new JComboBox(m_comboBoxData);
+        m_comboBox = new JComboBox<Object>(m_comboBoxData);
       else
-        m_comboBox = new JComboBox();
+        m_comboBox = new JComboBox<Object>();
 
       m_comboBox.setEditable(true);
       m_listEditor = new EditableListBoxEditor(m_comboBox);
@@ -944,9 +938,9 @@ public class EditableListBox extends JPanel implements ActionListener
       m_textField = null;
 
       if (m_comboBoxData != null)
-        m_comboBox = new JComboBox(m_comboBoxData);
+        m_comboBox = new JComboBox<Object>(m_comboBoxData);
       else
-        m_comboBox = new JComboBox();
+        m_comboBox = new JComboBox<Object>();
 
       m_comboBox.setEditable(false);
       m_listEditor = new EditableListBoxEditor(m_comboBox);
@@ -970,9 +964,9 @@ public class EditableListBox extends JPanel implements ActionListener
       m_textField = null;
 
       if (m_comboBoxData != null)
-        m_comboBox = new JComboBox(m_comboBoxData);
+        m_comboBox = new JComboBox<Object>(m_comboBoxData);
       else
-        m_comboBox = new JComboBox();
+        m_comboBox = new JComboBox<Object>();
         
       m_comboBox.setEditable(true);
       if ( null != m_browseDialog )
@@ -1109,7 +1103,7 @@ public class EditableListBox extends JPanel implements ActionListener
   private JPanel      m_panel = new JPanel();
 
   private JTextField  m_textField;
-  private JComboBox   m_comboBox;
+  private JComboBox<Object>   m_comboBox;
 
   private IDataExchange m_dataExchange = null;
 
@@ -1118,14 +1112,14 @@ public class EditableListBox extends JPanel implements ActionListener
 
   private Object[]    m_comboBoxData;
 
-  private boolean     m_insertStatus = true;
+  
   private boolean     m_readOnly = false;
   private boolean     m_emptyEndCellEnabled = false;
 
   private String      m_titleString;
 
-  private int         m_width;
-  private int         m_height;
+  
+  
 
   /**
    * The Scroll pane for the list box, not <code>null</code> after construction.

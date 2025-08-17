@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,73 +20,62 @@ package com.percussion.widgetbuilder.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-/**
- * Container object for a list of resource files
- * 
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="WidgetBuilderResourceListData")
+/** Container object for a list of resource files (JS or CSS). */
+@XmlRootElement(name = "WidgetBuilderResourceListData")
 @JsonRootName("WidgetBuilderResourceListData")
-public class PSWidgetBuilderResourceListData extends PSAbstractDataObject
-{
-    private List<String> resourceList = new ArrayList<>();
+public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
 
-    public static PSWidgetBuilderResourceListData fromXml(String resourceXml)
-    {
-        return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
-    }
-    
-    public String toXml()
-    {
-        return PSSerializerUtils.marshal(this);
-    }
-    
-    /**
-     * Get the list of resources in this list.
-     * 
-     * @return The list, not <code>null</code>, may be empty.
-     */
-    public List<String> getResourceList()
-    {
-        return resourceList;
-    }
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Set the list of resources
-     * 
-     * @param resourceList The list, not <code>null</code>, may be empty.
-     */
-    public void setResourceList(List<String> resourceList)
-    {
-        this.resourceList = resourceList;
-    }
+  private List<String> resourceList = new ArrayList<>();
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSWidgetBuilderResourceListData{");
-        sb.append("resourceList=").append(resourceList);
-        sb.append('}');
-        return sb.toString();
-    }
+  public static PSWidgetBuilderResourceListData fromXml(String resourceXml) {
+    return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
-        PSWidgetBuilderResourceListData that = (PSWidgetBuilderResourceListData) o;
-        return Objects.equals(getResourceList(), that.getResourceList());
-    }
+  public String toXml() {
+    return PSSerializerUtils.marshal(this);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getResourceList());
-    }
+  /**
+   * Get the list of resources in this list.
+   *
+   * @return The list, not {@code null}, may be empty.
+   */
+  public List<String> getResourceList() {
+    return resourceList;
+  }
+
+  /**
+   * Set the list of resources.
+   *
+   * @param resourceList The list, not {@code null}, may be empty.
+   */
+  public void setResourceList(List<String> resourceList) {
+    Objects.requireNonNull(resourceList, "resourceList must not be null");
+    this.resourceList = resourceList;
+  }
+
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderResourceListData{" + "resourceList=" + resourceList + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
+    var that = (PSWidgetBuilderResourceListData) o;
+    return Objects.equals(getResourceList(), that.getResourceList());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getResourceList());
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +20,50 @@ package com.percussion.pagemanagement.parser;
 import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 
-public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-{
+/**
+ * Parses HTML or template text into a region tree.
+ *
+ * @param <REGION> Region type.
+ * @param <CODE> Code type.
+ * @author adamgent, Sunny Sal
+ */
+public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
 
-    PSParsedRegionTree<REGION, CODE> parse(String text);
-    
-    
+  /**
+   * Parses the provided text into a region tree.
+   *
+   * @param text the HTML or template text, never null or empty.
+   * @return the parsed region tree.
+   */
+  PSParsedRegionTree<REGION, CODE> parse(String text);
+
+  /**
+   * Factory for creating region and code objects for the parser.
+   *
+   * @param <R> Region type.
+   * @param <C> Code type.
+   */
+  interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode> {
     /**
-     * Implement to create different kinds of {@link PSAbstractRegion} with the parser.
-     * 
-     * @author adamgent
+     * Creates a new code object.
      *
-     * @param <R> Region type.
-     * @param <C> Code type.
+     * @return never null.
      */
-    public static interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode>
-    {
-        C createRegionCode();
-        
-        R createRegion(String regionId);
+    C createRegionCode();
 
-        R createRootRegion();
-    }
+    /**
+     * Creates a new region with the given region id.
+     *
+     * @param regionId the region id, never null.
+     * @return never null.
+     */
+    R createRegion(String regionId);
+
+    /**
+     * Creates the root region.
+     *
+     * @return never null.
+     */
+    R createRootRegion();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,48 +19,49 @@ package com.percussion.taxonomy.web.xmlGeneration;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
 public class Item {
 
-    @Attribute
-    public String id;
-    @Attribute(required = false)
-    public String parent_id;
-    @Attribute(required = false)
-    public String state;
-    @Attribute
-    public String title;
-    
-    @Element
-    public Content content;
-    
-    @ElementList(required = false, inline = true, entry="attribute")
-    public List<Attr> attributes;
+  @Attribute public String id;
 
-    public Item() {}
+  @Attribute(required = false)
+  public String parent_id;
 
-    public Item(String id, String parent_id, String title, String content, String link, String onclick) {
-        this.id = id;
-        this.parent_id = parent_id;
-        if (link !=null){
-        	if (onclick!=null){
-        		this.content = new Content(content, link, onclick);
-        	}else{
-        		this.content = new Content(content, link);
-        	}
-        }else{
-        	this.content = new Content(content);
-        }
-        this.title = title;
+  @Attribute(required = false)
+  public String state;
+
+  @Attribute public String title;
+
+  @Element public Content content;
+
+  @ElementList(required = false, inline = true, entry = "attribute")
+  public List<Attr> attributes;
+
+  public Item() {}
+
+  public Item(
+      String id, String parent_id, String title, String content, String link, String onclick) {
+    this.id = id;
+    this.parent_id = parent_id;
+    if (link != null) {
+      if (onclick != null) {
+        this.content = new Content(content, link, onclick);
+      } else {
+        this.content = new Content(content, link);
+      }
+    } else {
+      this.content = new Content(content);
     }
-    
-    public void addAttribute(Attr attr){
-        if(attributes == null){
-            attributes = new ArrayList<Attr>();
-        }
-        attributes.add(attr);
-    }    
+    this.title = title;
+  }
+
+  public void addAttribute(Attr attr) {
+    if (attributes == null) {
+      attributes = new ArrayList<Attr>();
+    }
+    attributes.add(attr);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,233 +17,119 @@
 
 package com.percussion.server.agent;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import org.apache.commons.lang3.StringUtils;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
+import java.time.Instant;
+import java.util.Objects;
 
 /**
- * This class encapsulates the agent handler response XML document that is
- * defined in the interface <code>IPSDTDAgentHandlerResponse</code>. The
- * document is created in the constructor itself.
+ * Implementation of {@link IPSAgentHandlerResponse} that handles agent response data.
+ * This class is thread-safe and immutable after construction for response data.
+ *
+ * @since Java 11
  */
-public class PSAgentHandlerResponse implements IPSAgentHandlerResponse
-{
+public class PSAgentHandlerResponse implements IPSAgentHandlerResponse {
+
+   private volatile int responseType = RESPONSE_TYPE_SUCCESS;
+   private volatile String responseContent;
+   private volatile String stylesheetPath;
+   private final String timestamp;
+
    /**
-    * Default constructor. Creates the empty XML document with DTD defined.
+    * Default constructor initializing with current timestamp.
     */
-   public PSAgentHandlerResponse()
-   {
-      initXMLDocument();
+   public PSAgentHandlerResponse() {
+      this.timestamp = Instant.now().toString();
+   }
+
+   @Override
+   public void setResponse(int responseType, String responseContent) {
+      if (responseType != RESPONSE_TYPE_SUCCESS && responseType != RESPONSE_TYPE_ERROR) {
+         throw new IllegalArgumentException("Invalid response type: " + responseType);
+      }
+      this.responseType = responseType;
+      this.responseContent = responseContent;
+   }
+
+   @Override
+   public int getResponseType() {
+      return responseType;
+   }
+
+   @Override
+   public String getResponseContent() {
+      return responseContent;
+   }
+
+   @Override
+   public void setStyleSheet(String stylesheetPath) {
+      this.stylesheetPath = stylesheetPath;
+   }
+
+   @Override
+   public String getStyleSheet() {
+      return stylesheetPath;
    }
 
    /**
-    * This method creates the XML document as per the DTD defined.
+    * Gets the timestamp when this response was created.
+    *
+    * @return the creation timestamp in ISO-8601 format
     */
-   private void initXMLDocument()
-   {
-      m_Document = PSXmlDocumentBuilder.createXmlDocument();
-
-      m_Root = (Element)m_Document.appendChild(
-                  m_Document.createElement(ELEM_ROOT));
-      m_Root.setAttribute(ATTR_NS, PSUtils.NS_URI_PERCUSSION_AGENT);
-      m_Response = PSXmlDocumentBuilder.addElement(m_Document, m_Root,
-         ELEM_RESPONSE, "");
+   public String getTimestamp() {
+      return timestamp;
    }
 
    /**
-    * Access function for the XML DOM document for the agent request handler
-    * response.
+    * Checks if the response indicates success.
     *
-    * @return response document DOM Document, never <code>null</code>.
-    *
+    * @return {@code true} if response type is success, {@code false} otherwise
     */
-   public Document getDocument()
-   {
-      return m_Document;
-   }
-
-   /*
-    * see IPSAgentHandlerResponse for documentation
-    */
-   public Node getResponseNode()
-   {
-      return m_Response;
+   public boolean isSuccess() {
+      return responseType == RESPONSE_TYPE_SUCCESS;
    }
 
    /**
-    * Method to set the action for the response.
+    * Checks if the response indicates an error.
     *
-    * @param action name for the response, must not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if the argument is <code>null</code>.
+    * @return {@code true} if response type is error, {@code false} otherwise
     */
-   public void setAction(String action)
-   {
-      if(null == action || action.trim().length() < 1)
-      {
-         throw new IllegalArgumentException(
-            "Action cannot be empty or null");
-      }
-      m_Root.setAttribute(ATTR_ACTION, action);
+   public boolean isError() {
+      return responseType == RESPONSE_TYPE_ERROR;
    }
 
    /**
-    * Method to set the result element in the response document.
+    * Checks if the response has content.
     *
-    * @param response type string for the response. Must not be
-    * <code>null</code>.
-    *
-    * @param message for the response. Must not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any of the the arguments
-    * is <code>null</code>.
-    *
+    * @return {@code true} if response content is not blank, {@code false} otherwise
     */
-   public void setResponse(Node result)
-   {
-      if(null == result)
-         return;
-
-      if(result instanceof Element ||
-         result instanceof Text)
-      {
-         m_Response.appendChild(result);
-      }
-      else
-      {
-         throw new IllegalArgumentException(
-            "Result node must be either a Text or Element type");
-      }
+   public boolean hasContent() {
+      return StringUtils.isNotBlank(responseContent);
    }
 
-   /**
-    * Method to set the response data for the response document.
-    *
-    * @param response type string for the response. Must not be
-    * <code>null</code>.
-    *
-    * @param message for the response. Must not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any of the the arguments
-    * is <code>null</code>.
-    *
-    */
-   public void setResponse(String type, String msg)
-   {
-      if(null == type)
-      {
-         throw new IllegalArgumentException(
-            "Response type string cannot be null in setResponse");
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
       }
-      if(null == msg)
-      {
-         throw new IllegalArgumentException(
-            "Response message string cannot be null in setResponse");
+      if (obj == null || getClass() != obj.getClass()) {
+         return false;
       }
-      setResponse(type, msg, null);
+      var that = (PSAgentHandlerResponse) obj;
+      return responseType == that.responseType &&
+             Objects.equals(responseContent, that.responseContent) &&
+             Objects.equals(stylesheetPath, that.stylesheetPath) &&
+             Objects.equals(timestamp, that.timestamp);
    }
 
-   /**
-    * Method to set the response data for the response document.
-    *
-    * @param response type string for the response. Must not be
-    * <code>null</code>.
-    *
-    * @param message for the response. Must not be <code>null</code>.
-    *
-    * @param code for the response. May be <code>null</code> or
-    * <code>empty</code>.
-    *
-    * @throws IllegalArgumentException if any of response type or message
-    * strings is <code>null</code>.
-    *
-    */
-   public void setResponse(String type, String msg, String code)
-   {
-      if(null == type)
-      {
-         throw new IllegalArgumentException(
-            "Response type string cannot be null in setResponse");
-      }
-      if(null == msg)
-      {
-         throw new IllegalArgumentException(
-            "Response message string cannot be null in setResponse");
-      }
-
-      if(null != code && code.trim().length() > 0)
-      {
-         m_Response.setAttribute(ATTR_CODE, code);
-      }
-      m_Root.setAttribute(ATTR_TYPE, type);
-      Node node = m_Response.getFirstChild();
-      if(null == node)
-      {
-         Text text = m_Document.createTextNode(msg);
-         m_Response.appendChild(text);
-      }
-      else
-      {
-         ((Text)node).setData(msg);
-      }
+   @Override
+   public int hashCode() {
+      return Objects.hash(responseType, responseContent, stylesheetPath, timestamp);
    }
 
-   /**
-    * Set the full path for the style sheet to use to render the response
-    * document.
-    * @param fullPath - full path name of the style sheet, must not be
-    * <code>null</code> or <code>empty</code>.
-    * @throws IllegalArgumentException if the argument is <code>null</code> or
-    * <code>empty</code>.
-    */
-   public void setStyleSheet(String fullPath)
-   {
-      if(fullPath == null || fullPath.trim().length() < 1)
-      {
-         throw new IllegalArgumentException(
-            "Stylesheet path must not be null or empty");
-      }
-      m_StyleSheetPath = fullPath;
+   @Override
+   public String toString() {
+      return String.format("PSAgentHandlerResponse{type=%d, hasContent=%s, timestamp=%s}",
+         responseType, hasContent(), timestamp);
    }
-
-   /**
-    * Access function that returns the full path of the style sheet to be used
-    * to render the response document.
-    * @return full path of the stylesheet set by the <code>setStyleSheet</code>
-    * method. May be <code>null</code> if never set.
-    */
-   public String getStyleSheet()
-   {
-      return m_StyleSheetPath;
-   }
-
-   /**
-    * The response XML document this class encapsulates. Method initXMLDocument
-    * creates the basic template required.
-    */
-   Document m_Document = null;
-
-   /**
-    * Full path name of the response XSL style sheet to render the document.
-    */
-   String m_StyleSheetPath = null;
-
-   /**
-    * The root element of the response document for quick access.
-    */
-   Element m_Root = null;
-
-   /**
-    * The response element of the response document for quick access.
-    */
-   Element m_Response = null;
-
-   /**
-    * The status element of the response document for quick access.
-    */
-   Element m_Status = null;
 }

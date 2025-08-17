@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import com.percussion.cms.objectstore.ws.PSClientItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.error.PSException;
+import com.percussion.system.utils.PSWorkflowInfo;
 import com.percussion.util.IPSRemoteRequester;
-import com.percussion.util.PSWorkflowInfo;
 import com.percussion.utils.spring.PSUrlHandlerMapping;
 import com.percussion.webdav.IPSWebdavConstants;
 import com.percussion.webdav.PSWebdavStatus;
@@ -43,7 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Element;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

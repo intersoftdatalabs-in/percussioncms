@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import com.percussion.delivery.metadata.IPSMetadataProperty;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
@@ -35,88 +35,71 @@ import java.io.Serializable;
  */
 @XmlRootElement(name = "property")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class PSMetadataProperty implements Serializable, IPSMetadataProperty
-{
+public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
+    private String name;
+    @XmlElement
+    private String value;
 
-   /**
-    * Property name. For example: dcterms:creator
-    */
-   private String name;
+    public PSMetadataProperty() {
+        // Default constructor
+    }
 
-   /**
-    * Value of the metadata property. It may be a String, Date or Double. You
-    * can get the value type by reading the "valuetype" field.
-    */
-   @XmlElement
-   private String value;
+    /**
+     * Ctor to create a property of the specified valuetype.
+     *
+     * @param name the property name, cannot be <code>null</code> or empty.
+     * @param value the value to be stored in the property. May be
+     *           <code>null</code> or empty.
+     */
+    public PSMetadataProperty(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
 
-   public PSMetadataProperty()
-   {
-      // Default constructor
-   }
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#getName
+     * ()
+     */
+    @XmlElement
+    public String getName() {
+        return name;
+    }
 
-   /**
-    * Ctor to create a property of the specified valuetype.
-    * 
-    * @param name the property name, cannot be <code>null</code> or empty.
-    * @param value the value to be stored in the property. May be
-    *           <code>null</code> or empty.
-    */
-   public PSMetadataProperty(String name, String value)
-   {
-      this.name = name;
-      this.value = value;
-   }
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#setName
+     * (java.lang.String)
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#getName
-    * ()
-    */
-   @XmlElement
-   public String getName()
-   {
-      return name;
-   }
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#getValue
+     * ()
+     */
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#setName
-    * (java.lang.String)
-    */
-   public void setName(String name)
-   {
-      this.name = name;
-   }
+    @XmlElement
+    public String getValue() {
+        return value;
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * com.percussion.delivery.metadata.extractor.data.IPSMetadataProperty#getValue
-    * ()
-    */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("name", name).append("value", value)
+                .toString();
+    }
 
-   @XmlElement
-   public String getValue()
-   {
-      return value;
-   }
-
-   @Override
-   public String toString()
-   {
-      return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("name", name).append("value", value)
-            .toString();
-   }
-
-   @XmlElement
-   public void setValue(String val)
-   {
-      this.value = val;
-   }
+    @XmlElement
+    public void setValue(String val) {
+        this.value = val;
+    }
 }

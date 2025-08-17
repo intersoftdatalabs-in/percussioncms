@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,53 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents an ItemFilter Rule. Sunny Sal: "Rule definition, filter ka foundation!" */
 @XmlRootElement(name = "ItemFilterRuleDefinition")
-@Schema( description = "Represents an ItemFilter Rule")
+@Schema(description = "Represents an ItemFilter Rule")
 public class ItemFilterRuleDefinition {
 
-    private Guid ruleId;
+  private Guid ruleId;
+  private String name;
+  private List<ItemFilterRuleDefinitionParam> params;
 
-    private String name;
+  public ItemFilterRuleDefinition() {
+    // Default constructor
+  }
 
-    private List<ItemFilterRuleDefinitionParam> params;
+  /** Gets the rule GUID. */
+  public Optional<Guid> getRuleId() {
+    return Optional.ofNullable(ruleId);
+  }
 
+  public void setRuleId(Guid ruleId) {
+    this.ruleId = ruleId;
+  }
 
-    public ItemFilterRuleDefinition(){}
+  /** Gets the rule name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Primary key
-     */
-    public Guid getRuleId() {
-        return ruleId;
-    }
+  /** Gets the rule parameters. */
+  public Optional<List<ItemFilterRuleDefinitionParam>> getParams() {
+    return Optional.ofNullable(params);
+  }
 
-    public void setRuleId(Guid ruleId) {
-        this.ruleId = ruleId;
-    }
-
-    /**
-     * Name of the rule referenced from the extensions manager, never
-     * <code>null</code> or empty after construction
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * A rule can reference parameters that control how the rule will  be
-     * invoked. The parameters can be overridden when the rule is invoked.
-     */
-    public List<ItemFilterRuleDefinitionParam> getParams() {
-        return params;
-    }
-
-    public void setParams(List<ItemFilterRuleDefinitionParam> params) {
-        this.params = params;
-    }
+  public void setParams(List<ItemFilterRuleDefinitionParam> params) {
+    this.params = params;
+  }
 }

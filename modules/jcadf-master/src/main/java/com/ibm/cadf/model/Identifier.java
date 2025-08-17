@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,49 +17,38 @@
 
 package com.ibm.cadf.model;
 
+import com.ibm.cadf.cfg.Config;
 import java.io.Serializable;
 import java.util.UUID;
 
-import com.ibm.cadf.cfg.Config;
-import com.ibm.cadf.util.Constants;
+public class Identifier implements Serializable {
 
-public class Identifier implements Serializable
-{
+  private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * Generate the unique ID
+   *
+   * @return String newly generated unique ID
+   */
+  public static String generateUniqueId() {
+    UUID uid = UUID.randomUUID();
+    String strId = "" + uid;
+    return generateUniqueId(strId);
+  }
 
-    
-    /**
-     * Generate the unique ID
-     * 
-     * @return String newly generated unique ID
-     */
-    public static String generateUniqueId()
-    {
-        UUID uid = UUID.randomUUID();
-        String strId = "" + uid;
-        return generateUniqueId(strId);
+  /**
+   * Generate the unique ID and prefix that with given prefix string
+   *
+   * @param strId
+   * @return String newly generated unique ID
+   */
+  public static String generateUniqueId(String strId) {
+    String prefix = Config.getInstance().getProperty("namespace");
+    if (prefix != null) {
+      prefix = prefix + ":";
+    } else {
+      prefix = "";
     }
-
-    /**
-     * Generate the unique ID and prefix that with given prefix string
-     * 
-     * @param strId
-     * @return String newly generated unique ID
-     */
-
-    public static String generateUniqueId(String strId)
-    {
-        String prefix = Config.getInstance().getProperty("namespace");
-        if (prefix != null)
-        {
-            prefix = prefix + ":";
-        }
-        else
-        {
-            prefix = "";
-        }
-        return prefix + strId;
-    }
-
+    return prefix + strId;
+  }
 }

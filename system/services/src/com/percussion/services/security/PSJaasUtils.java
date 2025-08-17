@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSSecurityCatalogException;
 
 import java.security.Principal;
-import java.security.acl.Group;
+import com.percussion.security.shim.acl.Group;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;

@@ -1,5 +1,5 @@
  /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package com.percussion.rx.publisher.impl;
  import com.google.common.collect.Iterators;
  import com.percussion.design.objectstore.PSLocator;
  import com.percussion.error.PSNotFoundException;
- import com.percussion.error.PSExceptionUtils;
+ import com.percussion.security.error.PSExceptionUtils;
  import com.percussion.extension.IPSExtensionManager;
  import com.percussion.extension.PSExtensionException;
  import com.percussion.extension.PSExtensionRef;
@@ -76,7 +76,7 @@ package com.percussion.rx.publisher.impl;
  import com.percussion.services.sitemgr.IPSSiteManager;
  import com.percussion.services.sitemgr.PSSiteManagerLocator;
  import com.percussion.services.utils.xml.PSObjectStream;
- import com.percussion.util.IPSHtmlParameters;
+ import com.percussion.system.utils.IPSHtmlParameters;
  import com.percussion.util.PSBaseHttpUtils;
  import com.percussion.util.PSStopwatch;
  import com.percussion.util.PSXMLDomUtil;
@@ -92,7 +92,7 @@ package com.percussion.rx.publisher.impl;
  import org.w3c.dom.Document;
  import org.w3c.dom.Element;
 
- import javax.naming.NameNotFoundException; // TODO: JAVAX-11
+ import javax.naming.NameNotFoundException;
  import java.io.IOException;
  import java.io.StringReader;
  import java.io.UnsupportedEncodingException;
@@ -116,7 +116,7 @@ package com.percussion.rx.publisher.impl;
 
  import static com.percussion.rx.publisher.PSPublisherUtils.getContentList;
  import static com.percussion.rx.publisher.PSPublisherUtils.getEditionContentList;
- import static com.percussion.util.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
+ import static com.percussion.system.utils.IPSHtmlParameters.SYS_UNPUBLISH_CHANGED_LOCATION;
  import static org.apache.commons.lang.Validate.notNull;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,18 @@ package com.percussion.content.ui.aa.actions.impl;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
-
 import java.util.Map;
 
-/**
- * Implementation of the get root folders action.
- */
-public class PSGetRootFoldersAction extends PSAAActionBase
-{
-   /**
-    * todo document the required and optional parameters in the map.
-    */
-   public PSActionResponse execute(Map<String, Object> params)
-      throws PSAAClientActionException
-   {
-      try
-      {
-         return new PSActionResponse(PSContentBrowser
-            .getRootFolders(getRequestContext()),
-            PSActionResponse.RESPONSE_TYPE_JSON);
-      }
-      catch (Exception e)
-      {
-         throw new PSAAClientActionException(e);
-      }
-   }
+/** Implementation of the get root folders action. */
+public class PSGetRootFoldersAction extends PSAAActionBase {
+  /** todo document the required and optional parameters in the map. */
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    try {
+      return new PSActionResponse(
+          PSContentBrowser.getRootFolders(getRequestContext()),
+          PSActionResponse.RESPONSE_TYPE_JSON);
+    } catch (Exception e) {
+      throw new PSAAClientActionException(e);
+    }
+  }
 }

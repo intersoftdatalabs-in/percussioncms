@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,66 +17,51 @@
 
 package com.ibm.cadf.cfg;
 
+import com.ibm.cadf.exception.CADFException;
+import com.ibm.cadf.util.Constants;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.ibm.cadf.exception.CADFException;
-import com.ibm.cadf.util.Constants;
+public class Config {
+  private Properties properties;
 
-public class Config
-{
-    private Properties properties;
+  private static Config config = new Config();
 
-    private static Config config = new Config();
+  private Config() {
+    loadDefaultSettings();
+  }
 
-    private Config()
-    {
-        loadDefaultSettings();
+  public static Config getInstance() {
+    return config;
+  }
+
+  public void setProperties(Properties properties) {
+    // Update the existing files
+    if (properties != null && !properties.isEmpty()) {
+      this.properties.putAll(properties);
     }
+  }
 
-    public static Config getInstance()
-    {
-        return config;
+  private void loadDefaultSettings() {
+    String confFile = System.getProperty(Constants.API_AUDIT_MAP, Constants.API_AUDIT_MAP_CONF);
+    try {
+      this.properties = PropertyUtil.loadProperties(confFile);
+    } catch (IOException e) {
+      throw new CADFException(e);
     }
+  }
 
-    public void setProperties(Properties properties)
-    {
-        // Update the existing files
-        if (properties != null && !properties.isEmpty())
-        {
-            this.properties.putAll(properties);
-        }
+  public String getProperty(String key) {
+    if (properties == null) {
+      return null;
     }
+    return properties.getProperty(key);
+  }
 
-    private void loadDefaultSettings()
-    {
-        String confFile = System.getProperty(Constants.API_AUDIT_MAP, Constants.API_AUDIT_MAP_CONF);
-        try
-        {
-            this.properties = PropertyUtil.loadProperties(confFile);
-        }
-        catch (IOException e)
-        {
-            throw new CADFException(e);
-        }
+  public void registerProperty(String key, String value) {
+    if (properties == null) {
+      properties = new Properties();
     }
-
-    public String getProperty(String key)
-    {
-        if (properties == null)
-        {
-            return null;
-        }
-        return properties.getProperty(key);
-    }
-
-    public void registerProperty(String key, String value)
-    {
-        if (properties == null)
-        {
-            properties = new Properties();
-        }
-        properties.setProperty(key, value);
-    }
-
+    properties.setProperty(key, value);
+  }
 }

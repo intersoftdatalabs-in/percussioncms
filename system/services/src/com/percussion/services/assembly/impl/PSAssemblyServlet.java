@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.impl;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.server.PSServer;
 import com.percussion.error.PSMissingBeanConfigurationException;
@@ -32,13 +32,13 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.utils.exceptions.PSExceptionHelper;
 import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.utils.timing.PSStopwatch;
 import org.apache.commons.io.IOUtils;
@@ -47,10 +47,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;

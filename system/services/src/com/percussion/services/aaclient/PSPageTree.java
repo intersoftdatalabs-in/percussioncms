@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -32,7 +33,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringTemplate;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.utils.guid.IPSGuid;
@@ -42,50 +43,74 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.jcr.RepositoryException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * 
+ * Widget handler for managing page tree operations in the Active Assembly client.
+ * This handler processes requests to retrieve hierarchical content structure,
+ * including pages, slots, and snippets.
+ *
+ * @author Percussion Software
  */
-public class PSPageTree implements IPSWidgetHandler
-{
+public class PSPageTree implements IPSWidgetHandler {
 
-   public void handleRequest(HttpServletRequest request,
-      HttpServletResponse response) throws PSAssemblyException, RepositoryException, PSNotFoundException, PSFilterException, IOException {
-      String resp = "";
-      String action = request.getParameter("action");
-      if (action.equalsIgnoreCase("getchildren"))
-      {
-         String d = request.getParameter("data");
-         org.json.simple.JSONObject data = (org.json.simple.JSONObject) JSONValue
-            .parse(d);
-         org.json.simple.JSONObject node = (org.json.simple.JSONObject) data
-            .get("node");
-         String objectid = node.get("objectId").toString();
-         org.json.simple.JSONObject idObj = (org.json.simple.JSONObject) JSONValue
-            .parse(objectid);
-         String nodeType = idObj.get("nodeType").toString();
-         PSWidgetNodeType type = PSWidgetNodeType.valueOf(Integer
-            .parseInt(nodeType));
-         switch (type)
-         {
-            case WIDGET_NODE_TYPE_PAGE:
-            case WIDGET_NODE_TYPE_SNIPPET:
-               resp = getSlots(idObj).toString();
-               break;
-            case WIDGET_NODE_TYPE_SLOT:
-               resp = getSnippets(idObj).toString();
-               break;
-            default:
-         }
-         PSAaClientServlet.pushResponse(response, resp, "text/javascript", 200);
+   @Override
+   public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+         throws PSAssemblyException, RepositoryException, PSNotFoundException, PSFilterException, IOException {
+
+      var action = Optional.ofNullable(request.getParameter("action"))
+                          .orElse("")
+                          .toLowerCase();
+
+      if ("getchildren".equals(action)) {
+         var responseContent = processGetChildrenRequest(request);
+         PSAaClientServlet.pushResponse(response, responseContent, "text/javascript", 200);
+      } else {
+         throw new IllegalArgumentException("Unsupported action: " + action);
+      }
+   }
+
+   /**
+    * Processes a request to get child nodes for a given parent node.
+    *
+    * @param request the HTTP request containing node data
+    * @return JSON string representing the child nodes
+    * @throws PSAssemblyException if assembly processing fails
+    * @throws RepositoryException if repository access fails
+    * @throws PSNotFoundException if requested content is not found
+    * @throws PSFilterException if content filtering fails
+    */
+   private String processGetChildrenRequest(HttpServletRequest request)
+         throws PSAssemblyException, RepositoryException, PSNotFoundException, PSFilterException {
+
+      var dataParam = request.getParameter("data");
+      if (StringUtils.isBlank(dataParam)) {
+         throw new IllegalArgumentException("Data parameter is required");
+      }
+
+      var data = (JSONObject) JSONValue.parse(dataParam);
+      var node = (JSONObject) data.get("node");
+      var objectId = node.get("objectId").toString();
+      var idObj = (JSONObject) JSONValue.parse(objectId);
+      var nodeTypeStr = idObj.get("nodeType").toString();
+      var nodeType = PSWidgetNodeType.valueOf(Integer.parseInt(nodeTypeStr));
+
+      switch (nodeType) {
+         case WIDGET_NODE_TYPE_PAGE:
+         case WIDGET_NODE_TYPE_SNIPPET:
+            return getSlots(idObj).toString();
+         case WIDGET_NODE_TYPE_SLOT:
+            return getSnippets(idObj).toString();
+         default:
+            return "[]"; // Empty JSON array for unsupported node types
       }
    }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+/** Represents a render result. */
 @XmlRootElement(name = "RenderResult")
-@JsonRootName( "RenderResult")
-public class PSRenderResult extends PSAbstractDataObject
-{
-    
-    private static final long serialVersionUID = 1L;
-    private String result;
-    private String regionId;
-    
-    public String getRegionId()
-    {
-        return regionId;
-    }
+@JsonRootName("RenderResult")
+public class PSRenderResult extends PSAbstractDataObject {
 
-    public void setRegionId(String regionId)
-    {
-        this.regionId = regionId;
-    }
+  private static final long serialVersionUID = 1L;
+  private String result;
+  private String regionId;
 
-    public String getResult()
-    {
-        return result;
-    }
-    
-    public void setResult(String result)
-    {
-        this.result = result;
-    }
-    
+  public String getRegionId() {
+    return regionId;
+  }
+
+  public void setRegionId(String regionId) {
+    this.regionId = regionId;
+  }
+
+  public String getResult() {
+    return result;
+  }
+
+  public void setResult(String result) {
+    this.result = result;
+  }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,61 +18,59 @@
 package com.percussion.delivery.likes.data;
 
 /**
- * A simple bean class to hold basic page/likes summary info.
- * 
+ * Bean class to hold basic page/likes summary info.
+ *
  * @author davidpardini
- * 
  */
-public class PSLikesSummary
-{
+public class PSLikesSummary {
 
-    /**
-     * total number of likes
-     */
-    private int total;
+  /** Total number of likes. */
+  private int total;
 
-    private String likeId;
+  private String likeId;
 
-    public PSLikesSummary()
-    {
+  public PSLikesSummary() {
+    // Default constructor
+  }
 
-    }
+  public PSLikesSummary(int total, String likeId) {
+    this.total = total;
+    this.likeId = likeId;
+  }
 
-    public PSLikesSummary(int total, String likeId)
-    {
-        this.total = total;
-        this.likeId = likeId;
-    }
+  /**
+   * Gets the total number of likes.
+   *
+   * @return the total count.
+   */
+  public int getTotal() {
+    return total;
+  }
 
-    /**
-     * @return the total
-     */
-    public int getTotal()
-    {
-        return total;
-    }
+  /**
+   * Sets the total number of likes.
+   *
+   * @param total the total count.
+   */
+  public void setTotal(int total) {
+    this.total = total;
+  }
 
-    /**
-     * @param total the total to set
-     */
-    public void setTotal(int total)
-    {
-        this.total = total;
-    }
+  /**
+   * Gets the like identifier.
+   *
+   * @return the like ID.
+   */
+  public String getLikeId() {
+    return likeId;
+  }
 
-    /**
-     * @return the likeId
-     */
-    public String getLikeId()
-    {
-        return likeId;
-    }
-
-    /**
-     * @param likeId the likeId to set
-     */
-    public void setLikeId(String likeId)
-    {
-        this.likeId = likeId;
-    }
+  /**
+   * Sets the like identifier.
+   *
+   * @param likeId the like ID.
+   */
+  public void setLikeId(String likeId) {
+    this.likeId = likeId;
+  }
 }

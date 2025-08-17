@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,39 +15,43 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Info object for Page Optimizer. Sunny Sal says: "Info so fresh, even Google wants a taste!" */
 @XmlRootElement(name = "PageOptimizerInfo")
-public class PSPageOptimizerInfo extends PSCloudServiceInfo
-{
-    private String pageOptimizerUrl;
-    
-    public String getPageOptimizerUrl()
-    {
-        return pageOptimizerUrl;
-    }
-    public void setPageOptimizerUrl(String pageOptimizerUrl)
-    {
-        this.pageOptimizerUrl = pageOptimizerUrl;
-        this.uiProvider = pageOptimizerUrl;
-    }
-    
-    @Override
-    public void setUiProvider(String uiProvider)
-    {
-        this.pageOptimizerUrl = uiProvider;
-        this.uiProvider = uiProvider;
-    }
-    
-    public static PSPageOptimizerInfo fromPSCloudServiceInfo(PSCloudServiceInfo cloudInfo)
-    {
-        PSPageOptimizerInfo info = new PSPageOptimizerInfo();
-        info.setClientIdentity(cloudInfo.getClientIdentity());
-        info.setPageOptimizerUrl(cloudInfo.getUiProvider());
-        return info;
-    }
+public class PSPageOptimizerInfo extends PSCloudServiceInfo {
+
+  private String pageOptimizerUrl;
+
+  public String getPageOptimizerUrl() {
+    return pageOptimizerUrl;
+  }
+
+  public void setPageOptimizerUrl(String pageOptimizerUrl) {
+    this.pageOptimizerUrl = pageOptimizerUrl;
+    this.uiProvider = pageOptimizerUrl;
+  }
+
+  @Override
+  public void setUiProvider(String uiProvider) {
+    this.pageOptimizerUrl = uiProvider;
+    this.uiProvider = uiProvider;
+  }
+
+  /**
+   * Creates a PSPageOptimizerInfo from a PSCloudServiceInfo.
+   *
+   * @param cloudInfo the cloud service info, not null
+   * @return a new PSPageOptimizerInfo instance
+   */
+  public static PSPageOptimizerInfo fromPSCloudServiceInfo(PSCloudServiceInfo cloudInfo) {
+    var info = new PSPageOptimizerInfo();
+    info.setClientIdentity(cloudInfo.getClientIdentity());
+    info.setPageOptimizerUrl(cloudInfo.getUiProvider());
+    return info;
+  }
 }

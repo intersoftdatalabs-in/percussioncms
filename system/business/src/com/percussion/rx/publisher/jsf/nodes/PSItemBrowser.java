@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.cms.objectstore.PSFolder;
@@ -34,43 +36,49 @@ public class PSItemBrowser extends PSContentBrowser
    private PSSchemeJexlTestPanel m_testPanel = null;
    private static final String ITEM_BROWSER = "pub-design-item-browser";
    
-   PSItemBrowser(PSSchemeJexlTestPanel testPanel)
-   {
+   /**
+    * Constructs an item browser for the JEXL test panel.
+    * @param testPanel the JEXL test panel, may not be null
+    */
+   PSItemBrowser(PSSchemeJexlTestPanel testPanel) {
+      if (testPanel == null) throw new IllegalArgumentException("testPanel may not be null.");
       m_testPanel = testPanel;
    }
 
+   /**
+    * Performs on a child item or folder. Browses subfolder or sets item path for test panel.
+    */
    @Override
-   protected String childPerform(ChildItem item)
-   {
-      if (item.isFolder())
-         return super.childPerform(item);
-      
-       m_testPanel.setItemPath(getPath() + "/" + item.getName());
-       return m_testPanel.perform();
+   protected String childPerform(ChildItem item) {
+      if (item.isFolder()) return super.childPerform(item);
+      m_testPanel.setItemPath(getPath() + "/" + item.getName());
+      return m_testPanel.perform();
    }
 
+   /**
+    * Returns the outcome for the item browser page.
+    */
    @Override
-   protected String perform()
-   {
+   protected String perform() {
       return ITEM_BROWSER;
    }
    
+   /**
+    * Gets all child items or folders for the current folder.
+    * @return list of child items
+    */
    @Override
-   protected List<ChildItem> getChildItems() throws Exception
-   {
-      IPSContentWs cws = PSContentWsLocator.getContentWebservice();
-      IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
-      IPSGuid id = mgr.makeGuid(new PSLocator(getFolderId()));
-      List<PSItemSummary> summaries = cws.findFolderChildren(id, false);
-      List<ChildItem> items = new ArrayList<>();
-      for (PSItemSummary item : summaries)
-      {
-         boolean isFolder = item.getContentTypeId() == 
-            PSFolder.FOLDER_CONTENT_TYPE_ID;
+   protected List<ChildItem> getChildItems() throws Exception {
+      var cws = PSContentWsLocator.getContentWebservice();
+      var mgr = PSGuidManagerLocator.getGuidMgr();
+      var id = mgr.makeGuid(new PSLocator(getFolderId()));
+      var summaries = cws.findFolderChildren(id, false);
+      var items = new ArrayList<ChildItem>();
+      for (var item : summaries) {
+         var isFolder = item.getContentTypeId() == PSFolder.FOLDER_CONTENT_TYPE_ID;
          items.add(new ChildItem(item.getGUID(), item.getName(), isFolder));
       }
       return items;
-
    }
    
    /**
@@ -78,9 +86,12 @@ public class PSItemBrowser extends PSContentBrowser
     * 
     * @return  the help file name, never <code>null</code> or empty.
     */
-   public String getHelpFile()
-   {
-      return PSHelpTopicMapping.getFileName("ItemBrowser");   
+   /**
+    * Gets the help file name for the Item Browser page.
+    * @return help file name, never null or empty
+    */
+   public String getHelpFile() {
+      return PSHelpTopicMapping.getFileName("ItemBrowser");
    }
    
 }

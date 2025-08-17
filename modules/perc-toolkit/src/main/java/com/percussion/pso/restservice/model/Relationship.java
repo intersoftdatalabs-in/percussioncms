@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,30 @@
  */
 package com.percussion.pso.restservice.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlAttribute;
 
-
-/**
- */
+/** */
 public class Relationship extends ItemRef {
 
-	/**
-	 * Field relId.
-	 */
-	private int relId;
-	
-	/**
-	 * Method getRelId.
-	 * @return int
-	 */
-	@XmlAttribute
-	public int getRelId() {
-		return relId;
-	}
-	/**
-	 * Method setRelId.
-	 * @param relId int
-	 */
-	public void setRelId(int relId) {
-		this.relId = relId;
-	}
-	
+  /** Field relId. */
+  private int relId;
+
+  /**
+   * Method getRelId.
+   *
+   * @return int
+   */
+  @XmlAttribute
+  public int getRelId() {
+    return relId;
+  }
+
+  /**
+   * Method setRelId.
+   *
+   * @param relId int
+   */
+  public void setRelId(int relId) {
+    this.relId = relId;
+  }
 }

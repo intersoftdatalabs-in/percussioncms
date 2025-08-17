@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,43 +21,31 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Map;
-
 /**
- * Returns the sort rank of the items relationship.
- * Expects sys_relationshipid parameter.
- * Returns the sort rank result as plain text.
+ * Returns the sort rank of the items relationship. Expects sys_relationshipid parameter. Returns
+ * the sort rank result as plain text.
  */
-public class PSGetItemSortRankAction extends PSAAActionBase
-{
+public class PSGetItemSortRankAction extends PSAAActionBase {
 
-   // see interface for more detail
-   public PSActionResponse execute(Map<String, Object> params)
-            throws PSAAClientActionException
-   {
-      String rid = (String)getParameter(params,
-               IPSHtmlParameters.SYS_RELATIONSHIPID);
-      if(StringUtils.isBlank(rid))
-         throw new PSAAClientActionException("sys_relationshipid is a required parameter.");
-      
-      try
-      {
-         PSAaRelationship r = 
-            new PSAaRelationship(
-               PSModifyRelatedContent.getRelationship(
-                  Integer.parseInt(rid), getRequestContext()));
-         
-         return new PSActionResponse(String.valueOf(r.getSortRank()),
-                  PSActionResponse.RESPONSE_TYPE_PLAIN);
-      }      
-      catch (PSCmsException e)
-      {
-         throw new PSAAClientActionException(e);
-      }
-      
-   }
+  // see interface for more detail
+  public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
+    String rid = (String) getParameter(params, IPSHtmlParameters.SYS_RELATIONSHIPID);
+    if (StringUtils.isBlank(rid))
+      throw new PSAAClientActionException("sys_relationshipid is a required parameter.");
 
+    try {
+      PSAaRelationship r =
+          new PSAaRelationship(
+              PSModifyRelatedContent.getRelationship(Integer.parseInt(rid), getRequestContext()));
+
+      return new PSActionResponse(
+          String.valueOf(r.getSortRank()), PSActionResponse.RESPONSE_TYPE_PLAIN);
+    } catch (PSCmsException e) {
+      throw new PSAAClientActionException(e);
+    }
+  }
 }

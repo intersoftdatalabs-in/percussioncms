@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,26 +36,27 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.ImageIcon; // TODO: JAVAX-11
-import javax.swing.JButton; // TODO: JAVAX-11
-import javax.swing.JComboBox; // TODO: JAVAX-11
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JDialog; // TODO: JAVAX-11
-import javax.swing.JFileChooser; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTable; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
-import javax.swing.border.LineBorder; // TODO: JAVAX-11
-import javax.swing.event.CellEditorListener; // TODO: JAVAX-11
-import javax.swing.event.ChangeEvent; // TODO: JAVAX-11
-import javax.swing.event.EventListenerList; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
 /** This is basically a rehash of the DefaultCellEditor class, tweaked for browse
   * box cell.
   */
 
+@SuppressWarnings("unchecked")
 public class EditableListBoxBrowseEditor implements TableCellEditor, Serializable
 {
 //
@@ -71,7 +72,7 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
      * <CODE>null</CODE> is an acceptable parameter. Anything other type of
      * object will be ignored.
      */
-    public EditableListBoxBrowseEditor(JComboBox x, Component dialogRef)
+    public EditableListBoxBrowseEditor(JComboBox<Object> x, Component dialogRef)
     {
       if ( dialogRef instanceof JDialog )
          m_dialogRef = (JDialog)dialogRef;
@@ -179,7 +180,7 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
      *
      * @param x  a JComboBox object ...
      */
-    private void init(JComboBox x)
+    private void init(JComboBox<Object> x)
     {
       m_editorComponent = x;
       m_button.setPreferredSize(new Dimension(18, 20));
@@ -208,21 +209,21 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
             {
               m_storage = x;
               // trims whitespaces before setting string into component
-              ((JComboBox)m_editorComponent).setSelectedItem(x.toString().trim());
+              ((JComboBox<Object>)m_editorComponent).setSelectedItem(x.toString().trim());
             }
             else
-              ((JComboBox)m_editorComponent).setSelectedItem(new String(""));
+              ((JComboBox<Object>)m_editorComponent).setSelectedItem("");
           }
 
           public Object getCellEditorValue()
           {
              if (m_storage instanceof EditableListBoxCellNameHelper)
              {
-               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox)m_editorComponent).getSelectedItem().toString());
+               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox<Object>)m_editorComponent).getSelectedItem().toString());
                return m_storage;
              }
              else
-               return ((JComboBox)m_editorComponent).getSelectedItem().toString();
+               return ((JComboBox<Object>)m_editorComponent).getSelectedItem().toString();
           }
 
           public boolean startCellEditing(EventObject anEvent)
@@ -240,8 +241,8 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
           }
         };
 
-        ((JComboBox)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
-        ((JComboBox)m_editorComponent).addItemListener(m_delegate);
+        ((JComboBox<Object>)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
+        ((JComboBox<Object>)m_editorComponent).addItemListener(m_delegate);
         m_button.addActionListener(m_buttonDelegate);
     }
 

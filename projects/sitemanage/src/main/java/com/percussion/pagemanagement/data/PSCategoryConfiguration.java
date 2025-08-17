@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +18,46 @@
 
 package com.percussion.pagemanagement.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="CategoryConfig")
-public class PSCategoryConfiguration
-{
-    private Tree tree;
-    
-    @XmlElement(name="tree")
-    public Tree getTree()
-    {
-        return tree;
+/** Represents the configuration for categories in the CMS. Contains a tree structure with a URL. */
+@XmlRootElement(name = "CategoryConfig")
+public class PSCategoryConfiguration {
+
+  private Tree tree;
+
+  /**
+   * Gets the category tree.
+   *
+   * @return the tree, may be {@code null}.
+   */
+  @XmlElement(name = "tree")
+  public Tree getTree() {
+    return tree;
+  }
+
+  public void setTree(Tree tree) {
+    this.tree = tree;
+  }
+
+  /** Represents a tree node in the category configuration. */
+  public static class Tree {
+    private String url;
+
+    /**
+     * Gets the URL for this tree node.
+     *
+     * @return the URL, may be {@code null}.
+     */
+    @XmlAttribute(name = "url")
+    public String getUrl() {
+      return url;
     }
-    public void setTree(Tree tree)
-    {
-        this.tree = tree;
+
+    public void setUrl(String url) {
+      this.url = url;
     }
-
-    public static class Tree 
-    {
-        private String url;
-
-        @XmlAttribute(name="url")
-        public String getUrl()
-        {
-            return url;
-        }
-        public void setUrl(String url)
-        {
-            this.url = url;
-        }
-        
-    }
-
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package test.percussion.soln.p13n.tracking.web;
 
 
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +32,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -57,7 +57,7 @@ import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebMediator;
  * @author Steve Bolton
  * @author Adam Gent
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingControllerTest  {
 
     Mockery context = new JUnit4Mockery();
@@ -76,7 +76,7 @@ public class VisitorTrackingControllerTest  {
     "\"visitorProfile\":null,\"visitorProfileId\":100}";
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         visitorTrackingController = new VisitorTrackingController();
         visitorTrackingService = context.mock(IVisitorTrackingService.class);

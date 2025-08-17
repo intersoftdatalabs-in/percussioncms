@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,104 +17,92 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
+import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang.Validate.notNull;
+
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.server.PSServer;
 import com.percussion.share.dao.PSFileDataRepository;
 import com.percussion.share.dao.PSXmlFileDataRepository;
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.io.IOException;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.*;
-
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
-
 @Component("widgetDao")
 @Lazy
-public class PSWidgetDao extends PSXmlFileDataRepository<PSWidgetDao.PSWidgetDefinitionData, PSWidgetDefinition> implements IPSWidgetDao
-{
-    public static class PSWidgetDefinitionData {
-        protected Map<String, PSWidgetDefinition> widgetDefinitionsMap = new HashMap<>();
+public class PSWidgetDao
+    extends PSXmlFileDataRepository<PSWidgetDao.PSWidgetDefinitionData, PSWidgetDefinition>
+    implements IPSWidgetDao {
 
-        protected void add(PSWidgetDefinition def) {
-            notNull(def);
-            notEmpty(def.getId());
-            widgetDefinitionsMap.put(def.getId(), def);
-        }
+  public static class PSWidgetDefinitionData {
+    protected Map<String, PSWidgetDefinition> widgetDefinitionsMap = new HashMap<>();
+
+    protected void add(PSWidgetDefinition def) {
+      notNull(def);
+      notEmpty(def.getId());
+      widgetDefinitionsMap.put(def.getId(), def);
     }
-    
-    public PSWidgetDao()
-    {
-        super(PSWidgetDefinition.class);
+  }
+
+  public PSWidgetDao() {
+    super(PSWidgetDefinition.class);
+  }
+
+  @Override
+  protected synchronized PSWidgetDefinitionData update(Set<PSFileDataRepository.PSFileEntry> files)
+      throws IOException {
+    notNull(files, "files");
+    var data = new PSWidgetDefinitionData();
+    for (var fe : files) {
+      try {
+        var wd = fileToObject(fe);
+        wd.setId(fe.getId());
+        data.add(wd);
+      } catch (Exception e) {
+        log.error("Failed to parse widget definition: {}", fe.getFileName(), e);
+      }
     }
+    return data;
+  }
 
-    @Override
-    protected synchronized PSWidgetDefinitionData update(Set<PSFileDataRepository.PSFileEntry> files) throws IOException
-    {
-        notNull(files, "files");
-        PSWidgetDefinitionData data = new PSWidgetDefinitionData();
-        for (PSFileDataRepository.PSFileEntry fe : files) {
-            try
-            {
-                PSWidgetDefinition wd = fileToObject(fe);
-                wd.setId(fe.getId());
-                data.add(wd);
-            }
-            catch (Exception e)
-            {
-                log.error("Failed to parse widget definition: " + fe.getFileName(), e);
-            }
-        }
-        
-        return data;
-        
-    }
+  @Override
+  public PSWidgetDefinition find(String id) throws PSDataServiceException {
+    return getData().widgetDefinitionsMap.get(id);
+  }
 
+  @Override
+  public List<PSWidgetDefinition> findAll() throws PSDataServiceException {
+    return new ArrayList<>(getData().widgetDefinitionsMap.values());
+  }
 
-    public PSWidgetDefinition find(String id) throws PSDataServiceException {
-        return getData().widgetDefinitionsMap.get(id);
-    }
+  @Override
+  public PSWidgetDefinition save(PSWidgetDefinition object)
+      throws com.percussion.share.dao.IPSGenericDao.SaveException {
+    throw new UnsupportedOperationException("save is not yet supported");
+  }
 
-    public List<PSWidgetDefinition> findAll() throws PSDataServiceException {
-        return new ArrayList<>(getData().widgetDefinitionsMap.values());
-    }
+  @Override
+  public void delete(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException {
+    throw new UnsupportedOperationException("delete is not yet supported");
+  }
 
+  @Override
+  public String getBaseConfigDir() {
+    var fullPath = getRepositoryDirectory().replace('\\', '/');
+    var rxDir = PSServer.getRxDir().getPath().replace('\\', '/');
+    var path = StringUtils.removeStart(fullPath, rxDir);
+    path = StringUtils.removeStart(path, "/");
+    return path;
+  }
 
-    
-    public PSWidgetDefinition save(PSWidgetDefinition object)
-            throws com.percussion.share.dao.IPSGenericDao.SaveException
-    {
-        throw new UnsupportedOperationException("save is not yet supported");
-    }
-    
-    
-    public void delete(String id) throws com.percussion.share.dao.IPSGenericDao.DeleteException
-    {
-        throw new UnsupportedOperationException("delete is not yet supported");
-    }
-
-    @Override
-    public String getBaseConfigDir()
-    {
-        String fullPath = getRepositoryDirectory().replace('\\', '/');
-        String rxDir = PSServer.getRxDir().getPath().replace('\\', '/');
-        String path = StringUtils.removeStart(fullPath, rxDir);
-        path = StringUtils.removeStart(path, "/");
-        return path;
-    }
-
-    @Override
-    @Value("${rxdeploydir}/rxconfig/Widgets")
-    public void setRepositoryDirectory(String widgetsRepositoryDirectory)
-    {
-        // TODO Auto-generated method stub
-        super.setRepositoryDirectory(widgetsRepositoryDirectory);
-    }
-    
-
+  @Override
+  @Value("${rxdeploydir}/rxconfig/Widgets")
+  public void setRepositoryDirectory(String widgetsRepositoryDirectory) {
+    super.setRepositoryDirectory(widgetsRepositoryDirectory);
+  }
 }

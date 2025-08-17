@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,219 +27,219 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.data.PSPubInfo;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.List;
 import java.util.Map;
 
 /**
- * The pubserver service is responsible for exposing the publish server
- * information
+ * The pubserver service is responsible for exposing the publish server information.
  *
  * @author leonardohildt
  * @author ignacioerro
- *
  */
-public interface IPSPubServerService
-{
-    public static final String DEFAULT_DTS = IPSPubServer.DEFAULT_DTS;
-    /**
-     * Load the server information based on the site name and server name as the
-     * parameters.
-     *
-     * @param siteId
-     * @param serverId
-     * @return a <code>PSPublishServerInfo</code> object maybe empty never
-     *         <code>null</code>
-     * @throws PSPubServerServiceException
-     */
-     PSPublishServerInfo getPubServer(String siteId, String serverId) throws PSPubServerServiceException;
+public interface IPSPubServerService {
+  String DEFAULT_DTS = IPSPubServer.DEFAULT_DTS;
 
-    /**
-     * Retrieves a list of all publish server existing including their
-     * information.
-     *
-     * @return a list of <code>PSPublishServerInfo</code>, never empty or
-     *         <code>null</code>
-     * @throws PSPubServerServiceException, if an error occurs.
-     */
-     List<PSPublishServerInfo> getPubServerList(String name) throws PSPubServerServiceException;
+  /**
+   * Loads the server information based on the site and server IDs.
+   *
+   * @param siteId the site ID
+   * @param serverId the server ID
+   * @return a {@link PSPublishServerInfo} object, never {@code null}
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  PSPublishServerInfo getPubServer(String siteId, String serverId)
+      throws PSPubServerServiceException;
 
-    /**
-     * Creates a new publish server with the provided name.
-     *
-     * @param siteId the site id, never empty or <code>null</code>
-     * @param serverName the name of the publish server to be created
-     * @param pubServerInfo the <code>PSPubServer</code> object containing the
-     *            server information to create that server. Must not be empty or
-     *            <code>null</code>
-     * @return a <code>PSPublishServerInfo</code> object maybe empty never
-     *         <code>null</code>
-     * @throws PSPubServerServiceException, if the supplied object is invalid.
-     */
-     PSPublishServerInfo createPubServer(String siteId, String serverName, PSPublishServerInfo pubServerInfo)
-             throws PSPubServerServiceException,  PSNotFoundException, PSValidationException;
+  /**
+   * Retrieves a list of all publish servers for a site.
+   *
+   * @param name the site name or ID
+   * @return a list of {@link PSPublishServerInfo}, never {@code null}
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  List<PSPublishServerInfo> getPubServerList(String name) throws PSPubServerServiceException;
 
-    /**
-     * Updates a publish server with the provided name.
-     *
-     * @param siteId the site id, never empty or <code>null</code>
-     * @param serverId the id of the publish server to be created
-     * @param pubServerInfo the <code>PSPubServer</code> object containing the
-     *            server information to update that publish server. Must not be
-     *            empty or <code>null</code>
-     * @return a <code>PSPublishServerInfo</code> object never empty or
-     *         <code>null</code>
-     * @throws PSPubServerServiceException, if the supplied object is invalid.
-     */
-     PSPublishServerInfo updatePubServer(String siteId, String serverId, PSPublishServerInfo pubServerInfo)
-             throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException;
+  /**
+   * Creates a new publish server with the provided name.
+   *
+   * @param siteId the site ID, never empty or {@code null}
+   * @param serverName the name of the publish server to be created
+   * @param pubServerInfo the {@link PSPublishServerInfo} object containing the server information
+   * @return a {@link PSPublishServerInfo} object, never {@code null}
+   * @throws PSPubServerServiceException if the supplied object is invalid
+   */
+  PSPublishServerInfo createPubServer(
+      String siteId, String serverName, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSNotFoundException, PSValidationException;
 
-    /**
-     *
-     * @param siteId
-     * @param serverId
-     * @return
-     * @throws PSPubServerServiceException
-     */
-     List<PSPublishServerInfo> deleteServer(String siteId, String serverId) throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException;
+  /**
+   * Updates a publish server with the provided name.
+   *
+   * @param siteId the site ID, never empty or {@code null}
+   * @param serverId the ID of the publish server to be updated
+   * @param pubServerInfo the {@link PSPublishServerInfo} object containing the server information
+   * @return a {@link PSPublishServerInfo} object, never {@code null}
+   * @throws PSPubServerServiceException if the supplied object is invalid
+   */
+  PSPublishServerInfo updatePubServer(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException;
 
-    /**
-     * Deletes all publish-servers that belong to the specified site.
-     * @param siteId the ID of the site, never <code>null</code>.
-     */
-    public void deletePubServersBySite(IPSGuid siteId);
+  /**
+   * Deletes a publish server for a site.
+   *
+   * @param siteId the site ID
+   * @param serverId the server ID
+   * @return a list of updated {@link PSPublishServerInfo} objects
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  List<PSPublishServerInfo> deleteServer(String siteId, String serverId)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException;
 
-    /**
-     *
-     * @param jobId
-     * @throws PSPubServerServiceException
-     */
-     void stopPublishing(String jobId) throws PSPubServerServiceException;
+  /**
+   * Deletes all publish servers that belong to the specified site.
+   *
+   * @param siteId the ID of the site, never {@code null}
+   */
+  void deletePubServersBySite(IPSGuid siteId);
 
-    /**
-     * Get information about drivers availability
-     *
-     * @return a <code>Map<String, Boolean></code> object never empty or
-     *         <code>null</code> at least we always will get drivers for ORACLE
-     *         and MSSQL.
-     */
-     Map<String, Boolean> getAvailableDrivers();
+  /**
+   * Stops publishing for the given job ID.
+   *
+   * @param jobId the job ID
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  void stopPublishing(String jobId) throws PSPubServerServiceException;
 
-    /**
-     * Determine if the default publish server that belongs to a site is
-     * modified or not.
-     *
-     * @param siteId The site ID that contains the publish server.
-     * @return <code>true</code> if the default server was modified by the user.
-     */
-     Boolean isDefaultServerModified(String siteId);
+  /**
+   * Gets information about available drivers.
+   *
+   * @return a map of driver names to availability, never {@code null}
+   */
+  Map<String, Boolean> getAvailableDrivers();
 
-    /**
-     * Returns the default folder location for the new server.
-     *
-     * @param siteId the name of the site
-     * @param publishType the type of publication server
-     * @param driver the driver for the new server
-     * @return the path for the default location for publishing
-     */
-     String getDefaultFolderLocation(String siteId, String publishType, String driver, String serverType);
+  /**
+   * Determines if the default publish server for a site is modified.
+   *
+   * @param siteId the site ID
+   * @return {@code true} if the default server was modified by the user
+   */
+  Boolean isDefaultServerModified(String siteId);
 
-    /**
-     * Returns the default publish server defined for the site.
-     *
-     * @param siteId the name of the site
-     * @return a <code>PSPubServer</code> object never empty or
-     *         <code>null</code>
-     */
-     PSPubServer getDefaultPubServer(IPSGuid siteId) throws PSNotFoundException;
+  /**
+   * Returns the default folder location for a new server.
+   *
+   * @param siteId the site ID
+   * @param publishType the type of publication server
+   * @param driver the driver for the new server
+   * @param serverType the server type
+   * @return the path for the default publishing location
+   */
+  String getDefaultFolderLocation(
+      String siteId, String publishType, String driver, String serverType);
 
-    /**
-     * Returns the staging publish server defined for the site.
-     *
-     * @param siteId site guid must not be <code>null</code>.
-     * @return a <code>PSPubServer</code> object may be <code>null</code> if a staging server has not been created.
-     */
-     PSPubServer getStagingPubServer(IPSGuid siteId) throws PSNotFoundException;
+  /**
+   * Returns the default publish server defined for the site.
+   *
+   * @param siteId the site ID
+   * @return a {@link PSPubServer} object, never {@code null}
+   */
+  PSPubServer getDefaultPubServer(IPSGuid siteId) throws PSNotFoundException;
 
-    /**
-     * Create a new server with the default settings based on the site name.
-     *
-     * @param site the associated site
-     * @param serverName the name to set for the new publishing server
-     * @return the {@link PSPubServer publish server} object maybe
-     *         <code>null</code> if it cannot be created
-     * @throws PSPubServerServiceException
-     */
-     PSPubServer createDefaultPubServer(IPSSite site, String serverName) throws PSPubServerServiceException;
+  /**
+   * Returns the staging publish server defined for the site.
+   *
+   * @param siteId the site GUID, never {@code null}
+   * @return a {@link PSPubServer} object, may be {@code null} if not created
+   */
+  PSPubServer getStagingPubServer(IPSGuid siteId) throws PSNotFoundException;
 
-    /**
-     * Updates folder root after renaming a site.
-     *
-     * @param site never <code>null</code>
-     * @param root the root with the new name, never <code>null</code>
-     * @param oldName The old site name, may be <code>null</code>
-     *
-     * @return <code>true</code> if the folder location was changed for any pub server, <code>false</code> if not
-     */
-     boolean updateDefaultFolderLocation(IPSSite site, String root, String oldName);
+  /**
+   * Creates a new server with default settings based on the site name.
+   *
+   * @param site the associated site
+   * @param serverName the name for the new publishing server
+   * @return the {@link PSPubServer} object, may be {@code null} if it cannot be created
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  PSPubServer createDefaultPubServer(IPSSite site, String serverName)
+      throws PSPubServerServiceException;
 
-    /**
-     * Thrown when an error is encountered in the publish service.
-     *
-     * @author leonardohildt
-     *
-     */
-    class PSPubServerServiceException extends PSException
-    {
-        private static final long serialVersionUID = 1L;
+  /**
+   * Updates folder root after renaming a site.
+   *
+   * @param site never {@code null}
+   * @param root the root with the new name, never {@code null}
+   * @param oldName the old site name, may be {@code null}
+   * @return {@code true} if the folder location was changed for any pub server
+   */
+  boolean updateDefaultFolderLocation(IPSSite site, String root, String oldName);
 
-        public PSPubServerServiceException()
-        {
-            super();
-        }
+  /** Exception thrown when an error is encountered in the publish service. */
+  class PSPubServerServiceException extends PSException {
+    private static final long serialVersionUID = 1L;
 
-        public PSPubServerServiceException(String message)
-        {
-            super(message);
-        }
-
-        public PSPubServerServiceException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-
-        public PSPubServerServiceException(Throwable cause)
-        {
-            super(cause);
-        }
+    public PSPubServerServiceException() {
+      super();
     }
 
-     boolean checkPubServerConfig(PSPublishServerInfo pubServerInfo, IPSSite site);
+    public PSPubServerServiceException(String message) {
+      super(message);
+    }
 
-    /**
-     * Returns S3 publishing info if the default pubserver for the supplied site is amazon s3 server.
-     * @param siteId must not be <code>null</code>
-     * @return PSPubInfo of amazon s3 pub server, may be <code>null</code>.
-     * @throws PSPubServerServiceException
-     */
-     PSPubInfo getS3PubInfo(IPSGuid siteId) throws PSPubServerServiceException, PSNotFoundException;
+    public PSPubServerServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
 
-    /**
-     * Finds the pub server for the supplied server id, returns null if server doesn't exist.
-     * @param serverId id of the server
-     * @return pub server may be <code>null</code> if no pub server exists for the supplied server id.
-     * @throws PSPubServerServiceException
-     */
-     PSPubServer findPubServer(long serverId) throws PSPubServerServiceException;
+    public PSPubServerServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
 
-    /**
-     * Finds the pub server for the supplied guid, returns null if the server does not exist.
-     * @param guid A valid pub server guid
-     * @return the matching pub server or null if the pub server does not exist
-     * @throws PSPubServerServiceException
-     */
-    PSPubServer findPubServer(IPSGuid guid) throws PSPubServerServiceException;
+  /**
+   * Checks the configuration of a publish server.
+   *
+   * @param pubServerInfo the server info
+   * @param site the site
+   * @return {@code true} if the configuration is valid
+   */
+  boolean checkPubServerConfig(PSPublishServerInfo pubServerInfo, IPSSite site);
 
-     String getDefaultAdminURL(String siteName) throws PSPubServerServiceException, PSNotFoundException;
+  /**
+   * Returns S3 publishing info if the default pubserver for the supplied site is Amazon S3.
+   *
+   * @param siteId must not be {@code null}
+   * @return {@link PSPubInfo} of Amazon S3 pub server, may be {@code null}
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  PSPubInfo getS3PubInfo(IPSGuid siteId) throws PSPubServerServiceException, PSNotFoundException;
 
+  /**
+   * Finds the pub server for the supplied server ID, returns null if server doesn't exist.
+   *
+   * @param serverId the server ID
+   * @return pub server, may be {@code null} if not found
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  PSPubServer findPubServer(long serverId) throws PSPubServerServiceException;
+
+  /**
+   * Finds the pub server for the supplied GUID, returns null if not found.
+   *
+   * @param guid a valid pub server GUID
+   * @return the matching pub server or null if not found
+   * @throws PSPubServerServiceException if an error occurs
+   */
+  PSPubServer findPubServer(IPSGuid guid) throws PSPubServerServiceException;
+
+  /**
+   * Gets the default admin URL for a site.
+   *
+   * @param siteName the site name
+   * @return the admin URL
+   * @throws PSPubServerServiceException if an error occurs
+   * @throws PSNotFoundException if the site is not found
+   */
+  String getDefaultAdminURL(String siteName)
+      throws PSPubServerServiceException, PSNotFoundException;
 }

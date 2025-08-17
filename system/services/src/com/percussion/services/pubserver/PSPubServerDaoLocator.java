@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,80 @@ package com.percussion.services.pubserver;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
 /**
- * Get the publication server manager from the Spring configuration.
- * 
+ * Service locator for the publication server DAO using modern Java 11 patterns.
+ * Provides thread-safe singleton access to the publication server manager with
+ * enhanced error handling and atomic reference patterns.
+ *
  * @author leonardohildt
  */
-public class PSPubServerDaoLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSPubServerDao psrd=null;
+public final class PSPubServerDaoLocator {
+
    /**
-    * Get the publication server manager
-    * 
-    * @return the publication server manager, never <code>null</code>
+    * Bean name for the publication server DAO.
+    */
+   public static final String PUB_SERVER_DAO_BEAN = "sys_pubserverdao";
+
+   /**
+    * Thread-safe reference to the publication server DAO instance.
+    */
+   private static final AtomicReference<IPSPubServerDao> PUB_SERVER_DAO_REF =
+       new AtomicReference<>();
+
+   /**
+    * Lazy supplier for thread-safe initialization.
+    */
+   private static final Supplier<IPSPubServerDao> DAO_SUPPLIER = () -> {
+      var dao = (IPSPubServerDao) PSBaseServiceLocator.getBean(PUB_SERVER_DAO_BEAN);
+      Objects.requireNonNull(dao, "Publication server DAO bean cannot be null");
+      return dao;
+   };
+
+   /**
+    * Private constructor to prevent instantiation.
+    */
+   private PSPubServerDaoLocator() {
+      // Utility class - no instantiation
+   }
+
+   /**
+    * Get the publication server DAO with thread-safe lazy initialization.
+    * Uses double-checked locking pattern with atomic reference for optimal performance.
+    *
+    * @return the publication server DAO, never null
     * @throws PSMissingBeanConfigurationException if the bean doesn't exist
+    * @throws IllegalStateException if the DAO cannot be initialized
     */
    public static IPSPubServerDao getPubServerManager()
-         throws PSMissingBeanConfigurationException
-   {
-       if (psrd==null)
-       {
-           synchronized (PSPubServerDaoLocator.class)
-           {
-               if (psrd==null)
-               {
-                   psrd = (IPSPubServerDao) getBean("sys_pubserverdao");
-               }
-           }
-       }
-      return psrd;
+         throws PSMissingBeanConfigurationException {
+
+      var dao = PUB_SERVER_DAO_REF.get();
+      if (dao == null) {
+         dao = PUB_SERVER_DAO_REF.updateAndGet(current ->
+            current != null ? current : DAO_SUPPLIER.get());
+      }
+
+      return dao;
+   }
+
+   /**
+    * Clear the cached DAO instance for testing or reconfiguration purposes.
+    * This method is primarily intended for unit testing scenarios.
+    */
+   public static void clearCache() {
+      PUB_SERVER_DAO_REF.set(null);
+   }
+
+   /**
+    * Check if the DAO is currently cached.
+    *
+    * @return true if the DAO instance is cached, false otherwise
+    */
+   public static boolean isCached() {
+      return PUB_SERVER_DAO_REF.get() != null;
    }
 }

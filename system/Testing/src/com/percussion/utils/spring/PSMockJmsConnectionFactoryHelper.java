@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import com.percussion.utils.jndi.PSNamingContextHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.jms.JMSException;
-import jakarta.jms.Queue;
-import jakarta.jms.Topic;
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.NamingException;
 import java.util.Map;
 
 /**

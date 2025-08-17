@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,55 +17,44 @@
 package com.percussion.fastforward.managednav.sql;
 
 /**
- * Relationship data object. Used for loading data about slot relationships
- * directly from the backend SQL database.
- * 
+ * Relationship data object. Used for loading data about slot relationships directly from the
+ * backend SQL database.
+ *
  * @author DavidBenua
- *  
  */
-public class PSNavSqlRelation
-{
-   /**
-    * Construct a relationship object from a content id and variant.
-    * 
-    * @param contentid
-    * @param variant
-    *  
-    */
-   public PSNavSqlRelation(int contentid, int variant)
-   {
-      m_contentid = contentid;
-      m_variant = variant;
-   }
+public class PSNavSqlRelation {
+  /**
+   * Construct a relationship object from a content id and variant.
+   *
+   * @param contentid
+   * @param variant
+   */
+  public PSNavSqlRelation(int contentid, int variant) {
+    m_contentid = contentid;
+    m_variant = variant;
+  }
 
-   /**
-    * Gets the content id.
-    * 
-    * @return Returns the contentid.
-    */
-   public int getContentid()
-   {
-      return m_contentid;
-   }
+  /**
+   * Gets the content id.
+   *
+   * @return Returns the contentid.
+   */
+  public int getContentid() {
+    return m_contentid;
+  }
 
-   /**
-    * Gets the variant id.
-    * 
-    * @return Returns the variant.
-    */
-   public int getVariant()
-   {
-      return m_variant;
-   }
+  /**
+   * Gets the variant id.
+   *
+   * @return Returns the variant.
+   */
+  public int getVariant() {
+    return m_variant;
+  }
 
-   /**
-    * Content id of dependent item.
-    */
-   private int m_contentid;
+  /** Content id of dependent item. */
+  private int m_contentid;
 
-   /**
-    * Variant id of dependent item.
-    */
-   private int m_variant;
-
+  /** Variant id of dependent item. */
+  private int m_variant;
 }

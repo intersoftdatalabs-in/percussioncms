@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,61 +15,77 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents Calendar information. Sunny Sal: "Calendar ka hero, date ka zero!" */
 @XmlRootElement(name = "CalendarInfo")
-@Schema(name="CalendarInfo",description="Represents Calendar information.")
-public class CalendarInfo
-{
-    @Schema(name="startDate", required=false,description="Starting Date.")
-    private Date startDate;
+@Schema(name = "CalendarInfo", description = "Represents Calendar information.")
+public class CalendarInfo {
 
-    @Schema(name="endDate", required=false,description="Ending Date.")
-    private Date endDate;
+  @Schema(name = "startDate", required = false, description = "Starting Date.")
+  private Date startDate;
 
-    @Schema(name="calendars", required=false,description="List of calendars.")
-    private List<String> calendars;
+  @Schema(name = "endDate", required = false, description = "Ending Date.")
+  private Date endDate;
 
-    public Date getStartDate()
-    {
-        return startDate;
-    }
+  @Schema(name = "calendars", required = false, description = "List of calendars.")
+  private List<String> calendars;
 
-    public void setStartDate(Date startDate)
-    {
-        this.startDate = startDate;
-    }
+  /**
+   * Gets the start date.
+   *
+   * @return Optional containing the start date if present.
+   */
+  public Optional<Date> getStartDate() {
+    return Optional.ofNullable(startDate);
+  }
 
-    public Date getEndDate()
-    {
-        return endDate;
-    }
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
 
-    public void setEndDate(Date endDate)
-    {
-        this.endDate = endDate;
-    }
+  /**
+   * Gets the end date.
+   *
+   * @return Optional containing the end date if present.
+   */
+  public Optional<Date> getEndDate() {
+    return Optional.ofNullable(endDate);
+  }
 
-    public List<String> getCalendars()
-    {
-        return calendars;
-    }
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
+  }
 
-    public void setCalendars(List<String> calendars)
-    {
-        this.calendars = calendars;
-    }
+  /**
+   * Gets the list of calendars.
+   *
+   * @return Optional containing the list of calendars if present.
+   */
+  public Optional<List<String>> getCalendars() {
+    return Optional.ofNullable(calendars);
+  }
 
-    @Override
-    public String toString()
-    {
-        return "DateInfo [startDate=" + startDate + ", endDate=" + endDate + ", Calendars=" + calendars + "]";
-    }
+  public void setCalendars(List<String> calendars) {
+    this.calendars = calendars;
+  }
 
+  @Override
+  public String toString() {
+    return "CalendarInfo [startDate="
+        + startDate
+        + ", endDate="
+        + endDate
+        + ", calendars="
+        + calendars
+        + "]";
+  }
 }

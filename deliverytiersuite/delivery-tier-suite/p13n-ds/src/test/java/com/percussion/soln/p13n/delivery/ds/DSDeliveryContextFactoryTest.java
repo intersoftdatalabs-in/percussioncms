@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 package com.percussion.soln.p13n.delivery.ds;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,9 +27,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.delivery.DeliveryRequest;
 import com.percussion.soln.p13n.delivery.IDeliverySnippetFilterContext;
@@ -50,7 +50,7 @@ import com.percussion.soln.segment.Segments;
  * Scenario description: Create a context from a delivery request.
  * @author adamgent, Jan 24, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DSDeliveryContextFactoryTest {
 
     Mockery context = new JUnit4Mockery();
@@ -68,7 +68,7 @@ public class DSDeliveryContextFactoryTest {
     final Segment segmentB = makeSegment("segmentB");
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         factory = new DSDeliveryContextFactory();
         deliveryDataService = context.mock(IDeliveryDataService.class);

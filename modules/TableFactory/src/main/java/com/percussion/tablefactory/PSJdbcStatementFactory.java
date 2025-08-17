@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,10 @@
 
 package com.percussion.tablefactory;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,1859 +31,1587 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * This class is used to generate sql statements from PSJdbcTableComponent
- * objects.  It contains only static methods, and may not be instantiated.
+ * This class is used to generate sql statements from PSJdbcTableComponent objects. It contains only
+ * static methods, and may not be instantiated.
  */
-public class PSJdbcStatementFactory
-{
+public class PSJdbcStatementFactory {
 
-   private static final Logger log = LogManager.getLogger(PSJdbcStatementFactory.class);
+  private static final Logger log = LogManager.getLogger(PSJdbcStatementFactory.class);
 
-   /**
-    * Private ctor to disallow instantiation.
-    */
-   private PSJdbcStatementFactory()
-   {
-   }
+  /** Private ctor to disallow instantiation. */
+  private PSJdbcStatementFactory() {}
 
-   /**
-    * Returns an execution step that will create the specified table.
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema The table to create.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is <code>null</code>.
-    */
-   public static PSJdbcExecutionStep getCreateTableStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  /**
+   * Returns an execution step that will create the specified table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to create. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if any param is <code>null</code>.
+   */
+  public static PSJdbcExecutionStep getCreateTableStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      StringBuilder buf = new StringBuilder();
+    StringBuilder buf = new StringBuilder();
 
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      buf.append("CREATE TABLE ");
-      buf.append(fullName);
-      buf.append(" (");
+    buf.append("CREATE TABLE ");
+    buf.append(fullName);
+    buf.append(" (");
 
-      Iterator<PSJdbcColumnDef> columns = tableSchema.getColumns();
-      boolean isFirst = true;
-      while (columns.hasNext())
-      {
-         PSJdbcColumnDef col = columns.next();
-         if (!isFirst)
-            buf.append(", ");
-         else
-            isFirst = false;
+    Iterator<PSJdbcColumnDef> columns = tableSchema.getColumns();
+    boolean isFirst = true;
+    while (columns.hasNext()) {
+      PSJdbcColumnDef col = columns.next();
+      if (!isFirst) buf.append(", ");
+      else isFirst = false;
 
-         buf.append(col.getSqlDef(dbmsDef));
+      buf.append(col.getSqlDef(dbmsDef));
+    }
+
+    String pKeyDef = getPrimaryKeyConstraint(dbmsDef, tableSchema);
+    if (pKeyDef != null) {
+      buf.append(", ");
+      buf.append(pKeyDef);
+    }
+
+    String fKeyDef = getForeignKeyConstraint(dbmsDef, tableSchema);
+    if (fKeyDef != null) {
+      buf.append(", ");
+      buf.append(fKeyDef);
+    }
+
+    String indexdefs = getUniqueConstraints(dbmsDef, tableSchema);
+    if (indexdefs != null) {
+      buf.append(", ");
+      buf.append(indexdefs);
+    }
+
+    buf.append(")");
+    return new PSJdbcSqlStatement(buf.toString());
+  }
+
+  /**
+   * Returns an execution step that will drop FK constraint.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
+   */
+  public static String getDropFKIndex(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    String ixName;
+
+    if (StringUtils.isEmpty(fk.getName()) || fk.getName().length() < 3) {
+      Iterator<?> itcol = fk.getColumns();
+      String[] fkcolnames = (String[]) itcol.next();
+      String fkcolname = fkcolnames[0];
+      ixName = PSJdbcTableSchema.INDEX_PREFIX + fkcolname;
+    } else {
+      ixName = PSJdbcTableSchema.INDEX_PREFIX + fk.getName().substring(3);
+    }
+
+    return PSSqlHelper.getDropIndexStatement(
+        dbmsDef.getDriver(),
+        tableSchema.getName(),
+        dbmsDef.getDataBase(),
+        dbmsDef.getSchema(),
+        ixName);
+  }
+
+  /**
+   * Returns an execution step that will drop FK constraint.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
+   */
+  public static String getDropFKContraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    String buffer = "ALTER TABLE " + fullName + " DROP CONSTRAINT " + fk.getName();
+
+    if (PSSqlHelper.isMysql(dbmsDef.getDriver())) {
+      buffer = "ALTER TABLE " + fullName + " DROP FOREIGN KEY " + fk.getName();
+    }
+
+    return buffer;
+  }
+
+  /**
+   * Returns an execution step that will drop Primary Key constraint.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
+   */
+  public static String getDropPrimaryContraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcPrimaryKey pk) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    String buffer = "ALTER TABLE " + fullName + " DROP CONSTRAINT " + pk.getName();
+
+    if (PSSqlHelper.isMysql(dbmsDef.getDriver())) {
+      buffer = "ALTER TABLE " + fullName + " DROP PRIMARY KEY " + pk.getName();
+    }
+
+    return buffer;
+  }
+
+  /**
+   * Returns an execution step that will alter the specified table. Can only process components that
+   * are being added.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>. Is actually a block of alter table statements.
+   * @throws IllegalArgumentException if tableSchema contains any components with an action set to
+   *     {@link PSJdbcTableComponent#ACTION_DELETE} or {@link PSJdbcTableComponent#ACTION_REPLACE}
+   *     or any param is <code>null</code>.
+   */
+  public static PSJdbcExecutionStep getAlterTableStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    String fullTableName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
+
+    // delete indexes as unique constraints
+    Iterator<PSJdbcIndex> indexes = tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE);
+    while (indexes.hasNext()) {
+      PSJdbcIndex index = indexes.next();
+      if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+        block.addStep(new PSJdbcSqlStatement(getDropUniqueContraint(dbmsDef, tableSchema, index)));
       }
+    }
 
-      String pKeyDef = getPrimaryKeyConstraint(dbmsDef, tableSchema);
-      if (pKeyDef != null)
-      {
-         buf.append(", ");
-         buf.append(pKeyDef);
+    // add each column create
+    Iterator<PSJdbcColumnDef> columns = tableSchema.getColumns();
+    while (columns.hasNext()) {
+      PSJdbcColumnDef column = columns.next();
+      if (!column.canAlter())
+        throw new IllegalArgumentException("invalid alter action on column " + column.getName());
+      if (column.getAction() == PSJdbcTableComponent.ACTION_CREATE) {
+        block.addStep(getAddComponentStatement(fullTableName, column.getSqlDef(dbmsDef)));
+      } else if (column.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+        block.addStep(getDropComponentStatement(fullTableName, column.getName()));
+      } else if (column.getAction() == PSJdbcTableComponent.ACTION_REPLACE) {
+        if (PSSqlHelper.isDerby(dbmsDef.getDriver())) {
+          List<PSJdbcSqlStatement> steps =
+              getAlterColumnRecreateStatements(dbmsDef, fullTableName, column);
+          for (PSJdbcExecutionStep step : steps) {
+            block.addStep(step);
+          }
+        } else {
+          block.addStep(getAlterColumnStatement(dbmsDef, fullTableName, column));
+        }
       }
+    }
 
-      String fKeyDef = getForeignKeyConstraint(dbmsDef, tableSchema);
-      if (fKeyDef != null)
-      {
-         buf.append(", ");
-         buf.append(fKeyDef);
+    // add pk create
+    PSJdbcPrimaryKey pKey = tableSchema.getPrimaryKey();
+    if (pKey != null) {
+      if (pKey.getAction() == PSJdbcTableComponent.ACTION_CREATE) {
+        block.addStep(
+            getAddComponentStatement(fullTableName, getPrimaryKeyConstraint(dbmsDef, tableSchema)));
+      } else if (pKey.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+        block.addStep(new PSJdbcSqlStatement(getDropPrimaryContraint(dbmsDef, tableSchema, pKey)));
       }
+    }
 
-      String indexdefs = getUniqueConstraints(dbmsDef, tableSchema);
-      if (indexdefs != null)
-      {
-         buf.append(", ");
-         buf.append(indexdefs);
+    int i = 1;
+    // add each fk create
+    for (PSJdbcForeignKey fKey : tableSchema.getForeignKeys()) {
+
+      if (fKey != null) {
+        String fkName = getQualifiedFkName(tableSchema.getName(), fKey.getName());
+
+        // add a separate alter statement for each external table constraint
+        Iterator<String> tables = fKey.getTables();
+
+        while (tables.hasNext()) {
+          String tableName = tables.next();
+          Iterator<String[]> cols = fKey.getColumns(tableName);
+          if (fKey.getAction() == PSJdbcTableComponent.ACTION_CREATE) {
+            block.addStep(
+                getAddComponentStatement(
+                    fullTableName, getForeignKeyConstraintInt(dbmsDef, fkName + "_" + i++, cols)));
+          } else if (fKey.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+            block.addStep(new PSJdbcSqlStatement(getDropFKContraint(dbmsDef, tableSchema, fKey)));
+          }
+        }
       }
+    }
 
-      buf.append(")");
-      return new PSJdbcSqlStatement(buf.toString());
-   }
+    while (indexes.hasNext()) {
+      PSJdbcIndex index = indexes.next();
+      if (index.getAction() == PSJdbcTableComponent.ACTION_CREATE)
+        block.addStep(
+            getAddComponentStatement(
+                fullTableName, getUniqueConstraint(dbmsDef, tableSchema, index)));
+    }
 
-   /**
-    * Returns an execution step that will drop FK constraint.
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema Provides the table components that require changes,
-    * but may contain columns with action set to {@link
-    * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-    * keys.  May not be <code>null</code>.
-    * @return complete ALTER table SQL statement, returns <code>null</code>
-    * if there is no FK in this table.
-    */
-   public static String getDropFKIndex(PSJdbcDbmsDef dbmsDef,
-                                           PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    return block;
+  }
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+  /**
+   * Create statement to drop an individual unique constraint;
+   *
+   * @param dbmsDef
+   * @param tableSchema
+   * @param index
+   * @return
+   */
+  private static String getDropUniqueContraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      String ixName;
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      if (StringUtils.isEmpty(fk.getName()) || fk.getName().length() < 3)
-      {
-         Iterator<?> itcol = fk.getColumns();
-         String[] fkcolnames = (String[]) itcol.next();
-         String fkcolname = fkcolnames[0];
-         ixName = PSJdbcTableSchema.INDEX_PREFIX + fkcolname;
-      }else{
-         ixName = PSJdbcTableSchema.INDEX_PREFIX + fk.getName().substring(3);
-      }
+    String dropSql = "";
 
-      return PSSqlHelper.getDropIndexStatement(
-              dbmsDef.getDriver(), tableSchema.getName(),
-              dbmsDef.getDataBase(), dbmsDef.getSchema(), ixName);
-   }
-   /**
-    * Returns an execution step that will drop FK constraint.
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema Provides the table components that require changes,
-    * but may contain columns with action set to {@link
-    * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-    * keys.  May not be <code>null</code>.
-    * @return complete ALTER table SQL statement, returns <code>null</code>
-    * if there is no FK in this table.
-    */
-   public static String getDropFKContraint(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+      String indexName = index.getName();
+      if (indexName == null || indexName.trim().length() == 0)
+        throw new IllegalArgumentException(
+            "Index must have a valid " + "name for creating DROP INDEX statement");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-         
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-      
-      String buffer = "ALTER TABLE "  + fullName +
-      " DROP CONSTRAINT " + fk.getName();
-      
-      if(PSSqlHelper.isMysql(dbmsDef.getDriver()))
-      {
-          buffer = "ALTER TABLE "  + fullName +
-          " DROP FOREIGN KEY " + fk.getName();
-      }
-         
-      return buffer;
-   }
+      dropSql =
+          PSSqlHelper.getDropIndexStatement(
+              dbmsDef.getDriver(),
+              tableSchema.getName(),
+              dbmsDef.getDataBase(),
+              dbmsDef.getSchema(),
+              indexName);
+    }
+    return dropSql;
+  }
 
-   /**
-    * Returns an execution step that will drop Primary Key constraint.
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema Provides the table components that require changes,
-    * but may contain columns with action set to {@link
-    * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-    * keys.  May not be <code>null</code>.
-    * @return complete ALTER table SQL statement, returns <code>null</code>
-    * if there is no FK in this table.
-    */
-   public static String getDropPrimaryContraint(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema, PSJdbcPrimaryKey pk)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  /**
+   * Returns an execution step that will drop the specified table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableName The table to drop. May not be <code>null
+   * </code> or empty.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public static PSJdbcExecutionStep getDropTableStatement(PSJdbcDbmsDef dbmsDef, String tableName) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (tableName == null || tableName.trim().length() == 0)
+      throw new IllegalArgumentException("tableName may not be null or empty");
 
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+    String qualifiedName =
+        PSSqlHelper.qualifyTableName(
+            tableName, dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      String buffer = "ALTER TABLE "  + fullName +
-      " DROP CONSTRAINT " + pk.getName();
+    return new PSJdbcSqlStatement("DROP TABLE " + qualifiedName);
+  }
 
-      if(PSSqlHelper.isMysql(dbmsDef.getDriver()))
-      {
-          buffer = "ALTER TABLE "  + fullName +
-          " DROP PRIMARY KEY " + pk.getName();
-      }
+  /**
+   * Copies data from the source table to the target table, excluding source columns that do not
+   * exist in the target. If target columns are missing from the source, then a default value must
+   * be provided in the column if it does not allow nulls.
+   *
+   * @param dbmsDef Provides the database/schema information for the tables. May not be <code>null
+   *     </code>.
+   * @param sourceTableSchema The source table. May not be <code>null</code>.
+   * @param targetTableSchema The target table. May not be <code>null</code>.
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public static PSJdbcExecutionStep getCopyTableDataStatement(
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcTableSchema sourceTableSchema,
+      PSJdbcTableSchema targetTableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      return buffer;
-   }
-   /**
-    * Returns an execution step that will alter the specified table.  Can only
-    * process components that are being added.
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema Provides the table components that require changes,
-    * but may contain columns with action set to {@link
-    * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-    * keys.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>. Is actually a block of
-    * alter table statements.
-    *
-    * @throws IllegalArgumentException if tableSchema contains any components
-    * with an action set to {@link PSJdbcTableComponent#ACTION_DELETE} or {@link
-    * PSJdbcTableComponent#ACTION_REPLACE} or any param is <code>null</code>.
-    */
-   public static PSJdbcExecutionStep getAlterTableStatement(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    if (sourceTableSchema == null)
+      throw new IllegalArgumentException("sourceTableSchema may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (targetTableSchema == null)
+      throw new IllegalArgumentException("targetTableSchema may not be null");
 
-      String fullTableName = PSSqlHelper.qualifyTableName(tableSchema.getName(), dbmsDef.getDataBase(),
+    String strFullSource =
+        PSSqlHelper.qualifyTableName(
+            sourceTableSchema.getName(), dbmsDef.getDataBase(),
             dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
+    String strFullTarget =
+        PSSqlHelper.qualifyTableName(
+            targetTableSchema.getName(), dbmsDef.getDataBase(),
+            dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      //delete indexes as unique constraints
-      Iterator<PSJdbcIndex> indexes = tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE);
-      while (indexes.hasNext()){
-         PSJdbcIndex index = indexes.next();
-        if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
-            block.addStep(new PSJdbcSqlStatement(getDropUniqueContraint(dbmsDef, tableSchema, index)));
-         }
+    StringBuilder buf = new StringBuilder();
+    buf.append("INSERT INTO ");
+    buf.append(strFullTarget);
+    buf.append(" (");
+
+    // add columns from target, saving values for binding as we go
+    StringBuilder valueBuf = new StringBuilder();
+    boolean firstTime = true;
+    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+    Iterator<PSJdbcColumnDef> targetColumns = targetTableSchema.getColumns();
+    while (targetColumns.hasNext()) {
+      // first check to see if it's in the source
+      PSJdbcColumnDef tCol = targetColumns.next();
+      PSJdbcColumnDef sCol = sourceTableSchema.getColumn(tCol.getName());
+      boolean inSrc = sCol != null;
+
+      // if not in source, only include it if we have a default value
+      boolean includeColumn = true;
+      String defaultValue = tCol.getDefaultValue();
+      if (!inSrc && defaultValue == null) includeColumn = false;
+
+      if (includeColumn) {
+        // add the column to the statement
+        if (firstTime) firstTime = false;
+        else {
+          buf.append(", ");
+          valueBuf.append(", ");
+        }
+        buf.append(tCol.getName());
+
+        // see if we need a parameter for the default value
+        if (!inSrc) {
+          // can't get column from source, add parameter for default value
+          valueBuf.append(
+              PSSqlHelper.getParameterMarker(
+                  dbmsDef.getDriver(), tCol.getNativeType(), tCol.getSize()));
+          values.add(new PSJdbcStatementColumn(defaultValue, tCol.getType()));
+        } else {
+          // just add the column name
+          valueBuf.append(sCol.getName());
+        }
       }
+    }
 
+    buf.append(") ");
+    buf.append("SELECT ");
+    buf.append(valueBuf);
 
-      // add each column create
-      Iterator<PSJdbcColumnDef> columns = tableSchema.getColumns();
-      while (columns.hasNext())
-      {
-         PSJdbcColumnDef column = columns.next();
-         if (!column.canAlter())
-            throw new IllegalArgumentException("invalid alter action on column " + column.getName());
-         if (column.getAction() == PSJdbcTableComponent.ACTION_CREATE)
-         {
-            block.addStep(getAddComponentStatement(fullTableName, column.getSqlDef(dbmsDef)));
-         }
-         else if (column.getAction() == PSJdbcTableComponent.ACTION_DELETE)
-         {
-            block.addStep(getDropComponentStatement(fullTableName, column.getName()));
-         }
-         else if (column.getAction() == PSJdbcTableComponent.ACTION_REPLACE)
-         {
-            if(PSSqlHelper.isDerby(dbmsDef.getDriver())){
-               List<PSJdbcSqlStatement> steps = getAlterColumnRecreateStatements(dbmsDef,fullTableName, column);
-               for(PSJdbcExecutionStep step:steps) {
-                  block.addStep(step);
-               }
-            }else {
-               block.addStep(getAlterColumnStatement(dbmsDef, fullTableName, column));
-            }
-         }
+    buf.append(" FROM ");
+    buf.append(strFullSource);
 
-      }
+    PSJdbcSqlStatement stmt;
+    if (values.isEmpty()) stmt = new PSJdbcSqlStatement(buf.toString());
+    else stmt = new PSJdbcPreparedSqlStatement(buf.toString(), values);
 
-      // add pk create
-      PSJdbcPrimaryKey pKey = tableSchema.getPrimaryKey();
-      if (pKey != null )
-      {
-         if (pKey.getAction() == PSJdbcTableComponent.ACTION_CREATE) {
-            block.addStep(getAddComponentStatement(fullTableName, getPrimaryKeyConstraint(dbmsDef, tableSchema)));
-         }
-         else if (pKey.getAction() == PSJdbcTableComponent.ACTION_DELETE)
-         {
-            block.addStep(new PSJdbcSqlStatement(getDropPrimaryContraint(dbmsDef, tableSchema, pKey)));
-         }
+    return stmt;
+  }
 
-      }
-
-      int i = 1;
-      // add each fk create
-      for (PSJdbcForeignKey fKey : tableSchema.getForeignKeys())
-      {
-
-         if (fKey != null)
-         {
-            String fkName = getQualifiedFkName(tableSchema.getName(), fKey.getName());
-
-         // add a separate alter statement for each external table constraint
-         Iterator<String> tables = fKey.getTables();
-
-         while (tables.hasNext()){
-               String tableName = tables.next();
-               Iterator<String[]> cols = fKey.getColumns(tableName);
-               if (fKey.getAction() == PSJdbcTableComponent.ACTION_CREATE){
-                  block.addStep(getAddComponentStatement(fullTableName,
-                  getForeignKeyConstraintInt(dbmsDef, fkName + "_" + i++, cols)));
-               }else if (fKey.getAction() == PSJdbcTableComponent.ACTION_DELETE){
-                  block.addStep(new PSJdbcSqlStatement(getDropFKContraint(dbmsDef, tableSchema, fKey)));
-               }
-            }
-         }
-      }
-
-      while (indexes.hasNext())
-      {
-         PSJdbcIndex index = indexes.next();
-         if (index.getAction() == PSJdbcTableComponent.ACTION_CREATE)
-            block.addStep(getAddComponentStatement(fullTableName, getUniqueConstraint(dbmsDef, tableSchema, index)));
-      }
-
-      return block;
-   }
-
-   /**
-    * Create statement to drop an individual unique constraint;
-    *
-    * @param dbmsDef
-    * @param tableSchema
-    * @param index
-    * @return
-    */
-   private static String getDropUniqueContraint(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
-
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-
-      String dropSql="";
-
-         if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE)
-         {
-            String indexName = index.getName();
-            if (indexName == null || indexName.trim().length() == 0)
-               throw new IllegalArgumentException("Index must have a valid "
-                  + "name for creating DROP INDEX statement");
-
-            dropSql = PSSqlHelper.getDropIndexStatement(
-               dbmsDef.getDriver(), tableSchema.getName(),
-               dbmsDef.getDataBase(), dbmsDef.getSchema(), indexName);
-
-
-         }
-      return dropSql;
-   }
-
-   /**
-    * Returns an execution step that will drop the specified table.
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableName The table to drop.  May not be <code>null
-    * </code> or empty.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public static PSJdbcExecutionStep getDropTableStatement(
-      PSJdbcDbmsDef dbmsDef, String tableName)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
-
-      if (tableName == null || tableName.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "tableName may not be null or empty");
-
-      String qualifiedName = PSSqlHelper.qualifyTableName(tableName,
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-
-       return new PSJdbcSqlStatement("DROP TABLE " + qualifiedName);
-   }
-
-   /**
-    * Copies data from the source table to the target table, excluding source
-    * columns that do not exist in the target.  If target columns are missing
-    * from the source, then a default value must be provided in the column if
-    * it does not allow nulls.
-    *
-    * @param dbmsDef Provides the database/schema information for the tables.
-    * May not be <code>null</code>.
-    * @param sourceTableSchema The source table.  May not be <code>null</code>.
-    * @param targetTableSchema The target table.  May not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public static PSJdbcExecutionStep getCopyTableDataStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema sourceTableSchema,
-      PSJdbcTableSchema targetTableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
-
-      if (sourceTableSchema == null)
-         throw new IllegalArgumentException(
-            "sourceTableSchema may not be null");
-
-      if (targetTableSchema == null)
-         throw new IllegalArgumentException(
-            "targetTableSchema may not be null");
-
-      String strFullSource = PSSqlHelper.qualifyTableName(
-         sourceTableSchema.getName(), dbmsDef.getDataBase(),
-         dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      String strFullTarget = PSSqlHelper.qualifyTableName(
-         targetTableSchema.getName(), dbmsDef.getDataBase(),
-         dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      StringBuilder buf = new StringBuilder();
-      buf.append("INSERT INTO ");
-      buf.append(strFullTarget);
-      buf.append(" (");
-
-      // add columns from target, saving values for binding as we go
-      StringBuilder valueBuf = new StringBuilder();
-      boolean firstTime = true;
-      PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
-      Iterator<PSJdbcColumnDef> targetColumns = targetTableSchema.getColumns();
-      while (targetColumns.hasNext())
-      {
-         // first check to see if it's in the source
-         PSJdbcColumnDef tCol = targetColumns.next();
-         PSJdbcColumnDef sCol = sourceTableSchema.getColumn(tCol.getName());
-         boolean inSrc = sCol != null;
-
-         // if not in source, only include it if we have a default value
-         boolean includeColumn = true;
-         String defaultValue = tCol.getDefaultValue();
-         if (!inSrc && defaultValue == null)
-            includeColumn = false;
-
-         if (includeColumn)
-         {
-            // add the column to the statement
-            if (firstTime)
-               firstTime = false;
-            else
-            {
-               buf.append(", ");
-               valueBuf.append(", ");
-            }
-            buf.append(tCol.getName());
-
-            // see if we need a parameter for the default value
-            if (!inSrc)
-            {
-               // can't get column from source, add parameter for default value
-               valueBuf.append(
-                  PSSqlHelper.getParameterMarker(
-                     dbmsDef.getDriver(), tCol.getNativeType(), tCol.getSize()
-                  )
-               );
-               values.add(new PSJdbcStatementColumn(defaultValue,
-                  tCol.getType()));
-            }
-            else
-            {
-               // just add the column name
-               valueBuf.append(sCol.getName());
-            }
-         }
-
-      }
-
-      buf.append(") ");
-      buf.append("SELECT ");
-      buf.append(valueBuf);
-
-      buf.append(" FROM ");
-      buf.append(strFullSource);
-
-      PSJdbcSqlStatement stmt;
-      if (values.isEmpty())
-         stmt = new PSJdbcSqlStatement(buf.toString());
-      else
-         stmt = new PSJdbcPreparedSqlStatement(buf.toString(), values);
-
-      return stmt;
-   }
-
-   /**
-   * Returns a step which queries the table specified by <code>tableSchema</code>
-   * in its <code>execute</code> method. Then the result set can be iterated
-   * by using the <code>next()</code> method of
-   * <code>PSJdbcResultSetIteratorStep</code>.
+  /**
+   * Returns a step which queries the table specified by <code>tableSchema</code> in its <code>
+   * execute</code> method. Then the result set can be iterated by using the <code>next()</code>
+   * method of <code>PSJdbcResultSetIteratorStep</code>.
    *
-   * @param dbmsDef Provides the database/schema information for the tables,
-   * may not be <code>null</code>.
+   * @param dbmsDef Provides the database/schema information for the tables, may not be <code>null
+   *     </code>.
    * @param tableSchema The table to query, may not be <code>null</code>.
-   * @param columns an array of column names, may be <code>null</code>
-   * or empty array in which case all the columns are used in the select query.
-   * The columns specified must belong to the table specified by the
-   * <code>tableSchema</code> parameter.
-   * @param filter encapsulates the where clause of the select query,
-   * may be <code>null</code> in which case the select query does not have a
-   * where clause.
-   * @param rowAction the action to be set for the rows cataloged, should be
-   * one of the following values:
-   * <code>PSJdbcRowData.ACTION_INSERT</code> or
-   * <code>PSJdbcRowData.ACTION_UPDATE</code> or
-   * <code>PSJdbcRowData.ACTION_REPLACE</code> or
-   * <code>PSJdbcRowData.ACTION_DELETE</code> or
-   * <code>PSJdbcRowData.ACTION_INSERT_IF_NOT_EXIST</code>
-   *
-   * @return the step which queries the table specified by <code>tableSchema</code>
-   * in its <code>execute</code> method, never <code>null</code>
-   *
+   * @param columns an array of column names, may be <code>null</code> or empty array in which case
+   *     all the columns are used in the select query. The columns specified must belong to the
+   *     table specified by the <code>tableSchema</code> parameter.
+   * @param filter encapsulates the where clause of the select query, may be <code>null</code> in
+   *     which case the select query does not have a where clause.
+   * @param rowAction the action to be set for the rows cataloged, should be one of the following
+   *     values: <code>PSJdbcRowData.ACTION_INSERT</code> or <code>PSJdbcRowData.ACTION_UPDATE
+   *     </code> or <code>PSJdbcRowData.ACTION_REPLACE</code> or <code>PSJdbcRowData.ACTION_DELETE
+   *     </code> or <code>PSJdbcRowData.ACTION_INSERT_IF_NOT_EXIST</code>
+   * @return the step which queries the table specified by <code>tableSchema</code> in its <code>
+   *     execute</code> method, never <code>null</code>
    * @throws PSJdbcTableFactoryException if any error occurs.
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>tableSchema</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code>
    */
-   public static PSJdbcResultSetIteratorStep getResultSetIteratorStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema,
-      String[] columns, PSJdbcSelectFilter filter, int rowAction)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  public static PSJdbcResultSetIteratorStep getResultSetIteratorStatement(
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcTableSchema tableSchema,
+      String[] columns,
+      PSJdbcSelectFilter filter,
+      int rowAction) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      // build sql statement
-      StringBuilder buf = new StringBuilder();
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+    // build sql statement
+    StringBuilder buf = new StringBuilder();
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      buf.append("SELECT ");
+    buf.append("SELECT ");
 
-      // add columns
-      List<String> colList = new ArrayList<>();
-      if (columns == null || columns.length == 0)
-      {
-         // if no columns specified, fetch all the columns
-         Iterator<PSJdbcColumnDef> colSchemas = tableSchema.getColumns();
-         while (colSchemas.hasNext())
-         {
-            PSJdbcColumnDef colDef = colSchemas.next();
-            colList.add(colDef.getName());
-         }
+    // add columns
+    List<String> colList = new ArrayList<>();
+    if (columns == null || columns.length == 0) {
+      // if no columns specified, fetch all the columns
+      Iterator<PSJdbcColumnDef> colSchemas = tableSchema.getColumns();
+      while (colSchemas.hasNext()) {
+        PSJdbcColumnDef colDef = colSchemas.next();
+        colList.add(colDef.getName());
       }
-      else
-      {
-         // fetch only the specified columns
-         int colSize = columns.length;
-         colList.addAll(Arrays.asList(columns).subList(0, colSize));
+    } else {
+      // fetch only the specified columns
+      int colSize = columns.length;
+      colList.addAll(Arrays.asList(columns).subList(0, colSize));
+    }
+
+    Iterator<String> colIt = colList.iterator();
+    boolean isFirst = true;
+    while (colIt.hasNext()) {
+      String colName = colIt.next();
+      if (isFirst) isFirst = false;
+      else buf.append(", ");
+      buf.append(colName);
+    }
+
+    buf.append(" FROM ");
+    buf.append(fullName);
+
+    if (filter != null) {
+      // add the WHERE clause
+      String strFilter = filter.toString();
+      if (!(strFilter == null || strFilter.trim().length() == 0)) {
+        buf.append(PSJdbcSelectFilter.WHERE);
+        buf.append(strFilter);
       }
+    }
+    return new PSJdbcResultSetIteratorStep(buf.toString(), dbmsDef, tableSchema, rowAction);
+  }
 
-      Iterator<String> colIt = colList.iterator();
-      boolean isFirst = true;
-      while (colIt.hasNext())
-      {
-         String colName = colIt.next();
-         if (isFirst)
-            isFirst = false;
-         else
-            buf.append(", ");
-         buf.append(colName);
-      }
+  /**
+   * Returns an execution step that will delete all rows from the table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to clear. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
+   * </code>.
+   */
+  public static PSJdbcExecutionStep getClearTableStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      buf.append(" FROM ");
-      buf.append(fullName);
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      if (filter != null)
-      {
-         // add the WHERE clause
-         String strFilter = filter.toString();
-         if (!(strFilter == null || strFilter.trim().length() == 0))
-         {
-            buf.append(PSJdbcSelectFilter.WHERE);
-            buf.append(strFilter);
-         }
-      }
-      return new PSJdbcResultSetIteratorStep(buf.toString(),
-         dbmsDef, tableSchema, rowAction);
-   }
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-   /**
-    * Returns an execution step that will delete all rows from the table.
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema The table to clear.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
-    * </code>.
-    */
-   public static PSJdbcExecutionStep getClearTableStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    return new PSJdbcSqlStatement("DELETE FROM " + fullName);
+  }
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+  /**
+   * Returns the string to be used in INSERT INTO...SELECT... statement for child tables whose
+   * foreign key references the parent tables identity/sequence column.
+   *
+   * @param dbmsDef Provides the database/schema information for the table, assumed not <code>null
+   *     </code>.
+   * @param tableSchema The table to insert into. Assumed not <code>null</code>
+   * @param row The row to insert. Assumed not <code>null</code>.
+   * @param valueBuf the string containing the value of columns of the child table, assumed not
+   *     <code>null</code>
+   * @return the string to be used in INSERT INTO...SELECT... statement for child tables whose
+   *     foreign key references the parent tables identity/sequence column, never <code>null</code>
+   *     or empty.
+   */
+  private static String getInsertSelectString(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row, String valueBuf) {
+    String selString = "";
 
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      return new PSJdbcSqlStatement("DELETE FROM " + fullName);
-   }
-
-   /**
-    * Returns the string to be used in INSERT INTO...SELECT... statement
-    * for child tables whose foreign key references the parent tables
-    * identity/sequence column.
-    *
-    * @param dbmsDef Provides the database/schema information for the table,
-    * assumed not <code>null</code>.
-    * @param tableSchema The table to insert into. Assumed not <code>null</code>
-    * @param row The row to insert. Assumed not <code>null</code>.
-    * @param valueBuf the string containing the value of columns of the child
-    * table, assumed not <code>null</code>
-    * @return the string to be used in INSERT INTO...SELECT... statement
-    * for child tables whose foreign key references the parent tables
-    * identity/sequence column, never <code>null</code> or empty.
-    */
-   private static String getInsertSelectString(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema, PSJdbcRowData row,
-      String valueBuf)
-   {
-      String selString = "";
-
-      PSJdbcRowData parentRowData = row.getParentRowData();
-      String parentTableName = PSSqlHelper.qualifyTableName(
-            parentRowData.getTableName(), dbmsDef.getDataBase(), dbmsDef.getSchema(),
-         dbmsDef.getDriver());
-      String colNames = "";
-      String colValues="";
-      boolean hasRefCols = false;
-      for (PSJdbcForeignKey fkey : tableSchema.getForeignKeys() )
-      {
+    PSJdbcRowData parentRowData = row.getParentRowData();
+    String parentTableName =
+        PSSqlHelper.qualifyTableName(
+            parentRowData.getTableName(),
+            dbmsDef.getDataBase(),
+            dbmsDef.getSchema(),
+            dbmsDef.getDriver());
+    String colNames = "";
+    String colValues = "";
+    boolean hasRefCols = false;
+    for (PSJdbcForeignKey fkey : tableSchema.getForeignKeys()) {
       Iterator<String[]> cols = fkey.getColumns(parentRowData.getTableName());
-      while (cols.hasNext())
-      {
-         String[] col = cols.next();
-         String childTableColName = col[0];
-         String parentTableColName = col[2];
+      while (cols.hasNext()) {
+        String[] col = cols.next();
+        String childTableColName = col[0];
+        String parentTableColName = col[2];
 
+        PSJdbcColumnData parentColData = parentRowData.getColumn(parentTableColName);
 
-         PSJdbcColumnData parentColData =
-            parentRowData.getColumn(parentTableColName);
+        if (!(parentColData == null || parentColData.getValue() == null)) continue;
 
-         if (!(parentColData == null || parentColData.getValue() == null))
-            continue;
-
-         colNames += "," + childTableColName;
-         colValues += "," + parentTableName + "." + parentTableColName;
-         hasRefCols = true;
+        colNames += "," + childTableColName;
+        colValues += "," + parentTableName + "." + parentTableColName;
+        hasRefCols = true;
       }
+    }
+    if (hasRefCols) {
+      PSJdbcTableSchema parentTableSchema =
+          PSJdbcTableFactory.getTableSchemaCollection().getTableSchema(parentTableName);
+
+      boolean bUseUpdateKey = false;
+      String str = "";
+      PSJdbcPrimaryKey pkey = parentTableSchema.getPrimaryKey();
+      if (pkey != null) {
+        Iterator<String> it = pkey.getColumnNames();
+        int i = 0;
+        while (it.hasNext()) {
+          String pkColName = it.next();
+          if (i != 0) str += " AND ";
+          else i++;
+          str += parentTableName + ".";
+          str += pkColName;
+          str += " = ";
+          PSJdbcColumnData pkColData = parentRowData.getColumn(pkColName);
+          if (pkColData == null) {
+            bUseUpdateKey = true;
+            break;
+          }
+          str += pkColData.getValue();
+        }
       }
-      if (hasRefCols) {
-         PSJdbcTableSchema parentTableSchema =
-            PSJdbcTableFactory.getTableSchemaCollection().getTableSchema(parentTableName);
-
-         boolean bUseUpdateKey = false;
-         String str = "";
-         PSJdbcPrimaryKey pkey = parentTableSchema.getPrimaryKey();
-         if (pkey != null)
-         {
-            Iterator<String> it = pkey.getColumnNames();
-            int i = 0;
-            while (it.hasNext())
-            {
-               String pkColName = it.next();
-               if (i != 0)
-                  str += " AND ";
-               else
-                  i++;
-               str += parentTableName + ".";
-               str += pkColName;
-               str += " = ";
-               PSJdbcColumnData pkColData = parentRowData.getColumn(pkColName);
-               if (pkColData == null)
-               {
-                  bUseUpdateKey = true;
-                  break;
-               }
-               str += pkColData.getValue();
-            }
-         }
-         if (bUseUpdateKey)
-         {
-            str = "";
-            PSJdbcUpdateKey ukey = parentTableSchema.getUpdateKey();
-            if (ukey != null)
-            {
-               Iterator<String> it = ukey.getColumnNames();
-               int i = 0;
-               while (it.hasNext())
-               {
-                  String upColName = it.next();
-                  if (i != 0)
-                     str += " AND ";
-                  else
-                     i++;
-                  str += parentTableName + ".";
-                  str += upColName;
-                  str += " = ";
-                  PSJdbcColumnData upColData = parentRowData.getColumn(upColName);
-                  if (!(upColData == null ||
-                     upColData.getValue() == null))
-                     str += upColData.getValue();
-               }
-            }
-         }
-
-          selString = colNames + " ) SELECT " + valueBuf +
-              ", " + colValues +
-                 " FROM " + parentTableName +
-              " WHERE " + str;
-      }
-      return selString;
-   }
-
-   /**
-    * Returns an execution step that will insert the specified row in the table.
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema The table to insert into.  May not be <code>null
-    * </code>.
-    * @param row The row to insert.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if dbmsDef, tableSchema, or row is
-    * <code>null</code>.
-    */
-   public static PSJdbcPreparedSqlStatement getInsertStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
-
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-
-      if (row == null)
-         throw new IllegalArgumentException("row may not be null");
-
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      boolean isDBOracle = isDBOracle(dbmsDef);
-      
-      StringBuilder selLobString = new StringBuilder("SELECT ");
-      List<Integer> lobTypes = new ArrayList<>();
-      List<String> lobValues = new ArrayList<>();
-      List<Integer> lobValuesEncoding = new ArrayList<>();
-
-      StringBuilder buf = new StringBuilder();
-      StringBuilder valueBuf = new StringBuilder();
-      PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
-
-      buf.append("INSERT INTO ");
-      buf.append(fullName);
-      buf.append(" (");
-
-      boolean firstTime = true;
-      Iterator<PSJdbcColumnData> columns = row.getColumns();
-      while (columns.hasNext())
-      {
-         PSJdbcColumnData dataCol = columns.next();
-         PSJdbcColumnDef schemaCol = tableSchema.getColumn(dataCol.getName());
-
-         if(schemaCol == null)
-         {
-            throw new RuntimeException("Undefined Table.Column: " +
-               tableSchema.getName() + "." + dataCol.getName());
-         }
-         int colType = schemaCol.getType();
-
-         //For non-Oracle databases ignore sequence columns on insert
-         if(schemaCol.isSequence() && !isDBOracle)
-            continue;
-
-         if (firstTime)
-            firstTime = false;
-         else
-         {
-            buf.append(", ");
-            valueBuf.append(", ");
-         }
-         // add the column to the statement, building values clause as we go
-         buf.append(dataCol.getName());
-
-         if (schemaCol.isSequence())
-         {
-            //sequence columns handled differently in oracle
-            //insert statements should have "SequenceName.NextVal" for the
-            //value of the column
-            String seq = schemaCol.getSequence();
-            if (seq == null || seq.trim().length() == 0)
-               throw new RuntimeException(
-                  "Sequence name is invalid for table " + fullName);
-
-            valueBuf.append(seq);
-            valueBuf.append(".NEXTVAL");
-         }
-         else if ((colType == Types.CLOB || colType == Types.BLOB)
-               && isDBOracle)
-         {
-            selLobString.append(dataCol.getName());
-            selLobString.append(",");
-            lobTypes.add(colType);
-            lobValues.add(dataCol.getValue());
-            lobValuesEncoding.add(dataCol.getEncoding());
-
-            if (colType == Types.CLOB)
-            {
-               // for oracle clob data should be inserted using
-               // EMPTY_CLOB function
-               valueBuf.append("EMPTY_CLOB()");
-            }
-            else
-            {
-               // for oracle blob data should be inserted using
-               // EMPTY_BLOB function
-               valueBuf.append("EMPTY_BLOB()");
-            }
-         }
-         else
-         {
-            valueBuf.append("?");
-            String value = dataCol.getValue();
-            PSJdbcBinaryColumnValue binaryValue=null;
-            
-            //if it is import option process the value
-            if (StringUtils.isNotBlank(value) && dbmsDef.getBinaryStorageLocation() != null && colType == Types.BLOB) {
-               try {
-                  binaryValue = getBinaryValue(dbmsDef, value);
-               }
-               catch (Exception e) {
-
-                  log.error(PSExceptionUtils.getMessageForLog(e));
-                  log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                  System.out.println("Failed to get the binary value for hash " + value + " for table " + fullName);
-               }
-            }
-            
-            if(binaryValue!=null){
-               values.add(new PSJdbcStatementColumn(binaryValue,
-                     schemaCol.getType(), dataCol.getEncoding()));
-            }else{
-               values.add(new PSJdbcStatementColumn(value,
-               schemaCol.getType(), dataCol.getEncoding()));
-         }
-           
-      }
+      if (bUseUpdateKey) {
+        str = "";
+        PSJdbcUpdateKey ukey = parentTableSchema.getUpdateKey();
+        if (ukey != null) {
+          Iterator<String> it = ukey.getColumnNames();
+          int i = 0;
+          while (it.hasNext()) {
+            String upColName = it.next();
+            if (i != 0) str += " AND ";
+            else i++;
+            str += parentTableName + ".";
+            str += upColName;
+            str += " = ";
+            PSJdbcColumnData upColData = parentRowData.getColumn(upColName);
+            if (!(upColData == null || upColData.getValue() == null)) str += upColData.getValue();
+          }
+        }
       }
 
-      boolean bUseInsertIntoSelectStmt = row.getUseInsertIntoSelectStmt();
-      if (bUseInsertIntoSelectStmt)
-      {
-         buf.append(getInsertSelectString(dbmsDef, tableSchema, row,
-            valueBuf.toString()));
+      selString =
+          colNames
+              + " ) SELECT "
+              + valueBuf
+              + ", "
+              + colValues
+              + " FROM "
+              + parentTableName
+              + " WHERE "
+              + str;
+    }
+    return selString;
+  }
+
+  /**
+   * Returns an execution step that will insert the specified row in the table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to insert into. May not be <code>null
+   * </code>.
+   * @param row The row to insert. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if dbmsDef, tableSchema, or row is <code>null</code>.
+   */
+  public static PSJdbcPreparedSqlStatement getInsertStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    if (row == null) throw new IllegalArgumentException("row may not be null");
+
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    boolean isDBOracle = isDBOracle(dbmsDef);
+
+    StringBuilder selLobString = new StringBuilder("SELECT ");
+    List<Integer> lobTypes = new ArrayList<>();
+    List<String> lobValues = new ArrayList<>();
+    List<Integer> lobValuesEncoding = new ArrayList<>();
+
+    StringBuilder buf = new StringBuilder();
+    StringBuilder valueBuf = new StringBuilder();
+    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+
+    buf.append("INSERT INTO ");
+    buf.append(fullName);
+    buf.append(" (");
+
+    boolean firstTime = true;
+    Iterator<PSJdbcColumnData> columns = row.getColumns();
+    while (columns.hasNext()) {
+      PSJdbcColumnData dataCol = columns.next();
+      PSJdbcColumnDef schemaCol = tableSchema.getColumn(dataCol.getName());
+
+      if (schemaCol == null) {
+        throw new RuntimeException(
+            "Undefined Table.Column: " + tableSchema.getName() + "." + dataCol.getName());
       }
-      else
-      {
-         buf.append(") values (");
-         buf.append(valueBuf);
-         buf.append(")");
+      int colType = schemaCol.getType();
+
+      // For non-Oracle databases ignore sequence columns on insert
+      if (schemaCol.isSequence() && !isDBOracle) continue;
+
+      if (firstTime) firstTime = false;
+      else {
+        buf.append(", ");
+        valueBuf.append(", ");
       }
+      // add the column to the statement, building values clause as we go
+      buf.append(dataCol.getName());
 
-      if (isDBOracle && lobValues.size() > 0)
-      {
-         selLobString.setCharAt(selLobString.length()-1, ' ');
-         selLobString.append(" FROM ");
-         selLobString.append(fullName);
-         selLobString.append(" WHERE ROWID = ? FOR UPDATE");
+      if (schemaCol.isSequence()) {
+        // sequence columns handled differently in oracle
+        // insert statements should have "SequenceName.NextVal" for the
+        // value of the column
+        String seq = schemaCol.getSequence();
+        if (seq == null || seq.trim().length() == 0)
+          throw new RuntimeException("Sequence name is invalid for table " + fullName);
 
-         return new PSJdbcOracleSqlStatement(
-            PSJdbcOracleSqlStatement.ORACLE_INSERT, buf.toString(), values,
-            selLobString.toString(), null, lobTypes, lobValues,
-            lobValuesEncoding);
+        valueBuf.append(seq);
+        valueBuf.append(".NEXTVAL");
+      } else if ((colType == Types.CLOB || colType == Types.BLOB) && isDBOracle) {
+        selLobString.append(dataCol.getName());
+        selLobString.append(",");
+        lobTypes.add(colType);
+        lobValues.add(dataCol.getValue());
+        lobValuesEncoding.add(dataCol.getEncoding());
+
+        if (colType == Types.CLOB) {
+          // for oracle clob data should be inserted using
+          // EMPTY_CLOB function
+          valueBuf.append("EMPTY_CLOB()");
+        } else {
+          // for oracle blob data should be inserted using
+          // EMPTY_BLOB function
+          valueBuf.append("EMPTY_BLOB()");
+        }
+      } else {
+        valueBuf.append("?");
+        String value = dataCol.getValue();
+        PSJdbcBinaryColumnValue binaryValue = null;
+
+        // if it is import option process the value
+        if (StringUtils.isNotBlank(value)
+            && dbmsDef.getBinaryStorageLocation() != null
+            && colType == Types.BLOB) {
+          try {
+            binaryValue = getBinaryValue(dbmsDef, value);
+          } catch (Exception e) {
+
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            System.out.println(
+                "Failed to get the binary value for hash " + value + " for table " + fullName);
+          }
+        }
+
+        if (binaryValue != null) {
+          values.add(
+              new PSJdbcStatementColumn(binaryValue, schemaCol.getType(), dataCol.getEncoding()));
+        } else {
+          values.add(new PSJdbcStatementColumn(value, schemaCol.getType(), dataCol.getEncoding()));
+        }
       }
-      return new PSJdbcPreparedSqlStatement(buf.toString(), values);
-   }
+    }
 
-   /**
-    * Gets the binary value by loading the file using the hash.
-    * @param dbmsDef assumed not <code>null</code>
-    * @param hash assumed not <code>null</code>
-    * @return String binary data.
-    * @throws IOException
-    */
-   private static PSJdbcBinaryColumnValue getBinaryValue(PSJdbcDbmsDef dbmsDef, String hash) throws IOException
-   {   
-      
-      int count = 1;
-      File bucket = new File(dbmsDef.getBinaryStorageLocation(), PSJdbcImportExportHelper.BINARY_DATA_INITIAL_BUCKET);
-      do {
-         File binaryFile = new File(bucket, hash);
-         if (binaryFile.exists()) {
-            //Do not wrap this in a try with resources statement
-            //the JDBC driver needs the stream open in order to process blob insert/update
-            FileInputStream is = new FileInputStream(binaryFile);
-            return new PSJdbcBinaryColumnValue(is, binaryFile.length());
+    boolean bUseInsertIntoSelectStmt = row.getUseInsertIntoSelectStmt();
+    if (bUseInsertIntoSelectStmt) {
+      buf.append(getInsertSelectString(dbmsDef, tableSchema, row, valueBuf.toString()));
+    } else {
+      buf.append(") values (");
+      buf.append(valueBuf);
+      buf.append(")");
+    }
 
-         }
+    if (isDBOracle && lobValues.size() > 0) {
+      selLobString.setCharAt(selLobString.length() - 1, ' ');
+      selLobString.append(" FROM ");
+      selLobString.append(fullName);
+      selLobString.append(" WHERE ROWID = ? FOR UPDATE");
 
-         bucket = new File(dbmsDef.getBinaryStorageLocation(), PSJdbcImportExportHelper.BINARY_DATA_BUCKET + "_" + count++);
-      } while (bucket.exists());
-      
-      System.out.println("Could not locate binary file for " + hash + " , is the binary data in the " + dbmsDef.getBinaryStorageLocation() + " folder?");
-      return null;
-   }
+      return new PSJdbcOracleSqlStatement(
+          PSJdbcOracleSqlStatement.ORACLE_INSERT,
+          buf.toString(),
+          values,
+          selLobString.toString(),
+          null,
+          lobTypes,
+          lobValues,
+          lobValuesEncoding);
+    }
+    return new PSJdbcPreparedSqlStatement(buf.toString(), values);
+  }
 
-   
-   /**
-    * Returns an execution step that will update the specified row in the table.
-    * If the table being updated has update keys defined, they will be used,
-    * otherwise the primary key will be used (one or the other must have been
-    * provided).
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema The table to insert into.  May not be <code>null
-    * </code>.
-    * @param row The row to insert.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
-    * </code>, or if no keys have been provided.
-    */
-   public static PSJdbcExecutionStep getUpdateStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  /**
+   * Gets the binary value by loading the file using the hash.
+   *
+   * @param dbmsDef assumed not <code>null</code>
+   * @param hash assumed not <code>null</code>
+   * @return String binary data.
+   * @throws IOException
+   */
+  private static PSJdbcBinaryColumnValue getBinaryValue(PSJdbcDbmsDef dbmsDef, String hash)
+      throws IOException {
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-
-      if (row == null)
-         throw new IllegalArgumentException("row may not be null");
-
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      boolean isDBOracle = isDBOracle(dbmsDef);
-      StringBuilder selLobString = new StringBuilder("SELECT ");
-      List<Integer> lobTypes = new ArrayList<>();
-      List<String> lobValues = new ArrayList<>();
-      List<Integer> lobValuesEncoding = new ArrayList<>();
-      boolean isDummyUpdate = true;
-
-      StringBuilder buf = new StringBuilder();
-      PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
-      StringBuilder keyBuf = new StringBuilder();
-      StringBuilder keyColBuf = new StringBuilder();
-      PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
-
-      buf.append("UPDATE ");
-      buf.append(fullName);
-      buf.append(" SET ");
-
-      boolean firstCol = true;
-      boolean firstKey = true;
-      List<String> keyCols = tableSchema.getKeyColumns();
-      if (keyCols.isEmpty())
-         throw new IllegalArgumentException(
-            "primary or update keys must be defined for update statements");
-
-      Iterator<PSJdbcColumnData> columns = row.getColumns();
-      while (columns.hasNext())
-      {
-         PSJdbcColumnData dataCol = columns.next();
-         String colName = dataCol.getName();
-         PSJdbcColumnDef schemaCol = tableSchema.getColumn(colName);
-         if(schemaCol == null)
-         {
-            throw new RuntimeException("Undefined Table.Column: " +
-               tableSchema.getName() + "." + colName);
-         }
-         int colType = schemaCol.getType();
-         // sequence columns may not have any data
-         if(schemaCol.isSequence())
-         {
-            if (dataCol == null)
-               continue;
-            if (dataCol.getValue() == null)
-               continue;
-         }
-
-         boolean isKey = keyCols.contains(colName);
-
-         // add the column to the statement, building WHERE clause as we go
-         if (isKey)
-         {
-            if (!firstKey)
-            {
-               keyBuf.append(" AND ");
-               keyColBuf.append(",");
-               keyColBuf.append(colName);
-               keyColBuf.append("=?");
-            }
-            else
-            {
-               firstKey = false;
-               keyColBuf.append(colName);
-               keyColBuf.append("=?");
-            }
-            keyBuf.append(colName);
-            keyBuf.append("=?");
-            keyValues.add(new PSJdbcStatementColumn(dataCol.getValue(),
-               schemaCol.getType()));
-         }
-         else
-         {
-            if ((colType == Types.CLOB || colType == Types.BLOB)
-               && isDBOracle)
-            {
-               selLobString.append(colName);
-               selLobString.append(",");
-               lobTypes.add(colType);
-               lobValues.add(dataCol.getValue());
-               lobValuesEncoding.add(dataCol.getEncoding());
-            }
-            else
-            {
-               if (!firstCol)
-                  buf.append(", ");
-               else
-                  firstCol = false;
-
-               isDummyUpdate = false;
-               buf.append(colName);
-               buf.append("=?");
-               values.add(new PSJdbcStatementColumn(dataCol.getValue(),
-                  schemaCol.getType(), dataCol.getEncoding()));
-            }
-         }
+    int count = 1;
+    File bucket =
+        new File(
+            dbmsDef.getBinaryStorageLocation(),
+            PSJdbcImportExportHelper.BINARY_DATA_INITIAL_BUCKET);
+    do {
+      File binaryFile = new File(bucket, hash);
+      if (binaryFile.exists()) {
+        // Do not wrap this in a try with resources statement
+        // the JDBC driver needs the stream open in order to process blob insert/update
+        FileInputStream is = new FileInputStream(binaryFile);
+        return new PSJdbcBinaryColumnValue(is, binaryFile.length());
       }
 
-      if (isDummyUpdate)
-      {
-         // this line fails if key contains more than 1 column
-         // UPDATE animesh.CCML_VCON SET VCON=? AND DOC_ID=? WHERE VCON=? AND DOC_ID=?
-         //buf.append(keyBuf.toString());
-         buf.append(keyColBuf);
-         buf.append(" WHERE ");
-         buf.append(keyBuf);
-         values.addAll(keyValues);
-         values.addAll(keyValues);
+      bucket =
+          new File(
+              dbmsDef.getBinaryStorageLocation(),
+              PSJdbcImportExportHelper.BINARY_DATA_BUCKET + "_" + count++);
+    } while (bucket.exists());
+
+    System.out.println(
+        "Could not locate binary file for "
+            + hash
+            + " , is the binary data in the "
+            + dbmsDef.getBinaryStorageLocation()
+            + " folder?");
+    return null;
+  }
+
+  /**
+   * Returns an execution step that will update the specified row in the table. If the table being
+   * updated has update keys defined, they will be used, otherwise the primary key will be used (one
+   * or the other must have been provided).
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to insert into. May not be <code>null
+   * </code>.
+   * @param row The row to insert. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
+   * </code>, or if no keys have been provided.
+   */
+  public static PSJdbcExecutionStep getUpdateStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    if (row == null) throw new IllegalArgumentException("row may not be null");
+
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    boolean isDBOracle = isDBOracle(dbmsDef);
+    StringBuilder selLobString = new StringBuilder("SELECT ");
+    List<Integer> lobTypes = new ArrayList<>();
+    List<String> lobValues = new ArrayList<>();
+    List<Integer> lobValuesEncoding = new ArrayList<>();
+    boolean isDummyUpdate = true;
+
+    StringBuilder buf = new StringBuilder();
+    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+    StringBuilder keyBuf = new StringBuilder();
+    StringBuilder keyColBuf = new StringBuilder();
+    PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
+
+    buf.append("UPDATE ");
+    buf.append(fullName);
+    buf.append(" SET ");
+
+    boolean firstCol = true;
+    boolean firstKey = true;
+    List<String> keyCols = tableSchema.getKeyColumns();
+    if (keyCols.isEmpty())
+      throw new IllegalArgumentException(
+          "primary or update keys must be defined for update statements");
+
+    Iterator<PSJdbcColumnData> columns = row.getColumns();
+    while (columns.hasNext()) {
+      PSJdbcColumnData dataCol = columns.next();
+      String colName = dataCol.getName();
+      PSJdbcColumnDef schemaCol = tableSchema.getColumn(colName);
+      if (schemaCol == null) {
+        throw new RuntimeException(
+            "Undefined Table.Column: " + tableSchema.getName() + "." + colName);
       }
-      else
-      {
-         buf.append(" WHERE ");
-         buf.append(keyBuf);
-         values.addAll(keyValues);
-      }
-
-      if (isDBOracle && lobValues.size() > 0)
-      {
-         selLobString.setCharAt(selLobString.length()-1, ' ');
-         selLobString.append(" FROM ");
-         selLobString.append(fullName);
-         selLobString.append(" WHERE ");
-         selLobString.append(keyBuf);
-         selLobString.append(" FOR UPDATE");
-
-         int stmtType = PSJdbcOracleSqlStatement.ORACLE_UPDATE;
-         if (isDummyUpdate) stmtType =
-            PSJdbcOracleSqlStatement.ORACLE_DUMMY_UPDATE;
-         return new PSJdbcOracleSqlStatement(
-            stmtType, buf.toString(), values,
-            selLobString.toString(), keyValues, lobTypes, lobValues,
-            lobValuesEncoding);
-      }
-      return new PSJdbcPreparedSqlStatement(buf.toString(), values);
-   }
-
-   /**
-    * Helper method for figuring if the db is oracle. This code segment is 
-    * used in multiple locations
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @return <code>true</code> if the driver is an oracle driver
-    */
-   private static boolean isDBOracle(PSJdbcDbmsDef dbmsDef)
-   {
-      String driver = dbmsDef.getDriver();
-      return driver != null && driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY);
-   }
-
-   /**
-    * Returns an execution step that will delete the specified row from the
-    * table.  If the table being updated has update keys defined, they will be
-    * used, otherwise the primary key will be used (one of the two must be
-    * provided).
-    *
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * @param tableSchema The table to delete from.  May not be <code>null
-    * </code>.
-    * @param row The row to delete.  May not be <code>null</code>.
-    *
-    * @return The statement, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if dbmsDef, tableSchema or row is
-    * <code>null</code>, or if no keys have been provided..
-    */
-   public static PSJdbcExecutionStep getDeleteStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
-
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
-
-      if (row == null)
-         throw new IllegalArgumentException("row may not be null");
-
-      String fullName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-
-      StringBuilder keyBuf = new StringBuilder();
-      PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
-
-      keyBuf.append("DELETE FROM ");
-      keyBuf.append(fullName);
-      keyBuf.append(" WHERE ");
-
-      boolean firstKey = true;
-      List<String> keyCols = tableSchema.getKeyColumns();
-      if (keyCols.isEmpty())
-         throw new IllegalArgumentException(
-            "primary or update keys must be defined for delete statements");
-
-      Iterator<PSJdbcColumnData> columns = row.getColumns();
-      while (columns.hasNext())
-      {
-         PSJdbcColumnData dataCol = columns.next();
-         PSJdbcColumnDef schemaCol = tableSchema.getColumn(dataCol.getName());
-         boolean isKey = keyCols.contains(dataCol.getName());
-
-         // skip if not a key value
-         if (!isKey)
-            continue;
-
-         // add the column to the statement, building where clause as we go
-         if (!firstKey)
-            keyBuf.append(" AND ");
-         else
-            firstKey = false;
-         keyBuf.append(dataCol.getName());
-         keyBuf.append("=?");
-         keyValues.add(new PSJdbcStatementColumn(dataCol.getValue(),
-            schemaCol.getType()));
+      int colType = schemaCol.getType();
+      // sequence columns may not have any data
+      if (schemaCol.isSequence()) {
+        if (dataCol == null) continue;
+        if (dataCol.getValue() == null) continue;
       }
 
-      return new PSJdbcPreparedSqlStatement(keyBuf.toString(), keyValues);
+      boolean isKey = keyCols.contains(colName);
 
-   }
+      // add the column to the statement, building WHERE clause as we go
+      if (isKey) {
+        if (!firstKey) {
+          keyBuf.append(" AND ");
+          keyColBuf.append(",");
+          keyColBuf.append(colName);
+          keyColBuf.append("=?");
+        } else {
+          firstKey = false;
+          keyColBuf.append(colName);
+          keyColBuf.append("=?");
+        }
+        keyBuf.append(colName);
+        keyBuf.append("=?");
+        keyValues.add(new PSJdbcStatementColumn(dataCol.getValue(), schemaCol.getType()));
+      } else {
+        if ((colType == Types.CLOB || colType == Types.BLOB) && isDBOracle) {
+          selLobString.append(colName);
+          selLobString.append(",");
+          lobTypes.add(colType);
+          lobValues.add(dataCol.getValue());
+          lobValuesEncoding.add(dataCol.getEncoding());
+        } else {
+          if (!firstCol) buf.append(", ");
+          else firstCol = false;
 
-   /**
+          isDummyUpdate = false;
+          buf.append(colName);
+          buf.append("=?");
+          values.add(
+              new PSJdbcStatementColumn(
+                  dataCol.getValue(), schemaCol.getType(), dataCol.getEncoding()));
+        }
+      }
+    }
+
+    if (isDummyUpdate) {
+      // this line fails if key contains more than 1 column
+      // UPDATE animesh.CCML_VCON SET VCON=? AND DOC_ID=? WHERE VCON=? AND DOC_ID=?
+      // buf.append(keyBuf.toString());
+      buf.append(keyColBuf);
+      buf.append(" WHERE ");
+      buf.append(keyBuf);
+      values.addAll(keyValues);
+      values.addAll(keyValues);
+    } else {
+      buf.append(" WHERE ");
+      buf.append(keyBuf);
+      values.addAll(keyValues);
+    }
+
+    if (isDBOracle && lobValues.size() > 0) {
+      selLobString.setCharAt(selLobString.length() - 1, ' ');
+      selLobString.append(" FROM ");
+      selLobString.append(fullName);
+      selLobString.append(" WHERE ");
+      selLobString.append(keyBuf);
+      selLobString.append(" FOR UPDATE");
+
+      int stmtType = PSJdbcOracleSqlStatement.ORACLE_UPDATE;
+      if (isDummyUpdate) stmtType = PSJdbcOracleSqlStatement.ORACLE_DUMMY_UPDATE;
+      return new PSJdbcOracleSqlStatement(
+          stmtType,
+          buf.toString(),
+          values,
+          selLobString.toString(),
+          keyValues,
+          lobTypes,
+          lobValues,
+          lobValuesEncoding);
+    }
+    return new PSJdbcPreparedSqlStatement(buf.toString(), values);
+  }
+
+  /**
+   * Helper method for figuring if the db is oracle. This code segment is used in multiple locations
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @return <code>true</code> if the driver is an oracle driver
+   */
+  private static boolean isDBOracle(PSJdbcDbmsDef dbmsDef) {
+    String driver = dbmsDef.getDriver();
+    return driver != null && driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY);
+  }
+
+  /**
+   * Returns an execution step that will delete the specified row from the table. If the table being
+   * updated has update keys defined, they will be used, otherwise the primary key will be used (one
+   * of the two must be provided).
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to delete from. May not be <code>null
+   * </code>.
+   * @param row The row to delete. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>.
+   * @throws IllegalArgumentException if dbmsDef, tableSchema or row is <code>null</code>, or if no
+   *     keys have been provided..
+   */
+  public static PSJdbcExecutionStep getDeleteStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
+
+    if (row == null) throw new IllegalArgumentException("row may not be null");
+
+    String fullName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+
+    StringBuilder keyBuf = new StringBuilder();
+    PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
+
+    keyBuf.append("DELETE FROM ");
+    keyBuf.append(fullName);
+    keyBuf.append(" WHERE ");
+
+    boolean firstKey = true;
+    List<String> keyCols = tableSchema.getKeyColumns();
+    if (keyCols.isEmpty())
+      throw new IllegalArgumentException(
+          "primary or update keys must be defined for delete statements");
+
+    Iterator<PSJdbcColumnData> columns = row.getColumns();
+    while (columns.hasNext()) {
+      PSJdbcColumnData dataCol = columns.next();
+      PSJdbcColumnDef schemaCol = tableSchema.getColumn(dataCol.getName());
+      boolean isKey = keyCols.contains(dataCol.getName());
+
+      // skip if not a key value
+      if (!isKey) continue;
+
+      // add the column to the statement, building where clause as we go
+      if (!firstKey) keyBuf.append(" AND ");
+      else firstKey = false;
+      keyBuf.append(dataCol.getName());
+      keyBuf.append("=?");
+      keyValues.add(new PSJdbcStatementColumn(dataCol.getValue(), schemaCol.getType()));
+    }
+
+    return new PSJdbcPreparedSqlStatement(keyBuf.toString(), keyValues);
+  }
+
+  /**
    * Returns a step which executes the specified query.
    *
-   * @param dbmsDef Provides the database/schema information,
-   * may not be <code>null</code>.
-   *
-   * @param sqlQuery The sql query encapsulated by the returned step, this
-   * query will be executed when the returned step is executed,
-   * may not be <code>null</code> or empty
-   *
+   * @param dbmsDef Provides the database/schema information, may not be <code>null</code>.
+   * @param sqlQuery The sql query encapsulated by the returned step, this query will be executed
+   *     when the returned step is executed, may not be <code>null</code> or empty
    * @return the step which executes the specified query, never <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>sqlQuery</code> is invalid.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>sqlQuery</code> is invalid.
    */
-   public static PSJdbcResultSetIteratorStep getQueryStatement(
-      PSJdbcDbmsDef dbmsDef, String sqlQuery)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  public static PSJdbcResultSetIteratorStep getQueryStatement(
+      PSJdbcDbmsDef dbmsDef, String sqlQuery) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (sqlQuery == null || sqlQuery.trim().length() < 0)
-         throw new IllegalArgumentException(
-            "sqlQuery may not be null or empty");
+    if (sqlQuery == null || sqlQuery.trim().length() < 0)
+      throw new IllegalArgumentException("sqlQuery may not be null or empty");
 
-      return new PSJdbcResultSetIteratorStep(sqlQuery, dbmsDef);
-   }
+    return new PSJdbcResultSetIteratorStep(sqlQuery, dbmsDef);
+  }
 
-   /**
-    * Creates SQL definition for primary key constraint.  The constraint will
-    * be named using the primary key name (if assigned) or "pk_"+table name, if
-    * the name does not exceed the maximum length for a constraint identifier.
-    * If the constraint name is too long, the database will assign a unique
-    * identifier.
-    *
-    * @param dbmsDef Used to qualify the primary key name, may not be
-    *  <code>null</code>.
-    * @param tableSchema The table possibly containing the primary key.
-    * May not be <code>null</code>.
-    *
-    * @return The primary key constraint definition, or <code>null</code> if the
-    * tableSchema does not contain one.
-    *
-    * @throws IllegalArgumentException if dbmsDef, tableSchema is <code>null
-    * </code>.
-    */
-   private static String getPrimaryKeyConstraint(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema)
-   {
-      StringBuilder buf = null;
+  /**
+   * Creates SQL definition for primary key constraint. The constraint will be named using the
+   * primary key name (if assigned) or "pk_"+table name, if the name does not exceed the maximum
+   * length for a constraint identifier. If the constraint name is too long, the database will
+   * assign a unique identifier.
+   *
+   * @param dbmsDef Used to qualify the primary key name, may not be <code>null</code>.
+   * @param tableSchema The table possibly containing the primary key. May not be <code>null</code>.
+   * @return The primary key constraint definition, or <code>null</code> if the tableSchema does not
+   *     contain one.
+   * @throws IllegalArgumentException if dbmsDef, tableSchema is <code>null
+   * </code>.
+   */
+  private static String getPrimaryKeyConstraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    StringBuilder buf = null;
 
-      PSJdbcPrimaryKey pKey = tableSchema.getPrimaryKey();
+    PSJdbcPrimaryKey pKey = tableSchema.getPrimaryKey();
 
-      if (pKey != null)
-      {
-         buf = new StringBuilder();
-         String pkName = getQualifiedPkName(tableSchema.getName(),
-            pKey.getName(), dbmsDef);
+    if (pKey != null) {
+      buf = new StringBuilder();
+      String pkName = getQualifiedPkName(tableSchema.getName(), pKey.getName(), dbmsDef);
 
-         // omit constraint name if too long for backend
-         if (pkName.length() <=
-            PSSqlHelper.getMaxConstraintNameLength(dbmsDef.getDriver()))
-         {
-            buf.append("CONSTRAINT ");
-            buf.append(pkName).append(" ");
-         }
-         buf.append("PRIMARY KEY (");
-
-         Iterator<String> pCols = pKey.getColumnNames();
-
-         boolean isFirst = true;
-         while (pCols.hasNext())
-         {
-            if (!isFirst)
-               buf.append(", ");
-            else
-               isFirst = false;
-
-            buf.append(pCols.next());
-         }
-         buf.append(")");
-      }
-      return buf == null ? null : buf.toString();
-   }
-   public static String getForeignKeyConstraint(PSJdbcDbmsDef dbmsDef,
-                                                PSJdbcTableSchema schema)
-   {
-      return getForeignKeyConstraint(dbmsDef,schema,null);
-   }
-   /**
-    * Creates sql definition for all external tables in a foreign key
-    * definition.
-    *
-    * @param dbmsDef The database server info for the tables.
-    * Assumed not <code>null</code>.
-    *
-    * @param schema
-    * @param schema The table possibly containing the foreign key.
-    * Assumed not <code>null</code>.
-    *
-    * @return The foreign key definition, or <code>null</code> if the
-    * tableSchema does not contain any.
-    */
-   public static String getForeignKeyConstraint(PSJdbcDbmsDef dbmsDef,
-                                                PSJdbcTableSchema schema, PSJdbcTableSchema newSchema)
-   {
-      StringBuilder buf = null;
-
-      List<PSJdbcForeignKey> fKeys = schema.getForeignKeys();
-      String newTable = newSchema==null? null : newSchema.getName();
-      for (PSJdbcForeignKey fKey : fKeys) {
-      if (fKey != null)
-      {
-         buf = new StringBuilder();
-
-         Iterator<String> tables = fKey.getTables();
-         int i = 1;
-
-         while (tables.hasNext()) {
-            String tableName =  tables.next();
-            if (newTable != null && !tableName.equals(newTable))
-               continue;
-            String fkName = StringUtils.isBlank(fKey.getName()) ? "fk_" + tableName + "_" + i : fKey.getName();
-
-
-            Iterator<String[]> cols = fKey.getColumns(tableName);
-            HashSet<String> fkCols = new HashSet<>();
-            while (cols.hasNext())
-               fkCols.add(cols.next()[2]);
-
-
-            if (newTable!=null)
-            {
-               HashSet<String> pkCols = new HashSet<>();
-               PSJdbcPrimaryKey pk = newSchema.getPrimaryKey();
-               Iterator<String> pkIt = pk.getColumnNames();
-               while (pkIt.hasNext())
-                  pkCols.add(pkIt.next());
-
-               if (!pkCols.equals(fkCols))
-               {
-                  // removing invalid fk no longer matches table,  must be reset in
-                  // dependent table definition update
-                  break;
-               }
-            }
-            if (i++ > 1)
-               buf.append(", ");
-               cols = fKey.getColumns(tableName);
-               while (cols.hasNext()) {
-                  buf.append(getForeignKeyConstraintInt(dbmsDef, fkName, cols));
-         }
-      }
-         }
-      }
-      return buf == null || buf.length()==0 ? null : buf.toString();
-   }
-
-
-   /**
-    * Creates foreign key constraint sql definition for a single external table.
-    *
-    * @param dbmsDef The database server info for the tables.
-    * Assumed not <code>null</code>.
-    * @param fkName The qualified foreign key constraint name, assumed not
-    * <code>null</code>.
-    * @param cols Iterator over a list of foreign key columns for a single
-    * external table.  See {@link PSJdbcForeignKey#getColumns(String)} for more
-    * info.
-    *
-    * @return The foreign key constraint, never <code>null</code>.
-    */
-   private static String getForeignKeyConstraintInt(PSJdbcDbmsDef dbmsDef,
-      String fkName, Iterator<String[]> cols)
-   {
-      // first build list of internal and external columns
-      StringBuilder intBuf = new StringBuilder();
-      StringBuilder extBuf = new StringBuilder();
-      String tableName = null;
-
-      boolean firstTime = true;
-      while (cols.hasNext())
-      {
-         String[] fkeyInfo = cols.next();
-         if (firstTime)
-         {
-            tableName = fkeyInfo[1];
-            firstTime = false;
-         }
-         else
-         {
-            intBuf.append(", ");
-            extBuf.append(", ");
-         }
-
-         intBuf.append(fkeyInfo[0]);
-         extBuf.append(fkeyInfo[2]);
-      }
-
-      String driver = dbmsDef.getDriver();
-      StringBuilder buf = new StringBuilder();
       // omit constraint name if too long for backend
-      if (fkName.length() <=
-         PSSqlHelper.getMaxConstraintNameLength(driver))
-      {
-         buf.append("CONSTRAINT ");
-         buf.append(fkName).append(" ");
+      if (pkName.length() <= PSSqlHelper.getMaxConstraintNameLength(dbmsDef.getDriver())) {
+        buf.append("CONSTRAINT ");
+        buf.append(pkName).append(" ");
       }
-      buf.append("FOREIGN KEY (");
-      buf.append(intBuf);
-      buf.append(") REFERENCES ");
-      
-      String qualifiedName = PSSqlHelper.qualifyTableName(tableName,
-            dbmsDef.getDataBase(), dbmsDef.getSchema(), driver);
-      
-      buf.append(qualifiedName);
-      buf.append(" (");
-      buf.append(extBuf);
-      buf.append(")");
+      buf.append("PRIMARY KEY (");
 
-      return buf.toString();
-   }
-
-   /**
-    * Creates unique constraint sql definitions for all unique indexes defined
-    * in a table
-    *
-    * @param dbmsDef The database server info for the tables.
-    * Assumed not <code>null</code>.
-    *
-    * @param tableSchema The table possibly containing the index definitions.
-    * Assumed not <code>null</code>.
-    *
-    * @return The index definitions, or <code>null</code> if the
-    * tableSchema does not contain any.
-    */
-   private static String getUniqueConstraints(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema)
-   {
-
-      Iterator<PSJdbcIndex> indexes =tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE);
-      StringBuilder buf = null;
-      while (indexes.hasNext())
-      {
-         PSJdbcIndex index = indexes.next();
-         if (buf == null)
-            buf = new StringBuilder();
-         else
-            buf.append(", ");
-
-         buf.append(getUniqueConstraint(dbmsDef, tableSchema, index));
-      }
-
-
-
-      return buf == null ? null : buf.toString();
-   }
-
-   /**
-    * Creates unique constraint sql definition for a set of columns.
-    *
-    * @param dbmsDef The database server info for the tables.
-    * Assumed not <code>null</code>.
-    * @param tableSchema The table containing the index definition.
-    * Assumed not <code>null</code>.
-    * @param index The index to create the constraint from, assumed not
-    * <code>null</code>.
-    *
-    * @return The unique constaint definition, never <code>null</code>.
-    */
-   private static String getUniqueConstraint(PSJdbcDbmsDef dbmsDef,
-      PSJdbcTableSchema tableSchema, PSJdbcIndex index)
-   {
-      StringBuilder buf = new StringBuilder();
-      String constraintName = getQualifiedIndexName(tableSchema.getName(), index.getName(), dbmsDef);
-
-         buf.append("CONSTRAINT ");
-         buf.append(constraintName).append(" ");
-
-      buf.append("UNIQUE (");
+      Iterator<String> pCols = pKey.getColumnNames();
 
       boolean isFirst = true;
-      Iterator<String> cols = index.getColumnNames();
-      while (cols.hasNext())
-      {
-         if (!isFirst)
-            buf.append(", ");
-         else
-            isFirst = false;
+      while (pCols.hasNext()) {
+        if (!isFirst) buf.append(", ");
+        else isFirst = false;
 
-         buf.append(cols.next());
+        buf.append(pCols.next());
       }
       buf.append(")");
+    }
+    return buf == null ? null : buf.toString();
+  }
 
-      return buf.toString();
-   }
+  public static String getForeignKeyConstraint(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema) {
+    return getForeignKeyConstraint(dbmsDef, schema, null);
+  }
 
-   /**
-    * Returns a constraint name for this primary key.
-    *
-    * @param tableName The name of the table, assumed not <code>null</code>
-    * or empty.
-    * @param pkName The name of the primary key, may be <code>null</code>
-    * or empty, in which case a name is created by prepending "pk_" to the
-    * tableName.
-    * @param dbmsDef Used to qualify the name, assumed not <code>null</code>.
-    *
-    * @return The name, never <code>null</code> or empty.
-    */
-   private static String getQualifiedPkName(String tableName, String pkName,
-      PSJdbcDbmsDef dbmsDef)
-   {
-      if (pkName == null || pkName.trim().length() == 0)
-         pkName = "pk_" + tableName;
+  /**
+   * Creates sql definition for all external tables in a foreign key definition.
+   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param schema
+   * @param schema The table possibly containing the foreign key. Assumed not <code>null</code>.
+   * @return The foreign key definition, or <code>null</code> if the tableSchema does not contain
+   *     any.
+   */
+  public static String getForeignKeyConstraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema, PSJdbcTableSchema newSchema) {
+    StringBuilder buf = null;
 
-      return PSSqlHelper.qualifyPrimaryKeyName(pkName,
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
-   }
+    List<PSJdbcForeignKey> fKeys = schema.getForeignKeys();
+    String newTable = newSchema == null ? null : newSchema.getName();
+    for (PSJdbcForeignKey fKey : fKeys) {
+      if (fKey != null) {
+        buf = new StringBuilder();
 
-   /**
-    * Returns a constraint name for this foreign key.
-    *
-    * @param tableName The name of the table, assumed not <code>null</code>
-    * or empty.
-    * @param fkName The name of the foreign key, may be <code>null</code>
-    * or empty, in which case a name is created by prepending "fk_" to the
-    * tableName.
-    *
-    * @return The name, never <code>null</code> or empty.
-    */
-   private static String getQualifiedFkName(String tableName, String fkName)
-   {
-      if (fkName == null || fkName.trim().length() == 0)
-         fkName = "fk_" + tableName;
+        Iterator<String> tables = fKey.getTables();
+        int i = 1;
 
-      return fkName;
-   }
+        while (tables.hasNext()) {
+          String tableName = tables.next();
+          if (newTable != null && !tableName.equals(newTable)) continue;
+          String fkName =
+              StringUtils.isBlank(fKey.getName()) ? "fk_" + tableName + "_" + i : fKey.getName();
 
-   /**
-    * Returns a name for the index. The maximum length of returned index name
-    * is 17 since DB2 only allows index name upto 18 characters.
-    *
-    * If <code>indexName</code> is not
-    * <code>null</code> and non-empty, then it is returned else an index name
-    * is generated by concatenating :
-    * "IX_" + tableName[0, 4] + "_" + 2 digit random number +
-    * "_" + 2 digit random number + "_" + 2 digit random number
-    *
-    * @param tableName the name of the table, assumed not <code>null</code>
-    * or empty.
-    * @param indexName The name of the index, may be <code>null</code>
-    * or empty
-    * @param dbmsDef Provides the database/schema information for the table.
-    * May not be <code>null</code>.
-    * 
-    * @return the index name , never <code>null</code> or empty.
-    */
-   private static String getQualifiedIndexName(String tableName,
-      String indexName, PSJdbcDbmsDef dbmsDef)
-   {
-      StringBuilder buf = new StringBuilder();
-//      if ( isDBOracle(dbmsDef) )
-//      {
-//         buf.append(dbmsDef.getSchema());
-//         buf.append(".");
-//      }
-      
-      if (indexName == null || indexName.trim().length() == 0 ||
-            indexName.trim().length() > PSSqlHelper.getMaxConstraintNameLength(
-                  dbmsDef.getDriver()))
-      {
-         SecureRandom rand = new SecureRandom();
-         buf.append("IX_");
-         int len = tableName.trim().length();
-         int endIndex = len > 5 ? 4 : len;
-         buf.append(tableName.substring(0, endIndex).toUpperCase());
-         buf.append("_");
-         buf.append(rand.nextInt(99));
-         buf.append("_");
-         buf.append(rand.nextInt(99));
-         buf.append("_");
-         buf.append(rand.nextInt(99));
+          Iterator<String[]> cols = fKey.getColumns(tableName);
+          HashSet<String> fkCols = new HashSet<>();
+          while (cols.hasNext()) fkCols.add(cols.next()[2]);
+
+          if (newTable != null) {
+            HashSet<String> pkCols = new HashSet<>();
+            PSJdbcPrimaryKey pk = newSchema.getPrimaryKey();
+            Iterator<String> pkIt = pk.getColumnNames();
+            while (pkIt.hasNext()) pkCols.add(pkIt.next());
+
+            if (!pkCols.equals(fkCols)) {
+              // removing invalid fk no longer matches table,  must be reset in
+              // dependent table definition update
+              break;
+            }
+          }
+          if (i++ > 1) buf.append(", ");
+          cols = fKey.getColumns(tableName);
+          while (cols.hasNext()) {
+            buf.append(getForeignKeyConstraintInt(dbmsDef, fkName, cols));
+          }
+        }
       }
-      else
-      {
-         buf.append(indexName);
+    }
+    return buf == null || buf.length() == 0 ? null : buf.toString();
+  }
+
+  /**
+   * Creates foreign key constraint sql definition for a single external table.
+   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param fkName The qualified foreign key constraint name, assumed not <code>null</code>.
+   * @param cols Iterator over a list of foreign key columns for a single external table. See {@link
+   *     PSJdbcForeignKey#getColumns(String)} for more info.
+   * @return The foreign key constraint, never <code>null</code>.
+   */
+  private static String getForeignKeyConstraintInt(
+      PSJdbcDbmsDef dbmsDef, String fkName, Iterator<String[]> cols) {
+    // first build list of internal and external columns
+    StringBuilder intBuf = new StringBuilder();
+    StringBuilder extBuf = new StringBuilder();
+    String tableName = null;
+
+    boolean firstTime = true;
+    while (cols.hasNext()) {
+      String[] fkeyInfo = cols.next();
+      if (firstTime) {
+        tableName = fkeyInfo[1];
+        firstTime = false;
+      } else {
+        intBuf.append(", ");
+        extBuf.append(", ");
       }
-      return buf.toString();
-   }
 
-   /**
-    * Generates an alter table statement to add the specified component.
-    *
-    * @param tableName The fully qualified table name.  Assumed not <code>null
-    * </code>.
-    * @param componentDef The SQL string defining the component. Assumed not
-    * <code>null </code>.
-    *
-    * @return The add column statement, never <code>null</code>.
-    */
-   private static PSJdbcSqlStatement getAddComponentStatement(String tableName,
-      String componentDef)
-   {
-      StringBuilder buf = new StringBuilder();
+      intBuf.append(fkeyInfo[0]);
+      extBuf.append(fkeyInfo[2]);
+    }
 
+    String driver = dbmsDef.getDriver();
+    StringBuilder buf = new StringBuilder();
+    // omit constraint name if too long for backend
+    if (fkName.length() <= PSSqlHelper.getMaxConstraintNameLength(driver)) {
+      buf.append("CONSTRAINT ");
+      buf.append(fkName).append(" ");
+    }
+    buf.append("FOREIGN KEY (");
+    buf.append(intBuf);
+    buf.append(") REFERENCES ");
+
+    String qualifiedName =
+        PSSqlHelper.qualifyTableName(tableName, dbmsDef.getDataBase(), dbmsDef.getSchema(), driver);
+
+    buf.append(qualifiedName);
+    buf.append(" (");
+    buf.append(extBuf);
+    buf.append(")");
+
+    return buf.toString();
+  }
+
+  /**
+   * Creates unique constraint sql definitions for all unique indexes defined in a table
+   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param tableSchema The table possibly containing the index definitions. Assumed not <code>null
+   *     </code>.
+   * @return The index definitions, or <code>null</code> if the tableSchema does not contain any.
+   */
+  private static String getUniqueConstraints(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+
+    Iterator<PSJdbcIndex> indexes = tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE);
+    StringBuilder buf = null;
+    while (indexes.hasNext()) {
+      PSJdbcIndex index = indexes.next();
+      if (buf == null) buf = new StringBuilder();
+      else buf.append(", ");
+
+      buf.append(getUniqueConstraint(dbmsDef, tableSchema, index));
+    }
+
+    return buf == null ? null : buf.toString();
+  }
+
+  /**
+   * Creates unique constraint sql definition for a set of columns.
+   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param tableSchema The table containing the index definition. Assumed not <code>null</code>.
+   * @param index The index to create the constraint from, assumed not <code>null</code>.
+   * @return The unique constaint definition, never <code>null</code>.
+   */
+  private static String getUniqueConstraint(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index) {
+    StringBuilder buf = new StringBuilder();
+    String constraintName = getQualifiedIndexName(tableSchema.getName(), index.getName(), dbmsDef);
+
+    buf.append("CONSTRAINT ");
+    buf.append(constraintName).append(" ");
+
+    buf.append("UNIQUE (");
+
+    boolean isFirst = true;
+    Iterator<String> cols = index.getColumnNames();
+    while (cols.hasNext()) {
+      if (!isFirst) buf.append(", ");
+      else isFirst = false;
+
+      buf.append(cols.next());
+    }
+    buf.append(")");
+
+    return buf.toString();
+  }
+
+  /**
+   * Returns a constraint name for this primary key.
+   *
+   * @param tableName The name of the table, assumed not <code>null</code> or empty.
+   * @param pkName The name of the primary key, may be <code>null</code> or empty, in which case a
+   *     name is created by prepending "pk_" to the tableName.
+   * @param dbmsDef Used to qualify the name, assumed not <code>null</code>.
+   * @return The name, never <code>null</code> or empty.
+   */
+  private static String getQualifiedPkName(String tableName, String pkName, PSJdbcDbmsDef dbmsDef) {
+    if (pkName == null || pkName.trim().length() == 0) pkName = "pk_" + tableName;
+
+    return PSSqlHelper.qualifyPrimaryKeyName(
+        pkName, dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+  }
+
+  /**
+   * Returns a constraint name for this foreign key.
+   *
+   * @param tableName The name of the table, assumed not <code>null</code> or empty.
+   * @param fkName The name of the foreign key, may be <code>null</code> or empty, in which case a
+   *     name is created by prepending "fk_" to the tableName.
+   * @return The name, never <code>null</code> or empty.
+   */
+  private static String getQualifiedFkName(String tableName, String fkName) {
+    if (fkName == null || fkName.trim().length() == 0) fkName = "fk_" + tableName;
+
+    return fkName;
+  }
+
+  /**
+   * Returns a name for the index. The maximum length of returned index name is 17 since DB2 only
+   * allows index name upto 18 characters.
+   *
+   * <p>If <code>indexName</code> is not <code>null</code> and non-empty, then it is returned else
+   * an index name is generated by concatenating : "IX_" + tableName[0, 4] + "_" + 2 digit random
+   * number + "_" + 2 digit random number + "_" + 2 digit random number
+   *
+   * @param tableName the name of the table, assumed not <code>null</code> or empty.
+   * @param indexName The name of the index, may be <code>null</code> or empty
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @return the index name , never <code>null</code> or empty.
+   */
+  private static String getQualifiedIndexName(
+      String tableName, String indexName, PSJdbcDbmsDef dbmsDef) {
+    StringBuilder buf = new StringBuilder();
+    //      if ( isDBOracle(dbmsDef) )
+    //      {
+    //         buf.append(dbmsDef.getSchema());
+    //         buf.append(".");
+    //      }
+
+    if (indexName == null
+        || indexName.trim().length() == 0
+        || indexName.trim().length()
+            > PSSqlHelper.getMaxConstraintNameLength(dbmsDef.getDriver())) {
+      SecureRandom rand = new SecureRandom();
+      buf.append("IX_");
+      int len = tableName.trim().length();
+      int endIndex = len > 5 ? 4 : len;
+      buf.append(tableName.substring(0, endIndex).toUpperCase());
+      buf.append("_");
+      buf.append(rand.nextInt(99));
+      buf.append("_");
+      buf.append(rand.nextInt(99));
+      buf.append("_");
+      buf.append(rand.nextInt(99));
+    } else {
+      buf.append(indexName);
+    }
+    return buf.toString();
+  }
+
+  /**
+   * Generates an alter table statement to add the specified component.
+   *
+   * @param tableName The fully qualified table name. Assumed not <code>null
+   * </code>.
+   * @param componentDef The SQL string defining the component. Assumed not <code>null </code>.
+   * @return The add column statement, never <code>null</code>.
+   */
+  private static PSJdbcSqlStatement getAddComponentStatement(
+      String tableName, String componentDef) {
+    StringBuilder buf = new StringBuilder();
+
+    buf.append("ALTER TABLE ");
+    buf.append(tableName);
+
+    buf.append(" ADD ");
+    buf.append(componentDef);
+
+    return new PSJdbcSqlStatement(buf.toString());
+  }
+
+  private static List<PSJdbcSqlStatement> getAlterColumnRecreateStatements(
+      PSJdbcDbmsDef dbmsDef, String tableName, PSJdbcColumnDef column) {
+
+    List<PSJdbcSqlStatement> steps = new ArrayList<>();
+
+    // ALTER TABLE MY_TABLE ADD COLUMN NEW_COLUMN BLOB(2147483647);
+    // UPDATE MY_TABLE SET NEW_COLUMN=MY_COLUMN;
+    // ALTER TABLE MY_TABLE DROP COLUMN MY_COLUMN;
+    // RENAME COLUMN MY_TABLE.NEW_COLUMN TO MY_COLUMN;
+    StringBuilder buf = new StringBuilder();
+    buf.append("ALTER TABLE ");
+    buf.append(tableName);
+    buf.append(" ADD COLUMN ");
+    buf.append(column.getName() + "_NEW");
+    buf.append(" ");
+    String coldef = column.getSqlDef(dbmsDef);
+    coldef = coldef.replace(column.getName(), "");
+    coldef = coldef.replace(" NOT NULL", "");
+    buf.append(coldef);
+    steps.add(new PSJdbcSqlStatement(buf.toString()));
+
+    StringBuilder buf2 = new StringBuilder();
+    buf2.append("UPDATE ");
+    buf2.append(tableName);
+    buf2.append(" SET ");
+    buf2.append(column.getName() + "_NEW=" + column.getName());
+    steps.add(new PSJdbcSqlStatement(buf2.toString()));
+
+    StringBuilder buf3 = new StringBuilder();
+    buf3.append("ALTER TABLE ");
+    buf3.append(tableName);
+    buf3.append(" DROP COLUMN ");
+    buf3.append(column.getName());
+    steps.add(new PSJdbcSqlStatement(buf3.toString()));
+
+    StringBuilder buf4 = new StringBuilder();
+    buf4.append("RENAME COLUMN ");
+    buf4.append(tableName);
+    buf4.append(".");
+    buf4.append(column.getName() + "_NEW TO " + column.getName());
+    steps.add(new PSJdbcSqlStatement(buf4.toString()));
+    return steps;
+  }
+
+  /**
+   * Generates an alter column statement to alter column defination as defined.
+   *
+   * @param dbmsDef Table Defination
+   * @param tableName The fully qualified table name. Assumed not <code>null
+   * </code>.
+   * @param column Column that needs to be modified
+   * @return The add column statement, never <code>null</code>.
+   */
+  private static PSJdbcSqlStatement getAlterColumnStatement(
+      PSJdbcDbmsDef dbmsDef, String tableName, PSJdbcColumnDef column) {
+
+    StringBuilder buf = new StringBuilder();
+
+    if (PSSqlHelper.isMsSql(dbmsDef.getDriver())) {
+      // ALTER TABLE [TABLE_NAME] ALTER COLUMN [COLUMNNAME] nvarchar(500);
       buf.append("ALTER TABLE ");
       buf.append(tableName);
-
-      buf.append(" ADD ");
-      buf.append(componentDef);
-
-      return new PSJdbcSqlStatement(buf.toString());
-   }
-
-   private static List<PSJdbcSqlStatement> getAlterColumnRecreateStatements(PSJdbcDbmsDef dbmsDef, String tableName,
-                                                             PSJdbcColumnDef column)
-   {
-
-      List<PSJdbcSqlStatement> steps = new ArrayList<>();
-
-         //ALTER TABLE MY_TABLE ADD COLUMN NEW_COLUMN BLOB(2147483647);
-         //UPDATE MY_TABLE SET NEW_COLUMN=MY_COLUMN;
-         //ALTER TABLE MY_TABLE DROP COLUMN MY_COLUMN;
-         //RENAME COLUMN MY_TABLE.NEW_COLUMN TO MY_COLUMN;
-         StringBuilder buf = new StringBuilder();
-         buf.append("ALTER TABLE ");
-         buf.append(tableName);
-         buf.append(" ADD COLUMN ");
-         buf.append(column.getName()+"_NEW");
-         buf.append(" ");
-         String coldef = column.getSqlDef(dbmsDef);
-         coldef = coldef.replace(column.getName(),"");
-         coldef = coldef.replace(" NOT NULL","");
-         buf.append(coldef);
-         steps.add(new PSJdbcSqlStatement(buf.toString()));
-
-         StringBuilder buf2 = new StringBuilder();
-         buf2.append("UPDATE ");
-         buf2.append(tableName);
-         buf2.append(" SET ");
-         buf2.append(column.getName()+"_NEW=" + column.getName());
-         steps.add(new PSJdbcSqlStatement(buf2.toString()));
-
-         StringBuilder buf3 = new StringBuilder();
-         buf3.append("ALTER TABLE ");
-         buf3.append(tableName);
-         buf3.append(" DROP COLUMN ");
-         buf3.append(column.getName());
-         steps.add(new PSJdbcSqlStatement(buf3.toString()));
-
-         StringBuilder buf4 = new StringBuilder();
-         buf4.append("RENAME COLUMN ");
-         buf4.append(tableName);
-         buf4.append(".");
-         buf4.append(column.getName()+"_NEW TO " + column.getName());
-         steps.add(new PSJdbcSqlStatement(buf4.toString()));
-      return steps;
-   }
-
-
-   /**
-    * Generates an alter column statement to alter column defination as defined.
-    *
-    * @param dbmsDef Table Defination
-    * @param tableName The fully qualified table name.  Assumed not <code>null
-    * </code>.
-    * @param column Column that needs to be modified
-    * @return The add column statement, never <code>null</code>.
-    */
-   private static PSJdbcSqlStatement getAlterColumnStatement(PSJdbcDbmsDef dbmsDef, String tableName,
-                                                                PSJdbcColumnDef column)
-   {
-
-      StringBuilder buf = new StringBuilder();
-
-      if(PSSqlHelper.isMsSql(dbmsDef.getDriver())) {
-         //ALTER TABLE [TABLE_NAME] ALTER COLUMN [COLUMNNAME] nvarchar(500);
-         buf.append("ALTER TABLE ");
-         buf.append(tableName);
-         buf.append(" ALTER COLUMN ");
-         buf.append(column.getSqlDef(dbmsDef));
-      }else if(PSSqlHelper.isOracle(dbmsDef.getDriver()) || PSSqlHelper.isMysql(dbmsDef.getDriver())) {
-         //ALTER TABLE [TABLE_NAME] MODIFY [COLUMNNAME] VARCHAR2(300);
-         buf.append("ALTER TABLE ");
-         buf.append(tableName);
-         buf.append(" MODIFY ");
-         buf.append(column.getSqlDef(dbmsDef));
-      }else if(PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isDB2(dbmsDef.getDriver())) {
-         //ALTER TABLE [table] ALTER COLUMN [column] SET DATA TYPE [type];
-         buf.append("ALTER TABLE ");
-         buf.append(tableName);
-         buf.append(" ALTER COLUMN ");
-         buf.append(column.getName());
-         buf.append(" SET DATA TYPE ");
-         String coldef = column.getSqlDef(dbmsDef);
-         coldef = coldef.replace(column.getName(),"");
-         buf.append(coldef);
-
-      }
-       return new PSJdbcSqlStatement(buf.toString());
-   }
-
-
-
-   /**
-    * Generates an alter table statement to drop the specified component.
-    *
-    * @param tableName The fully qualified table name.  Assumed not <code>null
-    * </code>.
-    * @param columnName The column to drop. Assumed not
-    * <code>null </code>.
-    *
-    * @return The add column statement, never <code>null</code>.
-    */
-   private static PSJdbcSqlStatement getDropComponentStatement(String tableName,
-      String columnName)
-   {
-      StringBuilder buf = new StringBuilder();
-
+      buf.append(" ALTER COLUMN ");
+      buf.append(column.getSqlDef(dbmsDef));
+    } else if (PSSqlHelper.isOracle(dbmsDef.getDriver())
+        || PSSqlHelper.isMysql(dbmsDef.getDriver())) {
+      // ALTER TABLE [TABLE_NAME] MODIFY [COLUMNNAME] VARCHAR2(300);
       buf.append("ALTER TABLE ");
       buf.append(tableName);
+      buf.append(" MODIFY ");
+      buf.append(column.getSqlDef(dbmsDef));
+    } else if (PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isDB2(dbmsDef.getDriver())) {
+      // ALTER TABLE [table] ALTER COLUMN [column] SET DATA TYPE [type];
+      buf.append("ALTER TABLE ");
+      buf.append(tableName);
+      buf.append(" ALTER COLUMN ");
+      buf.append(column.getName());
+      buf.append(" SET DATA TYPE ");
+      String coldef = column.getSqlDef(dbmsDef);
+      coldef = coldef.replace(column.getName(), "");
+      buf.append(coldef);
+    }
+    return new PSJdbcSqlStatement(buf.toString());
+  }
 
-      buf.append(" DROP COLUMN ");
-      buf.append(columnName);
+  /**
+   * Generates an alter table statement to drop the specified component.
+   *
+   * @param tableName The fully qualified table name. Assumed not <code>null
+   * </code>.
+   * @param columnName The column to drop. Assumed not <code>null </code>.
+   * @return The add column statement, never <code>null</code>.
+   */
+  private static PSJdbcSqlStatement getDropComponentStatement(String tableName, String columnName) {
+    StringBuilder buf = new StringBuilder();
 
-      return new PSJdbcSqlStatement(buf.toString());
-   }
+    buf.append("ALTER TABLE ");
+    buf.append(tableName);
 
+    buf.append(" DROP COLUMN ");
+    buf.append(columnName);
 
-   /**
-    * Returns an execution block that contains one or more steps for dropping
-    * non-unique indexes for the specified table. This block contains one
-    * step for each non-unique index to be deleted. If no index is to be
-    * deleted, then the execution block does not contain any step.
-    *
-    * @param dbmsDef provides the database/schema information for the table,
-    * may not be <code>null</code>.
-    *
-    * @param tableSchema schema of the table for which non-unique indexes are
-    * to be deleted, may not be <code>null</code>.
-    *
-    * @return the execution block containing a step for each non-unique
-    * index to be deleted, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if <code>dbmsDef</code> or
-    * <code>tableSchema</code> is <code>null</code> or if any index which is
-    * to be deleted does not have a non-<code>null</code> and non-empty name
-    */
-   public static PSJdbcExecutionStep getDropIndexStatements(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+    return new PSJdbcSqlStatement(buf.toString());
+  }
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+  /**
+   * Returns an execution block that contains one or more steps for dropping non-unique indexes for
+   * the specified table. This block contains one step for each non-unique index to be deleted. If
+   * no index is to be deleted, then the execution block does not contain any step.
+   *
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be deleted, may not
+   *     be <code>null</code>.
+   * @return the execution block containing a step for each non-unique index to be deleted, never
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code> or if any index which is to be deleted does not have a non-<code>null</code>
+   *     and non-empty name
+   */
+  public static PSJdbcExecutionStep getDropIndexStatements(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
-      Iterator<PSJdbcIndex> it =  tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE | PSJdbcIndex.TYPE_NON_UNIQUE);
-      while (it.hasNext())
-      {
-         PSJdbcIndex index = it.next();
-         if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE)
-         {
-            String indexName = index.getName();
-            if (indexName == null || indexName.trim().length() == 0)
-               throw new IllegalArgumentException("Index must have a valid "
-                  + "name for creating DROP INDEX statement");
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-            String dropSql = PSSqlHelper.getDropIndexStatement(
-               dbmsDef.getDriver(), tableSchema.getName(),
-               dbmsDef.getDataBase(), dbmsDef.getSchema(), indexName);
+    PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
+    Iterator<PSJdbcIndex> it =
+        tableSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE | PSJdbcIndex.TYPE_NON_UNIQUE);
+    while (it.hasNext()) {
+      PSJdbcIndex index = it.next();
+      if (index.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
+        String indexName = index.getName();
+        if (indexName == null || indexName.trim().length() == 0)
+          throw new IllegalArgumentException(
+              "Index must have a valid " + "name for creating DROP INDEX statement");
 
-            block.addStep(new PSJdbcSqlStatement(dropSql));
-         }
+        String dropSql =
+            PSSqlHelper.getDropIndexStatement(
+                dbmsDef.getDriver(),
+                tableSchema.getName(),
+                dbmsDef.getDataBase(),
+                dbmsDef.getSchema(),
+                indexName);
+
+        block.addStep(new PSJdbcSqlStatement(dropSql));
       }
-      return block;
-   }
+    }
+    return block;
+  }
 
-   /**
-    * Returns an execution block that contains one or more steps for creating
-    * non-unique indexes for the specified table. This block contains one
-    * step for each non-unique index to be created. If no index is to be
-    * created, then the execution block does not contain any step.
-    *
-    * @param dbmsDef provides the database/schema information for the table,
-    * may not be <code>null</code>.
-    *
-    * @param tableSchema schema of the table for which non-unique indexes are
-    * to be created, may not be <code>null</code>.
-    *
-    * @return the execution block containing a step for each non-unique
-    * index to be created, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if <code>dbmsDef</code> or
-    * <code>tableSchema</code> is <code>null</code>
-    */
-   public static PSJdbcExecutionStep getCreateIndexStatements(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  /**
+   * Returns an execution block that contains one or more steps for creating non-unique indexes for
+   * the specified table. This block contains one step for each non-unique index to be created. If
+   * no index is to be created, then the execution block does not contain any step.
+   *
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be created, may not
+   *     be <code>null</code>.
+   * @return the execution block containing a step for each non-unique index to be created, never
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code>
+   */
+  public static PSJdbcExecutionStep getCreateIndexStatements(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
-      Iterator<PSJdbcIndex> it = tableSchema.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE);
-      while (it.hasNext())
-      {
-         PSJdbcIndex index = it.next();
-         if (index.getAction() == PSJdbcTableComponent.ACTION_CREATE)
-         {
-            PSJdbcExecutionStep step = getCreateIndexStatement(
-               dbmsDef, tableSchema, index);
-            step.setStopOnError(false);
-            block.addStep(step);
-         }
+    PSJdbcExecutionBlock block = new PSJdbcExecutionBlock();
+    Iterator<PSJdbcIndex> it = tableSchema.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE);
+    while (it.hasNext()) {
+      PSJdbcIndex index = it.next();
+      if (index.getAction() == PSJdbcTableComponent.ACTION_CREATE) {
+        PSJdbcExecutionStep step = getCreateIndexStatement(dbmsDef, tableSchema, index);
+        step.setStopOnError(false);
+        block.addStep(step);
       }
-      return block;
-   }
+    }
+    return block;
+  }
 
-   /**
-    * Returns an execution step for creating a non-unique index for the
-    * specified table.
-    *
-    * @param dbmsDef provides the database/schema information for the table,
-    * may not be <code>null</code>.
-    *
-    * @param tableSchema schema of the table for which non-unique indexes are
-    * to be created, may not be <code>null</code>.
-    *
-    * @param index the non-unique index to be created, may not be
-    * <code>null</code>, should be of type
-    * <code>PSJdbcIndex.TYPE_NON_UNIQUE</code> and its action should be
-    * <code>PSJdbcTableComponent.ACTION_CREATE</code>
-    *
-    * @return the execution step for creating the specified non-unique
-    * index, never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if <code>dbmsDef</code> or
-    * <code>tableSchema</code> or <code>index</code> is <code>null</code>
-    * or <code>index</code> is not of type
-    * <code>PSJdbcIndex.TYPE_NON_UNIQUE)</code> or its action is not equal
-    * <code>PSJdbcTableComponent.ACTION_CREATE</code>
-    */
-   public static PSJdbcExecutionStep getCreateIndexStatement(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index)
-   {
-      if (dbmsDef == null)
-         throw new IllegalArgumentException("dbmsDef may not be null");
+  /**
+   * Returns an execution step for creating a non-unique index for the specified table.
+   *
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be created, may not
+   *     be <code>null</code>.
+   * @param index the non-unique index to be created, may not be <code>null</code>, should be of
+   *     type <code>PSJdbcIndex.TYPE_NON_UNIQUE</code> and its action should be <code>
+   *     PSJdbcTableComponent.ACTION_CREATE</code>
+   * @return the execution step for creating the specified non-unique index, never <code>null</code>
+   *     .
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> or <code>
+   *     index</code> is <code>null</code> or <code>index</code> is not of type <code>
+   *     PSJdbcIndex.TYPE_NON_UNIQUE)</code> or its action is not equal <code>
+   *     PSJdbcTableComponent.ACTION_CREATE</code>
+   */
+  public static PSJdbcExecutionStep getCreateIndexStatement(
+      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index) {
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
 
-      if (tableSchema == null)
-         throw new IllegalArgumentException("tableSchema may not be null");
+    if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-      if (index == null)
-         throw new IllegalArgumentException("index may not be null");
+    if (index == null) throw new IllegalArgumentException("index may not be null");
 
-      if (!index.isOfType(PSJdbcIndex.TYPE_NON_UNIQUE))
-         throw new IllegalArgumentException("Invalid index type: "
-            + index.getType());
+    if (!index.isOfType(PSJdbcIndex.TYPE_NON_UNIQUE))
+      throw new IllegalArgumentException("Invalid index type: " + index.getType());
 
-      if (index.getAction() != PSJdbcTableComponent.ACTION_CREATE)
-         throw new IllegalArgumentException("Invalid index action: "
-            + index.getAction());
+    if (index.getAction() != PSJdbcTableComponent.ACTION_CREATE)
+      throw new IllegalArgumentException("Invalid index action: " + index.getAction());
 
-      String fullTableName = PSSqlHelper.qualifyTableName(tableSchema.getName(),
-         dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
+    String fullTableName =
+        PSSqlHelper.qualifyTableName(
+            tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
-      String constraintName = getQualifiedIndexName(tableSchema.getName(), 
-         index.getName(), dbmsDef);
+    String constraintName = getQualifiedIndexName(tableSchema.getName(), index.getName(), dbmsDef);
 
-      StringBuilder buf = new StringBuilder();
-      buf.append("CREATE INDEX ");
-      buf.append(constraintName);
-      buf.append(" ON ");
-      buf.append(fullTableName);
-      buf.append(" (");
+    StringBuilder buf = new StringBuilder();
+    buf.append("CREATE INDEX ");
+    buf.append(constraintName);
+    buf.append(" ON ");
+    buf.append(fullTableName);
+    buf.append(" (");
 
-      boolean isFirst = true;
-      Iterator<String> cols = index.getColumnNames();
-      while (cols.hasNext())
-      {
-         if (!isFirst)
-            buf.append(", ");
-         else
-            isFirst = false;
+    boolean isFirst = true;
+    Iterator<String> cols = index.getColumnNames();
+    while (cols.hasNext()) {
+      if (!isFirst) buf.append(", ");
+      else isFirst = false;
 
-         buf.append(cols.next());
-      }
-      buf.append(")");
-      return new PSJdbcSqlStatement(buf.toString());
-   }
-
+      buf.append(cols.next());
+    }
+    buf.append(")");
+    return new PSJdbcSqlStatement(buf.toString());
+  }
 }
-
-

@@ -14,55 +14,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.secure.services;
 
 import com.percussion.secure.data.PSMembershipConfiguration;
-
-import java.io.IOException;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 /**
- * Class to handle setting the membership session cookie after a successful authentication
- * 
- * @author JaySeletz
+ * Handles setting the membership session cookie after successful authentication.
  *
+ * @author Jay Seletz
  */
-public class PSMembershipLoginHandler extends SavedRequestAwareAuthenticationSuccessHandler
-{
-    private PSMembershipConfiguration membershipConfig;
-    
-    public void setMembershipConfig(PSMembershipConfiguration membershipConfig)
-    {
-        this.membershipConfig = membershipConfig;
+public class PSMembershipLoginHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+  private PSMembershipConfiguration membershipConfig;
+
+  public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
+    this.membershipConfig = membershipConfig;
+  }
+
+  @Override
+  public void onAuthenticationSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException, ServletException {
+    if (membershipConfig.getUseLdap() == null
+        || membershipConfig.getUseLdap().equalsIgnoreCase("no")) {
+      // Get the session id and set the cookie
+      var sessionId = PSMembershipAuthProvider.getAuthenticatedSessionId();
+      if (sessionId != null) {
+        var cookie = new Cookie(membershipConfig.getMembershipSessionCookieName(), sessionId);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+      }
+    } else {
+      super.setUseReferer(false);
     }
-    
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException
-    {
-    	if(membershipConfig.getUseLdap() == null || membershipConfig.getUseLdap().equalsIgnoreCase("no")) {
-    		
-	        // get the session id and set the cookie
-	        String sessionId = PSMembershipAuthProvider.getAuthenticatedSessionId();
-	        if (sessionId != null)
-	        {
-	            Cookie cookie = new Cookie(membershipConfig.getMembershipSessionCookieName(), sessionId);
-	            cookie.setSecure(true);
-	            cookie.setHttpOnly(true);
-	            cookie.setPath("/");
-	            response.addCookie(cookie);            
-	        }
-    	} else {
-    		super.setUseReferer(false);
-    	}
-        // now let handling pass through to base class
-        super.onAuthenticationSuccess(request, response, authentication);
-    }
+    // Let handling pass through to base class
+    super.onAuthenticationSuccess(request, response, authentication);
+  }
 }

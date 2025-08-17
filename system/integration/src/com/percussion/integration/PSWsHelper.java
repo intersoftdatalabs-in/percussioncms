@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ import com.percussion.integration.webservices.search.wsdl.SearchPort;
 import com.percussion.integration.webservices.search.wsdl.SearchServicesLocator;
 import com.percussion.integration.webservices.standarditem.ContentKey;
 import com.percussion.integration.webservices.standarditem.Item;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -82,18 +82,18 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.rpc.ServiceException;
-import javax.xml.soap.Name; // TODO: JAVAX-11
-import javax.xml.soap.SOAPElement; // TODO: JAVAX-11
-import javax.xml.soap.SOAPException; // TODO: JAVAX-11
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
 
 import org.apache.axis.AxisProperties;
 import org.apache.axis.client.Stub;

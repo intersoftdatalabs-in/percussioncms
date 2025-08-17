@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,10 @@ import com.percussion.design.catalog.PSCataloger;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * The PSColumnCatalogHandler class implements cataloging of
@@ -64,7 +62,7 @@ import java.util.List;
  *
  *    &lt;!--
  *     --&gt;
- *    &lt;!ELEMENT Column (name, backEndDataType, jdbcDataType, size, 
+ *    &lt;!ELEMENT Column (name, backEndDataType, jdbcDataType, size,
  *       allowsNull)&gt;
  *
  *    &lt;!-- the name of the column.
@@ -94,132 +92,108 @@ import java.util.List;
  * <pre>
  *
  */
-public class PSColumnCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSColumnCatalogHandler()
-   {
-      super();
-   }
+public class PSColumnCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSColumnCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Column</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be omitted to
-    *       query the respository</td>
-    *       <td>no</td></tr>
-    *   <tr><td>TableName</td>
-    *       <td>the name of the table for which columns should be returned</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String) req.get("RequestCategory");
-      if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Column</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be omitted to
+   *       query the respository</td>
+   *       <td>no</td></tr>
+   *   <tr><td>TableName</td>
+   *       <td>the name of the table for which columns should be returned</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"Column".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Column".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String datasource = (String) req.get("Datasource");
+    String datasource = (String) req.get("Datasource");
 
-      String tableName = (String) req.get("TableName");
-      if (tableName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: TableName");
+    String tableName = (String) req.get("TableName");
+    if (tableName == null) throw new IllegalArgumentException("reqd prop not specified: TableName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc, 
-         "PSXColumnCatalog");
-      
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", 
-            datasource);
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXColumnCatalog");
 
-      PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
 
-      return reqDoc;
-   }
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
 
-   /**
-    * Convenience method which uses the specified cataloger and back-end table
-    * definition to get the column listing for the table.
-    */
-   public static PSCatalogedColumn[] getCatalog(
-      PSCataloger cataloger,
-      PSBackEndTable table,
-      String loginId,
-      String loginPw)
-      throws
-         com.percussion.conn.PSServerException,
-         com.percussion.security.PSAuthenticationFailedException,
-         com.percussion.security.PSAuthorizationException,
-         java.io.IOException
-   {
-      // create the properties from the table info
-      java.util.Properties req = new java.util.Properties();
+    return reqDoc;
+  }
 
-      req.put("RequestCategory", "data");
-      req.put("RequestType", "Column");
+  /**
+   * Convenience method which uses the specified cataloger and back-end table definition to get the
+   * column listing for the table.
+   */
+  public static PSCatalogedColumn[] getCatalog(
+      PSCataloger cataloger, PSBackEndTable table, String loginId, String loginPw)
+      throws com.percussion.conn.PSServerException,
+          com.percussion.security.PSAuthenticationFailedException,
+          com.percussion.security.PSAuthorizationException,
+          java.io.IOException {
+    // create the properties from the table info
+    java.util.Properties req = new java.util.Properties();
 
-      String sTemp = table.getTable();
-      if (sTemp != null)
-         req.put("TableName", sTemp);
+    req.put("RequestCategory", "data");
+    req.put("RequestType", "Column");
 
-      if (loginId != null)
-         req.put("LoginId", loginId);
+    String sTemp = table.getTable();
+    if (sTemp != null) req.put("TableName", sTemp);
 
-      if (loginPw != null)
-         req.put("LoginPw", loginPw);
+    if (loginId != null) req.put("LoginId", loginId);
 
-      // perform the catalog request
-      Document doc = cataloger.catalog(req);
+    if (loginPw != null) req.put("LoginPw", loginPw);
 
-      // store the column definitions in a list
-      List<PSCatalogedColumn> l = new ArrayList<>();
-      PSXmlTreeWalker w = new PSXmlTreeWalker(doc);
-      for (Element e = w.getNextElement("Column",
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN
-            | PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS); e != null; 
-            e = w.getNextElement("Column", 
-               PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS))
-      {
-         l.add(new PSCatalogedColumn(table, e));
-      }
+    // perform the catalog request
+    Document doc = cataloger.catalog(req);
 
-      // and convert the list to an array
-      final int size = l.size();
-      PSCatalogedColumn[] ret = new PSCatalogedColumn[size];
-      if (size > 0)
-         l.toArray(ret);
+    // store the column definitions in a list
+    List<PSCatalogedColumn> l = new ArrayList<>();
+    PSXmlTreeWalker w = new PSXmlTreeWalker(doc);
+    for (Element e =
+            w.getNextElement(
+                "Column",
+                PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+        e != null;
+        e = w.getNextElement("Column", PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS)) {
+      l.add(new PSCatalogedColumn(table, e));
+    }
 
-      return ret;
-   }
+    // and convert the list to an array
+    final int size = l.size();
+    PSCatalogedColumn[] ret = new PSCatalogedColumn[size];
+    if (size > 0) l.toArray(ret);
+
+    return ret;
+  }
 }
-

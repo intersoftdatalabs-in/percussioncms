@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionException;
@@ -82,8 +82,8 @@ import com.percussion.services.sitemgr.PSSiteHelper;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.utils.general.PSServiceConfigurationBean;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.codec.PSXmlEncoder;
 import com.percussion.utils.collections.PSFacadeMap;
@@ -97,45 +97,34 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.UnsupportedRepositoryOperationException; // TODO: JAVAX-11
-import javax.jcr.ValueFormatException; // TODO: JAVAX-11
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.servlet.http.HttpServletRequest;
-import javax.xml.namespace.QName; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -149,10 +138,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The assembly service assembles items and provides methods for managing
@@ -238,9 +227,7 @@ public class PSAssemblyService implements IPSAssemblyService
        */
       public static Set<ContentCacheKey> getAndClearKeys(IPSGuid itemid)
       {
-         Set<ContentCacheKey> rval = ms_keys.get(itemid);
-         ms_keys.remove(itemid);
-         return rval;
+         return ms_keys.remove(itemid);
       }
 
       @Override
@@ -296,18 +283,18 @@ public class PSAssemblyService implements IPSAssemblyService
 
       public void notifyEvent(PSNotificationEvent notification)
       {
-         IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
-         PSStopwatch sw = new PSStopwatch();
+         var cache = PSCacheAccessLocator.getCacheAccess();
+         var sw = new PSStopwatch();
          sw.start();
          if (notification.getType().equals(EventType.CONTENT_CHANGED))
          {
-            IPSGuid ccid = (IPSGuid) notification.getTarget();
+            var ccid = (IPSGuid) notification.getTarget();
             synchronized (ContentCacheKey.class)
             {
-               Set<ContentCacheKey> keys = ContentCacheKey.getAndClearKeys(ccid);
+               var keys = ContentCacheKey.getAndClearKeys(ccid);
                if (keys != null)
                {
-                  for (ContentCacheKey key : keys)
+                  for (var key : keys)
                   {
                      cache.evict(key, CONTENT_REGION);
                   }
@@ -316,7 +303,7 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          else if (notification.getType().equals(EventType.OBJECT_INVALIDATION))
          {
-            IPSGuid guid = (IPSGuid) notification.getTarget();
+            var guid = (IPSGuid) notification.getTarget();
             short type = guid.getType();
             if (ms_invalidatefor.contains(type))
             {
@@ -335,7 +322,7 @@ public class PSAssemblyService implements IPSAssemblyService
    {
       public void notifyEvent(PSNotificationEvent notification)
       {
-         IPSGuid guid = (IPSGuid) notification.getTarget();
+         var guid = (IPSGuid) notification.getTarget();
          short type = guid.getType();
          if (type == PSTypeEnum.NODEDEF.getOrdinal() || type == PSTypeEnum.TEMPLATE.getOrdinal())
          {
@@ -447,10 +434,10 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          throw new IllegalArgumentException("name may not be null or empty");
       }
-      IPSExtensionManager emgr = PSServer.getExtensionManager(null);
+      var emgr = PSServer.getExtensionManager(null);
       try
       {
-         PSExtensionRef assemblerref = new PSExtensionRef(name);
+         var assemblerref = new PSExtensionRef(name);
          return (IPSAssembler) emgr.prepareExtension(assemblerref, null);
       }
       catch (PSExtensionException e)
@@ -478,7 +465,7 @@ public class PSAssemblyService implements IPSAssemblyService
             throw new PSAssemblyException(IPSAssemblyErrors.PARAMS_VARIANT_OR_TEMPLATE);
          }
 
-         Map<String, String[]> params = new PSFacadeMap<>(request.getParameterMap());
+         var params = new PSFacadeMap<>(request.getParameterMap());
          long jobId;
          if (params.get(IPSHtmlParameters.SYS_PUBSTATUSID) != null)
          {
@@ -489,9 +476,9 @@ public class PSAssemblyService implements IPSAssemblyService
             jobId = ms_internalJobId.decrementAndGet();
          }
 
-         String path = request.getParameter(IPSHtmlParameters.SYS_PATH);
+         var path = request.getParameter(IPSHtmlParameters.SYS_PATH);
 
-         IPSAssemblyItem work = createAssemblyItem();
+         var work = createAssemblyItem();
          work.setPath(path);
          work.setParameters(params);
          if (work.getJobId() == 0)
@@ -501,16 +488,16 @@ public class PSAssemblyService implements IPSAssemblyService
          work.setDebug(request.getRequestURL().toString().endsWith("/debug"));
          if (isUseEditRevisions(request))
             work.setUserName(request.getRemoteUser());
-         String publish = work.getParameterValue(IPSHtmlParameters.SYS_PUBLISH, "publish");
+         var publish = work.getParameterValue(IPSHtmlParameters.SYS_PUBLISH, "publish");
          work.setPublish(!publish.equalsIgnoreCase("unpublish"));
          work.normalize();
-         String page = request.getParameter("sys_page");
+         var page = request.getParameter("sys_page");
          if (StringUtils.isNotBlank(page) && StringUtils.isNumeric(page))
          {
-            work.setPage(new Integer(page));
+            work.setPage(Integer.valueOf(page));
          }
-         List<IPSAssemblyItem> assemblyitems = Collections.singletonList(work);
-         List<IPSAssemblyResult> results = assemble(assemblyitems);
+         var assemblyitems = Collections.singletonList(work);
+         var results = assemble(assemblyitems);
          if (results.isEmpty())
          {
             return null;
@@ -527,7 +514,7 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       catch (Exception e)
       {
-         Throwable cause = PSExceptionHelper.findRootCause(e, true);
+         var cause = PSExceptionHelper.findRootCause(e, true);
          log.error("Failure while processing assembly item", cause);
          throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, cause, e.getLocalizedMessage());
       }
@@ -550,10 +537,10 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private boolean isUseEditRevisions(HttpServletRequest request)
    {
-      String editrc = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
+      var editrc = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
       if (editrc == null)
          editrc = "";
-      String isEditRevisions = request.getParameter("useEditRevisions");
+      var isEditRevisions = request.getParameter("useEditRevisions");
       if (isEditRevisions == null)
          isEditRevisions = "";
      return editrc.equalsIgnoreCase(IPSHtmlParameters.SYS_ACTIVE_ASSEMBLY)
@@ -563,9 +550,8 @@ public class PSAssemblyService implements IPSAssemblyService
 
    public IPSAssemblyItem createAssemblyItem(String path, long jobid, int refid, IPSAssemblyTemplate template,
          Map<String, String> variables, Map<String, String[]> params, Node optNode, boolean isDebug)
-         throws PSAssemblyException
    {
-      PSAssemblyWorkItem rval = new PSAssemblyWorkItem();
+      var rval = new PSAssemblyWorkItem();
       rval.setPath(path);
       rval.setJobId(jobid);
       rval.setReferenceId(refid);
@@ -582,7 +568,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    public IPSAssemblyItem createAssemblyItem()
    {
-      PSAssemblyWorkItem rval = new PSAssemblyWorkItem();
+      var rval = new PSAssemblyWorkItem();
 
       rval.setReferenceId(0);
       rval.setJobId(0);
@@ -666,29 +652,29 @@ public class PSAssemblyService implements IPSAssemblyService
          throw new IllegalArgumentException("items may not be null");
       }
       // map (original) item to its result.
-      Map<IPSAssemblyItem, IPSAssemblyResult> assemblyResultMap = new HashMap<>();
+      var assemblyResultMap = new HashMap<IPSAssemblyItem, IPSAssemblyResult>();
 
       handleItemTemplates(items);
-      Map<String, List<IPSAssemblyItem>> byAssembler = groupItemsByAssembler(items);
+      var byAssembler = groupItemsByAssembler(items);
 
       // Process each and gather results. Note: keep getLandingPageUrl up
       // to date as this code changes. getLandingPageUrl is not a complete
       // assembly process
-      PSStopwatchStack sws = PSStopwatchStack.getStack();
-      for (String assemblerName : byAssembler.keySet())
+      var sws = PSStopwatchStack.getStack();
+      for (var assemblerName : byAssembler.keySet())
       {
          try
          {
-            List<IPSAssemblyItem> perAssemblerItems = byAssembler.get(assemblerName);
-            List<IPSAssemblyItem> debugItems = new ArrayList<>();
-            Set<IPSAssemblyResult> paginatedItems = new HashSet<>();
+            var perAssemblerItems = byAssembler.get(assemblerName);
+            var debugItems = new ArrayList<IPSAssemblyItem>();
+            var paginatedItems = new HashSet<IPSAssemblyResult>();
 
-            for (IPSAssemblyItem item : perAssemblerItems)
+            for (var item : perAssemblerItems)
             {
-               boolean isLegacy = item.getTemplate().getAssembler().equals(IPSExtension.LEGACY_ASSEMBLER);
-               PSAssemblyJexlEvaluator eval = setupItemForAssembly(item, isLegacy);
+               var isLegacy = item.getTemplate().getAssembler().equals(IPSExtension.LEGACY_ASSEMBLER);
+               var eval = setupItemForAssembly(item, isLegacy);
 
-               IPSAssembler assembler = getAssembler(assemblerName);
+               var assembler = getAssembler(assemblerName);
                assembler.preProcessItemBinding(item, eval);
 
                processItemBinding(item, paginatedItems, debugItems, eval, isLegacy);
@@ -735,22 +721,9 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private Map<String, List<IPSAssemblyItem>> groupItemsByAssembler(List<IPSAssemblyItem> items)
    {
-      Map<String, List<IPSAssemblyItem>> byAssembler = new HashMap<>();
-
-      for (IPSAssemblyItem item : items)
-      {
-         IPSAssemblyTemplate template = item.getTemplate();
-         if (template == null)
-         {
-            log.error("Skipping item id {} due to missing template.", item.getId());
-            continue;
-         }
-         String assemblername = template.getAssembler();
-         List<IPSAssemblyItem> list = byAssembler.computeIfAbsent(assemblername, k -> new ArrayList<>());
-         list.add(item);
-      }
-
-      return byAssembler;
+      return items.stream()
+              .filter(item -> item.getTemplate() != null)
+              .collect(Collectors.groupingBy(item -> item.getTemplate().getAssembler()));
    }
 
    /**
@@ -786,8 +759,8 @@ public class PSAssemblyService implements IPSAssemblyService
          {
             sws.start(assemblerName + "#assemble");
 
-            IPSAssembler assembler = getAssembler(assemblerName);
-            List<IPSAssemblyResult> res = assembler.assemble(perAssemblerItems);
+            var assembler = getAssembler(assemblerName);
+            var res = assembler.assemble(perAssemblerItems);
             for (int i = 0; i < res.size(); i++)
             {
                assemblyResultMap.put(perAssemblerItems.get(i), res.get(i));
@@ -801,8 +774,8 @@ public class PSAssemblyService implements IPSAssemblyService
 
       if (!debugItems.isEmpty())
       {
-         IPSAssembler debugAssembler = getAssembler(DEBUG_ASSEMBLER);
-         List<IPSAssemblyResult> res = debugAssembler.assemble(debugItems);
+         var debugAssembler = getAssembler(DEBUG_ASSEMBLER);
+         var res = debugAssembler.assemble(debugItems);
          for (int i = 0; i < res.size(); i++)
          {
             assemblyResultMap.put(debugItems.get(i), res.get(i));
@@ -834,9 +807,9 @@ public class PSAssemblyService implements IPSAssemblyService
       if (!paginatedItems.isEmpty())
       {
          // Paginated items should not be assembled, just pass through
-         for (IPSAssemblyResult paginatedItem : paginatedItems)
+         for (var paginatedItem : paginatedItems)
          {
-            String message = "Preview of paginated items in context other than 0 " + "is not supported.";
+            var message = "Preview of paginated items in context other than 0 " + "is not supported.";
             try {
                paginatedItem.setResultData(message.getBytes());
             }catch(IOException e){
@@ -872,16 +845,10 @@ public class PSAssemblyService implements IPSAssemblyService
    {
       // Get the assembly result and make sure to keep the results in the same
       // order as the input assembly items.
-      List<IPSAssemblyResult> rval = new ArrayList<>();
-      for (IPSAssemblyItem item : items)
-      {
-         IPSAssemblyResult res = assemblyResultMap.get(item);
-         if (res == null)
-            continue;
-         rval.add(res);
-      }
-
-      return rval;
+      return items.stream()
+              .map(assemblyResultMap::get)
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
    }
 
    /**
@@ -896,14 +863,14 @@ public class PSAssemblyService implements IPSAssemblyService
       if (maxSize == 0)
          return;
 
-      PSStopwatchStack sws = PSStopwatchStack.getStack();
+      var sws = PSStopwatchStack.getStack();
       sws.start(getClass().getName() + "#checkItemsForEviction");
       try
       {
-         for (IPSAssemblyItem i : items)
+         for (var i : items)
          {
             try {
-               IPSNode n = (IPSNode) i.getNode();
+               var n = (IPSNode) i.getNode();
                long size = n.getSizeInBytes();
                if (size > maxSize) {
                   log.warn("Not caching assembly item: {} which is approx: {} bytes, maximum size allowed is: {} bytes. Forcing eviction from cache if present.",
@@ -939,46 +906,30 @@ public class PSAssemblyService implements IPSAssemblyService
    {
       // Optimize in case the templates are already present, i.e. they
       // were passed into the assembly engine
-      boolean allpresent = true;
-      for (IPSAssemblyItem item : items)
-      {
-         if (item.getTemplate() == null)
-         {
-            allpresent = false;
-            break;
-         }
-      }
+      boolean allpresent = items.stream().allMatch(item -> item.getTemplate() != null);
       if (allpresent)
          return;
 
       // First see if any need additional work
-      List<Integer> idsToLoad = new ArrayList<>();
-      for (IPSAssemblyItem i : items)
-      {
-         if (i.getTemplate() == null)
-         {
-            PSLegacyGuid guid = (PSLegacyGuid) i.getId();
-            idsToLoad.add(guid.getContentId());
-         }
-      }
+      var idsToLoad = items.stream()
+              .filter(i -> i.getTemplate() == null)
+              .map(i -> ((PSLegacyGuid) i.getId()).getContentId())
+              .collect(Collectors.toList());
 
       if (idsToLoad.isEmpty())
          return;
 
-      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      List<PSComponentSummary> summaries = cms.loadComponentSummaries(idsToLoad);
-      Map<Integer, Long> contentIdToType = new HashMap<>();
-      for (PSComponentSummary s : summaries)
-      {
-         contentIdToType.put(s.getContentId(), s.getContentTypeId());
-      }
+      var cms = PSCmsObjectMgrLocator.getObjectManager();
+      var summaries = cms.loadComponentSummaries(idsToLoad);
+      var contentIdToType = summaries.stream()
+              .collect(Collectors.toMap(PSComponentSummary::getContentId, PSComponentSummary::getContentTypeId));
 
-      for (IPSAssemblyItem item : items)
+      for (var item : items)
       {
          if (item.getTemplate() == null)
          {
-            String templatename = item.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
-            String variantid = item.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);
+            var templatename = item.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
+            var variantid = item.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);
             IPSAssemblyTemplate template = null;
             if (templatename == null && variantid == null)
             {
@@ -987,7 +938,7 @@ public class PSAssemblyService implements IPSAssemblyService
             }
             else if (StringUtils.isNumeric(templatename) || StringUtils.isNumeric(variantid))
             {
-               String idstr = StringUtils.isNumeric(templatename) ? templatename : variantid;
+               var idstr = StringUtils.isNumeric(templatename) ? templatename : variantid;
                template = loadUnmodifiableTemplate(idstr);
                if (template == null)
                {
@@ -996,18 +947,46 @@ public class PSAssemblyService implements IPSAssemblyService
             }
             else if (StringUtils.isNotBlank(templatename) && !StringUtils.isNumeric(templatename))
             {
-               PSLegacyGuid guid = (PSLegacyGuid) item.getId();
-               Long ctype = contentIdToType.get(guid.getContentId());
-               IPSGuid ctypeguid = new PSGuid(PSTypeEnum.NODEDEF, ctype);
-               template = findTemplateByNameAndType(templatename, ctypeguid);
-               if (template == null)
-               {
-                  log.error("Template could not be loaded for name {} and type {}", templatename, ctypeguid);
-               }
+               template = findTemplateByNameAndContentType(item, templatename, contentIdToType);
             }
             item.setTemplate(template);
          }
       }
+   }
+
+   /**
+    * Find template by name and content type with enhanced validation.
+    *
+    * @param item the assembly item
+    * @param templatename the template name
+    * @param contentIdToType content ID to type mapping
+    * @return the found template, may be {@code null}
+    * @throws PSAssemblyException if template lookup fails
+    */
+   private IPSAssemblyTemplate findTemplateByNameAndContentType(
+         IPSAssemblyItem item, String templatename, Map<Integer, Long> contentIdToType)
+         throws PSAssemblyException {
+      if (!(item.getId() instanceof PSLegacyGuid)) {
+         log.warn("Item ID is not a PSLegacyGuid, cannot determine content type for template lookup");
+         return null;
+      }
+      var guid = (PSLegacyGuid) item.getId();
+      var contentId = guid.getContentId();
+      var contentTypeId = contentIdToType.get(contentId);
+
+      if (contentTypeId == null) {
+         log.warn("Content type ID not found for content ID: {}", contentId);
+         return null;
+      }
+
+      var ctypeguid = new PSGuid(PSTypeEnum.NODEDEF, contentTypeId);
+      var template = findTemplateByNameAndType(templatename, ctypeguid);
+
+      if (template == null) {
+         log.error("Template could not be loaded for name '{}' and type '{}'", templatename, ctypeguid);
+      }
+
+      return template;
    }
 
    /**
@@ -1020,13 +999,13 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private void processBindings(IPSAssemblyItem item, PSAssemblyJexlEvaluator eval)
    {
-      IPSAssemblyTemplate t = item.getTemplate();
-      List<PSTemplateBinding> bindings = t.getBindings();
-      for (PSTemplateBinding binding : bindings)
+      var t = item.getTemplate();
+      var bindings = t.getBindings();
+      for (var binding : bindings)
       {
          if (binding == null)
             continue;
-         String var1 = binding.getVariable();
+         var var1 = binding.getVariable();
          IPSScript exp = null;
          try
          {
@@ -1052,7 +1031,7 @@ public class PSAssemblyService implements IPSAssemblyService
             }
             else
             {
-               String debugMessage = MessageFormat.format("Problem when evaluating expression \"{1}\" "
+               var debugMessage = MessageFormat.format("Problem when evaluating expression \"{1}\" "
                      + "for variable \"{0}\": {2}", var1 != null ? var1 : "<no variable>", exp != null
                      ? exp.getSourceText()
                      : "<null>",PSExceptionUtils.getMessageForLog(e));
@@ -1086,20 +1065,20 @@ public class PSAssemblyService implements IPSAssemblyService
    private PSAssemblyJexlEvaluator setupItemForAssembly(IPSAssemblyItem work, boolean isLegacy)
          throws PSAssemblyException, PSFilterException, PSCmsException, RepositoryException
    {
-      PSStopwatchStack sws = PSStopwatchStack.getStack();
+      var sws = PSStopwatchStack.getStack();
       try
       {
          sws.start(getClass().getName() + "#setupItemForAssembly");
 
-         String siteidstr = work.getParameterValue(IPSHtmlParameters.SYS_SITEID, null);
-         String contextstr = work.getParameterValue(
+         var siteidstr = work.getParameterValue(IPSHtmlParameters.SYS_SITEID, null);
+         var contextstr = work.getParameterValue(
                IPSHtmlParameters.SYS_CONTEXT, null);
 
-         String sys_command = work.getParameterValue(IPSHtmlParameters.SYS_COMMAND, null);
-         String defaultAAMode = IPSHtmlParameters.SYS_AAMODE_ICONS;
-         String isHummingbirdEnabled = "false";
+         var sys_command = work.getParameterValue(IPSHtmlParameters.SYS_COMMAND, null);
+         var defaultAAMode = IPSHtmlParameters.SYS_AAMODE_ICONS;
+         var isHummingbirdEnabled = "false";
          boolean isHBE = false;
-         Properties props = PSServer.getServerProps();
+         var props = PSServer.getServerProps();
          if (props != null) {
             defaultAAMode = StringUtils.defaultIfEmpty((String) props.get("defaultActiveAssemblyMode"),
                   IPSHtmlParameters.SYS_AAMODE_ICONS);
@@ -1107,11 +1086,11 @@ public class PSAssemblyService implements IPSAssemblyService
                   (String)props.get("isHummingbirdEnabled"),
                      "false");
          }
-         String sys_aamode = work.getParameterValue(IPSHtmlParameters.SYS_ACTIVE_ASSEMBLY_MODE, defaultAAMode);
+         var sys_aamode = work.getParameterValue(IPSHtmlParameters.SYS_ACTIVE_ASSEMBLY_MODE, defaultAAMode);
 
          boolean isForAaSlot = Boolean.parseBoolean(work.getParameterValue(IPSHtmlParameters.SYS_FORAASLOT,
                Boolean.toString(true)));
-         PSAssemblyJexlEvaluator rval = new PSAssemblyJexlEvaluator(work);
+         var rval = new PSAssemblyJexlEvaluator(work);
          boolean nonHTML = work.getTemplate().getActiveAssemblyType().equals(AAType.NonHtml);
          boolean isAA;
          // As we do not active assemble child items set $sys.activeAssembly to
@@ -1131,7 +1110,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
          if (isAA && StringUtils.isNotBlank(sys_aamode))
          {
-            rval.bind("$sys_aamode", new Integer(sys_aamode));
+            rval.bind("$sys_aamode", Integer.valueOf(sys_aamode));
          }
 
          if (work.getPage() != null)
@@ -1171,7 +1150,7 @@ public class PSAssemblyService implements IPSAssemblyService
             log.debug("Skipping site information setting as the supplied siteid is not an integer.", e);
          }
 
-         IPSAssemblyTemplate templ = work.getTemplate();
+         var templ = work.getTemplate();
          if (!isLegacy || !templ.getBindings().isEmpty())
          {
             rval.bind("$sys.item", work.getNode());
@@ -1232,15 +1211,15 @@ public class PSAssemblyService implements IPSAssemblyService
       }
       if (item == null)
       {
-         IPSContentMgr contentmgr = PSContentMgrLocator.getContentMgr();
+         var contentmgr = PSContentMgrLocator.getContentMgr();
          // Handle content lookup
          Collection<Node> items = null;
 
-         List<IPSGuid> guids = new ArrayList<>();
+         var guids = new ArrayList<IPSGuid>();
          guids.add(work.getId());
 
-            String siteid = work.getParameterValue(IPSHtmlParameters.SYS_SITEID, "");
-            PSContentMgrConfig config = new PSContentMgrConfig();
+            var siteid = work.getParameterValue(IPSHtmlParameters.SYS_SITEID, "");
+            var config = new PSContentMgrConfig();
             config.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
             config.addOption(PSContentMgrOption.LOAD_MINIMAL);
             config.setBodyAccess(new PSInlineLinkProcessor(work.getFilter(), work));
@@ -1253,7 +1232,7 @@ public class PSAssemblyService implements IPSAssemblyService
          
          item = items.iterator().next();
 
-         PSContentNode node = (PSContentNode) item;
+         var node = (PSContentNode) item;
          //TODO: It seems like this caching code does nothing and is not used.  Either need to remove it or make it work.
          if (maxSize > 0 && node.getSizeInBytes() < maxSize)
          {
@@ -1263,12 +1242,12 @@ public class PSAssemblyService implements IPSAssemblyService
 
       // Check to see if this item is a managed nav object. If it is we'll
       // wrap it up into a proxy
-      PSNavConfig navcfg = PSNavConfig.getInstance();
-      IPSGuid itemtype = new PSGuid(PSTypeEnum.NODEDEF, item.getProperty("sys_contenttypeid").getString());
+      var navcfg = PSNavConfig.getInstance();
+      var itemtype = new PSGuid(PSTypeEnum.NODEDEF, item.getProperty("sys_contenttypeid").getString());
       if (navcfg.isManagedNavType(itemtype))
       {
-         PSNavHelper h = work.getNavHelper();
-         PSLegacyGuid lg = (PSLegacyGuid) work.getId();
+         var h = work.getNavHelper();
+         var lg = (PSLegacyGuid) work.getId();
          item = h.getNavNode(lg.getLocator());
          h.setupNavValues(work, eval, item);
       }
@@ -1301,13 +1280,13 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public void loadByType(PSTypeEnum type, String item) throws PSCatalogException
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
       try
       {
          if (type.equals(PSTypeEnum.TEMPLATE))
          {
             PSAssemblyTemplate temp;
-            IPSGuid guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.TEMPLATE, item);
+            var guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.TEMPLATE, item);
             Integer tversion = null;
             Map<Long, Integer> bversions = null;
 
@@ -1318,7 +1297,7 @@ public class PSAssemblyService implements IPSAssemblyService
                // they can be restored
                tversion = temp.getVersion();
                bversions = new HashMap<>();
-               for (PSTemplateBinding b : temp.getBindings())
+               for (var b : temp.getBindings())
                {
                   bversions.put(b.getId(), b.getVersion());
                }
@@ -1335,9 +1314,9 @@ public class PSAssemblyService implements IPSAssemblyService
             {
                temp.setVersion(null);
                temp.setVersion(tversion);
-               for (PSTemplateBinding b : temp.getBindings())
+               for (var b : temp.getBindings())
                {
-                  Integer bversion = bversions.get(b.getId());
+                  var bversion = bversions.get(b.getId());
                   if (bversion != null)
                   {
                      b.setVersion(null);
@@ -1352,7 +1331,7 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          else if (type.equals(PSTypeEnum.SLOT))
          {
-            IPSGuid guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.SLOT, item);
+            var guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.SLOT, item);
             IPSTemplateSlot temp;
             if (findSlot(guid) != null)
             {
@@ -1394,17 +1373,17 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          if (id.getType() == PSTypeEnum.TEMPLATE.getOrdinal())
          {
-            IPSAssemblyTemplate temp = loadTemplate(id, true);
+            var temp = loadTemplate(id, true);
             return temp.toXML();
          }
          else if (id.getType() == PSTypeEnum.SLOT.getOrdinal())
          {
-            IPSTemplateSlot slot = loadSlot(id);
+            var slot = loadSlot(id);
             return slot.toXML();
          }
          else
          {
-            PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
+            var type = PSTypeEnum.valueOf(id.getType());
             throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type);
          }
       }
@@ -1425,8 +1404,8 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional()
    public PSAssemblyTemplate createTemplate()
    {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      PSAssemblyTemplate newvar = new PSAssemblyTemplate();
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var newvar = new PSAssemblyTemplate();
       newvar.setGUID(gmgr.createGuid(PSTypeEnum.TEMPLATE));
       return newvar;
    }
@@ -1434,8 +1413,8 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public PSAssemblyTemplate loadTemplate(String guidstr, boolean loadSlots) throws PSAssemblyException
    {
-      IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, guidstr);
-      PSAssemblyTemplate template = loadTemplate(guid, loadSlots);
+      var guid = new PSGuid(PSTypeEnum.TEMPLATE, guidstr);
+      var template = loadTemplate(guid, loadSlots);
       Hibernate.initialize(template);
       return template;
    }
@@ -1443,7 +1422,7 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public PSAssemblyTemplate loadTemplate(IPSGuid id, boolean loadSlots) throws PSAssemblyException
    {
-      PSAssemblyTemplate var = findTemplate(id, loadSlots);
+      var var = findTemplate(id, loadSlots);
       Hibernate.initialize(var);
       if (var == null)
       {
@@ -1459,7 +1438,7 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          throw new IllegalArgumentException("tid may not be null");
       }
-      IPSAssemblyTemplate var = findTemplate(tid);
+      var var = findTemplate(tid);
       if (var == null)
       {
          throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, tid);
@@ -1491,14 +1470,14 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public PSAssemblyTemplate findTemplate(IPSGuid id, boolean loadSlots)
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
 
-         PSAssemblyTemplate var = session.get(PSAssemblyTemplate.class, id.longValue());
+         var var = session.get(PSAssemblyTemplate.class, id.longValue());
 
          if (var == null)
          {
             // Try masked id to address issues with legacy ids
-            IPSGuid nid = new PSGuid(id.getHostId(), PSTypeEnum.INTERNAL, id.getUUID());
+            var nid = new PSGuid(id.getHostId(), PSTypeEnum.INTERNAL, id.getUUID());
             var = session.get(PSAssemblyTemplate.class, nid.longValue());
          }
 
@@ -1518,7 +1497,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    public IPSAssemblyTemplate loadUnmodifiableTemplate(String tidstr) throws PSAssemblyException
    {
-      IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, tidstr);
+      var guid = new PSGuid(PSTypeEnum.TEMPLATE, tidstr);
       return loadUnmodifiableTemplate(guid);
    }
 
@@ -1529,7 +1508,7 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private void forceSlotLoad(List<IPSAssemblyTemplate> templates)
    {
-      for (IPSAssemblyTemplate template : templates)
+      for (var template : templates)
          forceSlotLoad(template);
    }
 
@@ -1543,7 +1522,7 @@ public class PSAssemblyService implements IPSAssemblyService
       try
       {
          // Force slot loading
-         for (IPSTemplateSlot slot : template.getSlots())
+         for (var slot : template.getSlots())
          {
             slot.getGUID();
          }
@@ -1559,7 +1538,7 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public void saveTemplate(IPSAssemblyTemplate var) throws PSAssemblyException
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
       try
       {
          // ideally, we need to make sure the saved object is not in the
@@ -1599,8 +1578,8 @@ public class PSAssemblyService implements IPSAssemblyService
       {
          throw new IllegalArgumentException("name may not be null or empty");
       }
-      Session session = entityManager.unwrap(Session.class);
-      PSAssemblyTemplate template = session.bySimpleNaturalId(PSAssemblyTemplate.class).load(name);
+      var session = entityManager.unwrap(Session.class);
+      var template = session.bySimpleNaturalId(PSAssemblyTemplate.class).load(name);
       if (template == null)
       {
          throw new PSAssemblyException(IPSAssemblyErrors.TEMPLATE_MISSING, name);
@@ -1612,11 +1591,11 @@ public class PSAssemblyService implements IPSAssemblyService
    public IPSAssemblyTemplate findTemplateByNameAndType(String name, IPSGuid contenttype) throws PSAssemblyException
    {
 
-      PSAssemblyTemplate template = findTemplateByName(name);
+      var template = findTemplateByName(name);
 
-      List<IPSAssemblyTemplate> templateTypes = findTemplatesByContentType(contenttype);
+      var templateTypes = findTemplatesByContentType(contenttype);
 
-      for(IPSAssemblyTemplate t : templateTypes){
+      for(var t : templateTypes){
          if(t.getName().equalsIgnoreCase(template.getName())){
             return template;
          }
@@ -1628,20 +1607,22 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public List<IPSAssemblyTemplate> findTemplatesByAssemblyUrl(String url, boolean loadSlot)
    {
-      Session session = entityManager.unwrap(Session.class);
-      List<IPSAssemblyTemplate> templates;
+      var session = entityManager.unwrap(Session.class);
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<PSAssemblyTemplate> criteria = builder.createQuery(PSAssemblyTemplate.class);
+      Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
+      criteria.where(builder.like(root.get("assemblyUrl"), url));
 
-         Criteria c = session.createCriteria(PSAssemblyTemplate.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.like("assemblyUrl", url));
+      TypedQuery<PSAssemblyTemplate> query = session.createQuery(criteria);
+      query.setHint("org.hibernate.cacheable", true);
+      query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
 
-         templates = c.list();
+      List<IPSAssemblyTemplate> templates = query.getResultList();
 
-         if (loadSlot)
-         {
-            forceSlotLoad(templates);
-         }
+      if (loadSlot)
+      {
+         forceSlotLoad(templates);
+      }
 
       return templates;
    }
@@ -1649,39 +1630,27 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public List<IPSAssemblyTemplate> findTemplatesBySlot(IPSTemplateSlot slot) throws PSAssemblyException
    {
-      List<IPSAssemblyTemplate> rval;
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+      Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
+      root.join("slots");
+      criteria.select(root.get("id")).where(builder.equal(root.get("slots").get("id"), slot.getGUID().longValue()));
 
-         Criteria c = session.createCriteria(PSAssemblyTemplate.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         Criteria slots = c.createCriteria("slots");
-         slots.add(Restrictions.eq("id", slot.getGUID().longValue()));
-         c.setProjection(Projections.id());
-         // List of templates
-         List<Long> templateIds = c.list();
-         rval = new ArrayList<>();
-         for (Long l : templateIds)
-         {
-            IPSGuid templateid = new PSGuid(PSTypeEnum.TEMPLATE, l);
-            IPSAssemblyTemplate templ = loadTemplate(templateid, true);
-            rval.add(templ);
-         }
+      TypedQuery<Long> query = session.createQuery(criteria);
+      query.setHint("org.hibernate.cacheable", true);
+      query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
 
+      List<Long> templateIds = query.getResultList();
+      List<IPSAssemblyTemplate> rval = new ArrayList<>();
+      for (var l : templateIds)
+      {
+         var templateid = new PSGuid(PSTypeEnum.TEMPLATE, l);
+         var templ = loadTemplate(templateid, true);
+         rval.add(templ);
+      }
 
       return rval;
-   }
-
-   @Transactional
-   public List<IPSAssemblyTemplate> findTemplatesByContentType(IPSGuid contenttype) {
-      Session session = entityManager.unwrap(Session.class);
-      return session.get(PSNodeDefinition.class, contenttype.longValue())
-              .getCvDescriptors()
-              .stream()
-              .map(t -> session.load(PSAssemblyTemplate.class, (long) t.getTemplateId().getUUID()))
-              .map(t -> {
-                 Hibernate.initialize(t); return t;})
-              .collect(Collectors.toList());
    }
 
    @Transactional
@@ -1689,63 +1658,67 @@ public class PSAssemblyService implements IPSAssemblyService
          Set<IPSAssemblyTemplate.OutputFormat> outputFormats, IPSAssemblyTemplate.TemplateType type,
          Boolean globalFilter, Boolean legacyFilter, String assembler) throws PSAssemblyException
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
       try
       {
-         // get all templates if no name was specified
-         if (StringUtils.isBlank(name))
-            name = "%";
+         CriteriaBuilder builder = session.getCriteriaBuilder();
+         CriteriaQuery<PSAssemblyTemplate> criteria = builder.createQuery(PSAssemblyTemplate.class);
+         Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
+         List<Predicate> predicates = new ArrayList<>();
 
-         Criteria c = session.createCriteria(PSAssemblyTemplate.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.ilike("name", name));
+         // get all templates if no name was specified
+         String searchName = (StringUtils.isBlank(name)) ? "%" : name;
+         predicates.add(builder.like(builder.lower(root.get("name")), searchName.toLowerCase()));
+
          if (outputFormats != null && !outputFormats.isEmpty())
          {
-            Integer[] outputFormatOrdinals = new Integer[outputFormats.size()];
-            int index = 0;
-            for (IPSAssemblyTemplate.OutputFormat outputFormat : outputFormats)
-               outputFormatOrdinals[index++] = outputFormat.ordinal();
-            c.add(Restrictions.in("outputFormat", (Object[]) outputFormatOrdinals));
+            List<Integer> ordinals = outputFormats.stream().map(Enum::ordinal).collect(Collectors.toList());
+            predicates.add(root.get("outputFormat").in(ordinals));
          }
          if (type != null)
-            c.add(Restrictions.eq("templateType", type.ordinal()));
+            predicates.add(builder.equal(root.get("templateType"), type.ordinal()));
          if (!StringUtils.isBlank(assembler))
-            c.add(Restrictions.like("assembler", assembler));
+            predicates.add(builder.like(root.get("assembler"), assembler));
          if (globalFilter != null)
          {
             if (globalFilter)
-               c.add(Restrictions.eq("outputFormat", OutputFormat.Global.ordinal()));
+               predicates.add(builder.equal(root.get("outputFormat"), OutputFormat.Global.ordinal()));
             else
-               c.add(Restrictions.ne("outputFormat", OutputFormat.Global.ordinal()));
+               predicates.add(builder.notEqual(root.get("outputFormat"), OutputFormat.Global.ordinal()));
          }
          if (legacyFilter != null)
          {
             if (legacyFilter)
             {
-               c.add(Restrictions.or(Restrictions.eq("assembler", IPSExtension.LEGACY_ASSEMBLER),
-                     Restrictions.isNull("assembler")));
+               predicates.add(builder.or(builder.equal(root.get("assembler"), IPSExtension.LEGACY_ASSEMBLER),
+                     builder.isNull(root.get("assembler"))));
             }
             else
             {
-               c.add(Restrictions.ne("assembler", IPSExtension.LEGACY_ASSEMBLER));
+               predicates.add(builder.notEqual(root.get("assembler"), IPSExtension.LEGACY_ASSEMBLER));
             }
          }
-         c.addOrder(Order.asc("name"));
-         Set<IPSAssemblyTemplate> templates = new HashSet<>(c.list());
+
+         criteria.where(predicates.toArray(new Predicate[0])).orderBy(builder.asc(root.get("name")));
+
+         TypedQuery<PSAssemblyTemplate> query = session.createQuery(criteria);
+         query.setHint("org.hibernate.cacheable", true);
+         query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
+
+         Set<IPSAssemblyTemplate> templates = new HashSet<>(query.getResultList());
          Set<IPSAssemblyTemplate> cttemplates = new HashSet<>();
 
          if (!StringUtils.isBlank(contentType) && !contentType.equals("%"))
          {
-            IPSContentMgr cmgr = PSContentMgrLocator.getContentMgr();
-            List<IPSNodeDefinition> defs = cmgr.findNodeDefinitionsByName(contentType);
-            for (IPSNodeDefinition def : defs)
+            var cmgr = PSContentMgrLocator.getContentMgr();
+            var defs = cmgr.findNodeDefinitionsByName(contentType);
+            for (var def : defs)
                cttemplates.addAll(findTemplatesByContentType(def.getGUID()));
 
-            templates = templates.stream().filter(cttemplates::contains).collect(Collectors.toSet());
+            templates.retainAll(cttemplates);
          }
 
-         List<IPSAssemblyTemplate> resultList = new ArrayList<>(templates);
+         var resultList = new ArrayList<>(templates);
          forceSlotLoad(resultList);
 
          return resultList;
@@ -1761,10 +1734,10 @@ public class PSAssemblyService implements IPSAssemblyService
    public Set<IPSAssemblyTemplate> findAllTemplates()
    {
       List<IPSAssemblyTemplate> list=null;
-      Session session = entityManager.unwrap(Session.class) ;
-         CriteriaBuilder builder = session.getCriteriaBuilder();
-         CriteriaQuery<PSAssemblyTemplate> criteria = builder.createQuery(PSAssemblyTemplate.class);
-         Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
+      var session = entityManager.unwrap(Session.class) ;
+         var builder = session.getCriteriaBuilder();
+         var criteria = builder.createQuery(PSAssemblyTemplate.class);
+         var root = criteria.from(PSAssemblyTemplate.class);
          criteria.select(root);
 
          Query query = session.createQuery(criteria);
@@ -1780,24 +1753,28 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private List<IPSTemplateSlot> findAllSlots()
    {
-      Session session = entityManager.unwrap(Session.class);
-      return session.createCriteria(PSTemplateSlot.class).list();
+      var session = entityManager.unwrap(Session.class);
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<PSTemplateSlot> criteria = builder.createQuery(PSTemplateSlot.class);
+      Root<PSTemplateSlot> root = criteria.from(PSTemplateSlot.class);
+      criteria.select(root);
+      return session.createQuery(criteria).getResultList();
    }
 
    @Transactional
    public Set<IPSAssemblyTemplate> findAllGlobalTemplates()
    {
-      Set<IPSAssemblyTemplate> rval;
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<PSAssemblyTemplate> criteria = builder.createQuery(PSAssemblyTemplate.class);
+      Root<PSAssemblyTemplate> root = criteria.from(PSAssemblyTemplate.class);
+      criteria.where(builder.equal(root.get("outputFormat"), OutputFormat.Global.ordinal()));
 
-         Criteria c = session.createCriteria(PSAssemblyTemplate.class);
-         c.add(Restrictions.eq("outputFormat", OutputFormat.Global.ordinal()));
-         rval = new HashSet<>(c.list());
-         for (IPSAssemblyTemplate template : rval)
-         {
-            forceSlotLoad(template);
-         }
-
+      Set<IPSAssemblyTemplate> rval = new HashSet<>(session.createQuery(criteria).getResultList());
+      for (var template : rval)
+      {
+         forceSlotLoad(template);
+      }
 
       return rval;
    }
@@ -1805,15 +1782,15 @@ public class PSAssemblyService implements IPSAssemblyService
    // see base
    public Set<String> findAll57GlobalTemplates() throws PSAssemblyException
    {
-      final Set<String> templateNames = new HashSet<>();
-      final File[] stylesheets = getGlobalTemplatesDir().listFiles(getXslFileFilter());
+      final var templateNames = new HashSet<String>();
+      final var stylesheets = getGlobalTemplatesDir().listFiles(getXslFileFilter());
       if (stylesheets == null)
       {
          return templateNames;
       }
       try
       {
-         for (final File stylesheet : stylesheets)
+         for (final var stylesheet : stylesheets)
          {
             if (stylesheetContainsRootTemplate(stylesheet))
             {
@@ -1838,7 +1815,7 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private String extractXslFileName(final File stylesheet)
    {
-      String name = stylesheet.getName();
+      var name = stylesheet.getName();
       name = name.substring(0, name.indexOf(XSL_EXTENSION));
       return name;
    }
@@ -1855,16 +1832,16 @@ public class PSAssemblyService implements IPSAssemblyService
     */
    private boolean stylesheetContainsRootTemplate(File stylesheet) throws IOException, SAXException
    {
-      final String name = extractXslFileName(stylesheet);
+      final var name = extractXslFileName(stylesheet);
       boolean foundRootTemplate = false;
-      try (InputStream is = new FileInputStream(stylesheet)) {
+      try (var is = new FileInputStream(stylesheet)) {
 
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
+         var doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
 
-         NodeList templates = doc.getElementsByTagName("xsl:template");
+         var templates = doc.getElementsByTagName("xsl:template");
          for (int j = 0; j < templates.getLength() && !foundRootTemplate; j++) {
-            Element template = (Element) templates.item(j);
-            String templateName = template.getAttribute(NAME_ATTR);
+            var template = (Element) templates.item(j);
+            var templateName = template.getAttribute(NAME_ATTR);
             int pos = templateName.indexOf(ROOT_EXTENSION);
             if (pos != -1) {
                foundRootTemplate = name.equals(templateName.substring(0, pos));
@@ -1878,11 +1855,11 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public void deleteTemplate(IPSGuid id) throws PSAssemblyException
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
 
       try
       {
-         IPSAssemblyTemplate template = loadTemplate(id, false);
+         var template = loadTemplate(id, false);
          session.delete(template);
          // The saved object will be (indirectly) evicted by the framework
       }
@@ -1895,8 +1872,8 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional()
    public IPSTemplateSlot createSlot()
    {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSTemplateSlot newslot = new PSTemplateSlot();
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var newslot = new PSTemplateSlot();
       newslot.setGUID(gmgr.createGuid(PSTypeEnum.SLOT));
       return newslot;
    }
@@ -1908,7 +1885,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    @Transactional
    public IPSTemplateSlot loadSlot(IPSGuid id) throws PSAssemblyException {
-      IPSTemplateSlot slot = findSlot(id);
+      var slot = findSlot(id);
       if (slot == null)
       {
          throw new PSAssemblyException(PSAssemblyException.SLOT_NOT_FOUND);
@@ -1919,7 +1896,7 @@ public class PSAssemblyService implements IPSAssemblyService
 
    @Transactional
    public IPSTemplateSlot loadSlotModifiable(IPSGuid id) throws PSAssemblyException {
-      IPSTemplateSlot slot = getSlotById(id);
+      var slot = getSlotById(id);
       if (slot == null)
       {
          throw new PSAssemblyException(PSAssemblyException.SLOT_NOT_FOUND,id);
@@ -1936,9 +1913,7 @@ public class PSAssemblyService implements IPSAssemblyService
          throw new IllegalArgumentException("id may not be null");
       }
 
-      IPSTemplateSlot rval = getSlotById(id);
-
-      return rval;
+      return getSlotById(id);
    }
 
    /**
@@ -1951,27 +1926,30 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public IPSTemplateSlot getSlotById(IPSGuid id)
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
       return session.get(PSTemplateSlot.class, id.longValue());
    }
 
    @Transactional
    public List<IPSTemplateSlot> loadSlots(List<IPSGuid> ids) throws PSAssemblyException
    {
-      List<IPSTemplateSlot> slots = new ArrayList<>();
       if (PSGuidUtils.isBlank(ids))
          throw new IllegalArgumentException("ids cannot be null or empty");
 
-      for(IPSGuid g : ids){
-         slots.add(loadSlot(g));
-      }
-      return slots;
+      return ids.stream().map(g -> {
+         try {
+            return loadSlot(g);
+         } catch (PSAssemblyException e) {
+            log.error("Failed to load slot for guid: {}. Error: {}", g, PSExceptionUtils.getMessageForLog(e));
+            return null;
+         }
+      }).filter(Objects::nonNull).collect(Collectors.toList());
    }
 
    @Transactional
    public void saveSlot(IPSTemplateSlot slot) throws PSAssemblyException
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
       try
       {
          session.saveOrUpdate( slot );
@@ -1994,8 +1972,8 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public IPSTemplateSlot findSlotByName(String name) throws PSAssemblyException
    {
-      Session session = entityManager.unwrap(Session.class);
-      PSTemplateSlot slot = session.bySimpleNaturalId(PSTemplateSlot.class).load(name);
+      var session = entityManager.unwrap(Session.class);
+      var slot = session.bySimpleNaturalId(PSTemplateSlot.class).load(name);
 
       if (slot == null)
       {
@@ -2008,38 +1986,51 @@ public class PSAssemblyService implements IPSAssemblyService
    @Transactional
    public List<IPSTemplateSlot> findSlotsByName(String name)
    {
-      Session session = entityManager.unwrap(Session.class);
-         // get all slots if no name was specified
-         if (StringUtils.isBlank(name) || name.equals("%"))
-            return findAllSlots();
+      var session = entityManager.unwrap(Session.class);
+      // get all slots if no name was specified
+      if (StringUtils.isBlank(name) || name.equals("%"))
+         return findAllSlots();
 
-         if (!name.contains("%"))
-         {
-            PSTemplateSlot slot = session.bySimpleNaturalId(PSTemplateSlot.class).load(name);
+      if (!name.contains("%"))
+      {
+         try {
+            var slot = findSlotByName(name);
             return slot == null ? Collections.emptyList() : Collections.singletonList(slot);
+         } catch (PSAssemblyException e) {
+            return Collections.emptyList();
          }
+      }
 
-         Criteria c = session.createCriteria(PSTemplateSlot.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.ilike("name", name));
-         c.addOrder(Order.asc("name"));
-         return c.list();
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<PSTemplateSlot> criteria = builder.createQuery(PSTemplateSlot.class);
+      Root<PSTemplateSlot> root = criteria.from(PSTemplateSlot.class);
+      criteria.where(builder.like(builder.lower(root.get("name")), name.toLowerCase()));
+      criteria.orderBy(builder.asc(root.get("name")));
 
+      TypedQuery<PSTemplateSlot> query = session.createQuery(criteria);
+      query.setHint("org.hibernate.cacheable", true);
+      query.setHint("org.hibernate.cacheRegion", CACHE_REGION);
+
+      return query.getResultList();
    }
 
    @Transactional
    public List<IPSTemplateSlot> findSlotsByNames(List<String> names)
    {
-      Session session = entityManager.unwrap(Session.class);
+      var session = entityManager.unwrap(Session.class);
 
       if (names == null)
       {
          throw new IllegalArgumentException("names may not be null");
       }
 
-      return names.stream().map(name -> session
-              .bySimpleNaturalId(PSTemplateSlot.class).load(name))
+      return names.stream().map(name -> {
+                 try {
+                    return findSlotByName(name);
+                 } catch (PSAssemblyException e) {
+                    return null;
+                 }
+              })
               .filter(Objects::nonNull)
               .collect(Collectors.toList());
    }
@@ -2049,8 +2040,8 @@ public class PSAssemblyService implements IPSAssemblyService
    {
       try
       {
-         Session session = entityManager.unwrap(Session.class);
-         IPSTemplateSlot slot = loadSlot(id);
+         var session = entityManager.unwrap(Session.class);
+         var slot = loadSlot(id);
          session.delete(slot);
       }
       catch (DataAccessException e)
@@ -2066,10 +2057,10 @@ public class PSAssemblyService implements IPSAssemblyService
          throw new IllegalArgumentException("finder may not be null or empty");
       }
 
-      IPSExtensionManager emgr = PSServer.getExtensionManager(null);
+      var emgr = PSServer.getExtensionManager(null);
       try
       {
-         PSExtensionRef ref = new PSExtensionRef(finder);
+         var ref = new PSExtensionRef(finder);
          return (IPSSlotContentFinder) emgr.prepareExtension(ref, null);
       }
       catch (PSExtensionException | com.percussion.error.PSNotFoundException e)
@@ -2083,15 +2074,15 @@ public class PSAssemblyService implements IPSAssemblyService
          throws PSAssemblyException
    {
       // Load the template and decide what to do
-      IPSAssemblyTemplate template = loadUnmodifiableTemplate(templateId);
+      var template = loadUnmodifiableTemplate(templateId);
       String url = null;
-      PSStopwatchStack sws = PSStopwatchStack.getStack();
+      var sws = PSStopwatchStack.getStack();
       sws.start("getLandingPage");
       try
       {
-         PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
-         IPSNode cn = (IPSNode) landingPage;
-         PSLegacyGuid lg = (PSLegacyGuid) cn.getGuid();
+         var processor = PSRelationshipProcessor.getInstance();
+         var cn = (IPSNode) landingPage;
+         var lg = (PSLegacyGuid) cn.getGuid();
          Property fidprop = null;
          Property sidprop = null;
          // get folderid and siteid properties
@@ -2113,8 +2104,8 @@ public class PSAssemblyService implements IPSAssemblyService
             // Not having siteid property is not an error.
             // Ignore it.
          }
-         String fid = fidprop == null ? "" : StringUtils.defaultString(fidprop.getString());
-         String sid = sidprop == null ? "" : StringUtils.defaultString(sidprop.getString());
+         var fid = fidprop == null ? "" : StringUtils.defaultString(fidprop.getString());
+         var sid = sidprop == null ? "" : StringUtils.defaultString(sidprop.getString());
          if (StringUtils.isBlank(sid) && parentItem.getSiteId() != null)
          {
             sid = String.valueOf(parentItem.getSiteId().longValue());
@@ -2125,24 +2116,24 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          if (StringUtils.isBlank(fid) && StringUtils.isNotBlank(sid))
          {
-            IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
-            IPSGuid siteguid = PSGuidManagerLocator.getGuidMgr().makeGuid(sid, PSTypeEnum.SITE);
-            IPSGuid fguid = smgr.getSiteFolderId(siteguid, lg);
+            var smgr = PSSiteManagerLocator.getSiteManager();
+            var siteguid = PSGuidManagerLocator.getGuidMgr().makeGuid(sid, PSTypeEnum.SITE);
+            var fguid = smgr.getSiteFolderId(siteguid, lg);
             if (fguid != null)
             {
-               PSLegacyGuid flg = (PSLegacyGuid) fguid;
+               var flg = (PSLegacyGuid) fguid;
                fid = Integer.toString(flg.getContentId());
             }
          }
 
-         List<PSLocator> folders = processor.getParents(PSRelationshipConfig.TYPE_FOLDER_CONTENT, lg.getLocator());
+         var folders = processor.getParents(PSRelationshipConfig.TYPE_FOLDER_CONTENT, lg.getLocator());
 
          if (StringUtils.isBlank(fid) && (folders == null || folders.isEmpty()))
          {
             throw new IllegalStateException("Navon must be contained in a folder: " + lg);
          }
 
-         IPSAssemblyResult clone = (IPSAssemblyResult) parentItem.clone();
+         var clone = (IPSAssemblyResult) parentItem.clone();
 
          // Use the landing page template and node
          clone.setNode(landingPage);
@@ -2167,19 +2158,19 @@ public class PSAssemblyService implements IPSAssemblyService
                || template.getAssembler().equals(IPSExtension.LEGACY_ASSEMBLER))
          {
             // Assemble snippet
-            List<IPSAssemblyItem> items = new ArrayList<>();
+            var items = new ArrayList<IPSAssemblyItem>();
             items.add(clone);
-            List<IPSAssemblyResult> results = assemble(items);
+            var results = assemble(items);
             if (results == null || results.isEmpty())
             {
                throw new PSAssemblyException(IPSAssemblyErrors.LANDING_PAGE_URL_1, lg);
             }
             else
             {
-               IPSAssemblyResult result = results.get(0);
-               String doc = result.toResultString();
+               var result = results.get(0);
+               var doc = result.toResultString();
                try(Reader r = new StringReader(doc)) {
-                  XMLInputFactory fact = PSSecureXMLUtils.getSecuredXMLInputFactory(
+                  var fact = PSSecureXMLUtils.getSecuredXMLInputFactory(
                           new PSXmlSecurityOptions(
                                   true,
                                   true,
@@ -2190,15 +2181,15 @@ public class PSAssemblyService implements IPSAssemblyService
                           )
                   );
 
-                  XMLEventReader reader = fact.createXMLEventReader(r);
+                  var reader = fact.createXMLEventReader(r);
                   while (reader.hasNext()) {
-                     XMLEvent event = reader.nextEvent();
+                     var event = reader.nextEvent();
                      if (event.isStartElement()) {
-                        StartElement e = event.asStartElement();
+                        var e = event.asStartElement();
                         if (e.getName().getLocalPart().equalsIgnoreCase("a")) {
                            // Get href, and we're done
-                           PSXmlEncoder enc = new PSXmlEncoder();
-                           Attribute a = e.getAttributeByName(new QName("href"));
+                           var enc = new PSXmlEncoder();
+                           var a = e.getAttributeByName(new QName("href"));
                            return (String) enc.encode(a.getValue());
                         }
                      }
@@ -2208,7 +2199,7 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          else
          {
-            PSAssemblyJexlEvaluator eval = setupItemForAssembly(clone, false);
+            var eval = setupItemForAssembly(clone, false);
             processBindings(clone, eval);
             // Extract the information we need
             url = (String) eval.evaluate(ms_pagelink);
@@ -2328,16 +2319,13 @@ public class PSAssemblyService implements IPSAssemblyService
       if (bindings == null)
          throw new IllegalArgumentException("bindings must not be null");
 
-      List<PSTemplateBinding> results = new ArrayList<>();
-
-      for (Map.Entry<String, String> entry : bindings.entrySet())
-      {
-         if (StringUtils.isBlank(entry.getKey()))
-            throw new IllegalArgumentException("the key of the bindings map must not be blank.");
-         results.add(new PSTemplateBinding(entry.getKey(), entry.getValue()));
-      }
-
-      return results;
+      return bindings.entrySet().stream()
+              .peek(entry -> {
+                 if (StringUtils.isBlank(entry.getKey()))
+                    throw new IllegalArgumentException("the key of the bindings map must not be blank.");
+              })
+              .map(entry -> new PSTemplateBinding(entry.getKey(), entry.getValue()))
+              .collect(Collectors.toList());
    }
 
    /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,31 @@
 
 package com.percussion.rest.displayformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class TestDisplayFormat {
 
-    @Test
-    public void testToAndFromJson() throws IOException {
+  @Test
+  public void testToAndFromJson() throws IOException {
+    var f = new DisplayFormat();
+    f.setDescription("DescriptionTest");
+    f.setDisplayName("DisplayNameTest");
+    f.setInternalName("InternalNameTest");
 
-        DisplayFormat f = new DisplayFormat();
-        f.setDescription("DescriptionTest");
-        f.setDisplayName("DisplayNameTest");
-        f.setInternalName("InternalNameTest");
+    var mapper = new ObjectMapper();
+    var json = mapper.writeValueAsString(f);
+    System.out.println(json);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(f);
-        System.out.println(json);
+    var d2 = mapper.readValue(json, DisplayFormat.class);
 
-        DisplayFormat d2 = new DisplayFormat();
-        d2 = mapper.readValue(json, DisplayFormat.class);
+    assertEquals("DescriptionTest", d2.getDescription());
+    assertEquals("DisplayNameTest", d2.getDisplayName());
+    assertEquals("InternalNameTest", d2.getInternalName());
 
-        assertEquals("DescriptionTest", d2.getDescription());
-        assertEquals("DisplayNameTest", d2.getDisplayName());
-        assertEquals("InternalNameTest", d2.getInternalName());
-
-        //TODO:  Finish me - test all the properties
-    }
+    // TODO: Finish me - test all the properties
+  }
 }

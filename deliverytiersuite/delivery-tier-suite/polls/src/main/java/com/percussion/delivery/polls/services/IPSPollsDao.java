@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,15 @@ package com.percussion.delivery.polls.services;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 
-public interface IPSPollsDao 
-{
-	public IPSPoll find(String pollName);
-	public IPSPoll findByQuestion(String pollQuestion);
-	public IPSPoll createEmptyPoll();
-	public IPSPollAnswer createEmptyAnswer();
-	public void save(IPSPoll poll);
+// REFACTORED: CP-JAVA11
+public interface IPSPollsDao {
+  IPSPoll find(String pollName);
+
+  IPSPoll findByQuestion(String pollQuestion);
+
+  IPSPoll createEmptyPoll();
+
+  IPSPollAnswer createEmptyAnswer();
+
+  void save(IPSPoll poll);
 }

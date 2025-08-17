@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,74 +20,63 @@ package com.percussion.pso.imageedit.data;
  * A Simple image with height and width.
  *
  * @author DavidBenua
- *
  */
-public class SimpleImageMetaData extends AbstractImageMetaData
-{
+public class SimpleImageMetaData extends AbstractImageMetaData {
 
-   /**
-    * width in pixels.
-    */
-   private int width = 0;
-   /**
-    * height in pixels.
-    */
-   private int height = 0;
+  /** width in pixels. */
+  private int width = 0;
 
-   /**
-    * Default constructor.
-    */
-   public SimpleImageMetaData()
-   {
-      
-   }
-   
-   /**
-    * Copy constructor.
-    * @param data metadata to copy from. 
-    */
-   public SimpleImageMetaData(AbstractImageMetaData data)
-   {
-      this.setImageKey(data.getImageKey());
-      this.setMetaData(data.getMetaData());
-      this.height = data.getMetaData().getHeight();
-      this.width = data.getMetaData().getWidth(); 
-   }
-   /**
-    * Gets the width.
-    * @return the width.
-    */
-   public int getWidth()
-   {
-    	return width;
-    }
+  /** height in pixels. */
+  private int height = 0;
 
-   /**
-    * Sets the width.
-    * @param width the width to set. 
-    */
-   public void setWidth(int width)
-   {
-    	this.width = width;
-    }
+  /** Default constructor. */
+  public SimpleImageMetaData() {}
 
-   /**
-    * Gets the height.
-    * @return the height.
-    */
-   public int getHeight()
-   {
-    	return height;
-    }
+  /**
+   * Copy constructor.
+   *
+   * @param data metadata to copy from.
+   */
+  public SimpleImageMetaData(AbstractImageMetaData data) {
+    this.setImageKey(data.getImageKey());
+    this.setMetaData(data.getMetaData());
+    this.height = data.getMetaData().getHeight();
+    this.width = data.getMetaData().getWidth();
+  }
 
-   /**
-    * Sets the height. 
-    * @param height the height to set.  
-    */
-   public void setHeight(int height)
-   {
-    	this.height = height;
-    }
-   
-   
+  /**
+   * Gets the width.
+   *
+   * @return the width.
+   */
+  public int getWidth() {
+    return width;
+  }
+
+  /**
+   * Sets the width.
+   *
+   * @param width the width to set.
+   */
+  public void setWidth(int width) {
+    this.width = width;
+  }
+
+  /**
+   * Gets the height.
+   *
+   * @return the height.
+   */
+  public int getHeight() {
+    return height;
+  }
+
+  /**
+   * Sets the height.
+   *
+   * @param height the height to set.
+   */
+  public void setHeight(int height) {
+    this.height = height;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.percussion.integration;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import jakarta.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 
 import org.apache.axis.components.net.BooleanHolder;
 import org.apache.axis.components.net.DefaultSocketFactory;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.proxyconfig.data;
 
 import com.percussion.proxyconfig.service.impl.ProxyConfig;
@@ -21,6 +22,8 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author LucasPiccoli
@@ -29,211 +32,95 @@ import java.util.List;
  *         for certain protocols going through a proxy server.
  * 
  */
-public class PSProxyConfig extends PSAbstractDataObject
-{
+public class PSProxyConfig extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
 
-   private static final long serialVersionUID = 1L;
+    protected String host;
+    protected String port;
+    protected String user;
+    protected String password;
+    protected List<String> protocols;
 
-   protected String host;
+    public PSProxyConfig() {
+        super();
+        this.protocols = new ArrayList<>();
+    }
 
-   protected String port;
+    public PSProxyConfig(String host, String port, String user, String password, List<String> protocols) {
+        super();
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.protocols = protocols == null ? new ArrayList<>() : new ArrayList<>(protocols);
+    }
 
-   protected String user;
-   
-   protected String password;
+    public PSProxyConfig(ProxyConfig proxyConfig) {
+        this.host = proxyConfig.getHost();
+        this.password = Optional.ofNullable(proxyConfig.getPassword())
+                .map(p -> p.getValue())
+                .orElse(null);
+        this.port = proxyConfig.getPort();
+        this.user = proxyConfig.getUser();
+        this.protocols = proxyConfig.getProtocols() == null ? new ArrayList<>() :
+                new ArrayList<>(proxyConfig.getProtocols().getProtocols());
+    }
 
-   protected List<String> protocols;
+    public String getHost() {
+        return host;
+    }
 
-   public PSProxyConfig()
-   {
-      super();
-   }
-   
-   /**
-    * 
-    */
-   public PSProxyConfig(String host, String port, String user, String password, List<String> protocols)
-   {
-      super();
-      
-      this.host = host;
-      this.port = port;
-      this.user = user;
-      this.password = password;
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-      if (protocols == null)
-      {
-         this.protocols = new ArrayList<>();
-      }
-      else
-      {
-         this.protocols = new ArrayList<>(protocols);
-      }
-   }
-   
-   /**
-    * 
-    * @param proxyConfig
-    */
-   public PSProxyConfig(ProxyConfig proxyConfig)
-   {
-      this.host = proxyConfig.getHost();
-      if (proxyConfig.getPassword() != null)
-         this.password = proxyConfig.getPassword().getValue();
-      this.port = proxyConfig.getPort();
-      this.user = proxyConfig.getUser();
+    public String getPort() {
+        return port;
+    }
 
-      if (proxyConfig.getProtocols() == null)
-      {
-         this.protocols = new ArrayList<>();
-      }
-      else
-      {
-         this.protocols = new ArrayList<>();
-         for (String protocol : proxyConfig.getProtocols().getProtocols())
-         {
-            this.protocols.add(protocol);
-         }
-      }
-   }
-   
-   /**
-    * @return the host
-    */
-   public String getHost()
-   {
-      return host;
-   }
+    public void setPort(String port) {
+        this.port = port;
+    }
 
-   /**
-    * @param host the host to set
-    */
-   public void setHost(String host)
-   {
-      this.host = host;
-   }
+    public String getUser() {
+        return user;
+    }
 
-   /**
-    * @return the port
-    */
-   public String getPort()
-   {
-      return port;
-   }
+    public void setUser(String user) {
+        this.user = user;
+    }
 
-   /**
-    * @param port the port to set
-    */
-   public void setPort(String port)
-   {
-      this.port = port;
-   }
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
+    }
 
-   /**
-    * @return the user
-    */
-   public String getUser()
-   {
-      return user;
-   }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-   /**
-    * @param user the user to set
-    */
-   public void setUser(String user)
-   {
-      this.user = user;
-   }
+    public List<String> getProtocols() {
+        return protocols == null ? List.of() : List.copyOf(protocols);
+    }
 
-   /**
-    * @return the password
-    */
-   public String getPassword()
-   {
-      return password;
-   }
+    public void setProtocols(List<String> protocols) {
+        this.protocols = protocols == null ? new ArrayList<>() : new ArrayList<>(protocols);
+    }
 
-   /**
-    * @param password the password to set
-    */
-   public void setPassword(String password)
-   {
-      this.password = password;
-   }
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), host, port, user, password, protocols);
+    }
 
-   /**
-    * @return the protocols
-    */
-   public List<String> getProtocols()
-   {
-      return protocols;
-   }
-
-   /**
-    * @param protocols the protocols to set
-    */
-   public void setProtocols(ArrayList<String> protocols)
-   {
-      this.protocols = protocols;
-   }
-
-   @Override
-   public int hashCode()
-   {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((host == null) ? 0 : host.hashCode());
-      result = prime * result + ((port == null) ? 0 : port.hashCode());
-      result = prime * result + ((protocols == null) ? 0 : protocols.hashCode());
-      result = prime * result + ((user == null) ? 0 : user.hashCode());
-      return result;
-   }
-
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-         return true;
-      if (getClass() != obj.getClass())
-         return false;
-      PSProxyConfig other = (PSProxyConfig) obj;
-      if (host == null)
-      {
-         if (other.host != null)
-            return false;
-      }
-      else if (!host.equals(other.host))
-         return false;
-      if (password == null)
-      {
-         if (other.password != null)
-            return false;
-      }
-
-      if (port == null)
-      {
-         if (other.port != null)
-            return false;
-      }
-      else if (!port.equals(other.port))
-         return false;
-      if (user == null)
-      {
-         if (other.user != null)
-            return false;
-      }
-      else if (!user.equals(other.user))
-         return false;
-      if (protocols == null)
-      {
-         if (other.protocols != null)
-            return false;
-      }
-      else if (protocols.size() != other.protocols.size() || !protocols.containsAll(other.protocols))
-         return false;
-
-      return true;
-   }
-   
-   
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof PSProxyConfig)) return false;
+        if (!super.equals(obj)) return false;
+        PSProxyConfig other = (PSProxyConfig) obj;
+        return Objects.equals(host, other.host)
+                && Objects.equals(port, other.port)
+                && Objects.equals(user, other.user)
+                && Objects.equals(password, other.password)
+                && Objects.equals(protocols, other.protocols);
+    }
 }

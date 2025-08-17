@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
+import com.percussion.share.data.IPSContentItem;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-import com.percussion.share.data.IPSContentItem;
-
+/** Represents a CMS Asset with arbitrary fields. */
 @XmlRootElement(name = "Asset")
-public class PSAsset extends PSAssetSummary implements IPSContentItem
-{ 
-    private Map<String, Object> fields = new HashMap<>();
+public class PSAsset extends PSAssetSummary implements IPSContentItem {
 
-    public Map<String, Object> getFields()
-    {
-        return fields;
-    }
+  private static final long serialVersionUID = 8252999104256582955L;
 
-    public void setFields(Map<String, Object> fields)
-    {
-        this.fields = fields;
-    }
-    
-    private static final long serialVersionUID = 8252999104256582955L;   
+  private Map<String, Object> fields = new HashMap<>();
+
+  /**
+   * Gets the asset fields.
+   *
+   * @return a map of field names to values; never {@code null}.
+   */
+  public Map<String, Object> getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets the asset fields.
+   *
+   * @param fields the fields map; must not be {@code null}.
+   */
+  public void setFields(Map<String, Object> fields) {
+    this.fields = fields;
+  }
 }

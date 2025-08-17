@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,17 @@ public class ASTNullPredicate extends SimpleNode {
     super(p, id);
   }
 
-  public void setNegated(boolean neg)
-  {
-     m_negated = neg;
+  public void setNegated(boolean neg) {
+    m_negated = neg;
   }
 
-  public boolean isNegated()
-  {
-     return m_negated;
+  public boolean isNegated() {
+    return m_negated;
   }
 
   private boolean m_negated = false;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

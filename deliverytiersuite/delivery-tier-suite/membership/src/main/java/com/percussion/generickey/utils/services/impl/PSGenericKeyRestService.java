@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.percussion.generickey.utils.services.impl;
 
 import com.percussion.generickey.services.IPSGenericKeyService;
-
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -26,7 +25,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import org.apache.commons.lang.Validate;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,114 +32,99 @@ import org.springframework.stereotype.Component;
 @Path("/key")
 @Component
 @Scope("singleton")
-public class PSGenericKeyRestService
-{
+public class PSGenericKeyRestService {
 
-    private IPSGenericKeyService genericKeyService;
+  private IPSGenericKeyService genericKeyService;
 
-    /**
-     * Ctor, autowired by spring.
-     * 
-     * @param service The service to use, may not be <code>null</code>.
-     */
-    public PSGenericKeyRestService(IPSGenericKeyService service)
-    {
-        Validate.notNull(service);
-        genericKeyService = service;
+  /**
+   * Ctor, autowired by spring.
+   *
+   * @param service The service to use, may not be <code>null</code>.
+   */
+  public PSGenericKeyRestService(IPSGenericKeyService service) {
+    Validate.notNull(service);
+    genericKeyService = service;
+  }
+
+  /**
+   * Creates a reset key.
+   *
+   * <p>
+   *
+   * @url /perc-generickey-services/key/requestKey
+   * @httpverb POST
+   * @nullipotent yes (read-only method).
+   * @secured yes (SSL and HTTP Basic Authentication).
+   * @return the reset key value generated.
+   * @throws WebApplicationException
+   * @httpcodeonsuccess HTTP 200.
+   * @httpcodeonerror HTTP 500.
+   */
+  @POST
+  @Path("/requestKey")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String generateKey() {
+    String resetKey = "";
+    try {
+      resetKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.serverError().build());
     }
+    return resetKey;
+  }
 
-    /**
-     * Creates a reset key.
-     * <p>
-     * 
-     * @url /perc-generickey-services/key/requestKey
-     * @httpverb POST
-     * @nullipotent yes (read-only method).
-     * @secured yes (SSL and HTTP Basic Authentication).
-     * @return the reset key value generated.
-     * @throws WebApplicationException
-     * @httpcodeonsuccess HTTP 200.
-     * @httpcodeonerror HTTP 500.
-     */
-    @POST
-    @Path("/requestKey")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String generateKey()
-    {
-        String resetKey = "";
-        try
-        {
-            resetKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
-        }
-        catch (Exception e)
-        {
-            throw new WebApplicationException(e, Response.serverError().build());
-        }
-        return resetKey;
+  /**
+   * Processes the reset key provided, and if exists, compare the reset date against with the
+   * current date, to determine if the key is still valid.
+   *
+   * <p>
+   *
+   * @url /perc-generickey-services/key/isvalid/{key}
+   * @httpverb POST
+   * @nullipotent yes (read-only method).
+   * @secured yes (SSL and HTTP Basic Authentication).
+   * @param key the reset key to delete. Never <code>null</code>, or empty.
+   * @return true if the key is valid, otherwise false.
+   * @throws WebApplicationException
+   * @httpcodeonsuccess HTTP 200.
+   * @httpcodeonerror HTTP 500.
+   */
+  @POST
+  @Path("/isvalid/{key}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String isValidKey(@PathParam("key") String key) {
+    Boolean keyIsValid = false;
+    try {
+      keyIsValid = genericKeyService.isValidKey(key);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.serverError().build());
     }
+    return keyIsValid.toString();
+  }
 
-    /**
-     * Processes the reset key provided, and if exists, compare the reset date
-     * against with the current date, to determine if the key is still valid.
-     * <p>
-     * 
-     * @url /perc-generickey-services/key/isvalid/{key}
-     * @httpverb POST
-     * @nullipotent yes (read-only method).
-     * @secured yes (SSL and HTTP Basic Authentication).
-     * @param key the reset key to delete. Never <code>null</code>, or empty.
-     * @return true if the key is valid, otherwise false.
-     * @throws WebApplicationException
-     * @httpcodeonsuccess HTTP 200.
-     * @httpcodeonerror HTTP 500.
-     */
-    @POST
-    @Path("/isvalid/{key}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String isValidKey(@PathParam("key") String key)
-    {
-        Boolean keyIsValid = false;
-        try
-        {
-            keyIsValid = genericKeyService.isValidKey(key);
-        }
-        catch (Exception e)
-        {
-            throw new WebApplicationException(e, Response.serverError().build());
-        }
-        return keyIsValid.toString();
+  /**
+   * Delete a reset key using the key provided. If 'key' doesn't exist, throw a web application
+   * Exception.
+   *
+   * @url /perc-generickey-services/key/{key}
+   * @httpverb DELETE
+   * @nullipotent no.
+   * @secured yes (SSL and HTTP Basic Authentication).
+   * @param key The reset key to delete. Never <code>null</code>, or empty.
+   * @throws WebApplicationException
+   * @httpcodeonsuccess HTTP 204.
+   * @httpcodeonerror HTTP 500.
+   */
+  @DELETE
+  @Path("/{key}")
+  public void deleteKey(@PathParam("key") String key) {
+    try {
+      genericKeyService.deleteKey(key);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.serverError().build());
     }
+  }
 
-    /**
-     * 
-     * Delete a reset key using the key provided. If 'key' doesn't exist, throw
-     * a web application Exception.
-     * 
-     * @url /perc-generickey-services/key/{key}
-     * @httpverb DELETE
-     * @nullipotent no.
-     * @secured yes (SSL and HTTP Basic Authentication).
-     * @param key The reset key to delete. Never <code>null</code>, or empty.
-     * @throws WebApplicationException
-     * @httpcodeonsuccess HTTP 204.
-     * @httpcodeonerror HTTP 500.
-     */
-    @DELETE
-    @Path("/{key}")
-    public void deleteKey(@PathParam("key") String key)
-    {
-        try
-        {
-            genericKeyService.deleteKey(key);
-        }
-        catch (Exception e)
-        {
-            throw new WebApplicationException(e, Response.serverError().build());
-        }
-    }
-
-    /**
-     * Constant to set the duration time one day into milliseconds
-     */
-    private static final long DAY_IN_MILLISECONDS = 86400000;
+  /** Constant to set the duration time one day into milliseconds */
+  private static final long DAY_IN_MILLISECONDS = 86400000;
 }

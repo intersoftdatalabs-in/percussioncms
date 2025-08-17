@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package com.percussion.util.servlet;
 
 import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.IPSRemoteRequesterEx;
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.system.utils.IPSRemoteRequesterEx;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -31,11 +31,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,6 +51,7 @@ import java.util.Map;
  * Rhythmyx Server, similar with <code>PSRemoteRequester</code>, except
  * the remote client is a servlet.
  */
+// REFACTORED: CP-JAVA11
 public class PSServletRequester implements IPSRemoteRequesterEx
 {
 
@@ -109,21 +110,22 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    }
 
    // See {@link IPSRemoteRequester#getDocument(String, Map)} for detail
+   @SuppressWarnings({"unchecked", "rawtypes"})
    public Document getDocument(String resource, Map params)
       throws IOException, SAXException
    {
       PSInternalRequestMultiPart irq = new PSInternalRequestMultiPart(m_request);
 
       // Add community override parameter if needed
-      params = addCommunityOverride(params);
+      params = addCommunityOverride((Map<String, Object>) params);
 
       if (params != null && (! params.isEmpty()))
       {
-         Iterator paramList = params.entrySet().iterator();
+         Iterator<Map.Entry<String, Object>> paramList = ((Map<String, Object>) params).entrySet().iterator();
 
          while (paramList.hasNext())
          {
-            Map.Entry entry = (Map.Entry)paramList.next();
+            Map.Entry<String, Object> entry = paramList.next();
             if (entry.getKey() == null)
                throw new IllegalArgumentException(
                      "params may not contain a null key");
@@ -150,6 +152,7 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    }
 
    // See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail
+   @SuppressWarnings({"unchecked", "rawtypes"})
    public Document sendUpdate(String resource, Map params)
       throws IOException, SAXException
    {
@@ -170,7 +173,8 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    /*
     * @see com.percussion.util.IPSRemoteRequesterEx#getBinary(java.lang.String, java.util.Map)
     */
-   public byte[] getBinary(String resource, Map params) throws IOException
+   @SuppressWarnings("unchecked")
+   public byte[] getBinary(String resource, Map<String, Object> params) throws IOException
    {
       PSInternalRequestMultiPart irq = new PSInternalRequestMultiPart(m_request);
 
@@ -179,11 +183,11 @@ public class PSServletRequester implements IPSRemoteRequesterEx
 
       if (params != null && (! params.isEmpty()))
       {
-         Iterator paramList = params.entrySet().iterator();
+         Iterator<Map.Entry<String, Object>> paramList = ((Map<String, Object>) params).entrySet().iterator();
 
          while (paramList.hasNext())
          {
-            Map.Entry entry = (Map.Entry)paramList.next();
+            Map.Entry<String, Object> entry = paramList.next();
             if (entry.getKey() == null)
                throw new IllegalArgumentException(
                      "params may not contain a null key");
@@ -237,10 +241,11 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    }
 
    // Implements IPSRemoteRequesterEx#sendBinary()
+   @SuppressWarnings("unchecked")
    public PSLocator updateBinary(
       PSBinaryFileData[] files,
       String resource,
-      Map params)
+      Map<String, Object> params)
       throws IOException
    {
       PSInternalRequestMultiPart irq = new PSInternalRequestMultiPart(m_request);
@@ -250,11 +255,11 @@ public class PSServletRequester implements IPSRemoteRequesterEx
 
       if (params != null && (! params.isEmpty()))
       {
-         Iterator paramList = params.entrySet().iterator();
+         Iterator<Map.Entry<String, Object>> paramList = ((Map<String, Object>) params).entrySet().iterator();
 
          while (paramList.hasNext())
          {
-            Map.Entry entry = (Map.Entry)paramList.next();
+            Map.Entry<String, Object> entry = paramList.next();
             if (entry.getKey() == null)
                throw new IllegalArgumentException(
                      "params may not contain a null key");
@@ -460,14 +465,12 @@ public class PSServletRequester implements IPSRemoteRequesterEx
     * @return modified map, or new map if params is <code>null</code>
     * and the override is needed.
     */
-   private Map addCommunityOverride(Map params)
+   private Map<String, Object> addCommunityOverride(Map<String, Object> params)
    {
       if(params == null)
-         params = new HashMap();
+         params = new HashMap<>();
       if(m_overrideCommunityid != null)
       {
-         if(params == null)
-            params = new HashMap();
          params.put(
             IPSHtmlParameters.SYS_OVERRIDE_COMMUNITYID,
             m_overrideCommunityid);

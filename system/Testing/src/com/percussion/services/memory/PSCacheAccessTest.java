@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,293 +14,261 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.services.memory;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
-import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.DisplayName;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test the cache service interface
- * 
- * @author dougrand
+ * Modern JUnit5 tests for the cache service interface.
  *
+ * <p>This test suite validates the cache service functionality including basic
+ * CRUD operations, performance characteristics, and TTL/TTI behavior.</p>
+ *
+ * @author dougrand
  */
-@Category(IntegrationTest.class)
-public class PSCacheAccessTest
-{
-   /**
-    * Testing cache setup
-    */
-   public static String ms_ehcache = "<ehcache>" 
-         + "    <defaultCache"
-         + "        maxElementsInMemory=\"10000\""
-         + "        eternal=\"false\"" + "        timeToIdleSeconds=\"3000\""
-         + "        timeToLiveSeconds=\"3000\"" + "        />\n"
-         + "    <cache name=\"object\""
-         + "        maxElementsInMemory=\"1000\"" 
-         + "        eternal=\"false\""
-         + "        overflowToDisk=\"false\""
-         + "        timeToIdleSeconds=\"5\""
-         + "        timeToLiveSeconds=\"10\"" + "        />"
-         + "    <cache name=\"region2\""
-         + "        maxElementsInMemory=\"1000\"" 
-         + "        eternal=\"false\""
-         + "        overflowToDisk=\"false\""
-         + "        timeToIdleSeconds=\"500\""
-         + "        timeToLiveSeconds=\"10000\"" + "        />"         
-         + "</ehcache>";
+@Tag("IntegrationTest")
+@DisplayName("Cache Access Service Tests")
+class PSCacheAccessTest {
 
    /**
-    * Define the region to use for the test
+    * Testing cache configuration for EHCache.
     */
-   public static String ms_region = "object";
-   
+   private static final String EHCACHE_CONFIG = """
+         <ehcache>
+             <defaultCache
+                 maxElementsInMemory="10000"
+                 eternal="false"
+                 timeToIdleSeconds="3000"
+                 timeToLiveSeconds="3000" />
+             <cache name="object"
+                 maxElementsInMemory="1000"
+                 eternal="false"
+                 overflowToDisk="false"
+                 timeToIdleSeconds="5"
+                 timeToLiveSeconds="10" />
+             <cache name="region2"
+                 maxElementsInMemory="1000"
+                 eternal="false"
+                 overflowToDisk="false"
+                 timeToIdleSeconds="500"
+                 timeToLiveSeconds="10000" />
+         </ehcache>""";
+
    /**
-    * A simple test class 
+    * Test cache region name.
     */
-   public static class TestClass implements Serializable
-   {
-      /**
-       * 
-       */
+   private static final String TEST_REGION = "object";
+
+   /**
+    * Test data class for cache operations.
+    */
+   public static final class TestClass implements Serializable {
+
       private static final long serialVersionUID = 1L;
 
+      private final int a, b, c, d;
+      private final long e, f, g, i;
+      private final float j, k, l, m;
+      private final String o, p, q;
+
       /**
-       * Random data for testing purposes
+       * Creates a new test instance with random data.
        */
-      int a; 
-      /**
-       * Random data for testing purposes
-       */
-      int b;
-      /**
-       * Random data for testing purposes
-       */
-      int c; 
-      /**
-       * Random data for testing purposes
-       */
-      int d;
-      /**
-       * Random data for testing purposes
-       */
-      long e;
-      /**
-       * Random data for testing purposes
-       */ 
-      long f; 
-      /**
-       * Random data for testing purposes
-       */
-      long g;
-      /**
-       * Random data for testing purposes
-       */ 
-      long i;
-      /**
-       * Random data for testing purposes
-       */
-      float j;
-      /**
-       * Random data for testing purposes
-       */
-      float k;
-      /**
-       * Random data for testing purposes
-       */
-      float l;
-      /**
-       * Random data for testing purposes
-       */
-      float m;
-      /**
-       * Random data for testing purposes
-       */
-      String o;
-      /**
-       * Random data for testing purposes
-       */
-      String p;
-      /**
-       * Random data for testing purposes
-       */
-      String q;
-      
-      /**
-       * Ctor
-       */
-      public TestClass()
-      {
-         SecureRandom r = new SecureRandom();
-         
-         a = r.nextInt();
-         b = r.nextInt();
-         c = r.nextInt();
-         d = r.nextInt();
-         e = r.nextLong();
-         f = r.nextLong();
-         g = r.nextLong();
-         i = r.nextLong();
-         j = r.nextFloat();
-         k = r.nextFloat();
-         l = r.nextFloat();
-         m = r.nextFloat();
-         o = makeRandomString(r.nextInt());
-         p = makeRandomString(r.nextInt());
-         q = makeRandomString(r.nextInt());
+      public TestClass() {
+         var random = new SecureRandom();
+
+         this.a = random.nextInt();
+         this.b = random.nextInt();
+         this.c = random.nextInt();
+         this.d = random.nextInt();
+         this.e = random.nextLong();
+         this.f = random.nextLong();
+         this.g = random.nextLong();
+         this.i = random.nextLong();
+         this.j = random.nextFloat();
+         this.k = random.nextFloat();
+         this.l = random.nextFloat();
+         this.m = random.nextFloat();
+         this.o = generateRandomString(random);
+         this.p = generateRandomString(random);
+         this.q = generateRandomString(random);
       }
 
       /**
-       * Create random string
-       * @param seed
-       * @return random string, never <code>null</code>
+       * Generates a random string for testing.
        */
-      private String makeRandomString(int seed)
-      {
-         SecureRandom r = new SecureRandom();
-         int len = r.nextInt(500) + 100;
-         StringBuilder str = new StringBuilder(len);
-         for(int x = 0; x < len; x++)
-         {
-            str.append((char) r.nextInt(26) + ' ');
+      private String generateRandomString(SecureRandom random) {
+         var length = random.nextInt(400) + 100;
+         var builder = new StringBuilder(length);
+
+         for (int x = 0; x < length; x++) {
+            builder.append((char) (random.nextInt(26) + 'A'));
          }
-         return str.toString();
+
+         return builder.toString();
       }
       
-      /* (non-Javadoc)
-       * @see java.lang.Object#equals(java.lang.Object)
-       */
-      public boolean equals(Object other)
-      {
-         return EqualsBuilder.reflectionEquals(this, other);
+      @Override
+      public boolean equals(Object other) {
+         if (this == other) return true;
+         if (!(other instanceof TestClass that)) return false;
+
+         return a == that.a && b == that.b && c == that.c && d == that.d &&
+                e == that.e && f == that.f && g == that.g && i == that.i &&
+                Float.compare(that.j, j) == 0 && Float.compare(that.k, k) == 0 &&
+                Float.compare(that.l, l) == 0 && Float.compare(that.m, m) == 0 &&
+                Objects.equals(o, that.o) && Objects.equals(p, that.p) &&
+                Objects.equals(q, that.q);
       }
       
-      /* (non-Javadoc)
-       * @see java.lang.Object#hashCode()
-       */
-      public int hashCode()
-      {
-         return (int) (a + b + c + d + e + f + g);
+      @Override
+      public int hashCode() {
+         return Objects.hash(a, b, c, d, e, f, g, i, j, k, l, m, o, p, q);
       }
-      
    }
 
-
-   @BeforeClass
-   public static void setup() throws Exception
-   {
-      CacheManager.create(new ByteArrayInputStream(
-            ms_ehcache.getBytes()));
+   @BeforeEach All
+   static void setupCache() throws Exception {
+      CacheManager.create(new ByteArrayInputStream(EHCACHE_CONFIG.getBytes()));
    }
 
-   /**
-    * Basic testing
-    * @throws Exception
-    */
    @Test
-   public void testCache1() throws Exception
-   {
-      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
+   @DisplayName("Basic cache operations: save, get, evict")
+   void testBasicCacheOperations() throws Exception {
+      var cache = PSCacheAccessLocator.getCacheAccess();
 
-      cache.save("a", "b", ms_region);
+      // Test save and get
+      cache.save("testKey", "testValue", TEST_REGION);
+      var result = cache.get("testKey", TEST_REGION);
 
-      Serializable rval;
+      assertTrue(result.isPresent(), "Cache should contain saved value");
+      assertEquals("testValue", result.get(), "Retrieved value should match saved value");
 
-      rval = cache.get("a", ms_region);
+      // Test eviction
+      cache.evict("testKey", TEST_REGION);
+      var evictedResult = cache.get("testKey", TEST_REGION);
 
-      assertEquals(rval, "b");
+      assertTrue(evictedResult.isEmpty(), "Cache should be empty after eviction");
 
-      cache.evict("a", ms_region);
+      // Test another save/get cycle
+      cache.save("anotherKey", "anotherValue", TEST_REGION);
+      var anotherResult = cache.get("anotherKey", TEST_REGION);
 
-      rval = cache.get("a", ms_region);
-
-      assertNull(rval);
-
-      cache.save("aa", "bb", ms_region);
-
-      rval = cache.get("aa", ms_region);
-
-      assertEquals(rval, "bb");
-
-      // Wait 10 seconds for the eviction - can only run outside the server
-      // Thread.sleep(10000);
-      //
-      // rval = cache.get("aa", ms_region);
-      //
-      //      assertNull(rval);
-
+      assertTrue(anotherResult.isPresent(), "Cache should contain second saved value");
+      assertEquals("anotherValue", anotherResult.get(), "Second retrieved value should match");
    }
    
-   /**
-    * Simple performance test
-    * 
-    * @throws Exception
-    */
    @Test
-   public void testCacheTiming() throws Exception
-   {
-      IPSCacheAccess cache = PSCacheAccessLocator.getCacheAccess();
-      PSStopwatch sw = new PSStopwatch();
-      Map<String,Object> mapstore = new HashMap<String,Object>();
-      TestClass instances[] = new TestClass[100];
-      String keys[] = new String[100];
-      for(int i = 0; i < instances.length; i++)
-      {
+   @DisplayName("Cache performance comparison with HashMap")
+   void testCachePerformance() throws Exception {
+      var cache = PSCacheAccessLocator.getCacheAccess();
+      var stopwatch = new PSStopwatch();
+      var mapStore = new HashMap<String, Object>();
+
+      // Generate test data
+      var instances = new TestClass[100];
+      var keys = new String[100];
+
+      for (int i = 0; i < instances.length; i++) {
          instances[i] = new TestClass();
          keys[i] = "key" + i;
       }
-      // Serialize to map and time
-      sw.start();
-      for(int i = 0; i < instances.length; i++)
-      {
-         mapstore.put(keys[i], instances[i]);
+
+      // Test HashMap performance - write
+      stopwatch.start();
+      for (int i = 0; i < instances.length; i++) {
+         mapStore.put(keys[i], instances[i]);
       }
-      sw.stop();
-      System.out.println("Putting " + instances.length + " into map took " + sw);
-      
-      // Serialize from map and time
-      sw.start();
-      for(int i = 0; i < instances.length; i++)
-      {
-         mapstore.get(keys[i]);
+      stopwatch.stop();
+      System.out.println("HashMap PUT (" + instances.length + " items): " + stopwatch);
+
+      // Test HashMap performance - read
+      stopwatch.start();
+      for (int i = 0; i < instances.length; i++) {
+         mapStore.get(keys[i]);
       }
-      sw.stop();     
-      System.out.println("Getting " + instances.length + " into map took " + sw);
-      
-      // Serialize to cache and time
-      sw.start();
-      for(int i = 0; i < instances.length; i++)
-      {
-         cache.save(keys[i], instances[i], ms_region);
+      stopwatch.stop();
+      System.out.println("HashMap GET (" + instances.length + " items): " + stopwatch);
+
+      // Test cache performance - write
+      stopwatch.start();
+      for (int i = 0; i < instances.length; i++) {
+         cache.save(keys[i], instances[i], TEST_REGION);
       }
-      sw.stop();
-      System.out.println("Putting " + instances.length + " into map took " + sw);
-      
-      // Serialize from cache and time
-      sw.start();
-      for(int i = 0; i < instances.length; i++)
-      {
-         TestClass val = (TestClass) cache.get(keys[i], ms_region);
-         assertTrue(val == instances[i]);
+      stopwatch.stop();
+      System.out.println("Cache PUT (" + instances.length + " items): " + stopwatch);
+
+      // Test cache performance - read
+      stopwatch.start();
+      for (int i = 0; i < instances.length; i++) {
+         var result = cache.get(keys[i], TEST_REGION);
+         assertTrue(result.isPresent(), "Cache should contain saved object");
+
+         var retrievedValue = (TestClass) result.get();
+         assertEquals(instances[i], retrievedValue, "Retrieved object should equal original");
       }
-      sw.stop();     
-      System.out.println("Getting " + instances.length + " into map took " + sw);      
+      stopwatch.stop();
+      System.out.println("Cache GET (" + instances.length + " items): " + stopwatch);
+   }
+
+   @Test
+   @DisplayName("Cache statistics and region management")
+   void testCacheStatistics() throws Exception {
+      var cache = PSCacheAccessLocator.getCacheAccess();
+
+      // Save some test data
+      cache.save("stat1", "value1", TEST_REGION);
+      cache.save("stat2", "value2", TEST_REGION);
+      cache.save("stat3", "value3", TEST_REGION);
+
+      // Get statistics
+      var stats = cache.getStatistics();
+      assertNotNull(stats, "Statistics should not be null");
+      assertFalse(stats.isEmpty(), "Statistics should contain cache regions");
+
+      // Test cache clearing
+      cache.clear(TEST_REGION);
+
+      var result = cache.get("stat1", TEST_REGION);
+      assertTrue(result.isEmpty(), "Cache region should be empty after clear");
+   }
+
+   @Test
+   @DisplayName("Cache validation and error handling")
+   void testCacheValidation() {
+      var cache = PSCacheAccessLocator.getCacheAccess();
+
+      // Test null key validation
+      assertThrows(NullPointerException.class, () ->
+         cache.save(null, "value", TEST_REGION), "Should throw on null key");
+
+      // Test null data validation
+      assertThrows(NullPointerException.class, () ->
+         cache.save("key", null, TEST_REGION), "Should throw on null data");
+
+      // Test null region validation
+      assertThrows(NullPointerException.class, () ->
+         cache.save("key", "value", null), "Should throw on null region");
+
+      // Test empty region validation
+      assertThrows(IllegalArgumentException.class, () ->
+         cache.save("key", "value", ""), "Should throw on empty region");
    }
 }

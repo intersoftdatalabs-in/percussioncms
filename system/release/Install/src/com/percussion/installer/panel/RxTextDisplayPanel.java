@@ -13,8 +13,8 @@ import com.percussion.installanywhere.RxIAPanel;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 
 /**

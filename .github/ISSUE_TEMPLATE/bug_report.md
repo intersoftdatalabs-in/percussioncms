@@ -1,4 +1,5 @@
 ---
+
 name: Bug report
 about: Create a report to help us improve
 title: ''
@@ -26,7 +27,7 @@ A clear and concise description of what you expected to happen.
 **Versions Affected**
 * Version 1
 * Version 2
-  
+
 **Screenshots**
 
 If applicable, add screenshots to help explain your problem.
@@ -35,5 +36,5 @@ If applicable, add screenshots to help explain your problem.
 
 Add any other context about the problem here.
 * If an error is occurring on the server (500 etc) attach the server.log if possible
-   * The server log can be found at <InstallDir>/jetty/base/logs/server.log
+* The server log can be found at <InstallDir>/jetty/base/logs/server.log
 * Any errors in the browser JavaScript console?

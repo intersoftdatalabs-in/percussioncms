@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,194 +26,161 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSWidgetItemSummary;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.sitemanage.data.PSSiteSummary;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
-import java.util.List;
-
-@XmlSeeAlso({PSPage.class,
-        PSSiteSummary.class,
-        PSAsset.class,
-        PSAssetSummary.class,
-        PSDataItemSummarySingleFolderPath.class,
-        PSEmptyPage.class,
-        PSNullSiteSummary.class,
-        PSOrphanedAssetSummary.class,
-        PSPathItem.class,
-        PSWidgetItemSummary.class
+/**
+ * Data summary for items in Percussion CMS. Sunny Sal says: "Summaries so sharp, even your boss
+ * will be impressed!"
+ */
+@XmlSeeAlso({
+  PSPage.class,
+  PSSiteSummary.class,
+  PSAsset.class,
+  PSAssetSummary.class,
+  PSDataItemSummarySingleFolderPath.class,
+  PSEmptyPage.class,
+  PSNullSiteSummary.class,
+  PSOrphanedAssetSummary.class,
+  PSPathItem.class,
+  PSWidgetItemSummary.class
 })
 @XmlRootElement
-public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary
-{
+public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary {
 
+  private String id;
+  private String name;
+  private List<String> folderPaths;
+  private String icon;
+  private Category category;
+  private boolean revisionable = false;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
-    private String name;
-    
-    private List<String> folderPaths;
-    
-    private String icon;
-    
-    private Category category;
-    
-    private boolean revisionable = false;
-    
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * See {@link #getType()} for detail.
-     */
-    private String type;
+  /** See {@link #getType()} for detail. */
+  private String type;
 
-    /**
-     * See {@link #getLabel()} for detail.
-     */
-    private String label;
-    
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  /** See {@link #getLabel()} for detail. */
+  private String label;
 
-    @Override
-    public void setId(String id)
-    {
-        this.id = id;
-    }    
-    
-    public String getName()
-    {
-        return name;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public List<String> getFolderPaths()
-    {
-        return folderPaths;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setFolderPaths(List<String> paths)
-    {
-        this.folderPaths = paths;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getIcon()
-    {
-        return icon;
-    }
+  public List<String> getFolderPaths() {
+    return folderPaths;
+  }
 
-    public void setIcon(String icon)
-    {
-        this.icon = icon;
-    }
+  public void setFolderPaths(List<String> paths) {
+    this.folderPaths = paths;
+  }
 
-    /**
-     * Gets the content type of the item.
-     * 
-     * @return the content type, not blank for a valid object.
-     */
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    public String getType()
-    {
-        return type;
-    }
+  public String getIcon() {
+    return icon;
+  }
 
-    /**
-     * Sets the content type of the item.
-     * 
-     * @param type new content type, should not be blank for a valid object.
-     *  
-     * @see #getType()
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
 
-    /**
-     * Determines if this is a folder.
-     * 
-     * @return <code>true</code> if this is a folder; otherwise return 
-     * <code>false</code>.
-     */
-    public boolean isFolder()
-    {
-        return "Folder".equals(type) || "FSFolder".equals(type);
-    }
-    
-    @Override
-    public boolean isPage()
-    {
-        return "percPage".equals(type);
-    }
-    
-    public boolean isResource()
-    {
-        return !isPage() && ("percImageAsset".equals(type) || "percFileAsset".equals(type) ||
-                "percFlashAsset".equals(type));
-    }
+  /**
+   * Gets the content type of the item.
+   *
+   * @return the content type, not blank for a valid object.
+   */
+  @NotNull
+  @NotEmpty
+  @NotBlank
+  public String getType() {
+    return type;
+  }
 
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setCategory(Category category)
-    {
-        this.category = category;
-    }
-    
-    /**
-     * Gets the content type label of the item.
-     * 
-     * @return the content type label, not blank for a valid object.
-     */
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    public String getLabel()
-    {
-        return label;
-    }
+  /**
+   * Sets the content type of the item.
+   *
+   * @param type new content type, should not be blank for a valid object.
+   * @see #getType()
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * Sets the content type label of the item.
-     * 
-     * @param label new content type label, should not be blank for a valid object.
-     *  
-     * @see #getLabel()
-     */
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-    
-    
-    
-    public boolean isRevisionable()
-    {
-        return revisionable;
-    }
+  /**
+   * Determines if this is a folder.
+   *
+   * @return true if this is a folder; otherwise false.
+   */
+  public boolean isFolder() {
+    return "Folder".equals(type) || "FSFolder".equals(type);
+  }
 
-    public void setRevisionable(boolean revisionable)
-    {
-        this.revisionable = revisionable;
-    }
+  @Override
+  public boolean isPage() {
+    return "percPage".equals(type);
+  }
 
+  public boolean isResource() {
+    return !isPage()
+        && ("percImageAsset".equals(type)
+            || "percFileAsset".equals(type)
+            || "percFlashAsset".equals(type));
+  }
 
+  public Category getCategory() {
+    return category;
+  }
 
-    /**
-     * The type for a site item summary
-     */
-    public static final String TYPE_SITE = "site";    
+  public void setCategory(Category category) {
+    this.category = category;
+  }
+
+  /**
+   * Gets the content type label of the item.
+   *
+   * @return the content type label, not blank for a valid object.
+   */
+  @NotNull
+  @NotEmpty
+  @NotBlank
+  public String getLabel() {
+    return label;
+  }
+
+  /**
+   * Sets the content type label of the item.
+   *
+   * @param label new content type label, should not be blank for a valid object.
+   * @see #getLabel()
+   */
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public boolean isRevisionable() {
+    return revisionable;
+  }
+
+  public void setRevisionable(boolean revisionable) {
+    this.revisionable = revisionable;
+  }
+
+  /** The type for a site item summary. */
+  public static final String TYPE_SITE = "site";
 }

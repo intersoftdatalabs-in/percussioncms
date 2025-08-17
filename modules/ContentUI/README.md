@@ -6,6 +6,21 @@
 * Class to generate search results in response to a search form posting. In general, the results generated are nodes readily render able in the dojo table widget in the form of JSON object.
 * Package for Unit Testing.
 
- ## Building
-  mvn clean install  
+## Requirements
+
+- Java 17 (JDK 11)
+- Maven 3.6+
+
+## Building
+
+To build the ContentUI module, ensure you have Java 17 installed and set as your JAVA_HOME.
+
+```
+mvn clean install
+```
+
+## Notes
+
+- This module is configured for Java 17. Using other Java versions may result in build or runtime errors.
+- All dependencies and plugins are compatible with Java 17 as specified in the `pom.xml`
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.Property;
 
 /**
- * Extend the jcr property interface with useful information for our 
- * implementation.
- * 
+ * Extend the jcr property interface with useful information for our implementation.
+ *
  * @author dougrand
  */
-public interface IPSProperty extends Property
-{
-   /**
-    * If this property object wraps a <code>null</code> value then this 
-    * method returns <code>true</code>.
-    * @return <code>true</code> for <code>null</code> values.
-    */
-   boolean isNull();
+public interface IPSProperty extends Property {
+  /**
+   * If this property object wraps a <code>null</code> value then this method returns <code>true
+   * </code>.
+   *
+   * @return <code>true</code> for <code>null</code> values.
+   */
+  boolean isNull();
 }

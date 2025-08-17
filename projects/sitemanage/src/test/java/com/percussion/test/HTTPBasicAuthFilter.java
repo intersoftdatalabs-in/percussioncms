@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,32 @@
 
 package com.percussion.test;
 
-import jakarta.ws.rs.client.ClientRequestContext;
-import jakarta.ws.rs.client.ClientRequestFilter;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.xml.bind.DatatypeConverter;
 
+/** JAX-RS client filter for HTTP Basic Authentication. // REFACTORED: CP-JAVA11 */
 public class HTTPBasicAuthFilter implements ClientRequestFilter {
 
-        private final String user;
-        private final String password;
+  private final String user;
+  private final String password;
 
-        public HTTPBasicAuthFilter(String user, String password) {
-            this.user = user;
-            this.password = password;
-        }
+  public HTTPBasicAuthFilter(String user, String password) {
+    this.user = user;
+    this.password = password;
+  }
 
-        public void filter(ClientRequestContext requestContext) throws IOException {
-            MultivaluedMap<String, Object> headers = requestContext.getHeaders();
-            final String basicAuthentication = getBasicAuthentication();
-            headers.add("Authorization", basicAuthentication);
+  @Override
+  public void filter(ClientRequestContext requestContext) throws IOException {
+    var headers = requestContext.getHeaders();
+    final var basicAuthentication = getBasicAuthentication();
+    headers.add("Authorization", basicAuthentication);
+  }
 
-        }
-
-        private String getBasicAuthentication() {
-            String token = this.user + ":" + this.password;
-                return "BASIC " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
-        }
-    }
+  private String getBasicAuthentication() {
+    var token = this.user + ":" + this.password;
+    return "Basic " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
+  }
+}

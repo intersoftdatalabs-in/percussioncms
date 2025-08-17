@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +19,58 @@
 package com.percussion.redirect.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Data object for redirect validation requests. */
 @XmlRootElement(name = "data")
 @JsonRootName("data")
-public class PSRedirectValidationData
-{
-    public String getFromPath()
-    {
-        return fromPath;
-    }
-    public void setFromPath(String fromPath)
-    {
-        this.fromPath = fromPath;
-    }
-    public String getToPath()
-    {
-        return toPath;
-    }
-    public void setToPath(String toPath)
-    {
-        this.toPath = toPath;
-    }
-    public RedirectPathType getType()
-    {
-        return type;
-    }
-    public void setType(RedirectPathType type)
-    {
-        this.type = type;
-    }
-    private String fromPath;
-    private String toPath;
-    private RedirectPathType type;
-    
-    public enum RedirectPathType{
-        page, folder, section, site
-    }
+public class PSRedirectValidationData {
+
+  private String fromPath;
+  private String toPath;
+  private RedirectPathType type;
+
+  /**
+   * @return the source path for the redirect
+   */
+  public String getFromPath() {
+    return fromPath;
+  }
+
+  /** Sets the source path for the redirect. */
+  public void setFromPath(String fromPath) {
+    this.fromPath = fromPath;
+  }
+
+  /**
+   * @return the destination path for the redirect
+   */
+  public String getToPath() {
+    return toPath;
+  }
+
+  /** Sets the destination path for the redirect. */
+  public void setToPath(String toPath) {
+    this.toPath = toPath;
+  }
+
+  /**
+   * @return the redirect path type
+   */
+  public RedirectPathType getType() {
+    return type;
+  }
+
+  /** Sets the redirect path type. */
+  public void setType(RedirectPathType type) {
+    this.type = type;
+  }
+
+  /** Enum for redirect path types. */
+  public enum RedirectPathType {
+    PAGE,
+    FOLDER,
+    SECTION,
+    SITE
+  }
 }

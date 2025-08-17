@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,16 @@
 
 package com.percussion.ant.packagetool;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.taskdefs.Zip;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.taskdefs.Zip;
 
 /**
+ * <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -84,110 +82,88 @@ import java.util.Properties;
  *
  * </pre>
  */
-public class PSZipPackage extends Zip
-{
+public class PSZipPackage extends Zip {
 
+  public String getDestDirPath() {
+    return destDirPath;
+  }
 
-   public String getDestDirPath()
-   {
-      return destDirPath;
-   }
+  public void setDestDirPath(String destDirPath) {
+    this.destDirPath = destDirPath;
+  }
 
-   public void setDestDirPath(String destDirPath)
-   {
-      this.destDirPath = destDirPath;
-   }
+  /**
+   * @param tempDestPath the tempDestPath to set
+   */
+  public void setTempPath1(String tempPath1) {
+    this.tempPath1 = tempPath1;
+  }
 
+  /**
+   * @param tempPath2 the tempPath2 to set
+   */
+  public void setTempPath2(String tempPath2) {
+    this.tempPath2 = tempPath2;
+  }
 
-   /**
-    * @param tempDestPath the tempDestPath to set
-    */
-   public void setTempPath1(String tempPath1)
-   {
-      this.tempPath1 = tempPath1;
-   }
+  /**
+   * @param packagename the packagename to set
+   */
+  public void setPackageName(String packagename) {
+    packageName = packagename;
+  }
 
-   /**
-    * @param tempPath2 the tempPath2 to set
-    */
-   public void setTempPath2(String tempPath2)
-   {
-      this.tempPath2 = tempPath2;
-   }
+  /**
+   * @param rootDirPath the rootDirPath to set
+   */
+  public void setRootDirPath(String rootDirPath) {
+    this.rootDirPath = rootDirPath;
+  }
 
-   /**
-    * @param packagename the packagename to set
-    */
-   public void setPackageName(String packagename)
-   {
-      packageName = packagename;
-   }
+  @Override
+  public void execute() throws BuildException {
+    if (rootDirPath == null || rootDirPath.trim().length() == 0)
+      throw new BuildException("The package path can not be null or empty.");
 
-   /**
-    * @param rootDirPath the rootDirPath to set
-    */
-   public void setRootDirPath(String rootDirPath)
-   {
-      this.rootDirPath = rootDirPath;
-   }
+    if (packageName == null || packageName.trim().length() == 0)
+      throw new BuildException("The package name can not be null or empty.");
 
-   @Override
-   public void execute() throws BuildException
-   {
-      if(rootDirPath == null ||  rootDirPath.trim().length() == 0)
-         throw new BuildException("The package path can not be null or empty.");
+    if (destDirPath == null || destDirPath.trim().length() == 0)
+      throw new BuildException("The destination directory path can not be null or empty.");
 
-      if(packageName == null || packageName.trim().length() == 0)
-         throw new BuildException("The package name can not be null or empty.");
+    // Get the directory name from packagename Ex: perc.widgets.image1.ppkg -> perc.widgets.image1
+    String directoryName = packageName.substring(0, packageName.lastIndexOf('.'));
 
-      if( destDirPath == null ||  destDirPath.trim().length() == 0)
-         throw new BuildException("The destination directory path can not be null or empty.");
+    try {
+      // Get the properties file for this package
+      Properties prop =
+          PSPackageBuildToolHelper.getPropertiesFile(
+              rootDirPath + File.separator + directoryName + File.separator + directoryName);
+      PSPackageBuildToolHelper.moveFilesToOriginalPaths(
+          directoryName, tempPath1, new File(tempPath1), tempPath2, prop);
 
-      //Get the directory name from packagename Ex: perc.widgets.image1.ppkg -> perc.widgets.image1
-      String directoryName = packageName.substring(0, packageName.lastIndexOf('.'));
+      File sourceDirectory = new File(tempPath2);
+      File destinationDirectory = new File(destDirPath + File.separator + directoryName + ".ppkg");
+      setBasedir(sourceDirectory);
+      setDestFile(destinationDirectory);
+      super.execute();
+    } catch (IOException e) {
+      throw new BuildException(e);
+    }
+  }
 
-      try
-      {
-         //Get the properties file for this package
-         Properties prop = PSPackageBuildToolHelper.getPropertiesFile(rootDirPath + File.separator + directoryName +
-                 File.separator + directoryName);
-         PSPackageBuildToolHelper.moveFilesToOriginalPaths(directoryName, tempPath1,
-                 new File(tempPath1),tempPath2, prop);
+  /** Root directory path for packages */
+  private String rootDirPath;
 
-         File sourceDirectory = new File(tempPath2);
-         File destinationDirectory = new File(destDirPath + File.separator + directoryName+ ".ppkg");
-         setBasedir(sourceDirectory);
-         setDestFile(destinationDirectory);
-         super.execute();
-      }
-      catch (IOException e)
-      {
-         throw new BuildException(e);
-      }
-   }
+  /** Package name going to be zip up */
+  private String packageName;
 
-   /**
-    * Root directory path for packages
-    */
-   private String rootDirPath;
+  /** Temporary directory path */
+  private String tempPath1;
 
-   /**
-    * Package name going to be zip up
-    */
-   private String packageName;
+  /** Temporary directory path */
+  private String tempPath2;
 
-   /**
-    * Temporary directory path
-    */
-   private String tempPath1;
-
-   /**
-    * Temporary directory path
-    */
-   private String tempPath2;
-
-   /**
-    * Destination directory path
-    */
-   private String destDirPath;
-}  
+  /** Destination directory path */
+  private String destDirPath;
+}

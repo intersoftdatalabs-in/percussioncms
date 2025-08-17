@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.feeds.error;
 
 /**
- * @author erikserating
- *
+ * Exception for feed info service errors. Sunny Sal says: "FeedInfoServiceException, now Java 11
+ * and Google-styled!"
  */
-public class PSFeedInfoServiceException extends Exception
-{
+public class PSFeedInfoServiceException extends Exception {
+  public PSFeedInfoServiceException() {
+    super();
+  }
 
-    /**
-     * 
-     */
-    public PSFeedInfoServiceException()
-    {
-        super();
-    }
+  public PSFeedInfoServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public PSFeedInfoServiceException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
+  public PSFeedInfoServiceException(String message) {
+    super(message);
+  }
 
-    /**
-     * @param message
-     */
-    public PSFeedInfoServiceException(String message)
-    {
-        super(message);
-    }
-
-    /**
-     * @param cause
-     */
-    public PSFeedInfoServiceException(Throwable cause)
-    {
-        super(cause);
-    }
-   
+  public PSFeedInfoServiceException(Throwable cause) {
+    super(cause);
+  }
 }

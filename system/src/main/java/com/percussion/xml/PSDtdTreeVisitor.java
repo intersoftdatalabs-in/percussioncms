@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 
 package com.percussion.xml;
 
-public interface PSDtdTreeVisitor
-{
-   public Object visit(PSDtdNode node, Object data);
+public interface PSDtdTreeVisitor {
+  public Object visit(PSDtdNode node, Object data);
 
-   public Object visit(PSDtdElementEntry node, Object data);
+  public Object visit(PSDtdElementEntry node, Object data);
 
-   public Object visit(PSDtdNodeList node, Object data);
+  public Object visit(PSDtdNodeList node, Object data);
 
-   public Object visit(PSDtdDataElement node, Object data);
+  public Object visit(PSDtdDataElement node, Object data);
 }

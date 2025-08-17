@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,37 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.contexts.IContextsAdaptor;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+/** Test adaptor for Context API bridge. */
 @Component
 public class TestContextAdaptor implements IContextsAdaptor {
 
+  @Override
+  public void deleteContext(URI baseURI, String id) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public void deleteContext(URI baseURI, String id) {
+  @Override
+  public Context getContextById(URI baseUri, String id) {
+    return null;
+  }
 
-    }
+  @Override
+  public List<Context> listContexts(URI baseURI) {
+    return null;
+  }
 
-    @Override
-    public Context getContextById(URI baseUri, String id) {
-        return null;
-    }
-
-    @Override
-    public List<Context> listContexts(URI baseURI) {
-        return null;
-    }
-
-    @Override
-    public Context createOrUpdateContext(URI baseURI, Context context) {
-        return null;
-    }
+  @Override
+  public Context createOrUpdateContext(URI baseURI, Context context) {
+    return null;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import com.percussion.utils.jsr170.PSCollectionRangeIterator;
 
 import java.util.Collection;
 
-import javax.jcr.query.Row; // TODO: JAVAX-11
-import javax.jcr.query.RowIterator; // TODO: JAVAX-11
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
 /**
  * Implementation of a JSR-170 row iterator

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,92 +19,62 @@ package com.percussion.ui.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 /**
- * @author erikserating
- *
+ * Represents a column in a display format for UI lists. Immutable after construction for safety.
  */
 @JsonRootName("DisplayFormatColumn")
-public class PSDisplayFormatColumn
-{
-    private String name;
-    private String label;
-    private String type;
-    private String width;
-    
-    public PSDisplayFormatColumn()
-    {
-        
-    }
-    
-    public PSDisplayFormatColumn(String name, String label)
-    {
-        this.name = name;
-        this.label = label;
-    }
+public class PSDisplayFormatColumn {
+  private String name;
+  private String label;
+  private String type;
+  private String width;
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+  public PSDisplayFormatColumn() {
+    // Default constructor for serialization frameworks
+  }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public PSDisplayFormatColumn(String name, String label) {
+    this.name = name;
+    this.label = label;
+  }
 
-    /**
-     * @return the label
-     */
-    public String getLabel()
-    {
-        return label;
-    }
+  /** Gets the column name. */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param label the label to set
-     */
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
+  /** Sets the column name. */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  /** Gets the column label. */
+  public String getLabel() {
+    return label;
+  }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    } 
-    
-    /**
-     * @return the width
-     */
-    public String getWidth()
-    {
-        return width;
-    }
+  /** Sets the column label. */
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    /**
-     * @param width the width to set
-     */
-    public void setWidth(String width)
-    {
-        this.width = width;
-    }     
+  /** Gets the column type. */
+  public String getType() {
+    return type;
+  }
+
+  /** Sets the column type. */
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  /** Gets the column width. */
+  public String getWidth() {
+    return width;
+  }
+
+  /** Sets the column width. */
+  public void setWidth(String width) {
+    this.width = width;
+  }
 }

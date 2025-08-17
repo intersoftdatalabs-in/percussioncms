@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.Property;
+import javax.jcr.Value;
 
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.poi.util.IOUtils;

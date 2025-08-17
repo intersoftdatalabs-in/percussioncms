@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,76 +17,64 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.utils.types.PSPair;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * 
  * Represents a fully loaded widget for rendering.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSWidgetInstance
-{
-    
-    private PSWidgetDefinition definition;
-    private PSWidgetItem item;
-    private List<PSPair<String, String>> ownerAssetIds = new ArrayList<>();
-    
-    /**
-     * Temporary for sprint.
-     * @return asset ids.
-     */
-    @Deprecated
-    public String getAssets() {
-        return StringUtils.join(getAssetIds(), ",");
-    }
+public class PSWidgetInstance {
 
-    @Deprecated
-    public List<String> getAssetIds()
-    {
-        List<String> assetIds = new ArrayList<>();
-        for (PSPair<String,String> idPair : getOwnerAssetIds())
-        {
-            assetIds.add(idPair.getSecond());
-        }
-        return assetIds;
-    }
-    
-    public List<PSPair<String, String>> getOwnerAssetIds()
-    {
-        return ownerAssetIds;
-    }
-    
-    public void setOwnerAssetIds(List<PSPair<String, String>> ids)
-    {
-        ownerAssetIds = ids;
-    }
-    
-    public PSWidgetDefinition getDefinition()
-    {
-        return definition;
-    }
-    public void setDefinition(PSWidgetDefinition definition)
-    {
-        this.definition = definition;
-    }
-    public PSWidgetItem getItem()
-    {
-        return item;
-    }
-    public void setItem(PSWidgetItem item)
-    {
-        this.item = item;
-    }
-    
-    
+  private PSWidgetDefinition definition;
+  private PSWidgetItem item;
+  private List<PSPair<String, String>> ownerAssetIds = new ArrayList<>();
 
+  /**
+   * Temporary for sprint.
+   *
+   * @return asset ids as a comma-separated string.
+   */
+  @Deprecated
+  public String getAssets() {
+    return String.join(",", getAssetIds());
+  }
+
+  /**
+   * @deprecated Use {@link #getOwnerAssetIds()} instead.
+   * @return list of asset ids.
+   */
+  @Deprecated
+  public List<String> getAssetIds() {
+    return ownerAssetIds.stream().map(PSPair::getSecond).collect(Collectors.toList());
+  }
+
+  public List<PSPair<String, String>> getOwnerAssetIds() {
+    return ownerAssetIds;
+  }
+
+  public void setOwnerAssetIds(List<PSPair<String, String>> ids) {
+    ownerAssetIds = ids;
+  }
+
+  public PSWidgetDefinition getDefinition() {
+    return definition;
+  }
+
+  public void setDefinition(PSWidgetDefinition definition) {
+    this.definition = definition;
+  }
+
+  public PSWidgetItem getItem() {
+    return item;
+  }
+
+  public void setItem(PSWidgetItem item) {
+    this.item = item;
+  }
 }

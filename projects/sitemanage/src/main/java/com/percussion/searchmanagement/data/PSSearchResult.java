@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,98 +18,73 @@
 package com.percussion.searchmanagement.data;
 
 import java.util.Date;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-/**
- * This object holds the result of a full text search.
- */
+/** Represents a single result from a full text search. */
 @XmlRootElement(name = "SearchResult")
-public class PSSearchResult
-{
-    
-    private String name;
+public class PSSearchResult {
 
-    private String type;
+  private String name;
+  private String type;
+  private String status;
+  private Date lastModified;
+  private Date lastPublished;
+  private Date created;
+  private String createdBy;
 
-    private String status;
+  public String getName() {
+    return name;
+  }
 
-    private Date lastModified;
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    private Date lastPublished;
+  public String getType() {
+    return type;
+  }
 
-    private Date created;
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    private String createdBy;
+  public String getStatus() {
+    return status;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public Date getLastModified() {
+    return lastModified == null ? null : new Date(lastModified.getTime());
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified == null ? null : new Date(lastModified.getTime());
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public Date getLastPublished() {
+    return lastPublished == null ? null : new Date(lastPublished.getTime());
+  }
 
-    public String getStatus()
-    {
-        return status;
-    }
+  public void setLastPublished(Date lastPublished) {
+    this.lastPublished = lastPublished == null ? null : new Date(lastPublished.getTime());
+  }
 
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+  public Date getCreated() {
+    return created == null ? null : new Date(created.getTime());
+  }
 
-    public Date getLastModified()
-    {
-        return lastModified;
-    }
+  public void setCreated(Date created) {
+    this.created = created == null ? null : new Date(created.getTime());
+  }
 
-    public void setLastModified(Date lastModified)
-    {
-        this.lastModified = lastModified;
-    }
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-    public Date getLastPublished()
-    {
-        return lastPublished;
-    }
-
-    public void setLastPublished(Date lastPublished)
-    {
-        this.lastPublished = lastPublished;
-    }
-
-    public Date getCreated()
-    {
-        return created;
-    }
-
-    public void setCreated(Date created)
-    {
-        this.created = created;
-    }
-
-    public String getCreatedBy()
-    {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy)
-    {
-        this.createdBy = createdBy;
-    }
-
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 }

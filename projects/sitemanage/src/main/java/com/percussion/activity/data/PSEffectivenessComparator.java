@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import java.util.Comparator;
 
 /**
- * Used for sorting effectiveness objects.  Will sort descending based on effectiveness value.  Objects with equal
- * effectiveness values will be sorted by name.
+ * Used for sorting effectiveness objects. Will sort descending based on effectiveness value.
+ * Objects with equal effectiveness values will be sorted by name.
  */
-public class PSEffectivenessComparator implements Comparator<PSEffectiveness>
-{
-    public int compare(PSEffectiveness ep1, PSEffectiveness ep2)
-    {
-        int eComp = ep2.getEffectiveness().compareTo(ep1.getEffectiveness());
+public class PSEffectivenessComparator implements Comparator<PSEffectiveness> {
 
-        return (eComp == 0) ? ep1.getName().compareTo(ep2.getName()) : eComp;
-    }
+  @Override
+  public int compare(PSEffectiveness ep1, PSEffectiveness ep2) {
+    var eComp = Long.compare(ep2.getEffectiveness().orElse(0L), ep1.getEffectiveness().orElse(0L));
+    return (eComp == 0) ? ep1.getName().compareTo(ep2.getName()) : eComp;
+  }
 }

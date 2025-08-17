@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,143 +25,163 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-/**
- * A multimap class for storing HTTP headers (which can be 1:many)
- */
-public class PSHttpHeaders
-{
-	public void addHeader(String headerName, String headerValue)
-	{
-		addMultiMapping(m_hdrs, headerName.toUpperCase(), headerValue);
-	}
+/** A multimap class for storing HTTP headers (which can be 1:many). */
+public class PSHttpHeaders {
+  private final Map<String, Object> headers = new HashMap<>();
 
-   public void replaceHeader( String headerName, String headerValue )
-   {
-      m_hdrs.put( headerName.toUpperCase(), headerValue );
-   }
+  /**
+   * Adds a header value.
+   *
+   * @param headerName header name
+   * @param headerValue header value
+   */
+  public void addHeader(String headerName, String headerValue) {
+    addMultiMapping(headers, headerName.toUpperCase(), headerValue);
+  }
 
-	public Iterator getHeaders(String headerName)
-	{
-		return getMultiValues(m_hdrs, headerName.toUpperCase());
-	}
+  /**
+   * Replaces a header value.
+   *
+   * @param headerName header name
+   * @param headerValue header value
+   */
+  public void replaceHeader(String headerName, String headerValue) {
+    headers.put(headerName.toUpperCase(), headerValue);
+  }
 
-	public String getHeader(String headerName)
-	{
-		String val = null;
-		Iterator i = getHeaders(headerName);
-		if (i.hasNext())
-		{
-			val = i.next().toString();
-		}
-		return val;
-	}
+  /**
+   * Gets all values for a header name.
+   *
+   * @param headerName header name
+   * @return iterator of header values
+   */
+  public Iterator<String> getHeaders(String headerName) {
+    return getMultiValues(headers, headerName.toUpperCase());
+  }
 
-	public Set getHeaderNames()
-	{
-		return m_hdrs.keySet();
-	}
+  /**
+   * Gets the first value for a header name.
+   *
+   * @param headerName header name
+   * @return first header value or null
+   */
+  public String getHeader(String headerName) {
+    String val = null;
+    Iterator<String> i = getHeaders(headerName);
+    if (i.hasNext()) {
+      val = i.next();
+    }
+    return val;
+  }
 
-	public void addAll(PSHttpHeaders headers)
-	{
-		if (headers == this) // don't add ourself because we could loop forever
-			return;
+  /**
+   * Gets all header names.
+   *
+   * @return set of header names
+   */
+  public Set<String> getHeaderNames() {
+    return headers.keySet();
+  }
 
-		Collection keySet = headers.getHeaderNames();
-		for (Iterator i = keySet.iterator(); i.hasNext(); )
-		{
-			String headerName = i.next().toString();
-			for (Iterator j = headers.getHeaders(headerName); j.hasNext(); )
-			{
-				addHeader(headerName, j.next().toString());
-			}
-		}
-	}
+  /**
+   * Adds all headers from another PSHttpHeaders instance.
+   *
+   * @param otherHeaders headers to add
+   */
+  public void addAll(PSHttpHeaders otherHeaders) {
+    if (otherHeaders == this) return;
+    Collection<String> keySet = otherHeaders.getHeaderNames();
+    for (Iterator<String> i = keySet.iterator(); i.hasNext(); ) {
+      String headerName = i.next();
+      for (Iterator<String> j = otherHeaders.getHeaders(headerName); j.hasNext(); ) {
+        addHeader(headerName, j.next());
+      }
+    }
+  }
 
-	/**
-	 * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many
-	 * mappings will be Lists containing values.
-	 *
-	 * @author	chad loder
-	 *
-	 * @version 1.0 1999/8/20
-	 *
-	 * @param	m
-	 * @param	key
-	 * @param	value
-	 *
-	 */
-	protected void addMultiMapping(Map m, Object key, Object value)
-	{
-		// we support 1:many header mappings by storing Lists for 1:many
-		// headers. For 1:1 headers, we store Strings
+  /**
+   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many mappings will be Lists
+   * containing values.
+   *
+   * @author chad loder
+   * @version 1.0 1999/8/20
+   * @param m
+   * @param key
+   * @param value
+   */
+  /**
+   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many mappings will be Lists
+   * containing values.
+   *
+   * @param m map to add to
+   * @param key header name
+   * @param value header value
+   */
+  protected void addMultiMapping(Map<String, Object> m, Object key, Object value) {
+    // we support 1:many header mappings by storing Lists for 1:many
+    // headers. For 1:1 headers, we store Strings
 
-		Object existingVal = m.get(key);
+    Object existingVal = m.get(key);
+    if (existingVal instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<String> valList = (List<String>) existingVal;
+      valList.add((String) value);
+    } else if (existingVal != null) {
+      List<String> valList = new ArrayList<>();
+      valList.add((String) existingVal);
+      valList.add((String) value);
+      existingVal = valList;
+      m.put((String) key, existingVal);
+    } else {
+      m.put((String) key, value);
+    }
+  }
 
-		if (existingVal instanceof List)
-		{
-			// there are multiple occurrences of value header, so add the new one
-			((List)existingVal).add(value); // add the new string
-		}
-		else if (existingVal != null)
-		{
-			// there was only one value, now there are 2, so make a list
-			List valList = new ArrayList();
-			valList.add(existingVal); // add the previous existing value
-			valList.add(value); // add the new value
-         existingVal = valList;
-		}
-		else
-		{
-			existingVal = value;
-		}
+  /**
+   * Gets all the values out of the multimap for a particular key
+   *
+   * @author chad loder
+   * @version 1.0 1999/8/20
+   * @param m
+   * @param key
+   * @return Iterator
+   */
+  /**
+   * Gets all the values out of the multimap for a particular key.
+   *
+   * @param m map to get from
+   * @param key header name
+   * @return iterator of header values
+   */
+  protected Iterator<String> getMultiValues(Map<String, Object> m, String key) {
+    class SingleIterator implements Iterator<String> {
+      public SingleIterator(Object value) {
+        m_value = (String) value;
+      }
 
-		m.put(key, existingVal);
-	}
+      public boolean hasNext() {
+        return m_value != null;
+      }
 
-	/**
-	 * Gets all the values out of the multimap for a particular key
-	 * 
-	 * @author	chad loder
-	 * 
-	 * @version 1.0 1999/8/20
-	 * 
-	 * 
-	 * @param	m
-	 * @param	key
-	 * 
-	 * @return	Iterator
-	 */
-	protected Iterator getMultiValues(Map m, String key)
-	{
-		class SingleIterator implements Iterator
-		{
-			public SingleIterator(Object value)	{	m_value = value;	}
+      public String next() {
+        if (m_value == null) throw new NoSuchElementException();
+        String val = m_value;
+        m_value = null;
+        return val;
+      }
 
-			public boolean hasNext() {	return m_value != null;	}
-			
-			public Object next()
-			{
-				if (m_value == null)
-					throw new NoSuchElementException();
-				Object val = m_value;
-				m_value = null;
-				return val;
-			}
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
 
-			public void remove() { throw new UnsupportedOperationException(); }
-
-			private Object m_value;
-		}
-
-		Object val = m.get(key);
-		
-		if (val instanceof List)
-		{
-			return ((List)val).iterator();
-		}
-
-		return new SingleIterator(val);
-	}
-
-	private Map m_hdrs = new HashMap();
+      private String m_value;
+    }
+    Object val = m.get(key);
+    if (val instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<String> valList = (List<String>) val;
+      return valList.iterator();
+    }
+    return new SingleIterator(val);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,60 +18,44 @@ package com.percussion.membership.services.rdbms;
 
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.PSBaseMembershipServiceTest;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  * @author erikserating
- *
  */
-
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
-{
-    @Autowired
-    private SessionFactory sessionFactory;
+public class PSMembershipServiceTest extends PSBaseMembershipServiceTest {
+  @Autowired private SessionFactory sessionFactory;
 
-
-
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
-            Root<PSMembership> root = deleteQuery.from(PSMembership.class);
-            deleteQuery.from(PSMembership.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-           // session.close();
-        }
-
+  @BeforeEach
+  public void setUp() throws Exception {
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
+      Root<PSMembership> root = deleteQuery.from(PSMembership.class);
+      deleteQuery.from(PSMembership.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      // session.close();
     }
+  }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
+  @AfterEach
+  public void tearDown() throws Exception {}
 
-    private Session getSession(){
+  private Session getSession() {
 
-        return sessionFactory.getCurrentSession();
-
-    }
+    return sessionFactory.getCurrentSession();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,65 +16,56 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.NodeIterator; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.PropertyIterator; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
 
 /**
  * Pretty print a JSR-170 node tree, mostly useful for debugging purposes
+ *
  * @author dougrand
  */
-public class PSNodePrettyPrinter
-{
-   private static final int INDENT = 2;
-   
-   public static String toString(Node n) throws RepositoryException
-   {
-      return toString(n, 0);
-   }
-   
-   public static String toString(Node n, int indentation) throws RepositoryException
-   {
-      StringBuilder b = new StringBuilder();
-      for(int i = 0; i < indentation; i++)
-      {
-         b.append(" ");
-      }
-      b.append("<h2>Node");
-      b.append(n.getName());
-      b.append(" uuid: ");
-      b.append(n.getUUID());
-      b.append("</h2>");
-      PropertyIterator piter = n.getProperties();
-      while(piter.hasNext())
-      {
-         b.append("\n");
-         b.append(toString(piter.nextProperty(), indentation + INDENT));
-      }
-      NodeIterator niter = n.getNodes();
-      while(niter.hasNext())
-      {
-         b.append("\n");
-         b.append(toString(niter.nextNode(), indentation + INDENT));
-      }
-      return b.toString();
-   }
-   
-   public static String toString(Property p, int indentation) throws RepositoryException
-   {
-      StringBuilder b = new StringBuilder();
-      for(int i = 0; i < indentation; i++)
-      {
-         b.append(" ");
-      }
-      b.append("<h3>Property ");
-      b.append(p.getName());
-      b.append("</h3>");
-      b.append(p.getString());
-      return b.toString();
-   }
-   
-   
+public class PSNodePrettyPrinter {
+  private static final int INDENT = 2;
+
+  public static String toString(Node n) throws RepositoryException {
+    return toString(n, 0);
+  }
+
+  public static String toString(Node n, int indentation) throws RepositoryException {
+    StringBuilder b = new StringBuilder();
+    for (int i = 0; i < indentation; i++) {
+      b.append(" ");
+    }
+    b.append("<h2>Node");
+    b.append(n.getName());
+    b.append(" uuid: ");
+    b.append(n.getUUID());
+    b.append("</h2>");
+    PropertyIterator piter = n.getProperties();
+    while (piter.hasNext()) {
+      b.append("\n");
+      b.append(toString(piter.nextProperty(), indentation + INDENT));
+    }
+    NodeIterator niter = n.getNodes();
+    while (niter.hasNext()) {
+      b.append("\n");
+      b.append(toString(niter.nextNode(), indentation + INDENT));
+    }
+    return b.toString();
+  }
+
+  public static String toString(Property p, int indentation) throws RepositoryException {
+    StringBuilder b = new StringBuilder();
+    for (int i = 0; i < indentation; i++) {
+      b.append(" ");
+    }
+    b.append("<h3>Property ");
+    b.append(p.getName());
+    b.append("</h3>");
+    b.append(p.getString());
+    return b.toString();
+  }
 }

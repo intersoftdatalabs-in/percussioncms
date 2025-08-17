@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,9 @@ package com.percussion.apibridge;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
-import com.percussion.services.catalog.IPSCatalogSummary;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,47 +30,46 @@ import java.util.List;
 @PSSiteManageBean
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
-    private IPSContentDesignWs designSvc;
-    public ContentTypeAdaptor(){
-        designSvc = PSContentWsLocator.getContentDesignWebservice();
+  private IPSContentDesignWs designSvc;
+
+  public ContentTypeAdaptor() {
+    designSvc = PSContentWsLocator.getContentDesignWebservice();
+  }
+
+  /***
+   * List all content types available to the System
+   * @param baseUri Requesting URI
+   * @return A list of all available Content Types
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri) {
+    var ret = new ArrayList<ContentType>();
+    var types = designSvc.findContentTypes("*");
+    for (var s : types) {
+      ret.add(ApiUtils.convertContentType(s));
     }
+    return ret;
+  }
 
-    /***
-     * List all content types available to the System
-     * @param baseUri Requesting URI
-     * @return A list of all available Content Types
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri) {
-        List<ContentType> ret = new ArrayList<>();
+  /***
+   * List ContentTypes available for the specified Site
+   * @param baseUri Originating URI
+   * @param siteId Site Id for Site to filter Types by
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri, int siteId) {
+    return null;
+  }
 
-            List<IPSCatalogSummary> types = designSvc.findContentTypes("*");
-            for(IPSCatalogSummary s : types){
-                ret.add(ApiUtils.convertContentType(s));
-            }
-        return ret;
-    }
-
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param siteId Site Id for Site to filter Types by
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-
-        return null;
-    }
-
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param filter A ContentTypeFilter that can be used to filter content types.
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-        return null;
-    }
+  /***
+   * List ContentTypes available for the specified Site
+   * @param baseUri Originating URI
+   * @param filter A ContentTypeFilter that can be used to filter content types.
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
+    return null;
+  }
 }

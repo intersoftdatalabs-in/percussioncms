@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,33 @@
 
 package com.percussion.utils.string;
 
-import com.percussion.security.SecureStringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.security.SecureStringUtils;
 import java.io.File;
 import java.io.IOException;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class PSFolderStringUtilsTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
+  @TempDir public Path temporaryFolder;
 
+  @Test
+  public void testFolderStringUtils() throws IOException {
 
-    @Test
-    public void testFolderStringUtils() throws IOException {
+    File parentA = temporaryFolder.resolve("parentA").toFile();
+    File parentB = temporaryFolder.resolve("parentB").toFile();
+    File childA = temporaryFolder.resolve("parentA").resolve("childA").toFile();
 
-        File parentA = temporaryFolder.newFolder("parentA");
-        File parentB = temporaryFolder.newFolder("parentB");
-        File childA = temporaryFolder.newFolder("parentA","childA");
+    assertFalse(SecureStringUtils.isChildOfFilePath(parentA.toPath(), parentB.toPath()));
+    assertTrue(SecureStringUtils.isChildOfFilePath(parentA.toPath(), childA.toPath()));
+    assertFalse(SecureStringUtils.isChildOfFilePath(parentB.toPath(), childA.toPath()));
 
-        assertFalse(SecureStringUtils.isChildOfFilePath(parentA.toPath(),parentB.toPath()));
-        assertTrue(SecureStringUtils.isChildOfFilePath(parentA.toPath(), childA.toPath()));
-        assertFalse(SecureStringUtils.isChildOfFilePath(parentB.toPath(), childA.toPath()));
-
-        assertTrue(SecureStringUtils.isSameFileAs(parentA.toPath(),parentA.toPath()));
-        assertFalse(SecureStringUtils.isSameFileAs(parentA.toPath(),childA.toPath()));
-        assertFalse(SecureStringUtils.isSameFileAs(parentA.toPath(),parentB.toPath()));
-    }
+    assertTrue(SecureStringUtils.isSameFileAs(parentA.toPath(), parentA.toPath()));
+    assertFalse(SecureStringUtils.isSameFileAs(parentA.toPath(), childA.toPath()));
+    assertFalse(SecureStringUtils.isSameFileAs(parentA.toPath(), parentB.toPath()));
+  }
 }

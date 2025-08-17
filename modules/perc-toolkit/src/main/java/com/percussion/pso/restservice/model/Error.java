@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,56 +16,68 @@
  */
 package com.percussion.pso.restservice.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 
-
-@XmlRootElement(name="Error")
+@XmlRootElement(name = "Error")
 public class Error {
-	
-	public static enum ErrorCode { NOT_FOUND, PURGED, UNKNOWN_ERROR, ASSEMBLY_ERROR, SKIP }; 
-	private ErrorCode errorCode;
-	private String errorMessage;
-	private Integer contentId;
-	public Error() {
-		setErrorCode(ErrorCode.UNKNOWN_ERROR);
-	}
-	public Error(ErrorCode errorCode, String message) {
-		setErrorCode(errorCode);
-		setErrorMessage(message);
-	}
-	public Error(ErrorCode errorCode, Integer contentId, String message) {
-		setErrorCode(errorCode);
-		setErrorMessage(message);
-		setContentId(contentId);
-	}
-	
-	public Error(ErrorCode errorCode) {
-		setErrorCode(errorCode);
-	}
-	
-	@XmlAttribute
-	public ErrorCode getErrorCode() {
-		return errorCode;
-	}
-	public void setErrorCode(ErrorCode errorCode) {
-		this.errorCode = errorCode;
-	}
-	
-	@XmlValue
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-	public void setContentId(Integer contentId) {
-		this.contentId = contentId;
-	}
-	@XmlAttribute
-	public Integer getContentId() {
-		return contentId;
-	}
-	
+
+  public static enum ErrorCode {
+    NOT_FOUND,
+    PURGED,
+    UNKNOWN_ERROR,
+    ASSEMBLY_ERROR,
+    SKIP
+  };
+
+  private ErrorCode errorCode;
+  private String errorMessage;
+  private Integer contentId;
+
+  public Error() {
+    setErrorCode(ErrorCode.UNKNOWN_ERROR);
+  }
+
+  public Error(ErrorCode errorCode, String message) {
+    setErrorCode(errorCode);
+    setErrorMessage(message);
+  }
+
+  public Error(ErrorCode errorCode, Integer contentId, String message) {
+    setErrorCode(errorCode);
+    setErrorMessage(message);
+    setContentId(contentId);
+  }
+
+  public Error(ErrorCode errorCode) {
+    setErrorCode(errorCode);
+  }
+
+  @XmlAttribute
+  public ErrorCode getErrorCode() {
+    return errorCode;
+  }
+
+  public void setErrorCode(ErrorCode errorCode) {
+    this.errorCode = errorCode;
+  }
+
+  @XmlValue
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+
+  public void setContentId(Integer contentId) {
+    this.contentId = contentId;
+  }
+
+  @XmlAttribute
+  public Integer getContentId() {
+    return contentId;
+  }
 }

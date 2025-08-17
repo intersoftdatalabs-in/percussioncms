@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,43 +22,42 @@ import com.rometools.rome.feed.synd.SyndImage;
  * A Velocity friendly class for a syndication image.
  */
 public class PSSynFeedImage {
-	
-	private SyndImage image;
-	
-	
-/***
-* Returns the image link.
-* @return
-*/
-public String getLink() {
-	return image.getLink();
-}
-    
-/***
- * Returns the image title.
- * @return
- */
-public String getTitle() {
-	return image.getTitle();
-}
-    
-/***
- *    Returns the image URL.
- * @return
- */
-public String	getUrl() {
- return image.getUrl();
-}
-    /***
-     * Returns the image description.
-     * @return
-     */
-    public String getDescription(){
-		return image.getDescription();
-	}
-	 
-	public PSSynFeedImage(SyndImage arg){
-		this.image = arg;
-	}
 
+  private SyndImage image;
+
+  /***
+   * Returns the image link.
+   * @return
+   */
+  public String getLink() {
+    return image.getLink();
+  }
+
+  /***
+   * Returns the image title.
+   * @return
+   */
+  public String getTitle() {
+    return image.getTitle();
+  }
+
+  /***
+   *    Returns the image URL.
+   * @return
+   */
+  public String getUrl() {
+    return image.getUrl();
+  }
+
+  /***
+   * Returns the image description.
+   * @return
+   */
+  public String getDescription() {
+    return image.getDescription();
+  }
+
+  public PSSynFeedImage(SyndImage arg) {
+    this.image = arg;
+  }
 }

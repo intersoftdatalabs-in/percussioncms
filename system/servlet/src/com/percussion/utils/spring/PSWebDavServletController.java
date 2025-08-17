@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.percussion.utils.spring;
 
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
-import jakarta.servlet.Servlet;
+import javax.servlet.Servlet;
 
 /**
  * This class allows for setting the supported HTTP methods as well as the

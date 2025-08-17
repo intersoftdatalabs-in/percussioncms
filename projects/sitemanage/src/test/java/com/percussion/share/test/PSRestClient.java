@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
 import com.percussion.utils.http.PSModernHttpClient;
@@ -42,18 +43,27 @@ import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.percussion.delivery.client.EasySSLProtocolSocketFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.Map.Entry;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.lang.CharEncoding;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
- * 
- * A Wrapper around Commons HTTP client for REST services.
- * 
- * Most of the methods are protected as this classes should be
- * extended to provide more specific behavior.
- * 
- * @author adamgent
- * @see #GET(String)
- * @see #POST(String, String)
- * @see #DELETE(String)
+ * A Wrapper around Commons HTTP client for REST services. Most of the methods are protected as this
+ * class should be extended to provide more specific behavior.
  *
+ * @author adamgent
  */
 public class PSRestClient {
     private String url;
@@ -238,120 +248,103 @@ public class PSRestClient {
         private String responseBody;
         private String message = null;
 
-        public RestClientException(String message) {
-            super(message);
-        }
-
-        public RestClientException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public RestClientException(Throwable cause) {
-            super(cause);
-        }
-        
-        public RestClientException() {
-        }
-
-        public RestClientException(RestClientException cause) {
-            setStatus(cause.getStatus());
-            setUri(cause.getUri());
-            setResponseBody(cause.getResponseBody());
-            setMessage(cause.getMessage());
-        }
-        
-        public RestClientException(int status, String uri, InputStream responseBody) {
-            init(status, uri, null);
-            setMessage(getRestErrorMessage());
-            fillInStackTrace();
-        }
-        
-        public RestClientException(int status, String uri, String responseBody) {
-            init(status, uri, responseBody);
-            setMessage(getRestErrorMessage());
-            fillInStackTrace();
-        }
-        
-        
-        @Override
-        public String getMessage()
-        {
-            if (message != null) {
-                return this.message;
-            }
-            return super.getMessage();
-        }
-        
-        protected void setMessage(String message) 
-        {
-            this.message = message;
-        }
-
-        protected String getRestErrorMessage() {
-            return format("HTTP Error code: {0}\nURI: {1}\nResponse: {2}", new Integer(getStatus()),getUri(),getResponseBody());
-        }
-        
-        protected void init(int status, String uri, String responseBody) {
-            this.status = status;
-            this.uri = uri;
-            this.responseBody = responseBody;
-        }
-        
-        
-        public String getUri() {
-            return uri;
-        }
-
-        
-        public void setUri(String uri) {
-            this.uri = uri;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        
-        public String getResponseBody() {
-            return responseBody;
-        }
-
-        
-        public void setResponseBody(String responseBody) {
-            this.responseBody = responseBody;
-        }
-        
-    }
-    
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    protected static final Logger log = LogManager.getLogger(PSRestClient.class);
-
-    
-    
-    
-    
-    public String getPostContentType() {
-        return postContentType;
+    public RestClientException(String message) {
+      super(message);
     }
 
-    
-    public void setPostContentType(String postContentType) {
-        this.postContentType = postContentType;
+    public RestClientException(String message, Throwable cause) {
+      super(message, cause);
     }
 
-    public Map<String, String> getRequestHeaders() {
-        return requestHeaders;
+    public RestClientException(Throwable cause) {
+      super(cause);
     }
 
-    
-    public void setRequestHeaders(Map<String, String> requestHeaders) {
-        this.requestHeaders = requestHeaders;
+    public RestClientException() {}
+
+    public RestClientException(RestClientException cause) {
+      setStatus(cause.getStatus());
+      setUri(cause.getUri());
+      setResponseBody(cause.getResponseBody());
+      setMessage(cause.getMessage());
     }
+
+    public RestClientException(int status, String uri, InputStream responseBody) {
+      init(status, uri, null);
+      setMessage(getRestErrorMessage());
+      fillInStackTrace();
+    }
+
+    public RestClientException(int status, String uri, String responseBody) {
+      init(status, uri, responseBody);
+      setMessage(getRestErrorMessage());
+      fillInStackTrace();
+    }
+
+    @Override
+    public String getMessage() {
+      if (message != null) {
+        return this.message;
+      }
+      return super.getMessage();
+    }
+
+    protected void setMessage(String message) {
+      this.message = message;
+    }
+
+    protected String getRestErrorMessage() {
+      return format(
+          "HTTP Error code: {0}\nURI: {1}\nResponse: {2}",
+          getStatus(), getUri(), getResponseBody());
+    }
+
+    protected void init(int status, String uri, String responseBody) {
+      this.status = status;
+      this.uri = uri;
+      this.responseBody = responseBody;
+    }
+
+    public String getUri() {
+      return uri;
+    }
+
+    public void setUri(String uri) {
+      this.uri = uri;
+    }
+
+    public int getStatus() {
+      return status;
+    }
+
+    public void setStatus(int status) {
+      this.status = status;
+    }
+
+    public String getResponseBody() {
+      return responseBody;
+    }
+
+    public void setResponseBody(String responseBody) {
+      this.responseBody = responseBody;
+    }
+  }
+
+  protected static final Logger log = LogManager.getLogger(PSRestClient.class);
+
+  public String getPostContentType() {
+    return postContentType;
+  }
+
+  public void setPostContentType(String postContentType) {
+    this.postContentType = postContentType;
+  }
+
+  public Map<String, String> getRequestHeaders() {
+    return requestHeaders;
+  }
+
+  public void setRequestHeaders(Map<String, String> requestHeaders) {
+    this.requestHeaders = requestHeaders;
+  }
 }

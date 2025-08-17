@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,40 +19,37 @@ package com.percussion.pagemanagement.assembler.impl;
 
 import com.percussion.pagemanagement.data.PSResourceInstance;
 import com.percussion.sitemanage.data.PSSiteSummary;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
- * A null site used for resource generation of assets during preview.
- * During preview of assets we do not have a site associated with them.
- * Instead of giving the assets a <code>null</code> value for sites
- * in the {@link PSResourceInstance resource instance} we use this object. 
- * <p>
- * This follows the Null Object pattern as we prefer to avoid null when we can.
- * 
- * @author adamgent
+ * A null site used for resource generation of assets during preview. During preview of assets, we
+ * do not have a site associated with them. Instead of giving the assets a {@code null} value for
+ * sites in the {@link PSResourceInstance resource instance}, we use this object.
  *
+ * <p>This follows the Null Object pattern as we prefer to avoid null when we can.
+ *
+ * @author adamgent
  */
 @XmlRootElement
-public class PSNullSiteSummary extends PSSiteSummary
-{
+public class PSNullSiteSummary extends PSSiteSummary {
 
-    private static final long serialVersionUID = 1L;
-    private static PSNullSiteSummary siteSummary = new PSNullSiteSummary();
-    static {
-        siteSummary.setBaseUrl("http://localhost/");
-        siteSummary.setFolderPath("//Sites/$NullSite$");
-        siteSummary.setName("NullSite");
-        siteSummary.setId(null);
-    }
-    
-    private PSNullSiteSummary() {
-    }
-    
-    public static PSNullSiteSummary getInstance() {
-        return siteSummary;
-    }
+  private static final long serialVersionUID = 1L;
+  private static final PSNullSiteSummary siteSummary;
 
+  static {
+    var summary = new PSNullSiteSummary();
+    summary.setBaseUrl("http://localhost/");
+    summary.setFolderPath("//Sites/$NullSite$");
+    summary.setName("NullSite");
+    summary.setId(null);
+    siteSummary = summary;
+  }
+
+  private PSNullSiteSummary() {
+    // Prevent external instantiation
+  }
+
+  public static PSNullSiteSummary getInstance() {
+    return siteSummary;
+  }
 }
-

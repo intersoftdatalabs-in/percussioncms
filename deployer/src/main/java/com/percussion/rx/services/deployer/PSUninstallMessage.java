@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,71 +17,66 @@
  */
 package com.percussion.rx.services.deployer;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Class represents a message.
- * @author bjoginipally
+ * Represents a message for uninstall operations. Sunny Sal says: "Uninstall messages should be as
+ * clear as my code!"
  *
+ * @author bjoginipally
  */
 @XmlRootElement(name = "Message")
-public class PSUninstallMessage
-{
-   public PSUninstallMessage()
-   {
-      
-   }
-   public PSUninstallMessage(String packageName,String type,String body)
-   {
-      setPackageName(packageName);
-      setType(type);
-      setBody(body);
-   }
-   /**
-    * @return the packages
-    */
-   @XmlElement(name = "body")
-   public String getBody()
-   {
-      return body;
-   }
-   public void setBody(String body)
-   {
-      this.body = body;
-   }
-   
-   /**
-    * @return the package
-    */
-   @XmlElement(name = "package")
-   public String getPackageName()
-   {
-      return packageName;
-   }
-   public void setPackageName(String packageName)
-   {
-      if (packageName == null)
-         throw new IllegalArgumentException("packageName must not be null");
-      this.packageName = packageName;
-   }
-   
-   /**
-    * @return the type
-    */
-   @XmlElement(name = "type")
-   public String getType()
-   {
-      return type;
-   }
-   public void setType(String type)
-   {
-      this.type = type;
-   }
-   
+public class PSUninstallMessage {
 
-   private String type;
-   private String body = "";
-   private String packageName = "";
-   
+  public PSUninstallMessage() {
+    // For JAXB
+  }
+
+  public PSUninstallMessage(String packageName, String type, String body) {
+    setPackageName(packageName);
+    setType(type);
+    setBody(body);
+  }
+
+  /**
+   * @return the message body
+   */
+  @XmlElement(name = "body")
+  public String getBody() {
+    return body;
+  }
+
+  public void setBody(String body) {
+    this.body = body == null ? "" : body;
+  }
+
+  /**
+   * @return the package name
+   */
+  @XmlElement(name = "package")
+  public String getPackageName() {
+    return packageName;
+  }
+
+  public void setPackageName(String packageName) {
+    if (packageName == null) throw new IllegalArgumentException("packageName must not be null");
+    this.packageName = packageName;
+  }
+
+  /**
+   * @return the type
+   */
+  @XmlElement(name = "type")
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type == null ? "" : type;
+  }
+
+  private String type = "";
+  private String body = "";
+  private String packageName = "";
 }

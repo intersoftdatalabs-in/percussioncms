@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,77 +15,58 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
-import net.sf.oval.constraint.NotEmpty;
+import java.util.Objects;
+import java.util.Optional;
 
-
-/**
- * This object holds the effectiveness details of the items under named site or site folder.
- */
+/** This object holds the effectiveness details of the items under named site or site folder. */
 @JsonRootName(value = "Effectiveness")
-public class PSEffectiveness
-{
-    public PSEffectiveness()
-    {        
-    }
-    
-    /**
-     * Constructs an effectiveness object.
-     * 
-     * @param name see {@link #getName()}.
-     * @param effectiveness see {@link #getEffectiveness()}.
-     */
-    public PSEffectiveness(String name, Long effectiveness)
-    {
-        notEmpty(name);
-        
-        this.name = name;
-        this.effectiveness = effectiveness;
-    }
+public class PSEffectiveness {
 
-    /**
-     * @return the the name of the site, section, or folder, never blank.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  private String name;
+  private Long effectiveness;
 
-    /**
-     * @param name must not be blank.
-     */
-    public void setName(String name)
-    {
-        notEmpty(name);
-        
-        this.name = name;
-    }
+  public PSEffectiveness() {}
 
-    /**
-     * @return the calculated effectiveness value for the item.
-     */
-    public Long getEffectiveness()
-    {
-        return effectiveness;
-    }
+  /**
+   * Constructs an effectiveness object.
+   *
+   * @param name see {@link #getName()}.
+   * @param effectiveness see {@link #getEffectiveness()}.
+   */
+  public PSEffectiveness(String name, Long effectiveness) {
+    this.name = Objects.requireNonNull(name, "name must not be null or empty");
+    this.effectiveness = effectiveness;
+  }
 
-    /**
-     * @param effectiveness the effectiveness to set
-     */
-    public void setEffectiveness(Long effectiveness)
-    {
-        this.effectiveness = effectiveness;
-    }
+  /**
+   * @return the name of the site, section, or folder, never blank.
+   */
+  public String getName() {
+    return name;
+  }
 
-    @NotEmpty
-    private String name;
-    
-    private Long effectiveness;
- 
+  /**
+   * @param name must not be blank.
+   */
+  public void setName(String name) {
+    this.name = Objects.requireNonNull(name, "name must not be null or empty");
+  }
+
+  /**
+   * @return the calculated effectiveness value for the item.
+   */
+  public Optional<Long> getEffectiveness() {
+    return Optional.ofNullable(effectiveness);
+  }
+
+  /**
+   * @param effectiveness the effectiveness to set
+   */
+  public void setEffectiveness(Long effectiveness) {
+    this.effectiveness = effectiveness;
+  }
 }

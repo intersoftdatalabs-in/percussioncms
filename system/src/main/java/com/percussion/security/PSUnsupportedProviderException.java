@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,23 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
- * PSUnsupportedProviderException is thrown to indicate that the specified
- * provider type is not supported by provider handed the request.
+ * PSUnsupportedProviderException is thrown to indicate that the specified provider type is not
+ * supported by provider handed the request.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSUnsupportedProviderException extends PSException
-{
-   /**
-    * Constructs an unsupported provider exception with the default
-    * message.
-    *
-    * @param   providerClass   the class of the security provider
-    *
-    * @param   provider         the provider the class was asked to handle
-    */
-   public PSUnsupportedProviderException( java.lang.String providerClass,
-                                          java.lang.String provider)
-   {
-      super(IPSSecurityErrors.PROVIDER_NOT_SUPPORTED_BY_CLASS,
-            new Object[] { providerClass, provider });
-   }
+public class PSUnsupportedProviderException extends PSException {
+  /**
+   * Constructs an unsupported provider exception with the default message.
+   *
+   * @param providerClass the class of the security provider
+   * @param provider the provider the class was asked to handle
+   */
+  public PSUnsupportedProviderException(java.lang.String providerClass, java.lang.String provider) {
+    super(
+        IPSSecurityErrors.PROVIDER_NOT_SUPPORTED_BY_CLASS, new Object[] {providerClass, provider});
+  }
 }
-

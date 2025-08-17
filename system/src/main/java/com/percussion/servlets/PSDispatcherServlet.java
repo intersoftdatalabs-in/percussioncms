@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,17 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 /**
- * Extends Spring's dispatcher servlet to automatically set the main Rhythmyx
- * application context, which must have been initialized before this servlet
- * is initialized. 
+ * Extends Spring's dispatcher servlet to automatically set the main Rhythmyx application context,
+ * which must have been initialized before this servlet is initialized.
  */
-public class PSDispatcherServlet extends DispatcherServlet
-{
-   @Override
-   protected void postProcessWebApplicationContext(
-      ConfigurableWebApplicationContext wac)
-   {
-      if (!PSBaseServiceLocator.isInitialized())
-         throw new RuntimeException("Base context must be initialized");
-      
-      PSBaseServiceLocator.addAsParentCtx(wac);
-      
-      super.postProcessWebApplicationContext(wac);
-   }
-}
+public class PSDispatcherServlet extends DispatcherServlet {
+  @Override
+  protected void postProcessWebApplicationContext(ConfigurableWebApplicationContext wac) {
+    if (!PSBaseServiceLocator.isInitialized())
+      throw new RuntimeException("Base context must be initialized");
 
+    PSBaseServiceLocator.addAsParentCtx(wac);
+
+    super.postProcessWebApplicationContext(wac);
+  }
+}

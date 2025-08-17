@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,72 +17,51 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-/**
- * Wrapper class to hold the list of {@link PSApprovableItems}.
- * 
- * @author leonardohildt
- * 
- */
+/** Wrapper class to hold the list of {@link PSApprovableItem}s and their processing status. */
 @XmlRootElement(name = "ApprovableItems")
-public class PSApprovableItems extends PSAbstractDataObject
-{
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+public class PSApprovableItems extends PSAbstractDataObject {
 
-    /**
-     * List of approvable items associated to the gadget
-     */
-    private List<PSApprovableItem> approvableItems;
+  private static final long serialVersionUID = 1L;
 
-    private List<PSApprovableItem> processedItems;
+  /** List of approvable items associated to the gadget. */
+  private List<PSApprovableItem> approvableItems;
 
-    private Map<String, String> errors = new HashMap<>();
+  /** List of items that have been processed. */
+  private List<PSApprovableItem> processedItems;
 
-    public PSApprovableItems() {
-        // empty for jax-rs
-    }
+  /** Map of errors encountered during processing. */
+  private Map<String, String> errors = new HashMap<>();
 
-    /**
-     * @return the items
-     */
-    public List<PSApprovableItem> getApprovableItems()
-    {
-        return approvableItems;
-    }
+  public PSApprovableItems() {
+    // Default constructor for JAX-RS
+  }
 
-    public void setApprovableItems(List<PSApprovableItem> approvableItems)
-    {
-        this.approvableItems = approvableItems;
-    }
-    
-    public Map<String, String> getErrors()
-    {
-        return errors;
-    }
+  public List<PSApprovableItem> getApprovableItems() {
+    return approvableItems;
+  }
 
-    public void setErrors(Map<String, String> errors)
-    {
-        this.errors = errors;
-    }
+  public void setApprovableItems(List<PSApprovableItem> approvableItems) {
+    this.approvableItems = approvableItems;
+  }
 
-    public List<PSApprovableItem> getProcessedItems()
-    {
-        return processedItems;
-    }
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 
-    public void setProcessedItems(List<PSApprovableItem> processedItems)
-    {
-        this.processedItems = processedItems;
-    }
+  public void setErrors(Map<String, String> errors) {
+    this.errors = errors;
+  }
 
+  public List<PSApprovableItem> getProcessedItems() {
+    return processedItems;
+  }
+
+  public void setProcessedItems(List<PSApprovableItem> processedItems) {
+    this.processedItems = processedItems;
+  }
 }

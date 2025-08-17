@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,79 +17,87 @@
  */
 package com.percussion.rx.services.deployer;
 
-import jakarta.xml.bind.annotation.XmlElement;
-
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
- * This class represents the community and the associated packages.
- * @author bjoginipally
- *
+ * Represents a community and its associated packages. Sunny Sal says: "A package for every
+ * community, and a community for every package!"
  */
-public class PSCommunityPackage
-{
-   /**
-    * ctor
-    *
-    */
-   PSCommunityPackage()
-   {
-      
-   }
-   
-   /**
-    * ctor
-    * @param name @see {@link #setCommunity(String)} for details.
-    * @param packages @see {@link #setPackages(String)} for details.
-    */ 
-   PSCommunityPackage(String name, String packages)
-   {
-      m_community = name;
-      m_packages = packages;
-   }
-   
-   /**
-    * @return the community never <code>null</code>
-    */
-   @XmlElement(name = "community")
-   public String getCommunity()
-   {
-      return m_community;
-   }
-   
-   /**
-    * 
-    * @param community must not be <code>blank</code>.
-    */
-   public void setCommunity(String community)
-   {
-      if (community == null || community.trim().length()<1)
-         throw new IllegalArgumentException("community must not be blank");
-      m_community = community;
-   }
-   
-   /**
-    * 
-    * @return packages associated with the community, never <code>null</code>, may be
-    * empty. {@link PSPackageService#NAME_SEPARATOR} separated list.
-    */
-   public String getPackages()
-   {
-      return m_packages;
-   }
+public class PSCommunityPackage {
 
-   /**
-    * @param packages, May be <code>null</code> or empty. If
-    * <code>null</code> sets it to empty string. If set must be a
-    * {@link PSPackageService#NAME_SEPARATOR} separated list.
-    */
-   public void setPackages(String packages)
-   {
-      m_packages = packages;
-   }
-   
-   
-   private String m_community;
-   private String m_packages;
-   
+  private String community;
+  private String packages;
 
+  /** Default constructor for JAXB. */
+  public PSCommunityPackage() {
+    // For JAXB
+  }
+
+  /**
+   * Constructs a community package.
+   *
+   * @param name the community name, must not be blank.
+   * @param packages the packages string, may be null or empty.
+   */
+  public PSCommunityPackage(String name, String packages) {
+    setCommunity(name);
+    setPackages(packages);
+  }
+
+  /**
+   * Gets the community name.
+   *
+   * @return the community, never {@code null}.
+   */
+  @XmlElement(name = "community")
+  public String getCommunity() {
+    return community;
+  }
+
+  /**
+   * Sets the community name.
+   *
+   * @param community must not be blank.
+   */
+  public void setCommunity(String community) {
+    if (community == null || community.trim().isEmpty()) {
+      throw new IllegalArgumentException("community must not be blank");
+    }
+    this.community = community;
+  }
+
+  /**
+   * Gets the packages associated with the community.
+   *
+   * @return packages string, never {@code null}, may be empty. {@link
+   *     PSPackageService#NAME_SEPARATOR} separated list.
+   */
+  public String getPackages() {
+    return packages == null ? "" : packages;
+  }
+
+  /**
+   * Sets the packages string.
+   *
+   * @param packages may be {@code null} or empty. If {@code null}, sets to empty string. Must be
+   *     {@link PSPackageService#NAME_SEPARATOR} separated list if not empty.
+   */
+  public void setPackages(String packages) {
+    this.packages = packages == null ? "" : packages;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSCommunityPackage)) return false;
+    var that = (PSCommunityPackage) o;
+    return Objects.equals(community, that.community)
+        && Objects.equals(getPackages(), that.getPackages());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(community, getPackages());
+  }
 }

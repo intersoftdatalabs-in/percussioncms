@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@ package com.percussion.xsl.encoding;
 
 import java.io.IOException;
 
-/**
- * Defines the EUC_TW character encoding for the Saxon XSLT processor.
- */
-public class PSEUC_TWCharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSEUC_TWCharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("EUC_TW", "java-EUC_TW.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSEUC_TWCharacterSet() throws IOException
-   {
-      super("EUC_TW", "java-EUC_TW.xml");
-   }
+/** Defines the EUC_TW character encoding for the Saxon XSLT processor. */
+public class PSEUC_TWCharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSEUC_TWCharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("EUC_TW",
+   * "java-EUC_TW.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSEUC_TWCharacterSet() throws IOException {
+    super("EUC_TW", "java-EUC_TW.xml");
+  }
 }

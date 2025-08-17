@@ -21,31 +21,25 @@ import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * This class must be extended by any pojo's that are intending to be multi tenant capable.
- * @author erikserating
  *
+ * @author erikserating
  */
 public abstract class PSBaseMultitenantObject {
 
-	
-    protected String tenantId;
-    
-    /**
-     * @return may be <code>null</code> if the pojo is being used in 
-     * non multi tenant mode.
-     */
-    @XmlElement(name="tenantid")
-	public String getTenantId() 
-	{
-		return tenantId;
-	}
+  protected String tenantId;
 
-	/**
-	 * @param tenantId may be <code>null</code> if the pojo is 
-	 * being used in non multi tenant mode.
-	 */
-	public void setTenantId(String tenantId)
-	{
-		this.tenantId = tenantId;
-	}
+  /**
+   * @return may be <code>null</code> if the pojo is being used in non multi tenant mode.
+   */
+  @XmlElement(name = "tenantid")
+  public String getTenantId() {
+    return tenantId;
+  }
 
+  /**
+   * @param tenantId may be <code>null</code> if the pojo is being used in non multi tenant mode.
+   */
+  public void setTenantId(String tenantId) {
+    this.tenantId = tenantId;
+  }
 }

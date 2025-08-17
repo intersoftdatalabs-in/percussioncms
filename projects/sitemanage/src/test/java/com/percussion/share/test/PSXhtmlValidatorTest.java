@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
+import static com.percussion.share.test.PSMatchers.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
-import static com.percussion.share.test.PSMatchers.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * This is a Unit test of unit test code :)
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSXhtmlValidatorTest
-{
-    
-    @Test
-    public void testValidXhtmlMatcher() throws Exception
-    {
-        String xhtml = getHtml("test-xhtml-valid.html");
-        assertThat(xhtml, is(validXhtml()));
-    }
-    
-    
-    @Test
-    public void testInValidXhtmlMatcher() throws Exception
-    {
-        String xhtml = getHtml("test-xhtml-invalid.html");
-        assertThat(xhtml, is(not(validXhtml())));
-    }
-    
-    
-    private String getHtml(String name) {
-        return  PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
-    }
+public class PSXhtmlValidatorTest {
 
+  @Test
+  public void testValidXhtmlMatcher() {
+    var xhtml = getHtml("test-xhtml-valid.html");
+    assertThat(xhtml, is(validXhtml()));
+  }
 
+  @Test
+  public void testInValidXhtmlMatcher() {
+    var xhtml = getHtml("test-xhtml-invalid.html");
+    assertThat(xhtml, is(not(validXhtml())));
+  }
+
+  private String getHtml(String name) {
+    return PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
+  }
 }
-

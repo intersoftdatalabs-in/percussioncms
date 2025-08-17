@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,27 @@ import com.percussion.server.PSServer;
 import com.percussion.servlets.PSSecurityFilter.AuthType;
 import com.percussion.servlets.PSSecurityFilter.SecurityEntry;
 import com.percussion.utils.io.PathUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -57,24 +57,24 @@ import java.util.Properties;
 
 import static com.percussion.servlets.PSSecurityFilter.NON_SECURE_HTTP_BIND_ADDRESS;
 import static com.percussion.servlets.PSSecurityFilter.NON_SECURE_HTTP_BIND_HEADER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link PSSecurityFilter} class. Tests security
  * configurations and pattern matching only.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(UnitTest.class)
+@TestMethodOrder(MethodName.class)
+@Tag("UnitTest")
 public class PSSecurityFilterTest
 {
 
    @ClassRule
-   public static TemporaryFolder tempFolder = TemporaryFolder.builder().build();
+   public static Path tempFolder = TemporaryFolder.builder().build();
 
-   @AfterClass
+   @AfterAll
    public static void tearDown() throws Exception
    {
       System.setProperty(NON_SECURE_HTTP_BIND_ADDRESS, "");
@@ -97,7 +97,7 @@ public class PSSecurityFilterTest
            });
 }
 
-   @BeforeClass
+   @BeforeAll
    public static void setupClass() throws IOException, URISyntaxException {
       System.setProperty(PathUtils.DEPLOY_DIR_PROP, tempFolder.getRoot().getAbsolutePath());
 
@@ -107,7 +107,7 @@ public class PSSecurityFilterTest
 
    }
 
-   @Before
+   @BeforeEach 
    public void setup(){
          ms_filter = new PSSecurityFilter();
    }
@@ -244,7 +244,7 @@ public class PSSecurityFilterTest
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void testAllowedOriginsOnInit() throws ServletException, IOException {
       ms_filter.init(config);
       assertTrue(ms_filter.allowedOrigins.isEmpty());
@@ -265,7 +265,7 @@ public class PSSecurityFilterTest
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void testInjectedHostHeader() throws ServletException, IOException {
       request.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36");
       request.addHeader("Referrer", "https://localhost:9991/login");

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.services.schedule.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
 import com.percussion.services.publisher.IPSPublisherService;
@@ -29,22 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is used to purge publishing log entries older than a specified date.
- *
- * The additional context variable can be used in notification template is
- * : <TABLEBORDER="1">
- * <TR>
- * <TH>Variable Name</TH>
- * <TH>Description</TH>
- * </TR>
- * <TR>
- * <TD>$enableArchive</TD>
- * <TD>Enable archiving the to be purged logs before purging them. 
- * The logs will be archived if this is true; otherwise the logs will be
- * just purged from the database. The location of the archived files is
- * specified by the archiveLocation property of sys_rxpublisherservice bean</TD>
- * </TR>
- * </TABLE>
+ * Used to purge publishing log entries older than a specified date.
+ * <p>The additional context variable <code>$enableArchive</code> can be used in notification templates.</p>
  *
  * @author Yu-Bing Chen
  */

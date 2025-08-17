@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +18,45 @@
 package com.percussion.share.spring;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
-public class PSSpringWebApplicationContextUtilsTest extends ServletTestCase
-{
-    
-    public void testGetWebApplicationContext() 
-    {
-        assertNotNull(getWebApplicationContext());
-        assertNotNull(getWebApplicationContext()
-                .getBean("springWebApplicationContextSetter"));
-    }
-    
+/**
+ * Tests for {@link PSSpringWebApplicationContextUtils}. Sunny Sal: "Spring context utils, Java 11,
+ * and dependency injection ka hero!"
+ */
+@Tag("IntegrationTest")
+@Tag("integration")
+public class PSSpringWebApplicationContextUtilsTest {
 
-    public void testInjectDependencies() throws Exception 
-    {
-        ToBeAutoWired a = new ToBeAutoWired();
-        injectDependencies(a);
-        assertNotNull(a.getSpringWebApplicationContextSetter());
-    }
-    
-    
-    public static class ToBeAutoWired {
-        private PSSpringWebApplicationContextSetter springWebApplicationContextSetter;
+  @Test
+  void testGetWebApplicationContext() {
+    var ctx = getWebApplicationContext();
+    assertNotNull(ctx, "WebApplicationContext should not be null");
+    assertNotNull(
+        ctx.getBean("springWebApplicationContextSetter"),
+        "springWebApplicationContextSetter bean should be present");
+  }
 
-        public PSSpringWebApplicationContextSetter getSpringWebApplicationContextSetter()
-        {
-            return springWebApplicationContextSetter;
-        }
+  @Test
+  void testInjectDependencies() throws Exception {
+    var a = new ToBeAutoWired();
+    injectDependencies(a);
+    assertNotNull(
+        a.getSpringWebApplicationContextSetter(), "Dependency should be injected by Spring");
+  }
 
-        public void setSpringWebApplicationContextSetter(PSSpringWebApplicationContextSetter springWebApplicationContextSetter)
-        {
-            this.springWebApplicationContextSetter = springWebApplicationContextSetter;
-        }
-        
-        
+  public static class ToBeAutoWired {
+    private PSSpringWebApplicationContextSetter springWebApplicationContextSetter;
+
+    public PSSpringWebApplicationContextSetter getSpringWebApplicationContextSetter() {
+      return springWebApplicationContextSetter;
     }
 
+    public void setSpringWebApplicationContextSetter(PSSpringWebApplicationContextSetter setter) {
+      this.springWebApplicationContextSetter = setter;
+    }
+  }
 }

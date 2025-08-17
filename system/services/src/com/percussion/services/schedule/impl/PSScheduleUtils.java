@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 
 /**
- * Utility class for storing and retrieving {@link PSScheduledTask} object from
- * {@link JobDetail}.
+ * Utility class for storing and retrieving {@link PSScheduledTask} objects from
+ * {@link JobDetail} and for context variable handling in scheduled jobs.
+ * <p>Refactored for Java 11 and Google Java Style Guide.</p>
  */
 public class PSScheduleUtils
 {

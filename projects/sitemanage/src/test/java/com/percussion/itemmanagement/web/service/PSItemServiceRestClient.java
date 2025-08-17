@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,40 +19,44 @@
 package com.percussion.itemmanagement.web.service;
 
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
-import com.percussion.share.data.PSNoContent;
 import com.percussion.share.test.PSObjectRestClient;
 
 /**
- * The class used for unit test on REST layer.
- * 
- * @author peterfrontiero
+ * REST client for item management service tests. Sunny Sal says: "REST easy, this client is Java 11
+ * ready!"
  */
-public class PSItemServiceRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/itemmanagement/item/";
+public class PSItemServiceRestClient extends PSObjectRestClient {
 
-    public PSItemServiceRestClient(String baseUrl)
-    {
-        super(baseUrl);
-    }
+  private String path = "/Rhythmyx/services/itemmanagement/item/";
 
-    public PSRevisionsSummary getRevisions(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
-    }
+  public PSItemServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public void restoreRevision(String id)
-    {
-        GET(concatPath(getPath(), "restoreRevision", id));
-    }
+  /**
+   * Retrieves the revision summary for the given item ID.
+   *
+   * @param id the item ID, not null.
+   * @return the revision summary.
+   */
+  public PSRevisionsSummary getRevisions(String id) {
+    return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
+  }
 
-    public String getPath()
-    {
-        return path;
-    }
+  /**
+   * Restores the specified revision by ID.
+   *
+   * @param id the revision ID to restore, not null.
+   */
+  public void restoreRevision(String id) {
+    GET(concatPath(getPath(), "restoreRevision", id));
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

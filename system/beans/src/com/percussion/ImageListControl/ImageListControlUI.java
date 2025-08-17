@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +26,18 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.ListCellRenderer; // TODO: JAVAX-11
-import javax.swing.ListModel; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.event.ListDataEvent; // TODO: JAVAX-11
-import javax.swing.event.ListDataListener; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.event.MouseInputListener; // TODO: JAVAX-11
-import javax.swing.plaf.basic.BasicListUI; // TODO: JAVAX-11
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputListener;
+import javax.swing.plaf.basic.BasicListUI;
 
 
 /** The custom UI for ImageListControl that displays cells in columns instead
@@ -66,6 +67,7 @@ class ImageListControlUI extends BasicListUI
   {
     maybeUpdateLayoutState();
 
+    @SuppressWarnings("unchecked")
     ListCellRenderer renderer = list.getCellRenderer();
     ListModel dataModel = list.getModel();
     ListSelectionModel selModel = list.getSelectionModel();
@@ -150,6 +152,7 @@ class ImageListControlUI extends BasicListUI
   * @return The bounds of the index'th cell.
   * @see javax.swing.plaf.ListUI#getCellBounds(JList,int,int)
   */
+  @Override
   public Rectangle getCellBounds(JList list, int index1, int index2)
   {
     maybeUpdateLayoutState();
@@ -176,6 +179,7 @@ class ImageListControlUI extends BasicListUI
   * @return The index of the cell at location, or -1.
   * @see javax.swing.plaf.ListUI#locationToIndex(JList,Point)
   */
+  @Override
   public int locationToIndex(JList list, Point location)
   {
     maybeUpdateLayoutState();
@@ -187,6 +191,7 @@ class ImageListControlUI extends BasicListUI
   * @return The origin of the index'th cell.
   * @see javax.swing.plaf.ListUI#indexToLocation(JList,int)
   */
+  @Override
   public Point indexToLocation(JList list, int index)
   {
     maybeUpdateLayoutState();
@@ -413,7 +418,7 @@ class ImageListControlUI extends BasicListUI
     {
       public void intervalAdded(ListDataEvent e)
       {
-        setUpdateLayoutStateNeeded(ImageListControlUI.this.modelChanged);
+        setUpdateLayoutStateNeeded(BasicListUI.modelChanged);
 
         int minIndex = Math.min(e.getIndex0(), e.getIndex1());
         int maxIndex = Math.max(e.getIndex0(), e.getIndex1());
@@ -440,7 +445,7 @@ class ImageListControlUI extends BasicListUI
 
       public void intervalRemoved(ListDataEvent e)
       {
-        setUpdateLayoutStateNeeded(ImageListControlUI.this.modelChanged);
+        setUpdateLayoutStateNeeded(BasicListUI.modelChanged);
 
         /* Sync the SelectionModel with the DataModel.
          */
@@ -466,7 +471,7 @@ class ImageListControlUI extends BasicListUI
 
       public void contentsChanged(ListDataEvent e)
       {
-        setUpdateLayoutStateNeeded(ImageListControlUI.this.modelChanged);
+        setUpdateLayoutStateNeeded(BasicListUI.modelChanged);
          getList().revalidate();
         getList().repaint();
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@
 package test.percussion.soln.p13n.delivery;
 
 import static com.percussion.soln.p13n.delivery.web.DeliveryWebUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.p13n.delivery.DeliveryRequest;
 import com.percussion.soln.p13n.delivery.data.DeliverySnippetItem;
@@ -48,7 +48,7 @@ public class DeliveryWebUtilsTest {
     		"<span class=\\\"lead_snippet\\\">\\n\\t<a href=\\\"$pagelink\\\" class=\\\"titlelink\\\">\\n\\t  Chris' Birthday\\t</a>\\n    " +
     		"</span>\\n  \",\"segmentIds\":[\"718\"]}]},\"listItemId\":724,\"visitorProfile\":null}";
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
     }

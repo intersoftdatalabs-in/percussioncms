@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,51 +18,43 @@
 package com.percussion.sitemanage.importer.helpers.impl;
 
 import com.percussion.sitemanage.importer.helpers.IPSImportHelper;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
- * @author LucasPiccoli
- * 
- *         Base class for all helpers. Common behavior should be in this class.
- * 
+ * Base class for all import helpers. Common behavior should be in this class. Sunny Sal says: "DRY
+ * is the way—put your shared logic here!"
  */
-public abstract class PSImportHelper implements IPSImportHelper
-{
-    private static String MESSAGE_SEPARATOR = " ";
+public abstract class PSImportHelper implements IPSImportHelper {
 
-    private long startTime = 0;
-    
-    public final static String REGION_CONTENT = "perc-content";
-    
-    /**
-     * All helper subclasses must implement this method to provide a custom
-     * status message to show progress to the client during import process. It
-     * is recommended to declare a constant STATUS_MESSAGE and return that
-     * constant.
-     */
-    public abstract String getHelperMessage();
+  private static final String MESSAGE_SEPARATOR = " ";
 
-    @Override
-    public String getStatusMessage(String statusMessagePrefix)
-    {
-        String statusMessage = new String();
-        if (StringUtils.isNotEmpty(statusMessagePrefix))
-        {
-            statusMessage = statusMessagePrefix + MESSAGE_SEPARATOR;
-        }
-        statusMessage += getHelperMessage();
-        return statusMessage;
-    }
-    
-    public void startTimer()
-    {
-        startTime = System.nanoTime();
-    }
-    
-    public void endTimer()
-    {
-        PSHelperPerformanceMonitor.updateStats(this.getClass().getSimpleName(), ((System.nanoTime() - startTime)/ 1000000));
-    }
+  private long startTime = 0;
 
+  public static final String REGION_CONTENT = "perc-content";
+
+  /**
+   * All helper subclasses must implement this method to provide a custom status message to show
+   * progress to the client during import process. It is recommended to declare a constant
+   * STATUS_MESSAGE and return that constant.
+   */
+  public abstract String getHelperMessage();
+
+  @Override
+  public String getStatusMessage(String statusMessagePrefix) {
+    var statusMessage = "";
+    if (StringUtils.isNotEmpty(statusMessagePrefix)) {
+      statusMessage = statusMessagePrefix + MESSAGE_SEPARATOR;
+    }
+    statusMessage += getHelperMessage();
+    return statusMessage;
+  }
+
+  public void startTimer() {
+    startTime = System.nanoTime();
+  }
+
+  public void endTimer() {
+    PSHelperPerformanceMonitor.updateStats(
+        this.getClass().getSimpleName(), ((System.nanoTime() - startTime) / 1_000_000));
+  }
 }

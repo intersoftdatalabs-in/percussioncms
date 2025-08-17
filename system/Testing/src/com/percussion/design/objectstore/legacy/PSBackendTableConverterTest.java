@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,20 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link PSBackendTableConverter} class.
  */
 
-@Ignore
+@Disabled
 public class PSBackendTableConverterTest extends PSBaseConverterTest
 {
    /**
@@ -281,7 +281,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       PSLegacyBackEndTable srcTable;
       
       src = getTableXml(name);
-      Assert.assertNotNull("Table xml is null", src);
+      assertNotNull("Table xml is null", src);
       srcTable = new PSLegacyBackEndTable(src, null, null);
       
       

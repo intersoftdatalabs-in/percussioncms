@@ -1,5 +1,7 @@
+// REFACTORED: CP-JAVA11
+// JAVA_11_REFACTORED: This class has been modernized with Java 11 features by Sunny Sal
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +18,7 @@
  */
 package com.percussion.services.schedule.impl;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
@@ -48,8 +50,8 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,50 +60,54 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 
 /**
  * Manage scheduled jobs for Rhythmyx. Uses the OpenSymphony Quartz scheduler
- * library.
- * Quartz <code>scheduler</code> and Hibernate <code>sessionFactory</code>
+ * library to provide comprehensive task scheduling capabilities.
+ * <p>
+ * Quartz {@code scheduler} and Hibernate {@code sessionFactory}
  * properties must be initialized before the service can be used.
- * 
+ * This service has been modernized with Java 11 features for better
+ * maintainability and performance.
+ *
  * @author Doug Rand
  * @author Andriy Palamarchuk
+ * @since Java 11 Modernization
  */
 @Transactional
-public class PSSchedulingService
-      implements IPSSchedulingService
-{
+public class PSSchedulingService implements IPSSchedulingService {
+
    @PersistenceContext
    private EntityManager entityManager;
 
-   private Session getSession(){
+   private Session getSession() {
       return entityManager.unwrap(Session.class);
    }
  
-   // see base
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    @Transactional
-   public PSScheduledTask createSchedule()
-   {
-      final PSScheduledTask s = new PSScheduledTask();
-      s.setId(getGuidManager().createGuid(PSTypeEnum.SCHEDULED_TASK));
-      return s;
+   public PSScheduledTask createSchedule() {
+      var schedule = new PSScheduledTask();
+      schedule.setId(getGuidManager().createGuid(PSTypeEnum.SCHEDULED_TASK));
+      return schedule;
    }
 
-   // see base
-   public PSScheduledTask findScheduledTaskById(IPSGuid id)
-      throws PSSchedulingException
-   {
-      if (id == null)
-      {
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PSScheduledTask findScheduledTaskById(IPSGuid id) throws PSSchedulingException {
+      if (id == null) {
          throw new IllegalArgumentException("Schedule id may not be null");
       }
-      try
-      {
+
+      try {
          return maybeCreateScheduleFromJob(id);
-      }
-      catch (SchedulerException e)
-      {
+      } catch (SchedulerException e) {
          throw new PSSchedulingException(
                Error.SCHEDULER.ordinal(), e, e.getLocalizedMessage());
       }
@@ -110,122 +116,110 @@ public class PSSchedulingService
    /**
     * Creates a schedule from a quartz job for the provided id,
     * if the job exists.
-    * @param id the schedule id. Assumed not <code>null</code>
-    * @return the schedule. <code>null</code> of the schedule with the provided
-    * id does not exist.
-    * @throws SchedulerException on Quartz error.
-    * @throws PSSchedulingException on scheduling service error.
+    *
+    * @param id the schedule id, assumed not {@code null}
+    * @return the schedule, {@code null} if the schedule with the provided
+    *         id does not exist
+    * @throws SchedulerException on Quartz error
+    * @throws PSSchedulingException on scheduling service error
     */
    private PSScheduledTask maybeCreateScheduleFromJob(IPSGuid id)
-         throws SchedulerException, PSSchedulingException
-   {
-      final JobDetail jobDetail =
-            getScheduler().getJobDetail(new JobKey(id.toString(),JOB_GROUP));
-      if (jobDetail == null)
-      {
+         throws SchedulerException, PSSchedulingException {
+      var jobDetail = getScheduler().getJobDetail(new JobKey(id.toString(), JOB_GROUP));
+      if (jobDetail == null) {
          return null;
       }
-      final PSScheduledTask storedSchedule = PSScheduleUtils
-            .getStoredSchedule(jobDetail);
-      if (storedSchedule == null)
-      {
+
+      var storedSchedule = PSScheduleUtils.getStoredSchedule(jobDetail);
+      if (storedSchedule == null) {
          throw new PSSchedulingException(
                Error.JOB_WITHOUT_SCHEDULE.ordinal(), id.toString());
       }
 
-      final PSScheduledTask schedule = new PSScheduledTask();
+      var schedule = new PSScheduledTask();
       schedule.apply(storedSchedule);
       return schedule;
    }
 
-   // see base
-   public Collection<PSScheduledTask> findAllSchedules() throws PSSchedulingException
-   {
-      final List<PSScheduledTask> schedules = new ArrayList<>();
-      try
-      {
-         
-         final GroupMatcher<JobKey> groupMatcher = GroupMatcher.groupEquals(JOB_GROUP);
-         
-         for (JobKey jobKey : getScheduler().getJobKeys(groupMatcher))
-         {
-            final IPSGuid id = new PSGuid(jobKey.getName());
-            final PSScheduledTask schedule = findScheduledTaskById(id);
-            // there is no trigger corresponding to the job
-            // probably data is broken for some reason
-            if (schedule != null)
-            {
-               schedules.add(schedule);
-            }
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public Collection<PSScheduledTask> findAllSchedules() throws PSSchedulingException {
+      var schedules = new ArrayList<PSScheduledTask>();
+
+      try {
+         var groupMatcher = GroupMatcher.groupEquals(JOB_GROUP);
+
+         for (var jobKey : getScheduler().getJobKeys(groupMatcher)) {
+            var id = new PSGuid(jobKey.getName());
+            var schedule = findScheduledTaskById(id);
+
+            // Only add if schedule exists - there might be orphaned jobs
+            Optional.ofNullable(schedule).ifPresent(schedules::add);
          }
-      }
-      catch (SchedulerException e)
-      {
+      } catch (SchedulerException e) {
          throw new PSSchedulingException(
                Error.SCHEDULER.ordinal(), e, e.getLocalizedMessage());
       }
+
       return schedules;
    }
 
-
-   // see base
-   public PSScheduledTask findScheduleByName(String label)
-         throws PSSchedulingException
-   {
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public PSScheduledTask findScheduleByName(String label) throws PSSchedulingException {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-      for (final PSScheduledTask schedule : findAllSchedules())
-      {
-         if (schedule.getName().equals(label))
-         {
-            return schedule;
-         }
-      }
-      return null;
+
+      return findAllSchedules().stream()
+         .filter(schedule -> schedule.getName().equals(label))
+         .findFirst()
+         .orElse(null);
    }
 
-   // see base
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    @Transactional(noRollbackFor = Exception.class)
-   public void saveSchedule(PSScheduledTask schedule) throws PSSchedulingException
-   {
+   public void saveSchedule(PSScheduledTask schedule) throws PSSchedulingException {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-      if (schedule == null)
-      {
+
+      if (schedule == null) {
          throw new IllegalArgumentException(SCHEDULE_NOT_NULL);
       }
 
-      try
-      {
+      try {
          apply(schedule);
-      }
-      catch (SchedulerException e)
-      {
+      } catch (SchedulerException e) {
          throw new PSSchedulingException(
                Error.SCHEDULER.ordinal(), e, e.getLocalizedMessage());
-      }
-      catch (ParseException e)
-      {
+      } catch (ParseException e) {
          throw new PSSchedulingException(Error.CRON_FORMAT.ordinal(),
                e, schedule.getCronSpecification(), e.getLocalizedMessage());
       }
    }
 
-   /*
-    * //see base class method for details
+   /**
+    * {@inheritDoc}
     */
+   @Override
    @Transactional
-   public void runNow(PSScheduledTask schedule)
-   {
+   public void runNow(PSScheduledTask schedule) {
       SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-      if (schedule == null)
+      if (schedule == null) {
          throw new IllegalArgumentException("schedule may not be null.");
+      }
 
       try {
          if (!m_scheduler.isStarted()) {
             m_scheduler.start();
          }
 
-         PSTaskAdapter.runJob(schedule,m_scheduler,true);
+         PSTaskAdapter.runJob(schedule, m_scheduler, true);
 
       } catch (SchedulerException e) {
          ms_log.error("An unexpected error occurred while running job: {} Error: {}",

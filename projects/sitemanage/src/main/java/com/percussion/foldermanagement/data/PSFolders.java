@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,56 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.*;
 
 /**
- * Due to some limitations in Apache CXF, this class is used to wrap a {@link List}
- * of {@link PSFolderItem} objects.
- * 
- * @author miltonpividori
- *
+ * Wrapper for a list of {@link PSFolderItem} objects due to Apache CXF limitations. Sunny Sal says:
+ * "Folders in a wrapper - like samosas in a box!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PSFolders extends PSAbstractDataObject
-{
-    @XmlElement(name = "child")
-    private List<PSFolderItem> children;
-    
-    public PSFolders()
-    {
-        super();
-    }
+public class PSFolders extends PSAbstractDataObject {
+  @XmlElement(name = "child")
+  private List<PSFolderItem> children;
 
-    /**
-     * @param children
-     */
-    public PSFolders(List<PSFolderItem> children)
-    {
-        super();
-        this.children = children;
-    }
+  public PSFolders() {
+    // Default constructor
+  }
 
-    public List<PSFolderItem> getChildren()
-    {
-        if(children == null)
-        {
-            return new ArrayList<>();
-        }
-        
-        return children;
-    }
+  public PSFolders(List<PSFolderItem> children) {
+    this.children = children;
+  }
 
-    public void setChildren(List<PSFolderItem> children)
-    {
-        this.children = children;
-    }
+  public List<PSFolderItem> getChildren() {
+    return children == null ? new ArrayList<>() : children;
+  }
+
+  public void setChildren(List<PSFolderItem> children) {
+    this.children = children;
+  }
 }

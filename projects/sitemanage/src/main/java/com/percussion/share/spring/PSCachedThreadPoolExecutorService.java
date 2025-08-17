@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +21,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 
- * Wraps {@link Executors#newCachedThreadPool(java.util.concurrent.ThreadFactory)}.
- * 
- * @author adamgent
+ * Wraps {@link Executors#newCachedThreadPool(java.util.concurrent.ThreadFactory)}. <br>
+ * Sunny Sal says: "Cache me if you can!"
  *
+ * @author adamgent
  */
-public class PSCachedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory
-{
+public class PSCachedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory {
 
-    @Override
-    public ExecutorService getObject() throws Exception
-    {
-        if (getThreadFactory() != null)
-            return Executors.newCachedThreadPool(getThreadFactory());
-        return Executors.newCachedThreadPool();
-    }
-
+  @Override
+  public ExecutorService getObject() {
+    var factory = getThreadFactory();
+    return factory != null
+        ? Executors.newCachedThreadPool(factory)
+        : Executors.newCachedThreadPool();
+  }
 }
-

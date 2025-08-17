@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,62 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.folders;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/**
+ * Represents a section link reference. Sunny Sal: "Section link ka reference, navigation ka sense!"
+ */
 @XmlRootElement(name = "SectionLinkRef")
-public class SectionLinkRef extends LinkRef
-{
-    @Schema(name="type", required=false,description="type of section link.", allowableValues = "sectionlink,externallink")
-    String type;
+public class SectionLinkRef extends LinkRef {
 
-    public static final String TYPE_INTERNAL = "internal";
+  @Schema(
+      name = "type",
+      required = false,
+      description = "Type of section link.",
+      allowableValues = "sectionlink,externallink")
+  private String type;
 
-    public static final String TYPE_EXTERNAL = "external";
+  public static final String TYPE_INTERNAL = "internal";
+  public static final String TYPE_EXTERNAL = "external";
+  public static final String TYPE_SUBFOLDER = "subfolder";
 
-    public static final String TYPE_SUBFOLDER = "subfolder";
+  public SectionLinkRef() {
+    super();
+  }
 
-    public SectionLinkRef()
-    {
-        super();
-    }
+  public SectionLinkRef(String name, String href) {
+    super(name, href);
+    this.type = TYPE_INTERNAL;
+  }
 
-    public SectionLinkRef(String name, String href)
-    {
-        super(name, href);
-        type = "internal";
-    }
+  @JsonCreator
+  public SectionLinkRef(
+      @JsonProperty("name") String name,
+      @JsonProperty("href") String href,
+      @JsonProperty("type") String type) {
+    super(name, href);
+    this.type = type;
+  }
 
-    @JsonCreator
-    public SectionLinkRef(@JsonProperty("name")
-    String name, @JsonProperty("href")
-    String href, @JsonProperty("type")
-    String type)
-    {
-        super(name, href);
-        this.type = type;
+  /**
+   * Gets the type of the section link.
+   *
+   * @return Optional containing the type if present
+   */
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
+  public void setType(String type) {
+    this.type = type;
+  }
 }

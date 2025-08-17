@@ -15,8 +15,8 @@ import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSAAClientActionFactory;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.services.assembly.impl.ModifyRelatedContentUtils;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Test the move action methods
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSMoveActionTest extends PSAAClientActionTestBase
 {
    

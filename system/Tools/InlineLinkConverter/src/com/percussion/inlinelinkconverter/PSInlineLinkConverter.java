@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.PSRemoteRequester;
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -43,259 +43,409 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Templates; // TODO: JAVAX-11
-import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
- * This is the class for the Rhythmyx Inline Link Conversion Tool. Runs the 
- * {@link #main} method and provides some static utility methods provide 
- * information about the tool.
+ * Rhythmyx Inline Link Conversion Tool for processing and converting inline links in content items.
+ * This tool provides functionality to convert inline links according to specified XSL transformations
+ * and manages workflow states during the conversion process.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Batch processing of content items with inline links</li>
+ *   <li>XSL-based content transformation</li>
+ *   <li>Workflow state management during conversion</li>
+ *   <li>Comprehensive logging and error handling</li>
+ * </ul>
+ *
+ * @author Percussion Software
+ * @since 1.0
  */
+public class PSInlineLinkConverter {
 
-public class PSInlineLinkConverter
-{
+    private static final Logger log = LogManager.getLogger(PSInlineLinkConverter.class);
 
-   private static final Logger log = LogManager.getLogger(PSInlineLinkConverter.class);
+    /**
+     * The default properties file name.
+     */
+    private static final String DEFAULT_PROPERTIES_FILE = "inlinelinkconverter.properties";
 
-   /**
-    * Constructor, called by main with the loaded properties file and
-    * xsl document which will be applied on the inline content.
-    * 
-    * @param props the properties of the conversion. It must contain
-    *    the properties that are needed for <code>PSRemoteRequester</code>, 
-    *    which are used to communicate with Rhythmyx server. See 
-    *    {@link com.percussion.util.PSRemoteRequester}.
-    * @param xslDoc The XSL document that needs to be applied on the
-    *    inline content to convert it. Must not be <code>null</code>.
-    */
-   public PSInlineLinkConverter(Properties props, Document xslDoc)
-   {
-      if (props == null)
-      {
-         throw new IllegalArgumentException("props must not be null");
-      }
-      if (xslDoc == null)
-      {
-         throw new IllegalArgumentException("xslDoc must not be null");
-      }
-         
-      try 
-      {
-         m_props = props;
-         m_XslDoc = xslDoc;
-         
-         m_userName = m_props.getProperty("loginId");
-         PSRemoteRequester requester = new PSRemoteRequester(props);
-         m_rtAgent = new PSRemoteAgent(requester);
-         
-         // get the community
-         String communityId = m_props.getProperty("communityId");
-         if (communityId != null && communityId.trim().length() != 0)
-            m_rtAgent.setCommunity(communityId);
-         m_community = m_rtAgent.login();
-         
-         initWorkflowIdMap(m_community);
-         m_allContentTypes = m_rtAgent.getContentTypes(m_community);
-         
-         // get rx root & sessionid          
-         Element responseEl = m_rtAgent.loginEx();
-         Element loginDataEl =
-            PSXMLDomUtil.getFirstElementChild(responseEl, "LoginData");
-         m_RxLocation = getRxLocation();
-   
-         Element sessionIdEl = 
-            PSXMLDomUtil.getFirstElementChild(loginDataEl, "SessionId");
-         m_RxSession = PSXMLDomUtil.getElementData(sessionIdEl);
-         
-      }
-      catch (Exception ex) 
-      {
-         log.error(ex.getMessage());
-         log.debug(ex.getMessage(), ex);
-         String errorMsg = "Error - failed to construct PSInlineLinkConverter"
-            + ", caught exception: " + ex.getMessage();
-         writeToLog(errorMsg);
-         throw new RuntimeException(errorMsg);
-      }
-   }
+    /**
+     * The default XSL file name for inline link conversion.
+     */
+    private static final String INLINE_LINK_CONVERTER_XSL = "inlinelinkconverter.xsl";
 
-   /**
-    * Get the Rhythmyx URL from the properties, assume the variable, 
-    * <code>m_props</code>, is not <code>null</code>.
-    * 
-    * @return the Rxythmyx root, never <code>null</code>.
-    */
-   private String getRxLocation()
-   {  
-      String hostName = m_props.getProperty("hostName");
-      String port = m_props.getProperty("port");
-      String rxroot = m_props.getProperty("serverRoot");
-   
-      return "http://" + hostName + ":" + port + "/" + rxroot;
-   }
-      
-   /**
-    * Creates a document from the given string.
-    * 
-    * @param content The string of the document, assume not <code>null</code>.
-    * 
-    * @return The created document, never <code>null</code>.
-    * 
-    * @throws IOException if I/O error occurs.
-    * @throws SAXException if XML parser error occurs.
-    */
-   private Document createXmlDocument(String content) 
-      throws IOException, SAXException
-   {
-      String docString;
+    /**
+     * The log file name, which contains all logged information
+     */
+    public static final String LOG_ALL = "convert.log";
 
-      // prepare the XML string, inserting DOCTYPE for the ENTITY files
-      String entityString = 
-         NEWLINE
-         + "<!DOCTYPE html ["
-         + PSXmlDocumentBuilder.getDefaultEntities(m_RxLocation)
-         + "]>"
-         + NEWLINE
-         + NEWLINE;
-      
-      if (content.startsWith("<?"))
-      {
-         int headerEnd = content.indexOf("?>");
-         if (headerEnd > 0)
-         {
-            docString = content.substring(0, headerEnd+2)
-               + entityString
-               + content.substring(headerEnd+2);
-         }
-         else
-         {
-            throw new RuntimeException("Error - Invalid XML document, "
-               + "start with '<?', but there is no '?>'");
-         }
-      }
-      else
-      {
-         docString = "<?xml version='1.0' encoding=\"UTF-8\"?>"
-            + entityString
-            + content;
-      }
+    /**
+     * The log file name, contains the items (id, rev) that have
+     * successfully converted.
+     */
+    public static final String LOG_SUCCESS = "convert_success.log";
 
-      Document doc =
-         PSXmlDocumentBuilder.createXmlDocument(
-            new StringReader(docString),
-            false);
+    /**
+     * The log file name, contains the items (id, rev) which were
+     * unable to be converted.
+     */
+    public static final String LOG_FAIL = "convert_fail.log";
 
-      return doc;        
-   }
-   
-   /**
-    * Populates the workflow id-name mapper for all workflows in specified
-    * community.
-    * 
-    * @param community The community of the populated workflow, assume not
-    *    <code>null</code>.
-    * 
-    * @throws PSRemoteException if an error occurs.
-    */
-   private void initWorkflowIdMap(PSEntry community) throws PSRemoteException
-   {
-      Iterator workflows = m_rtAgent.getWorkflows(community).iterator();
-      while (workflows.hasNext())
-      {
-         PSEntry wf = (PSEntry) workflows.next();
-         String name = wf.getLabel().getText();
-         m_wfIdNameMap.put(wf.getValue(), normalizeWorkflowName(name));
-      }
-   }
-   
-   /**
-    * Replaces space character, ' ', with underscore character, '_'. This is
-    * because the workflow name is a key in the properties file, which defines
-    * transition lists for the workflow. However, the space character cannot be
-    * used in the key of the properties file. 
-    * 
-    * @param wfName the to be normalized workflow name, assume not 
-    *    <code>null</code> or empty.
-    * 
-    * @return The normalized workflow name. Never <code>null</code> or empty.
-    */
-   private String normalizeWorkflowName(String wfName)
-   {
-      return wfName.replace(' ', '_');
-   }
-   
-   /**
-    * Do the conversion here.
-    */
-   public void doConvert()
-   {
-      try
-      {
-         // redirect the output to a logfile
-         m_logger = new BufferedWriter(new FileWriter(LOG_ALL));
-         m_loggerFail = new BufferedWriter(new FileWriter(LOG_FAIL));
-         m_loggerSuccess = new BufferedWriter(new FileWriter(LOG_SUCCESS));
-         
-         writeToLog("Conversion Started -- " + new Date());
-         writeToLog("");
-         System.out.println("Conversion Started");
-         
-         String contentType = m_props.getProperty("contentType");
-         if (contentType != null && contentType.trim().length() > 0)
-         {
-            convertType(contentType);
-         }
-         else
-         {
-            Iterator iter = m_allContentTypes.iterator();
-            while (iter.hasNext())
-            {
-               PSEntry ct = (PSEntry) iter.next();
-               convertType(ct.getLabel().getText());
+    /**
+     * Send message SOAP constants
+     */
+    public static final String SEARCH_OPERATION = "search";
+    public static final String SEARCH_REQUEST = "SearchRequest";
+    public static final String SEARCH_RESPONSE = "SearchResponse";
+    public static final String SEARCH_PORT = "Search";
+    public static final String SEARCH_RESULTS = "SearchResults";
+    public static final String RESULT_FIELD = "ResultField";
+    public static final String SEARCH_PARAMETER = "Parameter";
+    public static final String SEARCH_FIELD = "SearchField";
+    public static final String SEARCH_PARAMS = "SearchParams";
+
+    public static final String NAME_ATTR = "name";
+
+    /**
+     * Search result field names
+     */
+    public static final String SYS_CONTENTID = "sys_contentid";
+    public static final String SYS_TIPREVISION = "sys_tiprevision";
+    public static final String SYS_CHKOUT_USER = "sys_contentcheckoutusername";
+    public static final String SYS_WORKFLOWID = "sys_workflowid";
+    public static final String SYS_PUB_TYPE = "sys_publishabletype";
+
+    /**
+     * The search result of the {@link #SYS_PUB_TYPE} field when an
+     * item is in public state.
+     */
+    public static final String PUBLIC_TYPE = "y";
+
+    /**
+     * The properties from the property file. Init by ctor,
+     * never <code>null</code>.
+     */
+    protected Properties m_props = new Properties();
+
+    /**
+     * This is used to communicate with Rhythmyx server, init by ctor, never
+     * <code>null</code> after that.
+     */
+    protected PSRemoteAgent m_rtAgent = null;
+
+    /**
+     * The community used during the conversion process. It is initialized by
+     * ctor, never <code>null</code> after that.
+     */
+    private PSEntry m_community = null;
+
+    /**
+     * The user name or login id, used to communicate with Rhythmyx server
+     * during the conversion process. Init by ctor, never <code>null</code> or
+     * empty after that.
+     */
+    private String m_userName = null;
+
+    /**
+     * A list of all content type (as <code>PSEntry</code>) in the current
+     * community. Init by ctor, never <code>null</code> after that.
+     */
+    private List<PSEntry> m_allContentTypes = null;
+
+    /**
+     * It maps content type to a list of inline link field names. The map key is
+     * the content type as <code>String</code>. The map value is a list of
+     * inline link field names as <code>List&lt;String&gt;</code>, which contains zero or more
+     * <code>String</code> objects. Never <code>null</code>.
+     */
+    private final Map<String, List<String>> m_inlineLinkFieldMap = new HashMap<>();
+
+    /**
+     * Document of the stylesheet, used to convert the inline links.
+     */
+    private Document m_XslDoc = null;
+
+    /**
+     * The Rhythmyx URL, init by ctor, never <code>null</code> after that.
+     */
+    private String m_RxLocation = null;
+
+    /**
+     * The session id of the current login, init by ctor, never <code>null</code>
+     * after that.
+     */
+    private String m_RxSession = null;
+
+    /**
+     * The writer for all logging data, init by ctor, never <code>null</code>
+     * after that.
+     */
+    private BufferedWriter m_logger = null;
+
+    /**
+     * The writer for logging successfully converted items. Init by ctor,
+     * never <code>null</code> after that.
+     */
+    private BufferedWriter m_loggerSuccess = null;
+
+    /**
+     * The writer for logging the items that were unable to be converted. Init
+     * by ctor, never <code>null</code> after that.
+     */
+    private BufferedWriter m_loggerFail = null;
+
+    /**
+     * It maps workflow name to its transition lists. The map key is the name
+     * a workflow as <code>String</code>. The workflow name is normalize by
+     * by {@link #normalizeWorkflowName(String)}. The map value is the transition
+     * list of the workflow as {@link WorkflowTransitions}.
+     */
+    private final Map<String, WorkflowTransitions> m_wfTransMap = new HashMap<>();
+
+    /**
+     * It maps workflow id to workflow name. The map key is the id as
+     * <code>String</code>. The map value is workflow name, which is normalized
+     * by {@link #normalizeWorkflowName(String)}.
+     */
+    private final Map<String, String> m_wfIdNameMap = new HashMap<>();
+
+    /**
+     * Constructor, called by main with the loaded properties file and
+     * xsl document which will be applied on the inline content.
+     *
+     * @param props the properties of the conversion. It must contain
+     *    the properties that are needed for <code>PSRemoteRequester</code>,
+     *    which are used to communicate with Rhythmyx server. See
+     *    {@link com.percussion.system.utils.PSRemoteRequester}.
+     * @param xslDoc The XSL document that needs to be applied on the
+     *    inline content to convert it. Must not be <code>null</code>.
+     */
+    public PSInlineLinkConverter(Properties props, Document xslDoc) {
+        Objects.requireNonNull(props, "props must not be null");
+        Objects.requireNonNull(xslDoc, "xslDoc must not be null");
+
+        try {
+            initializeConverter(props, xslDoc);
+        } catch (Exception ex) {
+            var errorMsg = "Failed to construct PSInlineLinkConverter: " + ex.getMessage();
+            log.error(errorMsg, ex);
+            writeToLog(errorMsg);
+            throw new RuntimeException(errorMsg, ex);
+        }
+    }
+
+    /**
+     * Initializes the converter with the provided properties and XSL document.
+     * Sets up remote agent, community, and workflow mappings.
+     *
+     * @param props the properties configuration
+     * @param xslDoc the XSL transformation document
+     * @throws Exception if initialization fails
+     */
+    private void initializeConverter(Properties props, Document xslDoc) throws Exception {
+        m_props = props;
+        m_XslDoc = xslDoc;
+
+        m_userName = Optional.ofNullable(m_props.getProperty("loginId"))
+                .orElseThrow(() -> new IllegalArgumentException("loginId property is required"));
+
+        var requester = new PSRemoteRequester(props);
+        m_rtAgent = new PSRemoteAgent(requester);
+
+        // Configure community if specified
+        Optional.ofNullable(m_props.getProperty("communityId"))
+                .filter(id -> !id.trim().isEmpty())
+                .ifPresent(m_rtAgent::setCommunity);
+
+        m_community = m_rtAgent.login();
+
+        initWorkflowIdMap(m_community);
+        m_allContentTypes = m_rtAgent.getContentTypes(m_community);
+
+        // Initialize Rhythmyx connection details
+        var responseEl = m_rtAgent.loginEx();
+        var loginDataEl = PSXMLDomUtil.getFirstElementChild(responseEl, "LoginData");
+        m_RxLocation = getRxLocation();
+
+        var sessionIdEl = PSXMLDomUtil.getFirstElementChild(loginDataEl, "SessionId");
+        m_RxSession = PSXMLDomUtil.getElementData(sessionIdEl);
+    }
+
+    /**
+     * Get the Rhythmyx URL from the properties, assume the variable,
+     * <code>m_props</code>, is not <code>null</code>.
+     *
+     * @return the Rxythmyx root, never <code>null</code>.
+     */
+    private String getRxLocation() {
+        var hostName = m_props.getProperty("hostName");
+        var port = m_props.getProperty("port");
+        var rxroot = m_props.getProperty("serverRoot");
+
+        return String.format("http://%s:%s/%s", hostName, port, rxroot);
+    }
+
+    /**
+     * Newline string for consistent line endings across platforms.
+     */
+    private static final String NEWLINE = System.lineSeparator();
+
+    /**
+     * Creates an XML document from the given string content.
+     * Properly handles XML headers and entity declarations.
+     *
+     * @param content the string content of the document, must not be null
+     * @return the created XML document, never null
+     * @throws IOException if I/O error occurs
+     * @throws SAXException if XML parser error occurs
+     */
+    private Document createXmlDocument(String content) throws IOException, SAXException {
+        Objects.requireNonNull(content, "content must not be null");
+
+        var entityString = NEWLINE
+                + "<!DOCTYPE html ["
+                + PSXmlDocumentBuilder.getDefaultEntities(m_RxLocation)
+                + "]>"
+                + NEWLINE
+                + NEWLINE;
+
+        String docString;
+        if (content.startsWith("<?")) {
+            var headerEnd = content.indexOf("?>");
+            if (headerEnd > 0) {
+                docString = content.substring(0, headerEnd + 2)
+                        + entityString
+                        + content.substring(headerEnd + 2);
+            } else {
+                throw new RuntimeException("Invalid XML document: starts with '<?', but no '?>' found");
             }
-         }
-      }
-      catch (Throwable t)
-      {
-         String msg = "An error has occurred: " + t.getMessage();
-         System.out.println(msg);
+        } else {
+            docString = "<?xml version='1.0' encoding=\"UTF-8\"?>"
+                    + entityString
+                    + content;
+        }
 
-         writeToLog(msg);
+        return PSXmlDocumentBuilder.createXmlDocument(new StringReader(docString), false);
+    }
 
-         log.error(t.getMessage());
-         log.debug(t.getMessage(), t);
-      }
-      finally
-      {
-         writeToLog("");
-         writeToLog("Conversion Finished -- " + new Date());
-         System.out.println("");
-         System.out.println("Conversion Finished");
+    /**
+     * Populates the workflow ID-to-name mapping for all workflows in the specified community.
+     * Uses enhanced for-loop and stream operations for better performance.
+     *
+     * @param community the community containing workflows, must not be null
+     * @throws PSRemoteException if an error occurs during workflow retrieval
+     */
+    @SuppressWarnings("unchecked")
+    private void initWorkflowIdMap(PSEntry community) throws PSRemoteException {
+        Objects.requireNonNull(community, "community must not be null");
 
-         closeLogger(m_logger);
-         closeLogger(m_loggerSuccess);
-         closeLogger(m_loggerFail);
-      }
-   }
+        var workflows = (List<PSEntry>) m_rtAgent.getWorkflows(community);
+        for (var workflow : workflows) {
+            var name = workflow.getLabel().getText();
+            m_wfIdNameMap.put(workflow.getValue(), normalizeWorkflowName(name));
+        }
+    }
 
-   /**
+    /**
+     * Normalizes workflow names by replacing spaces with underscores.
+     * This is required because workflow names are used as properties file keys,
+     * and spaces are not allowed in property keys.
+     *
+     * @param wfName the workflow name to normalize, must not be null or empty
+     * @return the normalized workflow name, never null or empty
+     */
+    private String normalizeWorkflowName(String wfName) {
+        Objects.requireNonNull(wfName, "workflow name must not be null");
+        if (wfName.trim().isEmpty()) {
+            throw new IllegalArgumentException("workflow name must not be empty");
+        }
+        return wfName.replace(' ', '_');
+    }
+
+    /**
+     * Executes the main conversion process with comprehensive error handling and logging.
+     * Uses try-with-resources for automatic resource management.
+     */
+    public void doConvert() {
+        var startTime = LocalDateTime.now();
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        try (var logger = new BufferedWriter(new FileWriter(LOG_ALL));
+             var loggerFail = new BufferedWriter(new FileWriter(LOG_FAIL));
+             var loggerSuccess = new BufferedWriter(new FileWriter(LOG_SUCCESS))) {
+
+            // Initialize loggers
+            m_logger = logger;
+            m_loggerFail = loggerFail;
+            m_loggerSuccess = loggerSuccess;
+
+            writeToLog("Conversion Started -- " + startTime.format(formatter));
+            writeToLog("");
+            System.out.println("Conversion Started");
+
+            var contentType = Optional.ofNullable(m_props.getProperty("contentType"))
+                    .filter(type -> !type.trim().isEmpty());
+
+            if (contentType.isPresent()) {
+                convertType(contentType.get());
+            } else {
+                // Convert all content types in the community
+                m_allContentTypes.stream()
+                        .map(PSEntry.class::cast)
+                        .map(ct -> ct.getLabel().getText())
+                        .forEach(this::convertTypeSafely);
+            }
+
+        } catch (Throwable t) {
+            var msg = "An error has occurred: " + t.getMessage();
+            System.out.println(msg);
+            writeToLog(msg);
+            log.error("Conversion failed", t);
+        } finally {
+            var endTime = LocalDateTime.now();
+            writeToLog("");
+            writeToLog("Conversion Finished -- " + endTime.format(formatter));
+            System.out.println();
+            System.out.println("Conversion Finished");
+        }
+    }
+
+    /**
+     * Safely converts a content type, handling any exceptions that occur.
+     *
+     * @param contentType the content type to convert
+     */
+    private void convertTypeSafely(String contentType) {
+        try {
+            convertType(contentType);
+        } catch (PSCmsException e) {
+            log.error("Failed to convert content type: {}", contentType, e);
+            writeToLog("Error converting content type " + contentType + ": " + e.getMessage());
+        }
+    }
+
+    /**
     * Convert the specified content type.
     * 
     * @param contentType the type of content to be converted
@@ -1517,146 +1667,4 @@ public class PSInlineLinkConverter
             "See the PSInlineLinkConverter documentation for details on "
             + "the properties file.");
    }
-
-   /**
-    * The properties from the property file. Init by ctor, 
-    * never <code>null</code>.
-    */
-   protected Properties m_props = new Properties();
-   
-   /**
-    * This is used to communicate with Rhythmyx server, init by ctor, never
-    * <code>null</code> after that.
-    */
-   protected PSRemoteAgent m_rtAgent = null;
-
-   /**
-    * The community used during the conversion process. It is initialized by
-    * ctor, never <code>null</code> after that.
-    */
-   private PSEntry m_community = null;
-   
-   /**
-    * The user name or login id, used to communicate with Rhythmyx server
-    * during the conversion process. Init by ctor, never <code>null</code> or 
-    * empty after that.
-    */
-   private String m_userName = null;
-   
-   /**
-    * A list of all content type (as <code>PSEntry</code>) in the current 
-    * community. Init by ctor, never <code>null</code> after that. 
-    */
-   private List m_allContentTypes = null;
-   
-   /**
-    * It maps content type to a list of inline link field names. The map key is
-    * the content type as <code>String</code>. The map value is a list of 
-    * inline link field names as <code>List</code>, which contains zero or more
-    * <code>String</code> objects. Never <code>null</code>.
-    */
-   private Map m_inlineLinkFieldMap = new HashMap();
-  
-   /**
-    * Document of the stylesheet, used to convert the inline links. 
-    */
-   private Document m_XslDoc = null;
-   
-   /**
-    * The Rhythmyx URL, init by ctor, never <code>null</code> after that.
-    */
-   private String m_RxLocation = null;
-   
-   /**
-    * The session id of the current login, init by ctor, never <code>null</code>
-    * after that.
-    */
-   private String m_RxSession = null;
-
-   /**
-    * The writer for all logging data, init by ctor, never <code>null</code>
-    * after that.  
-    */
-   private BufferedWriter m_logger = null;
-   
-   /**
-    * The writer for logging successfully converted items. Init by ctor, 
-    * never <code>null</code> after that.
-    */
-   private BufferedWriter m_loggerSuccess = null;
-   
-   /**
-    * The writer for logging the items that were unable to be converted. Init
-    * by ctor, never <code>null</code> after that.
-    */
-   private BufferedWriter m_loggerFail = null;
-
-   /**
-    * It maps workflow name to its transition lists. The map key is the name 
-    * a workflow as <code>String</code>. The workflow name is normalize by 
-    * by {@link #normalizeWorkflowName(String)}. The map value is the transition
-    * list of the workflow as {@link WorkflowTransitions}.
-    */
-   private Map m_wfTransMap = new HashMap();
-   
-   /**
-    * It maps workflow id to workflow name. The map key is the id as 
-    * <code>String</code>. The map value is workflow name, which is normalized
-    * by {@link #normalizeWorkflowName(String)}.
-    */
-   private Map m_wfIdNameMap = new HashMap<>();
-      
-   private static final String DEFAULT_PROPERTIES_FILE =
-      "inlinelinkconverter.properties";
-   private static final String INLINE_LINK_CONVERTER_XSL =
-      "inlinelinkconverter.xsl";
-
-   private static final String NEWLINE = "\r\n";
-
-   /**
-    * Send message SOAP constants
-    */
-   public static final String SEARCH_OPERATION = "search";
-   public static final String SEARCH_REQUEST = "SearchRequest";
-   public static final String SEARCH_RESPONSE = "SearchResponse";
-   public static final String SEARCH_PORT = "Search";
-   public static final String SEARCH_RESULTS = "SearchResults";
-   public static final String RESULT_FIELD = "ResultField";
-   public static final String SEARCH_PARAMETER = "Parameter";
-   public static final String SEARCH_FIELD = "SearchField";
-   public static final String SEARCH_PARAMS = "SearchParams";
-   
-   public static final String NAME_ATTR = "name";
-   
-   /**
-    * Search result field names
-    */
-   public static final String SYS_CONTENTID = "sys_contentid";
-   public static final String SYS_TIPREVISION = "sys_tiprevision";
-   public static final String SYS_CHKOUT_USER = "sys_contentcheckoutusername";
-   public static final String SYS_WORKFLOWID = "sys_workflowid";
-   public static final String SYS_PUB_TYPE = "sys_publishabletype";
-   
-   /**
-    * The search result of the {@link #SYS_PUB_TYPE} field when an 
-    * item is in public state. 
-    */
-   public static final String PUBLIC_TYPE = "y";
-   
-   /**
-    * The log file name, which contains all logged information
-    */
-   public static final String LOG_ALL = "convert.log";
-   
-   /**
-    * The log file name, contains the items (id, rev) that have 
-    * successfully converted. 
-    */
-   public static final String LOG_SUCCESS = "convert_success.log";
-   
-   /**
-    * The log file name, contains the items (id, rev) which were 
-    * unable to be converted. 
-    */
-   public static final String LOG_FAIL = "convert_fail.log";
 }

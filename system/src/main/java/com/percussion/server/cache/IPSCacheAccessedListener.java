@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,14 @@
 package com.percussion.server.cache;
 
 /**
- * Interface to allow classes to be notified when attempts are made to access
- * items from the cache.
+ * Interface to allow classes to be notified when attempts are made to access items from the cache.
  */
-public interface IPSCacheAccessedListener 
-{
-   /**
-    * Called to notify listeners when an attempt is made to access an item from
-    * the cache.
-    * 
-    * @param e The event, never <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>e</code> is <code>null</code>.
-    */
-   public void cacheAccessed(PSCacheEvent e);
-
+public interface IPSCacheAccessedListener {
+  /**
+   * Called to notify listeners when an attempt is made to access an item from the cache.
+   *
+   * @param e The event, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>e</code> is <code>null</code>.
+   */
+  public void cacheAccessed(PSCacheEvent e);
 }

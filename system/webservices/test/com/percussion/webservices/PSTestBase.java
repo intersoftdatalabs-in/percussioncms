@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.percussion.testing.IPSUnitTestConfigHelper;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.testing.PSConfigHelperTestCase;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.faults.PSErrorResultsFault;
 import com.percussion.webservices.faults.PSErrorResultsFaultServiceCall;
@@ -61,17 +61,17 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.axis.client.Call;
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Implements utilities used by all webservice test cases.
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTestBase extends PSClientTestCase
 {
    public PSTestBase(String name)
@@ -306,7 +306,7 @@ public class PSTestBase extends PSClientTestCase
       }
    }
 
-   @BeforeClass
+   @BeforeAll
    public static void setup() throws Exception
    {
       Properties properties = null;
@@ -345,7 +345,7 @@ public class PSTestBase extends PSClientTestCase
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @AfterClass
+   @AfterAll
    protected static void tearDown() throws Exception
    {
    }

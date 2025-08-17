@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,79 +23,82 @@ import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.PSJettyConnectorsTest;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import com.percussion.utils.io.PathUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class JettyDatasourceConfigurationAdapterTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir public Path temporaryFolder;
 
-    private String rxdeploydir;
+  private String rxdeploydir;
 
-    @Before
-    public void setup(){
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
-    }
+  @BeforeEach
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
+  }
 
-    @After
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  @AfterEach
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-    @Test
-    public void load() throws IOException {
+  @Test
+  public void load() throws IOException {
 
-        Path root = temporaryFolder.getRoot().toPath();
+    Path root = temporaryFolder;
 
-        InputStream srcInstallProps = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/installation.properties");
-        InputStream srcLoginConf = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/login.conf");
-        InputStream srcPercDsXML= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
-        InputStream srcPercDsProperties= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
+    InputStream srcInstallProps =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/installation.properties");
+    InputStream srcLoginConf =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/login.conf");
+    InputStream srcPercDsXML =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
+    InputStream srcPercDsProperties =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
 
-        temporaryFolder.newFolder("jetty","base","etc");
+    Files.createDirectories(temporaryFolder.resolve("jetty").resolve("base").resolve("etc"));
 
-        Files.copy(srcInstallProps,root.resolve("jetty/base/etc/installation.properties"));
-        Files.copy(srcLoginConf,root.resolve("jetty/base/etc/login.conf"));
-        Files.copy(srcPercDsXML,root.resolve("jetty/base/etc/perc-ds.xml"));
-        Files.copy(srcPercDsProperties,root.resolve("jetty/base/etc/perc-ds.properties"));
+    Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
+    Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
+    Files.copy(srcPercDsXML, root.resolve("jetty/base/etc/perc-ds.xml"));
+    Files.copy(srcPercDsProperties, root.resolve("jetty/base/etc/perc-ds.properties"));
 
+    JettyDatasourceConfigurationAdapter adapter = new JettyDatasourceConfigurationAdapter();
 
-        JettyDatasourceConfigurationAdapter adapter = new JettyDatasourceConfigurationAdapter();
+    PSLegacyEncrypter legacy =
+        PSLegacyEncrypter.getInstance(
+            PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR));
+    DefaultConfigurationContextImpl fromCtx =
+        new DefaultConfigurationContextImpl(root, legacy.getPartTwoKey());
+    DefaultConfigurationContextImpl toCtx =
+        new DefaultConfigurationContextImpl(root, legacy.getPartTwoKey());
+    adapter.load(fromCtx);
 
-        PSLegacyEncrypter legacy = PSLegacyEncrypter.getInstance(
-                PathUtils.getRxPath().toAbsolutePath().toString().concat(
-                        PSEncryptor.SECURE_DIR)
-        );
-        DefaultConfigurationContextImpl fromCtx = new DefaultConfigurationContextImpl(root, legacy.getPartTwoKey());
-        DefaultConfigurationContextImpl toCtx = new DefaultConfigurationContextImpl(root, legacy.getPartTwoKey());
-        adapter.load(fromCtx);
+    BaseContainerUtils fromConfig = fromCtx.getConfig();
 
-        BaseContainerUtils fromConfig = fromCtx.getConfig();
+    toCtx.copyFrom(fromCtx);
 
-        toCtx.copyFrom(fromCtx);
+    JettyInstallationPropertiesConfigurationAdapter jettyAdapter =
+        new JettyInstallationPropertiesConfigurationAdapter();
+    Map<String, Object> propMap = new HashMap<>();
 
-        JettyInstallationPropertiesConfigurationAdapter jettyAdapter = new JettyInstallationPropertiesConfigurationAdapter();
-        Map<String,Object> propMap = new HashMap<>();
+    BaseContainerUtils toConfig = toCtx.getConfig();
 
-        BaseContainerUtils toConfig = toCtx.getConfig();
-
-        jettyAdapter.save(toCtx);
-        adapter.save(toCtx);
-
-    }
-
+    jettyAdapter.save(toCtx);
+    adapter.save(toCtx);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,161 +16,135 @@
  */
 package com.percussion.xml;
 
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
- * An error handler for SAX parsers which keeps the errors in
- * a list accessible after parsing is complete.
+ * An error handler for SAX parsers which keeps the errors in a list accessible after parsing is
+ * complete.
  */
-public class PSSaxErrorHandler implements ErrorHandler
-{
-   /**
-    * Construct a new SAX error handler. This handler will
-    * immediately throw on fatal errors, but will simply
-    * record and keep track of non-fatal errors and warnings.
-    * <P>
-    * You can change the throw behavior of the error handler
-    * using the throwOnFatalErrors and similar methods.
-    */
-   public PSSaxErrorHandler()
-   {
-      m_errors = new ArrayList<>();
-      m_fatalErrors = new ArrayList<>();
-      m_warnings = new ArrayList<>();
-      m_printWriter = null;
-   }
+public class PSSaxErrorHandler implements ErrorHandler {
+  /**
+   * Construct a new SAX error handler. This handler will immediately throw on fatal errors, but
+   * will simply record and keep track of non-fatal errors and warnings.
+   *
+   * <p>You can change the throw behavior of the error handler using the throwOnFatalErrors and
+   * similar methods.
+   */
+  public PSSaxErrorHandler() {
+    m_errors = new ArrayList<>();
+    m_fatalErrors = new ArrayList<>();
+    m_warnings = new ArrayList<>();
+    m_printWriter = null;
+  }
 
-   /**
-    * Use this constructor when parser errors should be "printed", usually to
-    * a log or trace file.
-    */
-   public PSSaxErrorHandler(PrintWriter pw)
-   {
-      this();
-      m_printWriter = pw;
-   }
+  /**
+   * Use this constructor when parser errors should be "printed", usually to a log or trace file.
+   */
+  public PSSaxErrorHandler(PrintWriter pw) {
+    this();
+    m_printWriter = pw;
+  }
 
-   public void throwOnFatalErrors(boolean shouldThrow)
+  public void throwOnFatalErrors(boolean shouldThrow) {
 
-   {
-      m_throwFatalErrors = shouldThrow;
-   }
+    m_throwFatalErrors = shouldThrow;
+  }
 
-   public void throwOnErrors(boolean shouldThrow)
-   {
-      m_throwErrors = shouldThrow;
-   }
+  public void throwOnErrors(boolean shouldThrow) {
+    m_throwErrors = shouldThrow;
+  }
 
-   public void throwOnWarnings(boolean shouldThrow)
-   {
-      m_throwWarnings = shouldThrow;
-   }
+  public void throwOnWarnings(boolean shouldThrow) {
+    m_throwWarnings = shouldThrow;
+  }
 
-   // report an error
-   public void error(SAXParseException exception) throws SAXException
-   {
-      if(m_printWriter != null)
-      {
-         m_printWriter.println("Parser Error: "+exception.toString());
-      }
+  // report an error
+  public void error(SAXParseException exception) throws SAXException {
+    if (m_printWriter != null) {
+      m_printWriter.println("Parser Error: " + exception.toString());
+    }
 
-      m_errors.add(exception);
+    m_errors.add(exception);
 
-      if (m_throwErrors)
-         throw exception;
-   }
+    if (m_throwErrors) throw exception;
+  }
 
-   // report a fatal error
-   public void fatalError(SAXParseException exception) throws SAXException
-   {
-      if(m_printWriter != null)
-      {
-         m_printWriter.println("Parser Fatal Error: "+exception.toString());
-      }
+  // report a fatal error
+  public void fatalError(SAXParseException exception) throws SAXException {
+    if (m_printWriter != null) {
+      m_printWriter.println("Parser Fatal Error: " + exception.toString());
+    }
 
-      m_fatalErrors.add(exception);
+    m_fatalErrors.add(exception);
 
-      if (m_throwFatalErrors)
-         throw exception;
-   }
+    if (m_throwFatalErrors) throw exception;
+  }
 
-   // report a warning
-   public void warning(SAXParseException exception) throws SAXException
-   {
-      if(m_printWriter != null)
-      {
-         m_printWriter.println("Parser Warning: " + exception.toString());
-      }
+  // report a warning
+  public void warning(SAXParseException exception) throws SAXException {
+    if (m_printWriter != null) {
+      m_printWriter.println("Parser Warning: " + exception.toString());
+    }
 
-      m_warnings.add(exception);
+    m_warnings.add(exception);
 
-      if (m_throwWarnings)
-         throw exception;
-   }
+    if (m_throwWarnings) throw exception;
+  }
 
-   public int numErrors()
-   {
-      return m_errors.size();
-   }
+  public int numErrors() {
+    return m_errors.size();
+  }
 
-   public int numFatalErrors()
-   {
-      return m_fatalErrors.size();
-   }
+  public int numFatalErrors() {
+    return m_fatalErrors.size();
+  }
 
-   public int numWarnings()
-   {
-      return m_warnings.size();
-   }
+  public int numWarnings() {
+    return m_warnings.size();
+  }
 
-   public Iterator errors()
-   {
-      return m_errors.iterator();
-   }
+  public Iterator errors() {
+    return m_errors.iterator();
+  }
 
-   public Iterator fatalErrors()
-   {
-      return m_fatalErrors.iterator();
-   }
-   
-   /**
-    * Get copy of list of the fatal errors received by this handler.
-    * 
-    * @return A copy of the list, never <code>null</code>, may be empty.
-    */
-   public List<SAXParseException> getFatalErrorList()
-   {
-      return new ArrayList<SAXParseException>(m_fatalErrors);
-   }
+  public Iterator fatalErrors() {
+    return m_fatalErrors.iterator();
+  }
 
-   /**
-    * Get copy of list of the errors received by this handler.
-    * 
-    * @return A copy of the list, never <code>null</code>, may be empty.
-    */
-   public List<SAXParseException> getErrorList()
-   {
-      return new ArrayList<SAXParseException>(m_errors);
-   }
+  /**
+   * Get copy of list of the fatal errors received by this handler.
+   *
+   * @return A copy of the list, never <code>null</code>, may be empty.
+   */
+  public List<SAXParseException> getFatalErrorList() {
+    return new ArrayList<SAXParseException>(m_fatalErrors);
+  }
 
-   public Iterator warnings()
-   {
-      return m_warnings.iterator();
-   }
+  /**
+   * Get copy of list of the errors received by this handler.
+   *
+   * @return A copy of the list, never <code>null</code>, may be empty.
+   */
+  public List<SAXParseException> getErrorList() {
+    return new ArrayList<SAXParseException>(m_errors);
+  }
 
-   private List<SAXParseException> m_errors;
-   private List<SAXParseException> m_fatalErrors;
-   private List<SAXParseException> m_warnings;
-   private PrintWriter m_printWriter;
+  public Iterator warnings() {
+    return m_warnings.iterator();
+  }
 
-   private boolean m_throwFatalErrors = true;
-   private boolean m_throwErrors = false;
-   private boolean m_throwWarnings = false;
+  private List<SAXParseException> m_errors;
+  private List<SAXParseException> m_fatalErrors;
+  private List<SAXParseException> m_warnings;
+  private PrintWriter m_printWriter;
+
+  private boolean m_throwFatalErrors = true;
+  private boolean m_throwErrors = false;
+  private boolean m_throwWarnings = false;
 }

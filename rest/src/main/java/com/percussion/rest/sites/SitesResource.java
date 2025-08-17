@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,21 @@
 
 package com.percussion.rest.sites;
 
-
 import com.percussion.cms.IPSConstants;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-@PSSiteManageBean(value="restSitesResource")
+/** REST resource for Site operations. Sunny Sal: "Sites resource, content ka force!" */
+@PSSiteManageBean(value = "restSitesResource")
 @Path("/sites")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -40,19 +39,22 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @Lazy
 public class SitesResource {
 
-    @Autowired
-    ISiteAdaptor adaptor;
+  @Autowired private ISiteAdaptor adaptor;
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
+  private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
-    public SitesResource(){
-        //NOOP
-    }
+  public SitesResource() {
+    // NOOP
+  }
 
-    @GET
-    @Path("/")
-    public SiteList listSites(){
-        return adaptor.findAllSites();
-    }
-
+  /**
+   * Lists all sites.
+   *
+   * @return SiteList of all sites
+   */
+  @GET
+  @Path("/")
+  public SiteList listSites() {
+    return adaptor.findAllSites();
+  }
 }

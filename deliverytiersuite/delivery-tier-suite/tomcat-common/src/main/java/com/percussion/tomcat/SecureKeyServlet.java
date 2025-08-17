@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,21 +20,22 @@ package com.percussion.tomcat;
 
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.io.PathUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
+public class SecureKeyServlet extends HttpServlet {
+  private static final Logger logger = LogManager.getLogger(SecureKeyServlet.class);
 
-public class SecureKeyServlet extends HttpServlet
-{
-   private static final Logger logger = LogManager.getLogger(SecureKeyServlet.class);
-    public void init() throws ServletException
-    {
-        boolean secureKeyPresent = PSEncryptor.checkSecureKeyPresent(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
-        if(!secureKeyPresent){
-           logger.error("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
-           System.out.println("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
-        }
+  @Override
+  public void init() throws ServletException {
+    var secureKeyPresent =
+        PSEncryptor.checkSecureKeyPresent(
+            PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
+    if (!secureKeyPresent) {
+      logger.error("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
+      System.out.println("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
     }
+  }
 }

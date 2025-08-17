@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.ImageListControl;
 
-import javax.swing.ImageIcon; // TODO: JAVAX-11
+import javax.swing.ImageIcon;
 
 /** The property class of ImageListControl.  This class contains the ImageIcon
   * object and a String to be used in the ImageListControlRenderer.

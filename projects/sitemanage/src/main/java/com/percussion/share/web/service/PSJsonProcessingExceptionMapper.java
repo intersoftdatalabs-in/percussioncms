@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +21,36 @@ package com.percussion.share.web.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
-
-
+/**
+ * Maps {@link JsonProcessingException} to a serializable error object. Sunny Sal says: "JSON
+ * parsing failed? Let's keep it classy and JSON-y!"
+ */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
-public class PSJsonProcessingExceptionMapper extends PSAbstractExceptionMapper<JsonProcessingException> implements ExceptionMapper<JsonProcessingException> {
+public class PSJsonProcessingExceptionMapper
+    extends PSAbstractExceptionMapper<JsonProcessingException>
+    implements ExceptionMapper<JsonProcessingException> {
 
+  private static final String ERROR_MESSAGE = "JSON error: ";
 
-    private static final String ERROR_MESSAGE = "JSON error: ";
+  /** The log instance to use for this class, never {@code null}. */
+  private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
 
-    @Override
-    protected PSErrors createErrors(JsonProcessingException exception) {
-        String errorMessage = exception.getClass().getName();
-
-        if (log.isDebugEnabled())
-            log.debug(errorMessage, exception);
-
-        PSErrors errors = PSErrorUtils.createErrorsFromException(exception);
-
-        return errors;
+  @Override
+  protected PSErrors createErrors(JsonProcessingException exception) {
+    var errorMessage = exception.getClass().getName();
+    if (log.isDebugEnabled()) {
+      log.debug(errorMessage, exception);
     }
-
-
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
+    return PSErrorUtils.createErrorsFromException(exception);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,65 +18,49 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "issues")
 @JsonRootName("issues")
-public class PSSiteIssueSummary extends PSAbstractDataObject
-{
+public class PSSiteIssueSummary extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String refUri;
+  private String refUri;
+  private String suggestion;
+  private String type;
+  private PSSiteIssueResource resource;
 
-    private String suggestion;
+  public Optional<String> getRefUri() {
+    return Optional.ofNullable(refUri);
+  }
 
-    private String type;
+  public void setRefUri(String refUri) {
+    this.refUri = refUri;
+  }
 
-    private PSSiteIssueResource resource;
+  public Optional<String> getSuggestion() {
+    return Optional.ofNullable(suggestion);
+  }
 
-    public String getRefUri()
-    {
-        return refUri;
-    }
+  public void setSuggestion(String suggestion) {
+    this.suggestion = suggestion;
+  }
 
-    public void setRefUri(String refUri)
-    {
-        this.refUri = refUri;
-    }
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public String getSuggestion()
-    {
-        return suggestion;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setSuggestion(String suggestion)
-    {
-        this.suggestion = suggestion;
-    }
+  public Optional<PSSiteIssueResource> getResource() {
+    return Optional.ofNullable(resource);
+  }
 
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public PSSiteIssueResource getResource()
-    {
-        return resource;
-    }
-
-    public void setResource(PSSiteIssueResource resource)
-    {
-        this.resource = resource;
-    }
-
+  public void setResource(PSSiteIssueResource resource) {
+    this.resource = resource;
+  }
 }

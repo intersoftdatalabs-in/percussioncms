@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,132 +22,208 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.extensions.Extension;
 import com.percussion.rest.itemfilter.ItemFilter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Represents a Content List in Percussion CMS. */
 @XmlRootElement(name = "ContentList")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Content List")
 public class ContentList {
 
-    @Schema(required = false, description = "The unique ID for this ContentList.")
-    private
-    Guid contentListId;
+  @Schema(required = false, description = "The unique ID for this ContentList.")
+  private Guid contentListId;
 
-    @Schema(required = false, description = "Ignored.")
-    private Integer version;
+  @Schema(required = false, description = "Ignored.")
+  private Integer version;
 
-    @Schema( required = false, description = "The name of the Content List. Must be unique.")
-    private
-    String name;
+  @Schema(required = false, description = "The name of the Content List. Must be unique.")
+  private String name;
 
-    @Schema(name = "description", required = false, description = "A human friendly description of the Content List.")
-    private
-    String description;
+  @Schema(
+      name = "description",
+      required = false,
+      description = "A human friendly description of the Content List.")
+  private String description;
 
-    @Schema(name = "type", required = false, description = "The type of the ContentList.", allowableValues = "[Normal,Incremental]")
-    private
-    String type = "Normal";
+  @Schema(
+      name = "type",
+      required = false,
+      description = "The type of the ContentList.",
+      allowableValues = "[Normal,Incremental]")
+  private String type = "Normal";
 
-    @Schema(name = "url", required = false, description = "The URL for this ContentList")
-    private
-    String url;
+  @Schema(name = "url", required = false, description = "The URL for this ContentList")
+  private String url;
 
-    @Schema(name = "generator", required = false, description = "The ContentList Generator configured for this ContentList")
-    private
-    Extension generator;
+  @Schema(
+      name = "generator",
+      required = false,
+      description = "The ContentList Generator configured for this ContentList")
+  private Extension generator;
 
-    @Schema(name = "expander", required = false, description = "The ContentList Template Expander configured for this ContentList")
-    private
-    Extension expander;
+  @Schema(
+      name = "expander",
+      required = false,
+      description = "The ContentList Template Expander configured for this ContentList")
+  private Extension expander;
 
-    @Schema(name = "editionType", required = true, description = "Indicates the type of Edition (Publish or Unpublish then Publish)", allowableValues = "[Publish,Unpublish Then Publish]")
-    private
-    String editionType;
+  @Schema(
+      name = "editionType",
+      required = true,
+      description = "Indicates the type of Edition (Publish or Unpublish then Publish)",
+      allowableValues = "[Publish,Unpublish Then Publish]")
+  private String editionType;
 
-    @Schema(name = "itemFilter", required = true, description = "The ItemFilter used to filter content returned by this Content List.")
-    private
-    ItemFilter itemFilter = null;
+  @Schema(
+      name = "itemFilter",
+      required = true,
+      description = "The ItemFilter used to filter content returned by this Content List.")
+  private ItemFilter itemFilter;
 
-    public ContentList(){}
+  public ContentList() {}
 
-    public Guid getContentListId() {
-        return contentListId;
-    }
+  public Optional<Guid> getContentListId() {
+    return Optional.ofNullable(contentListId);
+  }
 
-    public void setContentListId(Guid contentListId) {
-        this.contentListId = contentListId;
-    }
+  public void setContentListId(Guid contentListId) {
+    this.contentListId = contentListId;
+  }
 
-    public Integer getVersion() {
-        return version;
-    }
+  public Optional<Integer> getVersion() {
+    return Optional.ofNullable(version);
+  }
 
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getUrl() {
-        return url;
-    }
+  public Optional<String> getUrl() {
+    return Optional.ofNullable(url);
+  }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public Extension getGenerator() {
-        return generator;
-    }
+  public Optional<Extension> getGenerator() {
+    return Optional.ofNullable(generator);
+  }
 
-    public void setGenerator(Extension generator) {
-        this.generator = generator;
-    }
+  public void setGenerator(Extension generator) {
+    this.generator = generator;
+  }
 
-    public Extension getExpander() {
-        return expander;
-    }
+  public Optional<Extension> getExpander() {
+    return Optional.ofNullable(expander);
+  }
 
-    public void setExpander(Extension expander) {
-        this.expander = expander;
-    }
+  public void setExpander(Extension expander) {
+    this.expander = expander;
+  }
 
-    public String getEditionType() {
-        return editionType;
-    }
+  public Optional<String> getEditionType() {
+    return Optional.ofNullable(editionType);
+  }
 
-    public void setEditionType(String editionType) {
-        this.editionType = editionType;
-    }
+  public void setEditionType(String editionType) {
+    this.editionType = editionType;
+  }
 
-    public ItemFilter getItemFilter() {
-        return itemFilter;
-    }
+  public Optional<ItemFilter> getItemFilter() {
+    return Optional.ofNullable(itemFilter);
+  }
 
-    public void setItemFilter(ItemFilter itemFilter) {
-        this.itemFilter = itemFilter;
-    }
+  public void setItemFilter(ItemFilter itemFilter) {
+    this.itemFilter = itemFilter;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ContentList)) return false;
+    var that = (ContentList) o;
+    return Objects.equals(contentListId, that.contentListId)
+        && Objects.equals(version, that.version)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(type, that.type)
+        && Objects.equals(url, that.url)
+        && Objects.equals(generator, that.generator)
+        && Objects.equals(expander, that.expander)
+        && Objects.equals(editionType, that.editionType)
+        && Objects.equals(itemFilter, that.itemFilter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        contentListId,
+        version,
+        name,
+        description,
+        type,
+        url,
+        generator,
+        expander,
+        editionType,
+        itemFilter);
+  }
+
+  @Override
+  public String toString() {
+    return "ContentList{"
+        + "contentListId="
+        + contentListId
+        + ", version="
+        + version
+        + ", name='"
+        + name
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + ", url='"
+        + url
+        + '\''
+        + ", generator="
+        + generator
+        + ", expander="
+        + expander
+        + ", editionType='"
+        + editionType
+        + '\''
+        + ", itemFilter="
+        + itemFilter
+        + '}';
+  }
 }

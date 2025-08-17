@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,44 +23,40 @@ import org.w3c.dom.NodeList;
 
 /**
  * Adds the membership service name to the list of available services for each delivery server.
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSUpgradePluginAddMembershipDeliveryServer extends PSUpgradePluginDeliveryServersBase
-{
-   private static final String MEMBERSHIP_SERVICE_VALUE = "perc-membership-services";
-   private static final String DELIVERY_SERVERS_FILE = "/rxconfig/DeliveryServer/delivery-servers.xml";
-   
+// REFACTORED: CP-JAVA11
+public class PSUpgradePluginAddMembershipDeliveryServer extends PSUpgradePluginDeliveryServersBase {
+  private static final String MEMBERSHIP_SERVICE_VALUE = "perc-membership-services";
+  private static final String DELIVERY_SERVERS_FILE =
+      "/rxconfig/DeliveryServer/delivery-servers.xml";
 
-   @Override
-   protected void upgradeDeliveryServer(Document doc, Element deliveryServer)
-   {
-      Element availableServices = (Element) deliveryServer.getElementsByTagName(AVAILABLE_SERVICES_TAGNAME).item(0);
-      NodeList services = availableServices.getElementsByTagName(SERVICE_TAGNAME);
-      int svcTot = services.getLength();
-      boolean hasMembershipService = false;
-      for (int i = 0; i < svcTot; i++)
-      {
-         Element service = (Element) services.item(i);
-         String serviceName = service.getNodeValue();
-         if (MEMBERSHIP_SERVICE_VALUE.equals(serviceName))
-         {
-            hasMembershipService = true;
-            break;
-         }
+  @Override
+  protected void upgradeDeliveryServer(Document doc, Element deliveryServer) {
+    Element availableServices =
+        (Element) deliveryServer.getElementsByTagName(AVAILABLE_SERVICES_TAGNAME).item(0);
+    NodeList services = availableServices.getElementsByTagName(SERVICE_TAGNAME);
+    int svcTot = services.getLength();
+    boolean hasMembershipService = false;
+    for (int i = 0; i < svcTot; i++) {
+      Element service = (Element) services.item(i);
+      String serviceName = service.getNodeValue();
+      if (MEMBERSHIP_SERVICE_VALUE.equals(serviceName)) {
+        hasMembershipService = true;
+        break;
       }
-      
-      if (!hasMembershipService)
-      {
-         logMsg("Adding Membership service element");
-         PSXmlDocumentBuilder.addElement(doc, availableServices, SERVICE_TAGNAME, MEMBERSHIP_SERVICE_VALUE);
-      }
-   }
+    }
 
-   @Override
-   protected String getDeliveryServersFilePath()
-   {
-      return DELIVERY_SERVERS_FILE;
-   }
+    if (!hasMembershipService) {
+      logMsg("Adding Membership service element");
+      PSXmlDocumentBuilder.addElement(
+          doc, availableServices, SERVICE_TAGNAME, MEMBERSHIP_SERVICE_VALUE);
+    }
+  }
+
+  @Override
+  protected String getDeliveryServersFilePath() {
+    return DELIVERY_SERVERS_FILE;
+  }
 }

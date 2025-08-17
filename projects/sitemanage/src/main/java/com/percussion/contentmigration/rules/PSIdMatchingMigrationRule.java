@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,20 @@
 
 package com.percussion.contentmigration.rules;
 
+public class PSIdMatchingMigrationRule extends PSBaseMatchingMigrationRule {
 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-public class PSIdMatchingMigrationRule extends PSBaseMatchingMigrationRule
-{
-
-    protected String matchOnRule(String widgetId, Document sourceDoc, Document targetDoc)
-    {
-        String content = null;
-        Element regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
-        if(regionElem == null) {
-            return null;
-        }
-        String regionId = regionElem.id();
-        Elements elems = targetDoc.select("#" + regionId);
-        if(elems.size()!=1) {
-            return null;
-        }
-        Element elem = elems.get(0);
-        content = elem.html();
-        return content;
+  @Override
+  protected String matchOnRule(
+      String widgetId, org.jsoup.nodes.Document sourceDoc, org.jsoup.nodes.Document targetDoc) {
+    var regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
+    if (regionElem == null) {
+      return null;
     }
-
+    var regionId = regionElem.id();
+    var elems = targetDoc.select("#" + regionId);
+    if (elems.size() != 1) {
+      return null;
+    }
+    return elems.get(0).html();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.sitemgr.impl;
 
 import com.percussion.auditlog.PSActionOutcome;
@@ -22,7 +23,7 @@ import com.percussion.auditlog.PSContentEvent;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -35,7 +36,6 @@ import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidHelper;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -60,26 +60,23 @@ import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -87,933 +84,753 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The site manager deals with the site and related objects. It makes available
- * CRUD methods to manipulate these objects
- * 
- * @author dougrand
- * 
+ * Modern site manager implementation providing comprehensive site and location scheme management
+ * with Java 11 features. This service handles site CRUD operations, location scheme management,
+ * publishing context handling, and content type publishing validation with enhanced safety
+ * and performance patterns.
+ *
+ * <h2>Java 11 Enhancements</h2>
+ * <ul>
+ * <li>Optional-based safe access for nullable operations</li>
+ * <li>Enhanced validation with Objects.requireNonNull</li>
+ * <li>Stream API for efficient site and scheme processing</li>
+ * <li>Improved error handling and logging patterns</li>
+ * </ul>
+ *
+ * @author dougrand (original)
+ * @author Sunny Sal (Java 11 refactoring)
  */
 @Transactional
-public class PSSiteManager
-      implements IPSSiteManager {
-   
-    private PSAuditLogService psAuditLogService=PSAuditLogService.getInstance();
-    private PSContentEvent psContentEvent;
+public class PSSiteManager implements IPSSiteManager {
 
-   @PersistenceContext
-   private EntityManager entityManager;
+    private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
 
-   private Session getSession(){
-      return entityManager.unwrap(Session.class);
-   }
+    @PersistenceContext
+    private EntityManager entityManager;
 
-   /**
-    * Listener which invalidates locally cached information
-    */
-   final class PSSiteNotificationListener implements IPSNotificationListener
-   {
-      public void notifyEvent(PSNotificationEvent notification)
-      {
-         IPSGuid guid = (IPSGuid) notification.getTarget();
-         short type = guid.getType();
-         if (type == PSTypeEnum.LOCATION_SCHEME.getOrdinal()
-               || type == PSTypeEnum.LOCATION_PROPERTY.getOrdinal())
-         {
-             m_cache.evict(LOCATION_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
-         }
-      }
-   }
+    private Session getSession() {
+        return entityManager.unwrap(Session.class);
+    }
 
-   /**
-    * Logger for the site manager
-    */
-   private static final Logger log = LogManager.getLogger("PSSiteManager");
+    /**
+     * Modern listener which invalidates locally cached information using Java 11 patterns
+     */
+    final class PSSiteNotificationListener implements IPSNotificationListener {
+        @Override
+        public void notifyEvent(PSNotificationEvent notification) {
+            var guid = (IPSGuid) notification.getTarget();
+            var type = guid.getType();
+            if (type == PSTypeEnum.LOCATION_SCHEME.getOrdinal()
+                    || type == PSTypeEnum.LOCATION_PROPERTY.getOrdinal()) {
+                m_cache.evict(LOCATION_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+            }
+        }
+    }
 
-   /**
-    * Cache service, used to invalidate site information
-    */
-   IPSCacheAccess m_cache = null;
+    /**
+     * Logger for the site manager
+     */
+    private static final Logger log = LogManager.getLogger(PSSiteManager.class);
 
-   /**
-    * Notification service, used to register a listener for invalidation
-    */
-   IPSNotificationService m_notifications = null;
+    /**
+     * Cache service, used to invalidate site information
+     */
+    IPSCacheAccess m_cache = null;
 
-   /**
-    * Key to lookup the location map in the cache
-    */
-   static final String LOCATION_MAP_KEY = "sys_location_map";
+    /**
+     * Notification service, used to register a listener for invalidation
+     */
+    IPSNotificationService m_notifications = null;
 
+    /**
+     * Key to lookup the location map in the cache
+     */
+    static final String LOCATION_MAP_KEY = "sys_location_map";
 
-   
-   /**
-    * Default constructor.
-    */
-   public PSSiteManager() 
-   {
-   }
+    /**
+     * Default constructor.
+     */
+    public PSSiteManager() {
+        // Default constructor
+    }
 
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#createSite()
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public IPSSite createSite()
-   {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      PSSite newsite = new PSSite();
-      newsite.setSiteId(gmgr.createGuid(PSTypeEnum.SITE).longValue());
-       newsite.setMobilePreviewEnabled(true);
-       try {
-           psContentEvent = new PSContentEvent(newsite.getSiteId().toString(), newsite.getSiteId().toString(), newsite.getBaseUrl(), PSContentEvent.ContentEventActions.create, PSSecurityFilter.getCurrentRequest().getServletRequest(), PSActionOutcome.SUCCESS);
-           psAuditLogService.logContentEvent(psContentEvent);
-       }catch (Exception e){
-           //Handling exception if loggin not working
-       }
-      return newsite;
-   }
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public IPSSite createSite() {
+        var gmgr = PSGuidManagerLocator.getGuidMgr();
+        var newsite = new PSSite();
+        newsite.setSiteId(gmgr.createGuid(PSTypeEnum.SITE).longValue());
+        newsite.setMobilePreviewEnabled(true);
 
-   /*
-    * @see com.percussion.services.sitemgr.IPSSiteManager#loadSitesModifiable()    
-    */
-   @Override
-   public List<IPSSite> loadSitesModifiable()
-   {
-      return (List<IPSSite>) getSession().createCriteria(PSSite.class).setCacheable(true).list();
-   }
+        try {
+            var currentRequest = PSSecurityFilter.getCurrentRequest();
+            if (currentRequest != null && currentRequest.getServletRequest() != null) {
+                var psContentEvent = new PSContentEvent(
+                    newsite.getSiteId().toString(),
+                    newsite.getSiteId().toString(),
+                    newsite.getBaseUrl(),
+                    PSContentEvent.ContentEventActions.create,
+                    currentRequest.getServletRequest(),
+                    PSActionOutcome.SUCCESS
+                );
+                psAuditLogService.logContentEvent(psContentEvent);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to log content event for site creation: {}", e.getMessage());
+            log.debug("Full stack trace:", e);
+        }
+        return newsite;
+    }
 
-   
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#loadSiteModifiable(com.percussion.utils.guid.IPSGuid)
-    */
-   @Override
-   public IPSSite loadSiteModifiable(IPSGuid siteid) throws PSNotFoundException
-   {
-      IPSSite rval = findSiteFromDatabase(siteid);
-      
-      if (rval == null)
-         throw new PSNotFoundException(siteid);
-      
-      if (log.isDebugEnabled())
-      {
-         log.debug("Load un-cached site (id={}, name={}).", siteid, rval.getName());
-      }
+    @Override
+    public List<IPSSite> loadSitesModifiable() {
+        return getSession().createQuery("from PSSite", IPSSite.class).list();
+    }
 
-      return rval;
-   }
+    @Override
+    public IPSSite loadSiteModifiable(IPSGuid siteid) throws PSNotFoundException {
+        Objects.requireNonNull(siteid, "siteid cannot be null");
 
-   @Override
-   public IPSSite loadSiteModifiable(String siteName) throws PSNotFoundException {
-      IPSSite site = findSite(siteName);
-      if (site==null)
-         throw new PSNotFoundException(siteName, PSTypeEnum.SITE);
-      return site;
-   }
-   
-   /**
-    * Look up the specified site from the database.
-    * 
-    * @param siteid the ID of the site, assumed not <code>null</code>.
-    * 
-    * @return the specified site, it may be <code>null</code> if the site
-    * does not exist.
-    */
-   @Override
-   public IPSSite findSiteFromDatabase(IPSGuid siteid)
-   {
-      return getSession().get(PSSite.class,
-            siteid.longValue());
-   }
-   
-   @Override
-   public IPSSite loadUnmodifiableSite(IPSGuid siteid)
-         throws PSNotFoundException
-   {
-      return loadSite(siteid);
-   }
-   
-   @Override
-   public IPSSite findSite(IPSGuid siteid)
-   {
-      if (siteid == null)
-      {
-         throw new IllegalArgumentException("siteid may not be null");
-      }
+        var site = findSiteFromDatabase(siteid);
+        if (site == null) {
+            throw new PSNotFoundException(siteid);
+        }
 
-      IPSSite rval = findSiteFromDatabase(siteid);
+        if (log.isDebugEnabled()) {
+            log.debug("Load un-cached site (id={}, name={})", siteid, site.getName());
+        }
 
+        return site;
+    }
 
+    @Override
+    public IPSSite loadSiteModifiableImpl(IPSGuid siteid) throws PSNotFoundException {
+        return loadSiteModifiable(siteid);
+    }
 
-      if (log.isDebugEnabled())
-      {
-         log.debug("Load cached site (id={}, name={}",
-                 siteid,  rval.getName());
-      }
+    @Override
+    public IPSSite loadSiteModifiable(String siteName) throws PSNotFoundException {
+        Objects.requireNonNull(siteName, "siteName cannot be null");
 
+        var site = findSite(siteName);
+        if (site == null) {
+            throw new PSNotFoundException(siteName, PSTypeEnum.SITE);
+        }
+        return site;
+    }
 
-      return rval;
-   }
+    @Override
+    public IPSSite loadSiteModifiableImpl(String siteName) throws PSNotFoundException {
+        return loadSiteModifiable(siteName);
+    }
 
-   @Override
-   public IPSSite loadSite(IPSGuid siteid) throws PSNotFoundException
-   {
-      if (siteid == null)
-      {
-         throw new IllegalArgumentException("siteid may not be null");
-      }
-      
-      IPSSite site = findSite(siteid);
-      if (site == null)
-         throw new PSNotFoundException(siteid);
+    @Override
+    public IPSSite findSiteFromDatabase(IPSGuid siteid) {
+        Objects.requireNonNull(siteid, "siteid cannot be null");
+        return getSession().get(PSSite.class, siteid.longValue());
+    }
 
-      if (log.isDebugEnabled())
-      {
-         log.debug("Load cached site (id=" + siteid.toString()
-               + ", name=\"" + site.getName() + "\".");
-      }
+    @Override
+    public IPSSite loadUnmodifiableSite(IPSGuid siteid) throws PSNotFoundException {
+        return loadSite(siteid);
+    }
 
-      return site;
-   }
-   
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#findAllSites()
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public List<IPSSite> findAllSites()
-   {
-      return loadSitesModifiable();
-   }
+    @Override
+    public IPSSite findSite(IPSGuid siteid) {
+        Objects.requireNonNull(siteid, "siteid cannot be null");
 
-   
-   /**
-    * Gets all site IDs directly from the repository.
-    *
-    * @return all site IDs, never <code>null</code>, may be empty.
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public synchronized Map<IPSGuid, String> getAllSiteIdNames()
-   {
-      Map<IPSGuid, String> idNameMap = new HashMap<>();
-      
-      Session s = getSession();
+        var site = findSiteFromDatabase(siteid);
+        if (log.isDebugEnabled() && site != null) {
+            log.debug("Load cached site (id={}, name={})", siteid, site.getName());
+        }
 
-         Criteria c = s.createCriteria(PSSite.class);
-         c.setProjection(Projections.projectionList().add(
-               Projections.property("siteId"))
-               .add(Projections.property("name"))).setCacheable(true);
-         List<Object> results = c.list();
-         IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-         for (Object value : results)
-         {
-            Object[] values = (Object[]) value;
-            Long id = (Long) values[0];
-            String name = (String) values[1];
+        return site;
+    }
+
+    @Override
+    public IPSSite loadSite(IPSGuid siteid) throws PSNotFoundException {
+        Objects.requireNonNull(siteid, "siteid cannot be null");
+
+        var site = findSite(siteid);
+        if (site == null) {
+            throw new PSNotFoundException(siteid);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Load cached site (id={}, name={})", siteid, site.getName());
+        }
+
+        return site;
+    }
+
+    @Override
+    public List<IPSSite> findAllSites() {
+        return loadSitesModifiable();
+    }
+
+    @Override
+    public synchronized Map<IPSGuid, String> getAllSiteIdNames() {
+        var idNameMap = new HashMap<IPSGuid, String>();
+        var session = getSession();
+
+        var query = session.createQuery("select s.siteId, s.name from PSSite s", Object[].class);
+        List<Object[]> results = query.list();
+        var gmgr = PSGuidManagerLocator.getGuidMgr();
+
+        results.forEach(values -> {
+            var id = (Long) values[0];
+            var name = (String) values[1];
             idNameMap.put(gmgr.makeGuid(id, PSTypeEnum.SITE), name);
-         }
+        });
 
-         return idNameMap;
+        return idNameMap;
+    }
 
-   }
+    @Override
+    public IPSSite findSite(String sitename) {
+        if (StringUtils.isBlank(sitename)) {
+            throw new IllegalArgumentException("sitename cannot be null or empty");
+        }
 
-   @Override
-   @SuppressWarnings("unchecked")
-   public IPSSite findSite(String sitename)
-   {
-      if (StringUtils.isBlank(sitename))
-         throw new IllegalArgumentException(
-               "sitename may not be null or empty.");
+        return getSession()
+            .bySimpleNaturalId(PSSite.class)
+            .load(sitename);
+    }
 
+    @Override
+    public IPSSite loadSite(String sitename) throws PSNotFoundException {
+        var site = findSite(sitename);
+        if (site != null) {
+            return site;
+        }
 
-      return (IPSSite) getSession()
-              .bySimpleNaturalId(PSSite.class)
-              .load(sitename);
-   }
+        throw new PSNotFoundException(sitename, PSTypeEnum.SITE);
+    }
 
-   @Override
-   public IPSSite loadSite(String sitename) throws PSNotFoundException
-   {
-      IPSSite site = findSite(sitename);
-      if (site != null)
-         return site;
-      
-      throw new PSNotFoundException(sitename, PSTypeEnum.SITE);
-   }
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#findSiteByName(java.lang.String)
-    * @deprecated use {@link #loadSite(String)} instead.
-    */
-   @Override
-   @Deprecated
-   public IPSSite findSiteByName(String sitename) throws PSSiteManagerException
-   {
-      try
-      {
-         return loadSite(sitename);
-      }
-      catch (PSNotFoundException e)
-      {
-         throw new PSSiteManagerException(
-               IPSSiteManagerErrors.SITE_NAME_NOT_EXIST, sitename);
-      }
-   }
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#saveSite(com.percussion.services.sitemgr.IPSSite)
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public void saveSite(IPSSite site)
-   {
-      if (site == null)
-         throw new IllegalArgumentException("site must not be null.");
-
-      getSession().merge(site);
-
-   }
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#deleteSite(com.percussion.services.sitemgr.IPSSite)
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public void deleteSite(IPSSite site)
-   {
-      if (site == null)
-         throw new IllegalArgumentException("site must not be null.");
-
-      getSession().delete(site);
-      
-      PSNotificationHelper.notifyEvent(EventType.SITE_DELETED, site.getGUID());
-      
-      // the object will be evicted by the framework, 
-      // see PSEhCacheAccessor.notifyEvent()
-   }
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#createScheme()
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public IPSLocationScheme createScheme()
-   {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      PSLocationScheme scheme = new PSLocationScheme();
-      scheme.setGUID(gmgr.createGuid(PSTypeEnum.LOCATION_SCHEME));
-      return scheme;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.sitemgr.IPSSiteManager#loadScheme(int)
-    */
-   @Override
-   public IPSLocationScheme loadScheme(IPSGuid schemeId)
-      throws PSNotFoundException
-   {
-      if (schemeId == null)
-         throw new IllegalArgumentException("schemeId may not be null.");
-      
-      IPSLocationScheme scheme = loadSchemeModifiable(schemeId);
-      return scheme;
-   }
-
-   @Override
-   public IPSLocationScheme loadSchemeModifiable(IPSGuid schemeId)
-      throws PSNotFoundException
-   {
-      if (schemeId == null)
-         throw new IllegalArgumentException("schemeId may not be null.");
-
-      IPSLocationScheme rval = (IPSLocationScheme) getSession().get(
-            PSLocationScheme.class, schemeId.longValue());
-      if (rval == null)
-      {
-         throw new PSNotFoundException(schemeId);
-      }
-
-      return rval;
-   }
-
-   /*
-    * //see base class method for details
-    */
-   @Override
-   public IPSLocationScheme loadScheme(int schemeId)
-      throws PSNotFoundException
-   {
-      IPSGuid id = PSGuidUtils.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME);
-      return loadScheme(id);
-   }
-
-   /*
-    * //see base class method for details
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public List<IPSLocationScheme> findSchemeByAssemblyInfo(
-           IPSAssemblyTemplate template, IPSPublishingContext context,
-           IPSGuid contenttypeid)
-   {
-      // Delegate
-      return findSchemeByAssemblyInfo(template.getGUID(), context.getGUID(),
-            contenttypeid);
-   }
-   
-   /*
-    * //see base class method for details
-    */
-   @Override
-   public List<IPSLocationScheme> findSchemeByAssemblyInfo(IPSGuid templateid,
-                                                           IPSPublishingContext context, IPSGuid contenttypeid)
-   {
-      return findSchemeByAssemblyInfo(templateid, context.getGUID(),
-            contenttypeid);
-   }
-
-   
-   /*
-    * //see base class method for details
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public List<IPSLocationScheme> findSchemeByAssemblyInfo(IPSGuid templateid,
-                                                           IPSGuid contextid, IPSGuid contenttypeid)
-   {
-      if (templateid == null)
-      {
-         throw new IllegalArgumentException("templateid may not be null");
-      }
-      if (contextid == null)
-      {
-         throw new IllegalArgumentException("contextid may not be null");
-      }
-      if (contenttypeid == null)
-      {
-         throw new IllegalArgumentException("contenttypeid may not be null");
-      }
-      LocationSchemeKey key = new LocationSchemeKey(templateid, contextid,
-            contenttypeid);
-      ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> locationSchemeMap = getLocationSchemeMap();
-      
-      List<IPSLocationScheme> rval = locationSchemeMap.get(key);
-      // prevent lock on read with double checked locking
-      if (rval == null)
-      {
-            rval = locationSchemeMap.get(key);
-            if (rval==null)
-            {   
-               Session s = getSession();
-
-                  Criteria c = s.createCriteria(PSLocationScheme.class);
-                  c.add(Restrictions.eq("templateId", templateid.longValue()));
-                  c.add(Restrictions
-                        .eq("contentTypeId", contenttypeid.longValue()));
-                  c.add(Restrictions.eq("contextId", contextid.longValue()));
-                  rval = c.list();
-                  locationSchemeMap.put(key, rval);
-
-         }
-      }
-      return rval;
-  
-   }
-
-   /**
-    * Get the location scheme map from the cache, create if missing
-    * 
-    * @return the map, never <code>null</code>
-    */
-   @SuppressWarnings("unchecked") //cast from cache
-   ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> getLocationSchemeMap()
-   {
-      ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> locationSchemeMap = 
-         (ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>>) m_cache
-            .get(LOCATION_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
-      if (locationSchemeMap == null)
-      {
-         locationSchemeMap = new ConcurrentHashMap<>(8, 0.9f, 1);
-         m_cache.save(LOCATION_MAP_KEY, locationSchemeMap,
-               IPSCacheAccess.IN_MEMORY_STORE);
-      }
-      return locationSchemeMap;
-   }
-
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#saveScheme(com.percussion.services.sitemgr.IPSLocationScheme)
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public void saveScheme(IPSLocationScheme scheme)
-   {
-      // cannot save a cloned Location Scheme object; otherwise the child
-      // component of this object (parameters) will not be saved as expected.
-      if (scheme instanceof PSLocationScheme)
-      {
-         if (((PSLocationScheme) scheme).isCloned())
-            throw new IllegalStateException(
-                  "Cannot save a cloned Location Scheme object.");
-      }
-      getSession().saveOrUpdate(scheme);
-      
-      // the object will be evicted by the framework, 
-      // see PSEhCacheAccessor.notifyEvent()
-   }
-
-   /**
-    * @see com.percussion.services.sitemgr.IPSSiteManager#deleteScheme(com.percussion.services.sitemgr.IPSLocationScheme)
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public void deleteScheme(IPSLocationScheme scheme)
-   {
-      getSession().delete(scheme);
-      
-      // the object will be evicted by the framework, 
-      // see PSEhCacheAccessor.notifyEvent()
-   }
-
-   //see interface
-   @Override
-   public IPSPublishingContext loadContext(int contextid)
-      throws PSNotFoundException
-   {
-      return loadContext(PSGuidUtils.makeGuid(contextid, PSTypeEnum.CONTEXT)); 
-   }
-   
-   /*
-    * @see com.percussion.services.sitemgr.IPSSiteManager#loadContext(int)
-    */
-   @Override
-   public IPSPublishingContext loadContext(IPSGuid contextid)
-      throws PSNotFoundException
-   {
-      return loadContext(contextid, true);
-   }
-
-   @Override
-   public IPSPublishingContext loadContextModifiable(IPSGuid contextid)
-      throws PSNotFoundException
-   {
-      return loadContext(contextid, false);
-   }
-   
-   /**
-    * This does the same as {@link #loadContext(IPSGuid)}. In addition, this
-    * method give an option for the caller to specify whether the returned
-    * object includes the child object or not.
-    * 
-    * @param contextid the Context ID, assumed not <code>null</code>.
-    * @param includeChildren <code>true</code> if returned object may include
-    *    child object; otherwise the returned object may only include the ID
-    *    of the child object.
-    *    
-    * @return the specified context, never <code>null</code>.
-    * 
-    * @throws PSNotFoundException if cannot find the context.
-    */
-   private IPSPublishingContext loadContext(IPSGuid contextid,
-         boolean includeChildren) throws PSNotFoundException
-   {
-      IPSPublishingContext ctx = (IPSPublishingContext) getSession()
-            .get(PSPublishingContext.class, contextid.longValue());
-      if (ctx == null)
-      {
-         throw new PSNotFoundException(contextid);
-      }
-      if (includeChildren)
-         loadDefaultSchemeIfNeeded(ctx);
-      return ctx;
-   }
-
-   /**
-    * Loads the child component, Default Location Scheme, for the specified 
-    * Context if it has one.
-    * @param ctx the Context object in question, assumed not <code>null</code>.
-    */
-   private void loadDefaultSchemeIfNeeded(IPSPublishingContext ctx) throws PSNotFoundException {
-      if (ctx.getDefaultSchemeId() == null)
-         return;
-
-      // @TODO change this to loadScheme after cache the parent
-      IPSLocationScheme scheme = loadSchemeModifiable(ctx
-            .getDefaultSchemeId());
-      ((PSPublishingContext)ctx).setDefaultScheme(scheme);
-   }
-   
-   @Override
-   @SuppressWarnings("unchecked")
-   public IPSPublishingContext loadContext(String contextname)
-      throws PSNotFoundException
-   {
-      if (StringUtils.isBlank(contextname))
-         throw new IllegalArgumentException(
-               "contextname may not be null or empty");
-
-      List contexts = getSession().createQuery(
-            "from PSPublishingContext where name = :name").setParameter("name",contextname).list();
-      if (contexts.size() < 1)
-      {
-         throw new PSNotFoundException(contextname, PSTypeEnum.CONTEXT);
-      }
-      IPSPublishingContext ctx = (IPSPublishingContext) contexts.get(0);
-      loadDefaultSchemeIfNeeded(ctx);
-      return ctx;
-      
-   }
-   /**
-    * @deprecated use {@link #loadContext(String)} instead.
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public IPSPublishingContext findContextByName(String contextname) 
-      throws PSSiteManagerException
-   {
-      try
-      {
-         return loadContext(contextname);
-      }
-      catch (PSNotFoundException e)
-      {
-         throw new PSSiteManagerException(IPSSiteManagerErrors.NO_SUCH_CONTEXT, 
-               "NAME", contextname);
-      }
-   }
-
-   /**
-    * @see com.percussion.services.catalog.IPSCataloger#getTypes()
-    */
-   @Override
-   public PSTypeEnum[] getTypes()
-   {
-      throw new UnsupportedOperationException("not implemented yet");
-   }
-
-   /**
-    * @see com.percussion.services.catalog.IPSCataloger#getSummaries(com.percussion.services.catalog.PSTypeEnum)
-    */
-   @Override
-   @SuppressWarnings("unchecked")
-   public List<IPSCatalogSummary> getSummaries(PSTypeEnum type) throws PSNotFoundException {
-      List<IPSCatalogSummary> rval = new ArrayList<>();
-
-      Session s = getSession();
-
-         if (type.getOrdinal() == PSTypeEnum.SITE.getOrdinal())
-         {
-            List<IPSSite> sites = findAllSites();
-
-            for (IPSSite f : sites)
-            {
-               rval.add(new PSObjectSummary(f.getGUID(), f.getName(), f
-                     .getName(), StringUtils.EMPTY));
-            }
-         }
-         
-         if (type.getOrdinal() == PSTypeEnum.CONTEXT.getOrdinal())
-         {
-            List<IPSPublishingContext> contexts = findAllContexts(false);
-
-            for (IPSPublishingContext c : contexts)
-            {
-               rval.add(new PSObjectSummary(c.getGUID(), c.getName(), 
-                     c.getName(), StringUtils.EMPTY));
-            }
-         }
-
-      return rval;
-   }
-
-   /**
-    * @see com.percussion.services.catalog.IPSCataloger#loadByType(com.percussion.services.catalog.PSTypeEnum,
-    *      java.lang.String)
-    */
-   @Override
-   public void loadByType(PSTypeEnum type, String item)
-         throws PSCatalogException
-   {
-      try
-      {
-         if (type.equals(PSTypeEnum.SITE))
-         {
-            IPSGuid guid = PSXmlSerializationHelper.getIdFromXml(
-                  PSTypeEnum.SITE, item);
-            IPSSite temp = null;
-            try
-            {
-               temp = loadUnmodifiableSite(guid);
-               ((PSSite) temp).setVersion(null);
-            }
-            catch (PSNotFoundException e)
-            {
-               temp = new PSSite();
-            }
-            ((PSSite) temp).fromXML(item);
-            saveSite(temp);
-         }
-         else
-         {
-            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type
-                  .toString());
-         }
-      }
-      catch (IOException e)
-      {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
-      }
-      catch (SAXException e)
-      {
-         throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
-      }
-
-   }
-
-   /**
-    * @see com.percussion.services.catalog.IPSCataloger#saveByType(com.percussion.utils.guid.IPSGuid)
-    */
-   @Override
-   @Transactional(noRollbackFor=PSNotFoundException.class)
-   public String saveByType(IPSGuid id) throws PSCatalogException
-   {
-      try
-      {
-         if (id.getType() == PSTypeEnum.SITE.getOrdinal())
-         {
-            IPSSite temp = loadSite(id);
-            return ((PSSite) temp).toXML();
-         }
-         PSTypeEnum type = PSTypeEnum.valueOf(id.getType());
-         throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type
-               .toString());
-      }
-      catch (PSNotFoundException e)
-      {
-         throw new PSCatalogException(IPSCatalogErrors.REPOSITORY, e, id);
-      }
-      catch (IOException e)
-      {
-         throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
-      }
-      catch (SAXException e)
-      {
-         throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
-      }
-   }
-
-   /**
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.sitemgr.IPSSiteManager#getPublishPath(com.percussion.utils.guid.IPSGuid,
-    *      com.percussion.utils.guid.IPSGuid)
-    */
-   @Override
-   public String getPublishPath(IPSGuid siteId, IPSGuid folderId)
-           throws PSSiteManagerException, PSNotFoundException {
-      if (siteId == null)
-         throw new IllegalArgumentException("siteId must not be null.");
-      if (!(folderId instanceof PSLegacyGuid))
-         throw new IllegalArgumentException(
-               "folderId must be an instance of PSLegacyGuid.");
-
-      IPSSite site = loadUnmodifiableSite(siteId);
-
-      PSRequest req = (PSRequest) PSRequestInfo
-            .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-      PSServerFolderProcessor processor = PSServerFolderProcessor.getInstance();
-
-      int rootId = getSiteRootFolderId(site, processor);
-      if (rootId == -1)
-         return null;
-      
-      // if the folder is the root folder of the site, return "/"
-      if (rootId == ((PSLegacyGuid) folderId).getContentId())
-         return PSFolder.PATH_SEP;
-
-      List<PSLocator> siteFolderPath = getSiteFolderPath(
-            (PSLegacyGuid) folderId, rootId, site, processor);
-
-      // get the publishing path from 'siteFolderPath'
-      StringBuilder pathBuff = new StringBuilder();
-      String publishName;
-      for (PSLocator f : siteFolderPath)
-      {
-         try
-         {
-            publishName = processor.getPubFileName(f.getId());
-         }
-         catch (PSCmsException e)
-         {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            // this should never happen in a properly configured environment
+    /**
+     * @deprecated use {@link #loadSite(String)} instead.
+     */
+    @Override
+    @Deprecated
+    public IPSSite findSiteByName(String sitename) throws PSSiteManagerException {
+        try {
+            return loadSite(sitename);
+        } catch (PSNotFoundException e) {
             throw new PSSiteManagerException(
-                  IPSSiteManagerErrors.UNEXPECTED_ERROR, e
-                        .getLocalizedMessage());
-         }
+                IPSSiteManagerErrors.SITE_NAME_NOT_EXIST, sitename);
+        }
+    }
 
-         pathBuff.append(PSFolder.PATH_SEP);
-         pathBuff.append(publishName);
-      }
-      pathBuff.append(PSFolder.PATH_SEP);
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public void saveSite(IPSSite site) {
+        Objects.requireNonNull(site, "site cannot be null");
+        getSession().merge(site);
+    }
 
-      return pathBuff.toString();
-   }
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public void deleteSite(IPSSite site) {
+        Objects.requireNonNull(site, "site cannot be null");
 
-   /**
-    * Gets the root folder id for the specified site.
-    * 
-    * @param site the site for which to find the root folder id, assumed not
-    *           <code>null</code>.
-    * @param processor the folder processor object, assumed not
-    *           <code>null</code>.
-    * 
-    * @return the root folder id of the specified site. 
-    * It may be <code>-1</code> if the cannot find root folder of the site, or
-    * the root folder of the site is not defined.
-    * 
-    * @throws PSSiteManagerException if an error occurs.
-    */
-   private int getSiteRootFolderId(IPSSite site,
-         PSServerFolderProcessor processor) throws PSSiteManagerException
-   {
-      try
-      {
-         return processor.getIdByPath(site.getFolderRoot());
-      }
-      catch (PSCmsException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSSiteManagerException(
-               IPSSiteManagerErrors.FAILED_FIND_ROOT_FOLDER_ID, site.getGUID(),
-               site.getFolderRoot(), e.getLocalizedMessage());
-      }
-   }
+        getSession().delete(site);
+        PSNotificationHelper.notifyEvent(EventType.SITE_DELETED, site.getGUID());
 
-   /**
-    * Gets the site folder path for the specified folder and site.
-    * 
-    * @param folderId the specified folder id, assumed not <code>null</code>.
-    * @param siteRootId the root folder id of the specified site.
-    * @param site the specified site, assumed not <code>null</code>.
-    * @param processor the folder processor, assumed not <code>null</code>.
-    * 
-    * @return a list of locators, where the 1st element is the immediate child
-    *         folder of the specified site, and the last element is the
-    *         specified folder. Never <code>null</code> or empty.
-    * 
-    * @throws PSSiteManagerException if the specified folder does not exist
-    *            under the specified site.
-    */
-   private List<PSLocator> getSiteFolderPath(PSLegacyGuid folderId,
-         int siteRootId, IPSSite site, PSServerFolderProcessor processor)
-         throws PSSiteManagerException
-   {
-      List<PSLocator> pathToRoot;
-      PSLocator folderLocator = folderId.getLocator();
+        // the object will be evicted by the framework,
+        // see PSEhCacheAccessor.notifyEvent()
+    }
 
-      try
-      {
-         pathToRoot = processor.getAncestorLocators(folderLocator);
-         pathToRoot.add(folderLocator);
-      }
-      catch (PSCmsException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new PSSiteManagerException(
-               IPSSiteManagerErrors.FAILED_GET_FOLDER_PATH, folderId, e
-                     .getLocalizedMessage());
-      }
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public IPSLocationScheme createScheme() {
+        var gmgr = PSGuidManagerLocator.getGuidMgr();
+        var scheme = new PSLocationScheme();
+        scheme.setGUID(gmgr.createGuid(PSTypeEnum.LOCATION_SCHEME));
+        return scheme;
+    }
 
-      // get the locator path from the specified folder to the site's root
-      // folder
-      List<PSLocator> siteFolderPath = new ArrayList<>(pathToRoot
-            .size());
-      boolean foundRoot = false;
-      for (int i = 0; i < pathToRoot.size(); i++)
-      {
-         if (foundRoot)
-            siteFolderPath.add(pathToRoot.get(i));
-         else if (pathToRoot.get(i).getId() == siteRootId)
-            foundRoot = true;
-      }
+    @Override
+    public IPSLocationScheme loadScheme(IPSGuid schemeId) throws PSNotFoundException {
+        Objects.requireNonNull(schemeId, "schemeId cannot be null");
+        return loadSchemeModifiable(schemeId);
+    }
 
-      if (siteFolderPath.isEmpty())
-         throw new PSSiteManagerException(IPSSiteManagerErrors.NOT_SITE_FOLDER,
-               folderId.getContentId(), site.getGUID(), site.getFolderRoot());
+    @Override
+    public IPSLocationScheme loadSchemeModifiable(IPSGuid schemeId) throws PSNotFoundException {
+        Objects.requireNonNull(schemeId, "schemeId cannot be null");
 
-      return siteFolderPath;
-   }
+        var scheme = (IPSLocationScheme) getSession().get(
+            PSLocationScheme.class, schemeId.longValue());
 
-   /**
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.sitemgr.IPSSiteManager#getSiteFolderId(com.percussion.utils.guid.IPSGuid,
-    *      com.percussion.utils.guid.IPSGuid)
-    */
-   @Override
-   public IPSGuid getSiteFolderId(IPSGuid siteId, IPSGuid contentId)
-           throws PSSiteManagerException, PSNotFoundException {
-      if (siteId == null)
-      {
-         throw new IllegalArgumentException("siteId may not be null");
-      }
-      if (contentId == null)
-      {
-         throw new IllegalArgumentException("contentId may not be null");
-      }
-      if (!(contentId instanceof PSLegacyGuid))
-      {
-         throw new IllegalArgumentException("contentId must be a legacy guid");
-      }
+        if (scheme == null) {
+            throw new PSNotFoundException(schemeId);
+        }
 
-      PSLegacyGuid lg = (PSLegacyGuid) contentId;
-      IPSSite site = loadUnmodifiableSite(siteId);
+        return scheme;
+    }
 
-      PSRequest request = PSRequest.getContextForRequest();
-      PSServerFolderProcessor fproc =PSServerFolderProcessor.getInstance();
-      try
-      {
-         String paths[] = fproc.getFolderPaths(lg.getLocator());
-         String matching = null;
-         String siteRoot = site.getFolderRoot();
-         if(!siteRoot.endsWith("/"))
-            siteRoot = siteRoot + "/";
-         for (String path : paths)
-         {
-            if (siteRoot.equals(path + "/") || path.startsWith(siteRoot))
-            {
-               matching = path;
-               break;
+    @Override
+    public IPSLocationScheme loadScheme(int schemeId) throws PSNotFoundException {
+        var id = PSGuidUtils.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME);
+        return loadScheme(id);
+    }
+
+    @Override
+    public List<IPSLocationScheme> findSchemeByAssemblyInfo(
+            IPSAssemblyTemplate template, IPSPublishingContext context,
+            IPSGuid contenttypeid) {
+        return findSchemeByAssemblyInfo(template.getGUID(), context.getGUID(), contenttypeid);
+    }
+
+    @Override
+    public List<IPSLocationScheme> findSchemeByAssemblyInfo(IPSGuid templateid,
+                                                           IPSPublishingContext context, IPSGuid contenttypeid) {
+        return findSchemeByAssemblyInfo(templateid, context.getGUID(), contenttypeid);
+    }
+
+    @Override
+    public List<IPSLocationScheme> findSchemeByAssemblyInfo(IPSGuid templateid,
+                                                           IPSGuid contextid, IPSGuid contenttypeid) {
+        Objects.requireNonNull(templateid, "templateid cannot be null");
+        Objects.requireNonNull(contextid, "contextid cannot be null");
+        Objects.requireNonNull(contenttypeid, "contenttypeid cannot be null");
+
+        var key = new LocationSchemeKey(templateid, contextid, contenttypeid);
+        var locationSchemeMap = getLocationSchemeMap();
+
+        var cachedResult = locationSchemeMap.get(key);
+        if (cachedResult != null) {
+            return cachedResult;
+        }
+
+        var session = getSession();
+        var query = session.createQuery(
+            "from PSLocationScheme where templateId = :templateId and contentTypeId = :contentTypeId and contextId = :contextId",
+            IPSLocationScheme.class);
+        query.setParameter("templateId", templateid.longValue());
+        query.setParameter("contentTypeId", contenttypeid.longValue());
+        query.setParameter("contextId", contextid.longValue());
+
+        List<IPSLocationScheme> result = query.list();
+        locationSchemeMap.put(key, result);
+
+        return result;
+    }
+
+    /**
+     * Get the location scheme map from the cache, create if missing using Java 11 patterns
+     *
+     * @return the map, never <code>null</code>
+     */
+    @SuppressWarnings("unchecked")
+    ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>> getLocationSchemeMap() {
+        var cacheResult = m_cache.get(LOCATION_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE);
+        var locationSchemeMap = (ConcurrentHashMap<LocationSchemeKey, List<IPSLocationScheme>>) cacheResult;
+
+        if (locationSchemeMap == null) {
+            locationSchemeMap = new ConcurrentHashMap<>(8, 0.9f, 1);
+            m_cache.save(LOCATION_MAP_KEY, locationSchemeMap, IPSCacheAccess.IN_MEMORY_STORE);
+        }
+
+        return locationSchemeMap;
+    }
+
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public void saveScheme(IPSLocationScheme scheme) {
+        Objects.requireNonNull(scheme, "scheme cannot be null");
+
+        // cannot save a cloned Location Scheme object
+        if (scheme instanceof PSLocationScheme && ((PSLocationScheme) scheme).isCloned()) {
+            throw new IllegalStateException("Cannot save a cloned Location Scheme object");
+        }
+
+        getSession().saveOrUpdate(scheme);
+
+        // the object will be evicted by the framework,
+        // see PSEhCacheAccessor.notifyEvent()
+    }
+
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public void deleteScheme(IPSLocationScheme scheme) {
+        Objects.requireNonNull(scheme, "scheme cannot be null");
+        getSession().delete(scheme);
+
+        // the object will be evicted by the framework,
+        // see PSEhCacheAccessor.notifyEvent()
+    }
+
+    /**
+     * Modern cache key for location schemes using Java 11 features
+     */
+    private static final class LocationSchemeKey {
+        private final IPSGuid templateId;
+        private final IPSGuid contextId;
+        private final IPSGuid contentTypeId;
+
+        LocationSchemeKey(IPSGuid templateId, IPSGuid contextId, IPSGuid contentTypeId) {
+            this.templateId = Objects.requireNonNull(templateId, "templateId cannot be null");
+            this.contextId = Objects.requireNonNull(contextId, "contextId cannot be null");
+            this.contentTypeId = Objects.requireNonNull(contentTypeId, "contentTypeId cannot be null");
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            var that = (LocationSchemeKey) obj;
+            return Objects.equals(templateId, that.templateId) &&
+                   Objects.equals(contextId, that.contextId) &&
+                   Objects.equals(contentTypeId, that.contentTypeId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(templateId, contextId, contentTypeId);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("LocationSchemeKey{templateId=%s, contextId=%s, contentTypeId=%s}",
+                templateId, contextId, contentTypeId);
+        }
+    }
+
+    @Override
+    public IPSPublishingContext loadContext(int contextid) throws PSNotFoundException {
+        return loadContext(PSGuidUtils.makeGuid(contextid, PSTypeEnum.CONTEXT));
+    }
+
+    @Override
+    public IPSPublishingContext loadContext(IPSGuid contextid) throws PSNotFoundException {
+        return loadContext(contextid, true);
+    }
+
+    @Override
+    public IPSPublishingContext loadContextModifiable(IPSGuid contextid) throws PSNotFoundException {
+        return loadContext(contextid, false);
+    }
+
+    /**
+     * Enhanced context loading with Java 11 patterns
+     */
+    private IPSPublishingContext loadContext(IPSGuid contextid, boolean includeChildren)
+            throws PSNotFoundException {
+        Objects.requireNonNull(contextid, "contextid cannot be null");
+
+        var ctx = (IPSPublishingContext) getSession()
+            .get(PSPublishingContext.class, contextid.longValue());
+
+        if (ctx == null) {
+            throw new PSNotFoundException(contextid);
+        }
+
+        if (includeChildren) {
+            loadDefaultSchemeIfNeeded(ctx);
+        }
+
+        return ctx;
+    }
+
+    /**
+     * Loads the child component, Default Location Scheme, for the specified
+     * Context if it has one using Java 11 patterns.
+     */
+    private void loadDefaultSchemeIfNeeded(IPSPublishingContext ctx) {
+        Objects.requireNonNull(ctx, "ctx cannot be null");
+
+        Optional.ofNullable(ctx.getDefaultSchemeId())
+            .ifPresent(schemeId -> {
+                try {
+                    var scheme = loadSchemeModifiable(schemeId);
+                    ((PSPublishingContext) ctx).setDefaultScheme(scheme);
+                } catch (PSNotFoundException e) {
+                    log.warn("Default scheme not found for context {}: {}", ctx.getGUID(), e.getMessage());
+                    throw new RuntimeException("Default scheme not found", e);
+                }
+            });
+    }
+
+    @Override
+    public IPSPublishingContext loadContext(String contextname) throws PSNotFoundException {
+        if (StringUtils.isBlank(contextname)) {
+            throw new IllegalArgumentException("contextname cannot be null or empty");
+        }
+
+        List<IPSPublishingContext> contexts = getSession().createQuery(
+            "from PSPublishingContext where name = :name", IPSPublishingContext.class)
+            .setParameter("name", contextname).list();
+
+        if (contexts.isEmpty()) {
+            throw new PSNotFoundException(contextname, PSTypeEnum.CONTEXT);
+        }
+
+        var ctx = contexts.get(0);
+        loadDefaultSchemeIfNeeded(ctx);
+        return ctx;
+    }
+
+    /**
+     * @deprecated use {@link #loadContext(String)} instead.
+     */
+    @Override
+    @Deprecated
+    public IPSPublishingContext findContextByName(String contextname) throws PSSiteManagerException {
+        try {
+            return loadContext(contextname);
+        } catch (PSNotFoundException e) {
+            throw new PSSiteManagerException(IPSSiteManagerErrors.NO_SUCH_CONTEXT,
+                "NAME", contextname);
+        }
+    }
+
+    @Override
+    public PSTypeEnum[] getTypes() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    public List<IPSCatalogSummary> getSummaries(PSTypeEnum type) throws PSNotFoundException {
+        Objects.requireNonNull(type, "type cannot be null");
+
+        var summaries = new ArrayList<IPSCatalogSummary>();
+
+        if (type.getOrdinal() == PSTypeEnum.SITE.getOrdinal()) {
+            findAllSites().stream()
+                .map(site -> new PSObjectSummary(site.getGUID(), site.getName(),
+                    site.getName(), StringUtils.EMPTY))
+                .forEach(summaries::add);
+        }
+
+        if (type.getOrdinal() == PSTypeEnum.CONTEXT.getOrdinal()) {
+            findAllContexts(false).stream()
+                .map(context -> new PSObjectSummary(context.getGUID(), context.getName(),
+                    context.getName(), StringUtils.EMPTY))
+                .forEach(summaries::add);
+        }
+
+        return summaries;
+    }
+
+    @Override
+    public void loadByType(PSTypeEnum type, String item) throws PSCatalogException {
+        Objects.requireNonNull(type, "type cannot be null");
+        Objects.requireNonNull(item, "item cannot be null");
+
+        try {
+            if (type.equals(PSTypeEnum.SITE)) {
+                var guid = PSXmlSerializationHelper.getIdFromXml(PSTypeEnum.SITE, item);
+                IPSSite temp;
+
+                try {
+                    temp = loadUnmodifiableSite(guid);
+                    ((PSSite) temp).setVersion(null);
+                } catch (PSNotFoundException e) {
+                    temp = new PSSite();
+                }
+
+                ((PSSite) temp).fromXML(item);
+                saveSite(temp);
+            } else {
+                throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE,
+                    Optional.ofNullable(type).map(PSTypeEnum::toString).orElse("null"));
             }
-         }
-         if (matching == null)
-         {
+        } catch (IOException e) {
+            throw new PSCatalogException(IPSCatalogErrors.IO, e, type);
+        } catch (SAXException e) {
+            throw new PSCatalogException(IPSCatalogErrors.XML, e, item);
+        }
+    }
+
+    @Override
+    @Transactional(noRollbackFor = PSNotFoundException.class)
+    public String saveByType(IPSGuid id) throws PSCatalogException {
+        Objects.requireNonNull(id, "id cannot be null");
+
+        try {
+            if (id.getType() == PSTypeEnum.SITE.getOrdinal()) {
+                var site = loadSite(id);
+                return ((PSSite) site).toXML();
+            }
+
+            var type = PSTypeEnum.valueOf(id.getType());
+            throw new PSCatalogException(IPSCatalogErrors.UNKNOWN_TYPE, type.toString());
+        } catch (PSNotFoundException e) {
+            throw new PSCatalogException(IPSCatalogErrors.REPOSITORY, e, id);
+        } catch (IOException e) {
+            throw new PSCatalogException(IPSCatalogErrors.IO, e, id);
+        } catch (SAXException e) {
+            throw new PSCatalogException(IPSCatalogErrors.TOXML, e);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation") // PSLegacyGuid usage required for backward compatibility
+    public String getPublishPath(IPSGuid siteId, IPSGuid folderId)
+            throws PSSiteManagerException, PSNotFoundException {
+        Objects.requireNonNull(siteId, "siteId cannot be null");
+
+        if (!(folderId instanceof PSLegacyGuid)) {
+            throw new IllegalArgumentException("folderId must be an instance of PSLegacyGuid");
+        }
+
+        var site = loadUnmodifiableSite(siteId);
+        var processor = PSServerFolderProcessor.getInstance();
+
+        int rootId = getSiteRootFolderId(site, processor);
+        if (rootId == -1) {
             return null;
-         }
+        }
 
-         int cid = fproc.getIdByPath(matching);
-         return new PSLegacyGuid(cid, -1);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSSiteManagerException(
-               IPSSiteManagerErrors.UNEXPECTED_ERROR, e);
-      }
-   }
+        // if the folder is the root folder of the site, return "/"
+        if (rootId == ((PSLegacyGuid) folderId).getContentId()) {
+            return PSFolder.PATH_SEP;
+        }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.sitemgr.IPSSiteManager#getItemSites(com.percussion.utils.guid.IPSGuid)
-    */
+        var siteFolderPath = getSiteFolderPath((PSLegacyGuid) folderId, rootId, site, processor);
+
+        // build the publishing path using Java 11 patterns
+        var pathBuilder = new StringBuilder();
+        for (var locator : siteFolderPath) {
+            try {
+                var publishName = processor.getPubFileName(locator.getId());
+                pathBuilder.append(PSFolder.PATH_SEP).append(publishName);
+            } catch (PSCmsException e) {
+                log.error("Failed to get publish file name for locator {}: {}",
+                    locator.getId(), PSExceptionUtils.getMessageForLog(e));
+                log.debug("Full stack trace:", e);
+                throw new PSSiteManagerException(IPSSiteManagerErrors.UNEXPECTED_ERROR,
+                    e.getLocalizedMessage());
+            }
+        }
+        pathBuilder.append(PSFolder.PATH_SEP);
+
+        return pathBuilder.toString();
+    }
+
+    /**
+     * Gets the root folder id for the specified site using modern Java patterns.
+     *
+     * @param site the site for which to find the root folder id, cannot be null
+     * @param processor the folder processor object, cannot be null
+     * @return the root folder id of the specified site, -1 if not found
+     * @throws PSSiteManagerException if an error occurs
+     */
+    private int getSiteRootFolderId(IPSSite site, PSServerFolderProcessor processor)
+            throws PSSiteManagerException {
+        Objects.requireNonNull(site, "site cannot be null");
+        Objects.requireNonNull(processor, "processor cannot be null");
+
+        try {
+            return processor.getIdByPath(site.getFolderRoot());
+        } catch (PSCmsException e) {
+            log.error("Failed to find root folder ID for site {}: {}",
+                site.getGUID(), PSExceptionUtils.getMessageForLog(e));
+            log.debug("Full stack trace:", e);
+            throw new PSSiteManagerException(IPSSiteManagerErrors.FAILED_FIND_ROOT_FOLDER_ID,
+                site.getGUID(), site.getFolderRoot(), e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Gets the site folder path for the specified folder and site using Java 11 patterns.
+     *
+     * @param folderId the specified folder id, cannot be null
+     * @param siteRootId the root folder id of the specified site
+     * @param site the specified site, cannot be null
+     * @param processor the folder processor, cannot be null
+     * @return a list of locators from immediate child to specified folder
+     * @throws PSSiteManagerException if the specified folder does not exist under the site
+     */
+    private List<PSLocator> getSiteFolderPath(PSLegacyGuid folderId, int siteRootId,
+            IPSSite site, PSServerFolderProcessor processor) throws PSSiteManagerException {
+        Objects.requireNonNull(folderId, "folderId cannot be null");
+        Objects.requireNonNull(site, "site cannot be null");
+        Objects.requireNonNull(processor, "processor cannot be null");
+
+        var folderLocator = folderId.getLocator();
+
+        try {
+            var pathToRoot = processor.getAncestorLocators(folderLocator);
+            pathToRoot.add(folderLocator);
+
+            // get the locator path from the specified folder to the site's root folder
+            var siteFolderPath = new ArrayList<PSLocator>();
+            boolean foundRoot = false;
+
+            for (var locator : pathToRoot) {
+                if (foundRoot) {
+                    siteFolderPath.add(locator);
+                } else if (locator.getId() == siteRootId) {
+                    foundRoot = true;
+                }
+            }
+
+            if (siteFolderPath.isEmpty()) {
+                throw new PSSiteManagerException(IPSSiteManagerErrors.NOT_SITE_FOLDER,
+                    folderId.getContentId(), site.getGUID(), site.getFolderRoot());
+            }
+
+            return siteFolderPath;
+        } catch (PSCmsException e) {
+            log.error("Failed to get folder path for folder {}: {}",
+                folderId, PSExceptionUtils.getMessageForLog(e));
+            log.debug("Full stack trace:", e);
+            throw new PSSiteManagerException(IPSSiteManagerErrors.FAILED_GET_FOLDER_PATH,
+                folderId, e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public IPSGuid getSiteFolderId(IPSGuid siteId, IPSGuid contentId)
+            throws PSSiteManagerException, PSNotFoundException {
+        Objects.requireNonNull(siteId, "siteId cannot be null");
+        Objects.requireNonNull(contentId, "contentId cannot be null");
+
+        if (!(contentId instanceof PSLegacyGuid)) {
+            throw new IllegalArgumentException("contentId must be a legacy guid");
+        }
+
+        var legacyGuid = (PSLegacyGuid) contentId;
+        var site = loadUnmodifiableSite(siteId);
+        var processor = PSServerFolderProcessor.getInstance();
+
+        try {
+            var paths = processor.getFolderPaths(legacyGuid.getLocator());
+            var siteRoot = site.getFolderRoot();
+
+            if (!siteRoot.endsWith("/")) {
+                siteRoot = siteRoot + "/";
+            }
+
+            var matchingPath = Arrays.stream(paths)
+                .filter(path -> siteRoot.equals(path + "/") || path.startsWith(siteRoot))
+                .findFirst()
+                .orElse(null);
+
+            if (matchingPath == null) {
+                return null;
+            }
+
+            int contentIdValue = processor.getIdByPath(matchingPath);
+            return new PSLegacyGuid(contentIdValue, -1);
+        } catch (PSCmsException e) {
+            throw new PSSiteManagerException(IPSSiteManagerErrors.UNEXPECTED_ERROR, e);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.percussion.services.sitemgr.IPSSiteManager#getItemSites(com.percussion.utils.guid.IPSGuid)
+     */
    @Override
    @SuppressWarnings("unchecked")
    public List<IPSSite> getItemSites(IPSGuid contentId)

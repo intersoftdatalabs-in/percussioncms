@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import com.percussion.border.PSFocusBorder;
 import com.percussion.cx.objectstore.PSNode;
 
 import javax.accessibility.AccessibleContext;
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.JTree; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.tree.DefaultTreeCellRenderer; // TODO: JAVAX-11
+import javax.swing.BorderFactory;
+import javax.swing.JTree;
+import javax.swing.UIManager;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.Component;
 
 /**

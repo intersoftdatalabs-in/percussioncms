@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
+/**
+ * Exception thrown for unsupported user types. Sunny Sal: "User type unsupported? Upgrade kar lo,
+ * boss!"
+ */
 public class UnsupportedUserTypeException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2512343705403720594L;
+  private static final long serialVersionUID = 2512343705403720594L;
 
-	public UnsupportedUserTypeException(){
-		super(RestErrorCode.USER_UNSUPPORTED_USERTYPE, null, null, Response.Status.BAD_REQUEST);
-	}
+  /** Constructs an UnsupportedUserTypeException with BAD_REQUEST status. */
+  public UnsupportedUserTypeException() {
+    super(RestErrorCode.USER_UNSUPPORTED_USERTYPE, null, null, Response.Status.BAD_REQUEST);
+  }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,8 +17,7 @@
  */
 package com.percussion.delivery.likes.service.rdbms;
 
-import java.io.Serializable;
-
+import com.percussion.delivery.likes.data.IPSLikes;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,143 +26,127 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.UniqueConstraint;
-
+import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.percussion.delivery.likes.data.IPSLikes;
-
 /**
  * @author davidpardini
- * 
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLikes1")
-@Table(name = "PERC_PAGE_LIKES", uniqueConstraints = @UniqueConstraint(columnNames =
-{"site", "likeId", "type"}))
-public class PSLikes implements IPSLikes, Serializable
-{
+@Table(
+    name = "PERC_PAGE_LIKES",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"site", "likeId", "type"}))
+public class PSLikes implements IPSLikes, Serializable {
 
-    @TableGenerator(name = "likesId", table = "PERC_ID_GEN", pkColumnName = "GEN_KEY", valueColumnName = "GEN_VALUE", pkColumnValue = "likesId", allocationSize = 1)
-    @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "likesId")
-    private long id;
+  @TableGenerator(
+      name = "likesId",
+      table = "PERC_ID_GEN",
+      pkColumnName = "GEN_KEY",
+      valueColumnName = "GEN_VALUE",
+      pkColumnValue = "likesId",
+      allocationSize = 1)
+  @Id
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "likesId")
+  private long id;
 
-    @Basic
-    private String site;
+  @Basic private String site;
 
-    @Basic
-    private String likeId;
+  @Basic private String likeId;
 
-    @Basic
-    private String type;
+  @Basic private String type;
 
-    @Basic
-    private int total;
+  @Basic private int total;
 
-    public PSLikes()
-    {
+  public PSLikes() {}
 
-    }
+  /**
+   * Creates a new likes with the same values as the given one, except for the id.
+   *
+   * @param likes A Likes to create a copy from.
+   */
+  public PSLikes(IPSLikes likes) {
+    this.type = likes.getType();
+    this.site = likes.getSite();
+    this.likeId = likes.getLikeId();
+    this.total = likes.getTotal();
+  }
 
-    /**
-     * Creates a new likes with the same values as the given one, except for the
-     * id.
-     * 
-     * @param likes A Likes to create a copy from.
-     */
-    public PSLikes(IPSLikes likes)
-    {
-        this.type = likes.getType();
-        this.site = likes.getSite();
-        this.likeId = likes.getLikeId();
-        this.total = likes.getTotal();
-    }    
+  public PSLikes(String site, String likeId, String type) {
+    super();
+    this.site = site;
+    this.likeId = likeId;
+    this.type = type;
+  }
 
-    public PSLikes(String site, String likeId, String type) {
-		super();
-		this.site = site;
-		this.likeId = likeId;
-		this.type = type;
-	}
+  /**
+   * @param id the id to set
+   */
+  public void setId(String id) {
+    this.id = id == null ? 0 : Long.valueOf(id);
+  }
 
-	/**
-     * @param id the id to set
-     */
-    public void setId(String id)
-    {        
-    	this.id = id == null ? 0 : Long.valueOf(id);
-    }
+  /**
+   * @return the likeId
+   */
+  public String getLikeId() {
+    return likeId;
+  }
 
-    /**
-     * @return the likeId
-     */
-    public String getLikeId()
-    {
-        return likeId;
-    }
+  /**
+   * @param url the likeId to set
+   */
+  public void setLikeId(String likeId) {
+    this.likeId = likeId;
+  }
 
-    /**
-     * @param url the likeId to set
-     */
-    public void setLikeId(String likeId)
-    {
-        this.likeId = likeId;
-    }
+  /**
+   * @return the type
+   */
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  /**
+   * @param type the type to set
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  /**
+   * @return the site
+   */
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * @return the site
-     */
-    public String getSite()
-    {
-        return site;
-    }
+  /**
+   * @param site the site to set
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site)
-    {
-        this.site = site;
-    }
+  /**
+   * @return the id
+   */
+  public String getId() {
+    return String.valueOf(id);
+  }
 
-    /**
-     * @return the id
-     */
-    public String getId()
-    {        
-    	return String.valueOf(id);
-    }
+  /**
+   * @return the total
+   */
+  public int getTotal() {
+    return total;
+  }
 
-    /**
-     * @return the total
-     */
-    public int getTotal()
-    {
-        return total;
-    }
-
-    /**
-     * @param total the total to set
-     */
-    public void setTotal(int total)
-    {
-        this.total = total;
-    }
+  /**
+   * @param total the total to set
+   */
+  public void setTotal(int total) {
+    this.total = total;
+  }
 }

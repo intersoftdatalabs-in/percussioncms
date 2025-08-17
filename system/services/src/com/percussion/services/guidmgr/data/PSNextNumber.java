@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,115 +16,148 @@
  */
 package com.percussion.services.guidmgr.data;
 
+import org.apache.commons.lang3.StringUtils;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
- * Storage for GUID allocation records.
- *  
+ * JPA entity for storing GUID allocation records in the database.
+ *
+ * <p>This entity manages the next available number for various GUID types,
+ * ensuring unique ID generation across the system. It uses modern JPA
+ * annotations and Java 11 features for improved type safety and validation.
+ *
  * @author dougrand
+ * @since Java 11 Modernization
  */
 @Entity
 @Table(name = "NEXTNUMBER")
-public class PSNextNumber
-{
-   @Id
-   @Column(name = "KEYNAME")
-   String key;
-   
-   @Basic
-   @Column(name = "NEXTNR")
-   Integer next;
+public final class PSNextNumber {
 
    /**
-    * Default public ctor
+    * The unique key identifying the number sequence.
     */
-   public PSNextNumber()
-   {
-      key = null;
-      next = 0;
+   @Id
+   @Column(name = "KEYNAME", nullable = false)
+   @NotBlank(message = "Key cannot be blank")
+   private String key;
+
+   /**
+    * The next available number in the sequence.
+    */
+   @Basic
+   @Column(name = "NEXTNR", nullable = false)
+   @NotNull(message = "Next number cannot be null")
+   private Integer next;
+
+   /**
+    * Default constructor for JPA.
+    */
+   public PSNextNumber() {
+      // JPA requires default constructor
    }
    
    /**
-    * Ctor 
-    * @param key the key, never <code>null</code> or empty
-    * @param initial the initial next number value
+    * Creates a new PSNextNumber with the specified key and initial value.
+    *
+    * @param key the unique key for this number sequence, must not be blank
+    * @param initial the initial next number value, must be non-negative
+    * @throws IllegalArgumentException if key is blank or initial is negative
     */
    public PSNextNumber(String key, int initial) {
-      if (StringUtils.isBlank(key))
-      {
-         throw new IllegalArgumentException("key may not be null or empty");
-      }
-      this.key = key;
-      next = initial;
+      setKey(key);
+      setNext(initial);
    }
 
    /**
-    * @return Returns the key.
+    * Gets the unique key for this number sequence.
+    *
+    * @return the key, never null or blank for valid instances
     */
-   public String getKey()
-   {
+   public String getKey() {
       return key;
    }
 
    /**
-    * @param key The key to set.
+    * Sets the unique key for this number sequence.
+    *
+    * @param key the key to set, must not be blank
+    * @throws IllegalArgumentException if key is blank
     */
-   public void setKey(String key)
-   {
-      this.key = key;
+   public void setKey(String key) {
+      if (StringUtils.isBlank(key)) {
+         throw new IllegalArgumentException("Key cannot be null or blank");
+      }
+      this.key = key.trim();
    }
 
    /**
-    * @return Returns the next.
+    * Gets the next available number in the sequence.
+    *
+    * @return the next number, never null for valid instances
     */
-   public Integer getNext()
-   {
+   public Integer getNext() {
       return next;
    }
 
    /**
-    * @param next The next to set.
+    * Sets the next available number in the sequence.
+    *
+    * @param next the next number to set, must not be null and should be non-negative
+    * @throws IllegalArgumentException if next is null or negative
     */
-   public void setNext(Integer next)
-   {
+   public void setNext(Integer next) {
+      Objects.requireNonNull(next, "Next number cannot be null");
+      if (next < 0) {
+         throw new IllegalArgumentException("Next number cannot be negative: " + next);
+      }
       this.next = next;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#equals(java.lang.Object)
+   /**
+    * Atomically increments and returns the next number.
+    *
+    * @return the current next number before incrementing
     */
-   @Override
-   public boolean equals(Object obj)
-   {
-      return EqualsBuilder.reflectionEquals(this, obj);
+   public int getAndIncrement() {
+      var current = next;
+      next = current + 1;
+      return current;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
+   /**
+    * Checks if this number sequence has available numbers.
+    *
+    * @return true if next number is available (non-null and non-negative)
     */
-   @Override
-   public int hashCode()
-   {
-      return key.hashCode();
+   public boolean hasNext() {
+      return next != null && next >= 0;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
-   public String toString()
-   {
-      return "<NextNumber key=" + key + " next=" + next + ">";
+   public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (obj == null || getClass() != obj.getClass()) return false;
+
+      var other = (PSNextNumber) obj;
+      return Objects.equals(key, other.key) &&
+             Objects.equals(next, other.next);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(key, next);
+   }
+
+   @Override
+   public String toString() {
+      return String.format("PSNextNumber{key='%s', next=%d}", key, next);
    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ package com.percussion.util;
 import com.percussion.HTTPClient.NVPair;
 import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.server.PSRequest;
-import com.percussion.utils.testing.IntegrationTest;
+import com.percussion.system.utils.IPSRemoteRequesterEx;
+import com.percussion.system.utils.PSRemoteRequester;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -41,7 +43,7 @@ import java.util.Properties;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSRemoteRequesterTest
 {
 

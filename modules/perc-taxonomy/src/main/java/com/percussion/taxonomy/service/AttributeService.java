@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,99 +25,83 @@ import com.percussion.taxonomy.repository.AttributeServiceInf;
 import com.percussion.taxonomy.repository.Attribute_langServiceInf;
 import com.percussion.taxonomy.repository.NodeServiceInf;
 import com.percussion.taxonomy.repository.ValueServiceInf;
-
 import java.util.Collection;
-public class AttributeService implements AttributeServiceInf
-{
-   public AttributeService(AttributeDAO attributeDAO, Attribute_langServiceInf attributeLangService, 
-         NodeServiceInf nodeService, ValueServiceInf valueService)
-   {
-      this.attributeDAO = attributeDAO;
-      this.attributeLangService = attributeLangService;
-      this.nodeService = nodeService;
-      this.valueService = valueService;
-   }
 
-   public Collection getAllAttributes(int taxonomy_id, int language_id)
-   {
-      return attributeDAO.getAllAttributes(taxonomy_id, language_id);
-   }
+public class AttributeService implements AttributeServiceInf {
+  public AttributeService(
+      AttributeDAO attributeDAO,
+      Attribute_langServiceInf attributeLangService,
+      NodeServiceInf nodeService,
+      ValueServiceInf valueService) {
+    this.attributeDAO = attributeDAO;
+    this.attributeLangService = attributeLangService;
+    this.nodeService = nodeService;
+    this.valueService = valueService;
+  }
 
-   public Collection getAttribute(int id)
-   {
-      return attributeDAO.getAttribute(id);
-   }
+  public Collection getAllAttributes(int taxonomy_id, int language_id) {
+    return attributeDAO.getAllAttributes(taxonomy_id, language_id);
+  }
 
-   public void removeAttribute(Attribute attribute)
-   {
-      removeAttributeFromNodes(attribute);
+  public Collection getAttribute(int id) {
+    return attributeDAO.getAttribute(id);
+  }
 
-      removeAttributeLanguages(attribute);
+  public void removeAttribute(Attribute attribute) {
+    removeAttributeFromNodes(attribute);
 
-      attributeDAO.removeAttribute(attribute);
-   }
+    removeAttributeLanguages(attribute);
 
-   /**
-    * Remove the associated Attribute languages for the given attribute.
-    * 
-    * @param attribute the attribute in question, not <code>null</code>.
-    */
-   private void removeAttributeLanguages(Attribute attribute)
-   {
-      if(attribute.getAttribute_langs() == null)
-      {
-         return;
+    attributeDAO.removeAttribute(attribute);
+  }
+
+  /**
+   * Remove the associated Attribute languages for the given attribute.
+   *
+   * @param attribute the attribute in question, not <code>null</code>.
+   */
+  private void removeAttributeLanguages(Attribute attribute) {
+    if (attribute.getAttribute_langs() == null) {
+      return;
+    }
+
+    for (Attribute_lang attrLang : attribute.getAttribute_langs()) {
+      attributeLangService.removeAttribute_lang(attrLang);
+    }
+  }
+
+  /**
+   * Removes the specified attribute from the nodes that have values for that attribute.
+   *
+   * @param attribute the attribute in question, not <code>null</code>.
+   */
+  private void removeAttributeFromNodes(Attribute attribute) {
+    Collection<Node> nodes = nodeService.findNodesByAttribute(attribute);
+
+    for (Node node : nodes) {
+      // removes the values that are associated with the attribute
+      for (Value value : node.getValues()) {
+        if (value.getAttribute().getId() == attribute.getId()) {
+          valueService.removeValue(value);
+        }
       }
-      
-      for (Attribute_lang attrLang : attribute.getAttribute_langs())
-      {
-         attributeLangService.removeAttribute_lang(attrLang);
-      }
-   }
+    }
+  }
 
-   /**
-    * Removes the specified attribute from the nodes that have values for that
-    * attribute.
-    * 
-    * @param attribute the attribute in question, not <code>null</code>.
-    */
-   private void removeAttributeFromNodes(Attribute attribute)
-   {
-      Collection<Node> nodes = nodeService.findNodesByAttribute(attribute);
+  public void saveAttribute(Attribute attribute) {
+    attributeDAO.saveAttribute(attribute);
+  }
 
-      for (Node node : nodes)
-      {
-         // removes the values that are associated with the attribute
-         for (Value value : node.getValues())
-         {
-            if (value.getAttribute().getId() == attribute.getId())
-            {
-               valueService.removeValue(value);
-            }
-         }
-      }
-   }
+  /** Return all Attribute names and IDs */
+  public Collection getAttributeNames(int taxonomy_id, int language_id) {
+    return attributeDAO.getAttributeNames(taxonomy_id, language_id);
+  }
 
-   public void saveAttribute(Attribute attribute)
-   {
-      attributeDAO.saveAttribute(attribute);
-   }
+  private AttributeDAO attributeDAO;
 
-   /**
-    * Return all Attribute names and IDs
-    */
-   public Collection getAttributeNames(int taxonomy_id, int language_id)
-   {
-      return attributeDAO.getAttributeNames(taxonomy_id, language_id);
-   }
+  private Attribute_langServiceInf attributeLangService;
 
-   private AttributeDAO attributeDAO;
+  private NodeServiceInf nodeService;
 
-   private Attribute_langServiceInf attributeLangService;
-
-   private NodeServiceInf nodeService;
-
-   private ValueServiceInf valueService;
-
-
+  private ValueServiceInf valueService;
 }

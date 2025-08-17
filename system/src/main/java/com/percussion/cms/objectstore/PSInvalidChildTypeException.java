@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,35 +20,23 @@ import com.percussion.cms.IPSCmsErrors;
 import com.percussion.error.PSException;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Indicates that an invalid complex child field name has been specified.
- */
-public class PSInvalidChildTypeException extends PSException
-{
-   /**
-    * For java serialization
-    */
-   private static final long serialVersionUID = 1L;
+/** Indicates that an invalid complex child field name has been specified. */
+public class PSInvalidChildTypeException extends PSException {
+  /** For java serialization */
+  private static final long serialVersionUID = 1L;
 
-   /**
-    * Construct the exception with the default message.
-    * 
-    * @param childName The invalid child type name, may not be <code>null</code> 
-    * or empty.
-    * @param contentType The content type name or id, may not be 
-    * <code>null</code> or empty.
-    */
-   public PSInvalidChildTypeException(String childName, String contentType)
-   {
-      super(IPSCmsErrors.INVALID_CHILD_TYPE, 
-         new String[] {childName, contentType});
-      
-      if (StringUtils.isBlank(childName))
-         throw new IllegalArgumentException(
-            "childName may not be null or empty");
-      if (StringUtils.isBlank(contentType))
-         throw new IllegalArgumentException(
-            "contentType may not be null or empty");
-   }
+  /**
+   * Construct the exception with the default message.
+   *
+   * @param childName The invalid child type name, may not be <code>null</code> or empty.
+   * @param contentType The content type name or id, may not be <code>null</code> or empty.
+   */
+  public PSInvalidChildTypeException(String childName, String contentType) {
+    super(IPSCmsErrors.INVALID_CHILD_TYPE, new String[] {childName, contentType});
+
+    if (StringUtils.isBlank(childName))
+      throw new IllegalArgumentException("childName may not be null or empty");
+    if (StringUtils.isBlank(contentType))
+      throw new IllegalArgumentException("contentType may not be null or empty");
+  }
 }
-

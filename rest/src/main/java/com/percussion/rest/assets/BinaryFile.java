@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,80 +21,82 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "BinaryFile")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary file.")
-public class BinaryFile
-{
-	private String filename;
-	private String extension;
-	private long size;
-	private String type;
+@Schema(description = "Represents a binary file.")
+public class BinaryFile {
 
-	/**
-	 * @return the fileName
-	 */
-	public String getFilename()
-	{
-		return filename;
-	}
+  private String filename;
+  private String extension;
+  private long size;
+  private String type;
 
-	/**
-	 * @param fileName the fileName to set
-	 */
-	public void setFilename(String fileName)
-	{
-		this.filename = fileName;
-	}
+  public Optional<String> getFilename() {
+    return Optional.ofNullable(filename);
+  }
 
-	/**
-	 * @return the extension
-	 */
-	public String getExtension()
-	{
-		return extension;
-	}
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
 
-	/**
-	 * @param extension the extension to set
-	 */
-	public void setExtension(String extension)
-	{
-		this.extension = extension;
-	}
+  public Optional<String> getExtension() {
+    return Optional.ofNullable(extension);
+  }
 
-	/**
-	 * @return the size
-	 */
-	public long getSize()
-	{
-		return size;
-	}
+  public void setExtension(String extension) {
+    this.extension = extension;
+  }
 
-	/**
-	 * @param size the size to set
-	 */
-	public void setSize(long size)
-	{
-		this.size = size;
-	}
+  public long getSize() {
+    return size;
+  }
 
-	/**
-	 * @return the type
-	 */
-	public String getType()
-	{
-		return type;
-	}
+  public void setSize(long size) {
+    this.size = size;
+  }
 
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(String type)
-	{
-		this.type = type;
-	}
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof BinaryFile)) return false;
+    var that = (BinaryFile) o;
+    return size == that.size
+        && Objects.equals(filename, that.filename)
+        && Objects.equals(extension, that.extension)
+        && Objects.equals(type, that.type);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename, extension, size, type);
+  }
+
+  @Override
+  public String toString() {
+    return "BinaryFile{"
+        + "filename='"
+        + filename
+        + '\''
+        + ", extension='"
+        + extension
+        + '\''
+        + ", size="
+        + size
+        + ", type='"
+        + type
+        + '\''
+        + '}';
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,16 @@
 
 package com.percussion.delivery.metadata;
 
-public interface IPSMetadataProperty
-{
+public interface IPSMetadataProperty {
 
-   /**
-    * @return the name
-    */
-   public String getName();
+    String getName();
 
-   /**
-    * @param name the name to set
-    */
-   public void setName(String name);
+    void setName(String name);
 
-   /**
-    * Returns the untyped value.
-    * 
-    * @return May be <code>null</code>.
-    */
-   public String getValue();
-
+    /**
+     * Returns the untyped value.
+     *
+     * @return May be <code>null</code>.
+     */
+    String getValue();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,22 @@ import com.ibm.cadf.middleware.AuditContext;
 
 public class AbstractEvent extends AuditContext {
 
-    private final static String SYSTEM_OBSERVER="service/bss/cms";
-    private String outcome;
-    public String getOutcome(){
-        return outcome;
-    }
+  private static final String SYSTEM_OBSERVER = "service/bss/cms";
+  private String outcome;
 
-    public void setOutcome(String outcome){
-        this.outcome = outcome;
-    }
+  public String getOutcome() {
+    return outcome;
+  }
 
-    public AbstractEvent(){
+  public void setOutcome(String outcome) {
+    this.outcome = outcome;
+  }
 
-        //Set some defaults
-        this.setOutcome(PSActionOutcome.UNKNOWN.name());
-        this.setObserverName(SYSTEM_OBSERVER);
-        this.setTargetName(SYSTEM_OBSERVER);
-    }
+  public AbstractEvent() {
 
-
+    // Set some defaults
+    this.setOutcome(PSActionOutcome.UNKNOWN.name());
+    this.setObserverName(SYSTEM_OBSERVER);
+    this.setTargetName(SYSTEM_OBSERVER);
+  }
 }

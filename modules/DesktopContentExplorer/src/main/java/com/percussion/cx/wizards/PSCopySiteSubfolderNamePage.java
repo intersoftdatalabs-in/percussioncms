@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.wizard.PSWizardPanel;
 import com.percussion.wizard.PSWizardValidationError;
 
-import javax.swing.JComponent; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTextField; // TODO: JAVAX-11
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.Collection;
 
 /**

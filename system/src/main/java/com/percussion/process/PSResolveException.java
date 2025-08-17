@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,16 @@
 package com.percussion.process;
 
 /**
- * Exception to be thrown from the process package if the process
- * parameter or environment variable resolution fails.
+ * Exception to be thrown from the process package if the process parameter or environment variable
+ * resolution fails.
  */
-public class PSResolveException extends PSProcessException
-{
-   /**
-    * Constructs the exception from the specified message
-    *
-    * @param msg the message to wrap in the exception, may not be
-    * <code>null</code>
-    */
-   public PSResolveException(String msg)
-   {
-      super(msg);
-   }
+public class PSResolveException extends PSProcessException {
+  /**
+   * Constructs the exception from the specified message
+   *
+   * @param msg the message to wrap in the exception, may not be <code>null</code>
+   */
+  public PSResolveException(String msg) {
+    super(msg);
+  }
 }

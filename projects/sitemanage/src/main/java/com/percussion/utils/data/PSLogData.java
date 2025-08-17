@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,45 +15,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Rest data class for logging information on server.
+ * REST data class for logging information on the server. Immutable, Java 11 style.
+ *
+ * <p>Sunny Sal says: Logging is like pizza—always good, but better with toppings (context)!
  */
 @XmlRootElement(name = "LogData")
 @JsonRootName("LogData")
-public class PSLogData
-{
-    String type;
-    String category;
-    String message;
-    public String getType()
-    {
-        return type;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-    public String getCategory()
-    {
-        return category;
-    }
-    public void setCategory(String category)
-    {
-        this.category = category;
-    }
-    public String getMessage()
-    {
-        return message;
-    }
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
+public final class PSLogData {
+
+  private final String type;
+  private final String category;
+  private final String message;
+
+  /**
+   * Constructs a new PSLogData.
+   *
+   * @param type the log type (e.g., INFO, ERROR)
+   * @param category the log category
+   * @param message the log message
+   */
+  public PSLogData(String type, String category, String message) {
+    this.type = type;
+    this.category = category;
+    this.message = message;
+  }
+
+  /** Default constructor for frameworks. */
+  public PSLogData() {
+    this(null, null, null);
+  }
+
+  /**
+   * Gets the log type.
+   *
+   * @return an Optional containing the log type if present
+   */
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
+
+  /**
+   * Gets the log category.
+   *
+   * @return an Optional containing the log category if present
+   */
+  public Optional<String> getCategory() {
+    return Optional.ofNullable(category);
+  }
+
+  /**
+   * Gets the log message.
+   *
+   * @return an Optional containing the log message if present
+   */
+  public Optional<String> getMessage() {
+    return Optional.ofNullable(message);
+  }
 }

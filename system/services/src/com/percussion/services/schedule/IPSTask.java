@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.schedule;
 
 import com.percussion.extension.IPSExtension;
@@ -21,22 +22,18 @@ import com.percussion.extension.IPSExtension;
 import java.util.Map;
 
 /**
- * An extension to be run by the scheduler.
- * Examples out of the box of this interface implementations include running
- * aging transitions for workflow and scheduled jobs for publishing.
+ * Represents an extension to be run by the scheduler.
+ * <p>Implementations may include tasks such as running aging transitions for workflow or scheduled publishing jobs.</p>
+ * <p>Implementations must be thread-safe and avoid side effects outside the provided parameters map.</p>
  *
  * @author Doug Rand
  */
-public interface IPSTask extends IPSExtension
-{
-   /**
-    * Perform the task.
-    * 
-    * @param parameters the parameters registered for the task, never
-    * <code>null</code> but may be empty. These parameters will be documented
-    * for the specific implementation.
-    * The changes to this map are persisted across invocations for this task.
-    * @return the result, see the result documentation, never <code>null</code>.
-    */
-   IPSTaskResult perform(Map<String,String> parameters);
+public interface IPSTask extends IPSExtension {
+    /**
+     * Performs the scheduled task.
+     *
+     * @param parameters the parameters registered for the task, never {@code null} but may be empty. Changes to this map are persisted across invocations for this task. Implementations should defensively copy or wrap the map if immutability is required.
+     * @return the result of the task execution, never {@code null}
+     */
+    IPSTaskResult perform(Map<String, String> parameters);
 }

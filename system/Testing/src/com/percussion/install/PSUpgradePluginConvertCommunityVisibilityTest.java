@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatchStack;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.hibernate.query.Query;
@@ -40,15 +40,15 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -57,7 +57,7 @@ import java.io.InputStream;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSUpgradePluginConvertCommunityVisibilityTest
 {
    /**
@@ -85,7 +85,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
 
    private PSConnectionInfo m_info;
 
-   @BeforeClass
+   @BeforeAll
    public static void setUp() throws Exception
    {
       // Forces spring to initialize with standard junit configuration
@@ -204,7 +204,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
     * Remove acls created during the test
     * @throws PSSecurityException
     */
-   @AfterClass
+   @AfterAll
    public void cleanAclEntries() throws PSSecurityException
    {
       IPSAclService acl = PSAclServiceLocator.getAclService();

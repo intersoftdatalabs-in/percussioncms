@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,52 +16,55 @@
  */
 package com.percussion.pso.restservice.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-/**
- */
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+/** */
 @XmlRootElement(name = "Child")
 public class Child {
-	/**
-	 * Field name.
-	 */
-	private String name;
-	/**
-	 * Field rows.
-	 */
-	private List<ChildRow> rows;
-	
-	/**
-	 * Method setName.
-	 * @param name String
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * Method getName.
-	 * @return String
-	 */
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
+  /** Field name. */
+  private String name;
 
-	/**
-	 * Method setRows.
-	 * @param rows List<ChildRow>
-	 */
-	public void setRows(List<ChildRow> rows) {
-		this.rows = rows;
-	}
-	/**
-	 * Method getRows.
-	 * @return List<ChildRow>
-	 */
-	@XmlElement(name = "Row")
-	public List<ChildRow> getRows() {
-		return rows;
-	}
+  /** Field rows. */
+  private List<ChildRow> rows;
+
+  /**
+   * Method setName.
+   *
+   * @param name String
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Method getName.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Method setRows.
+   *
+   * @param rows List<ChildRow>
+   */
+  public void setRows(List<ChildRow> rows) {
+    this.rows = rows;
+  }
+
+  /**
+   * Method getRows.
+   *
+   * @return List<ChildRow>
+   */
+  @XmlElement(name = "Row")
+  public List<ChildRow> getRows() {
+    return rows;
+  }
 }

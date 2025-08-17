@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11, CP-SOAP
 package com.percussion.webservices;
 
 import com.percussion.cms.IPSConstants;
@@ -28,403 +29,438 @@ import com.percussion.webservices.faults.PSLockFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
 import com.percussion.webservices.system.RelationshipCategory;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-import org.apache.axis.AxisFault;
-import org.apache.axis.Message;
-import org.apache.axis.MessageContext;
-import org.apache.axis.attachments.AttachmentPart;
-import org.apache.axis.attachments.Attachments;
-import org.apache.axis.transport.http.HTTPConstants;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.exception.ExceptionUtils;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.login.LoginException; // TODO: JAVAX-11
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import javax.xml.soap.Node; // TODO: JAVAX-11
-import javax.xml.soap.SOAPConstants; // TODO: JAVAX-11
-import javax.xml.soap.SOAPElement; // TODO: JAVAX-11
-import javax.xml.soap.SOAPException; // TODO: JAVAX-11
-import javax.xml.soap.SOAPHeader; // TODO: JAVAX-11
+import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPElement;
 import java.rmi.RemoteException;
-import java.util.Iterator;
+import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * This base class implements generic functionality available with every
- * axis SOAP implementation. 
+ * JAX-WS SOAP implementation, modernized for Java 11 and contemporary SOAP standards.
+ * 
+ * <p>Provides common functionality for authentication, session management,
+ * exception handling, and attachment processing for SOAP web services.
  */
-public class PSBaseSOAPImpl
-{
-
+public class PSBaseSOAPImpl {
 
     /**
      * The logger for this class.
      */
     protected static final Logger logger = LogManager.getLogger(IPSConstants.WEBSERVICES_LOG);
 
+    /**
+     * WebService context for accessing SOAP message context and HTTP servlet objects.
+     */
+    protected WebServiceContext webServiceContext;
 
     /**
-    * Get the http servlet request associated with the current axis message.
-    * 
-    * @return the http servlet request, never <code>null</code>.
-    */
-   protected HttpServletRequest getServletRequest()
-   {
-      MessageContext context = MessageContext.getCurrentContext();
-      return (HttpServletRequest) context.getProperty(
-         HTTPConstants.MC_HTTP_SERVLETREQUEST);
-   }
-   
-   /**
-    * Get the http servlet response associated with the current axis message.
-    * 
-    * @return the http servlet response, never <code>null</code>.
-    */
-   protected HttpServletResponse getServletResponse()
-   {
-      MessageContext context = MessageContext.getCurrentContext();
-      return (HttpServletResponse) context.getProperty(
-         HTTPConstants.MC_HTTP_SERVLETRESPONSE);
-   }
-   
-   /**
-    * Get the rhythmyx session from the SOAP headers.
-    * 
-    * @return the rhythmyx session supplied with a message SOAP header,
-    *    never <code>null</code> or empty.
-    * @throws SOAPException for any error looking up the rhythmyx session
-    *    SOAP header. 
-    */
-   protected String getRhythmyxSession() throws SOAPException
-   {
-      String session = null;
-      
-      MessageContext context = MessageContext.getCurrentContext();
-      Message message = context.getCurrentMessage();
-      SOAPHeader soapHeader = message.getSOAPHeader();
-
-      Iterator headers = soapHeader.extractHeaderElements(
-         SOAPConstants.URI_SOAP_ACTOR_NEXT);
-      while (session == null && headers.hasNext())
-      {
-         SOAPElement header = (SOAPElement) headers.next();
-         // try the header formate from Axis client in Java
-         if (header.getElementName().getLocalName().equals("session"))
-         {
-            session = header.getValue();
-         }
-         // try the header format from Microsoft .NET client
-         else if (header.getElementName().getLocalName().equals(
-               "PSAuthenticationHeader"))
-         {
-            Iterator children = header.getChildElements();
-            if (children.hasNext())
-            {
-               Node childEl = (Node) children.next();
-               if (childEl instanceof SOAPElement)
-               {
-                  SOAPElement sessEl = (SOAPElement) childEl;
-                  if (sessEl.getElementName().getLocalName().equals("Session")) 
-                  {
-                     session = sessEl.getValue();
-                  }
-               }
-            }
-         }
-      }
-      
-      if (session == null)
-         throw new SOAPException("Required rhythmyx session header not found.");
-      
-      return session;
-   }
-   
-   /**
-    * Get all message attachments.
-    * 
-    * @return an array over all message attachments, never <code>null</code>,
-    *    may be empty.
-    * @throws AxisFault for any error getting the attachments.
-    */
-   protected AttachmentPart[] getAttachments() throws AxisFault
-   {
-      MessageContext context = MessageContext.getCurrentContext();
-      Message msg = context.getRequestMessage();
-      Attachments attachments = msg.getAttachmentsImpl();
-      if (null == attachments)
-         return new AttachmentPart[0];
-      
-      int attachmentCount = attachments.getAttachmentCount();
-      AttachmentPart attachmentParts[] = new AttachmentPart[attachmentCount];
-      Iterator it = attachments.getAttachments().iterator();
-      int count = 0;
-      while (it.hasNext())
-      {
-         AttachmentPart part = (AttachmentPart) it.next();
-         attachmentParts[count++] = part;
-      }
-      
-      return attachmentParts;
-   }
-   
-   /**
-    * Authenticate the the current message context. This retrieves the 
-    * required rhythmyx session header from the message context and 
-    * authenticates that.
-    * 
-    * @return the authenticated rhythmyx session, never <code>null</code> or
-    *    empty.
-    * @throws PSInvalidSessionFault if the current message context does not
-    *    contain a valid rhythmyx session. 
-    */
-   protected String authenticate() throws PSInvalidSessionFault
-   {
-      try
-      {
-         String sessionId = getRhythmyxSession();
-         PSSecurityFilter.authenticate(getServletRequest(),sessionId);
-
-         return sessionId;
-      }
-      catch (LoginException | SOAPException ex)
-      {
-            int code = IPSWebserviceErrors.INVALID_SESSION;
-            if(ex instanceof  SOAPException){
-               code = IPSWebserviceErrors.MISSING_SESSION;
-            }
-            logger.debug("Authentication Error Code:" + code, ex);
-            throw new PSInvalidSessionFault(code,
-                    PSWebserviceErrors.createErrorMessage(code, ex.toString()),
-                    ExceptionUtils.getFullStackTrace(ex));
-         }
+     * Get the HTTP servlet request associated with the current JAX-WS message.
+     * 
+     * @return the HTTP servlet request wrapped in Optional, empty if not available
+     */
+    protected Optional<HttpServletRequest> getServletRequest() {
+        if (webServiceContext == null) {
+            return Optional.empty();
+        }
+        
+        var messageContext = webServiceContext.getMessageContext();
+        var request = (HttpServletRequest) messageContext.get(MessageContext.SERVLET_REQUEST);
+        return Optional.ofNullable(request);
     }
    
-   /**
-    * Get the remote user.
-    * 
-    * @return the remote user, may be <code>null</code> if not authenticated,
-    *    never empty.
-    */
-   protected String getRemoteUser()
-   {
-      HttpServletRequest request = getServletRequest();
-      if (request instanceof PSServletRequestWrapper)
-         return ((PSServletRequestWrapper) request).getRemoteUser();
-      
-      return request.getRemoteUser();
-   }
+    /**
+     * Get the HTTP servlet response associated with the current JAX-WS message.
+     * 
+     * @return the HTTP servlet response wrapped in Optional, empty if not available
+     */
+    protected Optional<HttpServletResponse> getServletResponse() {
+        if (webServiceContext == null) {
+            return Optional.empty();
+        }
+        
+        var messageContext = webServiceContext.getMessageContext();
+        var response = (HttpServletResponse) messageContext.get(MessageContext.SERVLET_RESPONSE);
+        return Optional.ofNullable(response);
+    }
    
-   /**
-    * Converts the supplied source object to the specified type.
-    * 
-    * @param type the class type to which to convert the supplied source, 
-    *    not <code>null</code>.
-    * @param source the object to convert, not <code>null</code>.
-    * @return the transformed object, never <code>null</code>.
-    */
-   protected Object convert(Class type, Object source) 
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source cannot be null");
-      
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      Converter converter = factory.getConverter(type);
-      
-      return converter.convert(type, source);
-   }
+    /**
+     * Get the Rhythmyx session from the SOAP headers using modern JAX-WS APIs.
+     * 
+     * @return the Rhythmyx session supplied with a message SOAP header
+     * @throws SOAPException for any error looking up the Rhythmyx session SOAP header
+     */
+    protected Optional<String> getRhythmyxSession() throws SOAPException {
+        if (webServiceContext == null) {
+            return Optional.empty();
+        }
+
+        var messageContext = webServiceContext.getMessageContext();
+        var soapMessage = (SOAPMessage) messageContext.get("javax.xml.ws.binding.soapMessage");
+        
+        if (soapMessage == null) {
+            return Optional.empty();
+        }
+
+        var soapHeader = soapMessage.getSOAPHeader();
+        if (soapHeader == null) {
+            return Optional.empty();
+        }
+
+        return extractSessionFromHeader(soapHeader);
+    }
+
+    /**
+     * Extract session information from SOAP header elements.
+     * 
+     * @param soapHeader the SOAP header to search
+     * @return Optional containing session string if found
+     */
+    private Optional<String> extractSessionFromHeader(SOAPHeader soapHeader) {
+        var headerElements = soapHeader.getChildElements();
+        
+        while (headerElements.hasNext()) {
+            var element = headerElements.next();
+            if (!(element instanceof SOAPElement)) {
+                continue;
+            }
+            
+            var soapElement = (SOAPElement) element;
+            var localName = soapElement.getElementName().getLocalName();
+            
+            // Try header format from Java Axis client
+            if ("session".equals(localName)) {
+                return Optional.ofNullable(soapElement.getValue());
+            }
+            
+            // Try header format from Microsoft .NET client
+            if ("PSAuthenticationHeader".equals(localName)) {
+                var sessionValue = extractSessionFromAuthHeader(soapElement);
+                if (sessionValue.isPresent()) {
+                    return sessionValue;
+                }
+            }
+        }
+        
+        return Optional.empty();
+    }
+
+    /**
+     * Extract session from PSAuthenticationHeader element.
+     * 
+     * @param authHeader the authentication header element
+     * @return Optional containing session if found
+     */
+    private Optional<String> extractSessionFromAuthHeader(SOAPElement authHeader) {
+        var children = authHeader.getChildElements();
+        
+        while (children.hasNext()) {
+            var child = children.next();
+            if (child instanceof SOAPElement) {
+                var childElement = (SOAPElement) child;
+                if ("Session".equals(childElement.getElementName().getLocalName())) {
+                    return Optional.ofNullable(childElement.getValue());
+                }
+            }
+        }
+        
+        return Optional.empty();
+    }
    
-   /**
-    * Extract the boolean value from the supplied <code>Boolean</code> object.
-    * 
-    * @param value the <code>Boolean</code> value from which to extract the 
-    *    boolean value, may be <code>null</code> in which case the specified 
-    *    default will be returned.
-    * @param defaultValue the default value to be returned if the supplied 
-    *    value is <code>null</code>.
-    * @return the extracted boolean value or the specified default.
-    */
-   protected boolean extractBooleanValue(Boolean value, boolean defaultValue)
-   {
-      return value == null ? defaultValue : value.booleanValue();
-   }
+    /**
+     * Get all message attachments using modern JAX-WS attachment handling.
+     * 
+     * @return a list of attachment parts, never null, may be empty
+     */
+    protected List<Object> getAttachments() {
+        if (webServiceContext == null) {
+            return Collections.emptyList();
+        }
 
-   /**
-    * Convenience method. Converts {@link IllegalArgumentException} to 
-    * {@link PSContractViolationFault}
-    * 
-    * @param e the exception, it may not be <code>null</code>.
-    * @param serviceName the service name, it may not be <code>null</code>.
-    * 
-    * @throws PSContractViolationFault the converted exception. 
-    */
-   protected void handleInvalidContract(IllegalArgumentException e,
-         String serviceName) throws PSContractViolationFault 
-   {
-      if (e == null)
-         throw new IllegalArgumentException("e may not be null.");
-      if (serviceName == null)
-         throw new IllegalArgumentException("serviceName may not be null.");
-      
-      int code = IPSWebserviceErrors.INVALID_CONTRACT;
+        var messageContext = webServiceContext.getMessageContext();
+        var soapMessage = (SOAPMessage) messageContext.get("javax.xml.ws.binding.soapMessage");
+        
+        if (soapMessage == null) {
+            return Collections.emptyList();
+        }
 
-      logger.error("SOAP Invalid Contract for service "+serviceName,e);
-
-      throw new PSContractViolationFault(code,
-            PSWebserviceErrors.createErrorMessage(code, serviceName, e.toString()), ExceptionUtils.getFullStackTrace(e));
-   }   
+        var attachments = new ArrayList<>();
+        var attachmentIterator = soapMessage.getAttachments();
+        
+        while (attachmentIterator.hasNext()) {
+            attachments.add(attachmentIterator.next());
+        }
+        
+        return Collections.unmodifiableList(attachments);
+    }
    
-   /**
-    * Converts the received <code>RuntimeException</code> into the correct 
-    * axis fault. If the cause was a <code>PSAuthorizationException</code> it 
-    * is converted to a <code>PSNotAuthorizedFault</code>, otherwise it is 
-    * converted to a <code>RemoteException</code>.
-    * 
-    * @param e the runtime exception to convert, not <code>null</code>.
-    * @param serviceName the name of the service which caused the supplied 
-    *    exception, not <code>null</code>.
-    * @throws PSNotAuthorizedFault if the root cause was a 
-    *    <code>PSAuthorizationException</code>.
-    * @throws RemoteException for all other runtime exceptions.
-    */
-   protected void handleRuntimeException(RuntimeException e, String serviceName)
-      throws PSNotAuthorizedFault, RemoteException
-   {
-      if (e == null)
-         throw new IllegalArgumentException("a cannot be null");
-      
-      if (serviceName == null)
-         throw new IllegalArgumentException("serviceName cannot be null");
+    /**
+     * Authenticate the current message context using modern Optional-based approach.
+     * This retrieves the required Rhythmyx session header from the message context and authenticates it.
+     * 
+     * @return the authenticated Rhythmyx session
+     * @throws PSInvalidSessionFault if the current message context does not contain a valid Rhythmyx session
+     */
+    protected String authenticate() throws PSInvalidSessionFault {
+        try {
+            var sessionOpt = getRhythmyxSession();
+            if (sessionOpt.isEmpty()) {
+                var code = IPSWebserviceErrors.MISSING_SESSION;
+                logger.debug("Authentication Error: Missing session header");
+                throw new PSInvalidSessionFault(code,
+                    PSWebserviceErrors.createErrorMessage(code, "Missing session header"),
+                    "Missing required Rhythmyx session header");
+            }
 
+            var sessionId = sessionOpt.get();
+            var request = getServletRequest().orElseThrow(() ->
+                new PSInvalidSessionFault(IPSWebserviceErrors.INVALID_SESSION,
+                    "Servlet request not available", "No servlet request context"));
 
-
-      if (e.getCause() instanceof PSAuthorizationException)
-      {
-          logger.debug("SOAP PSAuthorizationException for service "+serviceName,e);
-         int code = IPSWebserviceErrors.NOT_AUTHORIZED;
-         throw new PSNotAuthorizedFault(code,
-            PSWebserviceErrors.createErrorMessage(code, getRemoteUser(), 
-               serviceName, e.toString()),
-               ExceptionUtils.getFullStackTrace(e));
-      }
-      else
-          logger.error("SOAP RuntimeException for service "+serviceName,e);
-      
-      throw new RemoteException(e.toString(), e);
-   }
-
-   /**
-    * Convenience method. Converts {@link PSErrorsException} to 
-    * {@link PSErrorsFault}
-    *  
-    * @param e the to be converted exception, it may not be <code>null</code>.
-    * @param serviceName the service name, it may not be <code>null</code>.
-    * 
-    * @throws RemoteException if error occurred during conversion.
-    */
-   protected void handleErrorResultsException(PSErrorResultsException e, 
-         String serviceName) throws RemoteException
-   {
-      if (e == null)
-         throw new IllegalArgumentException("e may not be null.");
-      if (serviceName == null)
-         throw new IllegalArgumentException("serviceName may not be null.");
-
-      logger.debug("SOAP PSErrorResultsException for service "+serviceName,e);
-      PSErrorResultsFault fault = (PSErrorResultsFault) convert(
-         PSErrorResultsFault.class, e);
-      fault.setService(serviceName);
-      
-      throw fault;
-   }
+            PSSecurityFilter.authenticate(request, sessionId);
+            return sessionId;
+            
+        } catch (LoginException | SOAPException ex) {
+            var code = ex instanceof SOAPException 
+                ? IPSWebserviceErrors.MISSING_SESSION 
+                : IPSWebserviceErrors.INVALID_SESSION;
+                
+            logger.debug("Authentication Error Code: {}", code, ex);
+            throw new PSInvalidSessionFault(code,
+                PSWebserviceErrors.createErrorMessage(code, ex.toString()),
+                ExceptionUtils.getStackTrace(ex));
+        }
+    }
    
-   /**
-    * Convenience method. Converts {@link PSErrorsException} to 
-    * {@link PSErrorsFault}
-    *  
-    * @param e the to be converted exception, it may not be <code>null</code>.
-    * @param serviceName the service name, it may not be <code>null</code>.
-    * 
-    * @throws RemoteException if error occurred during conversion.
-    */
-   protected void handleErrorsException(PSErrorsException e, String serviceName)
-         throws RemoteException
-   {
-      if (e == null)
-         throw new IllegalArgumentException("e may not be null.");
-      if (serviceName == null)
-         throw new IllegalArgumentException("serviceName may not be null.");
-
-      logger.debug("SOAP PSErrorsException for service "+serviceName,e);
-      PSErrorsFault fault = (PSErrorsFault) convert(
-         PSErrorsFault.class, e);
-      fault.setService(serviceName);
-      
-      throw fault;
-   }
-
-   /**
-    * Convenience method, converts {@link PSLockErrorException}
-    * to {@link PSLockFault} and throws the converted exception.
-    * 
-    * @param e the to be converted exception, may not be <code>null</code>.
-    * 
-    * @throws PSLockFault if succesfully converted the exception.
-    * @throws RemoteException if failed to convert the exception.
-    */
-   protected void handleLockError(PSLockErrorException e) 
-      throws PSLockFault, RemoteException
-   {
-       logger.debug("SOAP PSLockErrorException",e);
-      PSLockFault fault = (PSLockFault) convert(
-         PSLockFault.class, e);
-      
-      throw fault;
-   }
+    /**
+     * Get the remote user using modern Optional-based approach.
+     * 
+     * @return Optional containing the remote user, empty if not authenticated
+     */
+    protected Optional<String> getRemoteUser() {
+        return getServletRequest()
+            .map(request -> {
+                if (request instanceof PSServletRequestWrapper) {
+                    return ((PSServletRequestWrapper) request).getRemoteUser();
+                }
+                return request.getRemoteUser();
+            });
+    }
    
-   /**
-    * Converts the value of relationship category from webservice to 
-    * objectstore (which is defined in PSRelationshipConfig.CATEGORY_XXX).
-    *  
-    * @param cat the to be converted category, it may be <code>null</code>.
-    *    If it is not <code>null</code>, then it has to be one of the 
-    *    pre-defined values in {@link RelationshipCategory}.
-    * 
-    * @return the converted category, which is one of the values in
-    *    PSRelationshipConfig.CATEGORY_XXX. It may be <code>null</code> if the
-    *    supplied value is <code>null</code>.
-    *    
-    * @throws IllegalArgumentException if the supplied category is not 
-    *    <code>null</code> and does not match any pre-defined values in 
-    *    {@link RelationshipCategory}
-    */
-   protected String getRelationshipCategory(RelationshipCategory cat)
-   {
-      if (cat == null)
-         return null;
-      
-      String scat = cat.getValue();
-      if (RelationshipCategory.ActiveAssembly.getValue().equals(scat))
-         return CATEGORY_ACTIVE_ASSEMBLY;
+    /**
+     * Converts the supplied source object to the specified type using modern type safety.
+     * 
+     * @param <T> the target type
+     * @param type the class type to which to convert the supplied source, not null
+     * @param source the object to convert, not null
+     * @return the transformed object, never null
+     * @throws IllegalArgumentException if source is null
+     */
+    protected <T> T convert(Class<T> type, Object source) {
+        if (source == null) {
+            throw new IllegalArgumentException("source cannot be null");
+        }
+        
+        var factory = PSTransformerFactory.getInstance();
+        var converter = factory.getConverter(type);
+        
+        return converter.convert(type, source);
+    }
+   
+    /**
+     * Extract the boolean value from the supplied Boolean object with modern Optional handling.
+     * 
+     * @param value the Boolean value from which to extract the boolean value
+     * @param defaultValue the default value to be returned if the supplied value is null
+     * @return the extracted boolean value or the specified default
+     */
+    protected boolean extractBooleanValue(Boolean value, boolean defaultValue) {
+        return Optional.ofNullable(value).orElse(defaultValue);
+    }
 
-      if (RelationshipCategory.Folder.getValue().equals(scat))
-         return CATEGORY_FOLDER;
-         
-      if (RelationshipCategory.Promotable.getValue().equals(scat))
-         return CATEGORY_PROMOTABLE;
-      
-      if (RelationshipCategory.Copy.getValue().equals(scat))
-         return CATEGORY_COPY;
-      
-      throw new IllegalArgumentException(
+    /**
+     * Convenience method. Converts IllegalArgumentException to PSContractViolationFault
+     * using modern exception handling patterns.
+     * 
+     * @param e the exception, not null
+     * @param serviceName the service name, not null
+     * @throws PSContractViolationFault the converted exception
+     * @throws IllegalArgumentException if parameters are null
+     */
+    protected void handleInvalidContract(IllegalArgumentException e, String serviceName) 
+        throws PSContractViolationFault {
+        
+        if (e == null) {
+            throw new IllegalArgumentException("e may not be null.");
+        }
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName may not be null.");
+        }
+        
+        var code = IPSWebserviceErrors.INVALID_CONTRACT;
+        logger.error("SOAP Invalid Contract for service {}", serviceName, e);
+
+        throw new PSContractViolationFault(code,
+            PSWebserviceErrors.createErrorMessage(code, serviceName, e.toString()), 
+            ExceptionUtils.getStackTrace(e));
+    }   
+   
+    /**
+     * Converts RuntimeException into the correct fault using modern exception handling.
+     * If the cause was a PSAuthorizationException it is converted to a PSNotAuthorizedFault,
+     * otherwise it is converted to a RemoteException.
+     * 
+     * @param e the runtime exception to convert, not null
+     * @param serviceName the name of the service which caused the supplied exception, not null
+     * @throws PSNotAuthorizedFault if the root cause was a PSAuthorizationException
+     * @throws RemoteException for all other runtime exceptions
+     * @throws IllegalArgumentException if parameters are null
+     */
+    protected void handleRuntimeException(RuntimeException e, String serviceName)
+        throws PSNotAuthorizedFault, RemoteException {
+        
+        if (e == null) {
+            throw new IllegalArgumentException("e cannot be null");
+        }
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName cannot be null");
+        }
+
+        if (e.getCause() instanceof PSAuthorizationException) {
+            logger.debug("SOAP PSAuthorizationException for service {}", serviceName, e);
+            var code = IPSWebserviceErrors.NOT_AUTHORIZED;
+            var remoteUser = getRemoteUser().orElse("unknown");
+            
+            throw new PSNotAuthorizedFault(code,
+                PSWebserviceErrors.createErrorMessage(code, remoteUser, serviceName, e.toString()),
+                ExceptionUtils.getStackTrace(e));
+        } else {
+            logger.error("SOAP RuntimeException for service {}", serviceName, e);
+        }
+        
+        throw new RemoteException(e.toString(), e);
+    }
+
+    /**
+     * Convenience method. Converts PSErrorResultsException to PSErrorResultsFault
+     * using modern exception handling.
+     *  
+     * @param e the exception to be converted, not null
+     * @param serviceName the service name, not null
+     * @throws RemoteException if error occurred during conversion
+     * @throws IllegalArgumentException if parameters are null
+     */
+    protected void handleErrorResultsException(PSErrorResultsException e, String serviceName) 
+        throws RemoteException {
+        
+        if (e == null) {
+            throw new IllegalArgumentException("e may not be null.");
+        }
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName may not be null.");
+        }
+
+        logger.debug("SOAP PSErrorResultsException for service {}", serviceName, e);
+        var fault = convert(PSErrorResultsFault.class, e);
+        fault.setService(serviceName);
+        
+        throw fault;
+    }
+   
+    /**
+     * Convenience method. Converts PSErrorsException to PSErrorsFault
+     * using modern exception handling.
+     *  
+     * @param e the exception to be converted, not null
+     * @param serviceName the service name, not null
+     * @throws RemoteException if error occurred during conversion
+     * @throws IllegalArgumentException if parameters are null
+     */
+    protected void handleErrorsException(PSErrorsException e, String serviceName)
+        throws RemoteException {
+        
+        if (e == null) {
+            throw new IllegalArgumentException("e may not be null.");
+        }
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName may not be null.");
+        }
+
+        logger.debug("SOAP PSErrorsException for service {}", serviceName, e);
+        var fault = convert(PSErrorsFault.class, e);
+        fault.setService(serviceName);
+        
+        throw fault;
+    }
+
+    /**
+     * Convenience method, converts PSLockErrorException to PSLockFault
+     * and throws the converted exception using modern patterns.
+     * 
+     * @param e the exception to be converted, not null
+     * @throws PSLockFault if successfully converted the exception
+     * @throws RemoteException if failed to convert the exception
+     */
+    protected void handleLockError(PSLockErrorException e) 
+        throws PSLockFault, RemoteException {
+        
+        logger.debug("SOAP PSLockErrorException", e);
+        throw convert(PSLockFault.class, e);
+    }
+   
+    /**
+     * Converts the value of relationship category from webservice to 
+     * objectstore (which is defined in PSRelationshipConfig.CATEGORY_XXX).
+     *  
+     * @param cat the category to be converted, may be null
+     * @return Optional containing the converted category, empty if input is null
+     * @throws IllegalArgumentException if the supplied category does not match any pre-defined values
+     */
+    protected Optional<String> getRelationshipCategory(RelationshipCategory cat) {
+        if (cat == null) {
+            return Optional.empty();
+        }
+        
+        var categoryValue = cat.getValue();
+        
+        if (RelationshipCategory.ActiveAssembly.getValue().equals(categoryValue)) {
+            return Optional.of(CATEGORY_ACTIVE_ASSEMBLY);
+        }
+        if (RelationshipCategory.Folder.getValue().equals(categoryValue)) {
+            return Optional.of(CATEGORY_FOLDER);
+        }
+        if (RelationshipCategory.Promotable.getValue().equals(categoryValue)) {
+            return Optional.of(CATEGORY_PROMOTABLE);
+        }
+        if (RelationshipCategory.Copy.getValue().equals(categoryValue)) {
+            return Optional.of(CATEGORY_COPY);
+        }
+        
+        throw new IllegalArgumentException(
             "Relationship Category must match one of the pre-defined values in RelationshipCategory if not null.");
-   }
+    }
    
-   // category contants defined in com.percussion.design.objectstore.PSRelationshipConfig
-   private final static String CATEGORY_ACTIVE_ASSEMBLY = com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY;
-   private final static String CATEGORY_FOLDER = com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_FOLDER;
-   private final static String CATEGORY_PROMOTABLE = com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_PROMOTABLE;
-   private final static String CATEGORY_COPY = com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_COPY;
-
+    // Category constants defined in com.percussion.design.objectstore.PSRelationshipConfig
+    private static final String CATEGORY_ACTIVE_ASSEMBLY = 
+        com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY;
+    private static final String CATEGORY_FOLDER = 
+        com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_FOLDER;
+    private static final String CATEGORY_PROMOTABLE = 
+        com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_PROMOTABLE;
+    private static final String CATEGORY_COPY = 
+        com.percussion.design.objectstore.PSRelationshipConfig.CATEGORY_COPY;
 }
-

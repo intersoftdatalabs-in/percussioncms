@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 package com.percussion.soln.p13n.delivery.web.ds;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -34,9 +34,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -61,7 +61,7 @@ import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebMediator;
  * Scenario description: 
  * @author adamgent, Jan 25, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DeliveryControllerTest {
 
     Mockery context = new JUnit4Mockery();
@@ -75,7 +75,7 @@ public class DeliveryControllerTest {
     MockHttpServletRequest request;
     MockHttpServletResponse response;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         deliveryController = new DeliveryController();
         deliveryService = context.mock(IDeliveryService.class);

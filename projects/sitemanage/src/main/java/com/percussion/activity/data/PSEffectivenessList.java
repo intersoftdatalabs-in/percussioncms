@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @JsonRootName(value = "Effectiveness")
 public class PSEffectivenessList extends ArrayList<PSEffectiveness> {
-    public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
-        super(c);
-    }
+  public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
+    super(c);
+  }
 }

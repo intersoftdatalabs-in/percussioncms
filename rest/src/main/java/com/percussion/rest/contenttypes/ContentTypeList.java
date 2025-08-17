@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,32 @@ package com.percussion.rest.contenttypes;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentType")
-@ArraySchema(schema=@Schema(implementation = ContentType.class))
+@ArraySchema(schema = @Schema(implementation = ContentType.class))
 public class ContentTypeList extends ArrayList<ContentType> {
-    public ContentTypeList(Collection<? extends ContentType> c) {
-        super(c);
-    }
-    public ContentTypeList(){}
+  public ContentTypeList(Collection<? extends ContentType> c) {
+    super(c);
+  }
+
+  public ContentTypeList() {}
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ContentTypeList && super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "ContentTypeList" + super.toString();
+  }
 }

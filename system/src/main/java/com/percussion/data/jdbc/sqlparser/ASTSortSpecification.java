@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,30 +29,26 @@ public class ASTSortSpecification extends SimpleNode {
   public static final int ASC = 0;
   public static final int DESC = 1;
 
-  public void setCollationName(String coll)
-  {
-     m_coll = coll;
+  public void setCollationName(String coll) {
+    m_coll = coll;
   }
 
-  public String getCollationName()
-  {
-     return m_coll;
+  public String getCollationName() {
+    return m_coll;
   }
 
-  public void setType(int type)
-  {
-     m_type = type;
+  public void setType(int type) {
+    m_type = type;
   }
 
-  public int getType()
-  {
-     return m_type;
+  public int getType() {
+    return m_type;
   }
 
   private int m_type = ASC;
   private String m_coll;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

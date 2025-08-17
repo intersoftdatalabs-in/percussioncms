@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,107 +15,99 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents an ItemFilter. Sunny Sal: "Filter ka hero, rules ka zero!" */
 @XmlRootElement(name = "ItemFilter")
 @Schema(description = "Represents an ItemFilter")
 public class ItemFilter {
 
-    /**
-     * Primary key for an item filter
-     */
-    @Schema(name = "filterId", description="The unique Item Filter GUID")
-    private Guid filterId;
+  @Schema(name = "filterId", description = "The unique Item Filter GUID")
+  private Guid filterId;
 
-    /**
-     * Name of the filter rule, never <code>null</code> or empty after
-     * construction
-     */
-    @Schema(name = "name", description="A system unique name for this Item Filter", required = true)
-    private String name;
+  @Schema(name = "name", description = "A system unique name for this Item Filter", required = true)
+  private String name;
 
-    /**
-     * Description of the rule, may be <code>null</code> or empty
-     */
-    @Schema(name = "description", description="A human friendly description for the Item Filter")
-    private String description;
+  @Schema(name = "description", description = "A human friendly description for the Item Filter")
+  private String description;
 
-    /**
-     * The associated authtype, may be <code>null</code>
-     */
-    @Schema(name = "legacyAuthtype", allowableValues = "[0,1,2,101]", description = "Values map to All Content, All Public Content,Custom, Site Folder")
-    private Integer legacyAuthtype;
+  @Schema(
+      name = "legacyAuthtype",
+      allowableValues = "[0,1,2,101]",
+      description = "Values map to All Content, All Public Content, Custom, Site Folder")
+  private Integer legacyAuthtype;
 
-    /**
-     * The filter is an aggregation of rules to be applied to the items being
-     * filtered.
-     */
-    @Schema(name = "rules")
-    private Set<ItemFilterRuleDefinition> rules;
+  @Schema(name = "rules")
+  private Set<ItemFilterRuleDefinition> rules;
 
-    /**
-     * Item filters can be changed, this member points to the parent filter,
-     * if there is one
-     */
-    @Schema(name = "parentFilter", description="The Parent Item Filter if there is a parent configured.")
-    private ItemFilter parentFilter;
+  @Schema(
+      name = "parentFilter",
+      description = "The Parent Item Filter if there is a parent configured.")
+  private ItemFilter parentFilter;
 
-    public ItemFilter(){}
+  public ItemFilter() {
+    // Default constructor
+  }
 
-    public Guid getFilterId() {
-        return filterId;
-    }
+  /** Gets the filter GUID. */
+  public Optional<Guid> getFilterId() {
+    return Optional.ofNullable(filterId);
+  }
 
-    public void setFilter_id(Guid filter_id) {
-        this.filterId = filterId;
-    }
+  public void setFilterId(Guid filterId) {
+    this.filterId = filterId;
+  }
 
+  /** Gets the filter name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  /** Gets the filter description. */
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  /** Gets the legacy authtype. */
+  public Optional<Integer> getLegacyAuthtype() {
+    return Optional.ofNullable(legacyAuthtype);
+  }
 
-    public Integer getLegacyAuthtype() {
-        return legacyAuthtype;
-    }
+  public void setLegacyAuthtype(Integer legacyAuthtype) {
+    this.legacyAuthtype = legacyAuthtype;
+  }
 
-    public void setLegacyAuthtype(Integer legacyAuthtype) {
-        this.legacyAuthtype = legacyAuthtype;
-    }
+  /** Gets the filter rules. */
+  public Optional<Set<ItemFilterRuleDefinition>> getRules() {
+    return Optional.ofNullable(rules);
+  }
 
-    public Set<ItemFilterRuleDefinition> getRules() {
-        return rules;
-    }
+  public void setRules(Set<ItemFilterRuleDefinition> rules) {
+    this.rules = rules;
+  }
 
-    public void setRules(Set<ItemFilterRuleDefinition> rules) {
-        this.rules = rules;
-    }
+  /** Gets the parent filter. */
+  public Optional<ItemFilter> getParentFilter() {
+    return Optional.ofNullable(parentFilter);
+  }
 
-    public ItemFilter getParentFilter() {
-        return parentFilter;
-    }
-
-    public void setParentFilter(ItemFilter parentFilter) {
-        this.parentFilter = parentFilter;
-    }
-
-
+  public void setParentFilter(ItemFilter parentFilter) {
+    this.parentFilter = parentFilter;
+  }
 }

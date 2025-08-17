@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 package com.percussion.soln.p13n.tracking;
 
 import static integrationtest.spring.SpringSetup.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.UnsupportedEncodingException;
 
@@ -26,9 +26,9 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -46,7 +46,7 @@ public class VisitorTrackingServiceIntegrationTest {
      */
     private static final Log log = LogFactory.getLog(VisitorTrackingServiceTest.class);
     
-    @BeforeClass
+    @BeforeAll
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/applicationContext-ds.xml",
@@ -58,7 +58,7 @@ public class VisitorTrackingServiceIntegrationTest {
     }
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         request = new MockHttpServletRequest();
         request.setMethod("POST");

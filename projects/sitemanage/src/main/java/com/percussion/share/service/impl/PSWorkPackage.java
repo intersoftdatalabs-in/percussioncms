@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,109 +23,77 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.service.impl.PSThumbnailRunner.Function;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
+/**
+ * Represents a unit of work for thumbnail generation. Sunny Sal says: "Work packages—because even
+ * code needs a to-do list!"
+ */
 public class PSWorkPackage {
-	private Function function;
-	private String id;
-	private PSPage page;
-	private PSTemplateSummary template;
-	private String siteFolderPath;
-	private PSSiteSummary site;
-	private String fileSuffix;
+  private Function function;
+  private String id;
+  private PSPage page;
+  private PSTemplateSummary template;
+  private String siteFolderPath;
+  private PSSiteSummary site;
+  private String fileSuffix;
 
-	/**
-	 * @param function
-	 *            the function to set
-	 */
-	public void setFunction(Function function) {
-		this.function = function;
-	}
+  public PSWorkPackage(String id, Function function) {
+    this.id = id;
+    this.function = function;
+  }
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+  public Function getFunction() {
+    return function;
+  }
 
-	/**
-	 * @return the template
-	 */
-	public PSTemplateSummary getTemplate() {
-		return template;
-	}
+  public void setFunction(Function function) {
+    this.function = function;
+  }
 
-	/**
-	 * @param template
-	 *            the template to set
-	 */
-	public void setTemplate(PSTemplateSummary template) {
-		this.template = template;
-	}
+  public String getId() {
+    return id;
+  }
 
-	/**
-	 * @return the page
-	 */
-	public PSPage getPage() {
-		return page;
-	}
+  public void setId(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * @param page
-	 *            the page to set
-	 */
-	public void setPage(PSPage page) {
-		this.page = page;
-	}
+  public PSTemplateSummary getTemplate() {
+    return template;
+  }
 
-	/**
-	 * @return the siteFolderPath
-	 */
-	public String getSiteFolderPath() {
-		return siteFolderPath;
-	}
+  public void setTemplate(PSTemplateSummary template) {
+    this.template = template;
+  }
 
-	/**
-	 * @param siteFolderPath
-	 *            the siteFolderPath to set
-	 */
-	public void setSiteFolderPath(String siteFolderPath) {
-		this.siteFolderPath = siteFolderPath;
-	}
+  public PSPage getPage() {
+    return page;
+  }
 
-	/**
-	 * @return the site
-	 */
-	public PSSiteSummary getSite() {
-		return site;
-	}
+  public void setPage(PSPage page) {
+    this.page = page;
+  }
 
-	/**
-	 * @param site
-	 *            the site to set
-	 */
-	public void setSite(PSSiteSummary site) {
-		this.site = site;
-	}
+  public String getSiteFolderPath() {
+    return siteFolderPath;
+  }
 
-	public Function getFunction() {
-		return function;
-	}
+  public void setSiteFolderPath(String siteFolderPath) {
+    this.siteFolderPath = siteFolderPath;
+  }
 
-	public String getId() {
-		return id;
-	}
+  public PSSiteSummary getSite() {
+    return site;
+  }
 
-	public PSWorkPackage(String id, Function function) {
-		this.id = id;
-		this.function = function;
-	}
+  public void setSite(PSSiteSummary site) {
+    this.site = site;
+  }
 
-	public String getFileSuffix() {
-		return fileSuffix;
-	}
+  public String getFileSuffix() {
+    return fileSuffix;
+  }
 
-	public void setFileSuffix(String fileSuffix) {
-		this.fileSuffix = fileSuffix;
-	}
+  public void setFileSuffix(String fileSuffix) {
+    this.fileSuffix = fileSuffix;
+  }
 }

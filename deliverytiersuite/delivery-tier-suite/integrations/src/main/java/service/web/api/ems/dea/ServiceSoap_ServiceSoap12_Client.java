@@ -1,6 +1,6 @@
 
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ package service.web.api.ems.dea;
  * This class is not complete
  */
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.namespace.QName; // TODO: JAVAX-11
+import jakarta.xml.namespace.QName;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -70,8 +70,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getCourseBookings...");
         java.lang.String _getCourseBookings_userName = "";
         java.lang.String _getCourseBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getCourseBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getCourseBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getCourseBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getCourseBookings_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getCourseBookings_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getCourseBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getCourseBookings_eventTypes = null;
@@ -86,7 +86,7 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _getBuildingHours_userName = "";
         java.lang.String _getBuildingHours_password = "";
         service.web.api.ems.dea.ArrayOfInt _getBuildingHours_buildings = null;
-        javax.xml.datatype.XMLGregorianCalendar _getBuildingHours_buildingHoursDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBuildingHours_buildingHoursDate = null;
         java.lang.String _getBuildingHours__return = port.getBuildingHours(_getBuildingHours_userName, _getBuildingHours_password, _getBuildingHours_buildings, _getBuildingHours_buildingHoursDate);
         System.out.println("getBuildingHours.result=" + _getBuildingHours__return);
 
@@ -106,8 +106,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getBookingHistory...");
         java.lang.String _getBookingHistory_a0 = "";
         java.lang.String _getBookingHistory_a1 = "";
-        javax.xml.datatype.XMLGregorianCalendar _getBookingHistory_a2 = null;
-        javax.xml.datatype.XMLGregorianCalendar _getBookingHistory_a3 = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookingHistory_a2 = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookingHistory_a3 = null;
         service.web.api.ems.dea.ArrayOfInt _getBookingHistory_a4 = null;
         service.web.api.ems.dea.ArrayOfInt _getBookingHistory_a5 = null;
         service.web.api.ems.dea.ArrayOfInt _getBookingHistory_a6 = null;
@@ -144,8 +144,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getAllBookings...");
         java.lang.String _getAllBookings_userName = "";
         java.lang.String _getAllBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getAllBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getAllBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllBookings_endDate = null;
         int _getAllBookings_buildingID = 0;
         boolean _getAllBookings_viewComboRoomComponents = false;
         java.lang.String _getAllBookings__return = port.getAllBookings(_getAllBookings_userName, _getAllBookings_password, _getAllBookings_startDate, _getAllBookings_endDate, _getAllBookings_buildingID, _getAllBookings_viewComboRoomComponents);
@@ -189,8 +189,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getAllBookings2...");
         java.lang.String _getAllBookings2_userName = "";
         java.lang.String _getAllBookings2_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getAllBookings2_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getAllBookings2_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllBookings2_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllBookings2_endDate = null;
         int _getAllBookings2_buildingID = 0;
         boolean _getAllBookings2_viewComboRoomComponents = false;
         int _getAllBookings2_udfDefID = 0;
@@ -303,10 +303,10 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getRoomsAvailable...");
         java.lang.String _getRoomsAvailable_userName = "";
         java.lang.String _getRoomsAvailable_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_bookingDate = null;
         int _getRoomsAvailable_buildingID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable_endTime = null;
         java.lang.String _getRoomsAvailable__return = port.getRoomsAvailable(_getRoomsAvailable_userName, _getRoomsAvailable_password, _getRoomsAvailable_bookingDate, _getRoomsAvailable_buildingID, _getRoomsAvailable_startTime, _getRoomsAvailable_endTime);
         System.out.println("getRoomsAvailable.result=" + _getRoomsAvailable__return);
 
@@ -393,8 +393,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getHVACBookings...");
         java.lang.String _getHVACBookings_userName = "";
         java.lang.String _getHVACBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getHVACBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getHVACBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getHVACBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getHVACBookings_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getHVACBookings_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getHVACBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getHVACBookings_eventTypes = null;
@@ -412,9 +412,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addReservation4_password = "";
         int _addReservation4_groupID = 0;
         int _addReservation4_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation4_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation4_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation4_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation4_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation4_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation4_endTime = null;
         java.lang.String _addReservation4_eventName = "";
         int _addReservation4_statusID = 0;
         int _addReservation4_eventTypeID = 0;
@@ -441,8 +441,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getRoomBookings...");
         java.lang.String _getRoomBookings_userName = "";
         java.lang.String _getRoomBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getRoomBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomBookings_endDate = null;
         int _getRoomBookings_roomID = 0;
         service.web.api.ems.dea.ArrayOfInt _getRoomBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getRoomBookings_eventTypes = null;
@@ -459,9 +459,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addReservation3_password = "";
         int _addReservation3_groupID = 0;
         int _addReservation3_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation3_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation3_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation3_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation3_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation3_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation3_endTime = null;
         java.lang.String _addReservation3_eventName = "";
         int _addReservation3_statusID = 0;
         int _addReservation3_eventTypeID = 0;
@@ -479,9 +479,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addReservation5_password = "";
         int _addReservation5_groupID = 0;
         int _addReservation5_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation5_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation5_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation5_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation5_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation5_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation5_endTime = null;
         java.lang.String _addReservation5_eventName = "";
         int _addReservation5_statusID = 0;
         int _addReservation5_eventTypeID = 0;
@@ -510,9 +510,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _updateBooking2_userName = "";
         java.lang.String _updateBooking2_password = "";
         int _updateBooking2_bookingID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking2_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking2_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking2_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking2_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking2_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking2_endTime = null;
         int _updateBooking2_statusID = 0;
         int _updateBooking2_roomID = 0;
         java.lang.String _updateBooking2_eventName = "";
@@ -527,9 +527,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addReservation_password = "";
         int _addReservation_groupID = 0;
         int _addReservation_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation_endTime = null;
         java.lang.String _addReservation_eventName = "";
         int _addReservation_statusID = 0;
         java.lang.String _addReservation__return = port.addReservation(_addReservation_userName, _addReservation_password, _addReservation_groupID, _addReservation_roomID, _addReservation_bookingDate, _addReservation_startTime, _addReservation_endTime, _addReservation_eventName, _addReservation_statusID);
@@ -592,9 +592,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addReservation2_password = "";
         int _addReservation2_groupID = 0;
         int _addReservation2_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation2_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation2_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addReservation2_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation2_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation2_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addReservation2_endTime = null;
         java.lang.String _addReservation2_eventName = "";
         int _addReservation2_statusID = 0;
         int _addReservation2_eventTypeID = 0;
@@ -634,8 +634,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addServiceOrder_password = "";
         int _addServiceOrder_categoryID = 0;
         int _addServiceOrder_bookingID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addServiceOrder_timeStart = null;
-        javax.xml.datatype.XMLGregorianCalendar _addServiceOrder_timeEnd = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addServiceOrder_timeStart = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addServiceOrder_timeEnd = null;
         int _addServiceOrder_serviceTypeID = 0;
         int _addServiceOrder_stateID = 0;
         int _addServiceOrder_estimatedCount = 0;
@@ -651,9 +651,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _getRoomAvailability_userName = "";
         java.lang.String _getRoomAvailability_password = "";
         int _getRoomAvailability_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomAvailability_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomAvailability_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomAvailability_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomAvailability_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomAvailability_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomAvailability_endTime = null;
         java.lang.String _getRoomAvailability__return = port.getRoomAvailability(_getRoomAvailability_userName, _getRoomAvailability_password, _getRoomAvailability_roomID, _getRoomAvailability_bookingDate, _getRoomAvailability_startTime, _getRoomAvailability_endTime);
         System.out.println("getRoomAvailability.result=" + _getRoomAvailability__return);
 
@@ -673,8 +673,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getBookings...");
         java.lang.String _getBookings_userName = "";
         java.lang.String _getBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookings_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings_eventTypes = null;
@@ -690,7 +690,7 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _getBuildingHolidays_userName = "";
         java.lang.String _getBuildingHolidays_password = "";
         service.web.api.ems.dea.ArrayOfInt _getBuildingHolidays_buildings = null;
-        javax.xml.datatype.XMLGregorianCalendar _getBuildingHolidays_holidayDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBuildingHolidays_holidayDate = null;
         java.lang.String _getBuildingHolidays__return = port.getBuildingHolidays(_getBuildingHolidays_userName, _getBuildingHolidays_password, _getBuildingHolidays_buildings, _getBuildingHolidays_holidayDate);
         System.out.println("getBuildingHolidays.result=" + _getBuildingHolidays__return);
 
@@ -700,8 +700,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getWebUserBookings...");
         java.lang.String _getWebUserBookings_userName = "";
         java.lang.String _getWebUserBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getWebUserBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getWebUserBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getWebUserBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getWebUserBookings_endDate = null;
         int _getWebUserBookings_webUserID = 0;
         service.web.api.ems.dea.ArrayOfInt _getWebUserBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getWebUserBookings_statusTypes = null;
@@ -731,8 +731,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getChangedBookings...");
         java.lang.String _getChangedBookings_userName = "";
         java.lang.String _getChangedBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getChangedBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getChangedBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getChangedBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getChangedBookings_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getChangedBookings_rooms = null;
         service.web.api.ems.dea.ArrayOfInt _getChangedBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getChangedBookings_eventTypes = null;
@@ -757,8 +757,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getServiceOrderDetails2...");
         java.lang.String _getServiceOrderDetails2_userName = "";
         java.lang.String _getServiceOrderDetails2_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails2_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails2_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails2_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails2_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getServiceOrderDetails2_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getServiceOrderDetails2_statuses = null;
         java.lang.String _getServiceOrderDetails2__return = port.getServiceOrderDetails2(_getServiceOrderDetails2_userName, _getServiceOrderDetails2_password, _getServiceOrderDetails2_startDate, _getServiceOrderDetails2_endDate, _getServiceOrderDetails2_buildings, _getServiceOrderDetails2_statuses);
@@ -781,8 +781,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _getBookings2_userName = "";
         java.lang.String _getBookings2_password = "";
         int _getBookings2_reservationID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _getBookings2_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getBookings2_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookings2_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getBookings2_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings2_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings2_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getBookings2_eventTypes = null;
@@ -807,9 +807,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         int _addWebRequest_webUserID = 0;
         int _addWebRequest_buildingID = 0;
         int _addWebRequest_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addWebRequest_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addWebRequest_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addWebRequest_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addWebRequest_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addWebRequest_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addWebRequest_endTime = null;
         int _addWebRequest_setupTypeID = 0;
         int _addWebRequest_setupCount = 0;
         java.lang.String _addWebRequest_notes = "";
@@ -841,8 +841,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _updateServiceOrder_userName = "";
         java.lang.String _updateServiceOrder_password = "";
         int _updateServiceOrder_serviceOrderID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _updateServiceOrder_timeStart = null;
-        javax.xml.datatype.XMLGregorianCalendar _updateServiceOrder_timeEnd = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateServiceOrder_timeStart = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateServiceOrder_timeEnd = null;
         int _updateServiceOrder_stateID = 0;
         int _updateServiceOrder_serviceTypeID = 0;
         int _updateServiceOrder_estimatedCount = 0;
@@ -857,8 +857,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getServiceOrderDetails...");
         java.lang.String _getServiceOrderDetails_userName = "";
         java.lang.String _getServiceOrderDetails_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getServiceOrderDetails_endDate = null;
         service.web.api.ems.dea.ArrayOfInt _getServiceOrderDetails_buildings = null;
         service.web.api.ems.dea.ArrayOfInt _getServiceOrderDetails_statuses = null;
         java.lang.String _getServiceOrderDetails__return = port.getServiceOrderDetails(_getServiceOrderDetails_userName, _getServiceOrderDetails_password, _getServiceOrderDetails_startDate, _getServiceOrderDetails_endDate, _getServiceOrderDetails_buildings, _getServiceOrderDetails_statuses);
@@ -916,8 +916,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getGroupBookings...");
         java.lang.String _getGroupBookings_userName = "";
         java.lang.String _getGroupBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getGroupBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getGroupBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getGroupBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getGroupBookings_endDate = null;
         int _getGroupBookings_groupID = 0;
         service.web.api.ems.dea.ArrayOfInt _getGroupBookings_statuses = null;
         service.web.api.ems.dea.ArrayOfInt _getGroupBookings_statusTypes = null;
@@ -945,8 +945,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         int _getRoomsAvailable2_roomTypeID = 0;
         int _getRoomsAvailable2_floorID = 0;
         service.web.api.ems.dea.ArrayOfInt _getRoomsAvailable2_webProcessTemplates = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable2_startDateTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable2_endDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable2_startDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable2_endDateTime = null;
         java.lang.String _getRoomsAvailable2__return = port.getRoomsAvailable2(_getRoomsAvailable2_userName, _getRoomsAvailable2_password, _getRoomsAvailable2_buildingID, _getRoomsAvailable2_roomTypeID, _getRoomsAvailable2_floorID, _getRoomsAvailable2_webProcessTemplates, _getRoomsAvailable2_startDateTime, _getRoomsAvailable2_endDateTime);
         System.out.println("getRoomsAvailable2.result=" + _getRoomsAvailable2__return);
 
@@ -990,9 +990,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _updateBooking_userName = "";
         java.lang.String _updateBooking_password = "";
         int _updateBooking_bookingID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _updateBooking_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _updateBooking_endTime = null;
         int _updateBooking_statusID = 0;
         int _updateBooking_roomID = 0;
         java.lang.String _updateBooking__return = port.updateBooking(_updateBooking_userName, _updateBooking_password, _updateBooking_bookingID, _updateBooking_bookingDate, _updateBooking_startTime, _updateBooking_endTime, _updateBooking_statusID, _updateBooking_roomID);
@@ -1009,8 +1009,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         int _getRoomsAvailable3_floorID = 0;
         service.web.api.ems.dea.ArrayOfInt _getRoomsAvailable3_webProcessTemplates = null;
         service.web.api.ems.dea.ArrayOfInt _getRoomsAvailable3_features = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable3_startDateTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable3_endDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable3_startDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable3_endDateTime = null;
         java.lang.String _getRoomsAvailable3__return = port.getRoomsAvailable3(_getRoomsAvailable3_userName, _getRoomsAvailable3_password, _getRoomsAvailable3_buildingID, _getRoomsAvailable3_roomTypeID, _getRoomsAvailable3_floorID, _getRoomsAvailable3_webProcessTemplates, _getRoomsAvailable3_features, _getRoomsAvailable3_startDateTime, _getRoomsAvailable3_endDateTime);
         System.out.println("getRoomsAvailable3.result=" + _getRoomsAvailable3__return);
 
@@ -1026,8 +1026,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         service.web.api.ems.dea.ArrayOfInt _getRoomsAvailable4_webProcessTemplates = null;
         int _getRoomsAvailable4_setupTypeId = 0;
         int _getRoomsAvailable4_requestedCapacity = 0;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable4_startDateTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _getRoomsAvailable4_endDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable4_startDateTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getRoomsAvailable4_endDateTime = null;
         java.lang.String _getRoomsAvailable4__return = port.getRoomsAvailable4(_getRoomsAvailable4_userName, _getRoomsAvailable4_password, _getRoomsAvailable4_buildingID, _getRoomsAvailable4_roomTypeID, _getRoomsAvailable4_floorID, _getRoomsAvailable4_webProcessTemplates, _getRoomsAvailable4_setupTypeId, _getRoomsAvailable4_requestedCapacity, _getRoomsAvailable4_startDateTime, _getRoomsAvailable4_endDateTime);
         System.out.println("getRoomsAvailable4.result=" + _getRoomsAvailable4__return);
 
@@ -1101,9 +1101,9 @@ public final class ServiceSoap_ServiceSoap12_Client {
         java.lang.String _addBooking_password = "";
         int _addBooking_reservationID = 0;
         int _addBooking_roomID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _addBooking_bookingDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _addBooking_startTime = null;
-        javax.xml.datatype.XMLGregorianCalendar _addBooking_endTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addBooking_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addBooking_startTime = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addBooking_endTime = null;
         java.lang.String _addBooking_eventName = "";
         int _addBooking_statusID = 0;
         int _addBooking_eventTypeID = 0;
@@ -1116,8 +1116,8 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking getAllRoomBookings...");
         java.lang.String _getAllRoomBookings_userName = "";
         java.lang.String _getAllRoomBookings_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _getAllRoomBookings_startDate = null;
-        javax.xml.datatype.XMLGregorianCalendar _getAllRoomBookings_endDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllRoomBookings_startDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _getAllRoomBookings_endDate = null;
         int _getAllRoomBookings_roomID = 0;
         boolean _getAllRoomBookings_viewComboRoomComponents = false;
         java.lang.String _getAllRoomBookings__return = port.getAllRoomBookings(_getAllRoomBookings_userName, _getAllRoomBookings_password, _getAllRoomBookings_startDate, _getAllRoomBookings_endDate, _getAllRoomBookings_roomID, _getAllRoomBookings_viewComboRoomComponents);
@@ -1153,7 +1153,7 @@ public final class ServiceSoap_ServiceSoap12_Client {
         System.out.println("Invoking addPayment...");
         java.lang.String _addPayment_userName = "";
         java.lang.String _addPayment_password = "";
-        javax.xml.datatype.XMLGregorianCalendar _addPayment_transactionDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _addPayment_transactionDate = null;
         int _addPayment_paymentTypeID = 0;
         java.lang.String _addPayment_checkNo = "";
         java.math.BigDecimal _addPayment_paymentAmount = new java.math.BigDecimal("0");
@@ -1226,7 +1226,7 @@ public final class ServiceSoap_ServiceSoap12_Client {
         int _autoCheckin_buildingID = 0;
         int _autoCheckin_roomID = 0;
         int _autoCheckin_floorID = 0;
-        javax.xml.datatype.XMLGregorianCalendar _autoCheckin_bookingDate = null;
+        jakarta.xml.datatype.XMLGregorianCalendar _autoCheckin_bookingDate = null;
         int _autoCheckin_eventType = 0;
         java.lang.String _autoCheckin__return = port.autoCheckin(_autoCheckin_userName, _autoCheckin_password, _autoCheckin_emailAddress, _autoCheckin_webUserID, _autoCheckin_udfid, _autoCheckin_udfValue, _autoCheckin_buildingID, _autoCheckin_roomID, _autoCheckin_floorID, _autoCheckin_bookingDate, _autoCheckin_eventType);
         System.out.println("autoCheckin.result=" + _autoCheckin__return);

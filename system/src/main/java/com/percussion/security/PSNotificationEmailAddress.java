@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,85 +17,85 @@
 
 package com.percussion.security;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Objects;
 import java.util.Set;
+import javax.security.auth.Subject;
 
 public class PSNotificationEmailAddress implements Serializable {
 
-    private String email;
-    private String sourceSubject;
-    private String sourceRoleOrGroup;
+  private String email;
+  private String sourceSubject;
+  private String sourceRoleOrGroup;
 
-    public String getEmail() {
-        return email;
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getSourceSubject() {
+    return sourceSubject;
+  }
+
+  public void setSourceSubject(String sourceSubject) {
+    this.sourceSubject = sourceSubject;
+  }
+
+  public void setSourceSubject(Subject sourceSubject) {
+    Set<Principal> principles = sourceSubject.getPrincipals();
+
+    StringBuilder combined = new StringBuilder();
+    if (principles != null && !principles.isEmpty()) {
+      for (Principal p : principles) {
+        if (combined.length() > 0) combined.append(",");
+        combined.append(p.getName());
+      }
     }
+    this.sourceSubject = combined.toString();
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public String getSourceRoleOrGroup() {
+    return sourceRoleOrGroup;
+  }
 
-    public String getSourceSubject() {
-        return sourceSubject;
-    }
+  public void setSourceRoleOrGroup(String sourceRoleOrGroup) {
+    this.sourceRoleOrGroup = sourceRoleOrGroup;
+  }
 
-    public void setSourceSubject(String sourceSubject) {
-        this.sourceSubject = sourceSubject;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSNotificationEmailAddress)) return false;
+    PSNotificationEmailAddress that = (PSNotificationEmailAddress) o;
+    return getEmail().equals(that.getEmail())
+        && Objects.equals(getSourceSubject(), that.getSourceSubject())
+        && Objects.equals(getSourceRoleOrGroup(), that.getSourceRoleOrGroup());
+  }
 
-    public void setSourceSubject(Subject sourceSubject) {
-        Set<Principal> principles = sourceSubject.getPrincipals();
+  @Override
+  public int hashCode() {
+    return Objects.hash(getEmail(), getSourceSubject(), getSourceRoleOrGroup());
+  }
 
-        StringBuilder combined = new StringBuilder();
-        if(principles != null && !principles.isEmpty()){
-            for(Principal p : principles){
-                if(combined.length()>0)
-                    combined.append(",");
-                combined.append(p.getName());
-            }
-        }
-        this.sourceSubject = combined.toString();
-    }
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("PSNotificationEmailAddress{");
+    sb.append("email='").append(email).append('\'');
+    sb.append(", sourceSubject='").append(sourceSubject).append('\'');
+    sb.append(", sourceRoleOrGroup='").append(sourceRoleOrGroup).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 
-    public String getSourceRoleOrGroup() {
-        return sourceRoleOrGroup;
-    }
+  public PSNotificationEmailAddress(String email, String sourceSubject, String sourceRoleOrGroup) {
+    this.email = email;
+    this.sourceSubject = sourceSubject;
+    this.sourceRoleOrGroup = sourceRoleOrGroup;
+  }
 
-    public void setSourceRoleOrGroup(String sourceRoleOrGroup) {
-        this.sourceRoleOrGroup = sourceRoleOrGroup;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSNotificationEmailAddress)) return false;
-        PSNotificationEmailAddress that = (PSNotificationEmailAddress) o;
-        return getEmail().equals(that.getEmail()) && Objects.equals(getSourceSubject(), that.getSourceSubject()) && Objects.equals(getSourceRoleOrGroup(), that.getSourceRoleOrGroup());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getEmail(), getSourceSubject(), getSourceRoleOrGroup());
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("PSNotificationEmailAddress{");
-        sb.append("email='").append(email).append('\'');
-        sb.append(", sourceSubject='").append(sourceSubject).append('\'');
-        sb.append(", sourceRoleOrGroup='").append(sourceRoleOrGroup).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public PSNotificationEmailAddress(String email, String sourceSubject, String sourceRoleOrGroup) {
-        this.email = email;
-        this.sourceSubject = sourceSubject;
-        this.sourceRoleOrGroup = sourceRoleOrGroup;
-    }
-
-    public PSNotificationEmailAddress() {
-    }
+  public PSNotificationEmailAddress() {}
 }

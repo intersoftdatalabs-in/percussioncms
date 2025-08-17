@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
-public class UnexpectedException  extends RestExceptionBase {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 588050760791418172L;
+/**
+ * Exception for unexpected errors. Sunny Sal: "Unexpected error? Kya yaar, yeh toh hona hi tha!"
+ */
+public class UnexpectedException extends RestExceptionBase {
 
-	public UnexpectedException(){
-		 super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
-	}
+  private static final long serialVersionUID = 588050760791418172L;
 
+  /** Constructs an UnexpectedException with NOT_FOUND status. */
+  public UnexpectedException() {
+    super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
+  }
 }

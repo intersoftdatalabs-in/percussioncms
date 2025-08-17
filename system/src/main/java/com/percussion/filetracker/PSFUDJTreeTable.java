@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,200 +17,155 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
-import javax.swing.tree.DefaultTreeSelectionModel; // TODO: JAVAX-11
-import javax.swing.tree.TreeModel; // TODO: JAVAX-11
-import javax.swing.tree.TreePath; // TODO: JAVAX-11
 import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 /**
- * This class creates a simple PSFUDJTreeTable component, by using a JTree as a
- * renderer (and editor) for the cells in a particular column in the JTable.
- *<p>
- * PSFUDJTreeTable is a combination of JTable and JTree. Actually derived from
- * JTable and uses JTree as cell renderer. This way we get a kind of tree list
- * view
+ * This class creates a simple PSFUDJTreeTable component, by using a JTree as a renderer (and
+ * editor) for the cells in a particular column in the JTable.
  *
+ * <p>PSFUDJTreeTable is a combination of JTable and JTree. Actually derived from JTable and uses
+ * JTree as cell renderer. This way we get a kind of tree list view
  */
-public class PSFUDJTreeTable extends JTable
-{
-   protected TreeTableCellRenderer tree;
+public class PSFUDJTreeTable extends JTable {
+  protected TreeTableCellRenderer tree;
 
-   /**
-    * Constructor.
-    *
-    * @param treeTableModel table model as PSFUDTreeTableModel
-    *
-    */
-   public PSFUDJTreeTable(PSFUDTreeTableModel treeTableModel)
-   {
-      super();
+  /**
+   * Constructor.
+   *
+   * @param treeTableModel table model as PSFUDTreeTableModel
+   */
+  public PSFUDJTreeTable(PSFUDTreeTableModel treeTableModel) {
+    super();
 
-      // Create the tree. It will be used as a renderer and editor.
-      tree = new TreeTableCellRenderer(treeTableModel);
+    // Create the tree. It will be used as a renderer and editor.
+    tree = new TreeTableCellRenderer(treeTableModel);
 
-      // Install a tableModel representing the visible rows in the tree.
-      super.setModel(new PSFUDTreeTableModelAdapter(treeTableModel, tree));
+    // Install a tableModel representing the visible rows in the tree.
+    super.setModel(new PSFUDTreeTableModelAdapter(treeTableModel, tree));
 
-      // Force the JTable and JTree to share their row selection models.
-      tree.setSelectionModel(new DefaultTreeSelectionModel()
-      {
-         // Extend the implementation of the constructor, as if:
-         /* public this() */
-         {
+    // Force the JTable and JTree to share their row selection models.
+    tree.setSelectionModel(
+        new DefaultTreeSelectionModel() {
+          // Extend the implementation of the constructor, as if:
+          /* public this() */
+          {
             setSelectionModel(listSelectionModel);
-         }
-      }
-      );
+          }
+        });
 
-      // Install the tree editor renderer and editor.
-      setDefaultRenderer(PSFUDTreeTableModel.class, tree);
-      setDefaultEditor(PSFUDTreeTableModel.class, new TreeTableCellEditor());
+    // Install the tree editor renderer and editor.
+    setDefaultRenderer(PSFUDTreeTableModel.class, tree);
+    setDefaultEditor(PSFUDTreeTableModel.class, new TreeTableCellEditor());
 
-      setShowGrid(true);
-      setGridColor(new Color(223,223,223));
-      setIntercellSpacing(new Dimension(1, 1));
-      setRowHeight(20);
+    setShowGrid(true);
+    setGridColor(new Color(223, 223, 223));
+    setIntercellSpacing(new Dimension(1, 1));
+    setRowHeight(20);
 
-      this.getTableHeader().setReorderingAllowed(false);
+    this.getTableHeader().setReorderingAllowed(false);
 
-      // Make the tree and table row heights the same.
-      tree.setRowHeight(getRowHeight()+1); //add inter cell spacing too
-      this.setCellSelectionEnabled(false);
+    // Make the tree and table row heights the same.
+    tree.setRowHeight(getRowHeight() + 1); // add inter cell spacing too
+    this.setCellSelectionEnabled(false);
 
-      //Set a font that can display special characters like smart quotes.
-      Font font = new Font("MS Sans Serif", Font.PLAIN, 12);
-      tree.setFont(font);
-      setFont(font);
-      
-      //Put the autoresize off
-      sizeColumnsToFit(this.AUTO_RESIZE_OFF);
-   }
+    // Set a font that can display special characters like smart quotes.
+    Font font = new Font("MS Sans Serif", Font.PLAIN, 12);
+    tree.setFont(font);
+    setFont(font);
 
-   /**
-    * Workaround for BasicTableUI anomaly. Make sure the UI never tries to
-    * paint the editor. The UI currently uses different techniques to
-    * paint the renderers and editors and overriding setBounds() below
-    * is not the right thing to do for an editor. Returning -1 for the
-    * editing row in this case, ensures the editor is never painted.
-    */
-   @Override
-   public int getEditingRow()
-   {
-      return (getColumnClass(editingColumn) == PSFUDTreeTableModel.class) ? 
-            -1 : editingRow;
-   }
+    // Put the autoresize off
+    sizeColumnsToFit(this.AUTO_RESIZE_OFF);
+  }
 
-   /**
-    * Gets the list of all selected nodes.
-    *
-    * @return list of all selected PSFUDFileNode objects in the tree as an
-    * ArrayList.
-    *
-    */
-   public ArrayList getSelectedFileList()
-   {
-      ArrayList fileNodes = new ArrayList();
-      TreePath[] paths = tree.getSelectionPaths();
-      if(null == paths)
-         return fileNodes;
+  /**
+   * Workaround for BasicTableUI anomaly. Make sure the UI never tries to paint the editor. The UI
+   * currently uses different techniques to paint the renderers and editors and overriding
+   * setBounds() below is not the right thing to do for an editor. Returning -1 for the editing row
+   * in this case, ensures the editor is never painted.
+   */
+  @Override
+  public int getEditingRow() {
+    return (getColumnClass(editingColumn) == PSFUDTreeTableModel.class) ? -1 : editingRow;
+  }
 
-      TreePath path = null;
-      Object obj = null;
-      for(int i=0; i<paths.length; i++)
-      {
-         path = paths[i];
-         obj = path.getLastPathComponent();
-         if(obj instanceof PSFUDFileNode)
-            fileNodes.add(obj);
-      }
-      return fileNodes;
-   }
+  /**
+   * Gets the list of all selected nodes.
+   *
+   * @return list of all selected PSFUDFileNode objects in the tree as an ArrayList.
+   */
+  public ArrayList getSelectedFileList() {
+    ArrayList fileNodes = new ArrayList();
+    TreePath[] paths = tree.getSelectionPaths();
+    if (null == paths) return fileNodes;
 
-   /**
-    * Expands/Collapses all the nodes in the tree table
-    *
-    * @param bExpand <code>true</code> to expand <code>false</code> to collapse
-    *
-    */
-   public void expandAll(boolean bExpand)
-   {
-      for(int i=0; i<tree.getRowCount(); i++)
-      {
-         if(bExpand)
-            tree.expandRow(i);
-         else
-            tree.collapseRow(i);
-      }
-   }
+    TreePath path = null;
+    Object obj = null;
+    for (int i = 0; i < paths.length; i++) {
+      path = paths[i];
+      obj = path.getLastPathComponent();
+      if (obj instanceof PSFUDFileNode) fileNodes.add(obj);
+    }
+    return fileNodes;
+  }
 
-   /**
-    * The renderer used to display the tree nodes in the table , a JTree.
-    */
-   public class TreeTableCellRenderer
-      extends JTree
-      implements TableCellRenderer
-   {
-      protected int visibleRow;
+  /**
+   * Expands/Collapses all the nodes in the tree table
+   *
+   * @param bExpand <code>true</code> to expand <code>false</code> to collapse
+   */
+  public void expandAll(boolean bExpand) {
+    for (int i = 0; i < tree.getRowCount(); i++) {
+      if (bExpand) tree.expandRow(i);
+      else tree.collapseRow(i);
+    }
+  }
 
-      public TreeTableCellRenderer(TreeModel model)
-      {
-         super(model);
-         PSStatusRenderer renderer = new PSStatusRenderer();
-         renderer.setBorderSelectionColor(null);
-         setCellRenderer(renderer);
-      }
+  /** The renderer used to display the tree nodes in the table , a JTree. */
+  public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
+    protected int visibleRow;
 
-      @Override
-      public void setBounds(int x, int y, int w, int h)
-      {
-         super.setBounds(x, 0, w, PSFUDJTreeTable.this.getHeight());
-      }
+    public TreeTableCellRenderer(TreeModel model) {
+      super(model);
+      PSStatusRenderer renderer = new PSStatusRenderer();
+      renderer.setBorderSelectionColor(null);
+      setCellRenderer(renderer);
+    }
 
-      @Override
-      public void paint(Graphics g)
-      {
-         g.translate(0, -visibleRow * getRowHeight());
-         super.paint(g);
-      }
+    @Override
+    public void setBounds(int x, int y, int w, int h) {
+      super.setBounds(x, 0, w, PSFUDJTreeTable.this.getHeight());
+    }
 
-      /**
-       * Implementation of the method in the interface
-       */
-      public Component getTableCellRendererComponent(JTable table,
-                         Object value,
-                         boolean isSelected,
-                         boolean hasFocus,
-                         int row, int column)
-      {
-         if(isSelected)
-            setBackground(table.getSelectionBackground());
-         else
-            setBackground(table.getBackground());
+    @Override
+    public void paint(Graphics g) {
+      g.translate(0, -visibleRow * getRowHeight());
+      super.paint(g);
+    }
 
-         visibleRow = row;
-         return this;
-      }
-   }
+    /** Implementation of the method in the interface */
+    public Component getTableCellRendererComponent(
+        JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+      if (isSelected) setBackground(table.getSelectionBackground());
+      else setBackground(table.getBackground());
 
-   /**
-    * The editor used to interact with tree nodes, a JTree.
-    */
-   public class TreeTableCellEditor
-      extends AbstractCellEditor
-      implements TableCellEditor
-   {
-      /**
-       * Implementation of the method in the interface
-       */
-      public Component getTableCellEditorComponent(JTable table, Object value,
-                       boolean isSelected, int r, int c)
-      {
-         return tree;
-      }
-   }
+      visibleRow = row;
+      return this;
+    }
+  }
+
+  /** The editor used to interact with tree nodes, a JTree. */
+  public class TreeTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+    /** Implementation of the method in the interface */
+    public Component getTableCellEditorComponent(
+        JTable table, Object value, boolean isSelected, int r, int c) {
+      return tree;
+    }
+  }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,60 +18,51 @@ package com.percussion.delivery.metadata.data;
 
 /**
  * Represents a year and the list of months with the number of posts for each month.
- * 
+ *
  * @author leonardohildt
- * 
  */
-public class PSMetadataBlogMonth
-{
-    private String month;
+public class PSMetadataBlogMonth {
+  private String month;
 
-    private Integer count;
+  private Integer count;
 
-    public PSMetadataBlogMonth(){
+  public PSMetadataBlogMonth() {}
 
-    }
+  /**
+   * @param month
+   * @param count
+   */
+  public PSMetadataBlogMonth(String month, Integer count) {
+    super();
+    this.month = month;
+    this.count = count;
+  }
 
-    /**
-     * @param month
-     * @param count
-     */
-    public PSMetadataBlogMonth(String month, Integer count)
-    {
-        super();
-        this.month = month;
-        this.count = count;
-    }
+  /**
+   * @return the month
+   */
+  public String getMonth() {
+    return month;
+  }
 
-    /**
-     * @return the month
-     */
-    public String getMonth()
-    {
-        return month;
-    }
+  /**
+   * @param month the month to set
+   */
+  public void setMonth(String month) {
+    this.month = month;
+  }
 
-    /**
-     * @param month the month to set
-     */
-    public void setMonth(String month)
-    {
-        this.month = month;
-    }
+  /**
+   * @return the count
+   */
+  public Integer getCount() {
+    return count;
+  }
 
-    /**
-     * @return the count
-     */
-    public Integer getCount()
-    {
-        return count;
-    }
-
-    /**
-     * @param count the number of counts to set
-     */
-    public void setCount(Integer count)
-    {
-        this.count = count;
-    }
+  /**
+   * @param count the number of counts to set
+   */
+  public void setCount(Integer count) {
+    this.count = count;
+  }
 }

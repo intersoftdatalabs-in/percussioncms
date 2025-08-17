@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,24 @@
 package com.percussion.UTComponents;
 
 import com.percussion.guitools.BitmapManager;
-
-import javax.swing.*; // TODO: JAVAX-11
 import java.awt.*;
+import javax.swing.*;
 
 /**
- * Creates a small, square button that has 3 dots that is typically used to
- * bring up some sort of browser dialog. The button attempts to maintain a
- * fixed size.
+ * Creates a small, square button that has 3 dots that is typically used to bring up some sort of
+ * browser dialog. The button attempts to maintain a fixed size.
  */
-public class UTBrowseButton extends JButton
-{
-   /**
-    * The standard ctor for the browse button object.
-    */
-   public UTBrowseButton()
-   {
-      ImageIcon icon = BitmapManager.getBitmapManager(this.getClass()).getImage(
-         "images/optional.gif" );
-      setIcon( icon );
-      Dimension d = new Dimension( IUTConstants.FIXED_HEIGHT,
-         IUTConstants.FIXED_HEIGHT );
-      setSize( d );
-      setMaximumSize( d );
-      setMinimumSize( d );
-      setPreferredSize( d );
-      setAlignmentY( CENTER_ALIGNMENT);
-   }
+public class UTBrowseButton extends JButton {
+  /** The standard ctor for the browse button object. */
+  public UTBrowseButton() {
+    ImageIcon icon =
+        BitmapManager.getBitmapManager(this.getClass()).getImage("images/optional.gif");
+    setIcon(icon);
+    Dimension d = new Dimension(IUTConstants.FIXED_HEIGHT, IUTConstants.FIXED_HEIGHT);
+    setSize(d);
+    setMaximumSize(d);
+    setMinimumSize(d);
+    setPreferredSize(d);
+    setAlignmentY(CENTER_ALIGNMENT);
+  }
 }

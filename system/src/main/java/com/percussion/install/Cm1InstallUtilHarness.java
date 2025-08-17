@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,22 @@
 
 package com.percussion.install;
 
-public class Cm1InstallUtilHarness
-{
+// REFACTORED: CP-JAVA11
+public class Cm1InstallUtilHarness {
 
-   /**
-    * @param args
-    */
-   public static void main(String[] args)
-   {
-      String cm1Dir = args[0];  
-      boolean isDerbyUp = InstallUtil.isDerbyRunning(cm1Dir);
-      System.out.print("Derby Running: " + Boolean.toString(isDerbyUp)  + "\n");
-      boolean isCM1Up = InstallUtil.isServerRunning(cm1Dir);
-      System.out.print("CM1 Running: " + Boolean.toString(isCM1Up) + "\n");
-      if (args[1] != null){
-         String dtsDir = args[1];
-         boolean isDtsUp = InstallUtil.checkTomcatServerRunning(dtsDir);
-         System.out.print("DTS Running: " + Boolean.toString(isDtsUp));
-      }
-   }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    String cm1Dir = args[0];
+    boolean isDerbyUp = InstallUtil.isDerbyRunning(cm1Dir);
+    System.out.print("Derby Running: " + isDerbyUp + "\n");
+    boolean isCM1Up = InstallUtil.isServerRunning(cm1Dir);
+    System.out.print("CM1 Running: " + isCM1Up + "\n");
+    if (args.length > 1 && args[1] != null) {
+      String dtsDir = args[1];
+      boolean isDtsUp = InstallUtil.checkTomcatServerRunning(dtsDir);
+      System.out.print("DTS Running: " + isDtsUp);
+    }
+  }
 }

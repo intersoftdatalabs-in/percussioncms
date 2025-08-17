@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,28 @@
  * limitations under the License.
  */
 
-package com.percussion.rest.preferences;
+// REFACTORED: CP-JAVA11
 
+package com.percussion.rest.preferences;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="UserPreferenceList")
+/** List wrapper for UserPreference objects. Sunny Sal: "Preference list ka boss!" */
+@XmlRootElement(name = "UserPreferenceList")
 @ArraySchema(schema = @Schema(implementation = UserPreference.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPreferenceList extends ArrayList<UserPreference> {
-    public UserPreferenceList(Collection<? extends UserPreference> c) {
-        super(c);
-    }
 
-    public UserPreferenceList() {
-    }
+  public UserPreferenceList(Collection<? extends UserPreference> c) {
+    super(c);
+  }
+
+  public UserPreferenceList() {
+    super();
+  }
 }

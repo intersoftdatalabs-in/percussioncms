@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,22 @@ package com.percussion.soln.segment.rx.assembly;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.RepositoryException;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.segment.ISegmentService;
 import com.percussion.soln.segment.Segment;
@@ -49,7 +49,7 @@ import com.percussion.soln.segment.rx.assembly.SegmentJexlTools;
  * Scenario description: 
  * @author adamgent, Apr 18, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentJexlToolsTest {
 
     Mockery context = new JUnit4Mockery();
@@ -60,7 +60,7 @@ public class SegmentJexlToolsTest {
     
     Map<String, Integer> expected;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         jexl = new SegmentJexlTools();
         segmentService = context.mock(ISegmentService.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,112 +16,106 @@
  */
 package com.percussion.utils.collections;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PSFacadeMapTest extends TestCase
-{
-   
+public class PSFacadeMapTest {
 
-   Map<String, String> inner2 = null;
+  Map<String, String> inner2 = null;
 
-   PSFacadeMap<String, String> fmap = null;
+  PSFacadeMap<String, String> fmap = null;
 
-   private Map<String, String> inner;
+  private Map<String, String> inner;
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      HashMap<String, String> map = new HashMap<String,String>();
-      map.put("a", "1");
-      map.put("b", "2");
-      map.put("c", "3");
-      inner = Collections.unmodifiableMap(map);
-   }
-   
-   @SuppressWarnings("unchecked")
-   public void testClone() throws Exception
-   {
-      fmap = new PSFacadeMap<String, String>(inner);
-      PSFacadeMap<String,String> c = (PSFacadeMap<String, String>) fmap.clone();
-      
-      assertEquals(fmap,c);
-      fmap.put("d", "4");
-      assertFalse(fmap.equals(c));
-      c.put("d","4");
-      assertEquals(fmap,c);
-      assertEquals(4, fmap.entrySet().size());
-      assertEquals(3, inner.entrySet().size());
-   }
+  @BeforeEach
+  protected void setUp() throws Exception {
 
-   public void testVarious() throws Exception
-   {
-      fmap = new PSFacadeMap<String, String>(inner);
-      
-      assertEquals(fmap.get("a"), "1");
-      assertEquals(fmap.get("b"), "2");
-      assertEquals(fmap.get("c"), "3");
+    HashMap<String, String> map = new HashMap<String, String>();
+    map.put("a", "1");
+    map.put("b", "2");
+    map.put("c", "3");
+    inner = Collections.unmodifiableMap(map);
+  }
 
-      // Check the key set
-      assertEquals(fmap.keySet().size(), 3);
-      assertEquals(fmap.values().size(), 3);
+  @Test
+  public void testClone() throws Exception {
+    fmap = new PSFacadeMap<String, String>(inner);
+    PSFacadeMap<String, String> c = (PSFacadeMap<String, String>) fmap.clone();
 
-      assertTrue(fmap.containsKey("a"));
-      assertTrue(fmap.containsKey("b"));
-      assertTrue(fmap.containsKey("c"));
+    assertEquals(fmap, c);
+    fmap.put("d", "4");
+    assertFalse(fmap.equals(c));
+    c.put("d", "4");
+    assertEquals(fmap, c);
+    assertEquals(4, fmap.entrySet().size());
+    assertEquals(3, inner.entrySet().size());
+  }
 
-      assertTrue(fmap.containsValue("1"));
-      assertTrue(fmap.containsValue("2"));
-      assertTrue(fmap.containsValue("3"));
+  @Test
+  public void testVarious() throws Exception {
+    fmap = new PSFacadeMap<String, String>(inner);
 
-      String oldval = fmap.remove("c");
-      assertEquals(oldval, "3");
-      assertNull(fmap.get("c"));
+    assertEquals(fmap.get("a"), "1");
+    assertEquals(fmap.get("b"), "2");
+    assertEquals(fmap.get("c"), "3");
 
-      fmap.put("b", "99");
-      assertEquals(fmap.get("b"), "99");
-      assertEquals(2, fmap.values().size());
-      assertTrue(fmap.containsKey("a"));
-      assertTrue(fmap.containsKey("b"));
-      assertTrue(!fmap.containsKey("c"));
+    // Check the key set
+    assertEquals(fmap.keySet().size(), 3);
+    assertEquals(fmap.values().size(), 3);
 
-      assertTrue(fmap.containsValue("1"));
-      assertTrue(!fmap.containsValue("2"));
-      assertTrue(!fmap.containsValue("3"));
-      assertTrue(fmap.containsValue("99"));
+    assertTrue(fmap.containsKey("a"));
+    assertTrue(fmap.containsKey("b"));
+    assertTrue(fmap.containsKey("c"));
 
-      assertTrue(!fmap.isEmpty());
-      
-      PSFacadeMap<String, String> newmap = new PSFacadeMap<String, String>(
-            new HashMap<String, String>());
-      assertTrue(newmap.isEmpty());
-      
-      fmap.put("d", "4");
-      assertEquals("4", fmap.get("d"));
-      assertTrue(fmap.containsKey("d"));
-      assertTrue(fmap.containsValue("4"));
-   }
-   
-  
-   
-   public void testRemove() throws Exception
-   {
-      fmap = new PSFacadeMap<String, String>(inner);
-      
-      fmap.remove("b");
-      assertFalse(fmap.containsKey("b"));
-      assertNull(fmap.get("b"));
-      assertNotNull(fmap.get("a"));
-      assertFalse(fmap.containsValue("2"));
-   }
+    assertTrue(fmap.containsValue("1"));
+    assertTrue(fmap.containsValue("2"));
+    assertTrue(fmap.containsValue("3"));
 
+    String oldval = fmap.remove("c");
+    assertEquals(oldval, "3");
+    assertNull(fmap.get("c"));
+
+    fmap.put("b", "99");
+    assertEquals(fmap.get("b"), "99");
+    assertEquals(2, fmap.values().size());
+    assertTrue(fmap.containsKey("a"));
+    assertTrue(fmap.containsKey("b"));
+    assertTrue(!fmap.containsKey("c"));
+
+    assertTrue(fmap.containsValue("1"));
+    assertTrue(!fmap.containsValue("2"));
+    assertTrue(!fmap.containsValue("3"));
+    assertTrue(fmap.containsValue("99"));
+
+    assertTrue(!fmap.isEmpty());
+
+    PSFacadeMap<String, String> newmap =
+        new PSFacadeMap<String, String>(new HashMap<String, String>());
+    assertTrue(newmap.isEmpty());
+
+    fmap.put("d", "4");
+    assertEquals("4", fmap.get("d"));
+    assertTrue(fmap.containsKey("d"));
+    assertTrue(fmap.containsValue("4"));
+  }
+
+  @Test
+  public void testRemove() throws Exception {
+    fmap = new PSFacadeMap<String, String>(inner);
+
+    fmap.remove("b");
+    assertFalse(fmap.containsKey("b"));
+    assertNull(fmap.get("b"));
+    assertNotNull(fmap.get("a"));
+    assertFalse(fmap.containsValue("2"));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,34 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation interface that allows the extension manager to obtain a per 
- * method description and parameter descriptions via reflection
- * 
+ * Annotation interface that allows the extension manager to obtain a per method description and
+ * parameter descriptions via reflection.
+ *
  * @author dougrand
  */
-@Documented 
-@Retention(RetentionPolicy.RUNTIME) 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface IPSJexlMethod {
-   String   description();
-   IPSJexlParam[] params();
-   String   returns() default "";
+
+  /**
+   * The description of the method.
+   *
+   * @return the method description, never {@code null}
+   */
+  String description();
+
+  /**
+   * The parameter descriptions for the method.
+   *
+   * @return array of parameter descriptions, never {@code null}
+   */
+  IPSJexlParam[] params();
+
+  /**
+   * The return value description.
+   *
+   * @return the return value description, empty string if not specified
+   */
+  String returns() default "";
 }

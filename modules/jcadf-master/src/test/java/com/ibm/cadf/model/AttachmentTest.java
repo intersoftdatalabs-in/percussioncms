@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,49 +17,40 @@
 
 package com.ibm.cadf.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.text.MessageFormat;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import java.text.MessageFormat;
+import org.junit.jupiter.api.Test;
 
-public class AttachmentTest
-{
+public class AttachmentTest {
 
-    @Test
-    public void testAttachmentPositive() throws CADFException, IOException
-    {
-        String typeURI = "attachURI";
-        String content = "content";
-        String name = "attachName";
-        Attachment attachment = new Attachment(typeURI, content, name);
-        assertEquals(true, attachment.isValid());
+  @Test
+  public void testAttachmentPositive() throws CADFException, IOException {
+    String typeURI = "attachURI";
+    String content = "content";
+    String name = "attachName";
+    Attachment attachment = new Attachment(typeURI, content, name);
+    assertEquals(true, attachment.isValid());
+  }
+
+  @Test
+  public void testAttachmentNegative() throws CADFException, IOException {
+
+    try {
+      String typeURI = "attachURI";
+      String content = "";
+      String name = "attachName";
+      Attachment attachment = new Attachment(typeURI, content, name);
+      attachment.isValid();
+      fail("Attachment object creation should fail as mandatory field content is not passed");
+    } catch (CADFException ex) {
+
+      String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "content");
+      assertEquals(message, ex.getMessage());
     }
-
-    @Test
-    public void testAttachmentNegative() throws CADFException, IOException
-    {
-
-        try
-        {
-            String typeURI = "attachURI";
-            String content = "";
-            String name = "attachName";
-            Attachment attachment = new Attachment(typeURI, content, name);
-            attachment.isValid();
-            fail("Attachment object creation should fail as mandatory field content is not passed");
-        }
-        catch (CADFException ex)
-        {
-
-            String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "content");
-            assertEquals(message, ex.getMessage());
-        }
-
-    }
+  }
 }

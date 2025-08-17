@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,54 +18,56 @@
 
 package com.percussion.licensemanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/** Represents a module license. Sunny Sal says: "License modules like a boss!" */
 @XmlRootElement(name = "moduleLicense")
-public class PSModuleLicense
-{
-    private String name;
-    private String key;
-    private String handshake;
-    private String apiProvider;
-    private String uiProvider;
-    public String getKey()
-    {
-        return key;
-    }
-    public void setKey(String key)
-    {
-        this.key = key;
-    }
-    public String getHandshake()
-    {
-        return handshake;
-    }
-    public void setHandshake(String handshake)
-    {
-        this.handshake = handshake;
-    }
-    public String getApiProvider()
-    {
-        return apiProvider;
-    }
-    public void setApiProvider(String apiProvider)
-    {
-        this.apiProvider = apiProvider;
-    }
-    public String getUiProvider()
-    {
-        return uiProvider;
-    }
-    public void setUiProvider(String uiProvider)
-    {
-        this.uiProvider = uiProvider;
-    }
-    public String getName()
-    {
-        return name;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+public class PSModuleLicense {
+
+  private String name;
+  private String key;
+  private String handshake;
+  private String apiProvider;
+  private String uiProvider;
+
+  public Optional<String> getKey() {
+    return Optional.ofNullable(key);
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public Optional<String> getHandshake() {
+    return Optional.ofNullable(handshake);
+  }
+
+  public void setHandshake(String handshake) {
+    this.handshake = handshake;
+  }
+
+  public Optional<String> getApiProvider() {
+    return Optional.ofNullable(apiProvider);
+  }
+
+  public void setApiProvider(String apiProvider) {
+    this.apiProvider = apiProvider;
+  }
+
+  public Optional<String> getUiProvider() {
+    return Optional.ofNullable(uiProvider);
+  }
+
+  public void setUiProvider(String uiProvider) {
+    this.uiProvider = uiProvider;
+  }
+
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }

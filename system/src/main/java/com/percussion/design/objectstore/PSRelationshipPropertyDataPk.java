@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,67 +16,55 @@
  */
 package com.percussion.design.objectstore;
 
+import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import java.io.Serializable;
-
 /**
- * The primary key for {@link PSRelationshipPropertyData} object. This is
- * needed for the persistent service layer.
+ * The primary key for {@link PSRelationshipPropertyData} object. This is needed for the persistent
+ * service layer.
  */
 @Embeddable
-public class PSRelationshipPropertyDataPk implements Serializable
-{
-   /**
-    * The relationship (or parent) id.
-    */
-   @Basic
-   @Column(name = "RID")
-   private int m_rid;
+public class PSRelationshipPropertyDataPk implements Serializable {
+  /** The relationship (or parent) id. */
+  @Basic
+  @Column(name = "RID")
+  private int m_rid;
 
-   /**
-    * The name of the property, never <code>null</code>
-    */
-   @Basic
-   @Column(name = "PROPERTYNAME")
-   private String m_propertyName;
+  /** The name of the property, never <code>null</code> */
+  @Basic
+  @Column(name = "PROPERTYNAME")
+  private String m_propertyName;
 
+  /** Default ctor, needed by the services of the persistent layer. */
+  private PSRelationshipPropertyDataPk() {
+    // Empty
+  }
 
-   /**
-    * Default ctor, needed by the services of the persistent layer.
-    */
-   private PSRelationshipPropertyDataPk()
-   {
-      // Empty
-   }
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object obj) {
+    if (obj == null || !(obj instanceof PSRelationshipPropertyDataPk)) return false;
+    PSRelationshipPropertyDataPk other = (PSRelationshipPropertyDataPk) obj;
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   public boolean equals(Object obj)
-   {
-      if (obj == null || !(obj instanceof PSRelationshipPropertyDataPk))
-         return false;
-      PSRelationshipPropertyDataPk other = (PSRelationshipPropertyDataPk) obj;
+    return new EqualsBuilder()
+        .append(m_propertyName, other.m_propertyName)
+        .append(m_rid, other.m_rid)
+        .isEquals();
+  }
 
-      return new EqualsBuilder()
-         .append(m_propertyName, other.m_propertyName)
-         .append(m_rid, other.m_rid)
-         .isEquals();
-   }
-
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
-   public int hashCode()
-   {
-      return new HashCodeBuilder(13, 3).appendSuper(super.hashCode())
-            .append(m_rid)
-            .append(m_propertyName)
-            .toHashCode();
-   }
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder(13, 3)
+        .appendSuper(super.hashCode())
+        .append(m_rid)
+        .append(m_propertyName)
+        .toHashCode();
+  }
 }

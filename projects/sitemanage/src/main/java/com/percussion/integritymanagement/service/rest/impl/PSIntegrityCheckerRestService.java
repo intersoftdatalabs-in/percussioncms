@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,122 +15,110 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.integritymanagement.service.rest.impl;
 
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
 import com.percussion.integritymanagement.data.PSIntegrityStatus.Status;
 import com.percussion.integritymanagement.data.PSIntegrityStatusList;
 import com.percussion.integritymanagement.service.IPSIntegrityCheckerService.IntegrityTaskType;
 import com.percussion.integritymanagement.service.impl.PSIntegrityCheckerService;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.util.List;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import java.util.List;
-
+/** REST service for integrity checker operations. */
 @Service("pSIntegrityCheckerRestService")
 @Path("/integritycheck")
-public class PSIntegrityCheckerRestService
-{
-    private static final Logger log = LogManager.getLogger(PSIntegrityCheckerRestService.class);
+public class PSIntegrityCheckerRestService {
 
-    private PSIntegrityCheckerService integrityCheckerService;
-    
-    @Autowired
-    public PSIntegrityCheckerRestService(PSIntegrityCheckerService integrityCheckerService){
-        this.integrityCheckerService = integrityCheckerService;
-    }
-    
-    @POST
-    @Produces(
-    {MediaType.TEXT_HTML})
-    public String start(@QueryParam("type") String type)
-    {
-        try {
-            IntegrityTaskType tasktype = IntegrityTaskType.all;
-            try {
-                tasktype = IntegrityTaskType.valueOf(StringUtils.defaultString(type));
-            } catch (Exception e) {
-                //default it to all
-            }
-            return integrityCheckerService.start(tasktype);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
-    }
-    
-    @POST
-    @Path("/stop")
-    public void stop()
-    {
-        try {
-            integrityCheckerService.stop();
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
-    }
+  private static final Logger log = LogManager.getLogger(PSIntegrityCheckerRestService.class);
 
-    @GET
-    @Produces(
-    {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/token/{id}")
-    public PSIntegrityStatus status(@PathParam("id") String id)
-    {
-        try {
-            return integrityCheckerService.getStatus(id);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
-    }
+  private final PSIntegrityCheckerService integrityCheckerService;
 
-    @GET
-    @Produces(
-    {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/history")
-    public List<PSIntegrityStatus> history(@QueryParam("type") String type)
-    {
-        try {
-            Status st = null;
+  @Autowired
+  public PSIntegrityCheckerRestService(PSIntegrityCheckerService integrityCheckerService) {
+    this.integrityCheckerService = integrityCheckerService;
+  }
 
-                st = Status.valueOf(StringUtils.defaultString(type));
-            return new PSIntegrityStatusList(integrityCheckerService.getHistory(st));
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @POST
+  @Produces({MediaType.TEXT_HTML})
+  public String start(@QueryParam("type") String type) {
+    try {
+      var taskType = IntegrityTaskType.all;
+      try {
+        taskType = IntegrityTaskType.valueOf(StringUtils.defaultString(type));
+      } catch (Exception e) {
+        // default to all
+      }
+      return integrityCheckerService.start(taskType);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
+  }
 
-    @DELETE
-    @Path("/token/{id}")
-    public void delete(@PathParam("id") String id)
-    {
-        try {
-            integrityCheckerService.delete(id);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @POST
+  @Path("/stop")
+  public void stop() {
+    try {
+      integrityCheckerService.stop();
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
-    
+  }
+
+  @GET
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Path("/token/{id}")
+  public PSIntegrityStatus status(@PathParam("id") String id) {
+    try {
+      return integrityCheckerService.getStatus(id);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  @GET
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Path("/history")
+  public List<PSIntegrityStatus> history(@QueryParam("type") String type) {
+    try {
+      Status st = null;
+      try {
+        st = Status.valueOf(StringUtils.defaultString(type));
+      } catch (Exception e) {
+        // default to null
+      }
+      return new PSIntegrityStatusList(integrityCheckerService.getHistory(st));
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  @DELETE
+  @Path("/token/{id}")
+  public void delete(@PathParam("id") String id) {
+    try {
+      integrityCheckerService.delete(id);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
 }

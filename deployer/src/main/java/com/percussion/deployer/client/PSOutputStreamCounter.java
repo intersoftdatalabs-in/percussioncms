@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,56 +21,42 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Wraps an output stream and at any time can return the number of bytes written 
- * to the stream.
- */
-public class PSOutputStreamCounter extends FilterOutputStream 
-   implements IPSStreamCounter
-{
+/** Wraps an output stream and at any time can return the number of bytes written to the stream. */
+public class PSOutputStreamCounter extends FilterOutputStream implements IPSStreamCounter {
 
-   /**
-    * Construct this class from an <code>OutputStream</code>
-    * 
-    * @param out The stream, may not be <code>null</code>.
-    */
-   public PSOutputStreamCounter(OutputStream out)
-   {
-      super(out);
-   }
+  /**
+   * Construct this class from an <code>OutputStream</code>
+   *
+   * @param out The stream, may not be <code>null</code>.
+   */
+  public PSOutputStreamCounter(OutputStream out) {
+    super(out);
+  }
 
-   // see super class
-   public void write(int b) throws IOException
-   {
-      super.write(b);
-      m_count++;
-   }
-   
-   // see IPSStreamCounter
-   public int getByteCount()
-   {
-      return m_count;
-   }
+  // see super class
+  public void write(int b) throws IOException {
+    super.write(b);
+    m_count++;
+  }
 
-   // see IPSStreamCounter
-   public void closeStream()
-   {
-      try
-      {
-         super.close();
-      }
-      catch (IOException e)
-      {
-         // we expect this, someone else has the stream and will handle any
-         // exceptions they encounter.
-      }
-   
-   }
+  // see IPSStreamCounter
+  public long getByteCount() {
+    return m_count;
+  }
 
-   /**
-    * Count of bytes written so far, incremented each time a <code>write()</code>
-    * method is called, initially zero.
-    */
-   private int m_count = 0;
+  // see IPSStreamCounter
+  public void closeStream() {
+    try {
+      super.close();
+    } catch (IOException e) {
+      // we expect this, someone else has the stream and will handle any
+      // exceptions they encounter.
+    }
+  }
 
+  /**
+   * Count of bytes written so far, incremented each time a <code>write()</code> method is called,
+   * initially zero.
+   */
+  private long m_count = 0;
 }

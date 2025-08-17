@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,46 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Represents a mapping between a page and a template for a specific site. */
 @XmlRootElement(name = "PageToTemplatePair")
-public class PSPageToTemplatePair extends PSAbstractDataObject implements Serializable, Comparable
-{
-    private static final long serialVersionUID = 1L;
-    
-    private String siteId;
-    private String pageId;
-    
-    public String getSiteId()
-    {
-        return siteId;
+public class PSPageToTemplatePair extends PSAbstractDataObject
+    implements Serializable, Comparable<PSPageToTemplatePair> {
+
+  private static final long serialVersionUID = 1L;
+
+  private String siteId;
+  private String pageId;
+
+  public String getSiteId() {
+    return siteId;
+  }
+
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
+
+  public String getPageId() {
+    return pageId;
+  }
+
+  public void setPageId(String pageId) {
+    this.pageId = pageId;
+  }
+
+  @Override
+  public int compareTo(PSPageToTemplatePair o) {
+    // Compare by siteId then pageId for ordering
+    int siteCompare = siteId != null && o.siteId != null ? siteId.compareTo(o.siteId) : 0;
+    if (siteCompare != 0) {
+      return siteCompare;
     }
-    public void setSiteId(String siteId)
-    {
-        this.siteId = siteId;
-    }
-    public String getPageId()
-    {
-        return pageId;
-    }
-    public void setPageId(String pageId)
-    {
-        this.pageId = pageId;
-    }
-    @Override
-    public int compareTo(Object o)
-    {
-        return 1;
-    }
-    
-   
+    return pageId != null && o.pageId != null ? pageId.compareTo(o.pageId) : 0;
+  }
 }

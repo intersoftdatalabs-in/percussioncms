@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,66 +18,51 @@
 package com.percussion.delivery.metadata.data;
 
 import com.percussion.delivery.metadata.IPSBlogPostVisit;
-
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Optional;
 
 public class PSBlogPostVisit implements IPSBlogPostVisit {
 
-	private String pagePath;
-	private Date date;
-	private BigInteger hitCount;
+  private String pagePath;
+  private Date date;
+  private BigInteger hitCount;
 
-    public PSBlogPostVisit(){
+  public PSBlogPostVisit() {}
 
-    }
-	public PSBlogPostVisit(String pagePath, Date date, BigInteger hitCount) {
-		this.pagePath = pagePath;
-		this.date = Optional
-				.ofNullable(date)
-				.map(Date::getTime)
-				.map(Date::new)
-				.orElse(null);
-		this.hitCount = hitCount;
-	}
-	
-	@Override
-	public BigInteger getHitCount() {
-		return hitCount;
-	}
+  public PSBlogPostVisit(String pagePath, Date date, BigInteger hitCount) {
+    this.pagePath = pagePath;
+    this.date = Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+    this.hitCount = hitCount;
+  }
 
-	@Override
-	public void setHitCount(BigInteger count) {
-		hitCount = count;
-	}
+  @Override
+  public BigInteger getHitCount() {
+    return hitCount;
+  }
 
-	@Override
-	public Date getHitDate() {
-		return Optional
-				.ofNullable(date)
-				.map(Date::getTime)
-				.map(Date::new)
-				.orElse(null);
-	}
+  @Override
+  public void setHitCount(BigInteger count) {
+    hitCount = count;
+  }
 
-	@Override
-	public void setHitDate(Date date) {
-		this.date = Optional
-				.ofNullable(date)
-				.map(Date::getTime)
-				.map(Date::new)
-				.orElse(null);
-	}
+  @Override
+  public Date getHitDate() {
+    return Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+  }
 
-	@Override
-	public String getPagepath() {
-		return this.pagePath;
-	}
+  @Override
+  public void setHitDate(Date date) {
+    this.date = Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);
+  }
 
-	@Override
-	public void setPagepath(String pagePath) {
-		this.pagePath = pagePath;
-	}
+  @Override
+  public String getPagepath() {
+    return this.pagePath;
+  }
 
+  @Override
+  public void setPagepath(String pagePath) {
+    this.pagePath = pagePath;
+  }
 }

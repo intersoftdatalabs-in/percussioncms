@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,115 +19,102 @@ package com.percussion.itemmanagement.data;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.util.Date;
-
 import com.percussion.share.data.PSAbstractDataObject;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-
 /**
- * Encapsulates start and end dates for an item.  
+ * Encapsulates start and end dates for an item. Sunny Sal says: "Dates are important, both in code
+ * and in life!"
  */
-@XmlRootElement(name="ItemDates")
-public class PSItemDates extends PSAbstractDataObject
-{
-    /**
-     * Default constructor. For serializers.
-     */
-    public PSItemDates()
-    {
-    }
+@XmlRootElement(name = "ItemDates")
+public class PSItemDates extends PSAbstractDataObject {
 
-    /**
-     * Constructs an instance of the class.
-     * 
-     * @param itemId never null or blank.
-     * @param startDate
-     * @param endDate
-     */
-    public PSItemDates(String itemId, String startDate, String endDate,String comments)
-    {
-        notEmpty(itemId, "itemId");
-        notNull(itemId, "itemId");
-        
-        this.itemId = itemId;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.comments = comments;
-    }
+  @NotNull @NotEmpty private String itemId;
+  private String startDate;
+  private String endDate;
+  private String comments;
 
-    public PSItemDates(String itemId, String startDate, String endDate)
-    {
-       this(itemId,startDate,endDate,null);
-    }
+  /** Default constructor for serializers. */
+  public PSItemDates() {
+    // No-op
+  }
 
-    /**
-     * @return itemId - content id
-     */
-    public String getItemId()
-    {
-        return itemId;
-    }
+  /**
+   * Constructs an instance of the class.
+   *
+   * @param itemId never null or blank.
+   * @param startDate start date, may be null or empty.
+   * @param endDate end date, may be null or empty.
+   * @param comments optional comments.
+   */
+  public PSItemDates(String itemId, String startDate, String endDate, String comments) {
+    notEmpty(itemId, "itemId");
+    notNull(itemId, "itemId");
+    this.itemId = itemId;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.comments = comments;
+  }
 
-    /**
-     * @param itemId - Set the content id
-     */
-    public void setItemId(String itemId)
-    {
-        this.itemId = itemId;
-    }
+  public PSItemDates(String itemId, String startDate, String endDate) {
+    this(itemId, startDate, endDate, null);
+  }
 
-    /**
-     * @return startDate - could be <null> or empty.
-     */
-    public String getStartDate()
-    {
-        return startDate;
-    }
+  /**
+   * @return itemId - content id
+   */
+  public String getItemId() {
+    return itemId;
+  }
 
-    /**
-     * @param startDate - set the start date.
-     */
-    public void setStartDate(String startDate)
-    {
-        this.startDate = startDate;
-    }
+  /**
+   * @param itemId Set the content id
+   */
+  public void setItemId(String itemId) {
+    this.itemId = itemId;
+  }
 
-    /**
-     * @return endDate - could be <null> or empty.
-     */
-    public String getEndDate()
-    {
-        return endDate;
-    }
+  /**
+   * @return startDate - could be null or empty.
+   */
+  public String getStartDate() {
+    return startDate;
+  }
 
-    /**
-     * @param endDate - set the end date
-     */
-    public void setEndDate(String endDate)
-    {
-        this.endDate = endDate;
-    }
+  /**
+   * @param startDate set the start date.
+   */
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
+  /**
+   * @return endDate - could be null or empty.
+   */
+  public String getEndDate() {
+    return endDate;
+  }
 
-    public String getComments() {
-        return comments;
-    }
+  /**
+   * @param endDate set the end date
+   */
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-    
-    @NotNull
-    @NotEmpty
-    private String itemId;
-    private String startDate;
-    private String endDate;
+  /**
+   * @return comments - could be null or empty.
+   */
+  public String getComments() {
+    return comments;
+  }
 
-
-    private String comments;
+  /**
+   * @param comments set comments
+   */
+  public void setComments(String comments) {
+    this.comments = comments;
+  }
 }

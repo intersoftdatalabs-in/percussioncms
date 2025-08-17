@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,19 @@
 package com.percussion.server.webservices.crosssite;
 
 /**
- * 
- * The message object used for cross site processing of folder removal.
- * See parent class.
- * 
- * @author adamgent
+ * The message object used for cross site processing of folder removal. See parent class.
  *
+ * @author adamgent
  */
-public class PSCrossSiteFolderRemoveActionData extends PSCrossSiteFolderActionData
-{
-   private static final long serialVersionUID = 1L;
+public class PSCrossSiteFolderRemoveActionData extends PSCrossSiteFolderActionData {
+  private static final long serialVersionUID = 1L;
 
-   @Override
-   public String toString()
-   {
-      return "Remove [m_sourceFolderId="
-            + m_sourceFolderId + ", m_sourceSiteId=" + m_sourceSiteId + "]";
-   }
-   
-   
-
+  @Override
+  public String toString() {
+    return "Remove [m_sourceFolderId="
+        + m_sourceFolderId
+        + ", m_sourceSiteId="
+        + m_sourceSiteId
+        + "]";
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,78 +17,78 @@
 
 package com.percussion.auditlog;
 
-
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 public class PSAuthenticationEvent extends AbstractEvent {
 
-    public static final String SESSIONID_TAG="sessionid";
-    public static final String ROLES_TAG = "roles";
-    public static final String COMMUNITYNAME_TAG = "communityName";
-    public static final String USER_URI = "data/security/account/user";
-    public static final String SYSTEM_SECURITY_URI="service/bss/cms/security";
+  public static final String SESSIONID_TAG = "sessionid";
+  public static final String ROLES_TAG = "roles";
+  public static final String COMMUNITYNAME_TAG = "communityName";
+  public static final String USER_URI = "data/security/account/user";
+  public static final String SYSTEM_SECURITY_URI = "service/bss/cms/security";
 
+  public PSAuthenticationEvent() {
+    super();
 
-    public PSAuthenticationEvent(){
-        super();
+    this.setObserverName(SYSTEM_SECURITY_URI);
+  }
 
-        this.setObserverName(SYSTEM_SECURITY_URI);
-    }
+  public PSAuthenticationEvent(
+      String outcome,
+      AuthenticationEventActions action,
+      HttpServletRequest request,
+      String username) {
+    super();
+    this.setObserverName(SYSTEM_SECURITY_URI);
+    this.setOutcome(outcome);
+    this.setAction(action);
+    this.setInitiatorIP(request.getRemoteAddr());
+    this.setTargetUsername(username);
+    this.setAgentName(request.getHeader("User-Agent"));
+  }
 
-    public PSAuthenticationEvent(String outcome, AuthenticationEventActions action, HttpServletRequest request, String username){
-        super();
-        this.setObserverName(SYSTEM_SECURITY_URI);
-        this.setOutcome(outcome);
-        this.setAction(action);
-        this.setInitiatorIP(request.getRemoteAddr());
-        this.setTargetUsername(username);
-        this.setAgentName(request.getHeader("User-Agent"));
+  public enum AuthenticationEventActions {
+    login,
+    renew,
+    revoke,
+    logout
+  }
 
-    }
+  private AuthenticationEventActions action;
 
+  private String sessionId;
+  private String roles;
+  private String communityName;
 
-    public enum AuthenticationEventActions{
-        login,
-        renew,
-        revoke,
-        logout
-    }
+  public AuthenticationEventActions getAction() {
+    return action;
+  }
 
-    private AuthenticationEventActions action;
+  public void setAction(AuthenticationEventActions action) {
+    this.action = action;
+  }
 
-    private String sessionId;
-    private String roles;
-    private String communityName;
+  public String getSessionId() {
+    return sessionId;
+  }
 
-    public AuthenticationEventActions getAction() {
-        return action;
-    }
+  public void setSessionId(String sessionId) {
+    this.sessionId = sessionId;
+  }
 
-    public void setAction(AuthenticationEventActions action) {
-        this.action = action;
-    }
+  public String getRoles() {
+    return roles;
+  }
 
-    public String getSessionId() {
-        return sessionId;
-    }
+  public void setRoles(String roles) {
+    this.roles = roles;
+  }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
+  public String getCommunityName() {
+    return communityName;
+  }
 
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
-
-    public String getCommunityName() {
-        return communityName;
-    }
-
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
-    }
+  public void setCommunityName(String communityName) {
+    this.communityName = communityName;
+  }
 }

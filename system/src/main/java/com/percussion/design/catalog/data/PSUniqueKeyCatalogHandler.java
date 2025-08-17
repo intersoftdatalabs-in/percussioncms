@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,18 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSUniqueKeyCatalogHandler class implements cataloging of
- * unique keys. This request type is used to locate the column
- * combinations which can be used to uniquely identify rows in
- * the specified back-end table.
- * <p>
- * Unique key catalog requests are sent to the server using the
- * PSXUniqueKeyCatalog XML document. Its definition is as follows:
+ * The PSUniqueKeyCatalogHandler class implements cataloging of unique keys. This request type is
+ * used to locate the column combinations which can be used to uniquely identify rows in the
+ * specified back-end table.
+ *
+ * <p>Unique key catalog requests are sent to the server using the PSXUniqueKeyCatalog XML document.
+ * Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXUniqueKeyCatalog (datasource?, tableName)&gt;
  *
- *    &lt;-- the name of the datasource being queried, may be omitted to 
+ *    &lt;-- the name of the datasource being queried, may be omitted to
  *       indicate the repository
  *     --&gt;
  *    &lt;!ELEMENT datasource          (#PCDATA)&gt;
@@ -44,13 +43,14 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName           (#PCDATA)&gt;
  * </pre>
  *
- * The PSXUniqueKeyCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXUniqueKeyCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
- *    &lt;!ELEMENT PSXUniqueKeyCatalogResults (datasource, tableName, 
+ *    &lt;!ELEMENT PSXUniqueKeyCatalogResults (datasource, tableName,
  *       UniqueKey*)&gt;
  *
- *    &lt;-- the name of the datasource which was queried, may be emtpy to 
+ *    &lt;-- the name of the datasource which was queried, may be emtpy to
  *       indicate the repository
  *     --&gt;
  *    &lt;!ELEMENT datasource          (#PCDATA)&gt;
@@ -82,82 +82,67 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name                       (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSUniqueKeyCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSUniqueKeyCatalogHandler()
-   {
-      super();
-   }
+public class PSUniqueKeyCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSUniqueKeyCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>UniqueKey</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be ommited to 
-    *          indicate the repository</td>
-    *       <td>no</td></tr>
-    *   <tr><td>TableName</td>
-    *       <td>the name of the table for which unique key columns should
-    *           be returned</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String) req.get("RequestCategory");
-      if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>UniqueKey</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be ommited to
+   *          indicate the repository</td>
+   *       <td>no</td></tr>
+   *   <tr><td>TableName</td>
+   *       <td>the name of the table for which unique key columns should
+   *           be returned</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"UniqueKey".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"UniqueKey".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String datasource = (String)req.get("Datasource");
+    String datasource = (String) req.get("Datasource");
 
-      String tableName = (String)req.get("TableName");
-      if (tableName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: TableName");
+    String tableName = (String) req.get("TableName");
+    if (tableName == null) throw new IllegalArgumentException("reqd prop not specified: TableName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-         "PSXUniqueKeyCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXUniqueKeyCatalog");
 
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", 
-            datasource);
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
 
-      PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

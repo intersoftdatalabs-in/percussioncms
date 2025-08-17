@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,45 +18,45 @@
 package com.percussion.contentmigration.service.impl;
 
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+/** Response object for content migration. */
+@XmlRootElement(name = "MigrateResponse")
+public class PSMigrateContentResponse {
+  private PSMigrateResponseStatus status;
+  private String message;
+  private Map<String, String> errors;
 
-@XmlRootElement(name="MigrateResponse")
-public class PSMigrateContentResponse
-{
-    private PSMigrateResponseStatus status;
-    private String message;
-    private Map<String, String> errors;
-    PSMigrateContentResponse()
-    {
-        
-    }
-    public String getMessage()
-    {
-        return message;
-    }
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
-    public PSMigrateResponseStatus getStatus()
-    {
-        return status;
-    }
-    public void setStatus(PSMigrateResponseStatus status)
-    {
-        this.status = status;
-    }
-    public Map<String, String> getErrors()
-    {
-        return errors;
-    }
-    public void setErrors(Map<String, String> errors)
-    {
-        this.errors = errors;
-    }
-    public static enum PSMigrateResponseStatus
-    {
-        SUCCESS, ERROR
-    }    
+  /** Default constructor. */
+  public PSMigrateContentResponse() {}
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public PSMigrateResponseStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(PSMigrateResponseStatus status) {
+    this.status = status;
+  }
+
+  public Map<String, String> getErrors() {
+    return errors;
+  }
+
+  public void setErrors(Map<String, String> errors) {
+    this.errors = errors;
+  }
+
+  /** Status of the migration response. */
+  public enum PSMigrateResponseStatus {
+    SUCCESS,
+    ERROR
+  }
 }

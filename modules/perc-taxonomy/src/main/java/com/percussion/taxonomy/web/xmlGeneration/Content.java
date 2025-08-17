@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,19 @@ import org.simpleframework.xml.Element;
 
 public class Content {
 
-    @Element
-    public Name name;
+  @Element public Name name;
 
-    public Content() {
-    }
+  public Content() {}
 
-    public Content(String name) {
-        this.name = new Name(name);
-    }
+  public Content(String name) {
+    this.name = new Name(name);
+  }
 
-    public Content(String name, String link) {
-        this.name = new Name(name, link);
-    }    
-    
-    public Content(String name, String link, String onclick) {
-        this.name = new Name(name, link, onclick);
-    }
+  public Content(String name, String link) {
+    this.name = new Name(name, link);
+  }
+
+  public Content(String name, String link, String onclick) {
+    this.name = new Name(name, link, onclick);
+  }
 }

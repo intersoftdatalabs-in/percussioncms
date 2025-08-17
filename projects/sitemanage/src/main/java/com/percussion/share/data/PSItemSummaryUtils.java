@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +17,24 @@
  */
 package com.percussion.share.data;
 
-public class PSItemSummaryUtils
-{
-    
-    /**
-     * Copy Item summary properties from a to b.
-     * @param from summary
-     * @param to summary
-     */
-    public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
-        to.setName(from.getName());
-        to.setId(from.getId());
-        to.setIcon(from.getIcon());
-        to.setType(from.getType());
-        to.setFolderPaths(from.getFolderPaths());
-        to.setCategory(from.getCategory());
-        to.setRevisionable(from.isRevisionable());
-    }
+/**
+ * Utility for copying item summary properties. Sunny Sal says: "Copy-paste, but for properties!"
+ */
+public class PSItemSummaryUtils {
 
+  /**
+   * Copy Item summary properties from one summary to another.
+   *
+   * @param from summary
+   * @param to summary
+   */
+  public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
+    to.setName(from.getName());
+    to.setId(from.getId());
+    to.setIcon(from.getIcon());
+    to.setType(from.getType());
+    to.setFolderPaths(from.getFolderPaths());
+    to.setCategory(from.getCategory());
+    to.setRevisionable(from.isRevisionable());
+  }
 }

@@ -17,19 +17,20 @@ Questions can be posted on the [Community](https://percussioncmscommunity.intsof
 The Percussion CMS is a large open source project made up of a number of modules and third party components.  When you first start exploring contributing to the project, it can be difficult to identify wich module or component contains the functionality that you want to change or file a bug for.
 
 ### Key Modules
+
 The table below outlines the most commonly used modules.
 
-| Module        | Path | Description |
-| ------------- | ------------ | --------|
-| CMLite-Main | system | This is the CMS core module.|
-| CMLite-WebUI | WebUI | This contains the primary user interface. |
-| sitemanage | projects/sitemanage | This contains the backend for the primary user interface |
-| rest | rest | This contains the public REST API implementation |
-| cui | cui | This contains the Home screen UI implementation |
-| perc-common-ui | delivery | This contains the JavaScript code for dynamic widgets used with the DTS services. |
-| delivery-tier-suite (DTS) | deliverytiersuite/delivery-tier-suite | This contains the dynamic DTS service modules. |
-| perc-distribution-tree | modules/perc-distribution-tree | This project contains the final installable CMS distribution |
-| delivery-tier-distribution | deliverytiersuite/delivery-tier-suite/delivery-tier-distribution | This project contains the installable DTS distribution |
+|           Module           |                               Path                               |                                    Description                                    |
+|----------------------------|------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| CMLite-Main                | system                                                           | This is the CMS core module.                                                      |
+| CMLite-WebUI               | WebUI                                                            | This contains the primary user interface.                                         |
+| sitemanage                 | projects/sitemanage                                              | This contains the backend for the primary user interface                          |
+| rest                       | rest                                                             | This contains the public REST API implementation                                  |
+| cui                        | cui                                                              | This contains the Home screen UI implementation                                   |
+| perc-common-ui             | delivery                                                         | This contains the JavaScript code for dynamic widgets used with the DTS services. |
+| delivery-tier-suite (DTS)  | deliverytiersuite/delivery-tier-suite                            | This contains the dynamic DTS service modules.                                    |
+| perc-distribution-tree     | modules/perc-distribution-tree                                   | This project contains the final installable CMS distribution                      |
+| delivery-tier-distribution | deliverytiersuite/delivery-tier-suite/delivery-tier-distribution | This project contains the installable DTS distribution                            |
 
 There are many more modules, but the ones listed above are the big ones.
 
@@ -43,8 +44,9 @@ Before creating bug reports, please check [this list](#before-submitting-a-bug-r
 
 > **Note:** If you find a **Closed** issue that seems like it is the same thing that you're experiencing, open a new issue and include a link to the original issue in the body of your new one.
 >
-#### Before Submitting A Bug Report
-* **Perform a [cursory search](https://github.com/search?q=+is%3Aissue+user%3Apercussion)** to see if the problem has already been reported. If it has **and the issue is still open**, add a comment to the existing issue instead of opening a new one.
+> #### Before Submitting A Bug Report
+>
+> * **Perform a [cursory search](https://github.com/search?q=+is%3Aissue+user%3Apercussion)** to see if the problem has already been reported. If it has **and the issue is still open**, add a comment to the existing issue instead of opening a new one.
 
 #### How Do I Submit A (Good) Bug Report?
 
@@ -104,7 +106,6 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 
 If you feel that you have discovered a security issue or vulnerability in any of the project modules, **please do not log a normal GitHub issue**.  Follow the process defined in the project [Security Policy](https://github.com/percussion/percussioncms/blob/development/SECURITY.md)
 
-
 ### Great, how do I get started working on Percussion CMS code?
 
 ## Developer Setup
@@ -117,11 +118,13 @@ git pull
 ```
 
 ## Pre-Requisites for Building
+
 - Apache Maven > 3.6
 - Java 1.8 OpenJDK
 - Oracle 1.8 JDK (for JavaFX) TODO: Pull JavaFX from maven
 
 ## Maven Configuration
+
 The project uses a Maven settings.xml and Maven toolchains.xml to control build properties on developer machines / CI environments.
 
 These files are located in the .m2 directory under your user home directory.
@@ -130,24 +133,25 @@ For example:
 ``` ~/.m2/settings.xml ``` or ````C:\Users\yourusername\.m2\settings.xml````
 There is a template settings.xml file in the settings-template.xml in the repository root.
 
-Several modules are signed as part of the build process.  The signing will fail without a valid keystore and certificate. 
+Several modules are signed as part of the build process.  The signing will fail without a valid keystore and certificate.
 To generate a self signed certificate and keystore for the build to use, run the following commands:
+
 ```
 cd ~/.m2
 keytool -genkey -keyalg RSA -alias selfsigned -keystore percussioncms-dev.jks -storepass 12345678 -validity 90
 ```
-Fill in your info when prompted and enter y to create the cert and keystore. 
+
+Fill in your info when prompted and enter y to create the cert and keystore.
 
 If you have a ~/.m2/settings.xml file
 Key store password properties can be encrypted in your setting.xml by following the Maven encryption guide.  https://maven.apache.org/guides/mini/guide-encryption.html
 
 ## Building
 
-
-
 ```
 mvn clean install
 ```
+
 ## Working on the Code
 
 Before you start working on a bug or feature, discuss the issue in GitHub Issues or on the percussion community.  This is just to make sure you don't duplicate efforts or waste your valuable time on something that is already underway by someone else.
@@ -182,6 +186,7 @@ Push the branch to the origin.
 ```
 git push --set-upstream origin CMS-7209
 ```
+
 From there, goto http://github.com/percussion/percussioncms/
 
 Select the branch you just pushed and request a pull request adding any comments and requesting a review from at least 1 other maintainer.  Once the pull request has been merged, you can then delete the branch on your local.
@@ -189,12 +194,14 @@ Select the branch you just pushed and request a pull request adding any comments
 ```
 git branch -d CMS-7209
 ```
+
 After this, re-sync your local development branch to get your changes and changes posted by others:
 
 ```
 git checkout development
 git pull
 ```
+
 Pick the next issue to work on and repeat the process.
 
 ## Performing a Development Install
@@ -202,13 +209,17 @@ Pick the next issue to work on and repeat the process.
 From the project directory, a local development install can be performed using the following commands after a full build has been completed.
 
 ### Percussion CMS
+
 ```
- java -jar modules/perc-distribution-tree/target/perc-distribution-tree.jar <Install Directory>
+java -jar modules/perc-distribution-tree/target/perc-distribution-tree.jar <Install Directory>
 ```
+
 ### Percussion DTS
+
 ```
 java -jar deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar <Install Directory>
 ```
+
 ### Starting Percussion CMS
 
 After running the installation, either a symbolic link, or a copy of a 1.8 JRE needs placed in the ```<Install Directory>/JRE``` location.
@@ -233,10 +244,13 @@ The developer instance can be terminated by using CTRL-C from the terminal.
 ### Debugging Percussion CMS
 
 Debugging can be enabled for the CMS by editing:
+
 ```
 <InstallDir>/jetty/base/start.d/jvm.ini
 ```
+
 file and adding the Java debug flags:
+
 ```
 # ---------------------------------------
 # Module: jvm
@@ -285,206 +299,206 @@ Note that suspend can be set to y or n.  When it is set to y, the CMS will pause
 
 Also note that the heap size (memory allocated at runtime), is also controlled by this file. We are allocating as much as 4096m of RAM by default for the CMS. The memory setting can be changed based on your system configuration to allow more or less.
 
-
 ### Logging
 
 Most activity should be logged to the server log and to the running CMS console in the terminal.  You can tweak the logging level and what gets logged by modifying the ```<InstallDir>/jetty/base/resources/log4j2.xml``` file.
 
 For example:
 
- ```
- <?xml version="1.0" encoding="UTF-8"?>
+```
+<?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn" monitorInterval="30">
-    <Appenders>
+   <Appenders>
 
-        <RollingFile name="FILE" fileName="${log4j:configParentLocation}/../logs/server.log"
-                     filePattern="${log4j:configParentLocation}/../logs/server-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout header="${env:rxDir} ${env:deployerdir} ${java:runtime} - ${java:vm} - ${java:os}" pattern="%d %-5p [%c] %m%n"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+       <RollingFile name="FILE" fileName="${log4j:configParentLocation}/../logs/server.log"
+                    filePattern="${log4j:configParentLocation}/../logs/server-%d{yyyy-MM-dd}-%i.log">
+           <PatternLayout header="${env:rxDir} ${env:deployerdir} ${java:runtime} - ${java:vm} - ${java:os}" pattern="%d %-5p [%c] %m%n"/>
+           <Policies>
+               <SizeBasedTriggeringPolicy size="10 MB" />
+           </Policies>
+           <DefaultRolloverStrategy max="10"/>
+       </RollingFile>
 
-        <RollingFile name="RXGLOBALTEMPLATES" fileName="${log4j:configParentLocation}/../logs/globaltemplate.log"
-                     filePattern="${log4j:configParentLocation}/../logs/globaltemplate-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+       <RollingFile name="RXGLOBALTEMPLATES" fileName="${log4j:configParentLocation}/../logs/globaltemplate.log"
+                    filePattern="${log4j:configParentLocation}/../logs/globaltemplate-%d{yyyy-MM-dd}-%i.log">
+           <PatternLayout>
+               <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+           </PatternLayout>
+           <Policies>
+               <SizeBasedTriggeringPolicy size="10 MB" />
+           </Policies>
+           <DefaultRolloverStrategy max="10"/>
+       </RollingFile>
 
-        <RollingFile name="VELOCITY" fileName="${log4j:configParentLocation}/../logs/velocity.log"
-                     filePattern="${log4j:configParentLocation}/../logs/velocity-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+       <RollingFile name="VELOCITY" fileName="${log4j:configParentLocation}/../logs/velocity.log"
+                    filePattern="${log4j:configParentLocation}/../logs/velocity-%d{yyyy-MM-dd}-%i.log">
+           <PatternLayout>
+               <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+           </PatternLayout>
+           <Policies>
+               <SizeBasedTriggeringPolicy size="10 MB" />
+           </Policies>
+           <DefaultRolloverStrategy max="10"/>
+       </RollingFile>
 
-        <RollingFile name="RevisionPurgeApp" fileName="${log4j:configParentLocation}/../logs/revisionPurge.log"
-                     filePattern="${log4j:configParentLocation}/../logs/revisionPurge-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+       <RollingFile name="RevisionPurgeApp" fileName="${log4j:configParentLocation}/../logs/revisionPurge.log"
+                    filePattern="${log4j:configParentLocation}/../logs/revisionPurge-%d{yyyy-MM-dd}-%i.log">
+           <PatternLayout>
+               <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+           </PatternLayout>
+           <Policies>
+               <SizeBasedTriggeringPolicy size="10 MB" />
+           </Policies>
+           <DefaultRolloverStrategy max="10"/>
+       </RollingFile>
 
-        <Console name="CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
-        </Console>
+       <Console name="CONSOLE" target="SYSTEM_OUT">
+           <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+       </Console>
 
-    </Appenders>
+   </Appenders>
 
-    <Loggers>
-        <AsyncRoot level="info" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncRoot>
+   <Loggers>
+       <AsyncRoot level="info" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncRoot>
 
-        <!-- =========================== -->
-        <!-- Setup the Percussion loggers -->
-        <!-- =========================== -->
+       <!-- =========================== -->
+       <!-- Setup the Percussion loggers -->
+       <!-- =========================== -->
 
-        <!-- Percussion turn off excessive logger from betwixt -->
-        <AsyncLogger name="org.apache.commons.betwixt.io.BeanReader" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
-        <AsyncLogger name="org.apache.commons.betwixt.digester.ElementRule" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <!-- Percussion turn off excessive logger from betwixt -->
+       <AsyncLogger name="org.apache.commons.betwixt.io.BeanReader" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
+       <AsyncLogger name="org.apache.commons.betwixt.digester.ElementRule" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <!-- Turn off excessive logging from PDF Box -->
-        <AsyncLogger name="org.apache.pdfbox" level="fatal" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <!-- Turn off excessive logging from PDF Box -->
+       <AsyncLogger name="org.apache.pdfbox" level="fatal" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.util.PDFStreamEngine" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.util.PDFStreamEngine" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.pdmodel.font.PDSimpleFont" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.pdmodel.font.PDSimpleFont" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.pdmodel.font.PDFont" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.pdmodel.font.PDFont" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.pdmodel.font.FontManager" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.pdmodel.font.FontManager" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.pdfparser.PDFObjectStreamParser" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.pdfparser.PDFObjectStreamParser" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.hibernate" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.hibernate" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.springframework" level="warn" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.springframework" level="warn" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="XmlUtil" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="XmlUtil" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="net.htmlparser.jericho" level="off" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="net.htmlparser.jericho" level="off" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.cxf" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.cxf" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.eclipse.jetty.annotations.AnnotationParser" level="OFF" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.eclipse.jetty.annotations.AnnotationParser" level="OFF" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="com.percussion" level="info" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <AsyncLogger name="com.percussion" level="info" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <!-- AsyncLogger config to be used by global template creation process -->
-        <AsyncLogger name="com.percussion.globaltemplates" level="info" includeLocation="true" additivity="false">
-            <AppenderRef ref="RXGLOBALTEMPLATES"/>
-        </AsyncLogger>
+       <!-- AsyncLogger config to be used by global template creation process -->
+       <AsyncLogger name="com.percussion.globaltemplates" level="info" includeLocation="true" additivity="false">
+           <AppenderRef ref="RXGLOBALTEMPLATES"/>
+       </AsyncLogger>
 
-        <!-- Remove info about basic auth -->
-        <AsyncLogger name="org.apache.commons.httpclient.auth.AuthChallengeProcessor" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <!-- Remove info about basic auth -->
+       <AsyncLogger name="org.apache.commons.httpclient.auth.AuthChallengeProcessor" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <!-- Change to INFO to see Metadata extraction errors -->
-        <AsyncLogger name="org.deri.any23.extractor.SingleDocumentExtraction" level="error" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+       <!-- Change to INFO to see Metadata extraction errors -->
+       <AsyncLogger name="org.deri.any23.extractor.SingleDocumentExtraction" level="error" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="org.apache.velocity" level="info" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="VELOCITY"/>
-        </AsyncLogger>
+       <AsyncLogger name="org.apache.velocity" level="info" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="VELOCITY"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="com.percussion.services.assembly.impl.plugin.PSVelocityAssembler" level="DEBUG" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="VELOCITY"/>
-        </AsyncLogger>
+       <AsyncLogger name="com.percussion.services.assembly.impl.plugin.PSVelocityAssembler" level="DEBUG" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="VELOCITY"/>
+       </AsyncLogger>
 
-        <AsyncLogger name="RevisionPurge" level="info" includeLocation="true" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="RevisionPurgeApp"/>
-        </AsyncLogger>
+       <AsyncLogger name="RevisionPurge" level="info" includeLocation="true" additivity="false">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="RevisionPurgeApp"/>
+       </AsyncLogger>
 
-       <AsyncLogger name="org.apache.shindig" level="DEBUG" includeLocation="true">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
-       <AsyncLogger name="com.percussion.delivery" level="DEBUG" includeLocation="true">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
+      <AsyncLogger name="org.apache.shindig" level="DEBUG" includeLocation="true">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
+      <AsyncLogger name="com.percussion.delivery" level="DEBUG" includeLocation="true">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
 	</AsyncLogger>
-  	<AsyncLogger name="org.apache.any23" level="DEBUG" includeLocation="true">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="FILE"/>
-        </AsyncLogger>
+ 	<AsyncLogger name="org.apache.any23" level="DEBUG" includeLocation="true">
+           <AppenderRef ref="CONSOLE"/>
+           <AppenderRef ref="FILE"/>
+       </AsyncLogger>
 
-    </Loggers>
+   </Loggers>
 </Configuration>
- 
-  ```
+
+```
+
 The log4j2 snippet above enables debug logging for a couple of Third Party components as well as for the PSVelocityAssebler class wich is responsible for rendering Velocity templates.
 
 The code base currently uses multiple logging frameworks - most of wich are funneled through Log4J2.  There are cases where a developer may have not used a framework and instead do something like:
@@ -510,13 +524,14 @@ Things that will help with Pull Request approvals:
 * Create / update unit tests for the code that you are changing / adding
 * Comment the code
 * Use i18n for messages.
+
 > **Note:** TODO:  Add link to i18n info!
 
 ### Contributor Agreement
 
 Before your pull requests can be processed or reviewed, you first must sign a Contributor Agreement linked tour GitHub account.
 
-We are using [CLA Assistant] (https://cla-assistant.io/) to track these agreements.
+We are using [CLA Assistant](https://cla-assistant.io/) to track these agreements.
 
 > **Note:** TODO: Add link to agreement
 
@@ -530,8 +545,8 @@ ready for review.
 
 * git config --global core.autocrlf true
 
-
 ### Acknowledgements
+
 * The [Atom project](https://www.github.com/atom) provided a good guideline for this document.  Thanks!
 
 :v:

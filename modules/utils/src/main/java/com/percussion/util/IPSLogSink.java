@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,44 +16,33 @@
  */
 package com.percussion.util;
 
-public interface IPSLogSink
-{
-   /**
-    * Logs the message.
-    * @author   chadloder
-    *
-    * @version 1.2 1999/08/20
-    *
-    *
-    * @param   message
-    *
-    */
-   public void log(String message);
+public interface IPSLogSink {
+  /**
+   * Logs the message.
+   *
+   * @author chadloder
+   * @version 1.2 1999/08/20
+   * @param message
+   */
+  public void log(String message);
 
-   /**
-    * Logs the exception, including a stack trace.
-    *
-    * @author   chadloder
-    *
-    * @version 1.2 1999/08/20
-    *
-    * @param   t
-    *
-    */
-   public void log(Throwable t);
+  /**
+   * Logs the exception, including a stack trace.
+   *
+   * @author chadloder
+   * @version 1.2 1999/08/20
+   * @param t
+   */
+  public void log(Throwable t);
 
-   /**
-    * Logs the exception, including a stack trace, and a message.
-    * If the message is null, it will not be logged.
-    *
-    * @author   chadloder
-    *
-    * @version 1.2 1999/08/20
-    *
-    * @param   message
-    * @param   t
-    *
-    */
-   public void log(String message, Throwable t);
-
+  /**
+   * Logs the exception, including a stack trace, and a message. If the message is null, it will not
+   * be logged.
+   *
+   * @author chadloder
+   * @version 1.2 1999/08/20
+   * @param message
+   * @param t
+   */
+  public void log(String message, Throwable t);
 }

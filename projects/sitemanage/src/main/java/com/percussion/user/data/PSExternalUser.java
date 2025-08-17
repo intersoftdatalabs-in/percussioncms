@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +19,26 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
- * An external user usually returned from a directory service.
- * 
+ * Represents an external user, usually returned from a directory service.
+ *
  * @author adamgent
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@XmlRootElement(name="ExternalUser")
+@XmlRootElement(name = "ExternalUser")
 @JsonRootName("ExternalUser")
-public class PSExternalUser extends PSAbstractUser
-{
-    private static final long serialVersionUID = 1L;
-    
-    public PSExternalUser(){
-    	super();
-    }
-    
-    public PSExternalUser(String userName){
-    	super();
-    	setName(userName);
-    }
-}
+public class PSExternalUser extends PSAbstractUser {
 
+  private static final long serialVersionUID = 1L;
+
+  public PSExternalUser() {
+    super();
+  }
+
+  public PSExternalUser(String userName) {
+    super();
+    setName(userName);
+  }
+}

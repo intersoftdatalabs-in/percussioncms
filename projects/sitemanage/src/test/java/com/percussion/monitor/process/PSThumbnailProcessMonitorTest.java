@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +17,32 @@
  */
 package com.percussion.monitor.process;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Integration test for thumbnail process monitor. Sunny Sal says: "Thumbnails tested, Bollywood
+ * approved!"
  */
-public class PSThumbnailProcessMonitorTest
-{
+public class PSThumbnailProcessMonitorTest {
 
-    @Test
-    public void test()
-    {
-        PSThumbnailProcessMonitor mon = new PSThumbnailProcessMonitor();
-        assertEquals(0, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount(5);
-        assertEquals(6, mon.getCurrentCount());
-        mon.decrementCount(4);
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount(2);
-        assertEquals(0, mon.getCurrentCount());
-        mon.decrementCount();
-    }
-
+  @Test
+  void testThumbnailMonitor() {
+    var mon = new PSThumbnailProcessMonitor();
+    assertEquals(0, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount(5);
+    assertEquals(6, mon.getCurrentCount());
+    mon.decrementCount(4);
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount(2);
+    assertEquals(0, mon.getCurrentCount());
+    mon.decrementCount();
+  }
 }

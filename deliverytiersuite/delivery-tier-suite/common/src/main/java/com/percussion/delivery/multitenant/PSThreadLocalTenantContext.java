@@ -17,50 +17,39 @@
 
 package com.percussion.delivery.multitenant;
 
-import com.percussion.delivery.multitenant.IPSTenantContext;
-
 /**
  * Tenant context that stores its context data within the thread local data.
- * @author erikserating
  *
+ * @author erikserating
  */
-public class PSThreadLocalTenantContext implements IPSTenantContext 
-{
+public class PSThreadLocalTenantContext implements IPSTenantContext {
 
-	private static ThreadLocal<String> userLocal = new ThreadLocal<>();
+  private static ThreadLocal<String> userLocal = new ThreadLocal<>();
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.percussion.delivery.multitenant.IPSTenantContext#getTenantId()
-	 */
-	public String getTenantId() 
-	{
-		return userLocal.get();
-	}
-	
-	/**
-	 * @param tenantId may be <code>null</code>, but should not be <code>empty</code>.
-	 */
-	public static void setTenantId(String tenantId)
-	{
-		userLocal.set(tenantId);
-	}
-	
-	/**
-	 * Clear the tenant id value, setting it to <code>null</code>.
-	 */
-	public static void clearTenantId()
-	{
-		userLocal.set(null);
-	}
-	
-	/**
-	 * @return <code>true</code> if the context has a tenant id set.
-	 */
-	public static boolean hasTenantId()
-	{
-		return userLocal.get() != null;
-	}
-    
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.delivery.multitenant.IPSTenantContext#getTenantId()
+   */
+  public String getTenantId() {
+    return userLocal.get();
+  }
 
+  /**
+   * @param tenantId may be <code>null</code>, but should not be <code>empty</code>.
+   */
+  public static void setTenantId(String tenantId) {
+    userLocal.set(tenantId);
+  }
+
+  /** Clear the tenant id value, setting it to <code>null</code>. */
+  public static void clearTenantId() {
+    userLocal.set(null);
+  }
+
+  /**
+   * @return <code>true</code> if the context has a tenant id set.
+   */
+  public static boolean hasTenantId() {
+    return userLocal.get() != null;
+  }
 }

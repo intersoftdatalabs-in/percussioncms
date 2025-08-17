@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.category.marshaller;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -27,50 +29,39 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.data.PSDateAdapter;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+import javax.ws.rs.ext.ContextResolver;
+import javax.xml.bind.JAXBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import jakarta.ws.rs.ext.ContextResolver;
-import jakarta.xml.bind.JAXBException;
 
 @PSSiteManageBean("categoryContextResolver")
 public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
 
-    private ObjectMapper objectMapper;
-    private Class[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
-    private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class.getName());
+  private final ObjectMapper objectMapper;
+  private final Class<?>[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
+  private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class);
 
-    public PSJAXBContextResolver() throws JAXBException {
-        //this.context =  new JSONJAXBContext(JSONConfiguration.natural().build(), types);
-        this.objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-                .setAnnotationIntrospector(AnnotationIntrospector.pair(
-                        new JacksonAnnotationIntrospector(),
-                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+  public PSJAXBContextResolver() throws JAXBException {
+    this.objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    objectMapper
+        .configure(SerializationFeature.INDENT_OUTPUT, true)
+        .setAnnotationIntrospector(
+            AnnotationIntrospector.pair(
+                new JacksonAnnotationIntrospector(),
+                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+  }
 
-	     /*
-		 objectMapper.set
-		    
-		         new JAXBContext(Json
-				 .mapped()
-				 .arrays("topLevelNodes")
-				 .arrays("childNodes")
-				 .attributeAsElement("id","title","sitename","selectable","previousCategoryName","showInPgMetaData","initialViewCollapsed","createdBy","creationDate","lastModifiedBy","lastModifiedDate","publishDate","deleted")
-				 .build(), types);
-				 */
+  @Override
+  public ObjectMapper getContext(Class<?> arg0) {
+    for (var type : types) {
+      if (type == arg0) {
+        log.debug("Check changes to PSJAXBContextResolver");
+        return this.objectMapper;
+      }
     }
-
-    @Override
-    public ObjectMapper getContext(Class<?> arg0) {
-        for (Class type : types) {
-            if (type == arg0) {
-                log.debug("Check changes to PSJaxBContextResolver");
-                return this.objectMapper;
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

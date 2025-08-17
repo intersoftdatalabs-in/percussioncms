@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,15 @@
 package com.percussion.guitools;
 
 /**
- * Listens to the paging control for events affecting the value
- * of the current page.
+ * Listens to the paging control for events affecting the value of the current page.
+ *
  * @author erikserating
  */
-public interface IPSPagingControlListener
-{
-   /**
-    * Method called by paging control whever the current page
-    * value changes.
-    * @param event never <code>null</code>.
-    */
-   public void onPageChange(PSPagingControlEvent event);
+public interface IPSPagingControlListener {
+  /**
+   * Method called by paging control whever the current page value changes.
+   *
+   * @param event never <code>null</code>.
+   */
+  public void onPageChange(PSPagingControlEvent event);
 }

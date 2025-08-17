@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,49 +21,45 @@ import static org.apache.commons.lang.Validate.*;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.IPSIdMapper;
-import com.percussion.util.PSSiteManageBean;
-import com.percussion.utils.guid.IPSGuid;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
+// REFACTORED: CP-JAVA11
 @PSSiteManageBean("itemIdResolver")
-public class PSItemIdResolver
-{
-    IPSContentDesignWs contentDesignWs;
-    IPSIdMapper idMapper;
-    
-    
-    @Autowired
-    public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper)
-    {
-        super();
-        this.contentDesignWs = contentDesignWs;
-        this.idMapper = idMapper;
-    }
+public class PSItemIdResolver {
 
+  IPSContentDesignWs contentDesignWs;
+  IPSIdMapper idMapper;
 
+  @Autowired
+  public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper) {
+    super();
+    this.contentDesignWs = contentDesignWs;
+    this.idMapper = idMapper;
+  }
 
-    public String getId(IPSAssemblyItem item) {
-        IPSGuid pageGuid = item.getId();
-        String id = idMapper.getString(pageGuid);
-        return id;
+  public String getId(IPSAssemblyItem item) {
+    var pageGuid = item.getId();
+    var id = idMapper.getString(pageGuid);
+    return id;
+  }
+
+  public String getId(PSAbstractPersistantObject item) {
+    notNull(item.getId(), "item id");
+    var guid = idMapper.getGuid(item.getId());
+    guid = contentDesignWs.getItemGuid(guid);
+    var pageId = idMapper.getString(guid);
+    return pageId;
+  }
+
+  public void updateItemId(PSAbstractPersistantObject item) {
+    if (item.getId() != null) {
+      /*
+       * We need to set the proper revisioned id on the item.
+       */
+      var pageId = getId(item);
+      item.setId(pageId);
     }
-    
-    public String getId(PSAbstractPersistantObject item) {
-        notNull(item.getId(), "item id");
-        IPSGuid guid = idMapper.getGuid(item.getId());
-        guid = contentDesignWs.getItemGuid(guid);
-        String pageId = idMapper.getString(guid);
-        return pageId;
-    }
-    
-    public void updateItemId(PSAbstractPersistantObject item) {
-        if (item.getId() != null) {
-            /*
-             * We need to set the proper revisioned id on the item.
-             */
-            String pageId = getId(item);
-            item.setId(pageId);
-        }
-    }
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,66 +26,44 @@ import com.percussion.fastforward.managednav.PSManagedNavServiceLocator;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This rule will check to see if the page is a landing page and if so, the field this rule
- * applies to will become read-only.
- * 
+ * Rule to check if the page is a landing page; if so, the field becomes read-only.
+ *
  * <pre>
  * Takes 2 required params:
- * 
  * param[0] = content_id (i.e. the pageId)
  * param[1] = revision
  * </pre>
  *
+ * Sunny Sal says: "Landing pages—where the editing journey ends!"
  */
-public class PSLandingPageFieldEditabilityRule implements IPSFieldEditabilityRule
-{
+public class PSLandingPageFieldEditabilityRule implements IPSFieldEditabilityRule {
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
-    *  com.percussion.server.IPSRequestContext)
-    */
-   @SuppressWarnings("unused")
-   public Object processUdf(Object[] params, IPSRequestContext req)
-            throws PSConversionException
-   {
-      if(m_navService == null) {
-         m_navService = PSManagedNavServiceLocator.getContentWebservice();
-      }
-      String pageId = (String)params[0];
-      String revision = (String)params[1];
-      
-      if(StringUtils.isBlank(pageId) || StringUtils.isBlank(revision)) {
-         return Boolean.TRUE;
-      }
-      IPSGuid pageGuid = new PSLegacyGuid(
-         Integer.parseInt(pageId), Integer.parseInt(revision));
-         
-      return new Boolean(m_navService.isLandingPage(pageGuid));
-   }
+  /**
+   * Managed Nav service. Initialized the first time {@link #processUdf(Object[],
+   * IPSRequestContext)} is called. Never null after that.
+   */
+  private IPSManagedNavService navService;
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
-    * java.io.File)
-    */
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File file)
-            throws PSExtensionException
-   {
-      //No-op
-      
-   }
-   
-   /**
-    * Managed Nav service. Initialized the first time {@link #processUdf(Object[], IPSRequestContext)}
-    * is called. Never <code>null</code> after that.
-    */
-   private IPSManagedNavService m_navService;
-   
-   
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
+    if (navService == null) {
+      navService = PSManagedNavServiceLocator.getContentWebservice();
+    }
+    var pageId = (String) params[0];
+    var revision = (String) params[1];
+
+    if (StringUtils.isBlank(pageId) || StringUtils.isBlank(revision)) {
+      return Boolean.TRUE;
+    }
+    IPSGuid pageGuid = new PSLegacyGuid(Integer.parseInt(pageId), Integer.parseInt(revision));
+    return navService.isLandingPage(pageGuid);
+  }
+
+  @Override
+  public void init(IPSExtensionDef def, java.io.File file) throws PSExtensionException {
+    // No-op
+  }
 }

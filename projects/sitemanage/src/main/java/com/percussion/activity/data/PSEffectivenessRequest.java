@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,48 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
- * A request object used for getting the effectiveness data from the rest service.  Extends the content activity
- * request by adding additional fields for usage and threshold. 
+ * A request object used for getting the effectiveness data from the rest service. Extends the
+ * content activity request by adding additional fields for usage and threshold.
  */
 @JsonRootName(value = "EffectivenessRequest")
-public class PSEffectivenessRequest extends PSContentActivityRequest
-{
-    /**
-     * @return the usage metric to use when calculating effectiveness.  This will be
-     */
-    public PSUsageEnum getUsage()
-    {
-        return usage;
-    }
+public class PSEffectivenessRequest extends PSContentActivityRequest {
 
-    /**
-     * @param usage the usage to set.
-     */
-    public void setUsage(PSUsageEnum usage)
-    {
-        this.usage = usage;
-    }
+  private PSUsageEnum usage;
+  private int threshold;
 
-    /**
-     * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
-     */
-    public int getThreshold()
-    {
-        return threshold;
-    }
+  /**
+   * @return the usage metric to use when calculating effectiveness.
+   */
+  public Optional<PSUsageEnum> getUsage() {
+    return Optional.ofNullable(usage);
+  }
 
-    /**
-     * @param threshold the threshold to set.
-     */
-    public void setThreshold(int threshold)
-    {
-        this.threshold = threshold;
-    }	
+  /**
+   * @param usage the usage to set.
+   */
+  public void setUsage(PSUsageEnum usage) {
+    this.usage = usage;
+  }
 
-    /**
-     * See {@link #getUsage()}.
-     */
-	private PSUsageEnum usage;
-	
-	/**
-	 * See {@link #getThreshold()}.
-	 */
-	private int threshold;
-   
+  /**
+   * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
+   */
+  public int getThreshold() {
+    return threshold;
+  }
+
+  /**
+   * @param threshold the threshold to set.
+   */
+  public void setThreshold(int threshold) {
+    this.threshold = threshold;
+  }
 }

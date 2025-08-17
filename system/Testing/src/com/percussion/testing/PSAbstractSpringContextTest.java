@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,25 @@ package com.percussion.testing;
 
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.naming.Context; // TODO: JAVAX-11
-import javax.naming.InitialContext; // TODO: JAVAX-11
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 //TODO: The spring tests need moved to a new jar.
 
-@Category({IntegrationTest.class, SpringContextTest.class})
+@Tag({IntegrationTest.class, SpringContextTest.class})
 //@WebAppConfiguration("file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF")
 @ContextConfiguration(classes = {PSSpringContextTestConfig.class})
-@IgnoreInWebAppSpringContext
+@DisabledInWebAppSpringContext
 public class PSAbstractSpringContextTest {
 
     @Autowired
@@ -46,11 +46,11 @@ public class PSAbstractSpringContextTest {
     @Autowired
     protected ConfigurableApplicationContext ctx;
 
-    @Before
+    @BeforeEach
     public  void setContext(){
         PSBaseServiceLocator.setCtx(ctx);
     }
-    @BeforeClass
+    @BeforeAll
     public static void setupJndi() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.osjava.sj.memory.MemoryContextFactory");
         System.setProperty("org.osjava.sj.jndi.shared", "true");

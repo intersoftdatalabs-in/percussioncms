@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,76 +25,65 @@ import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSystemValidationException;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/** Plan builder for performing inserts of parent content items. */
+public class PSInsertPlanBuilder extends PSModifyPlanBuilder {
+  // see superclass
+  public PSInsertPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
+    super(ceh, ce, app);
+  }
 
-/**
- * Plan builder for performing inserts of parent content items.
- */
-public class PSInsertPlanBuilder extends PSModifyPlanBuilder
-{
-   // see superclass
-   public PSInsertPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce,
-      PSApplication app)
-   {
-      super(ceh, ce, app);
-   }
+  /**
+   * Creates a plan that will perform an insert of the parent item specified by the supplied mapper.
+   * See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
+   * super.createModifyPlan()} for additional details.
+   *
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_PARENT}.
+   */
+  public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
+      throws PSSystemValidationException, SQLException {
+    if (mapper == null || fieldSet == null)
+      throw new IllegalArgumentException("one or more params is null");
 
-   /**
-    * Creates a plan that will perform an insert of the parent item specified by
-    * the supplied mapper.   See
-    * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
-    * super.createModifyPlan()} for additional details.
-    *
-    * @throws IllegalArgumentException if fieldSet type is not
-    * {@link PSFieldSet#TYPE_PARENT}.
-    */
-   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper,
-      PSFieldSet fieldSet) throws PSSystemValidationException, SQLException
-   {
-      if (mapper == null || fieldSet == null)
-         throw new IllegalArgumentException("one or more params is null");
+    if (fieldSet.getType() != PSFieldSet.TYPE_PARENT)
+      throw new IllegalArgumentException("fieldSet type must be TYPE_PARENT");
 
-      if (fieldSet.getType() != PSFieldSet.TYPE_PARENT)
-         throw new IllegalArgumentException(
-            "fieldSet type must be TYPE_PARENT");
+    PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_INSERT_PLAN);
+    PSDataMapper insertSystemMapper = null;
 
-      PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_INSERT_PLAN);
-      PSDataMapper insertSystemMapper = null;
+    String insertRequestName = "Insert" + mapper.getId();
 
-      String insertRequestName = "Insert" + mapper.getId();
+    // create the parent insert system mapper
+    ArrayList insertSysMappings = PSApplicationBuilder.getSystemInsertMappings(m_ceHandler, m_ce);
+    insertSystemMapper =
+        PSApplicationBuilder.createSystemMappings(
+            addTableKeys(insertSysMappings, mapper, fieldSet).iterator());
 
-      // create the parent insert system mapper
-      ArrayList insertSysMappings =
-         PSApplicationBuilder.getSystemInsertMappings(m_ceHandler, m_ce);
-      insertSystemMapper = PSApplicationBuilder.createSystemMappings(
-         addTableKeys(insertSysMappings, mapper, fieldSet).iterator());
+    // create the resource
+    PSApplicationBuilder.createInsertDataset(
+        m_internalApp, insertRequestName, m_ce, mapper, null, insertSystemMapper);
 
-      // create the resource
-      PSApplicationBuilder.createInsertDataset(m_internalApp, insertRequestName,
-         m_ce, mapper, null, insertSystemMapper);
+    // add to plan
+    plan.addModifyStep(
+        new PSUpdateStep(
+            insertRequestName,
+            m_internalApp.getRequestTypeHtmlParamName(),
+            m_internalApp.getRequestTypeValueInsert()));
 
-      // add to plan
-      plan.addModifyStep(new PSUpdateStep(insertRequestName,
-         m_internalApp.getRequestTypeHtmlParamName(),
-         m_internalApp.getRequestTypeValueInsert()));
+    // add all binary fields to plan as they are all changed each time
+    Map binFieldMap = new HashMap();
+    Iterator binFields = getBinaryFields(fieldSet).iterator();
+    while (binFields.hasNext()) {
+      PSField binField = (PSField) binFields.next();
+      binFieldMap.put(binField.getSubmitName(), null);
+    }
+    plan.setBinaryFields(binFieldMap);
 
-      // add all binary fields to plan as they are all changed each time
-      Map binFieldMap = new HashMap();
-      Iterator binFields = getBinaryFields(fieldSet).iterator();
-      while (binFields.hasNext())
-      {
-         PSField binField = (PSField)binFields.next();
-         binFieldMap.put(binField.getSubmitName(), null);
-      }
-      plan.setBinaryFields(binFieldMap);
-
-      return plan;
-   }
-         
+    return plan;
+  }
 }

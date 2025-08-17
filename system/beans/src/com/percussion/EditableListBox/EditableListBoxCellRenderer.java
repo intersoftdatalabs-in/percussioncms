@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ package com.percussion.EditableListBox;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.io.Serializable;
 
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JTable; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * The standard class for rendering (displaying) individual cells
@@ -36,7 +35,7 @@ import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
  * @see JTable
  */
 public class EditableListBoxCellRenderer extends JLabel
-    implements TableCellRenderer, Serializable
+    implements TableCellRenderer
 {
 
     protected static Border noFocusBorder; 

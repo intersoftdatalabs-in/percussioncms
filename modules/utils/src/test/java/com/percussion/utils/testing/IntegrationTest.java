@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,15 @@
 package com.percussion.utils.testing;
 
 /**
- * Add an annotation to a test to mark it as an integration test for Maven
- * @Category(IntegrationTest.class)
- * 
- * add to surefire plugin
- * <excludedGroups>com.percussion.utils.testing.IntegrationTest</excludedGroups>
- * 
- * add to failsafe plugin
- * 
- * <groups>com.percussion.utils.testing.IntegrationTest</groups>
- * 
- * @author stephenbolton
+ * Add an annotation to a test to mark it as an integration test for Maven @Tag("IntegrationTest")
  *
+ * <p>add to surefire plugin
+ * <excludedGroups>com.percussion.utils.testing.IntegrationTest</excludedGroups>
+ *
+ * <p>add to failsafe plugin
+ *
+ * <p><groups>com.percussion.utils.testing.IntegrationTest</groups>
+ *
+ * @author stephenbolton
  */
-public interface IntegrationTest
-{
-
-}
+public interface IntegrationTest {}

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.percussion.delivery.integrations.ems.model.Building;
 import com.percussion.delivery.integrations.ems.model.EventType;
 import com.percussion.delivery.integrations.ems.model.GroupType;
 import com.percussion.delivery.integrations.ems.model.Status;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -37,12 +37,12 @@ import service.web.api.ems.dea.ArrayOfInt;
 import service.web.api.ems.dea.Service;
 import service.web.api.ems.dea.ServiceSoap;
 
-import javax.xml.datatype.DatatypeConfigurationException; // TODO: JAVAX-11
-import javax.xml.datatype.DatatypeFactory; // TODO: JAVAX-11
-import javax.xml.datatype.XMLGregorianCalendar; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import jakarta.xml.datatype.DatatypeConfigurationException;
+import jakarta.xml.datatype.DatatypeFactory;
+import jakarta.xml.datatype.XMLGregorianCalendar;
+import jakarta.xml.parsers.DocumentBuilder;
+import jakarta.xml.parsers.DocumentBuilderFactory;
+import jakarta.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;

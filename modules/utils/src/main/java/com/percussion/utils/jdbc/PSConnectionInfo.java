@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,23 @@
  */
 package com.percussion.utils.jdbc;
 
-/**
- * Simple concrete implementation of the {@link IPSConnectionInfo} interface.
- */
-public class PSConnectionInfo implements IPSConnectionInfo
-{
-   /**
-    * Construct from datasource name.
-    * 
-    * @param datasource The name, may be <code>null</code> or empty to indicate
-    * the repository connection.
-    */
-   public PSConnectionInfo(String datasource)
-   {
-      m_datasource = datasource;
-   }
-   
-   // see IPSConnectionInfo interface.
-   public String getDataSource()
-   {
-      return m_datasource;
-   }
-   
-   /**
-    * The datasource name supplied during construction, immutable after that.
-    */
-   private String m_datasource;
-}
+/** Simple concrete implementation of the {@link IPSConnectionInfo} interface. */
+public class PSConnectionInfo implements IPSConnectionInfo {
+  /**
+   * Construct from datasource name.
+   *
+   * @param datasource The name, may be <code>null</code> or empty to indicate the repository
+   *     connection.
+   */
+  public PSConnectionInfo(String datasource) {
+    m_datasource = datasource;
+  }
 
+  // see IPSConnectionInfo interface.
+  public String getDataSource() {
+    return m_datasource;
+  }
+
+  /** The datasource name supplied during construction, immutable after that. */
+  private String m_datasource;
+}

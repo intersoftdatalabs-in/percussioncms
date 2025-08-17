@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.schedule.impl;
 
 import com.percussion.services.utils.general.PSServiceConfigurationBean;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
+
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
-import javax.naming.NamingException; // TODO: JAVAX-11
-import org.apache.commons.lang.StringUtils;
+import javax.naming.NamingException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.Scheduler;
@@ -36,261 +39,223 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * Bean to create and configure a Quartz scheduler.
- * Always returns the same scheduler object.
+ * Bean to create and configure a Quartz scheduler with Java 11 enhancements.
+ * Always returns the same scheduler object with enhanced type safety and error handling.
  *
  * @see Scheduler
  * @author Andriy Palamarchuk
  */
-public class PSSchedulerBean implements FactoryBean, InitializingBean
-{
-   // see base
-   public void afterPropertiesSet() throws SchedulerException
-   {
-      validateBeanProperties();
-      finishConfiguration();
-      setConnectionProviderDatasourceManager();
+public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean {
 
-      final StdSchedulerFactory factory = new StdSchedulerFactory();
-      m_quartzProperties.putAll(getConfigurationBean().getQuartzProperties());
-      factory.initialize(m_quartzProperties);      
-      m_scheduler = factory.getScheduler();
+    @Override
+    public void afterPropertiesSet() throws SchedulerException {
+        validateBeanProperties();
+        finishConfiguration();
+        setConnectionProviderDatasourceManager();
 
-      if (ms_log.isDebugEnabled())
-         ms_log.debug("Quartz properties: " + m_quartzProperties);
-   }
-   
-   /**
-    * Shutsdown the quartz scheduler. This will be called from spring
-    * via "destroy-method" XML attribute. See beans.xml.
-    * 
-    * @throws SchedulerException
-    * @author adamgent
-    * @author peterfrontiero
-    */
-   public void destroy() throws SchedulerException {
-      if (m_scheduler != null)
-          m_scheduler.shutdown();
-   }
+        var factory = new StdSchedulerFactory();
+        var configBean = getConfigurationBean();
+        if (configBean != null && configBean.getQuartzProperties() != null) {
+            m_quartzProperties.putAll(configBean.getQuartzProperties());
+        }
+        factory.initialize(m_quartzProperties);
+        m_scheduler = factory.getScheduler();
 
-   /**
-    * Initializes {@link PSRhythmyxConnectionProvider} with the current
-    * datasource manager.
-    */
-   void setConnectionProviderDatasourceManager()
-   {
-      PSRhythmyxConnectionProvider.setDatasourceManager(m_datasourceManager);
-   }
+        if (ms_log.isDebugEnabled()) {
+            ms_log.debug("Quartz properties: {}", m_quartzProperties);
+        }
+    }
 
-   /**
-    * Finishes generating Quartz configuration.
-    */
-   private void finishConfiguration()
-   {
-      configureDriverDelegate();
-      qualifyTableName();
-   }
+    /**
+     * Shuts down the quartz scheduler. This will be called from spring
+     * via "destroy-method" XML attribute. See beans.xml.
+     *
+     * @throws SchedulerException if shutdown fails
+     * @author adamgent
+     * @author peterfrontiero
+     */
+    public void destroy() throws SchedulerException {
+        Optional.ofNullable(m_scheduler)
+                .ifPresent(scheduler -> {
+                    try {
+                        scheduler.shutdown();
+                    } catch (SchedulerException e) {
+                        ms_log.error("Failed to shutdown scheduler: {}", e.getMessage(), e);
+                        throw new RuntimeException("Scheduler shutdown failed", e);
+                    }
+                });
+    }
 
-   /**
-    * Sets the "tablePrefix" Quartz job store property, so that Quartz generates
-    * SQL with fully qualified table names.
-    */
-   private void qualifyTableName()
-   {
-      final String s = m_quartzProperties.getProperty(TABLE_PREFIX_PROPERTY);
-      if (StringUtils.isBlank(s))
-      {
-         throw new IllegalArgumentException("Quartz property "
-               + TABLE_PREFIX_PROPERTY + " must have a non-empty value");
-      }
-      final String prefix = StringUtils.isBlank(s) ? "" : s;
-      final PSConnectionDetail d = getConnectionDetail();
-      final String qualifiedPrefix = PSSqlHelper.qualifyTableName(
-            prefix, d.getDatabase(), d.getOrigin(), d.getDriver());
-      m_quartzProperties.setProperty(TABLE_PREFIX_PROPERTY, qualifiedPrefix);
-   }
+    /**
+     * Initializes PSRhythmyxConnectionProvider with the current
+     * datasource manager.
+     */
+    void setConnectionProviderDatasourceManager() {
+        PSRhythmyxConnectionProvider.setDatasourceManager(m_datasourceManager);
+    }
 
-   /**
-    * Configures driver delegate property.
-    * Quartz has a number of database driver delegates, which generate
-    * database-specific SQL.
-    */
-   private void configureDriverDelegate()
-   {
-      final String driver = getConnectionDetail().getDriver();
-      if (StringUtils.isBlank(driver)
-            || !ms_delegates.containsKey(driver))
-      {
-         throw new IllegalArgumentException("Unrecognized database: \""
-               + driver + "\"");
-      }
-      m_quartzProperties.put("org.quartz.jobStore.driverDelegateClass",
-            ms_delegates.get(driver));
-   }
+    /**
+     * Finishes generating Quartz configuration.
+     */
+    private void finishConfiguration() {
+        configureDriverDelegate();
+        qualifyTableName();
+    }
 
-   /**
-    * Database connection detail for the repository data source.
-    * @return the database connection detail. Not <code>null</code>.
-    */
-   private PSConnectionDetail getConnectionDetail()
-   {
-      try
-      {
-         return m_datasourceManager.getConnectionDetail(null);
-      }
-      catch (NamingException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (SQLException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+    /**
+     * Sets the "tablePrefix" Quartz job store property, so that Quartz generates
+     * SQL with fully qualified table names.
+     */
+    private void qualifyTableName() {
+        var tablePrefix = Optional.ofNullable(m_quartzProperties.getProperty(TABLE_PREFIX_PROPERTY))
+                .filter(StringUtils::isNotBlank)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Quartz property " + TABLE_PREFIX_PROPERTY + " must have a non-empty value"));
 
-   /**
-    * Throws IllegalArgumentException if incomplete data was specified
-    * for the bean.
-    */
-   private void validateBeanProperties()
-   {
-      if (m_quartzProperties == null || m_quartzProperties.isEmpty())
-      {
-         throw new IllegalArgumentException(
-               "Quartz properties were not specified.");
-      }
-      if (m_datasourceManager == null)
-      {
-         throw new IllegalArgumentException("Data source was not specified");
-      }
-   }
+        var connectionDetail = getConnectionDetail();
+        var qualifiedPrefix = PSSqlHelper.qualifyTableName(
+                tablePrefix,
+                connectionDetail.getDatabase(),
+                connectionDetail.getOrigin(),
+                connectionDetail.getDriver());
 
-   /**
-    * @see #ms_delegates
-    * @return newly created Quartz delegates map.
-    * Never <code>null</code> or empty.
-    */
-   private static Map<String, String> createDelegates()
-   {
-      final Map<String, String> delegates = new HashMap<>();
-      final String msSqlDelegate = "org.quartz.impl.jdbcjobstore.MSSQLDelegate";
-      final String oracleDelegate = "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate";
-      final String db2Delegate = "org.quartz.impl.jdbcjobstore.DB2v8Delegate";
-      final String derbyDelegate = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
-      final String mysqlDelegate = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
+        m_quartzProperties.setProperty(TABLE_PREFIX_PROPERTY, qualifiedPrefix);
+    }
 
-      //@TODO: Fix me - this should not be hardcoded and should come from PSJDBCUtils
-      delegates.put("jtds:sqlserver", msSqlDelegate);
-      delegates.put("inetdae7", msSqlDelegate);
-      delegates.put("sqlserver", msSqlDelegate);
-      delegates.put("oracle:thin", oracleDelegate);
-      delegates.put("db2", db2Delegate);
-      delegates.put("derby", derbyDelegate);
-      delegates.put("mysql", mysqlDelegate);
+    /**
+     * Configures driver delegate property.
+     * Quartz has a number of database driver delegates, which generate
+     * database-specific SQL.
+     */
+    private void configureDriverDelegate() {
+        var connectionDetail = getConnectionDetail();
+        var driver = connectionDetail.getDriver();
 
-      return Collections.unmodifiableMap(delegates);
-   }
+        var delegateClass = Optional.ofNullable(driver)
+                .filter(StringUtils::isNotBlank)
+                .map(DRIVER_DELEGATES::get)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unrecognized database driver: \"" + driver + "\""));
 
-   /**
-    * The Quartz properties to be passed to the scheduler factory.
-    * Must be specified in the Spring bean configuration.
-    * @param quartzProperties the properties to set.
-    * Can't be <code>null</code> or empty
-    * (validated during {@link #afterPropertiesSet()}).
-    */
-   public void setQuartzProperties(Properties quartzProperties)
-   {
-      m_quartzProperties = quartzProperties;
-   }
+        m_quartzProperties.put("org.quartz.jobStore.driverDelegateClass", delegateClass);
+    }
 
-   public Properties getQuartzProperties()
-   {
-      return m_quartzProperties;
-   }
+    /**
+     * Database connection detail for the repository data source.
+     *
+     * @return the database connection detail, never null
+     * @throws RuntimeException if connection details cannot be retrieved
+     */
+    private PSConnectionDetail getConnectionDetail() {
+        try {
+            return m_datasourceManager.getConnectionDetail(null);
+        } catch (NamingException | SQLException e) {
+            ms_log.error("Failed to get connection details: {}", e.getMessage(), e);
+            throw new RuntimeException("Unable to retrieve database connection details", e);
+        }
+    }
 
-   // see base
-   public Object getObject()
-   {
-      return m_scheduler;
-   }
+    /**
+     * Validates that all required bean properties have been set.
+     *
+     * @throws IllegalArgumentException if incomplete data was specified for the bean
+     */
+    private void validateBeanProperties() {
+        if (m_quartzProperties == null || m_quartzProperties.isEmpty()) {
+            throw new IllegalArgumentException("Quartz properties were not specified");
+        }
+        if (m_datasourceManager == null) {
+            throw new IllegalArgumentException("Data source manager was not specified");
+        }
+    }
 
-   // see base
-   public Class<?> getObjectType()
-   {
-      return Scheduler.class;
-   }
+    /**
+     * The Quartz properties to be passed to the scheduler factory.
+     * Must be specified in the Spring bean configuration.
+     *
+     * @param quartzProperties the properties to set, cannot be null or empty
+     */
+    public void setQuartzProperties(Properties quartzProperties) {
+        m_quartzProperties = Objects.requireNonNull(quartzProperties, "Quartz properties cannot be null");
+    }
 
-   /**
-    * Returns <code>true</code>. Returns the same scheduler factory object.
-    * {@inheritDoc}
-    */
-   public boolean isSingleton()
-   {
-      return true;
-   }
+    public Properties getQuartzProperties() {
+        return m_quartzProperties;
+    }
 
-   /**
-    * The datasource manager to use for providing database connections
-    * during Quartz initialization.
-    * Must be specified in the Spring bean configuration.
-    * @param datasourceManager the datasource manager to set.
-    * Not <code>null</code>.
-    */
-   public void setDatasourceManager(IPSDatasourceManager datasourceManager)
-   {
-      m_datasourceManager = datasourceManager;
-   }
-   
-   /**
-    * @return the configurationBean
-    */
-   public PSServiceConfigurationBean getConfigurationBean()
-   {
-      return m_configurationBean;
-   }
+    @Override
+    public Scheduler getObject() {
+        return m_scheduler;
+    }
 
-   /**
-    * @param configurationBean the configurationBean to set
-    */
-   public void setConfigurationBean(
-         PSServiceConfigurationBean configurationBean)
-   {
-      m_configurationBean = configurationBean;
-   }
-   
-   /**
-    * Service configuration bean. It is fired by Spring bean configuration.
-    */
-   private PSServiceConfigurationBean m_configurationBean;
-   
-   /**
-    * A mappings between a JDBC driver name and a Quartz database delegate. 
-    */
-   private final static Map<String, String> ms_delegates = createDelegates();
+    @Override
+    public Class<Scheduler> getObjectType() {
+        return Scheduler.class;
+    }
 
-   /**
-    * Quartz table prefix property name. 
-    */
-   private static final String TABLE_PREFIX_PROPERTY =
-         "org.quartz.jobStore.tablePrefix";
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
 
-   /**
-    * Not null after the bean is initialized.
-    */
-   private Scheduler m_scheduler;
+    /**
+     * The datasource manager to use for providing database connections
+     * during Quartz initialization.
+     *
+     * @param datasourceManager the datasource manager to set, cannot be null
+     */
+    public void setDatasourceManager(IPSDatasourceManager datasourceManager) {
+        m_datasourceManager = Objects.requireNonNull(datasourceManager, "Datasource manager cannot be null");
+    }
 
-   /**
-    * @see #setQuartzProperties(Properties)
-    */
-   private Properties m_quartzProperties;
+    public PSServiceConfigurationBean getConfigurationBean() {
+        return m_configurationBean;
+    }
 
-   /**
-    * @see #setDatasourceManager(IPSDatasourceManager)
-    */
-   private IPSDatasourceManager m_datasourceManager;
-   
-   /**
-    * Logger
-    */
-   private static final Logger ms_log = LogManager.getLogger(PSSchedulerBean.class);
+    public void setConfigurationBean(PSServiceConfigurationBean configurationBean) {
+        m_configurationBean = Objects.requireNonNull(configurationBean, "Configuration bean cannot be null");
+    }
+
+    /**
+     * Service configuration bean. It is fired by Spring bean configuration.
+     */
+    private PSServiceConfigurationBean m_configurationBean;
+
+    /**
+     * A mapping between JDBC driver names and Quartz database delegates.
+     */
+    private static final Map<String, String> DRIVER_DELEGATES = Map.of(
+            "jtds:sqlserver", "org.quartz.impl.jdbcjobstore.MSSQLDelegate",
+            "inetdae7", "org.quartz.impl.jdbcjobstore.MSSQLDelegate",
+            "sqlserver", "org.quartz.impl.jdbcjobstore.MSSQLDelegate",
+            "oracle:thin", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate",
+            "db2", "org.quartz.impl.jdbcjobstore.DB2v8Delegate",
+            "derby", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
+            "mysql", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"
+    );
+
+    /**
+     * Quartz table prefix property name.
+     */
+    private static final String TABLE_PREFIX_PROPERTY = "org.quartz.jobStore.tablePrefix";
+
+    /**
+     * The Quartz scheduler instance, not null after bean initialization.
+     */
+    private Scheduler m_scheduler;
+
+    /**
+     * Quartz configuration properties.
+     */
+    private Properties m_quartzProperties;
+
+    /**
+     * Datasource manager for database connections.
+     */
+    private IPSDatasourceManager m_datasourceManager;
+
+    /**
+     * Logger for this class.
+     */
+    private static final Logger ms_log = LogManager.getLogger(PSSchedulerBean.class);
 }

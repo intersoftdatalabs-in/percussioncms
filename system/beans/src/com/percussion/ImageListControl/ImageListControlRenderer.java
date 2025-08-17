@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,20 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.io.Serializable;
 
-import javax.swing.JLabel; // TODO: JAVAX-11
-import javax.swing.JList; // TODO: JAVAX-11
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.ListCellRenderer; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 /** The renderer that uses the data within the ImageListControlModel and
   * prepares the data to be displayed onscreen as a GUI component.
 */
 
 class ImageListControlRenderer extends JPanel
-                               implements ListCellRenderer, Serializable
+                               implements ListCellRenderer<ImageListItem>
 {
   public ImageListControlRenderer()
   {
@@ -58,7 +58,8 @@ class ImageListControlRenderer extends JPanel
 /** Implementation of ListCellRenderer interface for the special layout of this
   * horizontal image list.
 */
-  public Component getListCellRendererComponent(JList list,
+  @Override
+  public Component getListCellRendererComponent(JList<? extends ImageListItem> list,
                                                  Object value,
                                                 int index,
                                                 boolean isSelected,
@@ -117,14 +118,14 @@ class ImageListControlRenderer extends JPanel
     // the text is greater than 2 lines.
     if (textWidth > iconWidth * 4)
     {
-      int totalChars;
+      // int totalChars; // Removed unused variable
       // *** not sure if I should do this... ***  (column.width != char.width)
       if (nChars >= 10)
         m_textLabel.setColumns(nChars - (nChars/2 - 1));
       else
         m_textLabel.setColumns(nChars);
       // ***
-      String endString = new String("...");
+      // String endString = new String("..."); // Removed unused variable
 
       m_textLabel.setRows(3);
     }

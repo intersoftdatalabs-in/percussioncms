@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,66 +15,56 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-/**
- * A request object used for getting the content traffic data from the rest service. 
- */
+/** A request object used for getting the content traffic data from the rest service. */
 @JsonRootName(value = "ContentTrafficRequest")
-public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements Serializable  
-{
-	
-	/**
-     * Default serial version
-     */
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * Get granularity of date list.
-     * @return Option returned is DAYS,WEEKS,MONTHS,or YEARS.
-     */
-    public String getGranularity()
-    {
-        return granularity;
-    }
-    
-    /**
-     * @return trafficRequested list of types of date that is getting requested.
-     * Options are: livePages,pageUpdates,newPages,takeDowns,visits
-     */
-    public List<String> getTrafficRequested()
-    {
-        return trafficRequested;
-    }
-    
-    /**
-     * Sets granularity of date list returned.  Options are DAYS,WEEKS,MONTHS,YEARS.
-     * @param granularity
-     */
-    public void setGranularity(String granularity)
-    {
-        this.granularity = granularity;
-    }
-    
-    /**
-     * List of traffic data types that is getting requested.
-     * Options are: livePages,pageUpdates,newPages,takeDowns,visits
-     * @param trafficRequested
-     */
-    public void setTrafficRequested(List<String> trafficRequested)
-    {
-        this.trafficRequested = trafficRequested;
-    }
-    
-    //See getters for javadoc
-	private String granularity;
-	private List<String> trafficRequested;
- 
+public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  private String granularity;
+  private List<String> trafficRequested;
+
+  /**
+   * Get granularity of date list.
+   *
+   * @return Option returned is DAYS,WEEKS,MONTHS,or YEARS.
+   */
+  public Optional<String> getGranularity() {
+    return Optional.ofNullable(granularity);
+  }
+
+  /**
+   * @return trafficRequested list of types of date that is getting requested. Options are:
+   *     livePages,pageUpdates,newPages,takeDowns,visits
+   */
+  public Optional<List<String>> getTrafficRequested() {
+    return Optional.ofNullable(trafficRequested);
+  }
+
+  /**
+   * Sets granularity of date list returned. Options are DAYS,WEEKS,MONTHS,YEARS.
+   *
+   * @param granularity
+   */
+  public void setGranularity(String granularity) {
+    this.granularity = granularity;
+  }
+
+  /**
+   * List of traffic data types that is getting requested. Options are:
+   * livePages,pageUpdates,newPages,takeDowns,visits
+   *
+   * @param trafficRequested
+   */
+  public void setTrafficRequested(List<String> trafficRequested) {
+    this.trafficRequested = trafficRequested;
+  }
 }

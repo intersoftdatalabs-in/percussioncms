@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,168 +18,158 @@
 package com.percussion.rest.assets;
 
 import com.percussion.rest.Status;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
-import jakarta.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import javax.ws.rs.core.StreamingOutput;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
 @Component
 @Lazy
-public class AssetTestAdaptor  implements IAssetAdaptor {
+public class AssetTestAdaptor implements IAssetAdaptor {
 
-	 
-	@Override
-	public Collection<Asset> getSharedAssets(URI baseURI, String path, String type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Collection<Asset> getSharedAssets(URI baseURI, String path, String type) {
+    return null;
+  }
 
-	@Override
-	public Asset getSharedAsset(URI baseURI, String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset getSharedAsset(URI baseURI, String id) {
+    return null;
+  }
 
-	@Override
-	public Asset getSharedAssetByPath(URI baseURI, String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset getSharedAssetByPath(URI baseURI, String path) {
+    return null;
+  }
 
-	@Override
-	public Status deleteSharedAsset(String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Status deleteSharedAsset(String id) {
+    return null;
+  }
 
-	@Override
-	public Status deleteSharedAssetByPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Status deleteSharedAssetByPath(String path) {
+    return null;
+  }
 
-	@Override
-	public Asset createOrUpdateSharedAsset(URI baseURI, String path, Asset asset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset createOrUpdateSharedAsset(URI baseURI, String path, Asset asset) {
+    return null;
+  }
 
-	@Override
-	public Asset updateSharedAsset(URI baseURI, String id, Asset asset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset updateSharedAsset(URI baseURI, String id, Asset asset) {
+    return null;
+  }
 
-	@Override
-	public Asset createSharedAsset(URI baseURI, String path, Asset asset) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset createSharedAsset(URI baseURI, String path, Asset asset) {
+    return null;
+  }
 
-	@Override
-	public Asset uploadBinary(URI baseURI, String path, String assetType, InputStream inputStream,
-			String uploadFilename, String fileMimeType, boolean forceCheckOut) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public Asset uploadBinary(
+      URI baseURI,
+      String path,
+      String assetType,
+      InputStream inputStream,
+      String uploadFilename,
+      String fileMimeType,
+      boolean forceCheckOut) {
+    return null;
+  }
 
-	@Override
-	public StreamingOutput getBinary(String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public StreamingOutput getBinary(String path) {
+    return null;
+  }
 
-	@Override
-	public Asset renameSharedAsset(URI baseURI, String Site, String folder, String name, String newName) {
-		Asset a = new Asset();
-		
-		a.setFolderPath(folder);
-		a.setName(newName);
-		return a;
-	}
+  @Override
+  public Asset renameSharedAsset(
+      URI baseURI, String site, String folder, String name, String newName) {
+    var a = new Asset();
+    a.setFolderPath(folder);
+    a.setName(newName);
+    return a;
+  }
 
-	@Override
-	public List<String> nonADACompliantImagesReport(URI baseUri) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public List<String> nonADACompliantImagesReport(URI baseUri) {
+    return null;
+  }
 
-	@Override
-	public List<String> nonADACompliantFilesReport(URI baseUri) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public List<String> nonADACompliantFilesReport(URI baseUri) {
+    return null;
+  }
 
-	@Override
-	public List<String> allImagesReport(URI baseUri) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public List<String> allImagesReport(URI baseUri) {
+    return null;
+  }
 
-	@Override
-	public List<String> allFilesReport(URI baseUri) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public List<String> allFilesReport(URI baseUri) {
+    return null;
+  }
 
-	@Override
-	public Status bulkupdateNonADACompliantImages(URI baseUri, InputStream inputStream) {
-		return new Status();
-	}
+  @Override
+  public Status bulkupdateNonADACompliantImages(URI baseUri, InputStream inputStream) {
+    return new Status();
+  }
 
-	@Override
-	public Status bulkupdateNonADACompliantFiles(URI baseUri, InputStream inputStream) {
-		return new Status();
-		
-	}
+  @Override
+  public Status bulkupdateNonADACompliantFiles(URI baseUri, InputStream inputStream) {
+    return new Status();
+  }
 
-	@Override
-	public Status bulkupdateImageAssets(URI baseUri, InputStream inputStream) {
-		return new Status();
-		
-	}
+  @Override
+  public Status bulkupdateImageAssets(URI baseUri, InputStream inputStream) {
+    return new Status();
+  }
 
-	@Override
-	public Status bulkupdateFileAssets(URI baseUri, InputStream inputStream) {
-		return new Status();
-	}
+  @Override
+  public Status bulkupdateFileAssets(URI baseUri, InputStream inputStream) {
+    return new Status();
+  }
 
+  @Override
+  public int approveAllAssets(URI baseUri, String folder) {
+    return 0;
+  }
 
+  @Override
+  public List<String> previewAssetImport(
+      URI baseUri,
+      String osFolder,
+      String assetFolder,
+      boolean replace,
+      boolean onlyIfDifferent,
+      boolean autoApprove) {
+    return null;
+  }
 
-	@Override
-	public int approveAllAssets(URI baseUri, String folder) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+  @Override
+  public void assetImport(
+      URI baseUri,
+      String osFolder,
+      String assetFolder,
+      boolean replace,
+      boolean onlyIfDifferent,
+      boolean autoApprove) {
+    // No-op for test adaptor
+  }
 
-	@Override
-	public List<String> previewAssetImport(URI baseUri, String osFolder, String assetFolder, boolean replace,
-										   boolean onlyIfDifferent, boolean autoApprove) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public int archiveAllAsets(URI baseUri, String folder) {
+    return 0;
+  }
 
-	@Override
-	public void assetImport(URI baseUri, String osFolder, String assetFolder, boolean replace, boolean onlyIfDifferent,
-							boolean autoApprove) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public int archiveAllAsets(URI baseUri, String folder) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int submitForReviewAllAsets(URI baseUri, String folder) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
+  @Override
+  public int submitForReviewAllAsets(URI baseUri, String folder) {
+    return 0;
+  }
 }

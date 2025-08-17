@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ package com.percussion.cx;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSMenuBar;
 
-import javax.swing.JMenu; // TODO: JAVAX-11
-import javax.swing.JMenuBar; // TODO: JAVAX-11
-import javax.swing.JPopupMenu; // TODO: JAVAX-11
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JPopupMenu;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

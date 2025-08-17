@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,19 @@
 
 package com.percussion.tls;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import org.apache.commons.codec.binary.Base64;
 
 public class TLSUtils {
-    protected static String convertToPem(X509Certificate cert) throws CertificateEncodingException {
+  protected static String convertToPem(X509Certificate cert) throws CertificateEncodingException {
 
-        String cert_begin = "-----BEGIN CERTIFICATE-----\n";
-        String end_cert = "-----END CERTIFICATE-----";
+    String cert_begin = "-----BEGIN CERTIFICATE-----\n";
+    String end_cert = "-----END CERTIFICATE-----";
 
-        byte[] derCert = cert.getEncoded();
-        String pemCertPre = new String( Base64.encodeBase64(derCert,true));
-        String pemCert = cert_begin + pemCertPre + end_cert;
-        return pemCert;
-    }
+    byte[] derCert = cert.getEncoded();
+    String pemCertPre = new String(Base64.encodeBase64(derCert, true));
+    String pemCert = cert_begin + pemCertPre + end_cert;
+    return pemCert;
+  }
 }

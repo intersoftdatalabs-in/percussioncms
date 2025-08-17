@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,38 +19,38 @@
 package com.percussion.monitor.service;
 
 import com.percussion.share.data.PSMapWrapper;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Implementation of {@link IPSMonitor}. Sunny Sal says: "Monitor class: keeping an eye on your
+ * stats!"
+ */
 @XmlRootElement
 public class PSMonitor implements IPSMonitor {
 
-	private static final String MESSAGE_DESIGNATOR = "message";
-	private static final String STATUS_DESIGNATOR = "status";
-	
-	@XmlElement
-	public PSMapWrapper stats = new PSMapWrapper();
-	
-	@Override
-	public PSMapWrapper getStats() {
-		return stats;
-	}
+  private static final String MESSAGE_DESIGNATOR = "message";
+  private static final String STATUS_DESIGNATOR = "status";
 
-	@Override
-	public void setStat(String designator, String stat) {
-		stats.getEntries().put(designator, stat);
-	}
+  @XmlElement public PSMapWrapper stats = new PSMapWrapper();
 
+  @Override
+  public PSMapWrapper getStats() {
+    return stats;
+  }
 
-	@Override
-	public void setMessage(String message) {
-		stats.getEntries().put(PSMonitor.MESSAGE_DESIGNATOR, message);
-	}
+  @Override
+  public void setStat(String designator, String stat) {
+    stats.getEntries().put(designator, stat);
+  }
 
-	@Override
-	public void setStatus(String status) {
-		stats.getEntries().put(PSMonitor.STATUS_DESIGNATOR, status);
-		
-	}
+  @Override
+  public void setMessage(String message) {
+    stats.getEntries().put(MESSAGE_DESIGNATOR, message);
+  }
 
+  @Override
+  public void setStatus(String status) {
+    stats.getEntries().put(STATUS_DESIGNATOR, status);
+  }
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +17,27 @@
  */
 package com.percussion.pagemanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents an empty page used
- * for template layout mode.
- * <p>
- * See Null Object pattern.
- * @author adamgent
+ * Represents an empty page used for template layout mode. Implements the Null Object pattern.
  *
+ * @author adamgent
  */
 @XmlRootElement
-public final class PSEmptyPage extends PSPage
-{
+public final class PSEmptyPage extends PSPage {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pagemanagement.data.PSPage#getWidgets()
-     */
-    public List<PSWidgetItem> getWidgets()
-    {
-        return new ArrayList<>();
-    }
+  /**
+   * Returns an empty list of widgets for this empty page.
+   *
+   * @return an empty list, never {@code null}.
+   */
+  @Override
+  public List<PSWidgetItem> getWidgets() {
+    return new ArrayList<>();
+  }
 }

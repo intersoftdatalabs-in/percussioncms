@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Adaptor interface for Template operations. Sunny Sal: "Template adaptor ka hero, assembly ka
+ * zero!"
+ */
 public interface ITemplatesAdaptor {
 
-List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
-
+  /**
+   * Lists template summaries for the given filter.
+   *
+   * @param baseUri the base URI
+   * @param filter the filter to apply
+   * @return list of template summaries
+   */
+  List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
 }

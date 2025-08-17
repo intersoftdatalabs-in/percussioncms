@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,21 @@ import com.percussion.services.contentmgr.impl.PSContentUtils;
 import com.percussion.services.contentmgr.impl.legacy.PSTypeConfiguration;
 import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode;
 import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeIdentifier;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang.StringUtils;
 
-import javax.jcr.ItemExistsException; // TODO: JAVAX-11
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
-import javax.jcr.UnsupportedRepositoryOperationException; // TODO: JAVAX-11
-import javax.jcr.lock.LockException; // TODO: JAVAX-11
-import javax.jcr.nodetype.ConstraintViolationException; // TODO: JAVAX-11
-import javax.jcr.query.Query; // TODO: JAVAX-11
-import javax.jcr.query.QueryResult; // TODO: JAVAX-11
-import javax.jcr.version.VersionException; // TODO: JAVAX-11
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.version.VersionException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

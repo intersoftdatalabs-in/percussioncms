@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,78 +32,83 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
 import org.xml.sax.SAXException;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.IOException;
 import java.security.Principal;
-import java.security.acl.AclEntry;
-import java.security.acl.LastOwnerException;
-import java.security.acl.NotOwnerException;
-import java.security.acl.Permission;
+import com.percussion.security.shim.acl.AclEntry;
+import com.percussion.security.shim.acl.LastOwnerException;
+import com.percussion.security.shim.acl.NotOwnerException;
+import com.percussion.security.shim.acl.Permission;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Implementation of the interface
- * {@link com.percussion.services.security.IPSAcl}.
- * 
+ * Implementation of the interface {@link com.percussion.services.security.IPSAcl}.
+ * This class provides comprehensive Access Control List functionality for the
+ * Percussion CMS, managing permissions and security access controls using
+ * modern Java 11 features and best practices.
+ *
  * @created 08-Aug-2005 3:09:34 PM
  * @version 6.0
+ * @since Java 11 Modernization
  */
 @Entity
 @Table(name="PSX_ACLS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAclImpl")
-public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary
-{
-   
+public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
+
    private static final Logger log = LogManager.getLogger(PSAclImpl.class);
    
    static final long BIT32 = 0xFFFFFFFFL;
    
    /**
-    * Default ctor. Added to keep serializers happy. Should not be used.
+    * Default constructor. Added to keep serializers happy. Should not be used.
     */
-   public PSAclImpl()
-   {
-
+   public PSAclImpl() {
+      // Default constructor for serialization
    }
 
    /**
-    * Ctor taking the owner of the ACL. ACL needs at least one owner during
+    * Constructor taking the owner of the ACL. ACL needs at least one owner during
     * construction time.
     * 
-    * @param aclName name of the ACL, must not be <code>null</code> or empty.
-    * @param owner the acl owner, must not be <code>null</code>.
+    * @param aclName name of the ACL, must not be {@code null} or empty
+    * @param owner the acl owner, must not be {@code null}
+    * @throws IllegalArgumentException if aclName is {@code null}/empty or owner is {@code null}
     */
-   public PSAclImpl(String aclName, AclEntry owner)
-   {
-      if (aclName == null || aclName.length() == 0)
-      {
+   public PSAclImpl(String aclName, AclEntry owner) {
+      if (aclName == null || aclName.isEmpty()) {
          throw new IllegalArgumentException("name must not be null or empty");
       }
-      if (owner == null)
-      {
-         throw new IllegalArgumentException("owner must not be null"); 
+      if (owner == null) {
+         throw new IllegalArgumentException("owner must not be null");
       }
+
       name = aclName;
       ((PSAclEntryImpl) owner).setOwner(true);
       
-      PSAclEntryImpl ownerEnt = (PSAclEntryImpl) owner;
-      ownerEnt.setAcl(this);;
+      var ownerEnt = (PSAclEntryImpl) owner;
+      ownerEnt.setAcl(this);
       entries.add(ownerEnt);
    }
    
-   public PSAclImpl(PSAclImpl source)
-   {
+   /**
+    * Copy constructor for creating a new ACL based on an existing one.
+    *
+    * @param source the source ACL to copy from, must not be {@code null}
+    */
+   public PSAclImpl(PSAclImpl source) {
       this.name = source.name;
       this.objectId = source.objectId;
       this.objectType = source.objectType;
       this.description = source.description;
       this.m_version = source.m_version;
-      for (IPSAclEntry entry : source.entries)
-      {
-         this.addEntry(new PSAclEntryImpl(this,(PSAclEntryImpl)entry));
+
+      for (var entry : source.entries) {
+         this.addEntry(new PSAclEntryImpl(this, (PSAclEntryImpl) entry));
       }
    }
 
@@ -113,31 +118,26 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary
     * @return Returns the id.
     */
    @IPSXmlSerialization(suppress = true) 
-   public long getId()
-   {
+   public long getId() {
       updateGuid();
       return this.id;
    }
-
 
    /**
     * Set method only used for serialization, not part of public interface.
     * 
     * @param aclid The id to set.
     */
-   public void setId(long aclid)
-   {
+   public void setId(long aclid) {
       this.id = aclid;
       updateGuid();
    }
    
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.security.acl.Acl#getName()
+   /**
+    * {@inheritDoc}
     */
-   public String getName()
-   {
+   @Override
+   public String getName() {
       return name;
    }
 
@@ -146,51 +146,40 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary
     * 
     * @param aclName name of the ACL to set
     */
-   public void setName(String aclName)
-   {
+   public void setName(String aclName) {
       name = aclName;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.security.acl.Acl#setName(java.security.Principal,
-    * java.lang.String)
+   /**
+    * {@inheritDoc}
     */
-   public void setName(Principal caller, String aclName) throws NotOwnerException
-   {
-      if (caller == null)
-      {
-         throw new IllegalArgumentException("caller must not be null"); 
+
+   public void setName(Principal caller, String aclName) throws NotOwnerException {
+      if (caller == null) {
+         throw new IllegalArgumentException("caller must not be null");
       }
-      if (aclName == null || aclName.length() == 0)
-      {
-         throw new IllegalArgumentException("name must not be null or empty"); 
+      if (aclName == null || aclName.isEmpty()) {
+         throw new IllegalArgumentException("name must not be null or empty");
       }
-      if (!isOwner(caller))
-      {
+      if (!isOwner(caller)) {
          throw new NotOwnerException();
       }
       name = aclName;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.security.acl.IPSAcl#getObjectId()
+   /**
+    * {@inheritDoc}
     */
-   public long getObjectId()
-   {
+   @Override
+   public long getObjectId() {
       return objectId;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.security.acl.IPSAcl#setObjectId(com.percussion.utils.guid.IPSGuid)
+   /**
+    * {@inheritDoc}
     */
-   public void setObjectId(long objId)
-   {
+   @Override
+   public void setObjectId(long objId) {
       // fix object ids set as guids to return only uuid part
       objectId = objId & BIT32;
    }
@@ -199,175 +188,128 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary
     * The returned description is internationalized based on the locale set for
     * this session.
     * 
-    * @return Never <code>null</code>, may be empty.
+    * @return Never {@code null}, may be empty.
     */
-   public String getDescription()
-   {
-      return description == null ? "" : description; 
+   public String getDescription() {
+      return Optional.ofNullable(description).orElse("");
    }
 
    /**
     * Set the description of the Acl.
     * 
-    * @param desc to set, May be <code>null</code> or empty.
+    * @param desc to set, May be {@code null} or empty.
     */
-   public void setDescription(String desc)
-   {
-      description = desc == null ? "" : desc; 
+   public void setDescription(String desc) {
+      description = Optional.ofNullable(desc).orElse("");
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.security.acl.Owner#isOwner(java.security.Principal)
+   /**
+    * {@inheritDoc}
     */
-   public boolean isOwner(Principal owner)
-   {
-      PSAclEntryImpl entry = (PSAclEntryImpl) findEntry(owner);
-      if (entry == null)
-      {
-         throw new SecurityException("ACL does not contain the user " 
+   @Override
+   public boolean isOwner(Principal owner) {
+      var entry = (PSAclEntryImpl) findEntry(owner);
+      if (entry == null) {
+         throw new SecurityException("ACL does not contain the user "
             + owner.getName());
       }
       return entry.isOwner();
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.security.acl.Owner#addOwner(java.security.Principal,
-    * java.security.Principal)
-    */
-   public boolean addOwner(Principal caller, Principal owner)
-      throws NotOwnerException
-   {
-      if (!isOwner(caller))
-      {
+   
+   public boolean addOwner(Principal caller, Principal owner) throws NotOwnerException {
+      if (!isOwner(caller)) {
          throw new NotOwnerException();
       }
-      PSAclEntryImpl entry = (PSAclEntryImpl) findEntry(owner);
-      if (entry == null)
-      {
-         PrincipalTypes t = PrincipalTypes.USER;
-         if(owner instanceof IPSTypedPrincipal)
-            t = ((IPSTypedPrincipal)owner).getPrincipalType();
+
+      var entry = (PSAclEntryImpl) findEntry(owner);
+      if (entry == null) {
+         var principalType = PrincipalTypes.USER;
+         if (owner instanceof IPSTypedPrincipal) {
+            principalType = ((IPSTypedPrincipal) owner).getPrincipalType();
+         }
 
          // Entry with this name does not exist, create one
-         entry = new PSAclEntryImpl(owner, t);
-      }
-      else if (isOwner(owner))
-      {
+         entry = new PSAclEntryImpl(owner, principalType);
+      } else if (isOwner(owner)) {
          // Entry exists and is owner, so return false by contract
          return false;
       }
+
       entry.setOwner(true);
       return true;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.security.acl.Owner#deleteOwner(java.security.Principal,
-    * java.security.Principal)
+   /**
+    * {@inheritDoc}
     */
+
    public boolean deleteOwner(Principal caller, Principal owner)
-      throws NotOwnerException, LastOwnerException
-   {
-      if (caller == null)
-      {
-         throw new IllegalArgumentException("caller must not be null"); 
+         throws NotOwnerException, LastOwnerException {
+      if (caller == null) {
+         throw new IllegalArgumentException("caller must not be null");
       }
-      if (owner == null)
-      {
-         throw new IllegalArgumentException("owner must not be null"); 
+      if (owner == null) {
+         throw new IllegalArgumentException("owner must not be null");
       }
-      if (!isOwner(caller))
-      {
+      if (!isOwner(caller)) {
          throw new NotOwnerException();
       }
-      if (!isOwner(owner))
-      {
+      if (!isOwner(owner)) {
          return false;
       }
-      int ownerCount = getOwnerCount();
-      if (ownerCount == 1)
-      {
+
+      var ownerCount = getOwnerCount();
+      if (ownerCount == 1) {
          throw new LastOwnerException();
       }
-      PSAclEntryImpl entry = (PSAclEntryImpl) findEntry(owner);
-      if (entry == null)
-         return false; // ? is it correct contract is not clear.
+
+      var entry = (PSAclEntryImpl) findEntry(owner);
+      if (entry == null) {
+         return false; // Contract is not clear, but this seems correct
+      }
+
       entry.setOwner(false);
       return true;
    }
    
-
    /**
-    * Resets the acl owner in the error case that acl has lost owner.
+    * Resets the ACL owner in the error case that ACL has lost owner.
     * The code should be checked to see where it is being removed.
     */
-   public void fixOwner()
-   {
+   public void fixOwner() {
       IPSAclEntry defaultUser = null;
 
-      // User config to set this,  may want to make "Admin" user be owner if no other in CMS
-      String defaultOwnerUser = PSTypedPrincipal.DEFAULT_USER_ENTRY;
+      // User config to set this, may want to make "Admin" user be owner if no other in CMS
+      var defaultOwnerUser = PSTypedPrincipal.DEFAULT_USER_ENTRY;
 
-      for (IPSAclEntry entry : entries)
-      {
-         PSTypedPrincipal principal = (PSTypedPrincipal) entry.getPrincipal();
-         
-         if (principal.isUser())
-         {
-            if (principal.getName().equals(defaultOwnerUser))
-            {
+      for (var entry : entries) {
+         var principal = (PSTypedPrincipal) entry.getPrincipal();
+
+         if (principal.isUser()) {
+            if (principal.getName().equals(defaultOwnerUser)) {
                defaultUser = entry;
             }
-            if ( entry.isOwner())
-            {
-             
-               if (!PSAclUtils.entryHasPermission(entry, 
-                     PSPermissions.READ))
-               {
+
+            if (entry.isOwner()) {
+               if (!PSAclUtils.entryHasPermission(entry, PSPermissions.READ)) {
                   entry.addPermission(PSPermissions.READ);
                }
-           
                return;
             }
          }
       }
-      if (defaultUser == null)
-      {
-          PSTypedPrincipal principal = new PSTypedPrincipal(defaultOwnerUser, PrincipalTypes.USER);
-          defaultUser = new PSAclEntryImpl(principal);
-          addEntry((PSAclEntryImpl)defaultUser);
 
+      if (defaultUser == null) {
+         var principal = new PSTypedPrincipal(defaultOwnerUser, PrincipalTypes.USER);
+         defaultUser = new PSAclEntryImpl(principal);
+         addEntry((PSAclEntryImpl) defaultUser);
       }
 
-       defaultUser.addPermissions(new PSPermissions[]
-       {
-               PSPermissions.READ, PSPermissions.UPDATE,PSPermissions.DELETE,PSPermissions.OWNER
-       });
-
-      
-      log.debug("Reset owner entry for acl " + this.id+ "for object "+this.getObjectGuid().toString());
-
-      if (log.isDebugEnabled())
-      {
-          log.debug("stacktrace for owner reset ", new Throwable());
-
-          String xml = "error";
-         try
-         {
-            xml = this.toXML();
-         }
-         catch (IOException | SAXException e)
-         {
-            log.debug("Cannot create acl xml for debug ", e);
-         }
-         log.debug("stacktrace for owner xml " + xml);
-      }
-
+      defaultUser.addPermissions(new PSPermissions[] {
+         PSPermissions.READ, PSPermissions.UPDATE,
+         PSPermissions.DELETE, PSPermissions.OWNER
+      });
    }
 
    /*
@@ -665,10 +607,15 @@ public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary
       
       // now handle adds, removes, and updates of entries
       Set<String> matches = new HashSet<>();
-      Enumeration<AclEntry> entryEnum = acl.entries();
-      while (entryEnum.hasMoreElements())
+      Collection<IPSAclEntry> aclEntries;
+      if (acl instanceof PSAclImpl) {
+         aclEntries = ((PSAclImpl) acl).getEntries();
+      } else {
+         throw new IllegalArgumentException("Unsupported IPSAcl implementation: " + acl.getClass().getName());
+      }
+      for (IPSAclEntry entry : aclEntries)
       {
-         PSAclEntryImpl entryImpl = (PSAclEntryImpl) entryEnum.nextElement();
+         PSAclEntryImpl entryImpl = (PSAclEntryImpl) entry;
          matches.add(entryImpl.getName());
          IPSAclEntry tgtEntry = getEntry(entryImpl.getName());
          if (tgtEntry == null)

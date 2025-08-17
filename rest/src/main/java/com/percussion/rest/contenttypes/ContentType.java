@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,113 +20,184 @@ package com.percussion.rest.contenttypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Represents a Content Type in Percussion CMS. */
 @XmlRootElement(name = "ContentType")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description="Represents a Content Type")
+@Schema(description = "Represents a Content Type")
 public class ContentType {
 
-    @Schema(required=true,description="The Content Type Id")
-    private Guid guid;
+  @Schema(required = true, description = "The Content Type Id")
+  private Guid guid;
 
+  @Schema(required = false, description = "Guid for the Object Type content Type")
+  private Guid objectType;
 
-	@Schema(required=false,description="Guid for the Object Type content Type")
-	private Guid objectType;
+  @Schema(required = false, description = "A system unique name for the Content Type")
+  private String name;
 
-	@Schema(required=false,description="A system unique name for the Content Type")
-	private String name;
+  @Schema(required = false, description = "A human friendly label for this Content Type")
+  private String label;
 
-	@Schema(required=false,description="A human friendly label for this Content Type")
-	private String label;
+  @Schema(
+      required = false,
+      description = "A human friendly Description of this Content Type's purpose")
+  private String description;
 
-	@Schema(required=false,description="A human friendly Description of this Content Type's purpose")
-	private String description;
+  @Schema(
+      required = false,
+      description = "The url to use to request a new Item of this Content Type")
+  private String newRequest;
 
-	@Schema(required=false,description="The url to use to request a new Item of this Content Type")
-	private String newRequest;
+  @Schema(
+      required = false,
+      description = "The url to use when searching for Items of this Content Type")
+  private String queryRequest;
 
-	@Schema(required=false,description="The url to use when searching for Items of this Content Type")
-	private String queryRequest;
+  @Schema(
+      required = false,
+      description = "The url to use for updating an Item of this Content Type")
+  private String updateRequest;
 
-	@Schema(required=false,description="The url to use for updating an Item of this Content Type")
-	private String updateRequest;
+  @Schema(
+      required = false,
+      description = "When true, this Content Type should be hidden from the user interface")
+  private boolean hideFromMenu;
 
-	@Schema(required=false,description="When true, this Content Type should be hidden from the user interface")
-	private boolean hideFromMenu;
+  public ContentType() {}
 
-    public ContentType(){}
+  public Optional<Guid> getGuid() {
+    return Optional.ofNullable(guid);
+  }
 
-	public Guid getObjectType() {
-		return objectType;
-	}
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 
-	public void setObjectType(Guid objectType) {
-		this.objectType = objectType;
-	}
+  public Optional<Guid> getObjectType() {
+    return Optional.ofNullable(objectType);
+  }
 
-	public String getName() {
-		return name;
-	}
+  public void setObjectType(Guid objectType) {
+    this.objectType = objectType;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-	public String getLabel() {
-		return label;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
 
-	public String getDescription() {
-		return description;
-	}
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-	public String getNewRequest() {
-		return newRequest;
-	}
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	public void setNewRequest(String newRequest) {
-		this.newRequest = newRequest;
-	}
+  public Optional<String> getNewRequest() {
+    return Optional.ofNullable(newRequest);
+  }
 
-	public String getQueryRequest() {
-		return queryRequest;
-	}
+  public void setNewRequest(String newRequest) {
+    this.newRequest = newRequest;
+  }
 
-	public void setQueryRequest(String queryRequest) {
-		this.queryRequest = queryRequest;
-	}
+  public Optional<String> getQueryRequest() {
+    return Optional.ofNullable(queryRequest);
+  }
 
-	public String getUpdateRequest() {
-		return updateRequest;
-	}
+  public void setQueryRequest(String queryRequest) {
+    this.queryRequest = queryRequest;
+  }
 
-	public void setUpdateRequest(String updateRequest) {
-		this.updateRequest = updateRequest;
-	}
+  public Optional<String> getUpdateRequest() {
+    return Optional.ofNullable(updateRequest);
+  }
 
-	public boolean isHideFromMenu() {
-		return hideFromMenu;
-	}
+  public void setUpdateRequest(String updateRequest) {
+    this.updateRequest = updateRequest;
+  }
 
-	public void setHideFromMenu(boolean hideFromMenu) {
-		this.hideFromMenu = hideFromMenu;
-	}
+  public boolean isHideFromMenu() {
+    return hideFromMenu;
+  }
 
-    public Guid getGuid() {
-        return guid;
-    }
+  public void setHideFromMenu(boolean hideFromMenu) {
+    this.hideFromMenu = hideFromMenu;
+  }
 
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ContentType)) return false;
+    var that = (ContentType) o;
+    return hideFromMenu == that.hideFromMenu
+        && Objects.equals(guid, that.guid)
+        && Objects.equals(objectType, that.objectType)
+        && Objects.equals(name, that.name)
+        && Objects.equals(label, that.label)
+        && Objects.equals(description, that.description)
+        && Objects.equals(newRequest, that.newRequest)
+        && Objects.equals(queryRequest, that.queryRequest)
+        && Objects.equals(updateRequest, that.updateRequest);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        guid,
+        objectType,
+        name,
+        label,
+        description,
+        newRequest,
+        queryRequest,
+        updateRequest,
+        hideFromMenu);
+  }
+
+  @Override
+  public String toString() {
+    return "ContentType{"
+        + "guid="
+        + guid
+        + ", objectType="
+        + objectType
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", newRequest='"
+        + newRequest
+        + '\''
+        + ", queryRequest='"
+        + queryRequest
+        + '\''
+        + ", updateRequest='"
+        + updateRequest
+        + '\''
+        + ", hideFromMenu="
+        + hideFromMenu
+        + '}';
+  }
 }

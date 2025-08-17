@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.SAXParser; // TODO: JAVAX-11
-import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -296,7 +296,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
          return m_dbmsDef;
       }
       
-      public Map getTableMetaMap()
+      public Map<String, Object> getTableMetaMap()
       {
          return m_tableMetaMap;
       }
@@ -334,7 +334,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
        * <p>
        * It is used to cache the meta data of the processed tables.
        */
-      @SuppressWarnings("unchecked") Map m_tableMetaMap = new HashMap();
+      Map<String, Object> m_tableMetaMap = new HashMap<>();
    }
 
    /**
@@ -344,20 +344,8 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     */
    public static class Connections
    {
-      /**
-       * Maintain a correspondence between the database connection information
-       * and the resulting connection.
-       */
-      private Map<DbmsInfo, DbmsConnection> m_connections =
-            new HashMap<>();
-
-      /**
-       * Maintain the connections for the different jobs. Connections are
-       * established and cleared when the job commits.
-       */
-      private static Map<Long, Connections> ms_jobConnections
-            = new HashMap<>();
-
+      private Map<DbmsInfo, DbmsConnection> m_connections = new HashMap<>();
+      private static Map<Long, Connections> ms_jobConnections = new HashMap<>();
       /**
        * Obtain information for a given {@link DbmsInfo}.
        * 
@@ -463,8 +451,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
        * A map from table name to primary keys. This map is built while the
        * table schema is copied. The value is a set of primary key column names.
        */
-      Map<String, Set<String>> m_primaryKeys =
-            new HashMap<>();
+      Map<String, Set<String>> m_primaryKeys = new HashMap<>();
 
       /**
        * The current primary keys. This field is set during the data copying
@@ -623,36 +610,23 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
    }
    
    @Override
-   protected byte[] getUnpublishingInfo(IPSDeliveryItem result, 
-         @SuppressWarnings("unused") String path)
-         throws Exception
+   protected byte[] getUnpublishingInfo(IPSDeliveryItem result, String path) throws Exception
    {
-      try(InputStream is = new FileInputStream(result.getResultFile())) {
-         InputSource src = new InputSource(is);
-         XMLOutputFactory ofact = XMLOutputFactory.newInstance();
-         try(StringWriter writer = new StringWriter()) {
-            XMLStreamWriter formatter = ofact.createXMLStreamWriter(writer);
-
-            SAXParserFactory f = PSSecureXMLUtils.getSecuredSaxParserFactory(new PSXmlSecurityOptions(
-                    true,
-                    true,
-                    true,
-                    false,
-                    true,
-                    false
-            ));
-
-            SAXParser parser = f.newSAXParser();
-
-            DefaultHandler dh =
-                    new PSDatabaseDeliveryHandler.UnpublishingContentHandler(
-                            formatter, null);
+      try (var is = new FileInputStream(result.getResultFile())) {
+         var src = new InputSource(is);
+         var ofact = XMLOutputFactory.newInstance();
+         try (var writer = new StringWriter()) {
+            var formatter = ofact.createXMLStreamWriter(writer);
+            var f = PSSecureXMLUtils.getSecuredSaxParserFactory(new PSXmlSecurityOptions(
+                    true, true, true, false, true, false));
+            var parser = f.newSAXParser();
+            var dh = new PSDatabaseDeliveryHandler.UnpublishingContentHandler(formatter, null);
             formatter.writeStartDocument();
             formatter.writeCharacters("\n");
             parser.parse(src, dh);
             formatter.writeEndDocument();
             formatter.close();
-            String temp = writer.toString();
+            var temp = writer.toString();
             temp = StringUtils.replace(temp, PSSaxCopier.RX_FILLER, "");
             return temp.getBytes(StandardCharsets.UTF_8);
          }
@@ -662,16 +636,14 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
    @Override
    protected String getPublishingLocation(IPSDeliveryItem result)
    {
-      if (result == null)
-      {
+      if (result == null) {
          throw new IllegalArgumentException("result may not be null");
       }
       return "ref_" + result.getReferenceId();
    }
 
    @Override
-   protected String getUnpublishingLocation(IPSDeliveryItem item)
-         throws Exception
+   protected String getUnpublishingLocation(IPSDeliveryItem item) throws Exception
    {
       return getPublishingLocation(item);
    }
@@ -686,86 +658,57 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     */
    protected IPSDeliveryResult perform(Item item, long jobId)
    {
-         if (item == null)
-         {
-            throw new IllegalArgumentException("item may not be null");
+      if (item == null) {
+         throw new IllegalArgumentException("item may not be null");
+      }
+      if (item.getFile() != null) {
+         try (var is = new FileInputStream(item.getFile())) {
+            return performAction(item, jobId, is);
+         } catch (Exception e) {
+            return getItemResult(Outcome.FAILED, item, jobId, "Database item publishing failed. The error was:" + e);
+         } finally {
+            item.release();
          }
-
-         if (item.getFile() != null) {
-            try(InputStream is = new FileInputStream(item.getFile())){
-               return performAction(item, jobId, is);
-            } catch(Exception e) {
-               return getItemResult(Outcome.FAILED, item, jobId, "Database item publishing failed. The error was:" + e.toString());
-            }finally {
-               item.release();
-            }
-         } else {
-            try(InputStream is = item.getResultStream()) {
-               return performAction(item, jobId, is);
-            } catch(Exception e){
-               return getItemResult(Outcome.FAILED, item, jobId, "Database item publishing failed. The error was:" + e.toString());
-            }finally{
-               item.release();
-            }
+      } else {
+         try (var is = item.getResultStream()) {
+            return performAction(item, jobId, is);
+         } catch (Exception e) {
+            return getItemResult(Outcome.FAILED, item, jobId, "Database item publishing failed. The error was:" + e);
+         } finally {
+            item.release();
          }
+      }
    }
 
-   private IPSDeliveryResult performAction(Item item, long jobId,InputStream is) throws Exception {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(
-              new InputSource(is), false);
-
-      DbmsInfo dbmsInfo = new DbmsInfo(doc);
-
+   private IPSDeliveryResult performAction(Item item, long jobId, InputStream is) throws Exception {
+      var doc = PSXmlDocumentBuilder.createXmlDocument(new InputSource(is), false);
+      var dbmsInfo = new DbmsInfo(doc);
       setDbmsInfoFromPubServer(dbmsInfo, item, jobId);
-      DbmsConnection dbmsConn = Connections.getConnection(jobId, dbmsInfo);
-
-      boolean logDebug = ms_log.isDebugEnabled();
-
-      if (logDebug)
-      {
-         ms_log.debug("Published Item id=" + item.getId().toString()
-                 + ", filePath = " + item.getFile().getAbsolutePath());
+      var dbmsConn = Connections.getConnection(jobId, dbmsInfo);
+      var logDebug = ms_log.isDebugEnabled();
+      if (logDebug) {
+         ms_log.debug("Published Item id=" + item.getId() + ", filePath = " + item.getFile().getAbsolutePath());
       }
-
-
-      boolean transactionSupport = true;
-      final StringBuilder error_builder = new StringBuilder();
-      final StringBuilder message_builder = new StringBuilder();
-      try( PrintStream ps =  new PrintStream(System.out)
-      {
+      var transactionSupport = true;
+      final var errorBuilder = new StringBuilder();
+      final var messageBuilder = new StringBuilder();
+      try (PrintStream ps = new PrintStream(System.out) {
          @Override
-         public void println(String msg)
-         {
-            if (StringUtils.isBlank(msg))
-               return;
-
-            if (msg.indexOf("Error") >= 0)
-               error_builder.append(msg);
-            else
-               message_builder.append(msg);
-            char c = msg.charAt(msg.length()-1);
-            if (c != '\r' && c != '\n')
-               message_builder.append('\n');
+         public void println(String msg) {
+            if (StringUtils.isBlank(msg)) return;
+            if (msg.contains("Error")) errorBuilder.append(msg);
+            else messageBuilder.append(msg);
+            char c = msg.charAt(msg.length() - 1);
+            if (c != '\r' && c != '\n') messageBuilder.append('\n');
          }
-      }){
-         PSJdbcTableFactory.processTables(dbmsConn.m_conn, dbmsConn.m_dbmsDef,
-                 dbmsConn.m_tableMetaMap, null, doc,ps
-                 , logDebug, transactionSupport);
-
-         if (error_builder.length() > 0)
-         {
-            return getItemResult(Outcome.FAILED, item, jobId,
-                    error_builder.toString());
-         }
-         else
-         {
-            return getItemResult(Outcome.DELIVERED, item, jobId,
-                    message_builder.toString());
+      }) {
+         PSJdbcTableFactory.processTables(dbmsConn.m_conn, dbmsConn.m_dbmsDef, dbmsConn.m_tableMetaMap, null, doc, ps, logDebug, transactionSupport);
+         if (errorBuilder.length() > 0) {
+            return getItemResult(Outcome.FAILED, item, jobId, errorBuilder.toString());
+         } else {
+            return getItemResult(Outcome.DELIVERED, item, jobId, messageBuilder.toString());
          }
       }
-
-
-
    }
 
    /**
@@ -778,11 +721,9 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     */
    private void setDbmsInfoFromPubServer(DbmsInfo dbmsInfo, Item item, long jobId)
    {
-      IPSPubServer pubServer = getPubServer(item, jobId);
-      if (pubServer == null)
-         return;
-      
-      DbmsInfo dbms = getDbmsInfoFromPubServer(pubServer);
+      var pubServer = getPubServer(item, jobId);
+      if (pubServer == null) return;
+      var dbms = getDbmsInfoFromPubServer(pubServer);
       dbmsInfo.m_dbName = dbms.m_dbName;
       dbmsInfo.m_driverType = dbms.m_driverType;
       dbmsInfo.m_origin = dbms.m_origin;
@@ -792,11 +733,9 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
    public static DbmsInfo getDbmsInfoFromPubServer(IPSPubServer pubServer)
    {
       notNull(pubServer);
-      
-      PSDatabasePubServer dbServer = new PSDatabasePubServer((PSPubServer)pubServer);
-      String datasource = getPubServerFilesService().getJndiDsName(dbServer);
-      
-      DbmsInfo dbmsInfo = new DbmsInfo(); 
+      var dbServer = new PSDatabasePubServer((PSPubServer) pubServer);
+      var datasource = getPubServerFilesService().getJndiDsName(dbServer);
+      var dbmsInfo = new DbmsInfo();
       dbmsInfo.m_dbName = dbServer.getDatabase();
       dbmsInfo.m_driverType = dbServer.getDriverType().getDriverName();
       dbmsInfo.m_origin = dbServer.getOwner();
@@ -811,29 +750,22 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     */
    private IPSPubServer getPubServer(Item item, long jobId)
    {
-  
-      JobData data = m_jobData.get(jobId);
-      if (data.m_pubServer != null)
-         return data.m_pubServer;
-   
-      Long serverId = item.getPubServerId();
-      if (serverId == null)
-         return null;
-      
-      return getPubServerDao().findPubServer(serverId);
+      var data = m_jobData.get(jobId);
+      if (data.m_pubServer != null) return data.m_pubServer;
+      var serverId = item.getPubServerId();
+      if (serverId == null) return null;
+      return getPubServerDao().findPubServer(serverId).orElse(null);
    }
    
    @Override
-   protected IPSDeliveryResult doDelivery(Item item, long jobId, 
-         @SuppressWarnings("unused") String location)
+   protected IPSDeliveryResult doDelivery(Item item, long jobId, String location)
    {
       return perform(item, jobId);
    }
 
    
    @Override
-   protected IPSDeliveryResult doRemoval(Item item, long jobId, 
-         @SuppressWarnings("unused") String location)
+   protected IPSDeliveryResult doRemoval(Item item, long jobId, String location)
    {
       return perform(item, jobId);
    }
@@ -850,16 +782,13 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     */
    private static IPSPubServerDao getPubServerDao()
    {
-       if (pubServerDao == null)
-           pubServerDao = PSPubServerDaoLocator.getPubServerManager();
-       return pubServerDao;
+      if (pubServerDao == null) pubServerDao = PSPubServerDaoLocator.getPubServerManager();
+      return pubServerDao;
    }
    
    private static IPSDatabasePubServerFilesService getPubServerFilesService()
    {
-      if (dbFileService == null)
-         dbFileService = PSDatabasePubServerServiceLocator.getPubServerFilesService();
-      
+      if (dbFileService == null) dbFileService = PSDatabasePubServerServiceLocator.getPubServerFilesService();
       return dbFileService;
    }
    /**
@@ -868,21 +797,13 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
    @Override
    public boolean checkConnection(IPSPubServer pubServer, IPSSite site)
    {
-      PSDatabasePubServer dbPubServer = new PSDatabasePubServer((PSPubServer)pubServer);
-      dbPubServer.setServer(pubServer.getPropertyValue("server"));
-      String error = getPubServerFilesService().testDatabasePubServer(dbPubServer);                
-      if(!isBlank(error))
-          return false;
-      return true;
-      
+      var dbPubServer = new PSDatabasePubServer((PSPubServer) pubServer);
+      dbPubServer.setServer(pubServer.getPropertyValue("server").orElse(null));
+      var error = getPubServerFilesService().testDatabasePubServer(dbPubServer);
+      return isBlank(error) ? true : false;
    }
 
    private static IPSPubServerDao pubServerDao = null;
-
    private static IPSDatabasePubServerFilesService dbFileService = null;
-   
-   /**
-    * Logger.
-    */
    private static final Logger ms_log = LogManager.getLogger(PSDatabaseDeliveryHandler.class);
 }

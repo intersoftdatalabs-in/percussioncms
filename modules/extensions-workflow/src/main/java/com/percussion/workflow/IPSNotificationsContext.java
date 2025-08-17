@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +17,32 @@
 package com.percussion.workflow;
 
 /**
- * An interface that defines methods for notifications context which
- * provides methods for accessing the subject and content of notifications
- * associated with a particular workflow and transition.
+ * An interface that defines methods for notifications context which provides methods for accessing
+ * the subject and content of notifications associated with a particular workflow and transition.
  *
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
 @Deprecated
-public interface IPSNotificationsContext
-{
-/**
- * Gets the subject field for the current entry in the context.
- * @author   Ram
- *
- * @version 1.0
- *
- * @param   none
- *
- * @return  subject 
- */
-   public String getSubject();
-   
-/**
- * Gets Body field for the current entry in the context.
- * @author   Ram
- *
- * @version 1.0
- *
- * @param   none
- *
- * @return  Body 
- */
-   public String getBody();
+public interface IPSNotificationsContext {
+  /**
+   * Gets the subject field for the current entry in the context.
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return subject
+   */
+  public String getSubject();
+
+  /**
+   * Gets Body field for the current entry in the context.
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return Body
+   */
+  public String getBody();
 }

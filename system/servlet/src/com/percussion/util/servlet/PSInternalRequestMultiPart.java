@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 
 package com.percussion.util.servlet;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSStringOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,9 +44,8 @@ import java.util.List;
  *
  * @author DavidBenua
  */
-class PSInternalRequestMultiPart
-   extends PSInternalRequest
-   implements HttpServletRequest
+// REFACTORED: CP-JAVA11
+class PSInternalRequestMultiPart extends PSInternalRequest
 {
 
    private static final Logger log = LogManager.getLogger(PSInternalRequestMultiPart.class);
@@ -90,20 +89,20 @@ class PSInternalRequestMultiPart
             m_bos = bos;
             httpWriter = new PSMultipartWriter(m_bos, getBodyEncoding());
 
-            Enumeration pNames = this.getParameterNames();
+            Enumeration<String> pNames = this.getParameterNames();
             if (pNames.hasMoreElements())
                hasContent = true;
             while (pNames.hasMoreElements()) {
                String pName = (String) pNames.nextElement();
-               ArrayList pValues =
-                       new ArrayList(Arrays.asList(this.getParameterValues(pName)));
-               Iterator pIter = pValues.iterator();
+               ArrayList<String> pValues =
+                       new ArrayList<>(Arrays.asList(this.getParameterValues(pName)));
+               Iterator<String> pIter = pValues.iterator();
                while (pIter.hasNext()) {
                   String pValue = (String) pIter.next();
                   httpWriter.addField(pName, pValue);
                }
             }
-            Iterator bodyParts = m_bodyParts.iterator();
+            Iterator<PSHttpBodyPart> bodyParts = m_bodyParts.iterator();
             if (bodyParts.hasNext())
                hasContent = true;
             while (bodyParts.hasNext()) {
@@ -133,12 +132,14 @@ class PSInternalRequestMultiPart
       // set header for "Content-Type" and "content-length"
       // this has to be called after set "m_prepared"
       setContentLength();
-      String contentType =
-         "multipart/form-data; charset="
+      String contentType = null;
+      if (httpWriter != null) {
+         contentType = "multipart/form-data; charset="
             + PSCharSets.getStdName(getBodyEncoding())
             + "; boundary="
             + httpWriter.getSeparator();
-      setContentType(contentType);
+         setContentType(contentType);
+      }
    }
 
    // see javax.servlet.ServletRequest#getInputStream()
@@ -305,7 +306,7 @@ class PSInternalRequestMultiPart
     * Holds a list of <code>PSHttpBodyPart</code> objects, never
     * <code>null</code>, but may be empty.
     */
-   private List m_bodyParts = new ArrayList();
+   private List<PSHttpBodyPart> m_bodyParts = new ArrayList<>();
 
 
    /**

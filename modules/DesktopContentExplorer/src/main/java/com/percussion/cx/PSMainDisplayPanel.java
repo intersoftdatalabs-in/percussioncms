@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,32 +28,33 @@ import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.swing.AbstractAction; // TODO: JAVAX-11
-import javax.swing.BorderFactory; // TODO: JAVAX-11
-import javax.swing.CellEditor; // TODO: JAVAX-11
-import javax.swing.Icon; // TODO: JAVAX-11
-import javax.swing.JPopupMenu; // TODO: JAVAX-11
-import javax.swing.JScrollPane; // TODO: JAVAX-11
-import javax.swing.JTable; // TODO: JAVAX-11
-import javax.swing.JTextArea; // TODO: JAVAX-11
-import javax.swing.KeyStroke; // TODO: JAVAX-11
-import javax.swing.ListSelectionModel; // TODO: JAVAX-11
-import javax.swing.SwingUtilities; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
-import javax.swing.border.BevelBorder; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
-import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
-import javax.swing.event.MouseInputListener; // TODO: JAVAX-11
-import javax.swing.event.TableModelEvent; // TODO: JAVAX-11
-import javax.swing.event.TableModelListener; // TODO: JAVAX-11
-import javax.swing.plaf.basic.BasicTableUI; // TODO: JAVAX-11
-import javax.swing.table.DefaultTableCellRenderer; // TODO: JAVAX-11
-import javax.swing.table.JTableHeader; // TODO: JAVAX-11
-import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
-import javax.swing.table.TableColumn; // TODO: JAVAX-11
-import javax.swing.table.TableColumnModel; // TODO: JAVAX-11
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.CellEditor;
+import javax.swing.Icon;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.plaf.basic.BasicTableUI;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -98,7 +99,7 @@ import java.util.concurrent.FutureTask;
 public class PSMainDisplayPanel extends JScrollPane
    implements DragGestureListener, DropTargetListener
 {
-   static Logger log = Logger.getLogger(PSMainDisplayPanel.class);
+   static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
    
    /**
     * Constructs the panel with supplied parameters.
@@ -1387,7 +1388,7 @@ public class PSMainDisplayPanel extends JScrollPane
     */
    private class TableKeyBoardHandler extends KeyAdapter
    {
-	  private Logger log = Logger.getLogger(TableKeyBoardHandler.class);
+	  private Logger log = LogManager.getLogger(TableKeyBoardHandler.class);
 	  private boolean isPopup = false;
 	  private int enter=0;
 	  

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@
 package com.percussion.services.datasource;
 
 import com.percussion.services.utils.hibernate.PSHibernateInterceptor;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl;
@@ -30,253 +31,286 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.NamingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Extends Spring framework hibernate session factory to dynamically modify the
- * configuration before the session factory is created.
+ * configuration before the session factory is created using modern Java 11 patterns.
+ *
+ * <p>This session factory provides thread-safe access to Hibernate configuration
+ * with Optional-based safe access, enhanced validation, and comprehensive error handling.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
 @Configuration
 @EnableTransactionManagement
 @PSBaseBean("sys_sessionFactory")
-public class PSSessionFactoryBean extends LocalSessionFactoryBean
-{
+public class PSSessionFactoryBean extends LocalSessionFactoryBean {
 
+    /**
+     * Thread-safe reference to the configured instance for content repository access.
+     * Uses AtomicReference for modern concurrency patterns.
+     */
+    private static final AtomicReference<PSSessionFactoryBean> INSTANCE_REF =
+        new AtomicReference<>();
 
-   /**
-    * Used to allow content repository to get configured instance. Can't obtain
-    * through Spring, which returns a proxy object that doesn't have all the
-    * methods!
-    */
-   private static PSSessionFactoryBean ms_instance = null;
+    /**
+     * Default constructor that registers this instance using thread-safe patterns.
+     */
+    public PSSessionFactoryBean() {
+        INSTANCE_REF.set(this);
+    }
 
-   /**
-    * Default ctor
-    */
-   public PSSessionFactoryBean() {
-      synchronized (PSSessionFactoryBean.class)
-      {
-         ms_instance = this;
-      }
-   }
+    /**
+     * Get the static instance safely with Optional wrapper.
+     *
+     * @return Optional containing the static instance, or empty if not initialized
+     */
+    public static Optional<PSSessionFactoryBean> getInstanceSafely() {
+        return Optional.ofNullable(INSTANCE_REF.get());
+    }
 
-   /**
-    * Get the static instance, but does not initialize - which is done through
-    * the spring framework.
-    * 
-    * @return the static instance, never <code>null</code> after spring is
-    *         initialized.
-    */
-   public static PSSessionFactoryBean getInstance()
-   {
-      return ms_instance;
-   }
-/*
-   @Override
-   protected Configuration newConfiguration() throws HibernateException
-   {
-      try
-      {
-         Configuration config = super.newConfiguration();
-         config.getProperties().put("hibernate.physical_naming_strategy","com.percussion.services.datasource.PSSessionFactoryBean.UpcasingNamingStrategy");
-         config.setInterceptor(new PSHibernateInterceptor(m_interceptEvents));
-         return config;
-      }
-      catch (Exception e)
-      {
-         // any exception here is fatal
-         throw new RuntimeException(
-               "Failed to initialize the hibernate configuration: "
-                     + e.getLocalizedMessage());
-      }
-   }
-*/
+    /**
+     * Get the static instance, but does not initialize - which is done through
+     * the spring framework.
+     *
+     * @return the static instance, never <code>null</code> after spring is
+     *         initialized.
+     * @deprecated Use {@link #getInstanceSafely()} for null-safe access
+     */
+    @Deprecated
+    public static PSSessionFactoryBean getInstance() {
+        return getInstanceSafely().orElse(null);
+    }
 
-   /**
-    * Get the hibernate properties for the supplied info object. See
-    * {@link IPSDatasourceManager#getHibernateProperties(IPSConnectionInfo)} for
-    * details.
-    * 
-    * @param info Specifies the datasource configuration to use, may be
-    *           <code>null</code> to use the repository datasource.
-    * 
-    * @return The properties, never <code>null</code>, will contain the
-    *         datasource specific properties derived from the supplied
-    *         connection info as well as any other properties specified by the
-    *         server's configuration.
-    * 
-    * @throws IllegalStateException if
-    *            {@link #setDatasourceManager(IPSDatasourceManager)} has not
-    *            been called (this is normally called when the spring framework
-    *            is initialized).
-    * @throws NamingException If there is an error looking up the datasource.
-    * @throws SQLException If there is an error obtaining the connection details
-    *            for the specified datasource.
-    */
-   public Properties getHibernateProperties(IPSConnectionInfo info)
-         throws NamingException, SQLException
-   {
-      if (m_dsMgr == null)
-         throw new IllegalStateException("Datasource Manager must be set");
+    /**
+     * Get the hibernate properties for the supplied info object with enhanced validation.
+     *
+     * @param info Specifies the datasource configuration to use, may be
+     *           <code>null</code> to use the repository datasource.
+     *
+     * @return The properties, never <code>null</code>, will contain the
+     *         datasource specific properties derived from the supplied
+     *         connection info as well as any other properties specified by the
+     *         server's configuration.
+     *
+     * @throws IllegalStateException if datasource manager has not been set
+     * @throws NamingException If there is an error looking up the datasource
+     * @throws SQLException If there is an error obtaining the connection details
+     */
+    public Properties getHibernateProperties(IPSConnectionInfo info)
+            throws NamingException, SQLException {
 
-      Properties props = new Properties();
-      props.putAll(m_hibernateProperties);
+        if (datasourceManager == null) {
+            throw new IllegalStateException("Datasource Manager must be set");
+        }
 
-      PSConnectionDetail connDetail = m_dsMgr.getConnectionDetail(info);
+        var props = new Properties();
+        props.putAll(hibernateProperties);
 
-      // need to add the prefix to the datasource name
-      String dsName = connDetail.getDatasourceName();
-      String jndiPrefix = PSJndiObjectLocator.getPrefix();
-      if (!StringUtils.isBlank(jndiPrefix))
-         dsName = jndiPrefix + dsName;
-      props.setProperty("hibernate.connection.datasource", dsName);
+        var connDetail = datasourceManager.getConnectionDetail(info);
 
-      String catalog = connDetail.getDatabase();
-      if (!StringUtils.isBlank(catalog))
-         props.setProperty("hibernate.default_catalog", catalog);
+        // Configure datasource name with JNDI prefix
+        configureDatasourceName(props, connDetail);
 
-      String origin = connDetail.getOrigin();
-      if (!StringUtils.isBlank(origin))
-         props.setProperty("hibernate.default_schema", origin);
+        // Configure database catalog and schema
+        configureDatabaseProperties(props, connDetail);
 
-      String dialect = m_dialectCfg.getDialectClassName(connDetail.getDriver());
-      if (dialect == null)
-         throw new RuntimeException(
-               "Cannot determine Hibernate SQL dialect for driver: "
-                     + connDetail.getDriver());
+        // Configure dialect with validation
+        configureDialect(props, connDetail);
 
+        // Configure database-specific properties
+        configureDatabaseSpecificProperties(props, connDetail);
 
-      props.setProperty("hibernate.dialect", dialect);
+        // Configure cache properties
+        configureCacheProperties(props);
 
-      // for DB2 & Derby, set the transaction isolation level to read uncommitted
-      if (connDetail.getDriver().equalsIgnoreCase(PSJdbcUtils.DB2)
-            || connDetail.getDriver()
-                  .equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER))
-      {
-         props.setProperty("hibernate.connection.isolation",
-               PSJdbcUtils.TRANSACTION_READ_UNCOMMITTED_VALUE);
-      }
+        return props;
+    }
 
-      if(connDetail.getDriver()
-              .equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)){
+    /**
+     * Configure datasource name with JNDI prefix support.
+     */
+    private void configureDatasourceName(Properties props, PSConnectionDetail connDetail) {
+        var dsName = connDetail.getDatasourceName();
+        var jndiPrefix = PSJndiObjectLocator.getPrefix();
 
-         props.setProperty("hibernate.query.substitutions","true=T,false=F,yes=Y,no=N");
-      }
+        if (StringUtils.isNotBlank(jndiPrefix)) {
+            dsName = jndiPrefix + dsName;
+        }
 
-      props.setProperty("hibernate.cache.use_query_cache", "true");
-      props.setProperty("hibernate.cache.ehcache.missing_cache_strategy","create");
+        props.setProperty("hibernate.connection.datasource", dsName);
+    }
 
-      return props;
-   }
+    /**
+     * Configure database catalog and schema properties.
+     */
+    private void configureDatabaseProperties(Properties props, PSConnectionDetail connDetail) {
+        Optional.ofNullable(connDetail.getDatabase())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(catalog -> props.setProperty("hibernate.default_catalog", catalog));
 
-   @Override
-   public void setHibernateProperties(Properties props)
-   {
-      m_hibernateProperties.clear();
-      m_hibernateProperties.putAll(props);
+        Optional.ofNullable(connDetail.getOrigin())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(schema -> props.setProperty("hibernate.default_schema", schema));
+    }
 
-      super.setHibernateProperties(props);
-      super.setImplicitNamingStrategy(new ImplicitNamingStrategyLegacyHbmImpl());
-      super.setPhysicalNamingStrategy(new UpperCaseNamingStrategy());
+    /**
+     * Configure Hibernate dialect with validation.
+     */
+    private void configureDialect(Properties props, PSConnectionDetail connDetail) {
+        var driver = connDetail.getDriver();
+        var dialect = dialectConfig.getDialectClassNameSafely(driver)
+            .orElseThrow(() -> new RuntimeException(
+                "Cannot determine Hibernate SQL dialect for driver: " + driver));
 
-   }
+        props.setProperty("hibernate.dialect", dialect);
+    }
 
-   @Override
-   public void afterPropertiesSet() throws IllegalArgumentException,
-         HibernateException
-   {
-      try
-      {
-         m_hibernateProperties.putAll(getHibernateProperties(null));
-         super.setHibernateProperties(m_hibernateProperties);
-         // configuration created in super.afterPropertiesSet()
-         super.afterPropertiesSet();
-         this.getConfiguration().setInterceptor(new PSHibernateInterceptor(m_interceptEvents));
-      }
-      catch (Exception e)
-      {
-         // any exception here is fatal
-         throw new RuntimeException(
-               "Failed to initialize the hibernate configuration: "
-                     + e.getLocalizedMessage(), e);
-      }
-   }
+    /**
+     * Configure database-specific properties for DB2 and Derby.
+     */
+    private void configureDatabaseSpecificProperties(Properties props, PSConnectionDetail connDetail) {
+        var driver = connDetail.getDriver();
 
-   /**
-    * Sets the datasource manager to use override the configuration.
-    * 
-    * @param dsMgr The datasource manager, may not be <code>null</code>.
-    */
-   public void setDatasourceManager(IPSDatasourceManager dsMgr)
-   {
-      if (dsMgr == null)
-         throw new IllegalArgumentException("dsMgr may not be null");
+        // Set transaction isolation for DB2 & Derby
+        if (PSJdbcUtils.DB2.equalsIgnoreCase(driver) ||
+            PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driver)) {
+            props.setProperty("hibernate.connection.isolation",
+                PSJdbcUtils.TRANSACTION_READ_UNCOMMITTED_VALUE);
+        }
 
-      m_dsMgr = dsMgr;
-   }
+        // Configure Derby-specific query substitutions
+        if (PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driver)) {
+            props.setProperty("hibernate.query.substitutions",
+                "true=T,false=F,yes=Y,no=N");
+        }
+    }
 
-   /**
-    * The map of dialects to use when overriding the configuration.
-    * 
-    * @param dialects The dialect config. May not be <code>null</code> or
-    *           empty.
-    */
-   public void setDialects(PSHibernateDialectConfig dialects)
-   {
-      if (dialects == null || dialects.getDialects().isEmpty())
-         throw new IllegalArgumentException("dialects may not be null or emtpy");
+    /**
+     * Configure cache properties for optimal performance.
+     */
+    private void configureCacheProperties(Properties props) {
+        props.setProperty("hibernate.cache.use_query_cache", "true");
+        props.setProperty("hibernate.cache.ehcache.missing_cache_strategy", "create");
+    }
 
-      m_dialectCfg = dialects;
-   }
+    @Override
+    public void setHibernateProperties(Properties props) {
+        Objects.requireNonNull(props, "props may not be null");
 
-   /**
-    * The intercept events are used to add informative event handling for
-    * debugging purposes.
-    * 
-    * @return Returns the interceptEvents.
-    */
-   public List<String> getInterceptEvents()
-   {
-      return m_interceptEvents;
-   }
+        hibernateProperties.clear();
+        hibernateProperties.putAll(props);
 
-   /**
-    * @param interceptEvents The interceptEvents to set.
-    */
-   public void setInterceptEvents(List<String> interceptEvents)
-   {
-      m_interceptEvents = interceptEvents;
-   }
+        super.setHibernateProperties(props);
+        super.setImplicitNamingStrategy(new ImplicitNamingStrategyLegacyHbmImpl());
+        super.setPhysicalNamingStrategy(new UpperCaseNamingStrategy());
+    }
 
-   /**
-    * The datasource manager to use to override the new configuration,
-    * initalized by the first call to
-    * {@link #setDatasourceManager(IPSDatasourceManager)}, never
-    * <code>null</code> after that.
-    */
-   private IPSDatasourceManager m_dsMgr;
+    @Override
+    public void afterPropertiesSet() throws IllegalArgumentException, HibernateException {
+        try {
+            hibernateProperties.putAll(getHibernateProperties(null));
+            super.setHibernateProperties(hibernateProperties);
+            super.afterPropertiesSet();
 
-   /**
-    * Configuration of jdbc driver name to hibernate sql dialect, never
-    * <code>null</code>, may be empty. Modified by calls to
-    * {@link #setDialects(PSHibernateDialectConfig)}.
-    */
-   private PSHibernateDialectConfig m_dialectCfg = new PSHibernateDialectConfig();
+            // Configure interceptor after session factory creation
+            this.getConfiguration().setInterceptor(
+                new PSHibernateInterceptor(interceptEvents));
 
-   /**
-    * The list of events will be intercepted and logged to the console for aid
-    * in debugging issues
-    */
-   private List<String> m_interceptEvents = new ArrayList<>();
+        } catch (Exception e) {
+            var errorMsg = "Failed to initialize the hibernate configuration: " +
+                e.getLocalizedMessage();
+            throw new RuntimeException(errorMsg, e);
+        }
+    }
 
-   /**
-    * Cached hibernate properties saved by overriden
-    * {@link #setHibernateProperties(Properties)}, never <code>null</code>,
-    * may be empty.
-    */
-   private Properties m_hibernateProperties = new Properties();
+    /**
+     * Sets the datasource manager to use override the configuration.
+     *
+     * @param datasourceManager The datasource manager, may not be <code>null</code>.
+     */
+    public void setDatasourceManager(IPSDatasourceManager datasourceManager) {
+        this.datasourceManager = Objects.requireNonNull(datasourceManager,
+            "datasourceManager may not be null");
+    }
+
+    /**
+     * Get the datasource manager safely.
+     *
+     * @return Optional containing the datasource manager, or empty if not set
+     */
+    public Optional<IPSDatasourceManager> getDatasourceManagerSafely() {
+        return Optional.ofNullable(datasourceManager);
+    }
+
+    /**
+     * The map of dialects to use when overriding the configuration.
+     *
+     * @param dialects The dialect config. May not be <code>null</code> or empty.
+     */
+    public void setDialects(PSHibernateDialectConfig dialects) {
+        Objects.requireNonNull(dialects, "dialects may not be null");
+
+        if (dialects.getDialects().isEmpty()) {
+            throw new IllegalArgumentException("dialects may not be empty");
+        }
+
+        this.dialectConfig = dialects;
+    }
+
+    /**
+     * Get the intercept events used for debugging.
+     *
+     * @return The intercept events list, never null
+     */
+    public List<String> getInterceptEvents() {
+        return List.copyOf(interceptEvents); // Return immutable copy
+    }
+
+    /**
+     * Set the intercept events for debugging purposes.
+     *
+     * @param interceptEvents The intercept events to set, may not be null
+     */
+    public void setInterceptEvents(List<String> interceptEvents) {
+        Objects.requireNonNull(interceptEvents, "interceptEvents may not be null");
+        this.interceptEvents = new ArrayList<>(interceptEvents);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSSessionFactoryBean{datasourceManager=%s, dialectCount=%d, interceptEventCount=%d}",
+            getDatasourceManagerSafely().map(Object::getClass).map(Class::getSimpleName).orElse("null"),
+            dialectConfig.getDialects().size(),
+            interceptEvents.size());
+    }
+
+    /**
+     * The datasource manager to use to override the configuration.
+     */
+    private IPSDatasourceManager datasourceManager;
+
+    /**
+     * Configuration of JDBC driver name to hibernate SQL dialect.
+     */
+    private PSHibernateDialectConfig dialectConfig = new PSHibernateDialectConfig();
+
+    /**
+     * The list of events to be intercepted and logged for debugging.
+     */
+    private List<String> interceptEvents = new ArrayList<>();
+
+    /**
+     * Cached hibernate properties, thread-safe access.
+     */
+    private final Properties hibernateProperties = new Properties();
 }

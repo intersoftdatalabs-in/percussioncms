@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package com.percussion.services.security.impl;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.design.objectstore.PSTextLiteral;
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.IPSDirectoryCataloger;
 import com.percussion.security.IPSGroupProvider;
 import com.percussion.security.IPSInternalRoleCataloger;
@@ -38,15 +38,15 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSCatalogerConfig;
 import com.percussion.services.security.data.PSCatalogerConfigurations;
-import com.percussion.util.PSBaseBean;
-import com.percussion.utils.servlet.PSServletUtils;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
-import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;

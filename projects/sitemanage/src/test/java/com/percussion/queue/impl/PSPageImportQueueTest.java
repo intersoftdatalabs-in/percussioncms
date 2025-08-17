@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.queue.impl;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -25,130 +28,117 @@ import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
-public class PSPageImportQueueTest extends PSServletTestCase
-{
-    IPSPageImportQueue m_importQueue;
-    private IPSSystemProperties m_systemProps;
-    private IPSPerformPageImport m_systemPageImporter;
-    
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        m_importQueue = (IPSPageImportQueue) getBean("pageImportQueue");
-        m_systemProps = ((PSPageImportQueue) m_importQueue).getSystemProps();
+/**
+ * Integration test for {@link PSPageImportQueue}. Sunny Sal: "Queue it up! Importing pages like a
+ * boss."
+ */
+@Tag("IntegrationTest")
+public class PSPageImportQueueTest extends PSServletTestCase {
 
-        m_systemPageImporter = ((PSPageImportQueue)m_importQueue).getPageImporter();
-        ((PSPageImportQueue)m_importQueue).setPageImporter(new PageImportTester());
-    }
-    
-    @Override
-    protected void tearDown() throws Exception
-    {
-        ((PSPageImportQueue)m_importQueue).setPageImporter(m_systemPageImporter);
-        ((PSPageImportQueue) m_importQueue).setSystemProps(m_systemProps);
-    }
+  private IPSPageImportQueue importQueue;
+  private IPSSystemProperties systemProps;
+  private IPSPerformPageImport systemPageImporter;
 
-    private void setMaxImportCount(String max)
-    {
-        PSMockSystemProps testProps = new PSMockSystemProps();
-        testProps.setMax(max);
-        ((PSPageImportQueue) m_importQueue).setSystemProps(testProps);
-    }
-    
-    static AtomicInteger idCounter = new AtomicInteger();
-    
-    static int ms_totalCounter = 0;
-    
-    private List<Integer> getNextCatalogedPageIds()
-    {
-        List<Integer> ids = new ArrayList<Integer>();
-        for (int i=0; i<3; i++)
-        {
-            int id = idCounter.getAndIncrement();
-            ids.add(id);
-        }
-        ms_totalCounter += ids.size();
-        return ids;
-    }
-    
-    public void testImportQueue() throws Exception
-    {
-        setMaxImportCount("-1");
-        
-        final Long SITE_ID = 1000L;
-        PSSite s = new PSSite();
-        s.setSiteId(SITE_ID);
-        s.setName("TestImportQueue");
-        List<Integer> idList = getNextCatalogedPageIds();
-        
-        m_importQueue.addCatalogedPageIds(s, "FakeAgent", idList);
+  @BeforeEach
+  protected void setUp() throws Exception {
+    super.setUp();
+    importQueue = (IPSPageImportQueue) getBean("pageImportQueue");
+    systemProps = ((PSPageImportQueue) importQueue).getSystemProps();
+    systemPageImporter = ((PSPageImportQueue) importQueue).getPageImporter();
+    ((PSPageImportQueue) importQueue).setPageImporter(new PageImportTester());
+  }
 
-        waitForQueueWakeup(m_importQueue, s);
-        
-        while (true)
-        {
-        	for (Integer i : m_importQueue.getImportingPageIds(SITE_ID))
-        	{
-        		m_importQueue.addImportedId(SITE_ID, i);
-        	}
-        	List<Integer> ids = m_importQueue.getImportingPageIds(SITE_ID);
-            List<Integer> catalogIds = m_importQueue.getCatalogedPageIds(SITE_ID);
-            
-            if (ids.size() == 0 && catalogIds.isEmpty())
-                break;
-                
-            System.out.println("[TEST] importing pages with ids: " + ids);
-            Thread.sleep(500);
-        }
-        
-        List<Integer> importedIds = m_importQueue.getImportedPageIds(SITE_ID);
-        
-        
-        validateSiteDeleteNotification(SITE_ID);
+  @AfterEach
+  protected void tearDown() throws Exception {
+    ((PSPageImportQueue) importQueue).setPageImporter(systemPageImporter);
+    ((PSPageImportQueue) importQueue).setSystemProps(systemProps);
+  }
+
+  private void setMaxImportCount(String max) {
+    var testProps = new PSMockSystemProps();
+    testProps.setMax(max);
+    ((PSPageImportQueue) importQueue).setSystemProps(testProps);
+  }
+
+  private static final AtomicInteger idCounter = new AtomicInteger();
+  private static int totalCounter = 0;
+
+  private List<Integer> getNextCatalogedPageIds() {
+    var ids = new ArrayList<Integer>();
+    for (int i = 0; i < 3; i++) {
+      ids.add(idCounter.getAndIncrement());
+    }
+    totalCounter += ids.size();
+    return ids;
+  }
+
+  @Test
+  void testImportQueue() throws Exception {
+    setMaxImportCount("-1");
+    final Long siteId = 1000L;
+    var site = new PSSite();
+    site.setSiteId(siteId);
+    site.setName("TestImportQueue");
+    var idList = getNextCatalogedPageIds();
+
+    importQueue.addCatalogedPageIds(site, "FakeAgent", idList);
+
+    waitForQueueWakeup(importQueue, site);
+
+    while (true) {
+      for (var i : importQueue.getImportingPageIds(siteId)) {
+        importQueue.addImportedId(siteId, i);
+      }
+      var ids = importQueue.getImportingPageIds(siteId);
+      var catalogIds = importQueue.getCatalogedPageIds(siteId);
+
+      if (ids.isEmpty() && catalogIds.isEmpty()) {
+        break;
+      }
+
+      System.out.println("[TEST] importing pages with ids: " + ids);
+      Thread.sleep(500);
     }
 
-    private void validateSiteDeleteNotification(final Long siteId)
-    {
-        PSSiteQueue sq = m_importQueue.getPageIds(siteId);
-        assertTrue(sq.getImportedIds().size() > 0);
-        
-        IPSGuid guid = new PSGuid(PSTypeEnum.SITE, siteId);
-        PSNotificationEvent event = new PSNotificationEvent(PSNotificationEvent.EventType.SITE_DELETED, guid);
-        ((PSPageImportQueue)m_importQueue).notifyEvent(event);
-        
-        sq = m_importQueue.getPageIds(siteId);
-        
-        ms_totalCounter = 0;
-    }
+    var importedIds = importQueue.getImportedPageIds(siteId);
+    validateSiteDeleteNotification(siteId);
+  }
 
-    private void waitForQueueWakeup(IPSPageImportQueue importQueue, PSSite s) throws InterruptedException
-    {
-        Thread.sleep(200);
+  private void validateSiteDeleteNotification(final Long siteId) {
+    var sq = importQueue.getPageIds(siteId);
+    assertTrue(sq.getImportedIds().size() > 0);
+
+    IPSGuid guid = new PSGuid(PSTypeEnum.SITE, siteId);
+    var event = new PSNotificationEvent(PSNotificationEvent.EventType.SITE_DELETED, guid);
+    ((PSPageImportQueue) importQueue).notifyEvent(event);
+
+    sq = importQueue.getPageIds(siteId);
+    totalCounter = 0;
+  }
+
+  private void waitForQueueWakeup(IPSPageImportQueue importQueue, PSSite site)
+      throws InterruptedException {
+    Thread.sleep(200);
+  }
+
+  private static class PSMockSystemProps extends Properties implements IPSSystemProperties {
+    public void setMax(String value) {
+      setProperty(IMPORT_PAGE_MAX, value);
     }
-    
-    private class PSMockSystemProps extends Properties implements IPSSystemProperties
-    {
-        public void setMax(String value)
-        {
-            setProperty(IMPORT_PAGE_MAX, value);
-        }
+  }
+
+  private static class PageImportTester implements IPSPerformPageImport {
+    public void performPageImport(PSSite site, Integer id, String userAgent)
+        throws InterruptedException {
+      System.out.println("Importing page id: " + id);
+      Thread.sleep(1000);
     }
-    
-    private class PageImportTester implements IPSPerformPageImport
-    {
-        public void performPageImport(PSSite site, Integer id, String userAgent) throws InterruptedException
-        {
-            System.out.println("Importing page id: " + id);
-            Thread.sleep(1000);
-        }
-    }
+  }
 }

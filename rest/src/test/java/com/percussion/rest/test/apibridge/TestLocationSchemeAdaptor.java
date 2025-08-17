@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;
 import com.percussion.rest.locationscheme.LocationScheme;
 import org.springframework.stereotype.Component;
 
+/** Test adaptor for LocationScheme API bridge. */
 @Component
 public class TestLocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    @Override
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
-        return null;
-    }
+  @Override
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+    return null;
+  }
 
-    @Override
-    public void deletedLocationScheme(String guid) {
-
-    }
+  @Override
+  public void deletedLocationScheme(String guid) {
+    // No-op for test adaptor
+  }
 }

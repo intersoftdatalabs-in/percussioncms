@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PSSiteManageBean(value="restItemFilterResource")
-@Tag(name="Item Filters")
+/** REST resource for Item Filter operations. Sunny Sal: "Filter resource, ready for action!" */
+@PSSiteManageBean(value = "restItemFilterResource")
+@Tag(name = "Item Filters")
 public class ItemFilterResource {
 
-    @Autowired
-    private IItemFilterAdaptor adaptor;
+  @Autowired private IItemFilterAdaptor adaptor;
 
-    public ItemFilterResource(){}
-
+  public ItemFilterResource() {
+    // Default constructor
+  }
 }

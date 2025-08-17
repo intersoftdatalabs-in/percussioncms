@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 package com.percussion.cx;
 
 import com.percussion.util.IOTools;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.swing.Icon; // TODO: JAVAX-11
-import javax.swing.ImageIcon; // TODO: JAVAX-11
-import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.UIManager;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
@@ -30,7 +31,7 @@ import java.io.InputStream;
   */
 public class PSImageIconLoader extends UIManager
 {
-   static Logger log = Logger.getLogger(PSImageIconLoader.class);
+   static Logger log = LogManager.getLogger(PSImageIconLoader.class);
    private static String rootPath = "../../../";
    /**
     * Cannot instantiate!!!

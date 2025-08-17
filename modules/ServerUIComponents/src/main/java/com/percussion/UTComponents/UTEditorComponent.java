@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*; // TODO: JAVAX-11
 import java.awt.event.ActionListener;
-
+import javax.swing.*;
 
 /**
- * The abstract class for all the editor components which should work with
- * {@link UTCellEditor } which can be used as table cell editor.
+ * The abstract class for all the editor components which should work with {@link UTCellEditor }
+ * which can be used as table cell editor.
  */
-public abstract class UTEditorComponent extends JPanel
-   implements IEditorComponent
-{
+public abstract class UTEditorComponent extends JPanel implements IEditorComponent {
 
-   //see interface for description
-   public abstract JComponent getEditorComponent();
+  // see interface for description
+  public abstract JComponent getEditorComponent();
 
-   //see interface for description
-   public abstract void addActionListener(ActionListener l);
+  // see interface for description
+  public abstract void addActionListener(ActionListener l);
 }

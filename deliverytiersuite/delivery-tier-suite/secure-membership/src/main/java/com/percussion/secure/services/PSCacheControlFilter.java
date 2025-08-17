@@ -16,9 +16,6 @@
  */
 package com.percussion.secure.services;
 
-import java.io.IOException;
-import java.util.Date;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -26,25 +23,28 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 public class PSCacheControlFilter implements Filter {
+  // REFACTORED: CP-JAVA11
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
+    var resp = (HttpServletResponse) response;
+    resp.setHeader("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
+    resp.setHeader("Last-Modified", new Date().toString());
+    resp.setHeader(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+    resp.setHeader("Pragma", "no-cache");
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
+    chain.doFilter(request, response);
+  }
 
-        HttpServletResponse resp = (HttpServletResponse) response;
-        resp.setHeader("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
-        resp.setHeader("Last-Modified", new Date().toString());
-        resp.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-        resp.setHeader("Pragma", "no-cache");
+  @Override
+  public void destroy() {}
 
-        chain.doFilter(request, response);
-    }
-
-    @Override
-    public void destroy() {}
-
-    @Override
-    public void init(FilterConfig arg0) {}
-
+  @Override
+  public void init(FilterConfig arg0) {}
 }

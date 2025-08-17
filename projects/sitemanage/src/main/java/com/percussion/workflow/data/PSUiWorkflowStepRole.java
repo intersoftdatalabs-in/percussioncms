@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,128 +19,77 @@ package com.percussion.workflow.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
- * This class contains the structure of the step role information. The object is
- * composed of a role name, a role id and a list of
- * {@link PSUiWorkflowStepRoleTransition}.
- * 
- * 
- * @author leonardohildt
- * @author rafaelsalis
- * 
+ * Represents a workflow step role with its name, id, notification flag, and transitions.
+ *
+ * <p>Sunny Sal says: "Roles in a workflow are like supporting actors—without them, the hero can't
+ * shine!"
  */
 @XmlRootElement(name = "WorkflowStepRoles")
-// Define the order in which the fields are written
-@XmlType (propOrder={"roleId", "roleName", "enableNotification", "roleTransitions"})
+@XmlType(propOrder = {"roleId", "roleName", "enableNotification", "roleTransitions"})
 @JsonRootName("WorkflowStepRoles")
-public class PSUiWorkflowStepRole extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = -1L;
+public class PSUiWorkflowStepRole extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    private String roleName;
+  private String roleName;
+  private Integer roleId;
+  private Boolean enableNotification = false;
+  private List<PSUiWorkflowStepRoleTransition> roleTransitions = new ArrayList<>();
 
-    private Integer roleId;
-    
-    private Boolean enableNotification = false;
+  public PSUiWorkflowStepRole() {
+    super();
+  }
 
-    private List<PSUiWorkflowStepRoleTransition> roleTransitions;
+  public PSUiWorkflowStepRole(String roleName, int roleId) {
+    this.roleName = roleName;
+    this.roleId = roleId;
+  }
 
-    public PSUiWorkflowStepRole()
-    {
-        super();
+  public PSUiWorkflowStepRole(String roleName, int roleId, boolean isNotified) {
+    this.roleName = roleName;
+    this.roleId = roleId;
+    this.enableNotification = isNotified;
+  }
+
+  public String getRoleName() {
+    return roleName;
+  }
+
+  public void setRoleName(String roleName) {
+    this.roleName = roleName;
+  }
+
+  public Integer getRoleId() {
+    return roleId;
+  }
+
+  public void setRoleId(Integer roleId) {
+    this.roleId = roleId;
+  }
+
+  /** Gets the transitions of the role. May be empty but never {@code null}. */
+  public List<PSUiWorkflowStepRoleTransition> getRoleTransitions() {
+    if (roleTransitions == null) {
+      roleTransitions = new ArrayList<>();
     }
+    return roleTransitions;
+  }
 
-    /**
-     * @param roleName
-     */
-    public PSUiWorkflowStepRole(String roleName, int roleId)
-    {
-        this.roleName = roleName;
-        this.roleId = roleId;
-    }
-    
-    /**
-     * @param roleName
-     */
-    public PSUiWorkflowStepRole(String roleName, int roleId, boolean isNotified)
-    {
-        this.roleName = roleName;
-        this.roleId = roleId;
-        this.enableNotification = isNotified;
-    }
+  /** Sets the transitions of the role. May be empty but never {@code null}. */
+  public void setRoleTransitions(List<PSUiWorkflowStepRoleTransition> roleTransitions) {
+    this.roleTransitions = (roleTransitions == null) ? new ArrayList<>() : roleTransitions;
+  }
 
-    /**
-     * @return the name of the role
-     */
-    public String getRoleName()
-    {
-        return roleName;
-    }
+  public Boolean isEnableNotification() {
+    return enableNotification;
+  }
 
-    /**
-     * @param role the name of the role to set
-     */
-    public void setRoleName(String roleName)
-    {
-        this.roleName = roleName;
-    }
-
-    /**
-     * @return the id of the role
-     */
-    public Integer getRoleId()
-    {
-        return roleId;
-    }
-
-    /**
-     * @param id the id of the role to set
-     */
-    public void setRoleId(Integer roleId)
-    {
-        this.roleId = roleId;
-    }
-
-    /**
-     * @return the transitions of the role, may be empty but never <code>null</code>
-     */
-    public List<PSUiWorkflowStepRoleTransition> getRoleTransitions()
-    {
-        return roleTransitions;
-    }
-
-    /**
-     * @param transitions the transitions of the role to set, may be empty but never <code>null</code>
-     */
-    public void setRoleTransitions(List<PSUiWorkflowStepRoleTransition> roleTransitions)
-    {
-        if (roleTransitions == null)
-        {
-            roleTransitions = new ArrayList<>();
-        }
-        this.roleTransitions = roleTransitions;
-    }
-    
-    /**
-     * @return the value for enable notifications
-     */
-    public Boolean isEnableNotification()
-    {
-        return enableNotification;
-    }
-
-    /**
-     * @param enableNotification the  for enableNotification that indicates whether it is enabled or not
-     */
-    public void setEnableNotification(Boolean enableNotification)
-    {
-        this.enableNotification = enableNotification;
-    }
+  public void setEnableNotification(Boolean enableNotification) {
+    this.enableNotification = enableNotification;
+  }
 }

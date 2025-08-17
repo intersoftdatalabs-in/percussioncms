@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,33 @@
 package com.percussion.delivery.polls.services;
 
 import com.percussion.delivery.polls.data.IPSPoll;
-
 import java.util.Map;
 
-public interface IPSPollsService 
-{
-	/**
-	 * Finds the poll with the supplied poll name. Returns <code>null</code> if not found.
-	 * @param pollName name of the poll, must not be blank.
-	 * @return IPSPoll or <code>null</code> if poll is not found.
-	 */
-    public IPSPoll findPoll(String pollName);
+// REFACTORED: CP-JAVA11
+public interface IPSPollsService {
+  /**
+   * Finds the poll with the supplied poll name. Returns <code>null</code> if not found.
+   *
+   * @param pollName name of the poll, must not be blank.
+   * @return IPSPoll or <code>null</code> if poll is not found.
+   */
+  IPSPoll findPoll(String pollName);
 
-    /**
-     * Finds the poll with the supplied poll question. Returns <code>null</code> if not found.
-     * @param pollQuestion poll question must not be blank.
-     * @return IPSPoll or <code>null</code> if poll is not found.
-     */    
-    public IPSPoll findPollByQuestion(String pollQuestion);
-	
-    /**
-     * Saves the poll.
-     * @param pollName Name of the poll, must not be blank.
-     * @param pollQuestion question of the poll, must not be blak.
-     * @param pollAnswers map of poll answer and its value as boolean, true means the answer count is incremented by one, false means the answer is not tounched,
-     */
-    public void savePoll(String pollName, String pollQuestion, Map<String, Boolean> pollAnswers);
+  /**
+   * Finds the poll with the supplied poll question. Returns <code>null</code> if not found.
+   *
+   * @param pollQuestion poll question must not be blank.
+   * @return IPSPoll or <code>null</code> if poll is not found.
+   */
+  IPSPoll findPollByQuestion(String pollQuestion);
+
+  /**
+   * Saves the poll.
+   *
+   * @param pollName Name of the poll, must not be blank.
+   * @param pollQuestion question of the poll, must not be blank.
+   * @param pollAnswers map of poll answer and its value as boolean, true means the answer count is
+   *     incremented by one, false means the answer is not touched.
+   */
+  void savePoll(String pollName, String pollQuestion, Map<String, Boolean> pollAnswers);
 }

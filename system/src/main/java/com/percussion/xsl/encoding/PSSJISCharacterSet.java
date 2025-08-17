@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@ package com.percussion.xsl.encoding;
 
 import java.io.IOException;
 
-/**
- * Defines the SJIS character encoding for the Saxon XSLT processor.
- */
-public class PSSJISCharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSSJISCharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("SJIS", "java-SJIS.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSSJISCharacterSet() throws IOException
-   {
-      super("SJIS", "java-SJIS.xml");
-   }
+/** Defines the SJIS character encoding for the Saxon XSLT processor. */
+public class PSSJISCharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSSJISCharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("SJIS",
+   * "java-SJIS.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSSJISCharacterSet() throws IOException {
+    super("SJIS", "java-SJIS.xml");
+  }
 }

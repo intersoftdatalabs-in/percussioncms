@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,210 +15,162 @@
  * limitations under the License.
  */
 
-package com.percussion.pagemanagement.service;
+// REFACTORED: CP-JAVA11
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSTemplateDao;
 import com.percussion.pagemanagement.data.PSPage;
-import com.percussion.pagemanagement.data.PSRegionBranches;
 import com.percussion.pagemanagement.data.PSRegionWidgets;
 import com.percussion.pagemanagement.data.PSTemplate;
-import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.services.content.data.PSItemStatus;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
-import org.junit.experimental.categories.Category;
+import java.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-/**
- * This is used to upgrade widget IDs (or names) in the CLOB field of pages and tempaltes.
- * This is done in addition of updating database through various SQL statements, rename
- * table name, update relationship database table, ...etc. (see detail in change list 42191)
- * 
- * @author YuBingChen
- */
-@Category(IntegrationTest.class)
-public class PSUpgradePageTemplateTest extends PSServletTestCase
-{
+@Tag("IntegrationTest")
+class PSUpgradePageTemplateTest extends PSServletTestCase {
 
-    @Override
-    public void setUp() throws Exception
-    {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        securityWs.login("Admin", "demo", "Default", null);
+  private final Map<String, String> widgetMap = new HashMap<>();
 
-        widgetMap.put("event", "percEvent");
-        widgetMap.put("file", "percFile");
-        widgetMap.put("flash", "percFlash");
-        widgetMap.put("image", "percImage");
-        widgetMap.put("navBar", "percNavBar");
-        widgetMap.put("navBreadcrumb", "percNavBreadcrumb");
-        widgetMap.put("PageAutoList", "percPageAutoList");
-        widgetMap.put("PSWidget_RawHtml", "percRawHtml");
-        widgetMap.put("PSWidget_RichText", "percRichText");
-        widgetMap.put("PSWidget_SimpleText", "percSimpleText");
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
-        super.setUp();
+  private IPSPageService pageService;
+  private IPSIdMapper idMapper;
+  private IPSSystemWs systemWs;
+  private IPSPageDao pageDao;
+  private IPSTemplateDao templateDao;
+  private IPSSecurityWs securityWs;
+  private IPSContentWs contentWs;
+
+  @BeforeEach
+  void setUpTest() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    securityWs.login("Admin", "demo", "Default", null);
+
+    widgetMap.put("event", "percEvent");
+    widgetMap.put("file", "percFile");
+    widgetMap.put("flash", "percFlash");
+    widgetMap.put("image", "percImage");
+    widgetMap.put("navBar", "percNavBar");
+    widgetMap.put("navBreadcrumb", "percNavBreadcrumb");
+    widgetMap.put("PageAutoList", "percPageAutoList");
+    widgetMap.put("PSWidget_RawHtml", "percRawHtml");
+    widgetMap.put("PSWidget_RichText", "percRichText");
+    widgetMap.put("PSWidget_SimpleText", "percSimpleText");
+    super.setUp();
+  }
+
+  @Test
+  void testUpdateAllTemplates() throws Exception {
+    var updateTemplates = new ArrayList<PSTemplate>();
+    for (var template : templateDao.findAll()) {
+      var widgets = template.getRegionTree().getRegionWidgetAssociations();
+      if (needToResetWidgets(widgets)) {
+        updateTemplates.add(template);
+      }
     }
+    for (var template : updateTemplates) {
+      templateDao.save(template);
+      System.out.println("Updated page \"" + template.getName() + "\"");
+    }
+  }
 
-    private Map<String, String> widgetMap = new HashMap<String, String>();
+  @Test
+  void testUpdateAllPages() throws Exception {
+    var updatePages = new ArrayList<PSPage>();
+    for (var page : pageDao.findAll()) {
+      var branches = page.getRegionBranches();
+      var widgets = branches.getRegionWidgetAssociations();
+      if (needToResetWidgets(widgets)) {
+        updatePages.add(page);
+      }
+    }
+    for (var page : updatePages) {
+      IPSGuid id = idMapper.getGuid(page.getId());
+      PSItemStatus status = contentWs.prepareForEdit(id);
+      pageDao.save(page);
+      contentWs.releaseFromEdit(status, false);
+      System.out.println("Updated page \"" + page.getName() + "\"");
+    }
+  }
 
-    public void testUpdateAllTemplates() throws Exception
-    {
-        List<PSTemplate> updateTempates = new ArrayList<PSTemplate>();
-        for (PSTemplate template : templateDao.findAll())
-        {
-            Set<PSRegionWidgets> widgets = template.getRegionTree().getRegionWidgetAssociations();
-            boolean updateTemplate = needToResetWidgets(widgets);
-            if (updateTemplate)
-                updateTempates.add(template);
+  private boolean needToResetWidgets(Set<PSRegionWidgets> widgets) {
+    var isUpdated = false;
+    for (var ws : widgets) {
+      for (var w : ws.getWidgetItems()) {
+        var oldName = w.getDefinitionId();
+        var newName = widgetMap.get(oldName);
+        if (newName != null) {
+          isUpdated = true;
+          w.setDefinitionId(newName);
+          System.out.println("Change widget definition: " + oldName + " -> " + newName);
         }
-
-        for (PSTemplate template : updateTempates)
-        {
-            templateDao.save(template);
-            System.out.println("Updated page \"" + template.getName() + "\"");
-        }
+      }
     }
+    return isUpdated;
+  }
 
-    public void testUpdateAllPages() throws Exception
-    {
-        List<PSPage> updatePages = new ArrayList<PSPage>();
-        for (PSPage page : pageDao.findAll())
-        {
-            PSRegionBranches branches = page.getRegionBranches();
-            Set<PSRegionWidgets> widgets = branches.getRegionWidgetAssociations();
-            boolean updatePage = needToResetWidgets(widgets);
-            if (updatePage)
-                updatePages.add(page);
-        }
+  public IPSPageService getPageService() {
+    return pageService;
+  }
 
-        for (PSPage page : updatePages)
-        {
-            IPSGuid id = idMapper.getGuid(page.getId());
-            PSItemStatus status = contentWs.prepareForEdit(id);
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-            pageDao.save(page);
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
 
-            contentWs.releaseFromEdit(status, false);
-            System.out.println("Updated page \"" + page.getName() + "\"");
-        }
-    }
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
 
-    private boolean needToResetWidgets(Set<PSRegionWidgets> widgets)
-    {
-        boolean isUpdated = false;
-        for (PSRegionWidgets ws : widgets)
-        {
-            for (PSWidgetItem w : ws.getWidgetItems())
-            {
-                String oldName = w.getDefinitionId();
-                String newName = widgetMap.get(oldName);
-                if (newName != null)
-                {
-                    isUpdated = true;
-                    w.setDefinitionId(newName);
-                    System.out.println("Change widget definition: " + oldName + " -> " + newName);
-                }
-            }
-        }
-        return isUpdated;
-    }
+  public IPSSystemWs getSystemWs() {
+    return systemWs;
+  }
 
+  public void setSystemWs(IPSSystemWs systemWs) {
+    this.systemWs = systemWs;
+  }
 
-    public IPSPageService getPageService()
-    {
-        return pageService;
-    }
+  public IPSTemplateDao getTemplateDao() {
+    return templateDao;
+  }
 
-    public void setPageService(IPSPageService pageService)
-    {
-        this.pageService = pageService;
-    }
+  public void setTemplateDao(IPSTemplateDao templateDao) {
+    this.templateDao = templateDao;
+  }
 
-    public IPSIdMapper getIdMapper()
-    {
-        return idMapper;
-    }
+  public IPSPageDao getPageDao() {
+    return pageDao;
+  }
 
-    public void setIdMapper(IPSIdMapper idMapper)
-    {
-        this.idMapper = idMapper;
-    }
+  public void setPageDao(IPSPageDao pageDao) {
+    this.pageDao = pageDao;
+  }
 
-    public IPSSystemWs getSystemWs()
-    {
-        return systemWs;
-    }
+  public IPSSecurityWs getSecurityWs() {
+    return securityWs;
+  }
 
-    public void setSystemWs(IPSSystemWs systemWs)
-    {
-        this.systemWs = systemWs;
-    }
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
 
-    public IPSTemplateDao getTemplateDao()
-    {
-        return templateDao;
-    }
+  public IPSContentWs getContentWs() {
+    return contentWs;
+  }
 
-    public void setTemplateDao(IPSTemplateDao templateDao)
-    {
-        this.templateDao = templateDao;
-    }
-
-    public IPSPageDao getPageDao()
-    {
-        return pageDao;
-    }
-
-    public void setPageDao(IPSPageDao pageDao)
-    {
-        this.pageDao = pageDao;
-    }
-
-
-    public IPSSecurityWs getSecurityWs()
-    {
-        return securityWs;
-    }
-
-    public void setSecurityWs(IPSSecurityWs securityWs)
-    {
-        this.securityWs = securityWs;
-    }
-
-    public IPSContentWs getContentWs()
-    {
-        return contentWs;
-    }
-
-    public void setContentWs(IPSContentWs contentWs)
-    {
-        this.contentWs = contentWs;
-    }
-
-    private IPSPageService pageService;
-
-    private IPSIdMapper idMapper;
-
-    private IPSSystemWs systemWs;
-
-    private IPSPageDao pageDao;
-
-    private IPSTemplateDao templateDao;
-
-    private IPSSecurityWs securityWs;
-
-    private IPSContentWs contentWs;
+  public void setContentWs(IPSContentWs contentWs) {
+    this.contentWs = contentWs;
+  }
 }

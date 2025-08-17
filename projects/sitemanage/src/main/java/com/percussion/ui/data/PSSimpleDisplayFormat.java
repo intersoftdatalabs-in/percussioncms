@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,142 +18,87 @@
 package com.percussion.ui.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-/**
- * A simplified version of <code>PSDisplayFormat</code>. Used
- * for CMS's list view.
- * @author erikserating
- *
- */
+/** A simplified version of PSDisplayFormat for CMS list views. */
 @JsonRootName("SimpleDisplayFormat")
-public class PSSimpleDisplayFormat
-{
- 
-    private int id;
-    private String name;
-    private String displayName;
-    private String description;
-    private List<PSDisplayFormatColumn> columns = new ArrayList<>();
-    private String sortby;
-    private boolean sortAscending = true;    
-    
-    
-    /**
-     * @return the id
-     */
-    public int getId()
-    {
-        return id;
-    }
+public class PSSimpleDisplayFormat {
+  private int id;
+  private String name;
+  private String displayName;
+  private String description;
+  private List<PSDisplayFormatColumn> columns = new ArrayList<>();
+  private String sortBy;
+  private boolean sortAscending = true;
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(int id)
-    {
-        this.id = id;
-    }
+  /** Gets the display format ID. */
+  public int getId() {
+    return id;
+  }
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /** Sets the display format ID. */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }    
+  /** Gets the internal name. */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @return the displayName
-     */
-    public String getDisplayName()
-    {
-        return displayName;
-    }
+  /** Sets the internal name. */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * @param displayName the displayName to set
-     */
-    public void setDisplayName(String displayName)
-    {
-        this.displayName = displayName;
-    }
+  /** Gets the display name. */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * @return the description
-     */
-    public String getDescription()
-    {
-        return description;
-    }
+  /** Sets the display name. */
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  /** Gets the description. */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * @return the columns
-     */
-    public List<PSDisplayFormatColumn> getColumns()
-    {
-        return columns;
-    }
+  /** Sets the description. */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    /**
-     * @param columns the columns to set
-     */
-    public void setColumns(List<PSDisplayFormatColumn> columns)
-    {
-        this.columns = columns;
-    }
+  /** Gets the list of columns. */
+  public List<PSDisplayFormatColumn> getColumns() {
+    return columns;
+  }
 
-    /**
-     * @return the sortby
-     */
-    public String getSortby()
-    {
-        return sortby;
-    }
+  /** Sets the list of columns. */
+  public void setColumns(List<PSDisplayFormatColumn> columns) {
+    this.columns = columns;
+  }
 
-    /**
-     * @param sortby the sortby to set
-     */
-    public void setSortby(String sortby)
-    {
-        this.sortby = sortby;
-    }    
+  /** Gets the sort by field. */
+  public String getSortby() {
+    return sortBy;
+  }
 
-    /**
-     * @return the sortAscending
-     */
-    public boolean isSortAscending()
-    {
-        return sortAscending;
-    }
+  /** Sets the sort by field. */
+  public void setSortby(String sortBy) {
+    this.sortBy = sortBy;
+  }
 
-    /**
-     * @param sortAscending the sortAscending to set
-     */
-    public void setSortAscending(boolean sortAscending)
-    {
-        this.sortAscending = sortAscending;
-    }
+  /** Returns true if sorting is ascending. */
+  public boolean isSortAscending() {
+    return sortAscending;
+  }
 
-    
+  /** Sets whether sorting is ascending. */
+  public void setSortAscending(boolean sortAscending) {
+    this.sortAscending = sortAscending;
+  }
 }

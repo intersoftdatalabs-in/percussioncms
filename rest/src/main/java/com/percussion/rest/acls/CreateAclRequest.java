@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,62 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name="CreateAclRequest")
-@Schema(description="A request to create an acl")
+@XmlRootElement(name = "CreateAclRequest")
+@Schema(description = "A request to create an acl")
 public class CreateAclRequest {
 
-    @Schema(required = true, description="A valid object guid.")
-    private Guid objectGuid;
+  @Schema(required = true, description = "A valid object guid.")
+  private Guid objectGuid;
 
-    @Schema(required = true, description="A valid Typed Principal")
-    private TypedPrincipal owner;
+  @Schema(required = true, description = "A valid Typed Principal")
+  private TypedPrincipal owner;
 
-    public CreateAclRequest() {
-    }
+  public CreateAclRequest() {}
 
+  public CreateAclRequest(Guid objectGuid, TypedPrincipal owner) {
+    this.objectGuid = objectGuid;
+    this.owner = owner;
+  }
 
-    public TypedPrincipal getOwner() {
-        return owner;
-    }
+  public TypedPrincipal getOwner() {
+    return owner;
+  }
 
-    public void setPrincipal(TypedPrincipal principal) {
-        this.owner = principal;
-    }
+  public void setOwner(TypedPrincipal owner) {
+    this.owner = owner;
+  }
 
-    public Guid getObjectGuid() {
-        return objectGuid;
-    }
+  public Guid getObjectGuid() {
+    return objectGuid;
+  }
 
-    public void setObjectGuid(Guid objectGuid) {
-        this.objectGuid = objectGuid;
-    }
+  public void setObjectGuid(Guid objectGuid) {
+    this.objectGuid = objectGuid;
+  }
+
+  @Override
+  public String toString() {
+    return "CreateAclRequest{" + "objectGuid=" + objectGuid + ", owner=" + owner + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof CreateAclRequest)) return false;
+    var that = (CreateAclRequest) o;
+    return Objects.equals(objectGuid, that.objectGuid) && Objects.equals(owner, that.owner);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(objectGuid, owner);
+  }
 }

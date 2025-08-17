@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,22 @@
 package com.percussion.design.catalog.macro.server;
 
 import com.percussion.design.catalog.PSCatalogRequestHandler;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class processes macro related catalog requests for the Rhythmyx 
- * server.
+ * This class processes macro related catalog requests for the Rhythmyx server.
  *
  * @see com.percussion.server.IPSRequestHandler
  */
-public class PSCatalogHandler extends PSCatalogRequestHandler
-{
-   /**
-    * Construct the macro catalog handler.
-    */
-   public PSCatalogHandler()
-   {
-      m_catalogHandlers = new ConcurrentHashMap();
-      addHandler(new PSMacroCatalogHandler());
-   }
+public class PSCatalogHandler extends PSCatalogRequestHandler {
+  /** Construct the macro catalog handler. */
+  public PSCatalogHandler() {
+    m_catalogHandlers = new ConcurrentHashMap();
+    addHandler(new PSMacroCatalogHandler());
+  }
 
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
+  /** Shutdown the request handler, freeing any associated resources. */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 }

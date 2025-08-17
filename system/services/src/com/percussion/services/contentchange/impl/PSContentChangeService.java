@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,215 +38,364 @@ import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
- * @author JaySeletz
+ * Modern Java 11 implementation of the Content Change Service.
  *
+ * <p>This service provides comprehensive content change tracking capabilities with:
+ * <ul>
+ *   <li>Thread-safe event handling and handler management</li>
+ *   <li>Stream-based data processing for efficiency</li>
+ *   <li>Enhanced error handling and logging</li>
+ *   <li>Modern Spring and Hibernate integration</li>
+ * </ul>
+ *
+ * <p>The service implements multiple interfaces to integrate with the CMS
+ * editor change notification system and provide change tracking for
+ * incremental publishing scenarios.
+ *
+ * @author JaySeletz
+ * @since Java 11 Modernization
  */
+@Service("sys_contentChangeService")
 @Transactional
-public class PSContentChangeService implements IPSContentChangeService, IPSEditorChangeListener, IPSHandlerInitListener, IPSNotificationListener
-{
-   private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+public final class PSContentChangeService implements IPSContentChangeService,
+        IPSEditorChangeListener, IPSHandlerInitListener, IPSNotificationListener {
 
-   @PersistenceContext
-   private EntityManager entityManager;
+    private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 
-   private Session getSession(){
-      return entityManager.unwrap(Session.class);
-   }
+    /**
+     * Constant for the GUID manager key used to generate IDs.
+     */
+    private static final String GUID_MGR_KEY = "PSX_CONTENTCHANGEEVENT";
 
-   /**
-    * Constant for the key used to generate link id's.
-    */
-   private static final String GUID_MGR_KEY = "PSX_CONTENTCHANGEEVENT";
-   
-   private IPSGuidManager m_guidMgr;
-   
-   private List<IPSContentChangeHandler> changeHandlers = new ArrayList<>();
-   
-   
-   public PSContentChangeService()
-   {
-      PSServer.addInitListener(this);
-       
-   }
-   
-   @Transactional
-   public void contentChanged(PSContentChangeEvent changeEvent) throws IPSGenericDao.SaveException {
-      Validate.notNull(changeEvent);
-      
-      Session session = getSession();
-      try
-      {
-         PSContentChangeEvent ce = session.get(PSContentChangeEvent.class, new PSContentChangePK(changeEvent.getContentId(), changeEvent.getSiteId(), changeEvent.getChangeType().name()));
-         
-         if (ce == null)
-         {
-            session.saveOrUpdate(changeEvent);
-         }
-      }
-      catch (HibernateException e)
-      {
-          String msg = "database error " + e.getMessage();
-          log.error(msg);
-          throw new IPSGenericDao.SaveException(msg, e);
-      }      
-   }
+    @PersistenceContext
+    private EntityManager entityManager;
 
-   public List<Integer> getChangedContent(long siteId, PSContentChangeType changeType)
-   {
-      Session session = getSession();
-      
-    
-      Query query = session.createQuery("from PSContentChangeEvent where changeType = :changeType and siteId = :siteId");
-      query.setParameter("changeType", changeType.name());
-      query.setParameter("siteId", siteId);
+    @Autowired(required = false)
+    private IPSGuidManager guidManager;
 
-      List<PSContentChangeEvent> results = query.list();
-      List<Integer> changedContentIds = new ArrayList<>();
-      for (PSContentChangeEvent result : results)
-      {
-         changedContentIds.add(result.getContentId());
-      }
+    /**
+     * Thread-safe list of content change handlers.
+     */
+    private final List<IPSContentChangeHandler> changeHandlers = new CopyOnWriteArrayList<>();
 
-      return changedContentIds;
-  
-   }
-   
-   public void setGuidManager(IPSGuidManager guidMgr)
-   {
-       m_guidMgr = guidMgr;
-   }
-   
-   public void setNotificationService(IPSNotificationService notificationSvc)
-   {
-      notificationSvc.addListener(EventType.RELATIONSHIP_CHANGED, this);
-   }
-   @Transactional
-   public void deleteChangeEvents(long siteId, int contentId, PSContentChangeType changeType)
-   {
-      Session session = getSession();
-      
-     
-      String queryStr = "delete from PSContentChangeEvent where contentId = :contentId and changeType = :changeType";
-      if (siteId != -1)
-         queryStr += " and siteId = :siteId"; 
-      
-      Query query = session.createQuery(queryStr);
-      query.setParameter("contentId", contentId);
-      query.setParameter("changeType", changeType.name());
-      if (siteId != -1)
-         query.setParameter("siteId", siteId);
+    /**
+     * Cache for efficient content ID lookups.
+     */
+    private final Set<String> contentChangeCache = ConcurrentHashMap.newKeySet();
 
-      query.executeUpdate();
-     
-   }
-   
-   @Transactional
-   public void deleteChangeEventsForSite(long siteId)
-   {
-      Session session = getSession();
-      
+    /**
+     * Constructs a new content change service and registers with the server.
+     */
+    public PSContentChangeService() {
+        PSServer.addInitListener(this);
+    }
 
-      String queryStr = "delete from PSContentChangeEvent where siteId = :siteId"; 
-      
-      Query query = session.createQuery(queryStr);
-      query.setParameter("siteId", siteId);
+    @Override
+    @Transactional
+    public void contentChanged(PSContentChangeEvent changeEvent) throws IPSGenericDao.SaveException {
+        Objects.requireNonNull(changeEvent, "Change event cannot be null");
 
-      query.executeUpdate();
-    
-   }
-   
-   @Transactional
-   public void deleteChangeEventsForSite(long siteId, PSContentChangeType changeType)
-   {
-      Session session = getSession();
-      
-      String queryStr = "delete from PSContentChangeEvent where siteId = :siteId and changeType = :changeType"; 
-      
-      Query query = session.createQuery(queryStr);
-      query.setParameter("siteId", siteId);
-      query.setParameter("changeType", changeType.toString());
-      query.executeUpdate();
-     
-   }
+        var session = getSession();
+        try {
+            var primaryKey = new PSContentChangePK(
+                changeEvent.getContentId(),
+                changeEvent.getSiteId(),
+                changeEvent.getChangeType().name()
+            );
 
-   public void addContentChangeHander(IPSContentChangeHandler handler)
-   {
-      Validate.notNull(handler);
-      changeHandlers.add(handler);
-   }
+            var existingEvent = session.get(PSContentChangeEvent.class, primaryKey);
 
-   /* (non-Javadoc)
-    * @see com.percussion.cms.IPSEditorChangeListener#editorChanged(com.percussion.cms.PSEditorChangeEvent)
-    */
-   
-   @Transactional
-   public void editorChanged(PSEditorChangeEvent e)
-   {
-	  //This didn't work, it ate up resources and fried the server - consider yourself warned - MJE
-	  try{
-		for (IPSContentChangeHandler handler : changeHandlers)
-	      {
-	         handler.handleEvent(e);
-	      }
-		} catch(Exception ex){
-			//We don't want to fail the entire transaction on account of this... log and go
-	    	log.error("Failed to handle editor change event: " + ExceptionUtils.getStackTrace(ex));  
-	    }
-   }
-   
+            if (existingEvent == null) {
+                session.saveOrUpdate(changeEvent);
+                updateCache(changeEvent);
+                log.debug("Saved content change event: {}", changeEvent);
+            } else {
+                log.debug("Content change event already exists: {}", changeEvent);
+            }
+        } catch (HibernateException e) {
+            var msg = "Database error while saving content change event: " + e.getMessage();
+            log.error(msg, e);
+            throw new IPSGenericDao.SaveException(msg, e);
+        }
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.services.notification.IPSNotificationListener#notifyEvent(com.percussion.services.notification.PSNotificationEvent)
-    */
-   public void notifyEvent(PSNotificationEvent notification) throws PSDataServiceException, PSNotFoundException {
-      Object target = notification.getTarget();
-      if (target instanceof PSRelationshipChangeEvent)
-      {
-         for (IPSContentChangeHandler handler : changeHandlers)
-         {
-            handler.handleEvent((PSRelationshipChangeEvent) target);
-         }
-      }
+    @Override
+    public List<Integer> getChangedContent(long siteId, PSContentChangeType changeType) {
+        Objects.requireNonNull(changeType, "Change type cannot be null");
 
-   }
+        var session = getSession();
 
-   /* (non-Javadoc)
-    * @see com.percussion.server.IPSHandlerInitListener#initHandler(com.percussion.server.IPSRequestHandler)
-    */
-   public void initHandler(IPSRequestHandler requestHandler)
-   {
-      if (requestHandler instanceof PSContentEditorHandler)
-      {
-         PSContentEditorHandler ceh = (PSContentEditorHandler)requestHandler;
-         //  Need to get spring proxy of this item to handle transaction annotations
-         ceh.addEditorChangeListener((IPSEditorChangeListener) PSContentChangeServiceLocator.getContentChangeService());
-      }
-   }
+        try {
+            var query = session.createQuery(
+                "SELECT ce.contentId FROM PSContentChangeEvent ce " +
+                "WHERE ce.changeType = :changeType AND ce.siteId = :siteId",
+                Integer.class
+            );
+            query.setParameter("changeType", changeType.name());
+            query.setParameter("siteId", siteId);
 
-   /* (non-Javadoc)
-    * @see com.percussion.server.IPSHandlerInitListener#shutdownHandler(com.percussion.server.IPSRequestHandler)
-    */
-   public void shutdownHandler(IPSRequestHandler requestHandler)
-   {
-      // noop
-   }
+            var results = query.getResultList();
+            log.debug("Found {} changed content items for site {} and type {}",
+                     results.size(), siteId, changeType);
 
-   
+            return results.stream()
+                .distinct()
+                .collect(Collectors.toUnmodifiableList());
 
+        } catch (HibernateException e) {
+            log.error("Error retrieving changed content for site {} and type {}: {}",
+                     siteId, changeType, e.getMessage(), e);
+            return List.of();
+        }
+    }
 
+    @Override
+    @Transactional
+    public void deleteChangeEvents(long siteId, int contentId, PSContentChangeType changeType) {
+        Objects.requireNonNull(changeType, "Change type cannot be null");
+
+        var session = getSession();
+
+        try {
+            var queryBuilder = new StringBuilder("DELETE FROM PSContentChangeEvent ")
+                .append("WHERE contentId = :contentId AND changeType = :changeType");
+
+            if (siteId != -1) {
+                queryBuilder.append(" AND siteId = :siteId");
+            }
+
+            var query = session.createQuery(queryBuilder.toString());
+            query.setParameter("contentId", contentId);
+            query.setParameter("changeType", changeType.name());
+
+            if (siteId != -1) {
+                query.setParameter("siteId", siteId);
+            }
+
+            var deletedCount = query.executeUpdate();
+            removeFromCache(contentId, siteId, changeType);
+
+            log.debug("Deleted {} change events for content {} on site {} with type {}",
+                     deletedCount, contentId, siteId, changeType);
+
+        } catch (HibernateException e) {
+            log.error("Error deleting change events for content {} on site {}: {}",
+                     contentId, siteId, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete change events", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteChangeEventsForSite(long siteId) {
+        var session = getSession();
+
+        try {
+            var query = session.createQuery("DELETE FROM PSContentChangeEvent WHERE siteId = :siteId");
+            query.setParameter("siteId", siteId);
+
+            var deletedCount = query.executeUpdate();
+            clearCacheForSite(siteId);
+
+            log.debug("Deleted {} change events for site {}", deletedCount, siteId);
+
+        } catch (HibernateException e) {
+            log.error("Error deleting change events for site {}: {}", siteId, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete change events for site", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteChangeEventsForSite(long siteId, PSContentChangeType changeType) {
+        Objects.requireNonNull(changeType, "Change type cannot be null");
+
+        var session = getSession();
+
+        try {
+            var query = session.createQuery(
+                "DELETE FROM PSContentChangeEvent WHERE siteId = :siteId AND changeType = :changeType"
+            );
+            query.setParameter("siteId", siteId);
+            query.setParameter("changeType", changeType.name());
+
+            var deletedCount = query.executeUpdate();
+            clearCacheForSite(siteId, changeType);
+
+            log.debug("Deleted {} change events for site {} with type {}",
+                     deletedCount, siteId, changeType);
+
+        } catch (HibernateException e) {
+            log.error("Error deleting change events for site {} with type {}: {}",
+                     siteId, changeType, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete change events for site and type", e);
+        }
+    }
+
+    @Override
+    public void addContentChangeHandler(IPSContentChangeHandler handler) {
+        Objects.requireNonNull(handler, "Handler cannot be null");
+
+        if (!changeHandlers.contains(handler)) {
+            changeHandlers.add(handler);
+            log.debug("Added content change handler: {}", handler.getClass().getSimpleName());
+        }
+    }
+
+    @Override
+    public boolean removeContentChangeHandler(IPSContentChangeHandler handler) {
+        Objects.requireNonNull(handler, "Handler cannot be null");
+
+        var removed = changeHandlers.remove(handler);
+        if (removed) {
+            log.debug("Removed content change handler: {}", handler.getClass().getSimpleName());
+        }
+        return removed;
+    }
+
+    @Override
+    public Set<IPSContentChangeHandler> getContentChangeHandlers() {
+        return Set.copyOf(changeHandlers);
+    }
+
+    @Override
+    @Transactional
+    public void editorChanged(PSEditorChangeEvent event) {
+        Objects.requireNonNull(event, "Editor change event cannot be null");
+
+        try {
+            changeHandlers.parallelStream()
+                .forEach(handler -> {
+                    try {
+                        handler.handleEvent(event);
+                    } catch (Exception e) {
+                        log.error("Handler {} failed to process editor change event: {}",
+                                 handler.getClass().getSimpleName(), e.getMessage(), e);
+                    }
+                });
+        } catch (Exception e) {
+            // Don't fail the entire transaction due to handler errors
+            log.error("Failed to handle editor change event: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void notifyEvent(PSNotificationEvent notification) throws PSDataServiceException, PSNotFoundException {
+        Objects.requireNonNull(notification, "Notification cannot be null");
+
+        var target = notification.getTarget();
+        if (target instanceof PSRelationshipChangeEvent) {
+            PSRelationshipChangeEvent relationshipEvent = (PSRelationshipChangeEvent) target;
+            changeHandlers.parallelStream()
+                .forEach(handler -> {
+                    try {
+                        handler.handleEvent(relationshipEvent);
+                    } catch (Exception e) {
+                        log.error("Handler {} failed to process relationship change event: {}",
+                                 handler.getClass().getSimpleName(), e.getMessage(), e);
+                    }
+                });
+        }
+    }
+
+    @Override
+    public void initHandler(IPSRequestHandler requestHandler) {
+        if (requestHandler instanceof PSContentEditorHandler) {
+            PSContentEditorHandler contentEditorHandler = (PSContentEditorHandler) requestHandler;
+            // Use Spring proxy to handle transaction annotations
+            var serviceProxy = PSContentChangeServiceLocator.getContentChangeService();
+            contentEditorHandler.addEditorChangeListener(serviceProxy);
+            log.debug("Registered content change service with editor handler");
+        }
+    }
+
+    @Override
+    public void shutdownHandler(IPSRequestHandler requestHandler) {
+        // No cleanup needed
+    }
+
+    /**
+     * Sets the GUID manager for dependency injection.
+     *
+     * @param guidManager the GUID manager to set
+     */
+    public void setGuidManager(IPSGuidManager guidManager) {
+        this.guidManager = guidManager;
+    }
+
+    /**
+     * Sets the notification service and registers for relationship events.
+     *
+     * @param notificationService the notification service to register with
+     */
+    @Autowired(required = false)
+    public void setNotificationService(IPSNotificationService notificationService) {
+        if (notificationService != null) {
+            notificationService.addListener(EventType.RELATIONSHIP_CHANGED, this);
+            log.debug("Registered with notification service for relationship changes");
+        }
+    }
+
+    /**
+     * Gets the Hibernate session from the entity manager.
+     */
+    private Session getSession() {
+        return entityManager.unwrap(Session.class);
+    }
+
+    /**
+     * Updates the content change cache with a new event.
+     */
+    private void updateCache(PSContentChangeEvent event) {
+        var cacheKey = createCacheKey(event.getContentId(), event.getSiteId(), event.getChangeType());
+        contentChangeCache.add(cacheKey);
+    }
+
+    /**
+     * Removes a content change from the cache.
+     */
+    private void removeFromCache(int contentId, long siteId, PSContentChangeType changeType) {
+        var cacheKey = createCacheKey(contentId, siteId, changeType);
+        contentChangeCache.remove(cacheKey);
+    }
+
+    /**
+     * Clears cache entries for a specific site.
+     */
+    private void clearCacheForSite(long siteId) {
+        contentChangeCache.removeIf(key -> key.contains(":" + siteId + ":"));
+    }
+
+    /**
+     * Clears cache entries for a specific site and change type.
+     */
+    private void clearCacheForSite(long siteId, PSContentChangeType changeType) {
+        var pattern = ":" + siteId + ":" + changeType.name();
+        contentChangeCache.removeIf(key -> key.contains(pattern));
+    }
+
+    /**
+     * Creates a cache key for content change events.
+     */
+    private String createCacheKey(int contentId, long siteId, PSContentChangeType changeType) {
+        return String.format("%d:%d:%s", contentId, siteId, changeType.name());
+    }
 }

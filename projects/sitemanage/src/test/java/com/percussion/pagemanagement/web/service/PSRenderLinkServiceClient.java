@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.web.service;
 
 import static org.apache.commons.lang.Validate.notEmpty;
@@ -21,48 +23,43 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import com.percussion.pagemanagement.data.PSInlineLinkRequest;
 import com.percussion.pagemanagement.data.PSInlineRenderLink;
 import com.percussion.share.test.PSObjectRestClient;
-
 import java.io.InputStream;
 
-public class PSRenderLinkServiceClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/pagemanagement/renderlink";
-    {
-        addAccept("text/html");
-        addAccept("image/*");
-    }
+public class PSRenderLinkServiceClient extends PSObjectRestClient {
+  private final String path = "/Rhythmyx/services/pagemanagement/renderlink";
 
-    public String getPath()
-    {
-        return path;
-    }
+  {
+    addAccept("text/html");
+    addAccept("image/*");
+  }
 
-    public PSInlineRenderLink getPreviewPageLink(String pageId) 
-    {
-        notEmpty(pageId,"pageId");
-        return getObjectFromPath(concatPath(getPath(),"preview",pageId, "default"), PSInlineRenderLink.class);
-    }
-    
-    public PSInlineRenderLink getPreviewLink(String itemId) 
-    {
-        notEmpty(itemId,"pageId");
-        return getObjectFromPath(concatPath(getPath(),"preview",itemId, "default"), PSInlineRenderLink.class);
-    }
-    
-    public PSInlineRenderLink getPreviewLink(String itemId, String resourceDefinitionId) 
-    {
-        notEmpty(itemId,"pageId");
-        return getObjectFromPath(concatPath(getPath(),"preview", itemId, resourceDefinitionId), PSInlineRenderLink.class);
-    }
-    
-    public PSInlineRenderLink previewPostLinkRequest(PSInlineLinkRequest renLink) 
-    {
-        return postObjectToPath(concatPath(getPath(),"preview"), renLink, 
-                PSInlineRenderLink.class);
-    }
-    
-    public InputStream followLink(String fullPath) {
-        return GET_BINARY(fullPath);
-    }
+  public String getPath() {
+    return path;
+  }
 
+  public PSInlineRenderLink getPreviewPageLink(String pageId) {
+    notEmpty(pageId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", pageId, "default"), PSInlineRenderLink.class);
+  }
+
+  public PSInlineRenderLink getPreviewLink(String itemId) {
+    notEmpty(itemId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", itemId, "default"), PSInlineRenderLink.class);
+  }
+
+  public PSInlineRenderLink getPreviewLink(String itemId, String resourceDefinitionId) {
+    notEmpty(itemId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", itemId, resourceDefinitionId), PSInlineRenderLink.class);
+  }
+
+  public PSInlineRenderLink previewPostLinkRequest(PSInlineLinkRequest renLink) {
+    return postObjectToPath(concatPath(getPath(), "preview"), renLink, PSInlineRenderLink.class);
+  }
+
+  public InputStream followLink(String fullPath) {
+    return GET_BINARY(fullPath);
+  }
 }

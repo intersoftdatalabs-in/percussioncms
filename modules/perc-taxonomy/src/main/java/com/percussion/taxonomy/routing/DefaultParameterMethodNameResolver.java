@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,30 @@
 
 package com.percussion.taxonomy.routing;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
-//@TODO: Update to use anotations
+// @TODO: Update to use anotations
 public class DefaultParameterMethodNameResolver {
 
-    private String paramName, defaultMethod;
+  private String paramName, defaultMethod;
 
-    public String getHandlerMethodName(HttpServletRequest request)
-             {
-        String name = request.getParameter(paramName);
-        if (name == null || name.equals("")) {
-            name = defaultMethod;
-        }
-        if (name == null) {
-            //TODO: fix me
-           // throw new NoSuchRequestHandlingMethodException(request);
-        }
-        return name;
+  public String getHandlerMethodName(HttpServletRequest request) {
+    String name = request.getParameter(paramName);
+    if (name == null || name.equals("")) {
+      name = defaultMethod;
     }
+    if (name == null) {
+      // TODO: fix me
+      // throw new NoSuchRequestHandlingMethodException(request);
+    }
+    return name;
+  }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
-    }
+  public void setParamName(String paramName) {
+    this.paramName = paramName;
+  }
 
-    public void setDefaultMethod(String defaultMethod) {
-        this.defaultMethod = defaultMethod;
-    }
+  public void setDefaultMethod(String defaultMethod) {
+    this.defaultMethod = defaultMethod;
+  }
 }

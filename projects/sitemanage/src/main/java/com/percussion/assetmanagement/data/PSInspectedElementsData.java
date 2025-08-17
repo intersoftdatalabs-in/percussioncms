@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,53 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Wrapper object that holds the details of html assets that needs to be created and added to the supplied owner and
- * html assets that needs to be deleted from the owner.
- *
+ * Wrapper object that holds the details of HTML assets that need to be created and added to the
+ * supplied owner and HTML assets that need to be deleted from the owner.
  */
-@XmlRootElement(name="InspectedElementsData")
-public class PSInspectedElementsData
-{
-    
-    private List<PSHtmlAssetData> newAssets;
-    private List<PSAssetWidgetRelationship> clearAssets;
+@XmlRootElement(name = "InspectedElementsData")
+public class PSInspectedElementsData {
 
-    /**
-     * Returns the list of new html asset data, never <code>null</code> may be empty.
-     * @return list PSHtmlAssetData objects.
-     */
-    public List<PSHtmlAssetData> getNewAssets()
-    {
-        if(newAssets == null) {
-            newAssets = new ArrayList<>();
-        }
-        return newAssets;
-    }
+  private List<PSHtmlAssetData> newAssets;
+  private List<PSAssetWidgetRelationship> clearAssets;
 
-    public void setNewAssets(List<PSHtmlAssetData> newAssets)
-    {
-        this.newAssets = newAssets;
+  /**
+   * Returns the list of new HTML asset data, never <code>null</code> may be empty.
+   *
+   * @return list of PSHtmlAssetData objects.
+   */
+  public List<PSHtmlAssetData> getNewAssets() {
+    if (newAssets == null) {
+      newAssets = new ArrayList<>();
     }
+    return newAssets;
+  }
 
-    /**
-     * Returns the list of PSAssetWidgetRelationship objects. Never <code>null</code> may be empty. 
-     * @return list of PSAssetWidgetRelationship
-     */
-    public List<PSAssetWidgetRelationship> getClearAssets()
-    {
-        if(clearAssets == null) {
-            clearAssets = new ArrayList<>();
-        }
-        return clearAssets;
-    }
+  public void setNewAssets(List<PSHtmlAssetData> newAssets) {
+    this.newAssets = newAssets;
+  }
 
-    public void setClearAssets(List<PSAssetWidgetRelationship> clearAssets)
-    {
-        this.clearAssets = clearAssets;
+  /**
+   * Returns the list of PSAssetWidgetRelationship objects. Never <code>null</code> may be empty.
+   *
+   * @return list of PSAssetWidgetRelationship
+   */
+  public List<PSAssetWidgetRelationship> getClearAssets() {
+    if (clearAssets == null) {
+      clearAssets = new ArrayList<>();
     }
-    
+    return clearAssets;
+  }
+
+  public void setClearAssets(List<PSAssetWidgetRelationship> clearAssets) {
+    this.clearAssets = clearAssets;
+  }
 }

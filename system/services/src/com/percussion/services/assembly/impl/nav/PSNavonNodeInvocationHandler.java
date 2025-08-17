@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import com.percussion.services.assembly.impl.nav.PSNavHelper.PSSectionTypeEnum;
 import com.percussion.services.contentmgr.IPSNode;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jsr170.PSNodeIterator;
-import com.percussion.utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSPropertyIterator;
 
 import java.lang.reflect.InvocationHandler;
@@ -40,11 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.AccessDeniedException; // TODO: JAVAX-11
-import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
-import javax.jcr.Node; // TODO: JAVAX-11
-import javax.jcr.Property; // TODO: JAVAX-11
-import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.AccessDeniedException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.collections4.MultiValuedMap;
 

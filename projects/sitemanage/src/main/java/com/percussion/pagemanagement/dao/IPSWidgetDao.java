@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +20,13 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.share.dao.IPSGenericDao;
 
-public interface IPSWidgetDao extends IPSGenericDao<PSWidgetDefinition, String>
-{
-    /**
-     * Return the relative path of the directory containing widget configs.
-     * 
-     * @return The path, not <code>null<code/> or empty.
-     */
-    String getBaseConfigDir();
+/** DAO for widget definitions. */
+public interface IPSWidgetDao extends IPSGenericDao<PSWidgetDefinition, String> {
+
+  /**
+   * Returns the relative path of the directory containing widget configs.
+   *
+   * @return the path, not {@code null} or empty.
+   */
+  String getBaseConfigDir();
 }

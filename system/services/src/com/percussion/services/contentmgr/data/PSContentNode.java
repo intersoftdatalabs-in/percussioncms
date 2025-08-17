@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.jcr.*; // TODO: JAVAX-11
-import javax.jcr.lock.Lock; // TODO: JAVAX-11
-import javax.jcr.lock.LockException; // TODO: JAVAX-11
-import javax.jcr.nodetype.ConstraintViolationException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
-import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
-import javax.jcr.version.Version; // TODO: JAVAX-11
-import javax.jcr.version.VersionException; // TODO: JAVAX-11
-import javax.jcr.version.VersionHistory; // TODO: JAVAX-11
+import javax.jcr.*;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionHistory;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;

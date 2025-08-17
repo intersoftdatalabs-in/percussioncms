@@ -14,95 +14,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.secure.services;
 
-import com.percussion.error.PSExceptionUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import jakarta.servlet.ServletContext;
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
-import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
-import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import jakarta.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.web.context.ContextLoader;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class PSMembershipAuthUtils {
 
-	private static final Logger log = LogManager.getLogger(PSMembershipAuthUtils.class);
+  private static final Logger log = LogManager.getLogger(PSMembershipAuthUtils.class);
 
-	public static List<String> getAccessGroupsFromXML(String accessGroupFileName) {
-
-		List<String> groups = new ArrayList<>();
-       String accessString;
-       
-       WebApplicationContext context = ContextLoader.getCurrentWebApplicationContext();
-       ServletContext ctx = context.getServletContext();
-       String filePath = ctx.getRealPath(accessGroupFileName);
-       
-       try
-       {
-	    
-	        File accessGroupFile = new File(filePath);
-	        
-	        DocumentBuilderFactory dbFactory = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-					new PSXmlSecurityOptions(
-							true,
-							true,
-							true,
-							false,
-							true,
-							false
-					));
-	        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-	        Document doc = dBuilder.parse(accessGroupFile);
-	        
-	      // String accessString =  doc.getDocumentElement().getAttribute("access");
-	       NodeList nodeList = doc.getElementsByTagName("intercept-url");
-	       
-	       for (int temp = 0; temp < nodeList.getLength(); temp++) {
-	           Node node = nodeList.item(temp);
-	           if(!((Element) node).getAttribute("access").isEmpty() && ((Element) node).getAttribute("access") != null) {
-	               accessString = ((Element) node).getAttribute("access");
-	               groups.addAll(Arrays.asList(accessString.split("\\s*,\\s*")));
-	           }
-	       }
-	   }
-	   catch (FileNotFoundException e)
-	   {
-	       log.error("FileNotFoundException in PSLdapUserDetailsMapper..... {}" ,PSExceptionUtils.getMessageForLog(e));
-	       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-	   }
-	   catch (ParserConfigurationException e)
-	   {
-	      log.error("ParserConfigurationException in PSLdapUserDetailsMapper..... {}" ,PSExceptionUtils.getMessageForLog(e));
-	      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-	   }
-       catch (IOException e)
-       {
-           log.error("IOException in PSLdapUserDetailsMapper..... {}" ,PSExceptionUtils.getMessageForLog(e));
-           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-       }
-       catch (SAXException e)
-       {
-       	log.error("SAXException in PSLdapUserDetailsMapper..... {}" ,PSExceptionUtils.getMessageForLog(e));
-       	log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-       }
-       
-       return groups;
-   }
+  public static List<String> getAccessGroupsFromXML(String accessGroupFileName) {
+    var groups = new ArrayList<String>();
+    String accessString;
+    var context = ContextLoader.getCurrentWebApplicationContext();
+    var ctx = context.getServletContext();
+    var filePath = ctx.getRealPath(accessGroupFileName);
+    try {
+      var accessGroupFile = new File(filePath);
+      var dbFactory =
+          PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+              new PSXmlSecurityOptions(true, true, true, false, true, false));
+      var dBuilder = dbFactory.newDocumentBuilder();
+      var doc = dBuilder.parse(accessGroupFile);
+      var nodeList = doc.getElementsByTagName("intercept-url");
+      for (int temp = 0; temp < nodeList.getLength(); temp++) {
+        var node = nodeList.item(temp);
+        var element = (Element) node;
+        if (element.getAttribute("access") != null && !element.getAttribute("access").isEmpty()) {
+          accessString = element.getAttribute("access");
+          groups.addAll(Arrays.asList(accessString.split("\\s*,\\s*")));
+        }
+      }
+    } catch (FileNotFoundException e) {
+      log.error(
+          "FileNotFoundException in PSLdapUserDetailsMapper..... {}",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } catch (ParserConfigurationException e) {
+      log.error(
+          "ParserConfigurationException in PSLdapUserDetailsMapper..... {}",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } catch (IOException e) {
+      log.error(
+          "IOException in PSLdapUserDetailsMapper..... {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } catch (SAXException e) {
+      log.error(
+          "SAXException in PSLdapUserDetailsMapper..... {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+    return groups;
+  }
 }

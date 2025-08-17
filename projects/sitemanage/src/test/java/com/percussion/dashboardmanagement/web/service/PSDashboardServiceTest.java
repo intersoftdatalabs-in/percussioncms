@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,54 @@
  */
 package com.percussion.dashboardmanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Ignore;
-import org.junit.Test;
+@Disabled("SUT are not used")
+public class PSDashboardServiceTest
+    extends PSRestTestCase<PSDashboardServiceTest.DashboardRestClient> {
 
-@Ignore("SUT are not used")
-public class PSDashboardServiceTest extends PSRestTestCase<PSDashboardServiceTest.DashboardRestClient> {
-    
-    protected DashboardRestClient restClient;
+  protected DashboardRestClient restClient;
 
-    @Test
-    public void testLoad() throws Exception {
-        PSDashboard actual = restClient.load();
-        assertNotNull(actual);
+  @Test
+  public void testLoad() throws Exception {
+    PSDashboard actual = restClient.load();
+    assertNotNull(actual);
+  }
+
+  @Test
+  public void testSave() throws Exception {
+    PSDashboard gadget = new PSDashboard();
+    PSDashboard actual = restClient.save(gadget);
+    assertNotNull(actual);
+    assertEquals("Dashboard should have admin1 as id: ", "admin1", actual.getId());
+    // assertEquals("Gadget ids should be the same", gadget.getId(), actual.getId());
+  }
+
+  @Override
+  protected DashboardRestClient getRestClient(String baseUrl) {
+    restClient = new DashboardRestClient(baseUrl);
+    return restClient;
+  }
+
+  public static class DashboardRestClient extends PSDataServiceRestClient<PSDashboard> {
+    public DashboardRestClient(String url) {
+      super(PSDashboard.class, url, "/Rhythmyx/services/dashboardmanagement/dashboard/");
     }
 
-    @Test
-    public void testSave() throws Exception
-    {
-        PSDashboard gadget = new PSDashboard();
-        PSDashboard actual = restClient.save(gadget);
-        assertNotNull(actual);
-        assertEquals("Dashboard should have admin1 as id: ", "admin1", actual.getId());
-        //assertEquals("Gadget ids should be the same", gadget.getId(), actual.getId());
+    public PSDashboard load() {
+      return getObjectFromPath(getPath());
     }
 
-    
     @Override
-    protected DashboardRestClient getRestClient(String baseUrl) {
-        restClient = new DashboardRestClient(baseUrl);
-        return restClient;
+    public PSDashboard save(PSDashboard dashboard) {
+      return getObjectFromPath(getPath());
     }
-    
-    
-    public static class DashboardRestClient extends PSDataServiceRestClient<PSDashboard> {
-        public DashboardRestClient(String url) {
-            super(PSDashboard.class, url, "/Rhythmyx/services/dashboardmanagement/dashboard/");
-        }        
- 
-        public PSDashboard load() {
-            return getObjectFromPath(getPath());
-        }
-        @Override
-        public PSDashboard save(PSDashboard dashboard) {
-            return getObjectFromPath(getPath());
-        }
-    }
-
+  }
 }

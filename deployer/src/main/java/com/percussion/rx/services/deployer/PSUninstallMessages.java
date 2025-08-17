@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,100 +17,83 @@
  */
 package com.percussion.rx.services.deployer;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Collection of uninstall messages object.
- * @author bjoginipally
+ * Collection of uninstall message objects. Sunny Sal says: "Uninstall messages should be as
+ * organized as my code!"
  *
+ * @author bjoginipally
  */
 @XmlRootElement(name = "Messages")
-public class PSUninstallMessages
-{
+public class PSUninstallMessages {
 
-   /**
-    * 
-    */
-   public PSUninstallMessages()
-   {
-      super();
-   }
+  /** Default constructor. */
+  public PSUninstallMessages() {
+    // For JAXB
+  }
 
-   /**
-    * @param messages
-    */
-   public PSUninstallMessages(List<PSUninstallMessage> messages)
-   {
-      super();
-      if(messages != null)
-         m_messages = messages;
-   }
+  /**
+   * Constructs with a list of uninstall messages.
+   *
+   * @param messages the list of uninstall messages, may be null.
+   */
+  public PSUninstallMessages(List<PSUninstallMessage> messages) {
+    if (messages != null) this.messages = messages;
+  }
 
-   /**
-    * @return the messages
-    */
-   @XmlElement(name="Message", type=PSUninstallMessage.class)
-   public List<PSUninstallMessage> getMessages()
-   {
+  /**
+   * @return the messages
+   */
+  @XmlElement(name = "Message", type = PSUninstallMessage.class)
+  public List<PSUninstallMessage> getMessages() {
+    return messages;
+  }
 
-      return m_messages;
-   }
+  /**
+   * @param messages the messages to set
+   */
+  public void setMessages(List<PSUninstallMessage> messages) {
+    this.messages = messages == null ? new ArrayList<>() : messages;
+  }
 
+  /**
+   * Adds a message to the collection.
+   *
+   * @param message the message to add, cannot be {@code null}.
+   */
+  public void add(PSUninstallMessage message) {
+    if (message == null) throw new IllegalArgumentException("message cannot be null.");
+    messages.add(message);
+  }
 
+  /**
+   * Removes the specified message from the collection if it exists.
+   *
+   * @param message the message to be removed. May be {@code null}.
+   */
+  public void remove(PSUninstallMessage message) {
+    messages.remove(message);
+  }
 
-   /**
-    * @param messages the messages to set
-    */
-   public void setMessages(List<PSUninstallMessage> messages)
-   {
-      m_messages = messages;
-   }
-   
-   /**
-    * Adds a message to the collection.
-    * @param message the message to add, cannot be <code>null</code>.
-    */
-   public void add(PSUninstallMessage message)
-   {
-      if(message == null)
-         throw new IllegalArgumentException("message cannot be null.");
-      m_messages.add(message);   
-   }
-   
-   /**
-    * Removes the specified message from the collection
-    * if it exists.
-    * @param message the message to be removed. May be <code>null</code>.
-    */
-   public void remove(PSUninstallMessage message)
-   {
-      m_messages.remove(message);   
-   }
-   
-   /**
-    * Removes all the messages from the collection.
-    */
-   public void clear()
-   {
-      m_messages.clear();
-   }
-   
-   /**
-    * The list of messages, never <code>null</code>, may
-    * be empty.
-    */
+  /** Removes all the messages from the collection. */
+  public void clear() {
+    messages.clear();
+  }
 
-   private List<PSUninstallMessage> m_messages = new ArrayList<>();
+  /** The list of messages, never {@code null}, may be empty. */
+  private List<PSUninstallMessage> messages = new ArrayList<>();
 
-   private Integer status = 0;
-   public Integer getStatus() {
-      return status;
-   }
-   public void setStatus(Integer status) {
-      this.status = status;
-   }
+  private Integer status = 0;
 
+  public Integer getStatus() {
+    return status;
+  }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 }

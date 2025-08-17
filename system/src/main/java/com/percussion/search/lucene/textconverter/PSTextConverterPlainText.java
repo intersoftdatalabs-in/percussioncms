@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,54 +20,39 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.utils.tools.IPSUtilsConstants;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 
 /**
- * Extracts the text from text files and returns it. It does not process 
- * the text, just returns it as it is in the file.  
- * 
+ * Extracts the text from text files and returns it. It does not process the text, just returns it
+ * as it is in the file.
  */
-public class PSTextConverterPlainText implements IPSLuceneTextConverter
-{
+public class PSTextConverterPlainText implements IPSLuceneTextConverter {
 
-   /**
-    * A static member to hold the name of this class.
-    */
-   private final static String ms_className = PSTextConverterPlainText.class.getName();
-   
+  /** A static member to hold the name of this class. */
+  private static final String ms_className = PSTextConverterPlainText.class.getName();
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-    */
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   */
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-   /* (non-Javadoc)
-    * @see com.percussion.search.lucene.textconverter.IPSLuceneTextConverter#getConvertedText(java.io.InputStream, java.lang.String)
-    */
-   public String getConvertedText(InputStream is, String mimetype)
-         throws PSExtensionProcessingException
-   {
-      Validate.notNull(is, "is must not be null");
-      
-      String resultText = "";
-      try
-      {
-         resultText = IOUtils.toString(is, IPSUtilsConstants.RX_JAVA_ENC);
-      }
-      catch (IOException e)
-      {
-         throw new PSExtensionProcessingException(ms_className,e);
-      }
-      return resultText;
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.search.lucene.textconverter.IPSLuceneTextConverter#getConvertedText(java.io.InputStream, java.lang.String)
+   */
+  public String getConvertedText(InputStream is, String mimetype)
+      throws PSExtensionProcessingException {
+    Validate.notNull(is, "is must not be null");
 
+    String resultText = "";
+    try {
+      resultText = IOUtils.toString(is, IPSUtilsConstants.RX_JAVA_ENC);
+    } catch (IOException e) {
+      throw new PSExtensionProcessingException(ms_className, e);
+    }
+    return resultText;
+  }
 }

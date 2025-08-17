@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,42 +22,43 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSObjectTypesCatalogHandler class implements cataloging of supported
- * object types from the specified cataloger.
- * <p>
- * Object type catalog requests are sent to the server using the
- * PSXSecurityObjectTypesCatalog XML document. Its definition is as follows:
+ * The PSObjectTypesCatalogHandler class implements cataloging of supported object types from the
+ * specified cataloger.
+ *
+ * <p>Object type catalog requests are sent to the server using the PSXSecurityObjectTypesCatalog
+ * XML document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityObjectTypesCatalog (catalogerName, catalogerType)&gt;
  *
  *     &lt;!--
- *        the name by which the cataloger should be referenced. 
+ *        the name by which the cataloger should be referenced.
  *      --&gt;
  *     &lt;!ELEMENT catalogerName (#PCDATA)&gt;
- *     
+ *
  *     &lt;!--
  *        the type of the cataloger, which when combined with the name forms a
- *        unique reference 
+ *        unique reference
  *      --&gt;
  *     &lt;!ELEMENT catalogerType (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityObjectTypesCatalogResults XML document is sent as the
- * response. Its definition is as follows:
+ * The PSXSecurityObjectTypesCatalogResults XML document is sent as the response. Its definition is
+ * as follows:
+ *
  * <pre>
- *    &lt;!ELEMENT PSXSecurityObjectTypesCatalogResults (catalogerName, 
+ *    &lt;!ELEMENT PSXSecurityObjectTypesCatalogResults (catalogerName,
  *    catalogerType, ObjectType*)&gt;
  *
  *     &lt;!--
- *        the name by which the cataloger should be referenced. 
+ *        the name by which the cataloger should be referenced.
  *      --&gt;
  *     &lt;!ELEMENT catalogerName (#PCDATA)&gt;
- *     
+ *
  *     &lt;!--
  *        the type of the cataloger, which when combined with the name forms a
- *        unique reference 
+ *        unique reference
  *      --&gt;
  *     &lt;!ELEMENT catalogerType (#PCDATA)&gt;
  *
@@ -70,81 +71,66 @@ import org.w3c.dom.Element;
  *       type        CDATA                #REQUIRED
  *    &gt;
  * </pre>
- *
  */
-public class PSObjectTypesCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSObjectTypesCatalogHandler()
-   {
-      super();
-   }
+public class PSObjectTypesCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSObjectTypesCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>security</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>ObjectTypes</td>
-    *       <td>yes</td></tr>
-    *     <tr><td>CatalogerName</td>
-    *         <td>the name of the cataloger being queried</td>
-    *         <td>yes</td></tr>
-    *     <tr><td>CatalogerType</td>
-    *         <td>the type of the cataloger being queried</td>
-    *         <td>yes</td></tr>
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>security</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>ObjectTypes</td>
+   *       <td>yes</td></tr>
+   *     <tr><td>CatalogerName</td>
+   *         <td>the name of the cataloger being queried</td>
+   *         <td>yes</td></tr>
+   *     <tr><td>CatalogerType</td>
+   *         <td>the type of the cataloger being queried</td>
+   *         <td>yes</td></tr>
+   *
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"security".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-    * </table>
-    * 
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String) req.get("RequestCategory");
-      if ((sTemp == null) || !"security".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req category invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"ObjectTypes".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"ObjectTypes".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    String catalogerName = (String) req.get("CatalogerName");
+    if (catalogerName == null)
+      throw new IllegalArgumentException("reqd prop not specified: CatalogerName");
 
-      String catalogerName = (String) req.get("CatalogerName");
-      if (catalogerName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: CatalogerName");
+    String catalogerType = (String) req.get("CatalogerType");
+    if (catalogerType == null)
+      throw new IllegalArgumentException("reqd prop not specified: CatalogerType");
 
-      String catalogerType = (String) req.get("CatalogerType");
-      if (catalogerType == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: CatalogerType");
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXSecurityObjectTypesCatalog");
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-         "PSXSecurityObjectTypesCatalog");
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "catalogerName", catalogerName);
 
-      PSXmlDocumentBuilder.addElement(reqDoc, root, "catalogerName",
-         catalogerName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "catalogerType", catalogerType);
 
-      PSXmlDocumentBuilder.addElement(reqDoc, root,
-         "catalogerType", catalogerType);
-      
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

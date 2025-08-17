@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,154 +14,239 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import com.percussion.server.PSServer;
 import com.percussion.util.PSStringTemplate;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
- * This utility class is used to retrieve various "template" files.
- * The retrieved strings are cached, which can be reseted by calling
- * the reset method. For example, specify the parameter of sys_reinit=true 
- * will cause the assembly servlet to call the reset method, which can be very
- * usefull for debugging purpose.
+ * Utility class for retrieving and caching Active Assembly template files.
+ * The retrieved template strings are cached for performance, and the cache can be
+ * reset by calling the {@link #reset()} method. This is particularly useful for
+ * debugging when the assembly servlet calls reset (e.g., with sys_reinit=true parameter).
+ *
+ * <p>This class is thread-safe and uses concurrent caching for optimal performance.</p>
+ *
+ * @author Percussion Software
  */
-public class PSAAStubUtil
-{
-   static public PSStringTemplate getAaPageHeader()
-   {
-      if (m_aaPageHeader == null)
-         m_aaPageHeader = new PSStringTemplate(
-            readFileContent(HEADER_FILE_PATH));
-      return m_aaPageHeader;
-   }
+public final class PSAAStubUtil {
 
-   static public PSStringTemplate getAaPageActionBar()
-   {
-      if (m_aaPageActionBar == null)
-         m_aaPageActionBar = new PSStringTemplate(
-            readFileContent(ACTIONBAR_FILE_PATH));
-      return m_aaPageActionBar;
-   }
-   
-   static public PSStringTemplate getPageActions()
-   {
-      if (m_pageActions == null)
-         m_pageActions = new PSStringTemplate(
-            readFileContent(AB_FILE_PAGE_ACTIONS_PATH));
-      return m_pageActions;
-   }
+    private static final Logger log = LogManager.getLogger(PSAAStubUtil.class);
 
-   static public PSStringTemplate getSlotActions()
-   {
-      if (m_slotActions == null)
-         m_slotActions = new PSStringTemplate(
-            readFileContent(AB_FILE_SLOT_ACTIONS_PATH));
-      return m_slotActions;
-   }
+    /** Base path for HTML template files */
+    private static final String HTMLBASE_PATH = "sys_resources" + File.separator + "html" + File.separator;
 
-   static public PSStringTemplate getSnippetActions()
-   {
-      if (m_snippetActions == null)
-         m_snippetActions = new PSStringTemplate(
-            readFileContent(AB_FILE_SNIPPET_ACTIONS_PATH));
-      return m_snippetActions;
-   }
+    /** Template file paths */
+    private static final String HEADER_FILE_PATH = HTMLBASE_PATH + "sys_aaPageHeader.html";
+    private static final String ACTIONBAR_FILE_PATH = HTMLBASE_PATH + "sys_aaPageActionBar.html";
+    private static final String PAGEFOOTER_FILE_PATH = HTMLBASE_PATH + "sys_aaPageFooter.html";
+    private static final String AB_FILE_PAGE_ACTIONS_PATH = HTMLBASE_PATH + "sys_aaPageActions.html";
+    private static final String AB_FILE_SLOT_ACTIONS_PATH = HTMLBASE_PATH + "sys_aaSlotActions.html";
+    private static final String AB_FILE_SNIPPET_ACTIONS_PATH = HTMLBASE_PATH + "sys_aaSnippetActions.html";
 
-   static public String getAaPageFooter()
-   {
-      if (m_aaPageFooter == null)
-         m_aaPageFooter = readFileContent(PAGEFOOTER_FILE_PATH);
-      return m_aaPageFooter;
-   }
+    /** Thread-safe cache for template contents */
+    private static final ConcurrentHashMap<String, Object> templateCache = new ConcurrentHashMap<>();
 
+    /** Read-write lock for cache operations */
+    private static final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
-   static public void reset()
-   {
-      m_aaPageHeader = null;
-      m_aaPageActionBar = null;
-      m_pageActions = null;
-      m_slotActions = null;
-      m_snippetActions = null;
-      m_aaPageFooter = null;
-   }
+    // Private constructor to prevent instantiation
+    private PSAAStubUtil() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
-   /**
-    * @param fname
-    */
-   static private String readFileContent(String fname)
-   {
-      InputStreamReader reader = null;
-      StringWriter writer = null;
-      try
-      {
-         reader = new InputStreamReader(new FileInputStream(new File(PSServer
-            .getRxDir(), fname)), "UTF8");
-         writer = new StringWriter();
-         IOUtils.copy(reader, writer);
-         writer.flush();
-         return writer.toString();
-      }
-      catch (IOException e)
-      {
-         ms_log.error("Fatal error active assembly will not function");
-         ms_log.error(e);
-      }
-      finally
-      {
-         IOUtils.closeQuietly(reader);
-         IOUtils.closeQuietly(writer);
-      }
-      return "";
-   }
+    /**
+     * Gets the Active Assembly page header template.
+     *
+     * @return the page header template, never null
+     */
+    public static PSStringTemplate getAaPageHeader() {
+        return getTemplate(HEADER_FILE_PATH, PSStringTemplate.class);
+    }
 
-   // Html templates/stubs
-   static private PSStringTemplate m_aaPageHeader = null;
+    /**
+     * Gets the Active Assembly page action bar template.
+     *
+     * @return the action bar template, never null
+     */
+    public static PSStringTemplate getAaPageActionBar() {
+        return getTemplate(ACTIONBAR_FILE_PATH, PSStringTemplate.class);
+    }
 
-   static private PSStringTemplate m_aaPageActionBar = null;
+    /**
+     * Gets the page actions template.
+     *
+     * @return the page actions template, never null
+     */
+    public static PSStringTemplate getPageActions() {
+        return getTemplate(AB_FILE_PAGE_ACTIONS_PATH, PSStringTemplate.class);
+    }
 
-   static private PSStringTemplate m_pageActions = null;
+    /**
+     * Gets the slot actions template.
+     *
+     * @return the slot actions template, never null
+     */
+    public static PSStringTemplate getSlotActions() {
+        return getTemplate(AB_FILE_SLOT_ACTIONS_PATH, PSStringTemplate.class);
+    }
 
-   static private PSStringTemplate m_slotActions = null;
+    /**
+     * Gets the snippet actions template.
+     *
+     * @return the snippet actions template, never null
+     */
+    public static PSStringTemplate getSnippetActions() {
+        return getTemplate(AB_FILE_SNIPPET_ACTIONS_PATH, PSStringTemplate.class);
+    }
 
-   static private PSStringTemplate m_snippetActions = null;
-   
-   static private String m_aaPageFooter = null;
+    /**
+     * Gets the Active Assembly page footer content.
+     *
+     * @return the page footer content, never null
+     */
+    public static String getAaPageFooter() {
+        return getTemplate(PAGEFOOTER_FILE_PATH, String.class);
+    }
 
-   // File paths for these
-   static private final String HTMLBASE_PATH = "sys_resources"
-      + File.separator + "html" + File.separator;
-   
-   static private final String HEADER_FILE_PATH = 
-      HTMLBASE_PATH + "sys_aaPageHeader.html";
+    /**
+     * Generic method to get cached templates with type safety.
+     *
+     * @param filePath the path to the template file
+     * @param returnType the expected return type
+     * @param <T> the type parameter
+     * @return the cached template of the specified type
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T getTemplate(String filePath, Class<T> returnType) {
+        cacheLock.readLock().lock();
+        try {
+            var cachedTemplate = templateCache.get(filePath);
+            if (cachedTemplate != null) {
+                return (T) cachedTemplate;
+            }
+        } finally {
+            cacheLock.readLock().unlock();
+        }
 
-   static private final String ACTIONBAR_FILE_PATH = 
-      HTMLBASE_PATH + "sys_aaPageActionBar.html";
+        // Template not in cache, load it
+        cacheLock.writeLock().lock();
+        try {
+            // Double-check pattern for thread safety
+            var cachedTemplate = templateCache.get(filePath);
+            if (cachedTemplate != null) {
+                return (T) cachedTemplate;
+            }
 
-   static private final String PAGEFOOTER_FILE_PATH = 
-      HTMLBASE_PATH + "sys_aaPageFooter.html";
+            // Load and cache the template
+            var content = readFileContent(filePath);
+            Object template;
 
-   static private final String AB_FILE_PAGE_ACTIONS_PATH = 
-      HTMLBASE_PATH + "sys_aaPageActions.html";
+            if (returnType == PSStringTemplate.class) {
+                template = new PSStringTemplate(content);
+            } else {
+                template = content;
+            }
 
-   static private final String AB_FILE_SLOT_ACTIONS_PATH = 
-      HTMLBASE_PATH + "sys_aaSlotActions.html";
+            templateCache.put(filePath, template);
+            return (T) template;
+        } finally {
+            cacheLock.writeLock().unlock();
+        }
+    }
 
-   static private final String AB_FILE_SNIPPET_ACTIONS_PATH = 
-      HTMLBASE_PATH + "sys_aaSnippetActions.html";
+    /**
+     * Resets the template cache, forcing all templates to be reloaded on next access.
+     * This method is thread-safe and useful for debugging purposes.
+     */
+    public static void reset() {
+        cacheLock.writeLock().lock();
+        try {
+            templateCache.clear();
+            log.info("Template cache cleared - {} templates removed", templateCache.size());
+        } finally {
+            cacheLock.writeLock().unlock();
+        }
+    }
 
-   private static final Logger ms_log = LogManager.getLogger(PSAAStubUtil.class);
+    /**
+     * Reads the content of a template file using modern NIO.2 APIs.
+     *
+     * @param fileName the relative file path from the Rhythmyx root directory
+     * @return the file content as a string, or empty string if file cannot be read
+     */
+    private static String readFileContent(String fileName) {
+        try {
+            var rxDir = PSServer.getRxDir();
+            if (rxDir == null) {
+                log.error("Rhythmyx root directory is not set - cannot load template: {}", fileName);
+                return "";
+            }
+
+            var filePath = Paths.get(rxDir.getAbsolutePath(), fileName);
+
+            if (!Files.exists(filePath)) {
+                log.error("Template file does not exist: {}", filePath);
+                return "";
+            }
+
+            if (!Files.isReadable(filePath)) {
+                log.error("Template file is not readable: {}", filePath);
+                return "";
+            }
+
+            var content = Files.readString(filePath, StandardCharsets.UTF_8);
+            log.debug("Successfully loaded template file: {} ({} characters)", fileName, content.length());
+            return content;
+
+        } catch (IOException e) {
+            log.error("Failed to read template file '{}': {}", fileName, e.getMessage(), e);
+            log.error("Active Assembly functionality may be impaired");
+            return "";
+        } catch (Exception e) {
+            log.error("Unexpected error reading template file '{}': {}", fileName, e.getMessage(), e);
+            return "";
+        }
+    }
+
+    /**
+     * Gets the current cache size for monitoring purposes.
+     *
+     * @return the number of cached templates
+     */
+    public static int getCacheSize() {
+        cacheLock.readLock().lock();
+        try {
+            return templateCache.size();
+        } finally {
+            cacheLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Checks if a specific template is cached.
+     *
+     * @param filePath the template file path to check
+     * @return true if the template is cached, false otherwise
+     */
+    public static boolean isCached(String filePath) {
+        cacheLock.readLock().lock();
+        try {
+            return templateCache.containsKey(filePath);
+        } finally {
+            cacheLock.readLock().unlock();
+        }
+    }
 }

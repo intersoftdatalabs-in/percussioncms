@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,9 @@ package com.percussion.ant.install;
 
 import com.percussion.install.InstallUtil;
 
-public class PSDerbyServer extends PSAction
-{
-    /**
-     * This will handle Shutting down the Derby Server after all DB tasks are done.
-     * CMS-5932.
-     */
-    public void execute()
-    {
-        InstallUtil.shutDownDerby();
-    }
+public class PSDerbyServer extends PSAction {
+  /** This will handle Shutting down the Derby Server after all DB tasks are done. CMS-5932. */
+  public void execute() {
+    InstallUtil.shutDownDerby();
+  }
 }

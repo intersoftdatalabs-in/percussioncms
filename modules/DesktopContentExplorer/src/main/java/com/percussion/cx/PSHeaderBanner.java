@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
-import javax.swing.JPanel; // TODO: JAVAX-11
-import javax.swing.OverlayLayout; // TODO: JAVAX-11
+import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.net.URL;

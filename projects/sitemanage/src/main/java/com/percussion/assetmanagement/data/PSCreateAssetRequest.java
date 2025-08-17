@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,99 +14,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import java.io.Serializable;
-
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
- * Class to pass the information regarding the conversion of an HTML widget into
- * Rich Text widget, from and to UI and server.
- * 
+ * Class to pass the information regarding the conversion of an HTML widget into Rich Text widget,
+ * from and to UI and server.
+ *
  * @author Santiago M. Murchio
- * 
  */
-@XmlType(name = "", propOrder =
-{"originalAssetId", "ownerId", "widgetId", "widgetName", "targetAssetType", "sharedAsset"})
+@XmlType(
+    name = "",
+    propOrder = {
+      "originalAssetId",
+      "ownerId",
+      "widgetId",
+      "widgetName",
+      "targetAssetType",
+      "sharedAsset"
+    })
 @XmlRootElement(name = "PSCreateAssetRequest")
-public class PSCreateAssetRequest extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = 1L;
+public class PSCreateAssetRequest extends PSAbstractDataObject {
 
-    private String originalAssetId;
+  private static final long serialVersionUID = 1L;
 
-    private String ownerId;
+  private String originalAssetId;
+  private String ownerId;
+  private String widgetId;
+  private String widgetName;
+  private String targetAssetType;
+  private Boolean sharedAsset;
 
-    private String widgetId;
+  public String getOriginalAssetId() {
+    return originalAssetId;
+  }
 
-    private String widgetName;
+  public void setOriginalAssetId(String originalAssetId) {
+    this.originalAssetId = originalAssetId;
+  }
 
-    private String targetAssetType;
+  public String getOwnerId() {
+    return ownerId;
+  }
 
-    private Boolean sharedAsset;
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
 
-    public String getOriginalAssetId()
-    {
-        return originalAssetId;
-    }
+  public String getWidgetId() {
+    return widgetId;
+  }
 
-    public void setOriginalAssetId(String originalAssetId)
-    {
-        this.originalAssetId = originalAssetId;
-    }
+  public void setWidgetId(String widgetId) {
+    this.widgetId = widgetId;
+  }
 
-    public String getOwnerId()
-    {
-        return ownerId;
-    }
+  public String getWidgetName() {
+    return widgetName;
+  }
 
-    public void setOwnerId(String ownerId)
-    {
-        this.ownerId = ownerId;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public String getWidgetId()
-    {
-        return widgetId;
-    }
+  public String getTargetAssetType() {
+    return targetAssetType;
+  }
 
-    public void setWidgetId(String widgetId)
-    {
-        this.widgetId = widgetId;
-    }
+  public void setTargetAssetType(String targetAssetType) {
+    this.targetAssetType = targetAssetType;
+  }
 
-    public String getWidgetName()
-    {
-        return widgetName;
-    }
+  public Boolean getSharedAsset() {
+    return sharedAsset;
+  }
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
-
-    public String getTargetAssetType()
-    {
-        return targetAssetType;
-    }
-
-    public void setTargetAssetType(String targetAssetType)
-    {
-        this.targetAssetType = targetAssetType;
-    }
-
-    public boolean isSharedAsset()
-    {
-        return sharedAsset;
-    }
-
-    public void setSharedAsset(boolean sharedAsset)
-    {
-        this.sharedAsset = sharedAsset;
-    }
+  public void setSharedAsset(Boolean sharedAsset) {
+    this.sharedAsset = sharedAsset;
+  }
 }

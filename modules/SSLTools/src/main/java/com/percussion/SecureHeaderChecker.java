@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,41 +17,39 @@
 
 package com.percussion;
 
-import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
+import javax.net.ssl.HttpsURLConnection;
 
 public class SecureHeaderChecker {
 
-    private static final String[] secureHeaders = {
-            "X-Frame-Options",
-            "Content-Security-Policy",
-            "X-Content-Type-Options",
-            "Strict-Transport-Security",
-            "X-XSS-Protection",
-            "Cache-Control",
-             "Referrer-Policy"
-    };
+  private static final String[] secureHeaders = {
+    "X-Frame-Options",
+    "Content-Security-Policy",
+    "X-Content-Type-Options",
+    "Strict-Transport-Security",
+    "X-XSS-Protection",
+    "Cache-Control",
+    "Referrer-Policy"
+  };
 
+  /**
+   * Checks the connection for the presence of secure headers and
+   *
+   * @param conn
+   * @return
+   */
+  public static SecureHeaderCheckResponse check(HttpsURLConnection conn) {
 
-    /**
-     * Checks the connection for the presence of secure headers and
-     * @param conn
-     * @return
-     */
-    public static SecureHeaderCheckResponse check(HttpsURLConnection conn) {
+    SecureHeaderCheckResponse response = new SecureHeaderCheckResponse();
 
-        SecureHeaderCheckResponse response = new SecureHeaderCheckResponse();
-
-        for(String h : secureHeaders){
-            String result = conn.getHeaderField(h);
-            if(result == null){
-                response.getChecks().put(h,false);
-                response.setFailedCheck(true);
-            }else{
-                response.getChecks().put(h,true);
-            }
-        }
-        return response;
+    for (String h : secureHeaders) {
+      String result = conn.getHeaderField(h);
+      if (result == null) {
+        response.getChecks().put(h, false);
+        response.setFailedCheck(true);
+      } else {
+        response.getChecks().put(h, true);
+      }
     }
-
-
+    return response;
+  }
 }

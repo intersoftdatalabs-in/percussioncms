@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,44 @@
 package com.percussion.pso.restservice.model.results;
 
 import com.percussion.pso.restservice.model.ItemRef;
-
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="Results")
+@XmlRootElement(name = "Results")
 public class PagedResult {
-	
-	List<ItemRef> itemRefs;
-	String next;
-	Integer nextId;
-	
-	@XmlAttribute
-	public Integer getNextId() {
-		return nextId;
-	}
 
-	public void setNextId(Integer nextId) {
-		this.nextId = nextId;
-	}
+  List<ItemRef> itemRefs;
+  String next;
+  Integer nextId;
 
-	@XmlElement
-	public String getNext() {
-		return next;
-	}
+  @XmlAttribute
+  public Integer getNextId() {
+    return nextId;
+  }
 
-	public void setNext(String next) {
-		this.next = next;
-	}
+  public void setNextId(Integer nextId) {
+    this.nextId = nextId;
+  }
 
-	@XmlElement(name = "Item")
-	@XmlElementWrapper(name="Items")
-	public List<ItemRef> getItemRefs() {
-		return itemRefs;
-	}
+  @XmlElement
+  public String getNext() {
+    return next;
+  }
 
-	public void setItemRefs(List<ItemRef> itemRefs) {
-		this.itemRefs = itemRefs;
-	}
+  public void setNext(String next) {
+    this.next = next;
+  }
+
+  @XmlElement(name = "Item")
+  @XmlElementWrapper(name = "Items")
+  public List<ItemRef> getItemRefs() {
+    return itemRefs;
+  }
+
+  public void setItemRefs(List<ItemRef> itemRefs) {
+    this.itemRefs = itemRefs;
+  }
 }

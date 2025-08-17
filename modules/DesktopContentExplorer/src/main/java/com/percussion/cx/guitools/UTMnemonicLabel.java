@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package com.percussion.cx.guitools;
 
-import javax.swing.JLabel; // TODO: JAVAX-11
+import javax.swing.JLabel;
 import java.awt.Component;
 import java.util.ResourceBundle;
 

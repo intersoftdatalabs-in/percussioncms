@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,11 @@
  */
 package com.percussion.pso.relationshipbuilder;
 
-import static java.util.Collections.singleton;
-
-import java.util.Collection;
-
-import com.percussion.error.PSException;
-import com.percussion.services.assembly.PSAssemblyException;
-
 /**
- * Creates and deletes auto relationships where the parent item (item being
- * updated) is the <em>owner</em> of the relationship and the child items
- * (items to be related) are the <em>dependent</em>.
+ * Creates and deletes auto relationships where the parent item (item being updated) is the
+ * <em>owner</em> of the relationship and the child items (items to be related) are the
+ * <em>dependent</em>.
+ *
  * @author Adam Gent
  * @author James Schultz
  * @since 6.0
@@ -35,7 +29,7 @@ import com.percussion.services.assembly.PSAssemblyException;
  */
 public class PSAaOwnerRelationshipBuilder extends PSActiveAssemblyRelationshipBuilder {
 
-	public PSAaOwnerRelationshipBuilder() {
-		setParent(true);	
-	}
+  public PSAaOwnerRelationshipBuilder() {
+    setParent(true);
+  }
 }

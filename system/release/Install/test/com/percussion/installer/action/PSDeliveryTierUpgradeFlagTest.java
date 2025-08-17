@@ -1,11 +1,11 @@
 package com.percussion.installer.action;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.SortedSet;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PSDeliveryTierUpgradeFlagTest {
 
@@ -13,7 +13,7 @@ public class PSDeliveryTierUpgradeFlagTest {
      * Verify the property parsing / sorting logic
      */
     @Test
-    @Ignore("Failing on Windows")
+    @Disabled("Failing on Windows")
     public void testGetValidDTSInstallations(){
         String dirs = this.getClass().getResource("New Folder").getPath().replace("%20"," ") +
                 ";" + this.getClass().getResource("Percussion").getPath();

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,70 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.percussion.user.service.IPSUserService;
-
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
- * A single user that
- * <strong>may or may not</strong> have been
- * imported successfully.
- *
- * See {@link PSImportedUser#getStatus()}.
+ * Represents a user that may or may not have been imported successfully. See {@link
+ * PSImportedUser#getStatus()}.
  *
  * @author adamgent
- *
  */
 @XmlRootElement(name = "ImportedUser")
 @JsonRootName("ImportedUser")
 public class PSImportedUser extends PSAbstractUser {
 
-    private static final long serialVersionUID = 1L;
-    private ImportStatus status = ImportStatus.SUCCESS;
+  private static final long serialVersionUID = 1L;
+  private ImportStatus status = ImportStatus.SUCCESS;
 
-    /**
-     * Was the user imported?
-     * @return never <code>null</code>.
-     */
-    public ImportStatus getStatus()
-    {
-        return status;
-    }
+  /**
+   * Was the user imported?
+   *
+   * @return never {@code null}.
+   */
+  public ImportStatus getStatus() {
+    return status;
+  }
 
+  public void setStatus(ImportStatus status) {
+    this.status = status;
+  }
 
-    public void setStatus(ImportStatus status)
-    {
-        this.status = status;
-    }
-
-
-    /**
-     *
-     * Indicates whether or not the users was imported.
-     * @author adamgent
-     *
-     */
-    public static enum ImportStatus {
-        /**
-         * The user was successfully imported.
-         */
-        SUCCESS,
-        /**
-         * The user already exists a back-end user.
-         */
-        DUPLICATE,
-        /**
-         * The user was not imported because its invalid name.
-         */
-        INVALID,
-        /**
-         * Some unknown error
-         */
-        ERROR
-    }
+  /** Indicates whether or not the user was imported. */
+  public enum ImportStatus {
+    /** The user was successfully imported. */
+    SUCCESS,
+    /** The user already exists as a back-end user. */
+    DUPLICATE,
+    /** The user was not imported because of an invalid name. */
+    INVALID,
+    /** Some unknown error occurred. */
+    ERROR
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
 /**
- * @author stephenbolton
- * 
+ * Exception thrown when a site is not found. Sunny Sal: "Site dhoondho, nahi mila? Not found,
+ * boss!"
  */
-public class SiteNotFoundException extends RestExceptionBase
-{
-    public SiteNotFoundException()
-    {
-        super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
+public class SiteNotFoundException extends RestExceptionBase {
+
+  /** Constructs a SiteNotFoundException with NOT_FOUND status. */
+  public SiteNotFoundException() {
+    super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
 }

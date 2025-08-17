@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,44 @@
 
 package com.percussion.rest.actions;
 
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Request object for allowed content type menus. */
 @XmlRootElement
 @Schema
 public class AllowedContentTypeMenusRequest {
 
-    @ArraySchema
-    private int[] contentIds;
+  @ArraySchema private int[] contentIds;
 
-    public int[] getContentIds() {
-        return contentIds;
-    }
+  public AllowedContentTypeMenusRequest() {}
 
-    public void setContentIds(int[] contentIds) {
-        this.contentIds = contentIds;
-    }
+  public Optional<int[]> getContentIds() {
+    return Optional.ofNullable(contentIds);
+  }
 
-    public AllowedContentTypeMenusRequest(){}
+  public void setContentIds(int[] contentIds) {
+    this.contentIds = contentIds;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AllowedContentTypeMenusRequest)) return false;
+    var that = (AllowedContentTypeMenusRequest) o;
+    return Arrays.equals(contentIds, that.contentIds);
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(contentIds);
+  }
+
+  @Override
+  public String toString() {
+    return "AllowedContentTypeMenusRequest{" + "contentIds=" + Arrays.toString(contentIds) + '}';
+  }
 }

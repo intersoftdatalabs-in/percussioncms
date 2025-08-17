@@ -1,6 +1,6 @@
 
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     private static final Logger LOG = Logger.getLogger(ServiceSoapImpl.class.getName());
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getCourseBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getCourseBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getCourseBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getCourseBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getCourseBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -73,9 +73,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getBuildingHours(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, javax.xml.datatype.XMLGregorianCalendar buildingHoursDate)*
+     * @see service.web.api.ems.dea.ServiceSoap#getBuildingHours(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, jakarta.xml.datatype.XMLGregorianCalendar buildingHoursDate)*
      */
-    public java.lang.String getBuildingHours(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, javax.xml.datatype.XMLGregorianCalendar buildingHoursDate) {
+    public java.lang.String getBuildingHours(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, jakarta.xml.datatype.XMLGregorianCalendar buildingHoursDate) {
         LOG.info("Executing operation getBuildingHours");
         System.out.println(userName);
         System.out.println(password);
@@ -108,9 +108,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getBookingHistory(java.lang.String a0, java.lang.String a1, javax.xml.datatype.XMLGregorianCalendar a2, javax.xml.datatype.XMLGregorianCalendar a3, service.web.api.ems.dea.ArrayOfInt a4, service.web.api.ems.dea.ArrayOfInt a5, service.web.api.ems.dea.ArrayOfInt a6, service.web.api.ems.dea.ArrayOfInt a7, boolean a8)*
+     * @see service.web.api.ems.dea.ServiceSoap#getBookingHistory(java.lang.String a0, java.lang.String a1, jakarta.xml.datatype.XMLGregorianCalendar a2, jakarta.xml.datatype.XMLGregorianCalendar a3, service.web.api.ems.dea.ArrayOfInt a4, service.web.api.ems.dea.ArrayOfInt a5, service.web.api.ems.dea.ArrayOfInt a6, service.web.api.ems.dea.ArrayOfInt a7, boolean a8)*
      */
-    public java.lang.String getBookingHistory(java.lang.String a0, java.lang.String a1, javax.xml.datatype.XMLGregorianCalendar a2, javax.xml.datatype.XMLGregorianCalendar a3, service.web.api.ems.dea.ArrayOfInt a4, service.web.api.ems.dea.ArrayOfInt a5, service.web.api.ems.dea.ArrayOfInt a6, service.web.api.ems.dea.ArrayOfInt a7, boolean a8) {
+    public java.lang.String getBookingHistory(java.lang.String a0, java.lang.String a1, jakarta.xml.datatype.XMLGregorianCalendar a2, jakarta.xml.datatype.XMLGregorianCalendar a3, service.web.api.ems.dea.ArrayOfInt a4, service.web.api.ems.dea.ArrayOfInt a5, service.web.api.ems.dea.ArrayOfInt a6, service.web.api.ems.dea.ArrayOfInt a7, boolean a8) {
         LOG.info("Executing operation getBookingHistory");
         System.out.println(a0);
         System.out.println(a1);
@@ -160,9 +160,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getAllBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getAllBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getAllBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents) {
+    public java.lang.String getAllBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getAllBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -233,9 +233,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getAllBookings2(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents, int udfDefID, java.lang.String udfValue)*
+     * @see service.web.api.ems.dea.ServiceSoap#getAllBookings2(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents, int udfDefID, java.lang.String udfValue)*
      */
-    public java.lang.String getAllBookings2(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents, int udfDefID, java.lang.String udfValue) {
+    public java.lang.String getAllBookings2(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int buildingID, boolean viewComboRoomComponents, int udfDefID, java.lang.String udfValue) {
         LOG.info("Executing operation getAllBookings2");
         System.out.println(userName);
         System.out.println(password);
@@ -410,9 +410,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar bookingDate, int buildingID, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, int buildingID, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime)*
      */
-    public java.lang.String getRoomsAvailable(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar bookingDate, int buildingID, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime) {
+    public java.lang.String getRoomsAvailable(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, int buildingID, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime) {
         LOG.info("Executing operation getRoomsAvailable");
         System.out.println(userName);
         System.out.println(password);
@@ -563,9 +563,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getHVACBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, service.web.api.ems.dea.ArrayOfString hvacZones, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getHVACBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, service.web.api.ems.dea.ArrayOfString hvacZones, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getHVACBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, service.web.api.ems.dea.ArrayOfString hvacZones, boolean viewComboRoomComponents) {
+    public java.lang.String getHVACBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, service.web.api.ems.dea.ArrayOfString hvacZones, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getHVACBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -587,9 +587,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addReservation4(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference)*
+     * @see service.web.api.ems.dea.ServiceSoap#addReservation4(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference)*
      */
-    public java.lang.String addReservation4(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference) {
+    public java.lang.String addReservation4(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference) {
         LOG.info("Executing operation addReservation4");
         System.out.println(userName);
         System.out.println(password);
@@ -632,9 +632,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int roomID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int roomID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getRoomBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int roomID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getRoomBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int roomID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getRoomBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -655,9 +655,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addReservation3(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID)*
+     * @see service.web.api.ems.dea.ServiceSoap#addReservation3(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID)*
      */
-    public java.lang.String addReservation3(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID) {
+    public java.lang.String addReservation3(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID) {
         LOG.info("Executing operation addReservation3");
         System.out.println(userName);
         System.out.println(password);
@@ -682,9 +682,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addReservation5(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference, java.lang.String poNumber, int setupCount)*
+     * @see service.web.api.ems.dea.ServiceSoap#addReservation5(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference, java.lang.String poNumber, int setupCount)*
      */
-    public java.lang.String addReservation5(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference, java.lang.String poNumber, int setupCount) {
+    public java.lang.String addReservation5(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID, int reservationSourceID, java.lang.String billingReference, java.lang.String poNumber, int setupCount) {
         LOG.info("Executing operation addReservation5");
         System.out.println(userName);
         System.out.println(password);
@@ -728,9 +728,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#updateBooking2(java.lang.String userName, java.lang.String password, int bookingID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID, java.lang.String eventName)*
+     * @see service.web.api.ems.dea.ServiceSoap#updateBooking2(java.lang.String userName, java.lang.String password, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID, java.lang.String eventName)*
      */
-    public java.lang.String updateBooking2(java.lang.String userName, java.lang.String password, int bookingID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID, java.lang.String eventName) {
+    public java.lang.String updateBooking2(java.lang.String userName, java.lang.String password, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID, java.lang.String eventName) {
         LOG.info("Executing operation updateBooking2");
         System.out.println(userName);
         System.out.println(password);
@@ -751,9 +751,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addReservation(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID)*
+     * @see service.web.api.ems.dea.ServiceSoap#addReservation(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID)*
      */
-    public java.lang.String addReservation(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID) {
+    public java.lang.String addReservation(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID) {
         LOG.info("Executing operation addReservation");
         System.out.println(userName);
         System.out.println(password);
@@ -851,9 +851,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addReservation2(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID)*
+     * @see service.web.api.ems.dea.ServiceSoap#addReservation2(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID)*
      */
-    public java.lang.String addReservation2(java.lang.String userName, java.lang.String password, int groupID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID) {
+    public java.lang.String addReservation2(java.lang.String userName, java.lang.String password, int groupID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID, int webUserID, int webTemplateID) {
         LOG.info("Executing operation addReservation2");
         System.out.println(userName);
         System.out.println(password);
@@ -907,9 +907,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addServiceOrder(java.lang.String userName, java.lang.String password, int categoryID, int bookingID, javax.xml.datatype.XMLGregorianCalendar timeStart, javax.xml.datatype.XMLGregorianCalendar timeEnd, int serviceTypeID, int stateID, int estimatedCount, int guaranteedCount, int actualCount)*
+     * @see service.web.api.ems.dea.ServiceSoap#addServiceOrder(java.lang.String userName, java.lang.String password, int categoryID, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar timeStart, jakarta.xml.datatype.XMLGregorianCalendar timeEnd, int serviceTypeID, int stateID, int estimatedCount, int guaranteedCount, int actualCount)*
      */
-    public java.lang.String addServiceOrder(java.lang.String userName, java.lang.String password, int categoryID, int bookingID, javax.xml.datatype.XMLGregorianCalendar timeStart, javax.xml.datatype.XMLGregorianCalendar timeEnd, int serviceTypeID, int stateID, int estimatedCount, int guaranteedCount, int actualCount) {
+    public java.lang.String addServiceOrder(java.lang.String userName, java.lang.String password, int categoryID, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar timeStart, jakarta.xml.datatype.XMLGregorianCalendar timeEnd, int serviceTypeID, int stateID, int estimatedCount, int guaranteedCount, int actualCount) {
         LOG.info("Executing operation addServiceOrder");
         System.out.println(userName);
         System.out.println(password);
@@ -932,9 +932,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomAvailability(java.lang.String userName, java.lang.String password, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomAvailability(java.lang.String userName, java.lang.String password, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime)*
      */
-    public java.lang.String getRoomAvailability(java.lang.String userName, java.lang.String password, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime) {
+    public java.lang.String getRoomAvailability(java.lang.String userName, java.lang.String password, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime) {
         LOG.info("Executing operation getRoomAvailability");
         System.out.println(userName);
         System.out.println(password);
@@ -969,9 +969,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -992,9 +992,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getBuildingHolidays(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, javax.xml.datatype.XMLGregorianCalendar holidayDate)*
+     * @see service.web.api.ems.dea.ServiceSoap#getBuildingHolidays(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, jakarta.xml.datatype.XMLGregorianCalendar holidayDate)*
      */
-    public java.lang.String getBuildingHolidays(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, javax.xml.datatype.XMLGregorianCalendar holidayDate) {
+    public java.lang.String getBuildingHolidays(java.lang.String userName, java.lang.String password, service.web.api.ems.dea.ArrayOfInt buildings, jakarta.xml.datatype.XMLGregorianCalendar holidayDate) {
         LOG.info("Executing operation getBuildingHolidays");
         System.out.println(userName);
         System.out.println(password);
@@ -1010,9 +1010,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getWebUserBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int webUserID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getWebUserBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int webUserID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getWebUserBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int webUserID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getWebUserBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int webUserID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getWebUserBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -1055,9 +1055,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getChangedBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt rooms, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getChangedBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt rooms, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getChangedBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt rooms, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getChangedBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt rooms, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getChangedBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -1095,9 +1095,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getServiceOrderDetails2(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses)*
+     * @see service.web.api.ems.dea.ServiceSoap#getServiceOrderDetails2(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses)*
      */
-    public java.lang.String getServiceOrderDetails2(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses) {
+    public java.lang.String getServiceOrderDetails2(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses) {
         LOG.info("Executing operation getServiceOrderDetails2");
         System.out.println(userName);
         System.out.println(password);
@@ -1132,9 +1132,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getBookings2(java.lang.String userName, java.lang.String password, int reservationID, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getBookings2(java.lang.String userName, java.lang.String password, int reservationID, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getBookings2(java.lang.String userName, java.lang.String password, int reservationID, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getBookings2(java.lang.String userName, java.lang.String password, int reservationID, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt eventTypes, service.web.api.ems.dea.ArrayOfInt groupTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getBookings2");
         System.out.println(userName);
         System.out.println(password);
@@ -1156,9 +1156,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addWebRequest(java.lang.String userName, java.lang.String password, java.lang.String eventName, int eventTypeID, java.lang.String groupName, java.lang.String contact, java.lang.String phone, java.lang.String fax, java.lang.String emailAddress, int webUserID, int buildingID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int setupTypeID, int setupCount, java.lang.String notes)*
+     * @see service.web.api.ems.dea.ServiceSoap#addWebRequest(java.lang.String userName, java.lang.String password, java.lang.String eventName, int eventTypeID, java.lang.String groupName, java.lang.String contact, java.lang.String phone, java.lang.String fax, java.lang.String emailAddress, int webUserID, int buildingID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int setupTypeID, int setupCount, java.lang.String notes)*
      */
-    public java.lang.String addWebRequest(java.lang.String userName, java.lang.String password, java.lang.String eventName, int eventTypeID, java.lang.String groupName, java.lang.String contact, java.lang.String phone, java.lang.String fax, java.lang.String emailAddress, int webUserID, int buildingID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int setupTypeID, int setupCount, java.lang.String notes) {
+    public java.lang.String addWebRequest(java.lang.String userName, java.lang.String password, java.lang.String eventName, int eventTypeID, java.lang.String groupName, java.lang.String contact, java.lang.String phone, java.lang.String fax, java.lang.String emailAddress, int webUserID, int buildingID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int setupTypeID, int setupCount, java.lang.String notes) {
         LOG.info("Executing operation addWebRequest");
         System.out.println(userName);
         System.out.println(password);
@@ -1220,9 +1220,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#updateServiceOrder(java.lang.String userName, java.lang.String password, int serviceOrderID, javax.xml.datatype.XMLGregorianCalendar timeStart, javax.xml.datatype.XMLGregorianCalendar timeEnd, int stateID, int serviceTypeID, int estimatedCount, int guaranteedCount, int actualCount)*
+     * @see service.web.api.ems.dea.ServiceSoap#updateServiceOrder(java.lang.String userName, java.lang.String password, int serviceOrderID, jakarta.xml.datatype.XMLGregorianCalendar timeStart, jakarta.xml.datatype.XMLGregorianCalendar timeEnd, int stateID, int serviceTypeID, int estimatedCount, int guaranteedCount, int actualCount)*
      */
-    public java.lang.String updateServiceOrder(java.lang.String userName, java.lang.String password, int serviceOrderID, javax.xml.datatype.XMLGregorianCalendar timeStart, javax.xml.datatype.XMLGregorianCalendar timeEnd, int stateID, int serviceTypeID, int estimatedCount, int guaranteedCount, int actualCount) {
+    public java.lang.String updateServiceOrder(java.lang.String userName, java.lang.String password, int serviceOrderID, jakarta.xml.datatype.XMLGregorianCalendar timeStart, jakarta.xml.datatype.XMLGregorianCalendar timeEnd, int stateID, int serviceTypeID, int estimatedCount, int guaranteedCount, int actualCount) {
         LOG.info("Executing operation updateServiceOrder");
         System.out.println(userName);
         System.out.println(password);
@@ -1244,9 +1244,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getServiceOrderDetails(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses)*
+     * @see service.web.api.ems.dea.ServiceSoap#getServiceOrderDetails(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses)*
      */
-    public java.lang.String getServiceOrderDetails(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses) {
+    public java.lang.String getServiceOrderDetails(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, service.web.api.ems.dea.ArrayOfInt buildings, service.web.api.ems.dea.ArrayOfInt statuses) {
         LOG.info("Executing operation getServiceOrderDetails");
         System.out.println(userName);
         System.out.println(password);
@@ -1338,9 +1338,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getGroupBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int groupID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getGroupBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int groupID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getGroupBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int groupID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents) {
+    public java.lang.String getGroupBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int groupID, service.web.api.ems.dea.ArrayOfInt statuses, service.web.api.ems.dea.ArrayOfInt statusTypes, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getGroupBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -1377,9 +1377,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable2(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable2(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime)*
      */
-    public java.lang.String getRoomsAvailable2(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime) {
+    public java.lang.String getRoomsAvailable2(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime) {
         LOG.info("Executing operation getRoomsAvailable2");
         System.out.println(userName);
         System.out.println(password);
@@ -1446,9 +1446,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#updateBooking(java.lang.String userName, java.lang.String password, int bookingID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID)*
+     * @see service.web.api.ems.dea.ServiceSoap#updateBooking(java.lang.String userName, java.lang.String password, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID)*
      */
-    public java.lang.String updateBooking(java.lang.String userName, java.lang.String password, int bookingID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID) {
+    public java.lang.String updateBooking(java.lang.String userName, java.lang.String password, int bookingID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, int statusID, int roomID) {
         LOG.info("Executing operation updateBooking");
         System.out.println(userName);
         System.out.println(password);
@@ -1468,9 +1468,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable3(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, service.web.api.ems.dea.ArrayOfInt features, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable3(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, service.web.api.ems.dea.ArrayOfInt features, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime)*
      */
-    public java.lang.String getRoomsAvailable3(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, service.web.api.ems.dea.ArrayOfInt features, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime) {
+    public java.lang.String getRoomsAvailable3(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, service.web.api.ems.dea.ArrayOfInt features, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime) {
         LOG.info("Executing operation getRoomsAvailable3");
         System.out.println(userName);
         System.out.println(password);
@@ -1491,9 +1491,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable4(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, int setupTypeId, int requestedCapacity, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime)*
+     * @see service.web.api.ems.dea.ServiceSoap#getRoomsAvailable4(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, int setupTypeId, int requestedCapacity, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime)*
      */
-    public java.lang.String getRoomsAvailable4(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, int setupTypeId, int requestedCapacity, javax.xml.datatype.XMLGregorianCalendar startDateTime, javax.xml.datatype.XMLGregorianCalendar endDateTime) {
+    public java.lang.String getRoomsAvailable4(java.lang.String userName, java.lang.String password, int buildingID, int roomTypeID, int floorID, service.web.api.ems.dea.ArrayOfInt webProcessTemplates, int setupTypeId, int requestedCapacity, jakarta.xml.datatype.XMLGregorianCalendar startDateTime, jakarta.xml.datatype.XMLGregorianCalendar endDateTime) {
         LOG.info("Executing operation getRoomsAvailable4");
         System.out.println(userName);
         System.out.println(password);
@@ -1612,9 +1612,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addBooking(java.lang.String userName, java.lang.String password, int reservationID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID)*
+     * @see service.web.api.ems.dea.ServiceSoap#addBooking(java.lang.String userName, java.lang.String password, int reservationID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID)*
      */
-    public java.lang.String addBooking(java.lang.String userName, java.lang.String password, int reservationID, int roomID, javax.xml.datatype.XMLGregorianCalendar bookingDate, javax.xml.datatype.XMLGregorianCalendar startTime, javax.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID) {
+    public java.lang.String addBooking(java.lang.String userName, java.lang.String password, int reservationID, int roomID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, jakarta.xml.datatype.XMLGregorianCalendar startTime, jakarta.xml.datatype.XMLGregorianCalendar endTime, java.lang.String eventName, int statusID, int eventTypeID) {
         LOG.info("Executing operation addBooking");
         System.out.println(userName);
         System.out.println(password);
@@ -1636,9 +1636,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#getAllRoomBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int roomID, boolean viewComboRoomComponents)*
+     * @see service.web.api.ems.dea.ServiceSoap#getAllRoomBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int roomID, boolean viewComboRoomComponents)*
      */
-    public java.lang.String getAllRoomBookings(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar startDate, javax.xml.datatype.XMLGregorianCalendar endDate, int roomID, boolean viewComboRoomComponents) {
+    public java.lang.String getAllRoomBookings(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar startDate, jakarta.xml.datatype.XMLGregorianCalendar endDate, int roomID, boolean viewComboRoomComponents) {
         LOG.info("Executing operation getAllRoomBookings");
         System.out.println(userName);
         System.out.println(password);
@@ -1694,9 +1694,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#addPayment(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar transactionDate, int paymentTypeID, java.lang.String checkNo, java.math.BigDecimal paymentAmount, java.lang.String invoiceNo, java.lang.String notes)*
+     * @see service.web.api.ems.dea.ServiceSoap#addPayment(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar transactionDate, int paymentTypeID, java.lang.String checkNo, java.math.BigDecimal paymentAmount, java.lang.String invoiceNo, java.lang.String notes)*
      */
-    public java.lang.String addPayment(java.lang.String userName, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar transactionDate, int paymentTypeID, java.lang.String checkNo, java.math.BigDecimal paymentAmount, java.lang.String invoiceNo, java.lang.String notes) {
+    public java.lang.String addPayment(java.lang.String userName, java.lang.String password, jakarta.xml.datatype.XMLGregorianCalendar transactionDate, int paymentTypeID, java.lang.String checkNo, java.math.BigDecimal paymentAmount, java.lang.String invoiceNo, java.lang.String notes) {
         LOG.info("Executing operation addPayment");
         System.out.println(userName);
         System.out.println(password);
@@ -1802,9 +1802,9 @@ public class ServiceSoapImpl implements ServiceSoap {
     }
 
     /* (non-Javadoc)
-     * @see service.web.api.ems.dea.ServiceSoap#autoCheckin(java.lang.String userName, java.lang.String password, java.lang.String emailAddress, int webUserID, int udfid, java.lang.String udfValue, int buildingID, int roomID, int floorID, javax.xml.datatype.XMLGregorianCalendar bookingDate, int eventType)*
+     * @see service.web.api.ems.dea.ServiceSoap#autoCheckin(java.lang.String userName, java.lang.String password, java.lang.String emailAddress, int webUserID, int udfid, java.lang.String udfValue, int buildingID, int roomID, int floorID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, int eventType)*
      */
-    public java.lang.String autoCheckin(java.lang.String userName, java.lang.String password, java.lang.String emailAddress, int webUserID, int udfid, java.lang.String udfValue, int buildingID, int roomID, int floorID, javax.xml.datatype.XMLGregorianCalendar bookingDate, int eventType) {
+    public java.lang.String autoCheckin(java.lang.String userName, java.lang.String password, java.lang.String emailAddress, int webUserID, int udfid, java.lang.String udfValue, int buildingID, int roomID, int floorID, jakarta.xml.datatype.XMLGregorianCalendar bookingDate, int eventType) {
         LOG.info("Executing operation autoCheckin");
         System.out.println(userName);
         System.out.println(password);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,31 @@ import com.percussion.share.service.exception.PSValidationException;
 import java.util.Map;
 
 /**
- * Handles connections and data transfer for a specific analytics provider.
+ * Handles connections and data transfer for a specific analytics provider. Sunny Sal: "Analytics
+ * providers are like Bollywood actors—plenty of drama!"
  */
-public interface IPSAnalyticsProviderHandler
-{
-   
-   /**
-    * Retrieves a list of "profiles" from the provider. Profiles are basically id's used to
-    * get access to a particular data set from the provider.
-    * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
-    * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
-    * @return a map of strings, with the key being the profile value and the value being the
-    * profile display value. Never <code>null</code>, may be empty.
-    * @throws <code>PSAnalyticsProviderException</code>, upon any error.
-    */
-   public Map<String, String> getProfiles(String uid, String password) throws PSAnalyticsProviderException, PSValidationException;
-   
-   /**
-    * Tests a connection to the provider using the specified credentials.
-    * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
-    * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
-    * @throws PSAnalyticsProviderException if failed to connect.
-    */
-   public void testConnection(String uid, String password) throws PSAnalyticsProviderException, PSValidationException;
+public interface IPSAnalyticsProviderHandler {
+
+  /**
+   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to get access
+   * to a particular data set from the provider.
+   *
+   * @param uid the user ID for access to the provider. Cannot be null or empty.
+   * @param password the password for access to the provider. Cannot be null or empty.
+   * @return a map of strings, with the key being the profile value and the value being the profile
+   *     display value. Never null, may be empty.
+   * @throws PSAnalyticsProviderException upon any error.
+   */
+  Map<String, String> getProfiles(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
+
+  /**
+   * Tests a connection to the provider using the specified credentials.
+   *
+   * @param uid the user ID for access to the provider. Cannot be null or empty.
+   * @param password the password for access to the provider. Cannot be null or empty.
+   * @throws PSAnalyticsProviderException if failed to connect.
+   */
+  void testConnection(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
 }

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,137 +18,111 @@
 package com.percussion.integritymanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.util.Objects;
+import javax.persistence.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+/** Represents a property for an integrity task. */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSIntegrityTaskProperty")
 @Table(name = "PSX_INTEGRITY_TASK_PROPERTIES")
-public class PSIntegrityTaskProperty extends PSAbstractDataObject
-{
+public class PSIntegrityTaskProperty extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    /**
-    * 
-    */
-    private static final long serialVersionUID = 1L;
+  @Id
+  @Column(name = "TASKRPROPERTYID")
+  private long taskPropertyId = -1L;
 
-    @Id
-    @Column(name = "TASKRPROPERTYID")
-    private long taskPropertyId = -1L;
+  @Basic
+  @Column(name = "TASKID", insertable = false, updatable = false)
+  private long taskId;
 
-    @Basic
-    @Column(name = "TASKID", insertable = false,updatable = false)
-    private long taskId;
+  @Basic
+  @Column(name = "PROPERTYNAME")
+  private String name;
 
-    @Basic
-    @Column(name = "PROPERTYNAME")
-    private String name;
+  @Basic
+  @Column(name = "PROPERTYVALUE")
+  private String value;
 
-    @Basic
-    @Column(name = "PROPERTYVALUE")
-    private String value;
+  /** Default constructor. */
+  public PSIntegrityTaskProperty() {
+    // Default constructor for JPA
+  }
 
-    /**
-     * The default constructor.
-     */
-    public PSIntegrityTaskProperty()
-    {
+  public PSIntegrityTaskProperty(String name, String value) {
+    setName(name);
+    setValue(value);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PSIntegrityTaskProperty)) {
+      return false;
     }
-    
-    public PSIntegrityTaskProperty(String name, String value)
-    {
-        setName(name);
-        setValue(value);
+    var other = (PSIntegrityTaskProperty) obj;
+    return Objects.equals(name, other.name) && Objects.equals(value, other.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
+
+  /**
+   * Gets the property name.
+   *
+   * @return the property name, never null or empty
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Sets the property name.
+   *
+   * @param name the name to set, never null or empty
+   */
+  public void setName(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name may not be null or empty");
     }
+    this.name = name;
+  }
 
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (!(obj instanceof PSIntegrityTaskProperty)) {
-            return false;
-        }
+  /**
+   * Gets the value.
+   *
+   * @return the value, may be null or empty
+   */
+  public String getValue() {
+    return value;
+  }
 
-        // use "name" & "value" should be enough to avoid same pair more than
-        // once to make sure the property names are unique within a PSPubServer
-        PSIntegrityTaskProperty b = (PSIntegrityTaskProperty) obj;
-        return new EqualsBuilder().append(name, b.name).append(value, b.value).isEquals();
-    }
+  /**
+   * Sets the value.
+   *
+   * @param value the value to set
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public int hashCode()
-    {
-        // use "name" should be enough to avoid same pair more than once to make
-        // sure the property names are unique within a PSPubServer
-        return new HashCodeBuilder().append(name).toHashCode();
-    }
+  public long getTaskPropertyId() {
+    return taskPropertyId;
+  }
 
-    /**
-     * Get the property name
-     * 
-     * @return Returns the property name, never <code>null</code> or empty
-     */
-    public String getName()
-    {
-        return name;
-    }
+  public void setTaskPropertyId(long taskPropertyId) {
+    this.taskPropertyId = taskPropertyId;
+  }
 
-    /**
-     * @param name The name to set, never <code>null</code> or empty
-     */
-    public void setName(String name)
-    {
-        if (StringUtils.isBlank(name))
-        {
-            throw new IllegalArgumentException("name may not be null or empty");
-        }
-        this.name = name;
-    }
+  public long getTaskId() {
+    return taskId;
+  }
 
-    /**
-     * Get the value
-     * 
-     * @return Returns the value, may be <code>null</code> or empty.
-     */
-    public String getValue()
-    {
-        return value;
-    }
-
-    /**
-     * @param value The value to set.
-     */
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
-
-    public long getTaskPropertyId()
-    {
-        return taskPropertyId;
-    }
-
-    public void setTaskPropertyId(long taskPropertyId)
-    {
-        this.taskPropertyId = taskPropertyId;
-    }
-
-    public long getTaskId()
-    {
-        return taskId;
-    }
-
-    public void setTaskId(long taskId)
-    {
-        this.taskId = taskId;
-    }
-
+  public void setTaskId(long taskId) {
+    this.taskId = taskId;
+  }
 }

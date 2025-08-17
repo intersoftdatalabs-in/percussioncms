@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package service.web.api.ems.dea;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.xml.namespace.QName; // TODO: JAVAX-11
+import jakarta.xml.namespace.QName;
 import jakarta.xml.ws.WebEndpoint;
 import jakarta.xml.ws.WebServiceClient;
 import jakarta.xml.ws.WebServiceFeature;
@@ -33,7 +33,7 @@ import jakarta.xml.ws.WebServiceFeature;
 @WebServiceClient(name = "Service",
                   wsdlLocation = "http://ems.csudh.edu/emsapi/service.asmx?wsdl",
                   targetNamespace = "http://DEA.EMS.API.Web.Service/")
-public class Service extends javax.xml.ws.Service {
+public class Service extends jakarta.xml.ws.Service {
 
     public final static URL WSDL_LOCATION;
 
@@ -92,7 +92,7 @@ public class Service extends javax.xml.ws.Service {
     /**
      *
      * @param features
-     *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
+     *     A list of {@link jakarta.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
      * @return
      *     returns ServiceSoap
      */
@@ -115,7 +115,7 @@ public class Service extends javax.xml.ws.Service {
     /**
      *
      * @param features
-     *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
+     *     A list of {@link jakarta.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
      * @return
      *     returns ServiceSoap
      */

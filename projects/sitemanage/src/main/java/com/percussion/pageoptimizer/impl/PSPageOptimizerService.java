@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pageoptimizer.impl;
 
 import com.percussion.cloudservice.data.PSCloudLicenseType;
-import com.percussion.cloudservice.data.PSCloudServiceInfo;
-import com.percussion.cloudservice.data.PSCloudServicePageData;
 import com.percussion.cloudservice.impl.PSCloudService;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
 import com.percussion.pagemanagement.service.IPSPageService;
@@ -28,58 +27,74 @@ import com.percussion.pageoptimizer.IPSPageOptimizerService;
 import com.percussion.pageoptimizer.data.PSPageOptimizerData;
 import com.percussion.pageoptimizer.data.PSPageOptimizerInfo;
 import com.percussion.share.dao.IPSFolderHelper;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-
+/**
+ * Implementation of the Page Optimizer Service. Sunny Sal says: "Optimize first, ask questions
+ * later!"
+ */
 @Path("/pageoptimizer")
 @Component("pageOptimizerService")
 @Lazy
 public class PSPageOptimizerService extends PSCloudService implements IPSPageOptimizerService {
 
-    @Autowired
-    public PSPageOptimizerService(IPSFolderHelper folderHelper, IPSRenderService renderService, 
-            IPSPageService pageService, PSLicenseService licenseService)
-    {
-    	super(folderHelper, renderService, pageService, licenseService);
-    	this.log = LogManager.getLogger(PSPageOptimizerService.class);
-    }
-    
-    @Override
-    @GET
-    @Path("/active")
-    @Produces(MediaType.TEXT_PLAIN)
-    public boolean isPageOptimizerActive()
-    {
-        return isValidLicense(PSCloudLicenseType.PAGE_OPTIMIZER);
-    }
+  @Autowired
+  public PSPageOptimizerService(
+      IPSFolderHelper folderHelper,
+      IPSRenderService renderService,
+      IPSPageService pageService,
+      PSLicenseService licenseService) {
+    super(folderHelper, renderService, pageService, licenseService);
+    this.log = LogManager.getLogger(PSPageOptimizerService.class);
+  }
 
-    @Override
-    @GET
-    @Path("/info")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPageOptimizerInfo getPageOptimizerInfo()
-    {
-        PSCloudServiceInfo cloudInfo = super.getInfo(PSCloudLicenseType.PAGE_OPTIMIZER);
-        PSPageOptimizerInfo info = PSPageOptimizerInfo.fromPSCloudServiceInfo(cloudInfo);
-        return info;
-    }
+  /**
+   * Checks if the Page Optimizer is active.
+   *
+   * @return true if active, false otherwise
+   */
+  @Override
+  @GET
+  @Path("/active")
+  @Produces(MediaType.TEXT_PLAIN)
+  public boolean isPageOptimizerActive() {
+    return isValidLicense(PSCloudLicenseType.PAGE_OPTIMIZER);
+  }
 
-    @Override
-    @GET
-    @Path("/pagedata/{pageId}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPageOptimizerData getPageOptimizerData(@PathParam("pageId") String pageId)
-    {
-        PSCloudServicePageData cloudData = super.getPageData(PSCloudLicenseType.PAGE_OPTIMIZER, pageId);
-        PSPageOptimizerData poData = PSPageOptimizerData.fromPSCloudServicePageData(cloudData);
-        return poData;
-    }
+  /**
+   * Gets the properties of the Page Optimizer service.
+   *
+   * @return PSPageOptimizerInfo, never null
+   */
+  @Override
+  @GET
+  @Path("/info")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSPageOptimizerInfo getPageOptimizerInfo() {
+    var cloudInfo = super.getInfo(PSCloudLicenseType.PAGE_OPTIMIZER);
+    return PSPageOptimizerInfo.fromPSCloudServiceInfo(cloudInfo);
+  }
+
+  /**
+   * Collects the data and consolidates them into a PSPageOptimizerData object.
+   *
+   * @param pageId must be a valid page id, string form of guid
+   * @return PSPageOptimizerData, never null
+   */
+  @Override
+  @GET
+  @Path("/pagedata/{pageId}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSPageOptimizerData getPageOptimizerData(@PathParam("pageId") String pageId) {
+    var cloudData = super.getPageData(PSCloudLicenseType.PAGE_OPTIMIZER, pageId);
+    return PSPageOptimizerData.fromPSCloudServicePageData(cloudData);
+  }
 }

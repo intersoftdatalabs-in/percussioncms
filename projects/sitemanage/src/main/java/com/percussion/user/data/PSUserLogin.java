@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,68 +18,53 @@
 package com.percussion.user.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import net.sf.oval.constraint.NotBlank;
 
 /**
- * @author DavidBenua
+ * Represents a user login entity.
  *
+ * @author DavidBenua
  */
 @Entity
-@Table(name="USERLOGIN")
-public class PSUserLogin extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = 1L;
-    @Id
-    @NotBlank
-    @Column(name="USERID")
-    private String userid; 
-    
-    @Basic
-    @Column(name="PASSWORD")
-    private String password; 
-    
-    public PSUserLogin()
-    {
-        
-    }
+@Table(name = "USERLOGIN")
+public class PSUserLogin extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * @return the userid
-     */
-    public String getUserid()
-    {
-        return userid;
-    }
+  @Id
+  @NotBlank
+  @Column(name = "USERID")
+  private String userid;
 
-    /**
-     * @param userid the userid to set
-     */
-    public void setUserid(String userid)
-    {
-        this.userid = userid;
-    }
+  @Basic
+  @Column(name = "PASSWORD")
+  private String password;
 
-    /**
-     * @return the password
-     */
-    public String getPassword()
-    {
-        return password;
-    }
+  public PSUserLogin() {
+    // Default constructor
+  }
 
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-    
+  /** Gets the user ID. */
+  public String getUserid() {
+    return userid;
+  }
+
+  /** Sets the user ID. */
+  public void setUserid(String userid) {
+    this.userid = userid;
+  }
+
+  /** Gets the password. */
+  public String getPassword() {
+    return password;
+  }
+
+  /** Sets the password. */
+  public void setPassword(String password) {
+    this.password = password;
+  }
 }

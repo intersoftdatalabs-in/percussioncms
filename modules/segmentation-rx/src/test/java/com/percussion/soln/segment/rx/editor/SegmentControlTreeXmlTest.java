@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,28 +24,28 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeXml;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeXmlTest {
     SegmentControlTreeXml segTreeXml;
     Mockery context = new JUnit4Mockery();
     SegmentMocks segMocks;
     
-    @BeforeClass
+    @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segTreeXml = new SegmentControlTreeXml();
         segMocks = new SegmentMocks(context);

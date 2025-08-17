@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,67 +15,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-
+/** Represents the current user, including role flags. */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @XmlRootElement(name = "CurrentUser")
 @JsonRootName("CurrentUser")
-public class PSCurrentUser extends PSUser
-{
-    private boolean accessibilityUser = false;
-    private boolean adminUser = false;
-    private boolean designerUser = false;
-    
-    public PSCurrentUser()
-    {
-        super();
-    }
-    
-    public PSCurrentUser(PSUser user)
-    {
-        setName(user.getName());
-        setPassword(user.getPassword());
-        setEmail(user.getEmail());
-        setProviderType(user.getProviderType());
-        setRoles(user.getRoles());
-    }
-    
-    public boolean isAccessibilityUser()
-    {
-        return accessibilityUser;
-    }
-    
-    public void setAccessibilityUser(boolean isAccessibility)
-    {
-        accessibilityUser = isAccessibility;
-    }
-    
-    public boolean isAdminUser()
-    {
-        return adminUser;
-    }
-    
-    public void setAdminUser(boolean isAdmin)
-    {
-        adminUser = isAdmin;
-    }
+public class PSCurrentUser extends PSUser {
+  private boolean accessibilityUser = false;
+  private boolean adminUser = false;
+  private boolean designerUser = false;
 
-    /**
-     * @param isDesigner
-     */
-    public void setDesignerUser(boolean isDesigner)
-    {
-        designerUser = isDesigner;
-    }
-    
-    public boolean isDesignerUser()
-    {
-        return designerUser;
-    }
+  public PSCurrentUser() {
+    super();
+  }
+
+  public PSCurrentUser(PSUser user) {
+    setName(user.getName());
+    setPassword(user.getPassword());
+    setEmail(user.getEmail());
+    setProviderType(user.getProviderType());
+    setRoles(user.getRoles());
+  }
+
+  public boolean isAccessibilityUser() {
+    return accessibilityUser;
+  }
+
+  public void setAccessibilityUser(boolean accessibilityUser) {
+    this.accessibilityUser = accessibilityUser;
+  }
+
+  public boolean isAdminUser() {
+    return adminUser;
+  }
+
+  public void setAdminUser(boolean adminUser) {
+    this.adminUser = adminUser;
+  }
+
+  public boolean isDesignerUser() {
+    return designerUser;
+  }
+
+  public void setDesignerUser(boolean designerUser) {
+    this.designerUser = designerUser;
+  }
 }

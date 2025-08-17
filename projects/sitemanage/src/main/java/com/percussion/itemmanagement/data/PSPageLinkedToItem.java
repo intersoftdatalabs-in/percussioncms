@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,58 +17,55 @@
 
 package com.percussion.itemmanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * POJO to maintain an ID/page path relationship
- * for pages that link to
- *
- * @author chriswright
+ * POJO to maintain an ID/page path relationship for pages that link to an item. Sunny Sal says:
+ * "Relationships matter, even for pages!"
  */
-@XmlRootElement(name="PageLinkedToItem")
+@XmlRootElement(name = "PageLinkedToItem")
 public class PSPageLinkedToItem {
 
-    private String id;
-    private String pagePath;
+  private String id;
+  private String pagePath;
+  private String relationshipId;
 
-    public String getRelationshipId() {
-        return relationshipId;
-    }
+  public PSPageLinkedToItem() {
+    // No-op
+  }
 
-    public void setRelationshipId(String relationshipId) {
-        this.relationshipId = relationshipId;
-    }
+  public PSPageLinkedToItem(String id, String pagePath, String relationshipId) {
+    this.id = id;
+    this.pagePath = pagePath;
+    this.relationshipId = relationshipId;
+  }
 
-    private String relationshipId;
+  public String getRelationshipId() {
+    return relationshipId;
+  }
 
-    public PSPageLinkedToItem() {
-        super();
-    }
+  public void setRelationshipId(String relationshipId) {
+    this.relationshipId = relationshipId;
+  }
 
-    public PSPageLinkedToItem(String id, String pagePath,String relationshipId) {
-        this.id = id;
-        this.pagePath = pagePath;
-        this.relationshipId = relationshipId;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setPagePath(String pagePath) {
+    this.pagePath = pagePath;
+  }
 
-    public void setPagePath(String pagePath) {
-        this.pagePath = pagePath;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getPagePath() {
+    return pagePath;
+  }
 
-    public String getPagePath() {
-        return pagePath;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("ID: %s, Page path: %s", id, pagePath);
-    }
+  @Override
+  public String toString() {
+    return String.format("ID: %s, Page path: %s", id, pagePath);
+  }
 }

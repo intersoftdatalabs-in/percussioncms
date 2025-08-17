@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,20 +22,18 @@ import java.io.IOException;
 /**
  * This interface defines a hash verifier.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
-interface HashVerifier
-{
-    /**
-     * This method is invoked when a digest of a stream has been calculated.
-     * It must verify that the hash (or some function of it) is correct and
-     * throw an IOException if it is not.
-     *
-     * @param hash the calculated hash
-     * @param len  the number of bytes read from the stream
-     * @exception IOException if the verification fails.
-     */
-    public void verifyHash(byte[] hash, long len)  throws IOException;
+interface HashVerifier {
+  /**
+   * This method is invoked when a digest of a stream has been calculated. It must verify that the
+   * hash (or some function of it) is correct and throw an IOException if it is not.
+   *
+   * @param hash the calculated hash
+   * @param len the number of bytes read from the stream
+   * @exception IOException if the verification fails.
+   */
+  public void verifyHash(byte[] hash, long len) throws IOException;
 }

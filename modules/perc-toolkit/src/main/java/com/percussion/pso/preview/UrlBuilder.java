@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,31 @@
  * limitations under the License.
  */
 package com.percussion.pso.preview;
-import java.util.Map;
 
 import com.percussion.services.assembly.IPSAssemblyTemplate;
+import java.util.Map;
+
 /**
- * Interface for the URL builders. The URL Builder builds a preview 
- * or Active Assembly URL for a specific template and location.  
- * 
- * @author DavidBenua
+ * Interface for the URL builders. The URL Builder builds a preview or Active Assembly URL for a
+ * specific template and location.
  *
+ * @author DavidBenua
  */
-public interface UrlBuilder 
-{
-   /**
-    * Builds the URL
-    * @param template the template to preview or assemble.
-    * @param urlParams the URL parameters. Must include the 
-    * sys_contentid and sys_revision. 
-    * @param location the site folder location
-    * @param useMultiple does this URL point to the appropriate multisiteresolver? 
-    * @return the URL.  Never <code>null</code>
-    * @throws Exception
-    */
-   public String buildUrl(IPSAssemblyTemplate template,
-         Map<String, Object> urlParams, SiteFolderLocation location,
-         boolean useMultiple) throws Exception;
-   
+public interface UrlBuilder {
+  /**
+   * Builds the URL
+   *
+   * @param template the template to preview or assemble.
+   * @param urlParams the URL parameters. Must include the sys_contentid and sys_revision.
+   * @param location the site folder location
+   * @param useMultiple does this URL point to the appropriate multisiteresolver?
+   * @return the URL. Never <code>null</code>
+   * @throws Exception
+   */
+  public String buildUrl(
+      IPSAssemblyTemplate template,
+      Map<String, Object> urlParams,
+      SiteFolderLocation location,
+      boolean useMultiple)
+      throws Exception;
 }

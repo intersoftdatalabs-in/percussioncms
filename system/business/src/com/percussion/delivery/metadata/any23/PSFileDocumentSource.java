@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,44 +37,24 @@ import org.apache.any23.source.FileDocumentSource;
  * @author miltonpividori
  * 
  */
-class PSFileDocumentSource extends FileDocumentSource implements IPSDocumentSource
-{
-    /**
-     * All InputStream object returned by the openInputStream() method.
-     */
-    private List<InputStream> openInputStream;
+class PSFileDocumentSource extends FileDocumentSource implements IPSDocumentSource {
+    private final List<InputStream> openInputStream;
 
-    public PSFileDocumentSource(File file)
-    {
+    public PSFileDocumentSource(File file) {
         super(file);
-
         openInputStream = new ArrayList<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.deri.any23.source.FileDocumentSource#openInputStream()
-     */
     @Override
-    public InputStream openInputStream() throws IOException
-    {
+    public InputStream openInputStream() throws IOException {
         InputStream inputStream = super.openInputStream();
-
         openInputStream.add(inputStream);
-
         return inputStream;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.metadata.extractor.any23.IPSDocumentSource#close()
-     */
-    public void close()
-    {
-        for (InputStream in : openInputStream)
-            IOUtils.closeQuietly(in);
-
+    @Override
+    public void close() {
+        openInputStream.forEach(org.apache.tika.io.IOUtils::closeQuietly);
         openInputStream.clear();
     }
 }

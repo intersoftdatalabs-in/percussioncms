@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +20,17 @@ package com.percussion.assetmanagement.service;
 import com.percussion.assetmanagement.data.PSContentEditCriteria;
 import com.percussion.share.data.PSDataObjectTestCase;
 
-public class PSAssetDataObjectTests
-{
-    
-    public static class PSContentEditCriteriaTest extends PSDataObjectTestCase<PSContentEditCriteria> {
+/** Test for PSContentEditCriteria data object. */
+public class PSAssetDataObjectTests {
 
-        @Override
-        public PSContentEditCriteria getObject() throws Exception
-        {
-            PSContentEditCriteria ce = new PSContentEditCriteria();
-            ce.setPreferredEditorHeight(100);
-            return ce;
-        }
-    
+  public static class PSContentEditCriteriaTest
+      extends PSDataObjectTestCase<PSContentEditCriteria> {
+
+    @Override
+    public PSContentEditCriteria getObject() {
+      var ce = new PSContentEditCriteria();
+      ce.setPreferredEditorHeight(100);
+      return ce;
     }
-
+  }
 }
-

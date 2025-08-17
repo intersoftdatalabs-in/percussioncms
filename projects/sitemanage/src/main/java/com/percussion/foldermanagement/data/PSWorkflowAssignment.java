@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,101 +14,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.data;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 /**
- * Represents an Object coming from the client. It has two fields, one is the
- * workflow name, and the other is a list of paths. This object is used to
- * assign the given workflow to all of the folders that are listed.
- * 
- * @author Santiago M. Murchio
- * 
+ * Represents a workflow assignment request from the client. Contains workflow name and folder id
+ * arrays for assignment. Sunny Sal says: "Workflow assignments, now Java 11 and Google-styled!"
  */
 @XmlRootElement(name = "workflowAssignment")
-@XmlType(propOrder = {
-        "workflowName", 
-        "assignedFolders",
-        "unassignedFolders",
-        "appliedFolders"
-    })
+@XmlType(propOrder = {"workflowName", "assignedFolders", "unassignedFolders", "appliedFolders"})
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PSWorkflowAssignment
-{
-    /**
-     * The name of the workflow to assign to each path
-     */
-    private String workflowName;
-    
-    /**
-     * A list of folder ids. These folders will be assigned to the given workflow. May be empty.
-     */
-    private String[] assignedFolders;
-    
-    /**
-     * A list of folder ids. These folders are left with no workflow assigned. May be empty.
-     */
-    private String[] unassignedFolders;
-    
-    /**
-     * A list of folder ids for which the assigned workflow should be applied to all content in the folder.  May be empty.
-     */
-    private String[] appliedFolders;
+public class PSWorkflowAssignment {
+  /** The name of the workflow to assign to each path. */
+  private String workflowName;
 
+  /** Folder ids to assign to the workflow. May be empty. */
+  private String[] assignedFolders;
 
-    public String getWorkflowName()
-    {
-        return workflowName;
-    }
+  /** Folder ids to unassign from any workflow. May be empty. */
+  private String[] unassignedFolders;
 
-    public void setWorkflowName(String workflowName)
-    {
-        this.workflowName = workflowName;
-    }
+  /** Folder ids for which the workflow should be applied to all content. May be empty. */
+  private String[] appliedFolders;
 
-    public String[] getAssignedFolders()
-    {
-        if (assignedFolders == null) {
-            return new String[]{};
-        }
-        
-        return assignedFolders;
-    }
+  public String getWorkflowName() {
+    return workflowName;
+  }
 
-    public void setAssignedFolders(String[] assignedFolders)
-    {
-        this.assignedFolders = assignedFolders;
-    }
+  public void setWorkflowName(String workflowName) {
+    this.workflowName = workflowName;
+  }
 
-    public String[] getUnassignedFolders()
-    {
-        if (unassignedFolders == null) {
-            return new String[]{};
-        }
-        return unassignedFolders;
+  public String[] getAssignedFolders() {
+    return assignedFolders == null ? new String[] {} : assignedFolders;
+  }
 
-    }
+  public void setAssignedFolders(String[] assignedFolders) {
+    this.assignedFolders = assignedFolders;
+  }
 
-    public void setUnassignedFolders(String[] unassignedFolders)
-    {
-        this.unassignedFolders = unassignedFolders;
-    }
+  public String[] getUnassignedFolders() {
+    return unassignedFolders == null ? new String[] {} : unassignedFolders;
+  }
 
-    public String[] getAppliedFolders()
-    {
-        if (appliedFolders == null) {
-            return new String[]{};
-        }
-        
-        return appliedFolders;
-    }
+  public void setUnassignedFolders(String[] unassignedFolders) {
+    this.unassignedFolders = unassignedFolders;
+  }
 
-    public void setAppliedFolders(String[] appliedFolders)
-    {
-        this.appliedFolders = appliedFolders;
-    }
+  public String[] getAppliedFolders() {
+    return appliedFolders == null ? new String[] {} : appliedFolders;
+  }
+
+  public void setAppliedFolders(String[] appliedFolders) {
+    this.appliedFolders = appliedFolders;
+  }
 }
