@@ -178,7 +178,17 @@ public class PSFormDao implements IPSFormDao {
     TypedQuery<String> query =
         entityManager.createQuery(
             "select distinct lower(name) from PSFormData order by lower(name) asc", String.class);
-    return query.getResultList();
+            "select distinct name from PSFormData order by name asc", String.class);
+    List<String> names = query.getResultList();
+    // Deduplicate case-insensitively, preserving original casing of first occurrence
+    Map<String, String> deduped = new java.util.LinkedHashMap<>();
+    for (String name : names) {
+      String lower = name == null ? null : name.toLowerCase();
+      if (!deduped.containsKey(lower)) {
+        deduped.put(lower, name);
+      }
+    }
+    return new ArrayList<>(deduped.values());
   }
 
   private Session getSession() {
