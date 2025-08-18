@@ -58,9 +58,9 @@
         <module>modules/servletutils</module>
         <module>modules/perc-rxapps</module>
         <module>modules/perc-checkboxtree</module>
-        <module>modules/DesktopContentExplorer</module>
+        <!-- <module>modules/DesktopContentExplorer</module> -->
         <module>modules/perc-jetty</module>
-		<module>modules/perc-jetty-jars</module>
+	<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
         <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-packages</module>
@@ -170,6 +170,7 @@
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
         <junit.version>4.13.1</junit.version>
+        <junit.jupiter.version>5.13.4</junit.jupiter.version>
         <cactus.version>13-1.7.1</cactus.version>
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
         <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
@@ -2519,7 +2520,24 @@
                 <artifactId>expectj</artifactId>
                 <version>1.1</version>
             </dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+            <version>${junit.jupiter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+            <version>${junit.jupiter.version}</version> 
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-migrationsupport</artifactId>
+            <scope>test</scope>
+            <version>${junit.jupiter.version}</version> 
+        </dependency>
 
             <!-- workbench swtcalendar -->
             <!-- https://mvnrepository.com/artifact/org.codehaus.openxma/xmartclient -->
