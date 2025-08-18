@@ -17,11 +17,16 @@
 
 package com.percussion.delivery.feeds.services;
 
+import static org.junit.Assert.assertTrue;
+
 import com.percussion.delivery.feeds.data.PSFeedDTO;
 import com.percussion.delivery.utils.security.PSHttpClient;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import javax.ws.rs.WebApplicationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,117 +40,104 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.ws.rs.WebApplicationException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import static org.junit.Assert.assertTrue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations =
-{"classpath:test-beans.xml"})
-public class PSFeedsServiceTests{
+@ContextConfiguration(locations = {"classpath:test-beans.xml"})
+public class PSFeedsServiceTests {
 
-    private static final Logger log = LogManager.getLogger(PSFeedsServiceTests.class);
+  private static final Logger log = LogManager.getLogger(PSFeedsServiceTests.class);
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private String rxdeploydir;
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private String rxdeploydir;
 
-    @Before
-    public void setup() throws IOException {
+  @Before
+  public void setup() throws IOException {
 
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
+
+  @After
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
+
+  @Autowired private IPSFeedDao feedsDao;
+
+  @Autowired private PSHttpClient httpClient;
+
+  public void PSFeedsServiceTest() {
+    // noop
+  }
+
+  @Test
+  public void testExternalRSSFeed() throws UnsupportedEncodingException, PSEncryptionException {
+
+    PSFeedService svc = new PSFeedService(feedsDao, httpClient);
+
+    PSFeedDTO feedDTO = new PSFeedDTO();
+
+    String url =
+        PSEncryptor.encryptString(
+            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            "https://www.nasa.gov/rss/dyn/breaking_news.rss");
+
+    feedDTO.setFeedsUrl(url);
+    String xml = svc.readExternalFeed(feedDTO);
+    log.info(xml);
+    assertTrue(xml != null);
+    assertTrue(xml.toLowerCase().contains("nasa"));
+  }
+
+  @Test
+  public void testInvalidFileURL() throws PSEncryptionException {
+
+    PSFeedService svc = new PSFeedService(feedsDao, httpClient);
+
+    PSFeedDTO feedDTO = new PSFeedDTO();
+
+    String url =
+        PSEncryptor.encryptString(
+            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            "file://www.nasa.gov/rss/dyn/breaking_news.txt");
+    feedDTO.setFeedsUrl(url);
+
+    boolean passed = false;
+    try {
+      String xml = svc.readExternalFeed(feedDTO);
+      assertTrue(StringUtils.isEmpty(xml));
+      passed = true;
+    } catch (WebApplicationException x) {
+      log.error(PSExceptionUtils.getMessageForLog(x));
+      log.debug(x);
     }
 
-    @After
-    public void teardown(){
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
+    assertTrue(passed);
+  }
+
+  @Test
+  public void testInvaliddataURL() throws PSEncryptionException {
+
+    PSFeedService svc = new PSFeedService(feedsDao, httpClient);
+
+    PSFeedDTO feedDTO = new PSFeedDTO();
+
+    // Feed should come back empty as the url is not valid
+    String url =
+        PSEncryptor.encryptString(
+            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            "data://www.nasa.gov/rss/dyn/breaking_news.jar");
+    feedDTO.setFeedsUrl(url);
+
+    boolean passed = false;
+    try {
+      String xml = svc.readExternalFeed(feedDTO);
+      assertTrue("Feed should be empty.", StringUtils.isEmpty(xml));
+      passed = true;
+    } catch (WebApplicationException x) {
+      log.error(PSExceptionUtils.getMessageForLog(x));
+      log.debug(x);
     }
 
-
-
-    @Autowired
-    private IPSFeedDao feedsDao;
-    
-    @Autowired
-    private PSHttpClient httpClient;
-  
-    public void PSFeedsServiceTest(){
-    //noop
-    }
-    
-    @Test
-    public void testExternalRSSFeed() throws UnsupportedEncodingException, PSEncryptionException {
-    	
-    	PSFeedService svc = new PSFeedService(feedsDao,httpClient);
-
-        PSFeedDTO feedDTO = new PSFeedDTO();
-
-        String url = PSEncryptor.encryptString(temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),"https://www.nasa.gov/rss/dyn/breaking_news.rss");
-
-        feedDTO.setFeedsUrl(url);
-        String xml = svc.readExternalFeed(feedDTO);
-    	log.info(xml);
-    	assertTrue(xml != null);
-    	assertTrue(xml.toLowerCase().contains("nasa"));
-
-
-
-    }
-
-
-    @Test
-    public void testInvalidFileURL() throws PSEncryptionException {
-
-        PSFeedService svc = new PSFeedService(feedsDao,httpClient);
-
-        PSFeedDTO feedDTO = new PSFeedDTO();
-
-        String url = PSEncryptor.encryptString(temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),"file://www.nasa.gov/rss/dyn/breaking_news.txt");
-        feedDTO.setFeedsUrl(url);
-
-        boolean passed = false;
-        try {
-            String xml = svc.readExternalFeed(feedDTO);
-            assertTrue(StringUtils.isEmpty(xml));
-            passed=true;
-        }
-        catch(WebApplicationException x){
-            log.error(PSExceptionUtils.getMessageForLog(x));
-            log.debug(x);
-        }
-
-        assertTrue(passed);
-    }
-
-    @Test
-    public void testInvaliddataURL() throws PSEncryptionException {
-
-        PSFeedService svc = new PSFeedService(feedsDao,httpClient);
-
-        PSFeedDTO feedDTO = new PSFeedDTO();
-
-        //Feed should come back empty as the url is not valid
-        String url = PSEncryptor.encryptString(temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),"data://www.nasa.gov/rss/dyn/breaking_news.jar");
-        feedDTO.setFeedsUrl(url);
-
-        boolean passed = false;
-        try {
-            String xml = svc.readExternalFeed(feedDTO);
-            assertTrue("Feed should be empty.", StringUtils.isEmpty(xml));
-            passed = true;
-        }
-        catch(WebApplicationException x){
-            log.error(PSExceptionUtils.getMessageForLog(x));
-            log.debug(x);
-        }
-
-        assertTrue(passed);
-    }
-    
-    
-    
+    assertTrue(passed);
+  }
 }
