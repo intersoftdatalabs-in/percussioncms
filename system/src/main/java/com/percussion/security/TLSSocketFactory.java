@@ -121,13 +121,14 @@ public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocket
     // Defensive: ensure at least one X509TrustManager is present
     boolean hasValidTM = false;
     for (TrustManager t : tm) {
-        if (t instanceof javax.net.ssl.X509TrustManager) {
-            hasValidTM = true;
-            break;
-        }
+      if (t instanceof javax.net.ssl.X509TrustManager) {
+        hasValidTM = true;
+        break;
+      }
     }
     if (!hasValidTM) {
-        throw new KeyManagementException("No valid X509TrustManager found for certificate validation.");
+      throw new KeyManagementException(
+          "No valid X509TrustManager found for certificate validation.");
     }
     SecureRandom random;
     try {

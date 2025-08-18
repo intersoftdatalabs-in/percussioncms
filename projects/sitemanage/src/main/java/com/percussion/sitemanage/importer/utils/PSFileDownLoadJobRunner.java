@@ -18,7 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-import java.net.URI;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
@@ -33,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;

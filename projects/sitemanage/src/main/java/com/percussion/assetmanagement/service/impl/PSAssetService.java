@@ -7,6 +7,7 @@ import static com.percussion.share.service.exception.PSParameterValidationUtils.
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.startsWith;
@@ -14,7 +15,6 @@ import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest;

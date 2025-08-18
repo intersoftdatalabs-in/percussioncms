@@ -114,11 +114,10 @@ public class PSTlsSocketFactory implements SecureProtocolSocketFactory {
     internalSSLSocketFactory = context.getSocketFactory();
 
     if (ciphers == null || StringUtils.isEmpty(ciphers)) {
-        enabledCiphers = defaultCiphers;
+      enabledCiphers = defaultCiphers;
     } else {
-        enabledCiphers = Arrays.stream(ciphers.split(",")).map(String::trim).toArray(String[]::new);
+      enabledCiphers = Arrays.stream(ciphers.split(",")).map(String::trim).toArray(String[]::new);
     }
-
   }
 
   @Override
