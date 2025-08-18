@@ -5,4 +5,4 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    target-branch: "development-java-8"
+    target-branch: "development-8.1.x"
