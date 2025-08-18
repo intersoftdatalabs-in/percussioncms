@@ -23,7 +23,6 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>${jakarta.servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- Add for test scope to ensure servlet API is available during tests -->
