@@ -4,7 +4,8 @@
 .idea/sonarlint.xml
 .idea/sonarlint-state.xml
 .idea/sonarlint/issuestore/index.pb
-
+.vscode/*
+bin/*
 derby.log
 
 # random output file
