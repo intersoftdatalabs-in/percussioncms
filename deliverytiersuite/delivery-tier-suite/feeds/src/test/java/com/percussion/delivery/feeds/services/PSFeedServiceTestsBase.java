@@ -18,21 +18,20 @@ package com.percussion.delivery.feeds.services;
 
 import com.percussion.delivery.feeds.PSFeedsApplication;
 import com.percussion.delivery.utils.PSVersionHelper;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * The base class for Feeds Rest Service Tests
@@ -95,7 +94,7 @@ public abstract class PSFeedServiceTestsBase extends JerseyTest {
 
     application.setProperties(properties);
     application.register(this);
-    return application;
+    return (Application) application;
   }
 
   public String get_appContext() {
@@ -115,7 +114,6 @@ public abstract class PSFeedServiceTestsBase extends JerseyTest {
   }
 
   @Test
-  @Ignore("Crazy class version error")
   public void testGetRestVersion() {
 
     Client client = ClientBuilder.newClient();
@@ -123,14 +121,14 @@ public abstract class PSFeedServiceTestsBase extends JerseyTest {
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
     Response response = invocationBuilder.get();
 
-    Assert.assertNotNull(response);
-    Assert.assertEquals(200, response.getStatus());
-    Assert.assertEquals(testGetVersion(), response.getEntity());
+    Assertions.assertNotNull(response);
+    Assertions.assertEquals(200, response.getStatus());
+    Assertions.assertEquals(testGetVersion(), response.getEntity());
   }
 
   private String testGetVersion() {
     String version = PSVersionHelper.getVersion(this.getClass());
-    Assert.assertNotNull(version);
+    Assertions.assertNotNull(version);
     System.out.print(version);
     return version;
   }
