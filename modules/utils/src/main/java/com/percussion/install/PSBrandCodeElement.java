@@ -104,10 +104,10 @@ public class PSBrandCodeElement {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
     // create the root element
     Element root = doc.createElement(m_name);
-    Iterator it = m_attrMap.entrySet().iterator();
+    Iterator<Map.Entry<String, String>> it = m_attrMap.entrySet().iterator();
     while (it.hasNext()) {
-      Map.Entry item = (Map.Entry) it.next();
-      root.setAttribute((String) item.getKey(), (String) item.getValue());
+      Map.Entry<String, String> item = it.next();
+      root.setAttribute(item.getKey(), item.getValue());
     }
     return root;
   }
@@ -188,7 +188,7 @@ public class PSBrandCodeElement {
    * fromXml</code> method, never empty after initialization. The attribute name is used as the key
    * of the map, and the attribute value is used as the value.
    */
-  private Map m_attrMap = new HashMap();
+  private Map<String, String> m_attrMap = new HashMap<>();
 
   /**
    * tag name of the elememt, initialized in the <code>fromXml</code> method, never <code>null

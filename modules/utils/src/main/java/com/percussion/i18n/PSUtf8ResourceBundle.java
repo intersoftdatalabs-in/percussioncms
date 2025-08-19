@@ -81,7 +81,7 @@ public abstract class PSUtf8ResourceBundle {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Enumeration getKeys() {
+    public Enumeration<String> getKeys() {
       return bundle.getKeys();
     }
 

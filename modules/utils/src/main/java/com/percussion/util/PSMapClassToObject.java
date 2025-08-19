@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PSMapClassToObject {
   public PSMapClassToObject() {
-    m_hash = new ConcurrentHashMap();
+    m_hash = new ConcurrentHashMap<>();
   }
 
   /**
@@ -43,10 +43,10 @@ public class PSMapClassToObject {
    * given map if they already exist in this map.
    */
   public void addNoReplaceMappings(PSMapClassToObject map) {
-    java.util.Enumeration keys = map.m_hash.keys();
-    Class currentKey = null;
+    java.util.Enumeration<Class<?>> keys = map.m_hash.keys();
+    Class<?> currentKey = null;
     while (keys.hasMoreElements()) {
-      currentKey = (Class) keys.nextElement();
+      currentKey = (Class<?>) keys.nextElement();
       if (!m_hash.contains(currentKey)) m_hash.put(currentKey, map.m_hash.get(currentKey));
     }
   }
@@ -58,14 +58,14 @@ public class PSMapClassToObject {
    *     mapping existed for this class. The return value will still be <CODE>null</CODE> even if a
    *     superclass of the given class has a mapping.
    */
-  public Object addReplaceMapping(Class c, Object o) {
+  public Object addReplaceMapping(Class<?> c, Object o) {
     Object ret = m_hash.get(c);
     m_hash.put(c, o);
     return ret;
   }
 
   /** add the given mapping to this map only if no mapping exists for this class */
-  public void addNoReplaceMapping(Class c, Object o) {
+  public void addNoReplaceMapping(Class<?> c, Object o) {
     if (!m_hash.contains(c)) m_hash.put(c, o);
   }
 
@@ -74,7 +74,7 @@ public class PSMapClassToObject {
    * the mapping associated with the most immediate superclass. if no mapping exists for any
    * superclass (including Object) of this class, will return <CODE>null</CODE>
    */
-  public Object getMapping(Class c) {
+  public Object getMapping(Class<?> c) {
     if (c == null) return null;
 
     Object o = m_hash.get(c);
@@ -95,7 +95,7 @@ public class PSMapClassToObject {
    * @param doSuper
    * @return Object
    */
-  public Object getMapping(Class c, boolean doSuper) {
+  public Object getMapping(Class<?> c, boolean doSuper) {
     if (c == null) return null;
 
     Object o = m_hash.get(c);
@@ -105,13 +105,13 @@ public class PSMapClassToObject {
     return o;
   }
 
-  public java.util.Enumeration getClasses() {
+  public java.util.Enumeration<Class<?>> getClasses() {
     return m_hash.keys();
   }
 
-  public java.util.Enumeration getMappedObjects() {
+  public java.util.Enumeration<Object> getMappedObjects() {
     return m_hash.elements();
   }
 
-  private ConcurrentHashMap m_hash;
+  private ConcurrentHashMap<Class<?>, Object> m_hash;
 }

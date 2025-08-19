@@ -31,5 +31,5 @@ public interface IPSUpgradeConfig {
    *
    * @return module list as Java <code>Iterator</code>
    */
-  Iterator getModuleList();
+  Iterator<?> getModuleList();
 }
