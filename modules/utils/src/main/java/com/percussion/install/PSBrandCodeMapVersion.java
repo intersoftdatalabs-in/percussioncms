@@ -169,12 +169,12 @@ public class PSBrandCodeMapVersion {
    *     null</code>
    * @throws CodeException if any license element does not have name or id attribute defined.
    */
-  public Map getLicenses() throws CodeException {
+  public Map<String, String> getLicenses() throws CodeException {
     String[] attrNames = new String[] {IPSBrandCodeMap.ATTR_ID, IPSBrandCodeMap.ATTR_NAME};
-    List attrValuesList = m_licensesList.getAttributeList(attrNames, true);
-    Map licenseMap = new HashMap();
+    List<String[]> attrValuesList = m_licensesList.getAttributeList(attrNames, true);
+    Map<String, String> licenseMap = new HashMap<>();
     for (int i = 0; i < attrValuesList.size(); i++) {
-      String[] attrValues = (String[]) attrValuesList.get(i);
+      String[] attrValues = attrValuesList.get(i);
       licenseMap.put(attrValues[0], attrValues[1]);
     }
     return licenseMap;
@@ -229,26 +229,26 @@ public class PSBrandCodeMapVersion {
    * @throws CodeException if any error occurs retrieving the list of components
    * @throws IllegalArgumentException if partsIdList or componentList is <code>null</code>
    */
-  public Map getComponents(List partsIdList, PSBrandCodeElementList componentList)
-      throws CodeException {
+  public Map<String, String> getComponents(
+      List<String> partsIdList, PSBrandCodeElementList componentList) throws CodeException {
     if (partsIdList == null) throw new IllegalArgumentException("partsIdList may not be null");
     if (componentList == null) throw new IllegalArgumentException("componentList may not be null");
 
     int componentId = 0;
-    Iterator it = partsIdList.iterator();
+    Iterator<String> it = partsIdList.iterator();
     while (it.hasNext()) {
-      String partId = (String) it.next();
+      String partId = it.next();
       PSBrandCodeElement bcePart =
           m_partsList.getBrandCodeElement(IPSBrandCodeMap.ATTR_ID, "" + partId, true);
       String strComponentId = bcePart.getAttributeValue(IPSBrandCodeMap.ATTR_COMPONENT_ID, true);
       int compId = Integer.parseInt(strComponentId);
       componentId |= compId;
     }
-    List idList = componentList.getAttributeList(IPSBrandCodeMap.ATTR_ID);
-    Map compMap = new HashMap();
-    it = idList.iterator();
-    while (it.hasNext()) {
-      String strCompId = (String) it.next();
+    List<String> idList = componentList.getAttributeList(IPSBrandCodeMap.ATTR_ID);
+    Map<String, String> compMap = new HashMap<>();
+    Iterator<String> itComp = idList.iterator();
+    while (itComp.hasNext()) {
+      String strCompId = itComp.next();
       int compId = Integer.parseInt(strCompId);
       if ((componentId & compId) == compId) {
         PSBrandCodeElement bceComp =
@@ -273,7 +273,7 @@ public class PSBrandCodeMapVersion {
    * @throws CodeException if the specified license element could not be found
    * @throws IllegalArgumentException if <code>partsType</code> is invalid
    */
-  public Map getParts(int licenseId, int partsType) throws CodeException {
+  public Map<String, String> getParts(int licenseId, int partsType) throws CodeException {
     PSBrandCodeElement bce =
         m_licensesList.getBrandCodeElement(IPSBrandCodeMap.ATTR_ID, "" + licenseId, true);
 
@@ -312,13 +312,13 @@ public class PSBrandCodeMapVersion {
         throw new IllegalArgumentException("Invalid parts type");
     }
 
-    Map allPartsMap = getAllParts();
-    Map partsMap = new HashMap();
-    Iterator it = allPartsMap.entrySet().iterator();
+    Map<String, String> allPartsMap = getAllParts();
+    Map<String, String> partsMap = new HashMap<>();
+    Iterator<Map.Entry<String, String>> it = allPartsMap.entrySet().iterator();
     while (it.hasNext()) {
-      Map.Entry item = (Map.Entry) it.next();
-      String strPartId = (String) item.getKey();
-      String partName = (String) item.getValue();
+      Map.Entry<String, String> item = it.next();
+      String strPartId = item.getKey();
+      String partName = item.getValue();
       int partId = Integer.parseInt(strPartId);
       if ((reqoptPartId & partId) == partId) {
         partsMap.put(strPartId, partName);
@@ -334,13 +334,13 @@ public class PSBrandCodeMapVersion {
    *     </code>
    * @throws CodeException if any part element does not have name or id attribute defined.
    */
-  public Map getAllParts() throws CodeException {
+  public Map<String, String> getAllParts() throws CodeException {
     String[] attrNames = new String[] {IPSBrandCodeMap.ATTR_ID, IPSBrandCodeMap.ATTR_NAME};
 
-    List attrValuesList = m_partsList.getAttributeList(attrNames, true);
-    Map partsMap = new HashMap();
+    List<String[]> attrValuesList = m_partsList.getAttributeList(attrNames, true);
+    Map<String, String> partsMap = new HashMap<>();
     for (int i = 0; i < attrValuesList.size(); i++) {
-      String[] attrValues = (String[]) attrValuesList.get(i);
+      String[] attrValues = attrValuesList.get(i);
       int id = Integer.parseInt(attrValues[0]);
       if (isPartDeprecated(id)) continue;
       partsMap.put(attrValues[0], attrValues[1]);
@@ -359,7 +359,8 @@ public class PSBrandCodeMapVersion {
    * @throws CodeException if the specified license element could not be found
    * @throws IllegalArgumentException if <code>allProperties</code> is <code>null</code> or empty
    */
-  public List getLicenseProperties(int licenseId, List allProperties) throws CodeException {
+  public List<String> getLicenseProperties(int licenseId, List<String> allProperties)
+      throws CodeException {
     if ((allProperties == null) || (allProperties.isEmpty()))
       throw new IllegalArgumentException("allProperties may not be null or empty");
 
@@ -372,10 +373,10 @@ public class PSBrandCodeMapVersion {
       propIds.add(strPropId);
     }
 
-    List retList = new ArrayList();
-    Iterator it = allProperties.iterator();
+    List<String> retList = new ArrayList<>();
+    Iterator<String> it = allProperties.iterator();
     while (it.hasNext()) {
-      String strListPropId = (String) it.next();
+      String strListPropId = it.next();
 
       if (propIds.contains(strListPropId)) retList.add(strListPropId);
     }
