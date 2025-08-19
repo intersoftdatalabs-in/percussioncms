@@ -371,6 +371,12 @@
         <dependency>
             <groupId>com.google.code.morphia</groupId>
             <artifactId>morphia</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
