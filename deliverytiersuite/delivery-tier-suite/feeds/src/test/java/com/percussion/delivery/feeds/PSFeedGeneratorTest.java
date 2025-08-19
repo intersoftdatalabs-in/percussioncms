@@ -21,19 +21,20 @@ import com.percussion.delivery.feeds.data.PSFeedItem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author erikserating
  */
-public class PSFeedGeneratorTest extends TestCase {
+public class PSFeedGeneratorTest {
 
   private static final Logger log = LogManager.getLogger(PSFeedGeneratorTest.class);
   private final String PERC_FEEDS_PROPERTIES = "/feeds.properties";
   private final String FEEDS_IP_DEFAULT = "127.0.0.1";
 
+  @Test
   public void testMakeFeedContent() throws Exception {
     PSFeedGenerator generator = new PSFeedGenerator();
     TestDescriptor desc = new TestDescriptor();
@@ -173,6 +174,7 @@ public class PSFeedGeneratorTest extends TestCase {
     }
   }
 
+  @Test
   // TODO: This test doesn't actually validate ip4 vs ipv6
   public void testGenerateFeedHandlingIPV4IPV6() throws Exception {
     TestDescriptor desc = new TestDescriptor();
