@@ -68,15 +68,15 @@ public class PSTmxTranslationUnitVariant extends PSTmxNode implements IPSTmxTran
   /*
    * Implementation of the method defined in the interface
    */
-  public Iterator getNotes() {
-    return m_Notes.entrySet().iterator();
+  public Iterator<IPSTmxNote> getNotes() {
+    return m_Notes.values().iterator();
   }
 
   /*
    * Implementation of the method defined in the interface
    */
-  public Iterator getProperties() {
-    return m_Properties.entrySet().iterator();
+  public Iterator<IPSTmxProperty> getProperties() {
+    return m_Properties.values().iterator();
   }
 
   /*
@@ -353,13 +353,13 @@ public class PSTmxTranslationUnitVariant extends PSTmxNode implements IPSTmxTran
    * Map of all TMX notes associated with this node. Never <code>null</code>, can be <code>empty
    * </code>.
    */
-  protected Map m_Notes = new HashMap();
+  protected Map<String, IPSTmxNote> m_Notes = new HashMap<>();
 
   /**
    * Map of all TMX properties associated with this node. Never <code>null</code>, can be <code>
    * empty</code>.
    */
-  protected Map m_Properties = new HashMap();
+  protected Map<String, IPSTmxProperty> m_Properties = new HashMap<>();
 
   /**
    * The default language this node is associated with. Every translation variant must be associated
