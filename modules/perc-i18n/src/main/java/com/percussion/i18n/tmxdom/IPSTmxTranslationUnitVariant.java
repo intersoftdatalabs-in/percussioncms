@@ -32,7 +32,7 @@ public interface IPSTmxTranslationUnitVariant extends IPSTmxNode {
    * @return Iterator object containg a list of all {@link IPSTmxNote} objects. Never <code>null
    *     </code> may be <code>empty</code>.
    */
-  Iterator getNotes();
+  Iterator<IPSTmxNote> getNotes();
 
   /**
    * Method to get all property objects that are associated with this translation unit variant node.
@@ -40,7 +40,7 @@ public interface IPSTmxTranslationUnitVariant extends IPSTmxNode {
    * @return Iterator object containg a list of all {@link IPSTmxProperty} objects. Never <code>null
    *     </code> may be <code>empty</code>.
    */
-  Iterator getProperties();
+  Iterator<IPSTmxProperty> getProperties();
 
   /**
    * Method to get the segment object associated with this node.
