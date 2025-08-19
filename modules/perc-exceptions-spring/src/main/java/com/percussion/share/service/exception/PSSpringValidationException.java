@@ -163,7 +163,7 @@ public abstract class PSSpringValidationException extends PSValidationException
   }
 
   @SuppressWarnings("unchecked")
-  public Class getFieldType(String arg0) {
+  public Class<?> getFieldType(String arg0) {
     return springValidationErrors.getFieldType(arg0);
   }
 
