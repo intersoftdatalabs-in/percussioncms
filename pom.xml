@@ -210,7 +210,7 @@
        <xerces.version>2.12.2</xerces.version>
        <xmlresolver.version>1.2</xmlresolver.version>
        <quartz.version>2.3.2</quartz.version>
-       <rome.version>1.15.0</rome.version>
+       <rome.version>2.1.0</rome.version>
        <maven.source.jar.plugin.version>3.2.0</maven.source.jar.plugin.version>
        <velocity.version>2.3</velocity.version>
        <velocity.tools.version>3.1</velocity.tools.version>
