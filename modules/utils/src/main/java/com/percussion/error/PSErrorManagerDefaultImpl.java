@@ -104,7 +104,7 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
 
     String key = null;
     for (Enumeration<String> e = bun.getKeys(); e.hasMoreElements(); ) {
-      key = (String) e.nextElement();
+      key = e.nextElement();
       try {
         pageMap.addReplaceMapping(Class.forName(key), new URL(bun.getString(key)));
       } catch (java.net.MalformedURLException | ClassNotFoundException ex) {
