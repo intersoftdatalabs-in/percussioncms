@@ -103,7 +103,7 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
     ResourceBundle bun = ResourceBundle.getBundle("com.percussion.error.PSErrorPagesBundle", loc);
 
     String key = null;
-    for (Enumeration e = bun.getKeys(); e.hasMoreElements(); ) {
+    for (Enumeration<String> e = bun.getKeys(); e.hasMoreElements(); ) {
       key = (String) e.nextElement();
       try {
         pageMap.addReplaceMapping(Class.forName(key), new URL(bun.getString(key)));

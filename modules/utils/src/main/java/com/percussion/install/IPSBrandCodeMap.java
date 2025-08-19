@@ -81,7 +81,7 @@ public interface IPSBrandCodeMap {
    *     null</code>
    * @throws CodeException if any license element does not have name or id attribute defined.
    */
-  public Map getLicenses(int brandCodeMapVersion) throws CodeException;
+  public Map<String, String> getLicenses(int brandCodeMapVersion) throws CodeException;
 
   /**
    * Returns the name of the license, corresponding to the specified brand code map version and
@@ -132,7 +132,8 @@ public interface IPSBrandCodeMap {
    *     brand code map version
    * @throws IllegalArgumentException if <code>partsType</code> is invalid
    */
-  public Map getParts(int brandCodeMapVersion, int licenseId, int partsType) throws CodeException;
+  public Map<String, String> getParts(int brandCodeMapVersion, int licenseId, int partsType)
+      throws CodeException;
 
   /**
    * Returns a map containing the components id as key and component name as value, based on the
@@ -145,7 +146,8 @@ public interface IPSBrandCodeMap {
    * @throws CodeException if any error occurs retrieving the list of components
    * @throws IllegalArgumentException if partsIdList is <code>null</code>
    */
-  public Map getComponents(int brandCodeMapVersion, List partsIdList) throws CodeException;
+  public Map<String, String> getComponents(int brandCodeMapVersion, List<String> partsIdList)
+      throws CodeException;
 
   /**
    * Returns the map of properties, the id of the property is the key and the property name is the
@@ -155,10 +157,10 @@ public interface IPSBrandCodeMap {
    *     null</code>
    * @throws CodeException if any property element does not have name or id attribute defined.
    */
-  public Map getProperties() throws CodeException;
+  public Map<String, String> getProperties() throws CodeException;
 
   /**
-   * Returns a list of property ids corresponding to the properties supported by the licese
+   * Returns a list of property ids corresponding to the properties supported by the license
    * specified by <code>licenseId</code>
    *
    * @param brandCodeMapVersion the brand code map version to use, should be greater than 0, and the
@@ -167,7 +169,8 @@ public interface IPSBrandCodeMap {
    * @return the list of property ids (<code>String</code>), never <code>null</code>, may be empty
    * @throws CodeException if the specified license element could not be found
    */
-  public List getLicenseProperties(int brandCodeMapVersion, int licenseId) throws CodeException;
+  public List<String> getLicenseProperties(int brandCodeMapVersion, int licenseId)
+      throws CodeException;
 
   /**
    * Returns the list of valid Rhythmyx versions.
@@ -175,7 +178,7 @@ public interface IPSBrandCodeMap {
    * @return the list of valid Rhythmyx versions, never <code>null</code>
    * @throws CodeException if any error occurs retrieving the list of Rhythmyx Versions
    */
-  public List getRhythmyxVersions() throws CodeException;
+  public List<String> getRhythmyxVersions() throws CodeException;
 
   public static final String COMPONENT_MAP_FILE = "ComponentMap.xml";
 
