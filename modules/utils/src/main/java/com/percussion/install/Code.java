@@ -419,7 +419,7 @@ public class Code {
         Map.Entry<String, String> item = it.next();
         String propId = item.getKey();
         String propValue = item.getValue();
-        String propName = (String) propsIdNameMap.get(propId);
+        String propName = propsIdNameMap.get(propId);
 
         childEl = doc.createElement(IPSBrandCodeMap.EL_PROPERTY);
         childEl.setAttribute(IPSBrandCodeMap.ATTR_NAME, propName);
