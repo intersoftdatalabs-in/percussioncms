@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
  */
 public class PSTmxBody extends PSTmxNode {
   /** Map of all translation units of this node. A TMX body is just a set of translation units. */
-  protected Map m_TransUnits = new HashMap();
+  protected Map<String, PSTmxTranslationUnit> m_TransUnits = new HashMap<>();
 
   /**
    * Name of this node. This is the element tag name of the DOM element associated with this node.
@@ -111,7 +111,7 @@ public class PSTmxBody extends PSTmxNode {
    *
    * @return iterator of all translation units. Never <code>null</code>, may be <code>empty</code>
    */
-  protected Iterator getTraslationUnits() {
+  protected Iterator<Map.Entry<String, PSTmxTranslationUnit>> getTraslationUnits() {
     return m_TransUnits.entrySet().iterator();
   }
 

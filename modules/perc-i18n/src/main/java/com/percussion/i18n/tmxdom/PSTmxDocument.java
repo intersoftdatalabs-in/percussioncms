@@ -162,7 +162,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   /*
    * Implementation of the method defined in the interface IPSTmxDocument.
    */
-  public Iterator getTranslationUnits() {
+  public Iterator<Map.Entry<String, PSTmxTranslationUnit>> getTranslationUnits() {
     return m_Body.getTraslationUnits();
   }
 
@@ -222,8 +222,8 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     if (srcDoc == null) {
       throw new IllegalArgumentException("srcDoc for merging body must not be null");
     }
-    Iterator<Map.Entry> iter = srcDoc.getTranslationUnits();
-    Map.Entry entry = null;
+    Iterator<Map.Entry<String, PSTmxTranslationUnit>> iter = srcDoc.getTranslationUnits();
+    Map.Entry<String, PSTmxTranslationUnit> entry = null;
     IPSTmxTranslationUnit srcTu = null;
     while (iter.hasNext()) {
       entry = iter.next();
@@ -241,12 +241,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     // for all tu s.
     m_Header.addLanguage(language);
     if (!language.equalsIgnoreCase(PSI18nUtils.DEFAULT_LANG)) {
-      Iterator<Map.Entry> iter = m_Body.getTraslationUnits();
-      Map.Entry entry = null;
+      Iterator<Map.Entry<String, PSTmxTranslationUnit>> iter = m_Body.getTraslationUnits();
+      Map.Entry<String, PSTmxTranslationUnit> entry = null;
       IPSTmxTranslationUnit srcTu = null;
       while (iter.hasNext()) {
-        entry = (Map.Entry) iter.next();
-        srcTu = (IPSTmxTranslationUnit) entry.getValue();
+        entry = iter.next();
+        srcTu = entry.getValue();
         srcTu.addTuv(createTranslationUnitVariant(language, ""), false);
       }
     }
@@ -299,7 +299,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
       throw new RuntimeException("extract stylesheet not loaded");
     }
 
-    Map params = new HashMap();
+    Map<String, String> params = new HashMap<>();
     params.put("extractlang", languageString);
     tempDoc = transformXML(m_DOMDocument, ms_xslExtractDoc, params);
     return new PSTmxDocument(tempDoc, false);
