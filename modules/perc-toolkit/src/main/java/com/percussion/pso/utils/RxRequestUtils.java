@@ -23,7 +23,7 @@
 package com.percussion.pso.utils;
 
 import com.percussion.server.IPSRequestContext;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

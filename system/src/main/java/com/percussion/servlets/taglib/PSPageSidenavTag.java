@@ -16,10 +16,10 @@
  */
 package com.percussion.servlets.taglib;
 
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 
 /**
  * This tag renders the navigation for a ui page.

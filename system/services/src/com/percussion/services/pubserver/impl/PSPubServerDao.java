@@ -33,8 +33,8 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 import static org.apache.commons.lang3.Validate.notNull;

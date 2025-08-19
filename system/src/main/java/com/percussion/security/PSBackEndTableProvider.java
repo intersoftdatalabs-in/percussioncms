@@ -22,6 +22,7 @@ import com.percussion.auditlog.PSUserManagementEvent;
 import com.percussion.design.objectstore.PSAttributeList;
 import com.percussion.design.objectstore.PSProvider;
 import com.percussion.design.objectstore.PSSubject;
+import jakarta.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.security.auth.callback.CallbackHandler;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

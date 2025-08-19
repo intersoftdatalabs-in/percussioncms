@@ -41,7 +41,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

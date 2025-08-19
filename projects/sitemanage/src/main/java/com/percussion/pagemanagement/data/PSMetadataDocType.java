@@ -22,7 +22,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Structure for doc type information for templates. Contains a selected doc type and a list of

@@ -138,8 +138,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
 import javax.xml.soap.SOAPException;
 import java.io.File;
 import java.io.FileReader;

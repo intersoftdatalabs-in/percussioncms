@@ -17,7 +17,7 @@
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a user that may or may not have been imported successfully. See {@link

@@ -37,10 +37,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

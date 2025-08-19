@@ -21,14 +21,14 @@ package com.percussion.pso.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import org.apache.commons.fileupload.FileItem;
 
 /**
  * A thin wrapper for a FileItem as a DataSource.
  *
  * @author DavidBenua
- * @see javax.activation.DataSource
+ * @see jakarta.activation.DataSource
  * @see org.apache.commons.fileupload.FileItem
  */
 public class FileItemDataSource implements DataSource {
@@ -48,7 +48,7 @@ public class FileItemDataSource implements DataSource {
    * Gets the file data as a stream.
    *
    * @return the stream
-   * @see javax.activation.DataSource#getInputStream()
+   * @see jakarta.activation.DataSource#getInputStream()
    */
   public InputStream getInputStream() throws IOException {
     return item.getInputStream();
@@ -58,7 +58,7 @@ public class FileItemDataSource implements DataSource {
    * Gets a stream for writing the data.
    *
    * @return the stream.
-   * @see javax.activation.DataSource#getOutputStream()
+   * @see jakarta.activation.DataSource#getOutputStream()
    */
   public OutputStream getOutputStream() throws IOException {
     return item.getOutputStream();
@@ -68,7 +68,7 @@ public class FileItemDataSource implements DataSource {
    * Gets the MIME content type of this file.
    *
    * @return the content type.
-   * @see javax.activation.DataSource#getContentType()
+   * @see jakarta.activation.DataSource#getContentType()
    */
   public String getContentType() {
     return item.getContentType();
@@ -78,7 +78,7 @@ public class FileItemDataSource implements DataSource {
    * Gets the file name.
    *
    * @return the file name.
-   * @see javax.activation.DataSource#getName()
+   * @see jakarta.activation.DataSource#getName()
    */
   // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
   public String getName() {

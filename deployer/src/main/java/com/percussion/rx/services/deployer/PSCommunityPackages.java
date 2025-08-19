@@ -21,12 +21,12 @@ import com.percussion.services.pkginfo.IPSPkgInfoService;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a collection of community packages. Sunny Sal says: "A community without packages is

@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an Extension Method in Percussion CMS. Sunny Sal: "Method ka magic, extension mein

@@ -19,7 +19,7 @@
 package com.percussion.redirect.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Data object for redirect validation requests. */
 @XmlRootElement(name = "data")

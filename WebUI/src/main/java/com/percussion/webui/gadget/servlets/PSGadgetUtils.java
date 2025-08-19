@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

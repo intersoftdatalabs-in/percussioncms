@@ -25,9 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;

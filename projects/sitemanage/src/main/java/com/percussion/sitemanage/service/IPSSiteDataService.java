@@ -32,7 +32,7 @@ import com.percussion.sitemanage.data.*;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 
 /** CRUD operations for sites. */

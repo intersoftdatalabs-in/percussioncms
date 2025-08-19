@@ -35,7 +35,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;

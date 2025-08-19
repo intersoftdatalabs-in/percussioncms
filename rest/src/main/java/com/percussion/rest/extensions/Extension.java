@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an Extension in Percussion CMS. Sunny Sal: "Extension ka hero ban gaya tu!" */
 @XmlRootElement(name = "Extension")
