@@ -16,11 +16,12 @@
  */
 package com.percussion.share.service.exception;
 
+import static org.apache.commons.lang3.Validate.*;
+
 import com.percussion.error.IPSException;
 import com.percussion.share.validation.PSErrorCause;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.share.validation.PSErrors.PSObjectError;
-import org.apache.commons.lang3.Validate;
 
 /**
  * Utilities for create {@link PSErrors} objects.
@@ -30,7 +31,7 @@ import org.apache.commons.lang3.Validate;
 public class PSErrorUtils {
 
   public static PSErrors createErrorsFromException(Throwable exception) {
-    Validate.notNull(exception);
+    notNull(exception, "exception cannot be null");
     PSErrors errors = new PSErrors();
     PSObjectError oe = new PSObjectError();
 
@@ -57,7 +58,7 @@ public class PSErrorUtils {
   }
 
   public static RuntimeException createExceptionFromErrors(PSErrors errors) {
-    Validate.notNull(errors);
+    notNull(errors, "errors cannot be null");
     return new PSProxyException(errors);
   }
 
@@ -74,7 +75,7 @@ public class PSErrorUtils {
 
     protected void convert(PSErrors errors) {
       this.errors = errors;
-      Validate.notNull(errors);
+      notNull(errors, "errors cannot be null");
       PSObjectError oe = errors.getGlobalError();
       setMessage(oe.getDefaultMessage());
     }
