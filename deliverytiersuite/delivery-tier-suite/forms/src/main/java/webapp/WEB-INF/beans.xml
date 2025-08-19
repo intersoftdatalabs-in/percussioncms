@@ -103,29 +103,21 @@
 
     <tx:annotation-driven transaction-manager="txManager"/>
 
-    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-        <property name="sessionFactory" ref="formSessionFactory" />
+    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
 
-   <!-- Hibernate SessionFactory -->
-   <bean id="formSessionFactory" 
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-      <property name="dataSource">
-         <ref bean="${datasource}" />
+   <!-- JPA EntityManagerFactory -->
+   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+      <property name="dataSource" ref="${datasource}" />
+      <property name="jpaVendorAdapter">
+         <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
       </property>
-      <property name="hibernateProperties">
-         <ref bean="${hibernateProperties}" />
-      </property>
-      <property name="configLocation">
-         <value>/WEB-INF/hibernate.cfg.xml</value>
-      </property>
+      <property name="jpaProperties" ref="${hibernateProperties}" />
+      <property name="packagesToScan" value="com.percussion.delivery.forms.data" />
+      <property name="entityManagerFactoryInterface" value="jakarta.persistence.EntityManagerFactory" />
    </bean>
    
-   <bean id="formDao" class="com.percussion.delivery.forms.impl.rdbms.PSFormDao">
-      <property name="sessionFactory">
-         <ref bean="formSessionFactory" />
-      </property>
-   </bean>
    
    <bean id="recaptchaService" class="com.percussion.delivery.forms.impl.PSRecaptchaService" autowire="constructor">
       <constructor-arg index = "0" value = "${recaptcha.on}"/>
@@ -138,6 +130,10 @@
       <constructor-arg ref="emailProperties"/>
    </bean>
       
+   <!-- Define Form DAO bean -->
+   <bean id="formDao" class="com.percussion.delivery.forms.impl.rdbms.PSFormDao">
+   </bean>
+   
    <!-- Define Form Service bean -->
    <bean id="formService" class="com.percussion.delivery.forms.impl.PSFormService" >
       <constructor-arg ref="formDao"/>
