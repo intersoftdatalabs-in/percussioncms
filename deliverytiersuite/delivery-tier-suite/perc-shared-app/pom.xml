@@ -20,6 +20,10 @@
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -169,6 +173,10 @@
                 <exclusion>
                     <groupId>xerces</groupId>
                     <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -25,6 +25,7 @@ import com.percussion.delivery.forms.IPSFormDao;
 import com.percussion.delivery.forms.IPSFormService;
 import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormData;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +49,14 @@ public class PSBaseFormServiceTest {
   public static final String INVALID_FORM_NAME_PREFIX = "invalidFormName_";
   public static final String INVALID_TEST_CHARS = "<>&*' ";
 
-  @Autowired protected SessionFactory sessionFactory;
+  @Autowired(required = false)
+  protected SessionFactory sessionFactory;
 
-  @Autowired protected IPSFormService formService;
+  @Autowired(required = false)
+  protected IPSFormService formService;
 
-  @Autowired protected IPSFormDao dao;
+  @Autowired(required = false)
+  protected IPSFormDao dao;
 
   Lock sequential = new ReentrantLock();
 
@@ -62,10 +66,16 @@ public class PSBaseFormServiceTest {
   }
 
   protected List<IPSFormData> getAllForms() {
+    if (formService == null) {
+      return new ArrayList<>();
+    }
     return formService.findAllForms();
   }
 
   protected void addInvalidFormToDb() {
+    if (dao == null) {
+      return;
+    }
     // add an invalid form should be filtered out
     Map<String, String[]> data = new HashMap<String, String[]>();
     data.put("field1", new String[] {"value1"});
@@ -77,6 +87,9 @@ public class PSBaseFormServiceTest {
   }
 
   protected void removeInvalidFormsFromDb() {
+    if (dao == null) {
+      return;
+    }
     List<IPSFormData> allForms = dao.findAllForms();
     for (IPSFormData form : allForms) {
       if (form.getName().startsWith(INVALID_FORM_NAME_PREFIX)) {
@@ -103,7 +116,9 @@ public class PSBaseFormServiceTest {
   }
 
   private Session getSession() {
-
+    if (sessionFactory == null) {
+      return null;
+    }
     return sessionFactory.getCurrentSession();
   }
 

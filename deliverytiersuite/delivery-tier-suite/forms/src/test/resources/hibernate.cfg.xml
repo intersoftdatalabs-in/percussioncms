@@ -5,6 +5,6 @@
 <hibernate-configuration>
 
 <session-factory>
-	<mapping class="com.percussion.delivery.forms.data.PSFormData"/>
+	<mapping class="com.percussion.delivery.forms.data.PSFormData"/>   
 </session-factory>
 </hibernate-configuration>
