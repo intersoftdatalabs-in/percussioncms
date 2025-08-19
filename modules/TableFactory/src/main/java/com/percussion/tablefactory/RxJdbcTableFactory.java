@@ -620,7 +620,7 @@ public class RxJdbcTableFactory {
     }
 
     public String getJdbcTypeMapping(int ijdbcType) {
-      String type = (String) m_dtJdbcInt2JdbcStr.get(new Integer(ijdbcType));
+      String type = m_dtJdbcInt2JdbcStr.get(Integer.valueOf(ijdbcType));
       if (type == null) {
         throw new IllegalArgumentException("No mapping defined for " + ijdbcType);
       }
@@ -685,7 +685,7 @@ public class RxJdbcTableFactory {
     private void storeDataTypeMapping(String jdbcType, String nativeType)
         throws IllegalArgumentException {
       try {
-        Integer jType = new Integer(java.sql.Types.class.getField(jdbcType).getInt(null));
+        Integer jType = Integer.valueOf(java.sql.Types.class.getField(jdbcType).getInt(null));
         m_dtJdbcStr2Native.put(jdbcType, nativeType);
         m_dtNative2JdbcStr.put(nativeType, jdbcType);
         m_dtJdbcStr2JdbcInt.put(jdbcType, jType);
@@ -707,10 +707,10 @@ public class RxJdbcTableFactory {
     private String m_version;
     private String m_uid;
     private String m_pw;
-    private HashMap m_dtJdbcStr2Native = new HashMap();
-    private HashMap m_dtNative2JdbcStr = new HashMap();
-    private HashMap m_dtJdbcStr2JdbcInt = new HashMap();
-    private HashMap m_dtJdbcInt2JdbcStr = new HashMap();
+    private HashMap<String, String> m_dtJdbcStr2Native = new HashMap<>();
+    private HashMap<String, String> m_dtNative2JdbcStr = new HashMap<>();
+    private HashMap<String, Integer> m_dtJdbcStr2JdbcInt = new HashMap<>();
+    private HashMap<Integer, String> m_dtJdbcInt2JdbcStr = new HashMap<>();
 
     public String getBackEndDB() {
       return m_sBackend;
@@ -796,7 +796,7 @@ public class RxJdbcTableFactory {
             e = w.getNextElement("column", getSibling)) {
           ColumnDefinition colDef = new ColumnDefinition(dbmsDef, w);
           m_columns.add(colDef);
-          m_columnPos.put(colDef.getColumnName(), new Integer(++colNo));
+          m_columnPos.put(colDef.getColumnName(), Integer.valueOf(++colNo));
         }
 
         // load the primary key def (may not have one)
@@ -3500,8 +3500,8 @@ public class RxJdbcTableFactory {
     private int iAlterFlag = 0; // 0 = Do nothing , 1=alter , 2= Do not alter
     private int iDelOldData = 2; // 0 = Do nothing , 1=Delete, 2= Do not Delete
 
-    private List m_columns = new ArrayList();
-    private List m_pKey = new ArrayList();
+    private List<ColumnDefinition> m_columns = new ArrayList<>();
+    private List<String> m_pKey = new ArrayList<>();
 
     /**
      * List of foreign key constraints. Each entry is String array containing 3 entries, where the
@@ -3510,11 +3510,11 @@ public class RxJdbcTableFactory {
      * added in the ctor, and entries are never <code>null</code>. List or its entries are never
      * modified after it is initialized in the ctor.
      */
-    private List m_fKey = new ArrayList();
+    private List<Object> m_fKey = new ArrayList<>();
 
-    private List m_indices = new ArrayList();
+    private List<Object> m_indices = new ArrayList<>();
 
-    private HashMap m_columnPos = new HashMap(); // col name to 1-based pos
+    private HashMap<String, Integer> m_columnPos = new HashMap<>(); // col name to 1-based pos
 
     private Element m_dataNode;
     private DbmsDefinition m_dbmsDef = null;
@@ -3749,8 +3749,8 @@ public class RxJdbcTableFactory {
     private String m_name;
     private String m_qualifiedName;
 
-    private List m_columns = new ArrayList();
-    private List m_sortOrders = new ArrayList();
+    private List<Object> m_columns = new ArrayList<>();
+    private List<Object> m_sortOrders = new ArrayList<>();
   }
 
   public void setLogFileName(String sFileName) {
