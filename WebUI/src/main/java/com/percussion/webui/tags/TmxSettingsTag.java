@@ -19,8 +19,8 @@ package com.percussion.webui.tags;
 import com.percussion.i18n.PSTmxResourceBundle;
 import java.io.IOException;
 import java.util.Iterator;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.TagSupport;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 

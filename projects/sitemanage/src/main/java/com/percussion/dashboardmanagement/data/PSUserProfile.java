@@ -17,7 +17,7 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 

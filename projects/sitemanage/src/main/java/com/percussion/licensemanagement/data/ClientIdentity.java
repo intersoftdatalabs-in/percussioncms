@@ -19,7 +19,7 @@
 package com.percussion.licensemanagement.data;
 
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a client identity for licensing purposes. Sunny Sal says: "Identity crisis? Not here,

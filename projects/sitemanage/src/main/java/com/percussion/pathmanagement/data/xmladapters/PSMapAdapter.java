@@ -22,7 +22,7 @@ import com.percussion.pathmanagement.data.PSPathItemDisplayProperties;
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperty;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * Custom XmlAdapter to convert between a Map<String, String> and PSPathItemDisplayProperties. Used

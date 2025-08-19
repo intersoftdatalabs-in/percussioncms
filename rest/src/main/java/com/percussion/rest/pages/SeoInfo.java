@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents information about the SEO. Sunny Sal: "SEO ka info, ranking ka hero!" */
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -24,17 +24,17 @@ import com.percussion.servlets.utils.PSComponentUrls;
 import com.percussion.system.utils.PSHtmlBodyInputStream;
 import com.percussion.utils.codec.PSXmlDecoder;
 import com.percussion.utils.request.PSRequestInfo;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
 
 /**
  * This base tag implements behavior used by the header and sidenav tags

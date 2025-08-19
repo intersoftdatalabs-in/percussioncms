@@ -29,9 +29,9 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.security.Principal;
 import com.percussion.security.shim.acl.Permission;
 import java.util.*;
@@ -737,7 +737,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * @see #getPsPermissions()
     * @see #permissions()
     */
-   @OneToMany(targetEntity = PSAccessLevelImpl.class, cascade = javax.persistence.CascadeType.ALL, fetch = FetchType.EAGER)
+   @OneToMany(targetEntity = PSAccessLevelImpl.class, cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.EAGER)
    @Cascade(
            {
                    org.hibernate.annotations.CascadeType.DELETE_ORPHAN

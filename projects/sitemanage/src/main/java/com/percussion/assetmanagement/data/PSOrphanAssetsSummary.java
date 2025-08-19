@@ -21,7 +21,7 @@ package com.percussion.assetmanagement.data;
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Provides the orphan assets summary that has list of PSAssetWidgetRelationship objects. */
 @XmlRootElement(name = "OrphanAssetsSummary")

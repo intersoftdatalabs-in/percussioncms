@@ -18,8 +18,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.contentchange.data;
 
-import javax.persistence.Column;
-import javax.persistence.IdClass;
+import jakarta.persistence.Column;
+import jakarta.persistence.IdClass;
 import java.io.Serializable;
 import java.util.Objects;
 

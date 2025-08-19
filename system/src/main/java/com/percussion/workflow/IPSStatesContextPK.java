@@ -17,7 +17,7 @@
 
 package com.percussion.workflow;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 
 public interface IPSStatesContextPK {
   @Column(name = "STATEID")

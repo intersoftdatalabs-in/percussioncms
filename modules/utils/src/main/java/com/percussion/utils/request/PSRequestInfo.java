@@ -16,9 +16,9 @@
  */
 package com.percussion.utils.request;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This class stores a variety of per request information. This is initialized in a servlet at the

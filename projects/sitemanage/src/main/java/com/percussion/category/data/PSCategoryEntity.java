@@ -18,7 +18,7 @@
 
 package com.percussion.category.data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /** Entity representing a category assignment for a page. */
 @Entity

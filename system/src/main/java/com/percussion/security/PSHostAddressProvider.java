@@ -19,10 +19,10 @@ package com.percussion.security;
 
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSUserSession;
+import jakarta.servlet.ServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import javax.servlet.ServletRequest;
 
 /**
  * The PSHostAddressProvider class is used to access the CGI variables <code>REMOTE_HOST</code> and

@@ -18,7 +18,7 @@
 package com.percussion.pathmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Request object for moving an item from its original folder to a new (target) folder. All paths

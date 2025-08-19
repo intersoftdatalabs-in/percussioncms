@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractNamedObject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.configuration.annotation.IsInvariant;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.constraint.NotBlank;

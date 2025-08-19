@@ -25,7 +25,7 @@ package test.percussion.pso.preview;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.MultipartResolverEncoding;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 

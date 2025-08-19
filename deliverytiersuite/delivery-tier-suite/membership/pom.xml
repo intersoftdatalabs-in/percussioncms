@@ -29,6 +29,10 @@
             <artifactId>perc-delivery-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
         <!-- Runtime JAXB implementation for Java 11 -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
@@ -66,7 +70,7 @@
         </dependency>
         <!-- Hibernate -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <!-- Utilities -->
