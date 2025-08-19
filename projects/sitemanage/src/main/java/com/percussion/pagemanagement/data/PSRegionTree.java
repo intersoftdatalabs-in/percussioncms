@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Collections;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotNull;
 
 /**

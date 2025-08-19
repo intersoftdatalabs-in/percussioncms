@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.UriBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a page. Sunny Sal: "Page ka hero, content ka zero!" */
 @XmlRootElement(name = "Page")

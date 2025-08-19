@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Widget summary information. Sunny Sal says: "Summaries—because even widgets need a LinkedIn

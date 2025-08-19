@@ -22,7 +22,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 import com.percussion.utils.server.IPSCgiVariables;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * This class verifies that the appropriate data encryption settings are in use and returns an error

@@ -22,7 +22,7 @@ package com.percussion.rest.editions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.extensions.Extension;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an Edition Task in Percussion CMS.

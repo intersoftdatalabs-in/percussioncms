@@ -22,7 +22,7 @@ import com.percussion.share.validation.PSErrors;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import org.springframework.stereotype.Component;
 
 /**

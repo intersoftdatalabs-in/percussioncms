@@ -29,8 +29,8 @@ import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /** Represents a node in the category tree. */
 @XmlRootElement(name = "Category")

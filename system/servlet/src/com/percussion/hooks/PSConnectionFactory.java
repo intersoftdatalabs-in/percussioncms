@@ -28,8 +28,8 @@ import java.util.ResourceBundle;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 
 /**
  * The PSConnectionFactory class manages connections to Rhythmyx servers.

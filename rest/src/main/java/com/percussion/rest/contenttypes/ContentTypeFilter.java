@@ -2,7 +2,7 @@ package com.percussion.rest.contenttypes;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a filter that can be used to query available content types. */
 @XmlRootElement(name = "ContentTypeFilter")

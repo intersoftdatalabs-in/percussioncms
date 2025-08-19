@@ -23,7 +23,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Encapsulates revision information for a page or asset including revision id, last time it was modified,

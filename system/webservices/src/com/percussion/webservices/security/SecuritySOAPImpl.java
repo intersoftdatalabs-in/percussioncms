@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.jws.WebService;
 import javax.security.auth.login.LoginException;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Optional;

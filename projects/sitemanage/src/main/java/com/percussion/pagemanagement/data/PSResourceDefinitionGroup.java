@@ -22,7 +22,7 @@ import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
 /**
  * A {@link PSResourceDefinitionGroup} is a grouping of {@link PSResourceDefinition}s. The grouping

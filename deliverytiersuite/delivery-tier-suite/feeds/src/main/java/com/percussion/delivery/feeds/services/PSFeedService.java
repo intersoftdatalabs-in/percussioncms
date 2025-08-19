@@ -256,7 +256,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
               feedname, sitename, hostname));
     }
 
-    IPSFeedDescriptor desc = this.feedDao.find(feedname, sitename).orElse(null);
+    IPSFeedDescriptor desc = this.feedDao.find(feedname, sitename);
     Response resp;
     if (desc != null) {
 
@@ -264,7 +264,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
       PSFeedService.log.debug("Searching for feed connection information...");
 
-      IPSConnectionInfo info = this.feedDao.getConnectionInfo().orElse(null);
+      IPSConnectionInfo info = this.feedDao.getConnectionInfo();
       if (info != null) {
 
         PSFeedService.log.debug("Got connection info for feed: {}", info);

@@ -23,7 +23,7 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 public class PSCSVStreamingOutput implements StreamingOutput {
 

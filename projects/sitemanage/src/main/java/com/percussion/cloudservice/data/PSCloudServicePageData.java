@@ -19,7 +19,7 @@
 
 package com.percussion.cloudservice.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents page data for cloud services in Percussion CMS. */
 @XmlRootElement(name = "CloudServicePageData")

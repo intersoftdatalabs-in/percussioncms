@@ -21,7 +21,7 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractPersistantObject;
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 

@@ -19,7 +19,7 @@ package com.percussion.widgets.image.data;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

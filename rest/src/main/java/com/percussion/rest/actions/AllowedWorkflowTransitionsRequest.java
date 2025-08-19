@@ -19,7 +19,7 @@ package com.percussion.rest.actions;
 
 import java.util.Arrays;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Request object for allowed workflow transitions. */
 @XmlRootElement

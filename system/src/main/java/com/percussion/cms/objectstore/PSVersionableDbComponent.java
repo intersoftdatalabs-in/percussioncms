@@ -17,7 +17,7 @@
 package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 import org.w3c.dom.Element;
 
 /** Base class for all versionable PSDbComponents. */

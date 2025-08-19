@@ -19,7 +19,7 @@ package com.percussion.widgetbuilder.data;
 
 import java.io.Serializable;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a single validation result for a widget builder definition. */
 @XmlRootElement(name = "WidgetBuilderValidationResult")

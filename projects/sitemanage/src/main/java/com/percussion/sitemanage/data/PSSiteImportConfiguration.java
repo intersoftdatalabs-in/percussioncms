@@ -2,7 +2,7 @@
 package com.percussion.sitemanage.data;
 
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Configuration for site import operations. */
 @XmlRootElement(name = "SiteImportConfiguration")

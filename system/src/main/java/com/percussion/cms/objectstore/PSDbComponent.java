@@ -23,10 +23,10 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import jakarta.persistence.Transient;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import javax.persistence.Transient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

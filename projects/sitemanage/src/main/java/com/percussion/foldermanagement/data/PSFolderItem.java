@@ -20,7 +20,7 @@ package com.percussion.foldermanagement.data;
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 
 /**

@@ -21,7 +21,7 @@ import com.percussion.services.catalog.IPSCataloger;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.Node;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

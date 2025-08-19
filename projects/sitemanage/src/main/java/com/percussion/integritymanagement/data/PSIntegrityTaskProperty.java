@@ -19,7 +19,7 @@ package com.percussion.integritymanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Objects;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
