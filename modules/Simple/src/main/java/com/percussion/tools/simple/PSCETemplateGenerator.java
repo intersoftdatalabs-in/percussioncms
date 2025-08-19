@@ -114,13 +114,13 @@ public class PSCETemplateGenerator {
 
       // Remove Pagetank and table references as they are not valid for
       // templates
-      List excludeList = new ArrayList();
+      List<String> excludeList = new ArrayList<>();
       excludeList.add(PAGE_DATATANK_ELEMENT);
       excludeList.add(TABLE_REFERENCE_ELEMENT);
 
       // Add dummy table reference as dtd requires atleast one table reference
       // element in tableset.
-      Map addList = new HashMap();
+      Map<String, Element> addList = new HashMap<>();
       Document dummyDoc = PSXmlDocumentBuilder.createXmlDocument();
       Element tableRef = dummyDoc.createElement(TABLE_REFERENCE_ELEMENT);
       tableRef.setAttribute(TABLE_REFERENCE_NAME_ATTRIBUTE, DUMMY_TABLE_REFERENCE_NAME);
