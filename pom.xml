@@ -199,7 +199,7 @@
        <hikari.version>4.0.3</hikari.version>
        <snakeyaml.version>2.0</snakeyaml.version>
        <commons-email.version>1.5</commons-email.version>
-       <commons.codec.version>1.15</commons.codec.version>
+       <commons.codec.version>1.19.0</commons.codec.version>
        <tinymce.version>5.10.3</tinymce.version>
        <jfx.version>11.0.2</jfx.version>
        <twelvemonkeys.version>3.9.4</twelvemonkeys.version>
