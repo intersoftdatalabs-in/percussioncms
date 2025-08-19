@@ -82,10 +82,16 @@ public class PSFormDao implements IPSFormDao {
    */
   public long getExportedFormCount(String name) {
     String query = "select count(*) from PSFormData formData where formData.isExported = 'y'";
-    if (name != null && name.trim().length() > 0)
-      query += " and lower(formData.name) = lower('" + name + "')";
+    TypedQuery<Long> q;
 
-    jakarta.persistence.TypedQuery<Long> q = entityManager.createQuery(query, Long.class);
+    if (name != null && name.trim().length() > 0) {
+      query += " and lower(formData.name) = lower(:name)";
+      q = entityManager.createQuery(query, Long.class);
+      q.setParameter("name", name);
+    } else {
+      q = entityManager.createQuery(query, Long.class);
+    }
+
     return q.getSingleResult();
   }
 
@@ -94,10 +100,16 @@ public class PSFormDao implements IPSFormDao {
    */
   public long getTotalFormCount(String name) {
     String query = "select count(*) from PSFormData formData";
-    if (name != null && name.trim().length() > 0)
-      query += " where lower(formData.name) = lower('" + name + "')";
+    TypedQuery<Long> q;
 
-    jakarta.persistence.TypedQuery<Long> q = entityManager.createQuery(query, Long.class);
+    if (name != null && name.trim().length() > 0) {
+      query += " where lower(formData.name) = lower(:name)";
+      q = entityManager.createQuery(query, Long.class);
+      q.setParameter("name", name);
+    } else {
+      q = entityManager.createQuery(query, Long.class);
+    }
+
     return q.getSingleResult();
   }
 
