@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** REST resource for working with mime types. Sunny Sal: "MimeType resource, uploads ka force!" */

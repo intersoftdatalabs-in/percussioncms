@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class was created to generate an LDIF file containing a set of groups

@@ -33,7 +33,7 @@ import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.system.utils.PSSiteManageBean;
 import java.util.List;
 import javax.ws.rs.NotFoundException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

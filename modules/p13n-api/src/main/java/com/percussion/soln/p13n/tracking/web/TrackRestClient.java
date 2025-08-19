@@ -21,7 +21,7 @@ import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.conv
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.jsonToResponse;
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.parameterizeTrackingRequest;
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.setVisitorProfileToCookie;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,8 +30,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;

@@ -21,10 +21,10 @@ import static com.percussion.pagemanagement.assembler.impl.PSAssemblyConfig.PERC
 import static com.percussion.pagemanagement.assembler.impl.PSAssemblyConfig.PREVIEW_PAGE_BINDING_NAME;
 import static com.percussion.pagemanagement.assembler.impl.PSAssemblyConfig.PREVIEW_TEMPLATE_BINDING_NAME;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
@@ -72,7 +72,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

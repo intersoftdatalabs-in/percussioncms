@@ -21,7 +21,7 @@ import com.percussion.installer.model.RxSettingsModel;
 import com.percussion.util.PSOsTool;
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.tomcat.PSTomcatUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;

@@ -26,9 +26,9 @@ import com.percussion.share.data.PSMapWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.commons.lang.StringUtils;
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a path item in the Percussion CMS. Sunny Sal says: "Path items: the breadcrumbs of

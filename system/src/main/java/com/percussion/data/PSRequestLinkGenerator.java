@@ -45,8 +45,8 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSURLEncoder;
+import jakarta.servlet.ServletRequest;
 import java.util.ArrayList;
-import javax.servlet.ServletRequest;
 
 /**
  * The PSRequestLinkGenerator class takes the current request context, adds any additional data,

@@ -18,7 +18,7 @@
 package com.percussion.sitemanage.importer.helpers.impl;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;

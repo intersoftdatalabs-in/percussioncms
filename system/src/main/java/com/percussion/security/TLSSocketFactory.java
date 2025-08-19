@@ -43,7 +43,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -114,10 +114,23 @@ public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocket
 
     TrustManagerFactory trustManagerFactory;
     trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
+    // Always use a TrustManager that validates certificates against a trusted CA
+    // WARNING: Do not use permissive TrustManagers in production!
     trustManagerFactory.init((KeyStore) null);
     TrustManager[] tm = trustManagerFactory.getTrustManagers();
+    // Defensive: ensure at least one X509TrustManager is present
+    boolean hasValidTM = false;
+    for (TrustManager t : tm) {
+      if (t instanceof javax.net.ssl.X509TrustManager) {
+        hasValidTM = true;
+        break;
+      }
+    }
+    if (!hasValidTM) {
+      throw new KeyManagementException(
+          "No valid X509TrustManager found for certificate validation.");
+    }
     SecureRandom random;
-
     try {
       random = SecureRandom.getInstance("DEFAULT", "BC");
     } catch (NoSuchProviderException e) {
@@ -130,10 +143,11 @@ public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocket
     String ciphers = PSServer.getServerProps().getProperty("enabledCiphers");
     if (StringUtils.isEmpty(ciphers)) {
       enabledCiphers = defaultCiphers;
+    } else {
+      enabledCiphers = ciphers.split(",");
     }
-    enabledCiphers = ciphers.split(",");
-    for (String s : enabledCiphers) {
-      s = s.trim();
+    for (int i = 0; i < enabledCiphers.length; i++) {
+      enabledCiphers[i] = enabledCiphers[i].trim();
     }
   }
 

@@ -18,7 +18,7 @@ package com.percussion.deployer.objectstore.idtypes;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A container to hold PSJexlBinding (a name value paired entity. Name may be null.Currently, used

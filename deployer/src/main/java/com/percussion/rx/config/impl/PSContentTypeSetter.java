@@ -38,7 +38,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.*;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class is responsible to set properties for a Content Type.

@@ -20,7 +20,7 @@ package com.percussion.integrations.siteimprove.data;
 
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Base object model for the publish settings for Siteimprove usage for the assigned site. */
 @XmlRootElement(name = "SiteimproveConfiguration")

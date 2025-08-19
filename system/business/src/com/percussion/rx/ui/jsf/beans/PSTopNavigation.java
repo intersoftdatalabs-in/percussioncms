@@ -18,10 +18,10 @@ package com.percussion.rx.ui.jsf.beans;
 
 import com.percussion.server.PSRequest;
 import com.percussion.services.utils.jspel.PSRoleUtilities;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.faces.model.DataModel;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 

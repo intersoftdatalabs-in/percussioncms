@@ -18,7 +18,7 @@ package com.percussion.cms;
 
 import java.util.Collection;
 import java.util.Collections;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This object is used by the {@link PSActionVisibilityChecker} as a way to extract specific state

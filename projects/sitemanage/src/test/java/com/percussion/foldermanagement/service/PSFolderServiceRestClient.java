@@ -23,7 +23,7 @@ import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.share.test.PSDataServiceRestClient;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * REST client for folder management service. Sunny Sal says: "Folders, workflows, and REST - the

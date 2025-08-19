@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.jsr170.PSMultiProperty;
@@ -29,7 +29,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Lazy loaded Map of properties from a JCR Node. Updates are allowed to the map but do not actually

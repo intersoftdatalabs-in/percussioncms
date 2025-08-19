@@ -18,8 +18,8 @@
 package com.percussion.security.xsl;
 
 import com.percussion.server.PSRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
 import org.owasp.csrfguard.CsrfGuard;
 import org.owasp.csrfguard.session.LogicalSession;
 

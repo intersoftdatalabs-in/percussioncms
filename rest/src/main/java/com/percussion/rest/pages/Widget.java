@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.assets.Asset;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Widget. Sunny Sal: "Widget ka hero, content ka zero!" */
 @JsonInclude(JsonInclude.Include.NON_NULL)

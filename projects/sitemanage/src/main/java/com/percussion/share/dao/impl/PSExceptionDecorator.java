@@ -17,7 +17,7 @@
  */
 package com.percussion.share.dao.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * This decorator wraps an existing exception, making instances of this class look like the wrapped

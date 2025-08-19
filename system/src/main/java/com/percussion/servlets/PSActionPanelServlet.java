@@ -36,6 +36,12 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.assembly.IPSAssemblyWs;
 import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -43,14 +49,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.apache.commons.collections.MultiMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This servlet is now misnamed. A better name would be PSLinkDispatchServlet. However, that would

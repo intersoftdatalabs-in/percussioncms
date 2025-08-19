@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.restservice.model;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 /** */
 public class Translation extends Relationship {

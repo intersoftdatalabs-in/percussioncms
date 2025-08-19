@@ -16,7 +16,7 @@
  */
 package com.percussion.services.publisher.data;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents the type of an edition. 

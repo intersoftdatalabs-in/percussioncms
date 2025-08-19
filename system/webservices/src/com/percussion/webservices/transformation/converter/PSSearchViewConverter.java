@@ -39,7 +39,7 @@ import com.percussion.webservices.ui.data.SearchFieldType;
 import com.percussion.webservices.ui.data.SearchViewParentCategory;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

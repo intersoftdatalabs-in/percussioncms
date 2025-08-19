@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.jcr.RepositoryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The handler for configuring Location Scheme objects.
@@ -58,7 +58,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
       return false;
     }
     var other = (PSLocationSchemeConfigHandler) otherObj;
-    return new org.apache.commons.lang.builder.EqualsBuilder()
+    return new org.apache.commons.lang3.builder.EqualsBuilder()
         .append(m_extraProperties, other.m_extraProperties)
         .isEquals();
   }
@@ -66,7 +66,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
   @Override
   public int hashCode() {
     return super.hashCode()
-        + new org.apache.commons.lang.builder.HashCodeBuilder()
+        + new org.apache.commons.lang3.builder.HashCodeBuilder()
             .append(m_extraProperties)
             .toHashCode();
   }

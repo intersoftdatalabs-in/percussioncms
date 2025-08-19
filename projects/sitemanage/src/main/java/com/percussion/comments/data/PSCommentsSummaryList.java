@@ -21,7 +21,7 @@ package com.percussion.comments.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** List wrapper for PSCommentsSummary. */
 @XmlRootElement(name = "commentsSummary")

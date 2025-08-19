@@ -28,7 +28,7 @@ import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
 import com.percussion.sitemanage.web.service.PSSiteRestClient;
 import com.percussion.sitemanage.web.service.PSSiteSectionRestClient;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSSiteGenerator extends PSGenerator<PSSiteRestClient> {
 

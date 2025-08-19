@@ -17,7 +17,7 @@
  */
 package com.percussion.share.service.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.service.impl.jaxb.Data;
 import com.percussion.share.service.impl.jaxb.Response;
@@ -26,7 +26,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

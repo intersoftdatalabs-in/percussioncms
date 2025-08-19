@@ -19,8 +19,8 @@ package com.percussion.extension;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.StringTokenizer;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * A simple, immutable class used to refer uniquely to an extension by its handler name, context

@@ -16,7 +16,7 @@
  */
 package com.percussion.services.catalog;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This enum lists all types in the system that participate in cataloging. The ordinal value of

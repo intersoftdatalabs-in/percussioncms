@@ -20,8 +20,8 @@
  */
 package test.percussion.soln.p13n.tracking.web;
 
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

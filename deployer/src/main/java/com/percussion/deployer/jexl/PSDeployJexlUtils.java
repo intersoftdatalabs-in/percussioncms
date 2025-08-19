@@ -19,7 +19,7 @@ package com.percussion.deployer.jexl;
 import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PSDeployJexlUtils {
   /**

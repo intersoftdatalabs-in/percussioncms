@@ -24,7 +24,7 @@ import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.util.PSOsTool;
 import com.percussion.utils.container.PSContainerUtilsFactory;
 import com.percussion.utils.spring.PSFileSystemXmlApplicationContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
@@ -35,7 +35,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;

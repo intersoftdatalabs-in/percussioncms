@@ -17,7 +17,7 @@
 package com.percussion.taxonomy.jexl;
 
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class TaxValues extends ArrayList<String> {
   /**

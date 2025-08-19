@@ -20,7 +20,7 @@ package com.percussion.rx.config.impl;
 
 import com.percussion.rx.config.IPSConfigHandler;
 import com.percussion.util.PSOsTool;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**

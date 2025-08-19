@@ -17,7 +17,7 @@
 package com.percussion.utils.security;
 
 import javax.security.auth.callback.Callback;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Used to get the remote user name of an already authenticated user. */
 public class PSRemoteUserCallback implements Callback {

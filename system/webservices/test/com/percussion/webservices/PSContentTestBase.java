@@ -72,7 +72,7 @@ import javax.xml.rpc.ServiceException;
 
 import junit.framework.AssertionFailedError;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

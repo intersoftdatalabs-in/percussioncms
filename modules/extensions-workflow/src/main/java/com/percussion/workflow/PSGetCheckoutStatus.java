@@ -29,7 +29,7 @@ import com.percussion.server.IPSServerErrors;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.naming.NamingException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

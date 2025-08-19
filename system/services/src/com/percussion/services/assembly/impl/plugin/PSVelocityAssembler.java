@@ -42,7 +42,7 @@ import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.utils.timing.PSStopwatchStack;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.Template;
@@ -80,7 +80,7 @@ import static com.percussion.cms.IPSConstants.SYS_PARAM_CTX;
 import static com.percussion.cms.IPSConstants.SYS_PARAM_MIMETYPE;
 import static com.percussion.cms.IPSConstants.SYS_PARAM_NO_CACHE_TEMPLATE;
 import static com.percussion.cms.IPSConstants.SYS_PARAM_TEMPLATE;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * This assembler uses a Velocity template to create HTML output text. This uses

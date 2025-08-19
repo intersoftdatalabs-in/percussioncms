@@ -141,12 +141,7 @@
             <scope>compile</scope>
         </dependency>
         <!-- Use legacy javax JAX-RS API for Java 11/Tomcat 9 stack -->
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
@@ -357,9 +352,9 @@
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
-                        <version>${javax.servlet.api.version}</version>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
+                        <version>${jakarta.servlet.api.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>installanywhere</groupId>

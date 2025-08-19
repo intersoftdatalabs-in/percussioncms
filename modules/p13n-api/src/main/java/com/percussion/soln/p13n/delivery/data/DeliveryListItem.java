@@ -19,7 +19,7 @@ package com.percussion.soln.p13n.delivery.data;
 
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.percussion.soln.p13n.delivery.IDeliverySnippetFilter;
 

@@ -20,7 +20,7 @@ package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Summary representation of an asset. */
 @XmlRootElement(name = "AssetSummary")

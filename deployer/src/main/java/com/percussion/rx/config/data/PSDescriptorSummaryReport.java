@@ -25,9 +25,9 @@ import com.percussion.deployer.objectstore.PSUserDependency;
 import com.percussion.utils.collections.PSMultiValueHashMap;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.text.WordUtils;
 
 /** Generates a summary report for a package descriptor. */
 public class PSDescriptorSummaryReport {

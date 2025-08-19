@@ -23,8 +23,8 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 /** List wrapper for DisplayFormatProperty. */
 @XmlRootElement(name = "DisplayFormatPropertyList")

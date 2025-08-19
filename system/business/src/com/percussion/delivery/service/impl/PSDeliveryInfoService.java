@@ -34,7 +34,7 @@ import com.percussion.services.pubserver.PSPubServerDaoLocator;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

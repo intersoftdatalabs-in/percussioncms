@@ -25,7 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import javax.xml.bind.UnmarshalException;
+import jakarta.xml.bind.UnmarshalException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 

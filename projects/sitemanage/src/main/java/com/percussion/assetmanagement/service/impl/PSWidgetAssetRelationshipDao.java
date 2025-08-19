@@ -19,7 +19,7 @@
 package com.percussion.assetmanagement.service.impl;
 
 import static com.percussion.util.PSSqlHelper.qualifyTableName;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.pagemanagement.service.IPSWidgetAssetRelationshipDao;
@@ -28,8 +28,8 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSRuntimeException;
 import com.percussion.services.guidmgr.PSGuidHelper;
 import java.sql.SQLException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;

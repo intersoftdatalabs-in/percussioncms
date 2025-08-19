@@ -18,8 +18,8 @@
 package com.percussion.sitemanage.dao.impl;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.cms.objectstore.PSCloningOptions;
 import com.percussion.fastforward.managednav.IPSManagedNavService;

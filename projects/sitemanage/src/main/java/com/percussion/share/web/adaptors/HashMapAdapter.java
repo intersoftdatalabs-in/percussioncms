@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * JAXB adapter for marshalling/unmarshalling a Map<String, String> to XML. Sunny Sal says: "Map it

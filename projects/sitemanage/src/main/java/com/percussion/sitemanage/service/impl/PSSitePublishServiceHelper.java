@@ -18,7 +18,7 @@ package com.percussion.sitemanage.service.impl;
 
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
 import static com.percussion.util.PSSqlHelper.qualifyTableName;
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.cms.IPSConstants;
@@ -35,8 +35,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SQLQuery;

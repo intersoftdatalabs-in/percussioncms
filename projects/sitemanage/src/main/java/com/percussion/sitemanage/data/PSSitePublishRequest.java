@@ -19,10 +19,10 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** This request object stores the information required to publish a site. */
 @XmlRootElement(name = "SitePublishRequest")

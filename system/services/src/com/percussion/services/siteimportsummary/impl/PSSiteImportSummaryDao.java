@@ -24,7 +24,7 @@ import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.system.utils.PSBaseBean;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -34,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
 @PSBaseBean("sys_siteImportSummaryDao")

@@ -69,8 +69,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
@@ -256,7 +256,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
               feedname, sitename, hostname));
     }
 
-    IPSFeedDescriptor desc = this.feedDao.find(feedname, sitename).orElse(null);
+    IPSFeedDescriptor desc = this.feedDao.find(feedname, sitename);
     Response resp;
     if (desc != null) {
 
@@ -264,7 +264,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
       PSFeedService.log.debug("Searching for feed connection information...");
 
-      IPSConnectionInfo info = this.feedDao.getConnectionInfo().orElse(null);
+      IPSConnectionInfo info = this.feedDao.getConnectionInfo();
       if (info != null) {
 
         PSFeedService.log.debug("Got connection info for feed: {}", info);

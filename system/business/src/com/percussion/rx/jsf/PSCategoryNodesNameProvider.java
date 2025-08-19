@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.jsf;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.services.utils.jsf.validators.IPSUniqueValidatorValueProvider;
 import java.util.Collection;

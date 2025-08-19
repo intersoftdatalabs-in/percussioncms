@@ -63,6 +63,7 @@ import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.IPSUtilsConstants;
 import com.percussion.utils.types.PSPair;
+import jakarta.persistence.Table;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -73,9 +74,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.Table;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -304,7 +304,7 @@ public class PSDependencyUtils {
     Table table = null;
     for (Annotation annotation : anns) {
       String name = annotation.annotationType().getCanonicalName();
-      if (name.compareTo("javax.persistence.Table") == 0) {
+      if (name.compareTo("jakarta.persistence.Table") == 0) {
         table = (Table) annotation;
         return table.name();
       }

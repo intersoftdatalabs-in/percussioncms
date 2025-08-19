@@ -18,7 +18,7 @@
 package com.percussion.searchmanagement.service.impl;
 
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 import com.percussion.design.objectstore.PSField;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -61,9 +61,9 @@ import com.percussion.webservices.PSWebserviceUtils;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a collection of validation results for a widget builder definition. */
 @XmlRootElement(name = "WidgetBuilderValidationResults")

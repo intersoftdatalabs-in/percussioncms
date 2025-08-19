@@ -18,7 +18,7 @@ package com.percussion.rx.jsf;
 
 import com.percussion.rx.ui.jsf.beans.PSHelpTopicMapping;
 import com.percussion.services.error.PSNotFoundException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.trinidad.model.RowKeyIndex;
 
 import java.util.Collections;

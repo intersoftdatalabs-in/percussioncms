@@ -39,11 +39,11 @@ import com.percussion.webdav.PSWebdavStatus;
 import com.percussion.webdav.error.IPSWebdavErrors;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.PSWebdavConfig;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Element;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

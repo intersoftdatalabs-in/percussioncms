@@ -16,7 +16,7 @@
  */
 package com.percussion.services.notification.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.server.PSRequest;
 import com.percussion.services.jms.IPSQueueSender;

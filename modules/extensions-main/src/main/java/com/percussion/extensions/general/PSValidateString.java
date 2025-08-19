@@ -19,7 +19,7 @@ package com.percussion.extensions.general;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Checks if a string is empty, null, or whitespace. */
 public class PSValidateString extends PSSimpleJavaUdfExtension {

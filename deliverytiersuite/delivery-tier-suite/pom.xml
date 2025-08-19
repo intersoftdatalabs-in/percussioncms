@@ -29,19 +29,7 @@
         <build.profile.id>dev</build.profile.id>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <!-- Overrides Parent-->
-        <hibernate.version>6.6.24.Final</hibernate.version>
-        <hikaricp.version>7.0.1</hikaricp.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jakarta.activation.version>2.1.3</jakarta.activation.version>
-        <jakarta.annotation.api.version>2.1.1</jakarta.annotation.api.version>
-        <jakarta.inject.version>2.0.1</jakarta.inject.version>
-        <jakarta.jackson.version>2.19.2</jakarta.jackson.version>
-        <jakarta.json.api.version>2.1.3</jakarta.json.api.version>
-        <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
-        <jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
-        <jakarta.transaction.api.version>2.0.1</jakarta.transaction.api.version>
-        <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
-        <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
         <javadocs.skip>false</javadocs.skip>
         <jdt.version>3.18.0</jdt.version>
         <jersey.version>3.1.11</jersey.version>
@@ -396,28 +384,12 @@
                 <version>${project.parent.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-lang3</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.velocity</groupId>
-                        <artifactId>velocity</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>commons-betwixt</groupId>
@@ -439,10 +411,6 @@
                     <exclusion>
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -472,8 +440,8 @@
                         <artifactId>spring-test</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -523,9 +491,9 @@
             </dependency>
             <!-- Common dependencies used across modules -->
             <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons.lang.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

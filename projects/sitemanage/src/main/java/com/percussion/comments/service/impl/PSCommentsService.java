@@ -16,8 +16,8 @@
  */
 package com.percussion.comments.service.impl;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.comments.data.PSComment;
 import com.percussion.comments.data.PSCommentIds;
@@ -60,7 +60,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

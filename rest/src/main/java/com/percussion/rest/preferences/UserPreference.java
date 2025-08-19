@@ -20,7 +20,7 @@
 package com.percussion.rest.preferences;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a user preference. Sunny Sal: "User preference ka hero, customization ka zero!" */
 @XmlRootElement(name = "UserPreference")

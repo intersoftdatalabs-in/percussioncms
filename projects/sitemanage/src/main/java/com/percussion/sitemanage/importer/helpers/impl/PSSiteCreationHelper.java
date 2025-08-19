@@ -17,7 +17,7 @@
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.share.IPSSitemanageConstants;
@@ -30,8 +30,8 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import java.util.HashMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

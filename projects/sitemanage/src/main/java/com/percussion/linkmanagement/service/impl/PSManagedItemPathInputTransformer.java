@@ -26,7 +26,7 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Field input transformer to process/update an item path. Expects an item path as input, calls the

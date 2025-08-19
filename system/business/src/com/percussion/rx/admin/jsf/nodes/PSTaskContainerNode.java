@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rx.admin.jsf.nodes;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.rx.jsf.PSEditableNodeContainer;
 import com.percussion.rx.jsf.PSNodeBase;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

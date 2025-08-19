@@ -18,8 +18,8 @@
 package com.percussion.theme.service.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfNull;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSTemplateService;

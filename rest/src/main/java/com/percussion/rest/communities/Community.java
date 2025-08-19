@@ -23,7 +23,7 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Community in Percussion CMS. */
 @XmlRootElement

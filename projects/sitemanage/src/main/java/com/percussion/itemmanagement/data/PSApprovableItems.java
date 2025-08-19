@@ -20,7 +20,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Wrapper class to hold the list of {@link PSApprovableItem}s and their processing status. */
 @XmlRootElement(name = "ApprovableItems")

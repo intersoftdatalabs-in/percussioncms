@@ -18,7 +18,7 @@
 package com.percussion.error;
 
 import java.util.Locale;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The PSException class is the base class for all internal exceptions. It contains the basic

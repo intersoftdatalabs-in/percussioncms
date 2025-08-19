@@ -21,7 +21,7 @@ package com.percussion.assetmanagement.data;
 import com.percussion.share.data.IPSContentItem;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a CMS Asset with arbitrary fields. */
 @XmlRootElement(name = "Asset")

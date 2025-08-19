@@ -17,7 +17,7 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.*;
 
 import com.percussion.pagemanagement.service.IPSResourceDefinitionService;
 import com.percussion.pagemanagement.service.IPSResourceDefinitionService.PSResourceDefinitionInvalidIdException;

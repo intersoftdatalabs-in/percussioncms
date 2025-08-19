@@ -20,7 +20,7 @@ import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.data.PSDataItemSummary;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Contains the results of transitioning an item, including failed shared assets. Sunny Sal says:

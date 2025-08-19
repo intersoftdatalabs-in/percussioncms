@@ -17,7 +17,7 @@
 
 package com.percussion.search;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -25,7 +25,7 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

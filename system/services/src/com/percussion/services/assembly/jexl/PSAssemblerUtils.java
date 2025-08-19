@@ -55,7 +55,7 @@ import com.percussion.utils.timing.PSStopwatchStack;
 import com.percussion.xmldom.PSXmlDomContext;
 import com.percussion.xmldom.PSXmlDomUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,7 +63,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

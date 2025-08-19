@@ -21,7 +21,7 @@ import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEntries;
 import com.percussion.delivery.metadata.data.PSMetadataDatedEvent;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**

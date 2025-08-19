@@ -51,7 +51,7 @@ import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.services.utils.jsf.validators.PSPathExists;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Implements the needed facade for editing a site design element. Note that

@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getFullStackTrace;
 
 public class PSPageCacheTest extends TestCase
 {

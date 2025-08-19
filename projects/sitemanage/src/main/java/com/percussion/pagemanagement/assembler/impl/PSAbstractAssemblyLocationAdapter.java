@@ -17,7 +17,7 @@
 package com.percussion.pagemanagement.assembler.impl;
 
 import static com.percussion.share.rx.PSLegacyExtensionUtils.addParameters;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.server.PSItemDefManager;

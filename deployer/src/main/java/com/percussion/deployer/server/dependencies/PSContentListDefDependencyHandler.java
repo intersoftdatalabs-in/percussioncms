@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections.IterableMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Class to handle packaging and deploying a ContentList definition.

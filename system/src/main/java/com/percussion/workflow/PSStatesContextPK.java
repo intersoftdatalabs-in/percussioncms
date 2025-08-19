@@ -16,10 +16,10 @@
  */
 package com.percussion.workflow;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
  * Primary key for state lookup

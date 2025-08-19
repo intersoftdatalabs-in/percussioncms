@@ -17,7 +17,7 @@
 package com.percussion.content.ui.aa.actions;
 
 import java.lang.reflect.InvocationTargetException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * An exception that is used when a error or exception occurs when executing an AA client action. If

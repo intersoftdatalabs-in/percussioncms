@@ -23,8 +23,8 @@ import com.percussion.services.filestorage.data.PSBinaryMetaEntry;
 import com.percussion.services.filestorage.data.PSBinaryMetaKey;
 import com.percussion.services.filestorage.data.PSHashedColumn;
 import com.percussion.utils.jdbc.PSConnectionHelper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Criteria;
@@ -42,11 +42,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.NamingException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -156,7 +156,7 @@ public class PSHashedFileDAO implements IPSHashedFileDAO
             Root<PSBinary> critRoot = criteria.from(PSBinary.class);
             criteria.where(builder.equal(critRoot.get("hash"), hash));
             ret =  entityManager.createQuery(criteria).getSingleResult();
-         }catch(javax.persistence.NoResultException ne){
+         }catch(jakarta.persistence.NoResultException ne){
             return ret;
          }
 

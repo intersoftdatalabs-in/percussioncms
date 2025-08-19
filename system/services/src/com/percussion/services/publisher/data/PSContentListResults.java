@@ -18,7 +18,7 @@
 package com.percussion.services.publisher.data;
 
 
-import static org.apache.commons.lang.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import java.util.Iterator;
 

@@ -16,7 +16,7 @@
  */
 package com.percussion.membership.data;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Object to change the state about of an account.

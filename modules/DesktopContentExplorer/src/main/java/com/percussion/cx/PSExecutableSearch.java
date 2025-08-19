@@ -39,7 +39,7 @@ import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -24,8 +24,8 @@ import static com.percussion.utils.service.impl.PSSiteConfigUtils.copySecureSite
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeSiteConfigurationAndTouchedFile;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.removeTouchedFile;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.updateSiteConfiguration;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -127,11 +127,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

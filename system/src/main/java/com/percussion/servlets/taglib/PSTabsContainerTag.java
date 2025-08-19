@@ -18,11 +18,11 @@ package com.percussion.servlets.taglib;
 
 import com.percussion.rx.ui.jsf.beans.PSTopNavigation;
 import com.percussion.rx.ui.jsf.beans.PSTopNavigation.Tab;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import java.io.IOException;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 
 /**
  * Output a set of tabs for the banner. This tag progressively evaluates through the tabs in the

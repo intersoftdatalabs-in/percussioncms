@@ -24,8 +24,8 @@ import static com.percussion.itemmanagement.service.impl.PSWorkflowHelper.WF_STA
 import static com.percussion.itemmanagement.service.impl.PSWorkflowHelper.WF_TAKE_DOWN_TRANSITION;
 import static com.percussion.pagemanagement.service.IPSPageService.PAGE_CONTENT_TYPE;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.activity.data.PSActivityNode;
 import com.percussion.activity.data.PSContentActivity;
@@ -64,8 +64,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

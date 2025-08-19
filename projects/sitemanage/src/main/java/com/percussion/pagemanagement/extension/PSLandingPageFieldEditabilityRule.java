@@ -26,7 +26,7 @@ import com.percussion.fastforward.managednav.PSManagedNavServiceLocator;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Rule to check if the page is a landing page; if so, the field becomes read-only.

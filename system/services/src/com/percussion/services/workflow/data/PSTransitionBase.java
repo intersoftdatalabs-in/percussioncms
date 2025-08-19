@@ -16,7 +16,7 @@
  */
 package com.percussion.services.workflow.data;
 
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -25,7 +25,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 
 /**

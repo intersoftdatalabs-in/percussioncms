@@ -22,8 +22,8 @@ import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSGenerateSiteMapOptions;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Contains the modifiable properties for a particular site.

@@ -105,9 +105,9 @@ import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.timing.PSTimer;
 import com.percussion.utils.xml.PSInvalidXmlException;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Criteria;
@@ -131,8 +131,8 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -156,9 +156,9 @@ import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.clearIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.createIdSet;
 import static com.percussion.services.utils.orm.PSDataCollectionHelper.executeQuery;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**`
  * Implementation of content list service, see interface for contracts.

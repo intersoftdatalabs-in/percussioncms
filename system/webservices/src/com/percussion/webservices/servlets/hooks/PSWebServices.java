@@ -52,8 +52,8 @@ import org.xml.sax.SAXException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
