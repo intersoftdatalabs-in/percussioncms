@@ -298,7 +298,7 @@ public class RxJdbcTableFactory {
           }
 
           eList = xmlTableDoc.getNextElement(false);
-          Vector locRxColumns = new Vector();
+          Vector<RxColumns> locRxColumns = new Vector<>();
 
           do {
             if (eList.getTagName().equalsIgnoreCase("row")) continue;
@@ -327,7 +327,7 @@ public class RxJdbcTableFactory {
                 locColumns.setAllowNull(false);
               } else locColumns.setAllowNull(true);
 
-              if (locRxColumns == null) locRxColumns = new Vector();
+              if (locRxColumns == null) locRxColumns = new Vector<>();
 
               index++;
               locColumns.setColNo(index);
@@ -389,7 +389,7 @@ public class RxJdbcTableFactory {
       String sqlStmt = "SELECT * FROM ";
       Connection con = dbmsDef.getConnection();
       stmt = PSSQLStatement.getStatement(con);
-      Vector colNames = new Vector();
+      Vector<String> colNames = new Vector<>();
       for (Element eDef = walkerTableDef.getNextElement("table", getChild);
           eDef != null;
           eDef = walkerTableDef.getNextElement("table", getSibling)) {
@@ -1096,10 +1096,10 @@ public class RxJdbcTableFactory {
 
     private String processTableData(
         DbmsDefinition dbmsDef, RxTables rxTable, Document docTableData, Element eList) {
-      Vector locRxTables = new Vector();
-      Vector vtSqlStmt = new Vector();
-      Vector vtSqlList = new Vector();
-      Vector vtColumns = new Vector();
+      Vector<RxTables> locRxTables = new Vector<>();
+      Vector<Object> vtSqlStmt = new Vector<>();
+      Vector<Object> vtSqlList = new Vector<>();
+      Vector<Object> vtColumns = new Vector<>();
 
       WfSqlCreate locColumns = new WfSqlCreate();
       String sTableName = new String();
@@ -1173,7 +1173,7 @@ public class RxJdbcTableFactory {
                 eList = xmlDataDoc.getNextElement(false);
               }
               do {
-                if (vtColumns == null) vtColumns = new Vector();
+                if (vtColumns == null) vtColumns = new Vector<>();
                 while (eList != null
                     && eList.getTagName().equalsIgnoreCase("column") == true
                     && (eList.getTagName().equalsIgnoreCase("row") == false
@@ -1204,7 +1204,7 @@ public class RxJdbcTableFactory {
             if (eList != null
                 && (eList.getTagName().equalsIgnoreCase("column")) == true
                 && sAction.equalsIgnoreCase("delete") == false) {
-              if (vtColumns == null) vtColumns = new Vector();
+              if (vtColumns == null) vtColumns = new Vector<>();
               while (eList != null
                   && (eList.getTagName().equalsIgnoreCase("table") == false)
                   && (eList.getTagName().equalsIgnoreCase("row") == false)
@@ -1229,7 +1229,7 @@ public class RxJdbcTableFactory {
                     || sAction.charAt(0) == 'r'
                     || sAction.charAt(0) == 'R') {
                   sStatus = processSqlStmt(locTable, vtColumns, sAction, dbmsDef);
-                  vtColumns = new Vector();
+                  vtColumns = new Vector<>();
                   if (sStatus != null && sStatus.length() > 0) {
                     sStatus =
                         "Error Processing SQL Statement on table " + locTable.getTableName() + "\n";
@@ -1277,7 +1277,7 @@ public class RxJdbcTableFactory {
     } // parseTableData()
 
     private String processSqlStmt(
-        RxTables wfLocalTable, Vector vtColumns, String sAction, DbmsDefinition dbmsDef) {
+        RxTables wfLocalTable, Vector<Object> vtColumns, String sAction, DbmsDefinition dbmsDef) {
       System.out.println("processSqlStmt");
       String sSqlStmt = new String();
       WfSqlCreate newColumns = new WfSqlCreate();
@@ -1884,9 +1884,9 @@ public class RxJdbcTableFactory {
       return pStmt;
     } // SetSqlStemData
 
-    private Vector reOrderColumns(RxTables wfLocalTable, Vector vtColumns) {
-      Vector vtOrderedColumns = new Vector(); // Return Param
-      Vector vtTabColumns = new Vector();
+    private Vector<WfSqlCreate> reOrderColumns(RxTables wfLocalTable, Vector<Object> vtColumns) {
+      Vector<WfSqlCreate> vtOrderedColumns = new Vector<>(); // Return Param
+      Vector<RxColumns> vtTabColumns = new Vector<>();
 
       vtTabColumns = wfLocalTable.vColumns;
 
@@ -2367,7 +2367,7 @@ public class RxJdbcTableFactory {
     String createPrimaryKey(RxTables rxTable, Statement stStmt) {
       String sStmt = new String();
 
-      Vector vKeys = new Vector();
+      Vector<String> vKeys = new Vector<>();
       for (int iCol = 0; iCol < rxTable.vColumns.size(); ++iCol) {
         RxColumns col = (RxColumns) rxTable.vColumns.get(iCol);
         if (col.getKey()) vKeys.add(col.getColName());
@@ -2407,7 +2407,7 @@ public class RxJdbcTableFactory {
     // Checking for table existance
     private RxTables checkUserTable(
         DbmsDefinition dbmsDef, String qualifiedTableName, String tableName) {
-      Vector vtColumnList = new Vector(); // To make sure we don't delete by mistake
+      Vector<RxColumns> vtColumnList = new Vector<>(); // To make sure we don't delete by mistake
       RxColumns orgColumns = new RxColumns();
       RxTables orgTable = new RxTables();
       String sqlStmt = new String();
@@ -2417,7 +2417,7 @@ public class RxJdbcTableFactory {
       ResultSet rsColumns = null;
       ResultSet rsKeys = null;
       int rowCount = 0;
-      Vector vKeys = new Vector();
+      Vector<String> vKeys = new Vector<>();
 
       orgTable.setDataBase(cDB.getDataBase());
       orgTable.setSchema(cDB.getSchema());
@@ -2549,7 +2549,7 @@ public class RxJdbcTableFactory {
     // Checking for table existance
     private boolean tableExists(DbmsDefinition dbmsDef, String tableName) {
       boolean bRet = false;
-      Vector vtColumnList = new Vector(); // To make sure we don't delete by mistake
+      Vector<RxColumns> vtColumnList = new Vector<>(); // To make sure we don't delete by mistake
       RxColumns orgColumns = new RxColumns();
       RxTables orgTable = new RxTables();
       String sqlStmt = new String();
@@ -2651,7 +2651,7 @@ public class RxJdbcTableFactory {
       }
 
       String sColumn = new String();
-      Vector vtColumns = new Vector();
+      Vector<RxColumns> vtColumns = new Vector<>();
       vtColumns = orgTable.vColumns;
       for (int i = 0; i < orgTable.vColumns.size(); i++) {
         RxColumns orgColumns = new RxColumns();
@@ -2680,9 +2680,9 @@ public class RxJdbcTableFactory {
     private sqlTransactLog setColumnData(RxTables orgTable, ResultSet rsResults) {
       Vector vtOldTables = cDB.wfOldTables;
       Vector vtOrgColumns = orgTable.vColumns;
-      Vector vtStoredColumns = new Vector();
+      Vector<RxColumns> vtStoredColumns = new Vector<>();
       RxTables oldTables = new RxTables();
-      Vector vtValues = new Vector();
+      Vector<Object> vtValues = new Vector<>();
       sqlTransactLog sqlLog = new sqlTransactLog();
       int rowCount = 0;
 
@@ -2727,7 +2727,7 @@ public class RxJdbcTableFactory {
       Element table = null;
       Element row = null;
       Document xmlDoc = null;
-      Vector vtColumns = new Vector();
+      Vector<RxColumns> vtColumns = new Vector<>();
       PSXmlTreeWalker walkerTableDef = null;
 
       xmlDoc = dataDoc;
@@ -2828,7 +2828,7 @@ public class RxJdbcTableFactory {
       RxTables oldTable = new RxTables();
       Connection cConn = null;
       String sPrefix = new String();
-      Vector vtColumns = new Vector();
+      Vector<RxColumns> vtColumns = new Vector<>();
 
       Vector vtOldTables = cDB.wfOldTables;
 
@@ -3414,8 +3414,8 @@ public class RxJdbcTableFactory {
              *
              * stmt.setObject(colNo, new java.math.BigDecimal(value), dt);
              */
-            stmt.setDouble(colNo, Double.valueOf(value).doubleValue());
-            System.out.println("Inserting " + Double.valueOf(value).doubleValue());
+            stmt.setDouble(colNo, Double.parseDouble(value));
+            System.out.println("Inserting " + Double.parseDouble(value));
             break;
 
           case Types.FLOAT:
@@ -3535,8 +3535,8 @@ public class RxJdbcTableFactory {
     private String sServer = new String();
     private String sDataBase = new String();
     private String sSchema = new String();
-    public Vector RxTables = new Vector();
-    public Vector wfOldTables = new Vector();
+    public Vector<RxTables> RxTables = new Vector<>();
+    public Vector<RxTables> wfOldTables = new Vector<>();
     public Document dataDoc = null;
     public Document dtdDoc = null;
     public Document oldDataDoc = null;
