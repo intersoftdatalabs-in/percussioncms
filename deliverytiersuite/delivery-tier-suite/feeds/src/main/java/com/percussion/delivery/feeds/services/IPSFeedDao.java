@@ -18,7 +18,6 @@ package com.percussion.delivery.feeds.services;
 
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The data access layer for feeds, abstracted out so that we can create different implmentations
@@ -49,7 +48,7 @@ public interface IPSFeedDao {
    * @param site the feed site, cannot be <code>null</code> or empty.
    * @return the retrieved descriptor or </code>empty Optional</code> if not found.
    */
-  public Optional<IPSFeedDescriptor> find(String name, String site);
+  public IPSFeedDescriptor find(String name, String site);
 
   /**
    * Find all descriptors by site.
@@ -80,5 +79,5 @@ public interface IPSFeedDao {
   /**
    * @return the connection info, may be <code>empty Optional</code>.
    */
-  public Optional<IPSConnectionInfo> getConnectionInfo();
+  public IPSConnectionInfo getConnectionInfo();
 }

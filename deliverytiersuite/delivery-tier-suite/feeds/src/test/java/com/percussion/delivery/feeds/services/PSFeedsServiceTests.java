@@ -17,46 +17,45 @@
 
 package com.percussion.delivery.feeds.services;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.delivery.feeds.data.PSFeedDTO;
 import com.percussion.delivery.utils.security.PSHttpClient;
-import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import javax.ws.rs.WebApplicationException;
+import java.nio.file.Path;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSFeedsServiceTests {
 
   private static final Logger log = LogManager.getLogger(PSFeedsServiceTests.class);
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir public Path temporaryFolder;
   private String rxdeploydir;
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
 
     rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+    System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
   }
 
-  @After
+  @AfterEach
   public void teardown() {
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
   }
@@ -78,13 +77,13 @@ public class PSFeedsServiceTests {
 
     String url =
         PSEncryptor.encryptString(
-            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR),
             "https://www.nasa.gov/rss/dyn/breaking_news.rss");
 
     feedDTO.setFeedsUrl(url);
     String xml = svc.readExternalFeed(feedDTO);
     log.info(xml);
-    assertTrue(xml != null);
+    assertNotNull(xml);
     assertTrue(xml.toLowerCase().contains("nasa"));
   }
 
@@ -97,19 +96,15 @@ public class PSFeedsServiceTests {
 
     String url =
         PSEncryptor.encryptString(
-            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR),
             "file://www.nasa.gov/rss/dyn/breaking_news.txt");
     feedDTO.setFeedsUrl(url);
 
     boolean passed = false;
-    try {
-      String xml = svc.readExternalFeed(feedDTO);
-      assertTrue(StringUtils.isEmpty(xml));
-      passed = true;
-    } catch (WebApplicationException x) {
-      log.error(PSExceptionUtils.getMessageForLog(x));
-      log.debug(x);
-    }
+
+    String xml = svc.readExternalFeed(feedDTO);
+    assertTrue(StringUtils.isEmpty(xml));
+    passed = true;
 
     assertTrue(passed);
   }
@@ -124,19 +119,15 @@ public class PSFeedsServiceTests {
     // Feed should come back empty as the url is not valid
     String url =
         PSEncryptor.encryptString(
-            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+            temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR),
             "data://www.nasa.gov/rss/dyn/breaking_news.jar");
     feedDTO.setFeedsUrl(url);
 
     boolean passed = false;
-    try {
-      String xml = svc.readExternalFeed(feedDTO);
-      assertTrue("Feed should be empty.", StringUtils.isEmpty(xml));
-      passed = true;
-    } catch (WebApplicationException x) {
-      log.error(PSExceptionUtils.getMessageForLog(x));
-      log.debug(x);
-    }
+
+    String xml = svc.readExternalFeed(feedDTO);
+    assertTrue(StringUtils.isEmpty(xml), "Feed should be empty.");
+    passed = true;
 
     assertTrue(passed);
   }

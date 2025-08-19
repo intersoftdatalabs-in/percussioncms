@@ -25,7 +25,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -58,7 +57,7 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
    */
   @Override
   @Transactional
-  public Optional<IPSFeedDescriptor> find(String name, String site) {
+  public IPSFeedDescriptor find(String name, String site) {
 
     Session session = getSession();
     CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
@@ -74,7 +73,7 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
 
     List<IPSFeedDescriptor> results = session.createQuery(criteriaQuery).getResultList();
 
-    return results.stream().findFirst();
+    return results.stream().findFirst().get();
   }
 
   private Session getSession() {
@@ -108,7 +107,7 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
    */
   @Override
   @Transactional
-  public Optional<IPSConnectionInfo> getConnectionInfo() {
+  public IPSConnectionInfo getConnectionInfo() {
 
     Session session = getSession();
 
@@ -118,8 +117,8 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
     Root<PSConnectionInfo> root = criteriaQuery.from(PSConnectionInfo.class);
     criteriaQuery.select(root);
     List<PSConnectionInfo> results = session.createQuery(criteriaQuery).getResultList();
-    Optional<PSConnectionInfo> result = results.stream().findFirst();
-    return result.map(info -> (IPSConnectionInfo) info);
+    PSConnectionInfo result = results.stream().findFirst().get();
+    return result;
   }
 
   /*
