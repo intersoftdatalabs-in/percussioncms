@@ -193,7 +193,7 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
    * @return modified row data, never <code>null</code>
    */
   private PSJdbcRowData processRow(PSJdbcRowData srcRow) {
-    Iterator srcColumns = m_srcTableSchema.getColumns();
+    Iterator<?> srcColumns = m_srcTableSchema.getColumns();
     while (srcColumns.hasNext()) {
       // first check to see if it's in the target
       PSJdbcColumnDef sCol = (PSJdbcColumnDef) srcColumns.next();
@@ -202,7 +202,7 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
       if (!inTarget) srcRow.removeColumn(sCol.getName());
     }
 
-    Iterator targetColumns = m_destTableSchema.getColumns();
+    Iterator<?> targetColumns = m_destTableSchema.getColumns();
     while (targetColumns.hasNext()) {
       // first check to see if it's in the source
       PSJdbcColumnDef tCol = (PSJdbcColumnDef) targetColumns.next();
