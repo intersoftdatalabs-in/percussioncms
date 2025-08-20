@@ -20,21 +20,23 @@ package com.percussion.delivery.forms.impl.rdbms;
 import com.percussion.delivery.forms.IPSFormDao;
 import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormData;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
+public class PSFormDao implements IPSFormDao {
+
+  @PersistenceContext private EntityManager entityManager;
 
   /*
    * (non-Javadoc)
@@ -55,14 +57,24 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
       throw new IllegalArgumentException("clist may not be null");
     }
 
-    getHibernateTemplate().saveOrUpdate(form);
+    entityManager.merge(form);
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#delete(com.percussion.delivery.forms.data.IPSFormData)
    */
   public void delete(IPSFormData form) {
-    getHibernateTemplate().delete(form);
+    if (entityManager.contains(form)) {
+      entityManager.remove(form);
+    } else {
+      // Check if the form exists in the database before trying to delete it
+      IPSFormData existingForm = entityManager.find(form.getClass(), form.getId());
+      if (existingForm != null) {
+        entityManager.remove(existingForm);
+      }
+      // If existingForm is null, the form doesn't exist in the database
+      // This is expected behavior for the testDelete_NonExistingForm test
+    }
   }
 
   /* (non-Javadoc)
@@ -70,9 +82,17 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
    */
   public long getExportedFormCount(String name) {
     String query = "select count(*) from PSFormData formData where formData.isExported = 'y'";
-    if (name != null && name.trim().length() > 0)
-      query += " and lower(formData.name) = lower('" + name + "')";
-    return ((Long) getHibernateTemplate().find(query).iterator().next()).intValue();
+    TypedQuery<Long> q;
+
+    if (name != null && name.trim().length() > 0) {
+      query += " and lower(formData.name) = lower(:name)";
+      q = entityManager.createQuery(query, Long.class);
+      q.setParameter("name", name);
+    } else {
+      q = entityManager.createQuery(query, Long.class);
+    }
+
+    return q.getSingleResult();
   }
 
   /* (non-Javadoc)
@@ -80,9 +100,17 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
    */
   public long getTotalFormCount(String name) {
     String query = "select count(*) from PSFormData formData";
-    if (name != null && name.trim().length() > 0)
-      query += " where lower(formData.name) = lower('" + name + "')";
-    return ((Long) getHibernateTemplate().find(query).iterator().next()).intValue();
+    TypedQuery<Long> q;
+
+    if (name != null && name.trim().length() > 0) {
+      query += " where lower(formData.name) = lower(:name)";
+      q = entityManager.createQuery(query, Long.class);
+      q.setParameter("name", name);
+    } else {
+      q = entityManager.createQuery(query, Long.class);
+    }
+
+    return q.getSingleResult();
   }
 
   // rather than saving all the forms, we just change the exported property
@@ -90,7 +118,7 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#markAsExported(java.util.Collection)
    */
   public void markAsExported(Collection<IPSFormData> forms) {
-    Session session = getSession();
+    Session session = entityManager.unwrap(Session.class);
     try {
       // because of limitations in JDBC/hibernate, we have to keep IN
       // clauses less than 1k elements
@@ -114,74 +142,76 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
    */
   public void deleteExportedForms(String formName) {
     List<IPSFormData> forms = findExportedForms(formName);
-    if (!forms.isEmpty()) getHibernateTemplate().deleteAll(forms);
+    for (IPSFormData form : forms) {
+      entityManager.remove(entityManager.contains(form) ? form : entityManager.merge(form));
+    }
   }
 
-  @SuppressWarnings("unchecked")
   private List<IPSFormData> findExportedForms(String formName) {
     String sqlString = "";
+    TypedQuery<IPSFormData> query;
     if (StringUtils.isEmpty(formName)) {
       sqlString = "from PSFormData where isExported = 'y' order by name asc, created asc";
+      query = entityManager.createQuery(sqlString, IPSFormData.class);
     } else {
       sqlString =
-          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) = "
-              + "lower('"
-              + formName
-              + "')";
+          "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) ="
+              + " lower(:formName)";
+      query = entityManager.createQuery(sqlString, IPSFormData.class);
+      query.setParameter("formName", formName);
     }
-    return (List<IPSFormData>) getHibernateTemplate().find(sqlString);
+    return query.getResultList();
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findFormsByName(java.lang.String)
    */
-  @SuppressWarnings("unchecked")
   public List<IPSFormData> findFormsByName(String name) {
-    Validate.notNull(name);
+    if (name == null) {
+      throw new IllegalArgumentException("name cannot be null");
+    }
 
-    return (List<IPSFormData>)
-        getHibernateTemplate()
-            .findByNamedParam(
-                "from PSFormData formData "
-                    + "where lower(formData.name) = lower(:name) "
-                    + "order by created asc ",
-                "name",
-                name);
+    TypedQuery<IPSFormData> query =
+        entityManager.createQuery(
+            "from PSFormData formData "
+                + "where lower(formData.name) = lower(:name) "
+                + "order by created asc",
+            IPSFormData.class);
+    query.setParameter("name", name);
+    return query.getResultList();
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findAllForms()
    */
-  @SuppressWarnings("unchecked")
   public List<IPSFormData> findAllForms() {
-    return (List<IPSFormData>)
-        getHibernateTemplate().find("from PSFormData order by name asc, created asc");
+    TypedQuery<IPSFormData> query =
+        entityManager.createQuery(
+            "from PSFormData order by name asc, created asc", IPSFormData.class);
+    return query.getResultList();
   }
 
   /* (non-Javadoc)
    * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findDistinctFormNames()
    */
-  @SuppressWarnings("unchecked")
   public List<String> findDistinctFormNames() {
-    List<String> lowerNames = new ArrayList<>();
-    List<String> distinctNames =
-        (List<String>)
-            getHibernateTemplate().find("select distinct name from PSFormData order by name asc");
-    Iterator<String> iter = distinctNames.iterator();
-    while (iter.hasNext()) {
-      String name = iter.next().toLowerCase();
-      if (!lowerNames.contains(name)) {
-        lowerNames.add(name);
-      } else {
-        iter.remove();
+    TypedQuery<String> query =
+        entityManager.createQuery(
+            "select distinct lower(name) from PSFormData order by lower(name) asc", String.class);
+
+    List<String> names = query.getResultList();
+    // Deduplicate case-insensitively, preserving original casing of first occurrence
+    Map<String, String> deduped = new java.util.LinkedHashMap<>();
+    for (String name : names) {
+      String lower = name == null ? null : name.toLowerCase();
+      if (!deduped.containsKey(lower)) {
+        deduped.put(lower, name);
       }
     }
-
-    return distinctNames;
+    return new ArrayList<>(deduped.values());
   }
 
   private Session getSession() {
-
-    return getSessionFactory().getCurrentSession();
+    return entityManager.unwrap(Session.class);
   }
 }

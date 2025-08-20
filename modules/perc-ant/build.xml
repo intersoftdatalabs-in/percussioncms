@@ -11,7 +11,7 @@
      <pathelement location="${basedir}/lib/p4.jar"/>
      <pathelement location="${basedir}/lib/ant-apache-oro.jar"/>
      <pathelement location="${sandbox.root}/Tools/Commons/commons-io-2.0.1.jar"/>
-     <pathelement location="${sandbox.root}/Tools/Commons/commons-lang-2.4.jar"/>
+     <pathelement location="${sandbox.root}/Tools/Commons/commons-lang3-3.18.0.jar"/>
      <pathelement location="${sandbox.root}/Tools/Jericho-html/jericho-html-1.2.jar"/>
      <pathelement location="${sandbox.root}/Tools/junit/junit-4.11.jar"/>
      <pathelement location="${sandbox.root}/Tools/log4j/log4j-1.2.14.jar"/>
