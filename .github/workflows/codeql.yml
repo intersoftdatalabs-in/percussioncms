@@ -40,7 +40,7 @@ jobs:
       contents: read
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         - language: java-kotlin
           build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
