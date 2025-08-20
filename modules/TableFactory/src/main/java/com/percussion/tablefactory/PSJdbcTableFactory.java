@@ -562,7 +562,7 @@ public class PSJdbcTableFactory {
   public static void processTables(
       Connection conn,
       PSJdbcDbmsDef dbmsDef,
-      Map tableMetaMap,
+      Map<String, PSJdbcTableMetaData> tableMetaMap,
       Document dataTypeMap,
       Document doc,
       PrintStream logOut,
@@ -686,7 +686,7 @@ public class PSJdbcTableFactory {
   public static synchronized void processTables(
       Connection conn,
       PSJdbcDbmsDef dbmsDef,
-      Map tableMetaMap,
+      Map<String, PSJdbcTableMetaData> tableMetaMap,
       Document dataTypeMap,
       Document tableDef,
       Document tableData,

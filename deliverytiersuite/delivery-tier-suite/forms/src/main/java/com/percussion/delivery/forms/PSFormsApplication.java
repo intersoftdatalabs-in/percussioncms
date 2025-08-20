@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.forms;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.forms.impl.PSFormRestService;
@@ -44,6 +44,6 @@ public class PSFormsApplication extends ResourceConfig {
     register(RolesAllowedDynamicFeature.class);
     register(PSJsonMappingErrorResponse.class);
     register(PSUncaughtError.class);
-    register(JacksonXmlBindJsonProvider.class);
+    register(JacksonJsonProvider.class);
   }
 }

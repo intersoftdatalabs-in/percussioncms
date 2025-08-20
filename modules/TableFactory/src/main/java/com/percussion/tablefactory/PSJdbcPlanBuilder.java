@@ -521,7 +521,7 @@ public class PSJdbcPlanBuilder {
       if (rowAction == PSJdbcRowData.ACTION_INSERT) {
         if (isChildTable) rowAction = PSJdbcRowData.ACTION_REPLACE;
         else {
-          Iterator parentTables = tableSchema.getParentTables();
+          Iterator<?> parentTables = tableSchema.getParentTables();
           if (parentTables.hasNext()) rowAction = PSJdbcRowData.ACTION_REPLACE;
         }
       }
@@ -656,7 +656,7 @@ public class PSJdbcPlanBuilder {
   private static void processChildTables(
       Connection conn,
       PSJdbcDbmsDef dbmsDef,
-      Map tableMetaMap,
+      Map<String, PSJdbcTableMetaData> tableMetaMap,
       PSJdbcTableSchema tableSchema,
       PSJdbcTableData tableData,
       PSJdbcExecutionPlan insertPlan,
@@ -673,7 +673,7 @@ public class PSJdbcPlanBuilder {
       throw new PSJdbcTableFactoryException(
           IPSTableFactoryErrors.LOAD_DEFAULT_DATATYPE_MAP, e.toString(), e);
     }
-    Iterator childTables = row.getChildTables();
+    Iterator<?> childTables = row.getChildTables();
     while (childTables.hasNext()) {
       PSJdbcTableData childTableData = (PSJdbcTableData) childTables.next();
       PSJdbcTableSchema childTableSchema =
@@ -698,7 +698,7 @@ public class PSJdbcPlanBuilder {
     // primary key can be composed of mulitple columns which forces us to
     // use this complicated mechanism instead of some simple SQL Statements
     if (!isChildTable) {
-      Iterator childTblIt = tableSchema.getChildTables();
+      Iterator<?> childTblIt = tableSchema.getChildTables();
       while (childTblIt.hasNext()) {
         PSJdbcTableSchema childTableSchema =
             PSJdbcTableFactory.getTableSchemaCollection()
@@ -738,7 +738,7 @@ public class PSJdbcPlanBuilder {
         PSJdbcFilterContainer selFilter = new PSJdbcFilterContainer();
         List<PSJdbcForeignKey> fkeys = childTableSchema.getForeignKeys();
         for (PSJdbcForeignKey fkey : fkeys) {
-          Iterator fkeyColIt = fkey.getColumns(tableSchema.getName());
+          Iterator<?> fkeyColIt = fkey.getColumns(tableSchema.getName());
           while (fkeyColIt.hasNext()) {
             String[] col = (String[]) fkeyColIt.next();
             String childTableColName = col[0];
@@ -758,11 +758,11 @@ public class PSJdbcPlanBuilder {
           }
         }
         // get the key columns of the child table
-        List keyCols = childTableSchema.getKeyColumns();
+        List<String> keyCols = childTableSchema.getKeyColumns();
         int keyColsSize = keyCols.size();
         String[] pkColumns = new String[keyColsSize];
         for (int colIndex = 0; colIndex < keyColsSize; colIndex++)
-          pkColumns[colIndex] = (String) keyCols.get(colIndex);
+          pkColumns[colIndex] = keyCols.get(colIndex);
 
         // catalog the child table
         PSJdbcTableData childTblData =
@@ -771,7 +771,7 @@ public class PSJdbcPlanBuilder {
 
         // tabledata in memory for child table
         PSJdbcTableData memChildTblData = null;
-        Iterator memChildTables = row.getChildTables();
+        Iterator<?> memChildTables = row.getChildTables();
         while (memChildTables.hasNext()) {
           PSJdbcTableData tempMemChildTblData = (PSJdbcTableData) memChildTables.next();
           if (childTableSchema.getName().equalsIgnoreCase(tempMemChildTblData.getName())) {
@@ -824,7 +824,7 @@ public class PSJdbcPlanBuilder {
     // get the key columns of the child table
     // if no (update or primary) key columns are defined we cannot compare the
     // child table rows
-    List keyCols = childTableSchema.getKeyColumns();
+    List<String> keyCols = childTableSchema.getKeyColumns();
     if (keyCols.isEmpty()) return false;
 
     // check if we can construct a valid WHERE clause of the SELECT query
@@ -834,8 +834,8 @@ public class PSJdbcPlanBuilder {
     if (fkeys == null || fkeys.isEmpty()) return false;
     boolean bHasValidForeignKey = false;
     for (PSJdbcForeignKey fkey : fkeys) {
-      Iterator fkeyColIt = fkey.getColumns(parentTableSchema.getName());
-      List fkeyCols = new ArrayList<>();
+      Iterator<?> fkeyColIt = fkey.getColumns(parentTableSchema.getName());
+      List<String> fkeyCols = new ArrayList<>();
 
       while (fkeyColIt.hasNext()) {
         String[] col = (String[]) fkeyColIt.next();
@@ -893,7 +893,7 @@ public class PSJdbcPlanBuilder {
       // no rows exist in the database for this table
       return null;
     }
-    Iterator itDb = dbChildTblData.getRows();
+    Iterator<?> itDb = dbChildTblData.getRows();
     if (!itDb.hasNext()) {
       // no rows exist for this table in the database
       return null;
@@ -903,13 +903,13 @@ public class PSJdbcPlanBuilder {
       // no rows specified for this table in the xml file
       return dbChildTblData;
     }
-    Iterator itMem = memChildTblData.getRows();
+    Iterator<?> itMem = memChildTblData.getRows();
     if (!itMem.hasNext()) {
       // no rows exist for this table in the xml file
       return dbChildTblData;
     }
 
-    List rowList = new ArrayList();
+    List<PSJdbcRowData> rowList = new ArrayList<>();
     while (itDb.hasNext()) {
       PSJdbcRowData dbRowData = (PSJdbcRowData) itDb.next();
       boolean addRowData = true;
@@ -954,8 +954,8 @@ public class PSJdbcPlanBuilder {
 
     if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
-    List pkColList = tableSchema.getKeyColumns();
-    Iterator pkColNames = pkColList.iterator();
+    List<String> pkColList = tableSchema.getKeyColumns();
+    Iterator<String> pkColNames = pkColList.iterator();
     if (!pkColNames.hasNext())
       throw new IllegalArgumentException(
           "Invalid primary or update key for table : " + tableSchema.getName());
@@ -964,7 +964,7 @@ public class PSJdbcPlanBuilder {
     PSJdbcColumnData colSecond = null;
 
     while (pkColNames.hasNext()) {
-      String colName = (String) pkColNames.next();
+      String colName = pkColNames.next();
       colFirst = rowData.getColumn(colName);
       if ((colFirst == null) || (colFirst.getValue() == null)) {
         Object[] args = {tableSchema.getName(), colName};
@@ -1021,11 +1021,11 @@ public class PSJdbcPlanBuilder {
     String tableName = tableSchema.getName();
     stepLogData.setTable(tableName);
 
-    List columns = new ArrayList();
-    Iterator pkColNames = tableSchema.getKeyColumns().iterator();
+    List<PSJdbcColumnData> columns = new ArrayList<>();
+    Iterator<String> pkColNames = tableSchema.getKeyColumns().iterator();
     if (pkColNames.hasNext()) {
       while (pkColNames.hasNext()) {
-        String colName = (String) pkColNames.next();
+        String colName = pkColNames.next();
         PSJdbcColumnData colData = row.getColumn(colName);
         if (colData == null) continue;
         columns.add(colData);
@@ -1076,8 +1076,8 @@ public class PSJdbcPlanBuilder {
 
     List<PSJdbcForeignKey> foreignKeys = childTableSchema.getForeignKeys();
     for (PSJdbcForeignKey foreignKey : foreignKeys) {
-      List columns = new ArrayList();
-      Iterator cols = foreignKey.getColumns(parentTableSchema.getName());
+      List<PSJdbcColumnData> columns = new ArrayList<>();
+      Iterator<?> cols = foreignKey.getColumns(parentTableSchema.getName());
       while (cols.hasNext()) {
         // col is a String[] with 3 entries, the child table column name,
         // the parent table name, and the parent table column name
@@ -1097,12 +1097,12 @@ public class PSJdbcPlanBuilder {
       if (columns.size() > 0) {
         PSJdbcRowData childRow = new PSJdbcRowData(columns.iterator(), PSJdbcRowData.ACTION_DELETE);
 
-        Iterator grandChildTables = childTableSchema.getChildTables();
+        Iterator<?> grandChildTables = childTableSchema.getChildTables();
         while (grandChildTables.hasNext()) {
           PSJdbcTableSchema grandChildTableSchema =
               PSJdbcTableFactory.getTableSchemaCollection()
                   .getTableSchema((String) grandChildTables.next());
-          Iterator childRows =
+          Iterator<?> childRows =
               getChildRows(dbmsDef, childTableSchema, grandChildTableSchema, childRow);
           while (childRows.hasNext()) {
             addChildTablesDeletePlan(
@@ -1135,7 +1135,7 @@ public class PSJdbcPlanBuilder {
    * @return an iterator over the list of child rows fetched from the database.
    * @throws IllegalArgumentException if any parameter is null.
    */
-  private static Iterator getChildRows(
+  private static Iterator<?> getChildRows(
       PSJdbcDbmsDef dbmsDef,
       PSJdbcTableSchema parentTableSchema,
       PSJdbcTableSchema childTableSchema,
@@ -1150,7 +1150,7 @@ public class PSJdbcPlanBuilder {
 
     if (parentRow == null) throw new IllegalArgumentException("parentRow may not be null");
 
-    List childRows = new ArrayList();
+    List<PSJdbcRowData> childRows = new ArrayList<>();
     // make a select query on the parent table and fetch the values of the
     // foreign key columns. Then create rows of child table and insert them
     // into the childRows list.
@@ -1240,8 +1240,8 @@ public class PSJdbcPlanBuilder {
       PSJdbcTableSchema oldSchema, PSJdbcTableSchema newSchema, StringBuilder buffer)
       throws PSJdbcTableFactoryException {
     // First build list of column changes
-    List changedCols = new ArrayList<>();
-    Iterator newCols = newSchema.getColumns();
+    List<PSJdbcColumnDef> changedCols = new ArrayList<>();
+    Iterator<?> newCols = newSchema.getColumns();
     while (newCols.hasNext()) {
       PSJdbcColumnDef newCol = (PSJdbcColumnDef) newCols.next();
       PSJdbcColumnDef oldCol = oldSchema.getColumn(newCol.getName());
@@ -1362,7 +1362,7 @@ public class PSJdbcPlanBuilder {
 
     // Traverse over all new Indexes and see if already exists, else add /replace
     while (newIndexes.hasNext()) {
-      PSJdbcIndex newIndex = (PSJdbcIndex) newIndexes.next();
+      PSJdbcIndex newIndex = newIndexes.next();
       PSJdbcIndex oldIdx = oldSchema.getIndex(newIndex);
       if (oldIdx != null) {
         buffer.append(NEWLINE).append(" Ignore existing Found Index: ");
@@ -1478,7 +1478,8 @@ public class PSJdbcPlanBuilder {
     }
     resultSchema.setForeignKeys(changedFKeys, true);
     // process index changes
-    Iterator indexes = newSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE | PSJdbcIndex.TYPE_NON_UNIQUE);
+    Iterator<?> indexes =
+        newSchema.getIndexes(PSJdbcIndex.TYPE_UNIQUE | PSJdbcIndex.TYPE_NON_UNIQUE);
     while (indexes.hasNext()) {
       PSJdbcIndex newIndex = (PSJdbcIndex) indexes.next();
       int action = newIndex.getAction();
