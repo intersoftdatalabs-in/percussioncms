@@ -171,7 +171,7 @@
         <json.version>20240303</json.version>
         <junit.version>4.13.1</junit.version>
         <junit.jupiter.version>5.13.4</junit.jupiter.version>
-        <cactus.version>13-1.7.1</cactus.version>
+        <cactus.version>13-1.7.2</cactus.version>
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
         <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
         <jetty.version>9.4.58.v20250814</jetty.version>
