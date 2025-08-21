@@ -1,8 +1,18 @@
 version: 2
 updates:
-  #keep maven dependencies up to date
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: "development-8.1.x"
+    # optional: ignore known groups/artifacts that require Java 11+
+    # ignore:
+    #  - dependency-name: "com.example:some-new-lib"
+    #  - dependency-name: "com.foo:bar"
+    #    versions:
+    #      - ">=2.0.0"
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "development"
