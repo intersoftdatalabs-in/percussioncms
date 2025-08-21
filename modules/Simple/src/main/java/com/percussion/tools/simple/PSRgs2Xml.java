@@ -172,7 +172,7 @@ public class PSRgs2Xml {
    */
   private static String parseTypes(String s) {
     if (s == null) return "";
-    List types = new ArrayList();
+    List<String> types = new ArrayList<>();
     StringBuilder sb = new StringBuilder();
     int pos = 0;
     int arrayDimensions = 0;
@@ -192,7 +192,7 @@ public class PSRgs2Xml {
         sb.setLength(0);
 
       } else {
-        sb.append((String) ms_types.get(current));
+        sb.append(ms_types.get(current));
         for (int i = 0; i < arrayDimensions; i++) sb.append("[]");
         arrayDimensions = 0;
         types.add(sb.toString());
@@ -200,9 +200,9 @@ public class PSRgs2Xml {
       }
     }
     sb.setLength(0);
-    Iterator it = types.iterator();
+    Iterator<String> it = types.iterator();
     while (it.hasNext()) {
-      sb.append((String) it.next());
+      sb.append(it.next());
       if (it.hasNext()) sb.append(",");
     }
 
@@ -243,7 +243,7 @@ public class PSRgs2Xml {
   private String m_rgsPath;
   private String m_xmlPath;
 
-  private static Map ms_types = new HashMap();
+  private static Map<String, String> ms_types = new HashMap<>();
 
   static {
     ms_types.put("B", "byte");

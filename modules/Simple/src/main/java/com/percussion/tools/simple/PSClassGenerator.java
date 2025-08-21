@@ -105,7 +105,7 @@ public class PSClassGenerator {
     }
 
     // user reflection to generate classes
-    Class[] srcClasses = new Class[srcJavaFiles.length];
+    Class<?>[] srcClasses = new Class<?>[srcJavaFiles.length];
 
     for (i = 0; i < srcClassFiles.length; i++) {
       name = srcClassFiles[i].getName();
@@ -113,7 +113,7 @@ public class PSClassGenerator {
       name = name.substring(0, name.length() - 6); // remove .class
 
       try {
-        Class c = Class.forName(srcPackage + "." + name);
+        Class<?> c = Class.forName(srcPackage + "." + name);
         srcClasses[i] = c;
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
@@ -123,7 +123,7 @@ public class PSClassGenerator {
 
     // read in java class, write out after removing comments, bad imports
     String result = null;
-    Class srcClass = null;
+    Class<?> srcClass = null;
     Method methods[] = null;
 
     for (i = 0; i < srcClasses.length; i++) {
@@ -154,11 +154,11 @@ public class PSClassGenerator {
 
             srcClass = srcClasses[i];
             Package srcPack = srcClass.getPackage();
-            Class[] srcInterfaces = srcClass.getInterfaces();
-            Class srcSuper = srcClass.getSuperclass();
+            Class<?>[] srcInterfaces = srcClass.getInterfaces();
+            Class<?> srcSuper = srcClass.getSuperclass();
             String header = "";
             String srcClassName = srcClass.getName();
-            ArrayList beanProps = new ArrayList();
+            ArrayList<BeanProperty> beanProps = new ArrayList<>();
 
             // build class declaration
             header = "package " + srcPack.getName() + ";\n\n";
@@ -175,7 +175,6 @@ public class PSClassGenerator {
               header += "public interface " + className + " ";
               header += "\n{}";
               writer.write(header);
-              writer.close();
               continue;
             }
 
@@ -218,12 +217,12 @@ public class PSClassGenerator {
               methOut = Modifier.toString(mods) + " ";
 
               // get return type
-              Class returnType = meth.getReturnType();
+              Class<?> returnType = meth.getReturnType();
               String cleanType = returnType.getName();
               int methMods = returnType.getModifiers();
 
               if (returnType.isArray()) {
-                Class arrType = returnType.getComponentType();
+                Class<?> arrType = returnType.getComponentType();
                 String arrTypeName = arrType.getName();
                 /*cleanType = cleanType.substring(
                 cleanType.indexOf("[") + 2,
@@ -272,7 +271,7 @@ public class PSClassGenerator {
               }
 
               // get parameters
-              Class paramTypes[] = meth.getParameterTypes();
+              Class<?>[] paramTypes = meth.getParameterTypes();
               String paramName = "param";
 
               methOut += "(";
@@ -281,7 +280,7 @@ public class PSClassGenerator {
                 String pType = paramTypes[k].getName();
 
                 if (paramTypes[k].isArray()) {
-                  Class arrType = paramTypes[k].getComponentType();
+                  Class<?> arrType = paramTypes[k].getComponentType();
                   String arrTypeName = arrType.getName();
                   /*pType = pType.substring(
                   pType.indexOf("[") + 2,
@@ -296,7 +295,7 @@ public class PSClassGenerator {
               methOut += ") ";
 
               // get exceptions thrown
-              Class execTypes[] = meth.getExceptionTypes();
+              Class<?>[] execTypes = meth.getExceptionTypes();
 
               if (execTypes.length > 0) methOut += "throws ";
 
@@ -325,9 +324,9 @@ public class PSClassGenerator {
                 boolean match = true;
                 bProp = methName.substring(3, methName.length());
                 for (int l = 0; l < beanProps.size(); l++) {
-                  BeanProperty prop = (BeanProperty) beanProps.get(l);
+                  BeanProperty prop = beanProps.get(l);
                   if (bProp.equalsIgnoreCase(prop.getbName())) {
-                    Class type = prop.getbType();
+                    Class<?> type = prop.getbType();
                     if (!type.getName().equalsIgnoreCase(meth.getParameterTypes()[0].getName())) {
                       match = false;
                       methOut += "m_" + bProp + " = null;";
@@ -390,7 +389,7 @@ public class PSClassGenerator {
             // write out bean properties
             int k;
             for (k = 0; k < beanProps.size(); k++) {
-              BeanProperty bp = (BeanProperty) beanProps.get(k);
+              BeanProperty bp = beanProps.get(k);
               String cleanBpType = "";
 
               if (bp.getbType().isArray())
@@ -415,7 +414,6 @@ public class PSClassGenerator {
             }
 
             writer.write("}");
-            writer.close();
           }
         }
       }
@@ -471,12 +469,12 @@ public class PSClassGenerator {
     System.out.println("<source class dir> <source java dir> <output java dir> <package>");
   }
 
-  private boolean beanPropExists(String name, ArrayList alist) {
+  private boolean beanPropExists(String name, ArrayList<BeanProperty> alist) {
     int l;
     boolean exists = false;
 
     for (l = 0; l < alist.size(); l++) {
-      String beanPropName = ((BeanProperty) alist.get(l)).getbName();
+      String beanPropName = alist.get(l).getbName();
       if (name.equals(beanPropName)) {
         exists = true;
         break;
@@ -486,13 +484,13 @@ public class PSClassGenerator {
     return exists;
   }
 
-  private BeanProperty getBeanProp(String name, ArrayList alist) {
+  private BeanProperty getBeanProp(String name, ArrayList<BeanProperty> alist) {
     int m;
     BeanProperty beanProp = null;
     BeanProperty tmpProp = null;
 
     for (m = 0; m < alist.size(); m++) {
-      tmpProp = (BeanProperty) alist.get(m);
+      tmpProp = alist.get(m);
       String beanPropName = tmpProp.getbName();
       if (name.equals(beanPropName)) {
         beanProp = tmpProp;
@@ -504,7 +502,7 @@ public class PSClassGenerator {
   }
 
   private class BeanProperty {
-    public BeanProperty(String name, Class type, int mods) {
+    public BeanProperty(String name, Class<?> type, int mods) {
       bName = name;
       bType = type;
       bMods = mods;
@@ -518,11 +516,11 @@ public class PSClassGenerator {
       bName = name;
     }
 
-    public Class getbType() {
+    public Class<?> getbType() {
       return bType;
     }
 
-    public void setbType(Class type) {
+    public void setbType(Class<?> type) {
       bType = type;
     }
 
@@ -535,7 +533,7 @@ public class PSClassGenerator {
     }
 
     private String bName = "";
-    private Class bType = null;
+    private Class<?> bType = null;
     private int bMods = 0;
   }
 }
