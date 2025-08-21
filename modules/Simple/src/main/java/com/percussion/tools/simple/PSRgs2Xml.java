@@ -192,7 +192,7 @@ public class PSRgs2Xml {
         sb.setLength(0);
 
       } else {
-        sb.append((String) ms_types.get(current));
+        sb.append(ms_types.get(current));
         for (int i = 0; i < arrayDimensions; i++) sb.append("[]");
         arrayDimensions = 0;
         types.add(sb.toString());

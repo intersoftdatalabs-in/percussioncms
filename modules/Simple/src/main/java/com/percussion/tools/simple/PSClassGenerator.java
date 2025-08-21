@@ -175,7 +175,6 @@ public class PSClassGenerator {
               header += "public interface " + className + " ";
               header += "\n{}";
               writer.write(header);
-              writer.close();
               continue;
             }
 
@@ -415,7 +414,6 @@ public class PSClassGenerator {
             }
 
             writer.write("}");
-            writer.close();
           }
         }
       }
