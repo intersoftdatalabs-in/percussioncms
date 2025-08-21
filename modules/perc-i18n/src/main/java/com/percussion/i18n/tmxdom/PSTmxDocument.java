@@ -299,7 +299,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
       throw new RuntimeException("extract stylesheet not loaded");
     }
 
-    Map<String, String> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>();
     params.put("extractlang", languageString);
     tempDoc = transformXML(m_DOMDocument, ms_xslExtractDoc, params);
     return new PSTmxDocument(tempDoc, false);
@@ -442,7 +442,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
    * @throws TransformerException
    * @throws IllegalArgumentException
    */
-  public static Document transformXML(Document srcDoc, Document xslDoc, Map params)
+  public static Document transformXML(Document srcDoc, Document xslDoc, Map<String, Object> params)
       throws SAXException, TransformerException {
     if (srcDoc == null) {
       throw new IllegalArgumentException("srcDoc must not be null.");
@@ -461,9 +461,9 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     templates = tfactory.newTemplates(dsource);
     Transformer transformer = templates.newTransformer();
     if (params != null) {
-      Iterator<Map.Entry> iter = params.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> iter = params.entrySet().iterator();
       while (iter.hasNext()) {
-        Map.Entry param = (Map.Entry) iter.next();
+        Map.Entry<String, Object> param = iter.next();
         transformer.setParameter(param.getKey().toString(), param.getValue().toString());
       }
     }
