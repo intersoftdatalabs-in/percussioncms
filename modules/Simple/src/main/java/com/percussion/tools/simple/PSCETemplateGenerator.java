@@ -187,6 +187,8 @@ public class PSCETemplateGenerator {
    * creating the template.
    */
   public class PSCreateTemplateException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructs this exception object from the given message.
      *
@@ -236,7 +238,7 @@ public class PSCETemplateGenerator {
           dtd = new URL(args[2]);
         } else {
           File dtdFile = new File(args[2]);
-          dtd = dtdFile.toURL();
+          dtd = dtdFile.toURI().toURL();
         }
       } catch (MalformedURLException e) {
         System.out.println("Invalid dtd specified");
