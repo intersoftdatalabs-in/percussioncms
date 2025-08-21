@@ -1074,7 +1074,7 @@ public class InstallUtil {
   public static Connection createLoadedConnection(
       String driver, String server, String db, String uid, String pw) throws SQLException {
     String className = null;
-    Class driverClass = null;
+    Class<?> driverClass = null;
     if ("oracle:thin".equals(driver))
       className = RxInstallerProperties.getResources().getString("oracle");
     else className = RxInstallerProperties.getResources().getString(driver);
@@ -1118,18 +1118,17 @@ public class InstallUtil {
               URL[] urlList = new URL[size];
               for (int i = 0; i < size; i++) {
                 InstallUtil.logInfo("Loading " + m_jarUrls.get(i));
-                urlList[i] = (URL) m_jarUrls.get(i);
+                urlList[i] = m_jarUrls.get(i);
               }
 
               ClassLoader loader =
-                  (ClassLoader)
-                      AccessController.doPrivileged(
-                          new PrivilegedAction() {
-                            @Override
-                            public Object run() {
-                              return new URLClassLoader(urlList);
-                            }
-                          });
+                  AccessController.doPrivileged(
+                      new PrivilegedAction<URLClassLoader>() {
+                        @Override
+                        public URLClassLoader run() {
+                          return new URLClassLoader(urlList);
+                        }
+                      });
 
               driverClass = Class.forName(className, true, loader);
               InstallUtil.logInfo("Loaded " + className);
@@ -1176,14 +1175,13 @@ public class InstallUtil {
               i++;
             }
             ClassLoader loader =
-                (ClassLoader)
-                    AccessController.doPrivileged(
-                        new PrivilegedAction() {
-                          @Override
-                          public Object run() {
-                            return new URLClassLoader(urlList);
-                          }
-                        });
+                AccessController.doPrivileged(
+                    new PrivilegedAction<URLClassLoader>() {
+                      @Override
+                      public URLClassLoader run() {
+                        return new URLClassLoader(urlList);
+                      }
+                    });
 
             System.setProperty("jdbc.drivers", className);
             driverClass = Class.forName(className, true, loader);
@@ -1519,5 +1517,5 @@ public class InstallUtil {
 
   private static boolean ms_isSilentInstall = false;
   private static Driver m_extDriver = null;
-  private static List m_jarUrls = null;
+  private static List<URL> m_jarUrls = null;
 }

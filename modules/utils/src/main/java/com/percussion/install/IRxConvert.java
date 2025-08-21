@@ -17,6 +17,7 @@
 
 package com.percussion.install;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -33,5 +34,5 @@ public interface IRxConvert {
    * @param conn - The connection pointing to the backend database specified by
    *     rxrepository.properties.
    */
-  public abstract void convert(ArrayList files, Connection conn) throws IOException;
+  public abstract void convert(ArrayList<File> files, Connection conn) throws IOException;
 }
