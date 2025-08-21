@@ -188,6 +188,7 @@ public class PSCETemplateGenerator {
    */
   public class PSCreateTemplateException extends Exception {
     private static final long serialVersionUID = 1L;
+
     /**
      * Constructs this exception object from the given message.
      *
