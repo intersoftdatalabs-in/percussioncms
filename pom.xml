@@ -835,7 +835,7 @@
                         <dependency>
                             <groupId>com.h3xstream.findsecbugs</groupId>
                             <artifactId>findsecbugs-plugin</artifactId>
-                            <version>LATEST</version>
+                            <version>1.14.0</version>
                         </dependency>
                         <dependency>
                             <groupId>com.mebigfatguy.fb-contrib</groupId>
@@ -858,7 +858,7 @@
                             <plugin>
                                 <groupId>com.h3xstream.findsecbugs</groupId>
                                 <artifactId>findsecbugs-plugin</artifactId>
-                                <version>LATEST</version>
+                                <version>1.14.0</version>
                             </plugin>
                         </plugins>
                     </configuration>
