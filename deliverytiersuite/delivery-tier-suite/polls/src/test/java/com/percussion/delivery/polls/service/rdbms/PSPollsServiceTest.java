@@ -25,29 +25,27 @@ import jakarta.persistence.criteria.CriteriaDelete;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSPollsServiceTest extends TestCase {
+public class PSPollsServiceTest {
   @Autowired private IPSPollsService pollsService;
   @Autowired private SessionFactory sessionFactory;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
-    super.setUp();
     Session session = getSession();
     try {
       CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -59,10 +57,8 @@ public class PSPollsServiceTest extends TestCase {
     }
   }
 
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
+  @AfterEach
+  public void tearDown() throws Exception {}
 
   private Session getSession() {
 
@@ -71,7 +67,7 @@ public class PSPollsServiceTest extends TestCase {
 
   @Test
   public void testSave() throws Exception {
-    sessionFactory.getCurrentSession().setFlushMode(FlushMode.COMMIT);
+    // sessionFactory.getCurrentSession().setFlushMode(FlushMode.COMMIT);
     Map<String, Boolean> answers = new HashMap<String, Boolean>();
     answers.put("Answer1", true);
     answers.put("Answer2", false);
@@ -83,10 +79,10 @@ public class PSPollsServiceTest extends TestCase {
 
     }
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
-    assertNotNull(poll);
-    assertEquals("TestPoll", poll.getPollName());
-    assertEquals("TestQuestion", poll.getPollQuestion());
-    assertEquals(1, poll.getPollAnswers().size());
+    Assertions.assertNotNull(poll);
+    Assertions.assertEquals("TestPoll", poll.getPollName());
+    Assertions.assertEquals("TestQuestion", poll.getPollQuestion());
+    Assertions.assertEquals(1, poll.getPollAnswers().size());
 
     // add a different answer
     answers.put("Answer1", false);
@@ -95,7 +91,7 @@ public class PSPollsServiceTest extends TestCase {
     int currSize = poll.getPollAnswers().size();
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
     poll = pollsService.findPollByQuestion("TestQuestion");
-    assertEquals(currSize + 1, poll.getPollAnswers().size());
+    Assertions.assertEquals(currSize + 1, poll.getPollAnswers().size());
 
     // check the increments
     answers.put("Answer1", true);
@@ -105,13 +101,15 @@ public class PSPollsServiceTest extends TestCase {
     pollsService.savePoll("TestPoll", "TestQuestion", answers);
     poll = pollsService.findPollByQuestion("TestQuestion");
     // as we updated existing answer the size should be same
-    assertEquals(currSize, poll.getPollAnswers().size());
+    Assertions.assertEquals(currSize, poll.getPollAnswers().size());
     // Answer1 must be incremented by 1
     Set<IPSPollAnswer> pollAnswers = poll.getPollAnswers();
     for (IPSPollAnswer ipsPollAnswer : pollAnswers) {
-      if (ipsPollAnswer.getAnswer().equals("Answer1")) assertEquals(2, ipsPollAnswer.getCount());
+      if (ipsPollAnswer.getAnswer().equals("Answer1"))
+        Assertions.assertEquals(2, ipsPollAnswer.getCount());
 
-      if (ipsPollAnswer.getAnswer().equals("Answer3")) assertEquals(1, ipsPollAnswer.getCount());
+      if (ipsPollAnswer.getAnswer().equals("Answer3"))
+        Assertions.assertEquals(1, ipsPollAnswer.getCount());
     }
 
     // Multi answer check
@@ -124,11 +122,14 @@ public class PSPollsServiceTest extends TestCase {
     // Answer1 must be incremented by 1
     pollAnswers = poll.getPollAnswers();
     for (IPSPollAnswer ipsPollAnswer : pollAnswers) {
-      if (ipsPollAnswer.getAnswer().equals("Answer1")) assertEquals(2, ipsPollAnswer.getCount());
+      if (ipsPollAnswer.getAnswer().equals("Answer1"))
+        Assertions.assertEquals(2, ipsPollAnswer.getCount());
 
-      if (ipsPollAnswer.getAnswer().equals("Answer2")) assertEquals(1, ipsPollAnswer.getCount());
+      if (ipsPollAnswer.getAnswer().equals("Answer2"))
+        Assertions.assertEquals(1, ipsPollAnswer.getCount());
 
-      if (ipsPollAnswer.getAnswer().equals("Answer3")) assertEquals(2, ipsPollAnswer.getCount());
+      if (ipsPollAnswer.getAnswer().equals("Answer3"))
+        Assertions.assertEquals(2, ipsPollAnswer.getCount());
     }
   }
 }

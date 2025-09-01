@@ -21,12 +21,15 @@ import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsDao;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 // REFACTORED: CP-JAVA11
 @Transactional
-public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao {
+public class PSPollsDao implements IPSPollsDao {
+
+  @Autowired private SessionFactory sessionFactory;
 
   @Override
   public IPSPoll find(String pollName) {
@@ -87,6 +90,6 @@ public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao {
   }
 
   private Session getSession() {
-    return getSessionFactory().getCurrentSession();
+    return sessionFactory.getCurrentSession();
   }
 }
