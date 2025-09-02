@@ -41,11 +41,12 @@
             <prop key="db.username">test</prop>
             <prop key="db.password">test</prop>
             <prop key="db.schema">APP</prop>
-            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+            <prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>
             <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
             <prop key="tenant.cache.ttl">1440</prop>
             <prop key="tenant.cache.reauth">true</prop>
             <prop key="rss.feeds.ip">127.0.0.1</prop>
+            <prop key="maximumPoolSize">10</prop>
          </props>
       </property>
    </bean>
@@ -81,9 +82,7 @@
    </bean>
 
    <bean id="feedsDao" class="com.percussion.delivery.feeds.services.rdbms.PSFeedDao">
-      <property name="sessionFactory">
-         <ref bean="feedsSessionFactory" />
-      </property>
+      <constructor-arg ref="feedsSessionFactory" />
    </bean>
 
    <bean id="httpClient"
