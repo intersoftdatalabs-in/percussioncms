@@ -40,7 +40,11 @@ import org.springframework.test.context.ContextConfiguration;
  * @author leonardohildt
  */
 @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
-@ContextConfiguration(locations = {"classpath:test-beans.xml"})
+@ContextConfiguration(
+    locations = {"classpath:test-beans.xml"},
+    initializers = {
+      com.percussion.delivery.metadata.test.PSTestApplicationContextInitializer.class
+    })
 public class PSBlogsHelperTest {
 
   @Autowired public IPSMetadataQueryService service;
