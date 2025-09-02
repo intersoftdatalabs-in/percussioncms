@@ -32,6 +32,7 @@
         <disruptor.version>3.4.2</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.10.8</ehcache-core.version>
+        <h2.version>2.2.224</h2.version>
         <hibernate.version>6.6.24.Final</hibernate.version>
         <!-- Overrides Parent-->
         <install.jre.version>8.222.10.1</install.jre.version>
@@ -58,7 +59,6 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <tomcat.version>10.1.44</tomcat.version>
         <xml.apis.version>1.4.01</xml.apis.version>
-        <h2.version>2.2.224</h2.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -670,12 +670,12 @@
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache-core.version}</version>
             </dependency>
-             <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-            <scope>test</scope>
-        </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
