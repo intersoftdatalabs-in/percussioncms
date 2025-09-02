@@ -58,6 +58,7 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <tomcat.version>10.1.44</tomcat.version>
         <xml.apis.version>1.4.01</xml.apis.version>
+        <h2.version>2.2.224</h2.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -669,6 +670,12 @@
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache-core.version}</version>
             </dependency>
+             <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
