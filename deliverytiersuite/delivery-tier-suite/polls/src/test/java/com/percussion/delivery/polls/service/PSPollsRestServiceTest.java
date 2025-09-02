@@ -17,7 +17,7 @@
 package com.percussion.delivery.polls.service;
 
 import com.percussion.delivery.polls.services.impl.PSPollsService;
-import com.percussion.delivery.utils.spring.PSConfigurableApplicationContext;
+import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
 import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.ws.rs.client.Client;
