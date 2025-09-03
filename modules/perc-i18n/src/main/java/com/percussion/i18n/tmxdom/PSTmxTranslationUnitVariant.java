@@ -76,8 +76,7 @@ public class PSTmxTranslationUnitVariant extends PSTmxNode implements IPSTmxTran
    * Implementation of the method defined in the interface
    */
   public Iterator<IPSTmxProperty> getProperties() {
-  public Iterator<Map.Entry<String, IPSTmxProperty>> getProperties() {
-    return m_Properties.entrySet().iterator();
+    return m_Properties.values().iterator();
   }
 
   /*
