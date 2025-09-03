@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,15 +37,17 @@ import org.springframework.transaction.annotation.Transactional;
  * @author erikserating
  */
 @Repository
-public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
+public class PSFeedDao implements IPSFeedDao {
 
   private static final Logger log = LogManager.getLogger(PSFeedDao.class);
 
   public PSFeedDao() {}
 
+  private SessionFactory sessionFactory;
+
   @Autowired
   public PSFeedDao(SessionFactory sessionFactory) {
-    super.setSessionFactory(sessionFactory);
+    this.sessionFactory = sessionFactory;
   }
 
   /*
@@ -73,11 +74,11 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
 
     List<IPSFeedDescriptor> results = session.createQuery(criteriaQuery).getResultList();
 
-    return results.stream().findFirst().get();
+    return results.stream().findFirst().orElse(null);
   }
 
   private Session getSession() {
-    return getSessionFactory().getCurrentSession();
+    return sessionFactory.getCurrentSession();
   }
 
   /*
@@ -117,8 +118,7 @@ public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {
     Root<PSConnectionInfo> root = criteriaQuery.from(PSConnectionInfo.class);
     criteriaQuery.select(root);
     List<PSConnectionInfo> results = session.createQuery(criteriaQuery).getResultList();
-    PSConnectionInfo result = results.stream().findFirst().get();
-    return result;
+    return results.stream().findFirst().orElse(null);
   }
 
   /*
