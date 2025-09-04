@@ -223,13 +223,21 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
    * @param properties the properties to set
    */
   public void setProperties(Set<IPSMetadataProperty> properties) {
-    if (properties == null) this.properties = null;
+    if (properties == null) {
+      this.properties = null;
+      return;
+    }
     Set<PSDbMetadataProperty> dbprops = new HashSet<>();
     for (IPSMetadataProperty p : properties) {
       if (p instanceof PSDbMetadataProperty) {
-        dbprops.add((PSDbMetadataProperty) p);
+        PSDbMetadataProperty dbProp = (PSDbMetadataProperty) p;
+        dbProp.setMetadataEntry(this); // Ensure bidirectional relationship
+        dbprops.add(dbProp);
       } else {
-        dbprops.add(new PSDbMetadataProperty(p.getName(), p.getValuetype(), p.getValue()));
+        PSDbMetadataProperty dbProp =
+            new PSDbMetadataProperty(p.getName(), p.getValuetype(), p.getValue());
+        dbProp.setMetadataEntry(this); // Ensure bidirectional relationship
+        dbprops.add(dbProp);
       }
     }
 

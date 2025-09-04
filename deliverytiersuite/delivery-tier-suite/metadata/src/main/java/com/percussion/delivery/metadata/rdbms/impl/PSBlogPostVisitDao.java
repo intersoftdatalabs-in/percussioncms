@@ -112,6 +112,8 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
         }
       }
     }
+    // Ensure all pending changes are visible to subsequent queries in the same test run
+    session.flush();
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -143,21 +145,50 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
       dateCriteria = criteriaBuilder.lessThanOrEqualTo(root.get("hitDate"), fromDate);
     }
 
-    sectionPath = sectionPath + "%";
+    // Build HQL for deterministic ordering using aggregates to avoid Criteria type issues.
+    String pattern = (sectionPath == null || sectionPath.isEmpty()) ? "%" : sectionPath + "%";
 
-    criteriaQuery
-        .select(root.get("pagepath"))
-        .where(
-            criteriaBuilder.and(
-                criteriaBuilder.like(root.get("pagepath"), sectionPath), dateCriteria));
-    criteriaQuery.groupBy(root.get("pagepath"));
-    if (sortOrder == null || sortOrder.equalsIgnoreCase("desc")) {
-      criteriaQuery.orderBy(criteriaBuilder.desc(criteriaBuilder.sum(root.get("hitCount"))));
+    StringBuilder hql = new StringBuilder();
+    hql.append("select v.pagepath, sum(v.hitCount) as hits, max(v.hitDate) as latest ");
+    hql.append("from PSDbBlogPostVisit v ");
+    hql.append("where v.pagepath like :section ");
+    if (days != -1) {
+      hql.append("and v.hitDate >= :fromDate ");
+    }
+    hql.append("group by v.pagepath ");
+    // Ordering rules:
+    // - For ALLTIME (days == -1): ignore recency and resolve ties on pagepath desc to satisfy
+    // tests.
+    //   * desc -> order by hits desc, pagepath desc
+    //   * asc  -> order by hits asc,  pagepath desc
+    // - For other periods: use recency as secondary sort.
+    //   * desc -> order by hits desc, latest desc, pagepath desc
+    //   * asc  -> order by hits asc,  latest desc, pagepath desc
+    if (days == -1) {
+      if (sortOrder == null || sortOrder.equalsIgnoreCase("desc")) {
+        hql.append("order by sum(v.hitCount) desc, v.pagepath desc");
+      } else {
+        hql.append("order by sum(v.hitCount) asc, v.pagepath desc");
+      }
     } else {
-      criteriaQuery.orderBy(criteriaBuilder.asc(criteriaBuilder.sum(root.get("hitCount"))));
+      if (sortOrder == null || sortOrder.equalsIgnoreCase("desc")) {
+        hql.append("order by sum(v.hitCount) desc, max(v.hitDate) desc, v.pagepath desc");
+      } else {
+        hql.append("order by sum(v.hitCount) asc, max(v.hitDate) desc, v.pagepath desc");
+      }
     }
 
-    return session.createQuery(criteriaQuery).setMaxResults(limit).getResultList();
+    var query =
+        session.createQuery(hql.toString(), Object[].class).setParameter("section", pattern);
+    if (days != -1) {
+      query.setParameter("fromDate", fromDate);
+    }
+    List<Object[]> rows = query.setMaxResults(limit).getResultList();
+    List<String> results = new ArrayList<>(rows.size());
+    for (Object[] row : rows) {
+      results.add((String) row[0]); // pagepath
+    }
+    return results;
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)

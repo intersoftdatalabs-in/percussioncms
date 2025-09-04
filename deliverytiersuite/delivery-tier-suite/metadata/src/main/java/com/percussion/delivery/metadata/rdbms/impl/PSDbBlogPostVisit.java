@@ -50,7 +50,7 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
   private String pagepath;
 
   @Basic
-  @Temporal(TemporalType.DATE)
+  @Temporal(TemporalType.TIMESTAMP)
   private Date hitDate;
 
   @Basic private BigInteger hitCount;

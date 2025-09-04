@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.percussion.delivery.metadata.impl.PSMetadataRestService;
 import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
 import com.percussion.delivery.utils.PSVersionHelper;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
@@ -33,9 +32,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.request.RequestContextListener;
 
 /**
  * @author natechadwick
@@ -57,30 +56,30 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
   @Override
   protected DeploymentContext configureDeployment() {
     return ServletDeploymentContext.forPackages("com.percussion.delivery.metadata.impl")
-        .servletClass(HttpServlet.class)
         .contextPath("perc-metadata-services")
-        .addListener(ContextLoaderListener.class)
-        .addListener(RequestContextListener.class)
-        .addFilter(
-            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
         .build();
+  }
+
+  @Override
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
   }
 
   @Test
   public void testGetRestVersion() {
 
     Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/membership/version");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    WebTarget webTarget = client.target(getBaseUri()).path("metadata").path("version");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.TEXT_PLAIN);
     Response response = invocationBuilder.get();
 
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    assertEquals(testGetVersion(), response.getEntity());
+    String responseEntity = response.readEntity(String.class);
+    assertEquals(getVersion(), responseEntity);
   }
 
-  @Test
-  private String testGetVersion() {
+  private String getVersion() {
     String version = PSVersionHelper.getVersion(this.getClass());
     assertNotNull(version);
     System.out.print(version);

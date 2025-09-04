@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -168,15 +169,16 @@ public class PSMetadataDao implements IPSMetadataDao {
   public IPSMetadataEntry findEntry(String pagepath) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
 
-    try (Session session = getSession()) {
+    try (Session session = sessionFactory.openSession()) {
       CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
       CriteriaQuery<PSDbMetadataEntry> criteriaQuery =
           criteriaBuilder.createQuery(PSDbMetadataEntry.class);
       Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
-      criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), pagepath));
+      criteriaQuery.select(root).where(criteriaBuilder.equal(root.get("pagepath"), pagepath));
       List<PSDbMetadataEntry> resultList = session.createQuery(criteriaQuery).getResultList();
-      if (!resultList.isEmpty()) return (IPSMetadataEntry) resultList.get(0);
-      else return null;
+      if (!resultList.isEmpty()) {
+        return (IPSMetadataEntry) resultList.get(0);
+      } else return null;
     }
   }
 
@@ -206,17 +208,73 @@ public class PSMetadataDao implements IPSMetadataDao {
     try (Session session = getSession()) {
       Collection<PSDbMetadataEntry> dbEntries = convertRestEntriesToDb(entries);
       session.setHibernateFlushMode(FlushMode.ALWAYS);
-      // Save entries
-      int i = 0;
-      for (PSDbMetadataEntry entry : dbEntries) {
-        tx = session.beginTransaction();
-        try {
-          session.saveOrUpdate(entry);
-          tx.commit();
-        } catch (org.hibernate.NonUniqueObjectException e) {
-          session.merge(entry);
-          tx.commit();
+
+      tx = session.beginTransaction();
+      try {
+        // Save entries in a single transaction
+        for (PSDbMetadataEntry entry : dbEntries) {
+          try {
+            // Load existing entry in the SAME session to allow orphanRemoval to take effect
+            PSDbMetadataEntry existingEntry = null;
+            {
+              CriteriaBuilder cb = session.getCriteriaBuilder();
+              CriteriaQuery<PSDbMetadataEntry> cq = cb.createQuery(PSDbMetadataEntry.class);
+              Root<PSDbMetadataEntry> root = cq.from(PSDbMetadataEntry.class);
+              cq.select(root).where(cb.equal(root.get("pagepath"), entry.getPagepath()));
+              List<PSDbMetadataEntry> list = session.createQuery(cq).getResultList();
+              if (!list.isEmpty()) {
+                existingEntry = list.get(0);
+              }
+            }
+
+            // Build a de-duplicated view of properties based on (name, valuetype, valueHash)
+            LinkedHashMap<String, PSDbMetadataProperty> uniq = new LinkedHashMap<>();
+            for (IPSMetadataProperty prop : entry.getProperties()) {
+              PSDbMetadataProperty dbProp = (PSDbMetadataProperty) prop;
+              String key = dbProp.getName() + "|" + dbProp.getValuetype() + "|" + dbProp.getHash();
+              // keep first occurrence
+              if (!uniq.containsKey(key)) {
+                uniq.put(key, dbProp);
+              }
+            }
+
+            if (existingEntry != null) {
+              // Update scalar fields
+              existingEntry.setFolder(entry.getFolder());
+              existingEntry.setLinktext(entry.getLinktext());
+              existingEntry.setName(entry.getName());
+              existingEntry.setSite(entry.getSite());
+              existingEntry.setType(entry.getType());
+
+              // Replace properties on the MANAGED collection so orphanRemoval deletes old rows
+              existingEntry.clearProperties();
+              for (PSDbMetadataProperty dbProp : uniq.values()) {
+                dbProp.setMetadataEntry(existingEntry);
+                existingEntry.addProperty(dbProp);
+              }
+              // Explicitly merge to ensure scalar updates are persisted
+              session.merge(existingEntry);
+            } else {
+              // New entry: ensure we persist a deduplicated property set
+              // Rebuild the entry's properties with the unique set to avoid duplicate rows
+              Set<IPSMetadataProperty> dedupProps = new HashSet<>(uniq.values());
+              entry.setProperties(dedupProps);
+              session.save(entry);
+            }
+
+            // Force flush to ensure changes are written to database
+            session.flush();
+          } catch (org.hibernate.NonUniqueObjectException e) {
+            session.merge(entry);
+            session.flush();
+          }
         }
+        tx.commit();
+      } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+          tx.rollback();
+        }
+        throw e;
       }
     } catch (Exception e) {
       if (tx != null && tx.isActive()) {
@@ -338,44 +396,27 @@ public class PSMetadataDao implements IPSMetadataDao {
     Collection<PSDbMetadataEntry> result = new ArrayList<>();
 
     for (IPSMetadataEntry metadataEntry : entries) {
-      IPSMetadataEntry dbMetadataEntry = null;
-      if (metadataEntry.getPagepath() == null) {
-        dbMetadataEntry = new PSDbMetadataEntry();
-      } else {
-        dbMetadataEntry = findEntry(metadataEntry.getPagepath());
-      }
-      if (dbMetadataEntry == null) {
-        dbMetadataEntry = new PSDbMetadataEntry();
-      } else {
-        dbMetadataEntry.clearProperties();
-      }
+      PSDbMetadataEntry dbMetadataEntry = new PSDbMetadataEntry();
 
-      if (!(metadataEntry instanceof PSDbMetadataEntry)) {
+      // Always update all fields
+      dbMetadataEntry.setFolder(metadataEntry.getFolder());
+      dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
+      dbMetadataEntry.setName(metadataEntry.getName());
+      dbMetadataEntry.setPagepath(metadataEntry.getPagepath());
+      dbMetadataEntry.setSite(metadataEntry.getSite());
+      dbMetadataEntry.setType(metadataEntry.getType());
 
-        dbMetadataEntry.setFolder(metadataEntry.getFolder());
-        dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
-        dbMetadataEntry.setName(metadataEntry.getName());
-        dbMetadataEntry.setPagepath(metadataEntry.getPagepath());
-        dbMetadataEntry.setSite(metadataEntry.getSite());
-        dbMetadataEntry.setType(metadataEntry.getType());
-        PSDbMetadataProperty prop = null;
-        for (IPSMetadataProperty metadataProperty : metadataEntry.getProperties()) {
-          if (metadataProperty instanceof PSDbMetadataProperty) {
-            prop = (PSDbMetadataProperty) metadataProperty;
-          } else {
-            prop =
-                new PSDbMetadataProperty(
-                    metadataProperty.getName(),
-                    metadataProperty.getValuetype(),
-                    metadataProperty.getValue());
-          }
-          dbMetadataEntry.addProperty(prop);
-        }
-      } else {
-        dbMetadataEntry = (PSDbMetadataEntry) metadataEntry;
+      // Always copy properties into fresh DB entities to avoid reusing detached/managed instances
+      for (IPSMetadataProperty metadataProperty : metadataEntry.getProperties()) {
+        PSDbMetadataProperty propCopy =
+            new PSDbMetadataProperty(
+                metadataProperty.getName(),
+                metadataProperty.getValuetype(),
+                metadataProperty.getValue());
+        dbMetadataEntry.addProperty(propCopy);
       }
 
-      result.add((PSDbMetadataEntry) dbMetadataEntry);
+      result.add(dbMetadataEntry);
     }
 
     return result;

@@ -244,7 +244,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     try (Session session = getSession()) {
 
-      Query hq = session.createQuery(hql);
+      Query<Object[]> hq = session.createQuery(hql, Object[].class);
       log.debug("{}", hq);
       for (String key : paramValues.keySet()) {
         Object value = paramValues.get(key);
@@ -302,7 +302,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
         if (query.getStartIndex() == 0 || query.getReturnTotalEntries()) {
           queryInfo = buildHibernateQuery(session, query, true);
 
-          Long count = (Long) queryInfo.getFirst().list().get(0);
+          List<Long> countList = queryInfo.getFirst().getResultList();
+          Long count = countList.get(0);
           totalResults = count.intValue();
         }
 
@@ -310,14 +311,14 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
         queryInfo = new PSPair<Query, SORTTYPE>();
         queryInfo = buildHibernateQuery(session, query, false);
         if (queryInfo.getSecond().equals(SORTTYPE.PROPERTY)) {
-          List<Object[]> resultsTmpList = queryInfo.getFirst().list();
+          List<Object[]> resultsTmpList = queryInfo.getFirst().getResultList();
           for (Object[] o : resultsTmpList) {
             results.add((PSDbMetadataEntry) o[0]);
           }
           searchResults.setFirst(results);
         } else if (queryInfo.getSecond().equals(SORTTYPE.METADATA)
             || queryInfo.getSecond().equals(SORTTYPE.NONE)) {
-          results = queryInfo.getFirst().list();
+          results = queryInfo.getFirst().getResultList();
           searchResults.setFirst(results);
         }
         searchResults.setSecond(totalResults);
@@ -436,7 +437,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     if ((isSortingOnProperty)) {
       queryBuf
-          .append(" prop.id.name = ")
+          .append(" prop.name = ")
           .append("'")
           .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
           .append("'");
@@ -463,8 +464,8 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       paramOps.put(replParam, ce.getOperationType());
     }
 
-    clauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
-    inClauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
+    clauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
+    inClauseTemplate = " lower(p{0}.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
 
     int i = 0;
     for (PSCriteriaElement ce : propsCrit) {
@@ -561,7 +562,14 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     log.debug("{}", queryBuf);
 
-    Query q = sess.createQuery(queryBuf.toString());
+    Query q;
+    if (isCount) {
+      q = sess.createQuery(queryBuf.toString(), Long.class);
+    } else if (type.equals(SORTTYPE.PROPERTY)) {
+      q = sess.createQuery(queryBuf.toString(), Object[].class);
+    } else {
+      q = sess.createQuery(queryBuf.toString(), PSDbMetadataEntry.class);
+    }
     int useLimit = queryLimit;
     // All caller to set a query limit, but they can't allow higher than the server limit.
     if (rawQuery.getTotalMaxResults() > 0 && rawQuery.getTotalMaxResults() < queryLimit) {
