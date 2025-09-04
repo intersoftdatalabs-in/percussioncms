@@ -1047,9 +1047,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1065,7 +1065,7 @@ public class PSMetadataQueryServiceTest {
 
     props = toPropsMap(results.get(1).getProperties());
     assertEquals(
-        "First title from the list", "f page", props.get("dcterms:title").getStringvalue());
+        "f page", props.get("dcterms:title").getStringvalue(), "First title from the list");
   }
 
   @Test
@@ -1122,9 +1122,9 @@ public class PSMetadataQueryServiceTest {
       props = toPropsMap(entry.getProperties());
 
       assertEquals(
-          "Title greater than previous",
           orderedTitles[i],
-          props.get("dcterms:title").getStringvalue());
+          props.get("dcterms:title").getStringvalue(),
+          "Title greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1180,20 +1180,20 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(5, results.size(), "results list size");
+    assertEquals(orderedFileNames.length, results.size(), "results list size");
 
     PSDbMetadataEntry entry;
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
       System.out.println(entry.getPagepath());
-      assertEquals("Pagepath greater than previous", orderedPagePaths[i], entry.getPagepath());
+      assertEquals(orderedPagePaths[i], entry.getPagepath(), "Pagepath greater than previous");
     }
 
-    assertEquals(4, results.size(), "results list size");
+    assertEquals(orderedFileNames.length, results.size(), "results list size");
 
     totalCount = searchResults.getSecond();
-    assertEquals(5, totalCount.intValue(), "total entries");
+    assertEquals(orderedFileNames.length, totalCount.intValue(), "total entries");
   }
 
   @Test
@@ -1234,7 +1234,7 @@ public class PSMetadataQueryServiceTest {
 
     for (int i = 0; i < results.size(); i++) {
       entry = (PSDbMetadataEntry) results.get(i);
-      assertEquals("Pagepath greater than previous", folderNames[i], entry.getFolder());
+      assertEquals(folderNames[i], entry.getFolder(), "Pagepath greater than previous");
     }
 
     // set the following values on the query to test pagination
@@ -1383,7 +1383,7 @@ public class PSMetadataQueryServiceTest {
     List<IPSMetadataEntry> results = searchResults.getFirst();
 
     assertNotNull(results, "entries not null");
-    assertEquals(ENTRY_COUNT, results.size(), "entries found");
+    assertEquals(entryCountExpected, results.size(), "entries found");
 
     for (IPSMetadataEntry entry : results) {
       assertTrue(propertyValueChecker.valueIsCorrect(entry), "entry with correct value");
