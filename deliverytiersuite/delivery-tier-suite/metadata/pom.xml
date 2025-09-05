@@ -66,22 +66,21 @@
             <artifactId>derbyclient</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Inherit H2 version and test scope from DTS parent dependencyManagement -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.2.224</version>
+        </dependency>
+        <!-- Match parent-managed Hibernate coordinates (org.hibernate.orm) and keep test scope local -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-jcache</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Inherit Ehcache version from DTS parent; keep test scope local -->
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>3.10.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-jcache</artifactId>
-            <version>${hibernate.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
