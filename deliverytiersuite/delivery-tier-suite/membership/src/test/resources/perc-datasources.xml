@@ -1,13 +1,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <!-- This file contains database-specific beans -->
    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
       <property name="jdbcUrl" value="${jdbcUrl}" />
       <property name="username" value="${db.username}" />
       <property name="password" value="${db.password}" />
-      <property name="driverClassName" value="${jdbcDriver}" />
       <property name="maximumPoolSize" value="${maximumPoolSize}" />
    </bean>
 
@@ -32,10 +31,8 @@
             <prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
             <prop key="hibernate.show_sql">true</prop>
             <prop key="hibernate.jdbc.batch_size">50</prop>
-            <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
             <prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>
             <prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
-             <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.internal.EhcacheRegionFactory</prop>
          </props>
       </property>
    </bean>

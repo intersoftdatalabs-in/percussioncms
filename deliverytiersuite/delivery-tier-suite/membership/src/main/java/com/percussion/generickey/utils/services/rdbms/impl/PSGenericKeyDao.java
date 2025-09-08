@@ -26,11 +26,29 @@ import jakarta.persistence.criteria.Root;
 import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PSGenericKeyDao extends HibernateDaoSupport implements IPSGenericKeyDao {
+public class PSGenericKeyDao implements IPSGenericKeyDao {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  public PSGenericKeyDao(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  // Default constructor for Spring property injection (backward compatibility)
+  public PSGenericKeyDao() {
+  }
+
+  // Setter retained for legacy bean definitions using property injection
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.generickey.services.IPSGenericKeyDao#createKey()
    */
@@ -93,11 +111,9 @@ public class PSGenericKeyDao extends HibernateDaoSupport implements IPSGenericKe
       // session.close();
     }
   }
-
-  private Session getSession() {
-
-    return getSessionFactory().getCurrentSession();
-  }
+private Session getSession() {
+  return sessionFactory.getCurrentSession();
+}
 
   /**
    * Validate a generic key with the supplied resetKey does not already exist
