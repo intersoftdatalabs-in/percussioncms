@@ -91,21 +91,23 @@
    </bean>
 
    <import resource="perc-datasources.xml" />
-   <import resource="${perc.conf.dir.prefix:}${perc.conf.dir:}perc-datasources.xml" />
 
-   <!-- Hibernate SessionFactory -->
-   <bean id="membershipSessionFactory"
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-      <property name="dataSource">
-         <ref bean="${datasource}" />
-      </property>
-      <property name="hibernateProperties">
-         <ref bean="${hibernateProperties}" />
-      </property>
-      <property name="configLocation">
-         <value>hibernate.cfg.xml</value>
-      </property>
-   </bean>
+    <!-- Hibernate SessionFactory -->
+    <bean id="membershipSessionFactory"
+          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+       <property name="dataSource">
+          <ref bean="${datasource}" />
+       </property>
+       <property name="hibernateProperties">
+          <ref bean="${hibernateProperties}" />
+       </property>
+       <property name="packagesToScan">
+          <list>
+             <value>com.percussion.membership.data.rdbms.impl</value>
+             <value>com.percussion.generickey.utils.data.rdbms.impl</value>
+          </list>
+       </property>
+    </bean>
    
    <tx:annotation-driven transaction-manager="txManager"/>
    
@@ -147,9 +149,7 @@
 
    <bean id="membershipDao"
          class="com.percussion.membership.services.rdbms.impl.PSMembershipDao">
-      <property name="sessionFactory">
-         <ref bean="membershipSessionFactory" />
-      </property>      
+      <constructor-arg ref="membershipSessionFactory" />
    </bean>
 
 

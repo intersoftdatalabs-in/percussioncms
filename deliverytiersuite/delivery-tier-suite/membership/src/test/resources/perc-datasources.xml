@@ -26,9 +26,10 @@
             <!--
             	There is some EL embedded in the key. This is needed to avoid
             	Hibernate to set the default_schema when it's empty.
-           	 -->
-            <prop key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>  
+             -->
+            <prop key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>
             <prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
+            <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
             <prop key="hibernate.show_sql">true</prop>
             <prop key="hibernate.jdbc.batch_size">50</prop>
             <prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>

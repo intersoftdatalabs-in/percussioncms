@@ -41,8 +41,7 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
   }
 
   // Default constructor for Spring property injection (backward compatibility)
-  public PSGenericKeyDao() {
-  }
+  public PSGenericKeyDao() {}
 
   // Setter retained for legacy bean definitions using property injection
   public void setSessionFactory(SessionFactory sessionFactory) {
@@ -111,9 +110,10 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
       // session.close();
     }
   }
-private Session getSession() {
-  return sessionFactory.getCurrentSession();
-}
+
+  private Session getSession() {
+    return sessionFactory.getCurrentSession();
+  }
 
   /**
    * Validate a generic key with the supplied resetKey does not already exist
