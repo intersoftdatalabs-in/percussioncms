@@ -166,7 +166,7 @@
         <owl.version>5.1.10</owl.version>
        <awssdk.version>1.12.261</awssdk.version>
         <bc.version>1.78</bc.version>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.20</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
         <junit.version>4.13.1</junit.version>
@@ -184,7 +184,7 @@
        <axis.version>1.4.1</axis.version>
        <axiscore.version>1.4.2</axiscore.version>
        <httpcomponents.version>4.5.13</httpcomponents.version>
-       <tika.version>1.28.5</tika.version>
+       <tika.version>2.4.1</tika.version>
        <commons-cli.version>1.4</commons-cli.version>
        <opencsv.version>4.6</opencsv.version>
        <xmpbox.version>2.0.17</xmpbox.version>
@@ -2738,7 +2738,7 @@
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.3</version>
             </dependency>
 
             <dependency>
