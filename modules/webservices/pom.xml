@@ -128,7 +128,7 @@
                     <dependency>
                         <groupId>axis</groupId>
                         <artifactId>axis</artifactId>
-                        <version>${axiscore.version}</version>
+                        <version>1.4.2</version>
                     </dependency>
                     <dependency>
                         <groupId>javax.xml</groupId>
@@ -247,6 +247,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>javax.xml</groupId>

@@ -10,8 +10,6 @@
     <packaging>jar</packaging>
     <properties>
         <failOnMissingWebXml>false</failOnMissingWebXml>
-           <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
-        <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
     </properties>
   <build>
 
@@ -182,6 +180,26 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>com.percussion</groupId>
+          <artifactId>audit-log</artifactId>
+          <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>javax.jms</groupId>
+          <artifactId>javax.jms-api</artifactId>
+          <version>2.0.1</version>
+      </dependency>
+      <dependency>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+          <version>1</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.lucene</groupId>
+          <artifactId>lucene-queryparser</artifactId>
+          <version>${lucene.version}</version>
+      </dependency>
       <dependency>
           <groupId>org.jsoup</groupId>
           <artifactId>jsoup</artifactId>
@@ -386,30 +404,6 @@
               <groupId>com.fasterxml.jackson.datatype</groupId>
               <artifactId>jackson-datatype-jdk8</artifactId>
           </dependency>
-        <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <!-- old jtidy -->
-                <exclusion>
-                    <groupId>jtidy</groupId>
-                    <artifactId>jtidy</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xmlParserAPIs</artifactId>
-                    <groupId>xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>aspectjrt</artifactId>
-                    <groupId>aspectj</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
       <dependency>
           <groupId>org.codehaus.jettison</groupId>
           <artifactId>jettison</artifactId>
@@ -665,7 +659,6 @@
       <dependency>
           <groupId>axis</groupId>
           <artifactId>axis-jaxrpc</artifactId>
-          <scope>compile</scope>
       </dependency>
       <dependency>
           <groupId>org.apache.geronimo.specs</groupId>

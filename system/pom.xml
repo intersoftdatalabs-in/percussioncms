@@ -302,39 +302,16 @@
                         </ant>
 
                       </target>
-                    </configuration>
-                    <goals>
-                      <goal>run</goal>
-                    </goals>
-                  </execution>
-                  -->
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
+                                        -->
                 </executions>
             </plugin>
 
 
         </plugins>
-        <!--
-        <extensions>
-        <extension>
-            <groupId>org.apache.maven.extensions</groupId>
-            <artifactId>maven-build-cache-extension</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </extension>
-        </extensions>
-        -->
     </build>
     <dependencies>
         <dependency>
@@ -660,13 +637,6 @@
             <artifactId>solr-solrj</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
@@ -678,13 +648,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-core</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-model</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-api</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-rio-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdfa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdf4j</artifactId>
         </dependency>
 
         <dependency>
@@ -713,10 +693,6 @@
 
         </dependency>
 
-
-        <!-- <dependency> <groupId>org.apache.any23</groupId> <artifactId>apache-any23-core</artifactId> 
-            <version>0.8.0</version> </dependency> -->
-
         <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
         <dependency>
             <groupId>commons-net</groupId>
@@ -731,9 +707,17 @@
 
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <artifactId>tika-parsers-standard-package</artifactId>
             <optional>true</optional>
             <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tika</groupId>
+                    <artifactId>tika-parser-audio-module</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tika</groupId>
+                    <artifactId>tika-parser-cad-module</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.apache.poi</groupId>
                     <artifactId>poi-ooxml</artifactId>
@@ -743,6 +727,35 @@
                     <groupId>net.sf.ehcache</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+        </dependency>
+
+        <!-- Axis dependencies for webservices -->
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-saaj</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+
+        <!-- Ensure Jsoup is available at compile and test time -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
         </dependency>
 
         <dependency>
@@ -1042,36 +1055,6 @@
             <artifactId>quartz</artifactId>
         </dependency>
 
-
-        <!-- bugs with code generation with 1.4 -->
-        <!-- axis dependencies -->
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>${axiscore.version}</version>
-
-        </dependency>
-
-        <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis-saaj</artifactId>
-            <version>${axis.version}</version>
-
-        </dependency>
-        <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
-        <!-- end axis dependencies -->
-
-        <!-- https://mvnrepository.com/artifact/javax.xml/jaxrpc-api for 
-            axis 1.1 -->
-        <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>jaxrpc-api</artifactId>
-
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-imaging -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -1137,8 +1120,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
         </dependency>
 
         <!-- Tools/ant build -->
@@ -1475,14 +1459,4 @@
         </dependency>
 
     </dependencies>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
 </project>

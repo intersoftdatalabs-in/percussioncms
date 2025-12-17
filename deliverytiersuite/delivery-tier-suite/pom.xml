@@ -26,7 +26,7 @@
         <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
         <maven.bundle.plugin.version>4.2.1</maven.bundle.plugin.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
-        <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+        <maven.enforcer.plugin.version>3.4.1</maven.enforcer.plugin.version>
         <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
         <gwt.maven.plugin.version>2.8.2</gwt.maven.plugin.version>
         <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
@@ -40,7 +40,7 @@
         <maven.pmd.plugin.version>3.13.0</maven.pmd.plugin.version>
         <maven.jxr.plugin.version>3.0.0</maven.jxr.plugin.version>
         <plexus.component.metadata.version>2.1.0</plexus.component.metadata.version>
-        <jetty.maven.plugin.version>9.4.26.v20200117</jetty.maven.plugin.version>
+        <jetty.maven.plugin.version>9.4.26.v20250814</jetty.maven.plugin.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
         <java.version>1.8.0</java.version>
@@ -67,14 +67,11 @@
         <awssdk.version>1.11.731</awssdk.version>
         <bc.version>1.74</bc.version>
         <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
-        <jackson.version>2.20</jackson.version>
+        <jackson.version>2.14.2</jackson.version>
         <jackson.data.version>2.14.2</jackson.data.version>
-        <jsoup.version>1.15.3</jsoup.version>
+        <jsoup.version>1.15.4</jsoup.version>
         <json.version>20240303</json.version>
         <junit.version>4.13.2</junit.version>
-        <cactus.version>13-1.7.1</cactus.version>
-        <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
-        <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
         <trinidad.version>1.0.2</trinidad.version>
         <derby.version>10.14.2.0</derby.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -93,13 +90,13 @@
         <swagger.ui.version>3.51.2</swagger.ui.version>
 		 <commons.validator.version>1.7</commons.validator.version>
         <commons.compress.version>1.18</commons.compress.version>
-        <solr.version>8.3.0</solr.version>
+        <solr.version>8.11.4</solr.version>
         <nettyall.version>4.1.45.Final</nettyall.version>
         <commons-email.version>1.5</commons-email.version>
         <tinymce.version>4.9.10</tinymce.version>
         <jfx.version>11.0.2</jfx.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
-        <tomcat.version>9.0.86</tomcat.version>
+        <tomcat.version>9.0.113</tomcat.version>
         <install.jre.version>8.222.10.1</install.jre.version>
         <derby.version>10.14.2.0</derby.version>
         <jtds.version>1.3.1</jtds.version>
@@ -111,7 +108,7 @@
         <jersey.version>2.33</jersey.version>
         <jaxrs.version>2.1.1</jaxrs.version>
        <junit.version>4.12</junit.version>
-        <jsoup.version>1.11.3</jsoup.version>
+        <jsoup.version>1.15.4</jsoup.version>
         <rome.version>2.1.0</rome.version>
         <javax.annotation.version>1.3.2</javax.annotation.version>
         <commons.logging.version>1.2</commons.logging.version>
@@ -169,42 +166,17 @@
 
 
     <repositories>
-<!--        <repository>
-            <id>github</id>
-            <releases>  <enabled>true</enabled>  </releases>
-            <snapshots> <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-            <name>GitHub Percussion Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/percussion/percussioncms</url>
-        </repository>
-        -->
         <repository>
-            <id>perc-release-repo</id>
-            <url>https://mvn.intsof.com/repositories/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>perc-snapshot-repo</id>
-            <url>https://mvn.intsof.com/repositories/snaphots/</url>
-            <snapshots>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
                 <enabled>true</enabled>
                 <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-
-        <repository>
-            <id>perc-thirdparty-repo</id>
-            <url>https://mvn.intsof.com/repositories/thirdparty/</url>
+            </releases>
             <snapshots>
                 <enabled>false</enabled>
-                <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
-
     </repositories>
 
     <dependencyManagement>
@@ -361,12 +333,6 @@
                 <skipTests>${skip.unit.tests}</skipTests>
                 <!--suppress UnresolvedMavenProperty -->
                 <argLine>${surefireArgLine}</argLine>
-                <systemProperties>
-                    <property>
-                        <name>cactus.contextURL</name>
-                        <value>http://localhost:9992/Rhythmyx/</value>
-                    </property>
-                </systemProperties>
                 <excludedGroups>com.percussion.utils.testing.IntegrationTest</excludedGroups>
                 <testFailureIgnore>false</testFailureIgnore>
             </configuration>
@@ -713,29 +679,8 @@
         </pluginRepository>
         -->
         <pluginRepository>
-            <id>perc-releases-repo</id>
-            <name>Perc Plugin Repository</name>
-            <url>https://mvn.intsof.com/repositories/releases/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>perc-snapshots-repo</id>
-            <name>Perc Plugin Repository</name>
-            <url>https://mvn.intsof.com/repositories/snapshots/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -781,14 +726,5 @@
             </plugin>
         </plugins>
     </reporting>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>

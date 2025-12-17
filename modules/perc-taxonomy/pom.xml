@@ -77,12 +77,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>test</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <scope>compile</scope>

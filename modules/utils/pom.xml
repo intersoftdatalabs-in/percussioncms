@@ -267,30 +267,6 @@
         </dependency>
 
         <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <!-- old jtidy -->
-                <exclusion>
-                    <groupId>jtidy</groupId>
-                    <artifactId>jtidy</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xmlParserAPIs</artifactId>
-                    <groupId>xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>aspectjrt</artifactId>
-                    <groupId>aspectj</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
@@ -302,8 +278,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>
