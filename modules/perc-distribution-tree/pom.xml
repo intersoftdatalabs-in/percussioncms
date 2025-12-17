@@ -260,16 +260,6 @@
                     <artifactId>javax.servlet-api</artifactId>
                     <version>${servlet.spec}</version>
                 </dependency>
-                <dependency>
-					<groupId>installanywhere</groupId>
-					<artifactId>iaant</artifactId>
-					<version>0.0.1</version>
-				</dependency>
-				<dependency>
-					<groupId>installanywhere</groupId>
-					<artifactId>services</artifactId>
-					<version>0.0.1</version>
-				</dependency>
 	 <dependency>
 					<groupId>ant-contrib</groupId>
 					<artifactId>ant-contrib</artifactId>
@@ -280,11 +270,6 @@
 							<groupId>ant</groupId>
 						</exclusion>
 					</exclusions>
-				</dependency>
-				<dependency>
-					<groupId>flexera.ia</groupId>
-					<artifactId>IAClasses</artifactId>
-					<version>2020.0.0.0</version>
 				</dependency>
 
             </dependencies>
@@ -449,16 +434,6 @@
             <version>${project.version}</version>
         </dependency>
 <dependency>
-	<groupId>installanywhere</groupId>
-	<artifactId>iaant</artifactId>
-	<version>0.0.1</version>
-</dependency>
-<dependency>
-	<groupId>installanywhere</groupId>
-	<artifactId>services</artifactId>
-	<version>0.0.1</version>
-</dependency>
-<dependency>
 	<groupId>ant-contrib</groupId>
 	<artifactId>ant-contrib</artifactId>
 	<version>1.0b3</version>
@@ -488,11 +463,6 @@
         <artifactId>bcel</artifactId>
     </exclusion>
 </exclusions>
-</dependency>
-<dependency>
-	<groupId>flexera.ia</groupId>
-	<artifactId>IAClasses</artifactId>
-	<version>2020.0.0.0</version>
 </dependency>
 
         <dependency>

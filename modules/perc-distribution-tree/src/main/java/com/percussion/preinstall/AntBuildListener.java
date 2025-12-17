@@ -37,9 +37,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void buildStarted(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Installing files...", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Installing files...", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -50,9 +50,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void buildFinished(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Installation complete.", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Installation complete.", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -63,9 +63,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void targetStarted(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Starting Install phase...", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Starting Install phase...", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -76,9 +76,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void targetFinished(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Install phase complete.", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Install phase complete.", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -89,9 +89,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void taskStarted(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Starting task...", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Starting task...", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -102,9 +102,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void taskFinished(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Task complete.", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Task complete.", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -115,9 +115,9 @@ public class AntBuildListener implements BuildListener {
     @Override
     public void messageLogged(BuildEvent buildEvent) {
         try {
-            if (MainIAInstall.installProxy != null) {
+            if (MainIAInstall.installerProxy != null) {
                 Main.currentLineNo.getAndIncrement();
-                MainIAInstall.showProgress(MainIAInstall.installProxy, Main.currentLineNo.get(), "Running installation...", buildEvent.getMessage());
+                MainIAInstall.showProgress(MainIAInstall.installerProxy, Main.currentLineNo.get(), "Running installation...", buildEvent.getMessage());
             }
         }catch(Exception e){
             log.error(PSExceptionUtils.getMessageForLog(e));
