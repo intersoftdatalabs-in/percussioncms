@@ -631,10 +631,6 @@
             <version>${project.parent.version}</version>
             <exclusions>
 
-                <exclusion>
-                    <groupId>flexera.ia</groupId>
-                    <artifactId>IAClasses</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

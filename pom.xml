@@ -2455,21 +2455,6 @@
                 <version>0.0.1</version>
             </dependency>
             <dependency>
-                <groupId>installanywhere</groupId>
-                <artifactId>iaant</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>installanywhere</groupId>
-                <artifactId>services</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>flexera.ia</groupId>
-                <artifactId>IAClasses</artifactId>
-                <version>2020.0.0.0</version>
-            </dependency>
-            <dependency>
                 <groupId>expectj</groupId>
                 <artifactId>expectj</artifactId>
                 <version>1.1</version>
