@@ -37,7 +37,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcRowData;
@@ -274,7 +274,7 @@ public class PSCommunityDefDependencyHandler
                      PSTypeEnum.COMMUNITY_DEF));
          version = community.getVersion() + 1;
       }
-      catch (PSSecurityException e)
+      catch (PSServiceSecurityException e)
       {
          // community doesn't exist
          version = new Integer(0);

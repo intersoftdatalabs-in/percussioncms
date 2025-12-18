@@ -20,7 +20,7 @@ package com.percussion.rest.acls;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -45,12 +45,12 @@ public class AclTestAdaptor implements IAclAdaptor {
     }
 
     @Override
-    public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
+    public AclList loadAcls(GuidList aclGuids) throws PSServiceSecurityException {
         return null;
     }
 
     @Override
-    public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
+    public Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException {
         return null;
     }
 
@@ -65,12 +65,12 @@ public class AclTestAdaptor implements IAclAdaptor {
     }
 
     @Override
-    public void saveAcls(AclList aclList) throws PSSecurityException {
+    public void saveAcls(AclList aclList) throws PSServiceSecurityException {
 
     }
 
     @Override
-    public void deleteAcl(Guid aclGuid) throws PSSecurityException {
+    public void deleteAcl(Guid aclGuid) throws PSServiceSecurityException {
 
     }
 

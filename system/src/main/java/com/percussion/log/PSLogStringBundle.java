@@ -21,17 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.PropertyResourceBundle;
 
-
 /**
- * This class is used to manage the E2 log string resources. We really
- * don't need to do anything as the super class covers all of what we
- * need to do.
+ * This class is used to manage the E2 log string resources. We really don't need to do anything as
+ * the super class covers all of what we need to do.
  */
 public class PSLogStringBundle extends PropertyResourceBundle {
-   public PSLogStringBundle(InputStream stream)
-      throws IOException
-   {
-      super(stream);
-   }
+  public PSLogStringBundle(InputStream stream) throws IOException {
+    super(stream);
+  }
 }
-

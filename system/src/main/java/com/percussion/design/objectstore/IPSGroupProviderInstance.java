@@ -21,32 +21,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * An instance of a definition for an
- * {@link com.percussion.security.IPSGroupProvider}.  Used to define a source of
- * group information for security providers to use.
+ * An instance of a definition for an {@link com.percussion.security.IPSGroupProvider}. Used to
+ * define a source of group information for security providers to use.
  */
+public interface IPSGroupProviderInstance extends IPSComponent {
 
-public interface IPSGroupProviderInstance extends IPSComponent
-{
+  /** @return The name of this provider, never <code>null</code> or empty. */
+  public String getName();
 
-   /**
-    * @return The name of this provider, never <code>null</code> or empty.
-    */
-   public String getName();
+  /**
+   * @return The type of security provider that may use this group provider. One of the
+   *     PSSecurityProvider.SP_TYPE_xxx types.
+   */
+  public int getType();
 
-
-   /**
-    * @return The type of security provider that may use this group provider.
-    * One of the PSSecurityProvider.SP_TYPE_xxx types.
-    */
-   public int getType();
-
-
-   /**
-   * This method is called to create a PSXGroupProviderInstance
-   * Xml element node containing the data described in this object.
-   * <p>
-   * The structure of the xml document is:
+  /**
+   * This method is called to create a PSXGroupProviderInstance Xml element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the xml document is:
+   *
    * <pre><code>
    *  &lt;!--
    *        PSXGroupProviderInstance defines a group provider used
@@ -74,15 +68,11 @@ public interface IPSGroupProviderInstance extends IPSComponent
    *
    * </code></pre>
    *
-   * @return the newly created PSXGroupProviderInstance Xml element node, never
-   * <code>null</code> or empty.
+   * @return the newly created PSXGroupProviderInstance Xml element node, never <code>null</code> or
+   *     empty.
    */
-   public Element toXml(Document doc);
+  public Element toXml(Document doc);
 
-   /**
-    * Name of parent XML element.
-    */
-   public static final String XML_NODE_NAME = "PSXGroupProviderInstance";
-
-
+  /** Name of parent XML element. */
+  public static final String XML_NODE_NAME = "PSXGroupProviderInstance";
 }

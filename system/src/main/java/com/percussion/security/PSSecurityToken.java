@@ -20,141 +20,123 @@ package com.percussion.security;
 import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
 
-/**
- * Class that encapulates the data required to be able to check user access
- * levels at any time.
- */
-public class PSSecurityToken
-{
-   /**
-    * Constructor.
-    *
-    * @param session The users session.  Must already be the user's
-    * authenticated entries.  May be <code>null</code> if a session has not
-    * yet been created.
-    */
-   public PSSecurityToken(PSUserSession session)
-   {
-      m_session = session;
-   }
-   
-   /**
-    * Constructs a security token for the supplied session.
-    * 
-    * @param session the session for which to create the security token, may
-    *    be <code>null</code> or empty.
-    */
-   public PSSecurityToken(String session)
-   {
-      m_session = PSUserSessionManager.getUserSession(session);      
-   }
+/** Class that encapulates the data required to be able to check user access levels at any time. */
+public class PSSecurityToken {
+  /**
+   * Constructor.
+   *
+   * @param session The users session. Must already be the user's authenticated entries. May be
+   *     <code>null</code> if a session has not yet been created.
+   */
+  public PSSecurityToken(PSUserSession session) {
+    m_session = session;
+  }
 
-   /**
-    * Returns the user's session.  This is a reference to the session passed
-    * into the constructor, so that we have it even if it has expired.
-    *
-    * @return The session.
-    */
-   public PSUserSession getUserSession()
-   {
-      return m_session;
-   }
+  /**
+   * Constructs a security token for the supplied session.
+   *
+   * @param session the session for which to create the security token, may be <code>null</code> or
+   *     empty.
+   */
+  public PSSecurityToken(String session) {
+    m_session = PSUserSessionManager.getUserSession(session);
+  }
 
-   /**
-    * Returns the user's session id.
-    *
-    * @return The session id.  May be <code>null</code>.
-    */
-   public String getUserSessionId()
-   {
-      String sessId = null;
+  /**
+   * Returns the user's session. This is a reference to the session passed into the constructor, so
+   * that we have it even if it has expired.
+   *
+   * @return The session.
+   */
+  public PSUserSession getUserSession() {
+    return m_session;
+  }
 
-      if(m_session != null)
-         sessId = m_session.getId();
+  /**
+   * Returns the user's session id.
+   *
+   * @return The session id. May be <code>null</code>.
+   */
+  public String getUserSessionId() {
+    String sessId = null;
 
-      return sessId;
-   }
+    if (m_session != null) sessId = m_session.getId();
 
-   /**
-    * Sets the type of resource that is being checked.  Should be called just
-    * before checking security.
-    * @param resourceType A String representing the type of the resource that is
-    * being accessed.  Used in exception text only, used for backward
-    * compatibility with exisiting calls.  May not be <code>null</code>.
-    * @throws IllegalArgumentException if resourceType is <code>null</code>.
-    */
-   public void setResourceType(String resourceType)
-   {
-      if (resourceType == null)
-         throw new IllegalArgumentException("resourceType may not be null.");
+    return sessId;
+  }
 
-      m_resourceType = resourceType;
-   }
+  /**
+   * Sets the type of resource that is being checked. Should be called just before checking
+   * security.
+   *
+   * @param resourceType A String representing the type of the resource that is being accessed. Used
+   *     in exception text only, used for backward compatibility with exisiting calls. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if resourceType is <code>null</code>.
+   */
+  public void setResourceType(String resourceType) {
+    if (resourceType == null) throw new IllegalArgumentException("resourceType may not be null.");
 
-   /**
-    * Sets the name of the resource that is being checked.  Should be called
-    * just before checking security.
-    * @param resourceName A String representing the name of the resource that is
-    * being accessed.  Used in exception text only, used for backward
-    * compatibility with exisiting calls.  May not be <code>null</code>.
-    * @throws IllegalArgumentException if resourceType is <code>null</code>.
-    */
-   public void setResourceName(String resourceName)
-   {
-      if (resourceName == null)
-         throw new IllegalArgumentException("resourceName may not be null.");
+    m_resourceType = resourceType;
+  }
 
-      m_resourceName = resourceName;
-   }
+  /**
+   * Sets the name of the resource that is being checked. Should be called just before checking
+   * security.
+   *
+   * @param resourceName A String representing the name of the resource that is being accessed. Used
+   *     in exception text only, used for backward compatibility with exisiting calls. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if resourceType is <code>null</code>.
+   */
+  public void setResourceName(String resourceName) {
+    if (resourceName == null) throw new IllegalArgumentException("resourceName may not be null.");
 
-   /**
-    * Returns the type of the resource that is being checked.
-    * @return The type.  May be <code>null</code>.
-    */
-   public String getResourceType()
-   {
-      return m_resourceType;
-   }
+    m_resourceName = resourceName;
+  }
 
-   /**
-    * Returns the name of the resource that is being checked.
-    * @return The name.  May be <code>null</code>.
-    */
-   public String getResourceName()
-   {
-      return m_resourceName;
-   }
+  /**
+   * Returns the type of the resource that is being checked.
+   *
+   * @return The type. May be <code>null</code>.
+   */
+  public String getResourceType() {
+    return m_resourceType;
+  }
 
-   /**
-    * Returns the current community id of this security token.
-    * 
-    * @return current community id, -1 if not found or error
-    */
-   public int getCommunityId()
-   {
-      String tmp = (String)m_session.getPrivateObject("sys_community");
-      if (tmp == null || tmp.trim().length() == 0)
-         return -1;
-      
-      return Integer.parseInt(tmp);
-   }
+  /**
+   * Returns the name of the resource that is being checked.
+   *
+   * @return The name. May be <code>null</code>.
+   */
+  public String getResourceName() {
+    return m_resourceName;
+  }
 
-   /**
-    * The user's session.  Initialized in the constructor, may be
-    * <code>null</code>.
-    */
-   private PSUserSession m_session = null;
+  /**
+   * Returns the current community id of this security token.
+   *
+   * @return current community id, -1 if not found or error
+   */
+  public int getCommunityId() {
+    String tmp = (String) m_session.getPrivateObject("sys_community");
+    if (tmp == null || tmp.trim().length() == 0) return -1;
 
-   /**
-    * The name of the resource to be checked.  Used in exception text only,
-    * provided for backward compatibility.  May be <code>null</code>.
-    */
-   private String m_resourceName = null;
+    return Integer.parseInt(tmp);
+  }
 
-   /**
-    * The type of the resource to be checked.  Used in exception text only,
-    * provided for backward compatibility.  May be <code>null</code>.
-    */
-   private String m_resourceType = null;
+  /** The user's session. Initialized in the constructor, may be <code>null</code>. */
+  private PSUserSession m_session = null;
 
+  /**
+   * The name of the resource to be checked. Used in exception text only, provided for backward
+   * compatibility. May be <code>null</code>.
+   */
+  private String m_resourceName = null;
+
+  /**
+   * The type of the resource to be checked. Used in exception text only, provided for backward
+   * compatibility. May be <code>null</code>.
+   */
+  private String m_resourceType = null;
 }

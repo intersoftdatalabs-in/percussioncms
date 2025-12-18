@@ -19,117 +19,94 @@ package com.ibm.cadf.model;
 
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.MessageFormat;
+public class Attachment extends com.ibm.cadf.model.CADFType {
 
-public class Attachment extends com.ibm.cadf.model.CADFType
-{
+  private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+  private String typeURI;
 
-    private String typeURI;
+  private String content;
 
-    private String content;
+  private String name;
 
-    private String name;
+  private String contentType;
 
-    private String contentType;
+  public Attachment(String contentType, String content, String name) throws CADFException {
+    super();
+    this.contentType = contentType;
+    this.content = content;
+    this.name = name;
+  }
 
-    public Attachment(String contentType, String content, String name) throws CADFException
-    {
-        super();
-        this.contentType = contentType;
-        this.content = content;
-        this.name = name;
+  public String getTypeURI() {
+    return typeURI;
+  }
+
+  public void setTypeURI(String typeURI) {
+    this.typeURI = typeURI;
+  }
+
+  public String getContent() {
+    return content;
+  }
+
+  public void setContent(String content) {
+    this.content = content;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  @Override
+  public boolean isValid() throws CADFException {
+    // Validation to ensure Attachment required attributes are set.
+
+    boolean missingMandatoryField = false;
+    StringBuilder missingMadatoryFields = new StringBuilder();
+    if (StringUtils.isEmpty(contentType)) {
+      missingMandatoryField = true;
+      missingMadatoryFields.append("contentType");
     }
 
-    public String getTypeURI()
-    {
-        return typeURI;
+    if (StringUtils.isEmpty(content)) {
+      if (missingMandatoryField) {
+        missingMadatoryFields.append(",");
+      } else {
+        missingMandatoryField = true;
+      }
+      missingMadatoryFields.append("content");
     }
 
-    public void setTypeURI(String typeURI)
-    {
-        this.typeURI = typeURI;
+    if (StringUtils.isEmpty(name)) {
+      if (missingMandatoryField) {
+        missingMadatoryFields.append(",");
+      } else {
+        missingMandatoryField = true;
+      }
+      missingMadatoryFields.append("name");
     }
 
-    public String getContent()
-    {
-        return content;
-    }
-
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getContentType()
-    {
-        return contentType;
-    }
-
-    public void setContentType(String contentType)
-    {
-        this.contentType = contentType;
-    }
-
-    @Override
-    public boolean isValid() throws CADFException
-    {
-        // Validation to ensure Attachment required attributes are set.
-
-        boolean missingMandatoryField = false;
-        StringBuilder missingMadatoryFields = new StringBuilder();
-        if (StringUtils.isEmpty(contentType))
-        {
-            missingMandatoryField = true;
-            missingMadatoryFields.append("contentType");
-        }
-
-        if (StringUtils.isEmpty(content))
-        {
-            if (missingMandatoryField)
-            {
-                missingMadatoryFields.append(",");
-            }
-            else
-            {
-                missingMandatoryField = true;
-            }
-            missingMadatoryFields.append("content");
-        }
-
-        if (StringUtils.isEmpty(name))
-        {
-            if (missingMandatoryField)
-            {
-                missingMadatoryFields.append(",");
-            }
-            else
-            {
-                missingMandatoryField = true;
-            }
-            missingMadatoryFields.append("name");
-        }
-
-        // Validation to ensure FederatedCredential required attributes are set.
-        if (!missingMandatoryField)
-            return true;
-        else
-            throw new CADFException(MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS,
-                                                         missingMadatoryFields.toString()));
-
-    }
-
+    // Validation to ensure FederatedCredential required attributes are set.
+    if (!missingMandatoryField) return true;
+    else
+      throw new CADFException(
+          MessageFormat.format(
+              Messages.MISSING_MANDATORY_FIELDS, missingMadatoryFields.toString()));
+  }
 }

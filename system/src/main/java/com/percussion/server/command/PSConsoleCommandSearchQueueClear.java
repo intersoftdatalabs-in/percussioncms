@@ -21,51 +21,36 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
-/**
- * Command to clear the inmemory and repository events that are queued for
- * indexing.
- * 
- */
-public class PSConsoleCommandSearchQueueClear extends PSConsoleCommand
-{
+/** Command to clear the inmemory and repository events that are queued for indexing. */
+public class PSConsoleCommandSearchQueueClear extends PSConsoleCommand {
 
-   /**
-    * The constructor for this class. The command arguments are ignored for this
-    * command.
-    * 
-    * @param cmdArgs the argument string to use when executing this command, may
-    * be <code>null</code> or empty.
-    */
-   public PSConsoleCommandSearchQueueClear(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+  /**
+   * The constructor for this class. The command arguments are ignored for this command.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
+   */
+  public PSConsoleCommandSearchQueueClear(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-   //see base class   
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc;
-      doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, 
-         getCommandName());
-      if (null != doc)
-         return doc;
-      PSSearchIndexEventQueue.getInstance().clearQueues();
-      doc = getResultsDocument(request, getCommandName(), 
-            IPSServerErrors.RCONSOLE_SEARCH_QUEUE_CLEARED, 
-            null);
-      return doc;
-   }
-   
-   // see base class
-   protected String getCommandName()
-   {
-      return COMMAND_NAME;
-   }
-   
-   /**
-    * The full command that launched this handler. 
-    */
-   private final static String COMMAND_NAME = "search queue clear";
-   
+  // see base class
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc;
+    doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, getCommandName());
+    if (null != doc) return doc;
+    PSSearchIndexEventQueue.getInstance().clearQueues();
+    doc =
+        getResultsDocument(
+            request, getCommandName(), IPSServerErrors.RCONSOLE_SEARCH_QUEUE_CLEARED, null);
+    return doc;
+  }
 
+  // see base class
+  protected String getCommandName() {
+    return COMMAND_NAME;
+  }
+
+  /** The full command that launched this handler. */
+  private static final String COMMAND_NAME = "search queue clear";
 }

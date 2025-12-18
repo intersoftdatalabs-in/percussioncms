@@ -20,20 +20,15 @@ package com.percussion.share.service.exception;
 import com.percussion.share.validation.PSValidationErrors;
 
 /**
- * 
  * Used to validate parameters of a method call.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
 public class PSParametersValidationException extends PSValidationException {
-    
-    public PSParametersValidationException(PSValidationErrors validationErrors)
-    {
-        super(validationErrors);
-    }
 
-    private static final long serialVersionUID = 1L;    
-    
+  public PSParametersValidationException(PSValidationErrors validationErrors) {
+    super(validationErrors);
+  }
 
+  private static final long serialVersionUID = 1L;
 }

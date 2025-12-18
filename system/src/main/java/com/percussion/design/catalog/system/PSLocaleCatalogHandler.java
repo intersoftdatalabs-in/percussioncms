@@ -19,19 +19,17 @@ package com.percussion.design.catalog.system;
 
 import com.percussion.design.catalog.IPSCatalogHandler;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Enumeration;
+import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Enumeration;
-import java.util.Properties;
-
-
 /**
  * This class implements cataloging of locales on the server.
- * <p>
- * Locale handler catalog requests are sent to the server
- * using the PSXLocaleCatalog XML document. Its definition
- * is as follows:
+ *
+ * <p>Locale handler catalog requests are sent to the server using the PSXLocaleCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  * <code>
  *
@@ -40,9 +38,8 @@ import java.util.Properties;
  * </code>
  * </pre>
  *
- * The PSXLocaleCatalogResults XML document is sent
- * as the response. Its definition is as follows:
- * 
+ * The PSXLocaleCatalogResults XML document is sent as the response. Its definition is as follows:
+ *
  * <pre>
  * <code>
  *
@@ -50,89 +47,73 @@ import java.util.Properties;
  *
  *    &lt;!--
  *       Each locale is returned as a locale element.  Each locale element is
- *       composed of one value which represents the language string used to 
- *       identify the locale. 
+ *       composed of one value which represents the language string used to
+ *       identify the locale.
  *    --&gt;
  *    &lt;!ELEMENT locale (languageString)&gt;
- *  
+ *
  *    &lt;!--
- *       The language string by which the locale should be referenced. 
+ *       The language string by which the locale should be referenced.
  *     --&gt;
  *    &lt;!ELEMENT languageString (#PCDATA)&gt;
- *    
+ *
  * </code>
  * </pre>
  */
-public class PSLocaleCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler. This is used primarily
-    * by the cataloger.
-    */
-   public PSLocaleCatalogHandler()
-   {
-      super();
-   }
+public class PSLocaleCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. This is used primarily by the cataloger. */
+  public PSLocaleCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified
-    * request information. The request information for this
-    * request type is:
-    *
-    * <table border="1">
-    * <tr>
-    *      <th>Key</th>
-    *      <th>Value</th>
-    *      <th>Required</th>
-    *   </tr>
-    * <tr>
-    *      <td>RequestCategory</td>
-    *      <td>system</td>
-    *      <td>yes</td>
-    *   </tr>
-    * <tr>
-    *      <td>RequestType</td>
-    *      <td>Locale</td>
-    *      <td>yes</td>
-    *   </tr>
-    * </table>
-    *
-    * @param   req         the request information
-    *
-    * @return               an XML document containing the appropriate
-    *                        catalog request information
-    */
-   public org.w3c.dom.Document formatRequest(Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ((sTemp == null) || !"system".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException(
-               "req category invalid: exit or null");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="1">
+   * <tr>
+   *      <th>Key</th>
+   *      <th>Value</th>
+   *      <th>Required</th>
+   *   </tr>
+   * <tr>
+   *      <td>RequestCategory</td>
+   *      <td>system</td>
+   *      <td>yes</td>
+   *   </tr>
+   * <tr>
+   *      <td>RequestType</td>
+   *      <td>Locale</td>
+   *      <td>yes</td>
+   *   </tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public org.w3c.dom.Document formatRequest(Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"system".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid: exit or null");
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ((sTemp == null) || !"Locale".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid: Locale or null");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Locale".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid: Locale or null");
+    }
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-            "PSXLocaleCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXLocaleCatalog");
 
-      // pass all properties in the supplied list thru
-      Enumeration keys = req.propertyNames();
-      while (keys.hasMoreElements())
-      {
-         String key = (String) keys.nextElement();
-         if (!(key.equals("RequestCategory") || key.equals("RequestType")))
-            PSXmlDocumentBuilder.addElement(reqDoc, root, key, req.getProperty(
-                  key));
-      }
+    // pass all properties in the supplied list thru
+    Enumeration keys = req.propertyNames();
+    while (keys.hasMoreElements()) {
+      String key = (String) keys.nextElement();
+      if (!(key.equals("RequestCategory") || key.equals("RequestType")))
+        PSXmlDocumentBuilder.addElement(reqDoc, root, key, req.getProperty(key));
+    }
 
-      return reqDoc;
-   }   
+    return reqDoc;
+  }
 }
-

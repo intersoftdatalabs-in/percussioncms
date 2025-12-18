@@ -21,58 +21,46 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.search.lucene.PSSearchUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
- * Extracts the text from xml and returns. Walks through all the nodes and gets
- * the text from only text nodes and concatnates them with a space. 
+ * Extracts the text from xml and returns. Walks through all the nodes and gets the text from only
+ * text nodes and concatnates them with a space.
  */
-public class PSTextConverterXml implements IPSLuceneTextConverter
-{
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.search.lucene.textconverter.IPSLuceneTextConverter#getConvertedText(java.io.InputStream, java.lang.String)
-    */
-   public String getConvertedText(InputStream is, String mimetype)
-      throws PSExtensionProcessingException
-   {
-      String resultText = "";
-      try
-      {
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
-         StringBuilder sb = new StringBuilder();
-         PSSearchUtils.getNodeText(sb,doc.getDocumentElement());
-         resultText = sb.toString();
-      }
-      catch (IOException e)
-      {
-         throw new PSExtensionProcessingException(m_className, e);
-      }
-      catch (SAXException e)
-      {
-         throw new PSExtensionProcessingException(m_className, e);
-      }
-      return resultText;
-   }
+public class PSTextConverterXml implements IPSLuceneTextConverter {
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.search.lucene.textconverter.IPSLuceneTextConverter#getConvertedText(java.io.InputStream, java.lang.String)
+   */
+  public String getConvertedText(InputStream is, String mimetype)
+      throws PSExtensionProcessingException {
+    String resultText = "";
+    try {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
+      StringBuilder sb = new StringBuilder();
+      PSSearchUtils.getNodeText(sb, doc.getDocumentElement());
+      resultText = sb.toString();
+    } catch (IOException e) {
+      throw new PSExtensionProcessingException(m_className, e);
+    } catch (SAXException e) {
+      throw new PSExtensionProcessingException(m_className, e);
+    }
+    return resultText;
+  }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-    */
-   public void init(IPSExtensionDef def, File codeRoot)
-      throws PSExtensionException
-   {
-   // TODO Auto-generated method stub
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   */
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // TODO Auto-generated method stub
 
-   }
+  }
 
-   /**
-    * A memeber variable to hold the name of this class.
-    */
-   private String m_className = getClass().getName();
+  /** A memeber variable to hold the name of this class. */
+  private String m_className = getClass().getName();
 }

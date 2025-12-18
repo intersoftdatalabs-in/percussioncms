@@ -42,7 +42,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
@@ -164,7 +164,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler
       {
          acl = (PSAclImpl) m_aclSvc.loadAcl(guid);
       }
-      catch (PSSecurityException e)
+      catch (PSServiceSecurityException e)
       {
       }
       return acl;
@@ -498,7 +498,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler
             }
 
          }
-         catch (NotOwnerException |PSSecurityException e)
+         catch (NotOwnerException |PSServiceSecurityException e)
          {
             throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
                   "Could not install the ACL: " + tmp.getName());

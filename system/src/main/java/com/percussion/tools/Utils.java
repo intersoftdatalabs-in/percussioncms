@@ -19,9 +19,6 @@ package com.percussion.tools;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,82 +26,60 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
-* This class is a place holder for all utility functions that do not need classes
-* by themseleves. All methods in this shall be static and public.
-*
-*/
-public class Utils
-{
-   private Utils()
-   {
-   }
+ * This class is a place holder for all utility functions that do not need classes by themseleves.
+ * All methods in this shall be static and public.
+ */
+public class Utils {
+  private Utils() {}
 
-   /**
-   * This method returns the Version.properties file as a Java Properties
-   * file from a given JAR file.
+  /**
+   * This method returns the Version.properties file as a Java Properties file from a given JAR
+   * file.
    *
    * @param root - the root path of the JAR file location, e.g. d:/Rhythmyx/lib
-   *
    * @param sJarFile - the jar file name as string
-   *
    * @param path - the path of the file Version.properties in the JAR file, e.g.
-   * com/percussion/publisher.
-   *
+   *     com/percussion/publisher.
    * @return Java Properties file - never null.
-   *
    * @throws - FileNotFoundException
-   *
    * @throws - IOException
-   *
    */
-   static public Properties getVersionPropsFromJAR(String root, String sJarFile,
-      String path)
-         throws FileNotFoundException, IOException
-   {
-      Properties props = new Properties();
+  public static Properties getVersionPropsFromJAR(String root, String sJarFile, String path)
+      throws FileNotFoundException, IOException {
+    Properties props = new Properties();
 
-      File file = new File(root, sJarFile);
-      JarFile jfile = new JarFile(file);
-      ZipEntry entry = jfile.getEntry(path + "/Version.properties");
-      if(null == entry)
-         return props;
+    File file = new File(root, sJarFile);
+    JarFile jfile = new JarFile(file);
+    ZipEntry entry = jfile.getEntry(path + "/Version.properties");
+    if (null == entry) return props;
 
-      try(InputStream is = jfile.getInputStream(entry)) {
-         props.load(is);
-      }
+    try (InputStream is = jfile.getInputStream(entry)) {
+      props.load(is);
+    }
 
-      return props;
-   }
+    return props;
+  }
 
-   /**
-    * Returns DocumentBuilder object for parsing XML documents
-    * @return DocumentBuilder object for parsing XML documents. Never
-    * <code>null</code>.
-    */
-   static public DocumentBuilder getDocumentBuilder()
-   {
-      try
-      {
-         DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-                 new PSXmlSecurityOptions(
-                         true,
-                         true,
-                         true,
-                         false,
-                         true,
-                         false
-                 ));
+  /**
+   * Returns DocumentBuilder object for parsing XML documents
+   *
+   * @return DocumentBuilder object for parsing XML documents. Never <code>null</code>.
+   */
+  public static DocumentBuilder getDocumentBuilder() {
+    try {
+      DocumentBuilderFactory dbf =
+          PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+              new PSXmlSecurityOptions(true, true, true, false, true, false));
 
-         dbf.setNamespaceAware(true);
-         dbf.setValidating(false);
-         return dbf.newDocumentBuilder();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e.getMessage());
-      }
-   }
-
+      dbf.setNamespaceAware(true);
+      dbf.setValidating(false);
+      return dbf.newDocumentBuilder();
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 }

@@ -17,26 +17,26 @@
 package com.percussion.i18n.tmxdom;
 
 /**
- * This interface defines common methods for the TMX node 'note'. Refer to the
- * TMX 1.4 DTD for more details of this node at:
- * <p>
- * <a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
- * </p>
+ * This interface defines common methods for the TMX node 'note'. Refer to the TMX 1.4 DTD for more
+ * details of this node at:
+ *
+ * <p><a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
+ *
  * @see IPSTmxDtdConstants
  */
-public interface IPSTmxNote
-   extends IPSTmxLeafNode
-{
-   /**
-    * Method to get the language attribute of this node.
-    * @return langauge attribute value of this node, never <code>null</code>
-    * may be <code>empty</code>.
-    */
-   public String getLang();
+public interface IPSTmxNote extends IPSTmxLeafNode {
+  /**
+   * Method to get the language attribute of this node.
+   *
+   * @return langauge attribute value of this node, never <code>null</code> may be <code>empty
+   *     </code>.
+   */
+  public String getLang();
 
-   /**
-    * Sets langauge attribute for this node
-    * @param    lang if <code>null</code>, <code>empty</code> is assumed.
-    */
-   public void setLang(String lang);
+  /**
+   * Sets langauge attribute for this node
+   *
+   * @param lang if <code>null</code>, <code>empty</code> is assumed.
+   */
+  public void setLang(String lang);
 }

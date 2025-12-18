@@ -21,7 +21,9 @@ import java.nio.file.Path;
 import java.util.Map;
 
 public interface IConfigFile {
-    Path getPath();
-    Map<String,String> load();
-    void save(Map<String,String> properties);
+  Path getPath();
+
+  Map<String, String> load();
+
+  void save(Map<String, String> properties);
 }

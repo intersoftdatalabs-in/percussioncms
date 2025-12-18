@@ -17,14 +17,11 @@
 package com.percussion.i18n.tmxdom;
 
 /**
- * This interface defines common methods for the TMX node 'seg'. Refer to the
- * TMX 1.4 DTD for more details of this node at:
- * <p>
- * <a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
- * </p>
+ * This interface defines common methods for the TMX node 'seg'. Refer to the TMX 1.4 DTD for more
+ * details of this node at:
+ *
+ * <p><a href="http://www.lisa.org/tmx/">Localisation Industry Standards Association</a>
+ *
  * @see IPSTmxDtdConstants
  */
-public interface IPSTmxSegment
-   extends IPSTmxLeafNode
-{
-}
+public interface IPSTmxSegment extends IPSTmxLeafNode {}

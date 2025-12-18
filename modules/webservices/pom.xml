@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -12,6 +13,26 @@
         <axis.version>1.4.1</axis.version>
         <axiscore.version>1.4.2</axiscore.version>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.4.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxrpc-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api -->
+        <dependency>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>javax.xml.soap-api</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -130,7 +151,7 @@
                         <artifactId>axis</artifactId>
                         <version>1.4.2</version>
                         <scope>system</scope>
-                        <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>  
+                        <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
                     </dependency>
                     <dependency>
                         <groupId>javax.xml</groupId>
@@ -165,7 +186,6 @@
                         <artifactId>javax.xml.soap-api</artifactId>
                         <version>1.4.0</version>
                     </dependency>
-
                 </dependencies>
                 <executions>
                     <execution>
@@ -177,8 +197,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -186,11 +204,10 @@
                 <executions>
                     <execution>
                         <id>add-source</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
                         </goals>
-
+                        <phase>generate-sources</phase>
                         <configuration>
                             <sources>
                                 <source>${project.build.directory}/generated-sources/axistools/wsdl2java</source>
@@ -199,12 +216,10 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
-
             <plugin>
                 <groupId>axis</groupId>
                 <artifactId>wsdl2java-maven-plugin</artifactId>
@@ -228,14 +243,14 @@
                 <executions>
                     <execution>
                         <id>clean-axis-impl</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <phase>generate-sources</phase>
                         <configuration>
                             <target>
                                 <delete>
-                                    <fileset dir="${project.build.directory}/generated-sources/axistools/wsdl2java" includes="**/*SOAPImpl.java" />
+                                    <fileset dir="${project.build.directory}/generated-sources/axistools/wsdl2java" includes="**/*SOAPImpl.java"/>
                                 </delete>
                             </target>
                         </configuration>
@@ -244,27 +259,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>1.4.2</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>jaxrpc-api</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api -->
-        <dependency>
-            <groupId>javax.xml.soap</groupId>
-            <artifactId>javax.xml.soap-api</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-
-    </dependencies>
-
 </project>

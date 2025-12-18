@@ -26,22 +26,21 @@ public class ASTDerivedColumn extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
 
   public void setColumnAlias(String alias) {
-     m_columnAlias = alias;
+    m_columnAlias = alias;
   }
 
   public String getColumnAlias() {
-     return m_columnAlias;
+    return m_columnAlias;
   }
 
   public boolean hasAlias() {
-     return (null != m_columnAlias);
+    return (null != m_columnAlias);
   }
 
   private String m_columnAlias = null;

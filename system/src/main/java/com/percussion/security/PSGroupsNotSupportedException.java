@@ -19,25 +19,17 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
- * PSGroupsNotSupportedException is thrown to indicate that the
- * security provider does not support groups.
+ * PSGroupsNotSupportedException is thrown to indicate that the security provider does not support
+ * groups.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSGroupsNotSupportedException extends PSException
-{
-   /**
-    * Constructs a groups not supported exception with the default
-    * message.
-    */
-   public PSGroupsNotSupportedException(java.lang.String provider)
-   {
-      super(IPSSecurityErrors.GROUPS_NOT_SUPPORTED,
-            new Object[] { provider });
-   }
+public class PSGroupsNotSupportedException extends PSException {
+  /** Constructs a groups not supported exception with the default message. */
+  public PSGroupsNotSupportedException(java.lang.String provider) {
+    super(IPSSecurityErrors.GROUPS_NOT_SUPPORTED, new Object[] {provider});
+  }
 }
-

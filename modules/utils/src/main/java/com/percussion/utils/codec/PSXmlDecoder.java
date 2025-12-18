@@ -16,84 +16,68 @@
  */
 package com.percussion.utils.codec;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.codec.Encoder;
 import org.apache.commons.codec.EncoderException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Take the string version of an xml document and replace the four entities with
- * their character equivalents.
- * 
+ * Take the string version of an xml document and replace the four entities with their character
+ * equivalents.
+ *
  * @author dougrand
  */
-public class PSXmlDecoder implements Encoder
-{
-   /**
-    *  
-    */
-   public PSXmlDecoder() {
-      super();
-   }
+public class PSXmlDecoder implements Encoder {
+  /** */
+  public PSXmlDecoder() {
+    super();
+  }
 
-   static Map<String, Character> ms_xmlentities = null;
+  static Map<String, Character> ms_xmlentities = null;
 
-   static
-   {
-      ms_xmlentities = new HashMap<String, Character>();
-      ms_xmlentities.put("amp", '&');
-      ms_xmlentities.put("lt", '<');
-      ms_xmlentities.put("gt", '>');
-      ms_xmlentities.put("quot", '"');
-      ms_xmlentities.put("apos", '\'');
-   }
-   
-   /**
-    * (non-Javadoc)
-    * 
-    * @see org.apache.commons.codec.Encoder#encode(java.lang.Object)
-    */
-   public Object encode(Object arg0) throws EncoderException
-   {
-      String input = (String) arg0;
-      StringBuilder rval = new StringBuilder((int) (input.length() * 1.5));
-      for (int i = 0; i < input.length(); i++)
-      {
-         char ch = input.charAt(i);
-         switch (ch)
-         {
-            case '&' : // Introduces an entity
-               int semi = input.indexOf(';', i);
-               if (semi == -1)
-               {
-                  break;
-               }
-               String ent = input.substring(i + 1, semi);
-               if (ent.charAt(0) == '#')
-               {
-                  char x = (char) Integer.parseInt(ent.substring(1));
-                  rval.append(x);
-               }
-               else
-               {
-                  Character matched = ms_xmlentities.get(ent);
-                  if (matched != null)
-                  {
-                     rval.append(matched.charValue());
-                  }
-                  else
-                  {
-                     throw new EncoderException("Found unknown entity " + ent
-                           + " at pos " + i);
-                  }
-               }
-               i = semi;
-               break;
-            default :
-               rval.append(ch);
-         }
+  static {
+    ms_xmlentities = new HashMap<String, Character>();
+    ms_xmlentities.put("amp", '&');
+    ms_xmlentities.put("lt", '<');
+    ms_xmlentities.put("gt", '>');
+    ms_xmlentities.put("quot", '"');
+    ms_xmlentities.put("apos", '\'');
+  }
+
+  /**
+   * (non-Javadoc)
+   *
+   * @see org.apache.commons.codec.Encoder#encode(java.lang.Object)
+   */
+  public Object encode(Object arg0) throws EncoderException {
+    String input = (String) arg0;
+    StringBuilder rval = new StringBuilder((int) (input.length() * 1.5));
+    for (int i = 0; i < input.length(); i++) {
+      char ch = input.charAt(i);
+      switch (ch) {
+        case '&': // Introduces an entity
+          int semi = input.indexOf(';', i);
+          if (semi == -1) {
+            break;
+          }
+          String ent = input.substring(i + 1, semi);
+          if (ent.charAt(0) == '#') {
+            char x = (char) Integer.parseInt(ent.substring(1));
+            rval.append(x);
+          } else {
+            Character matched = ms_xmlentities.get(ent);
+            if (matched != null) {
+              rval.append(matched.charValue());
+            } else {
+              throw new EncoderException("Found unknown entity " + ent + " at pos " + i);
+            }
+          }
+          i = semi;
+          break;
+        default:
+          rval.append(ch);
       }
-      return rval.toString();
-   }
+    }
+    return rval.toString();
+  }
 }

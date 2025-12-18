@@ -19,30 +19,25 @@ package com.ibm.cadf.model;
 
 import static org.junit.Assert.assertEquals;
 
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
-
 import org.junit.Test;
 
-import com.ibm.cadf.exception.CADFException;
+public class MeasurementTest {
 
-public class MeasurementTest
-{
+  @Test
+  public void testMeasurementPositive() throws CADFException, IOException {
+    String metricId = Identifier.generateUniqueId();
+    Metric metric1 = new Metric(metricId, "size", "MB");
+    Measurement measurement = new Measurement("FileData", metric1, null);
+    assertEquals(true, measurement.isValid());
+  }
 
-    @Test
-    public void testMeasurementPositive() throws CADFException, IOException
-    {
-        String metricId = Identifier.generateUniqueId();
-        Metric metric1 = new Metric(metricId, "size", "MB");
-        Measurement measurement = new Measurement("FileData", metric1, null);
-        assertEquals(true, measurement.isValid());
-    }
-
-    @Test
-    public void testMeasurementNegative() throws CADFException, IOException
-    {
-        String metricId = Identifier.generateUniqueId();
-        Metric metric1 = new Metric(metricId, "size", "MB");
-        Measurement measurement = new Measurement(null, metric1, null);
-        assertEquals(false, measurement.isValid());
-    }
+  @Test
+  public void testMeasurementNegative() throws CADFException, IOException {
+    String metricId = Identifier.generateUniqueId();
+    Metric metric1 = new Metric(metricId, "size", "MB");
+    Measurement measurement = new Measurement(null, metric1, null);
+    assertEquals(false, measurement.isValid());
+  }
 }

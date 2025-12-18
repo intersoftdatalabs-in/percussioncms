@@ -18,28 +18,21 @@
 package com.percussion.filetracker;
 
 /**
- * This exception is thrown when the application fails to load a remote 
- * document with supplied userid and password because of HTTP Authentication 
- * failure.
+ * This exception is thrown when the application fails to load a remote document with supplied
+ * userid and password because of HTTP Authentication failure.
  */
-public class PSFUDAuthenticationFailureException extends Exception
-{
-   /**
-    * Default constructor
-    */
-   public PSFUDAuthenticationFailureException()
-   {
-      super();
-   }
+public class PSFUDAuthenticationFailureException extends Exception {
+  /** Default constructor */
+  public PSFUDAuthenticationFailureException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the message as a parameter.
-    *
-    * @param msg as String
-    *
-    */
-   public PSFUDAuthenticationFailureException(String msg)
-   {
-      super(msg);
-   }
+  /**
+   * Constructor that takes the message as a parameter.
+   *
+   * @param msg as String
+   */
+  public PSFUDAuthenticationFailureException(String msg) {
+    super(msg);
+  }
 }

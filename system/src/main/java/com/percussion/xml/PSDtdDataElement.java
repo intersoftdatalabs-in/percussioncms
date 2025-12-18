@@ -17,87 +17,68 @@
 
 package com.percussion.xml;
 
+import java.util.HashMap;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
- * The PSDtdDataElement denotes a #PCDATA Element
- *   this must extend PSDtdNode is so that it will
- *   be a valid content object to place in a PSDtdElement
+ * The PSDtdDataElement denotes a #PCDATA Element this must extend PSDtdNode is so that it will be a
+ * valid content object to place in a PSDtdElement
  *
- * @see         PSDtdElement
- *
- * @author      David Gennaco
- * @version    1.0
- * @since      1.0
+ * @see PSDtdElement
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
-public class PSDtdDataElement extends PSDtdNode
-{
-   private static final Logger log = LogManager.getLogger(PSDtdDataElement.class);
-   /**
-    * Construct a PSDtdDataElement
-    *
-    */
-   PSDtdDataElement()
-   {
-      ;
-   }
+public class PSDtdDataElement extends PSDtdNode {
+  private static final Logger log = LogManager.getLogger(PSDtdDataElement.class);
 
-   /**
-    *  Return the name of this node
-    *
-    *     @return  PCDATA_STRING
-    */
-   public String getName()
-   {
-      return PCDATA_STRING;
-   }
+  /** Construct a PSDtdDataElement */
+  PSDtdDataElement() {
+    ;
+  }
 
-   /**
-    *  print is used for debugging purposes, and checking DTDs manually
-    */
-   public void print(String tab)
-   {
-      log.info(tab + PCDATA_STRING);
-   }
+  /**
+   * Return the name of this node
+   *
+   * @return PCDATA_STRING
+   */
+  public String getName() {
+    return PCDATA_STRING;
+  }
 
-   /**
-    * Add this data element to the catalog list.
-    *
-    * This function should be overridden for all extended classes.
-    *
-    *  @param    stack       the recursion detection stack
-    *
-    *  @param    catalogList the catalog list being built
-    *
-    *  @param    cur          the current name to expand on
-    *
-    *  @param    sep          the element separator string
-    *
-    *  @param    attribId    the string used to identify an attribute entry
-    *
-    */
-   public void catalog(HashMap stack, List catalogList, String cur,
-      String sep, String attribId)
-   {
-      //      if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE)
-      //      {
-      //         catalogList.add("TRUNCATED!");
-      //         return;
-      //      }
+  /** print is used for debugging purposes, and checking DTDs manually */
+  public void print(String tab) {
+    log.info(tab + PCDATA_STRING);
+  }
 
-      //      catalogList.add(cur /* + "<" + PCDATA_STRING + ">" */);
-      catalogList.add(cur);
-      return;
-   }
+  /**
+   * Add this data element to the catalog list.
+   *
+   * <p>This function should be overridden for all extended classes.
+   *
+   * @param stack the recursion detection stack
+   * @param catalogList the catalog list being built
+   * @param cur the current name to expand on
+   * @param sep the element separator string
+   * @param attribId the string used to identify an attribute entry
+   */
+  public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
+    //      if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE)
+    //      {
+    //         catalogList.add("TRUNCATED!");
+    //         return;
+    //      }
 
-   public Object acceptVisitor(PSDtdTreeVisitor visitor, Object data)
-   {
-      return visitor.visit(this, data);
-   }
+    //      catalogList.add(cur /* + "<" + PCDATA_STRING + ">" */);
+    catalogList.add(cur);
+    return;
+  }
 
-   static final String PCDATA_STRING = "#PCDATA";
+  public Object acceptVisitor(PSDtdTreeVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
+
+  static final String PCDATA_STRING = "#PCDATA";
 }

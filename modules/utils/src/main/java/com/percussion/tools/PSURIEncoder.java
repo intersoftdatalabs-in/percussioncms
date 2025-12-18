@@ -18,140 +18,113 @@
 package com.percussion.tools;
 
 /**
- * This class provides two static methods for escaping and unescaping the
- * HTML parameters (x-www-form-urlencoded) a URI. Code is taken from w3c web
- * site.
+ * This class provides two static methods for escaping and unescaping the HTML parameters
+ * (x-www-form-urlencoded) a URI. Code is taken from w3c web site.
  */
-public class PSURIEncoder
-{
-   /**
-    * Unescape a string from the "x-www-form-urlencoded" form, to a normal form.
-    *
-    * @param s - the escaped URI form parameter to be unescaped.
-    *
-    */
-   public static String unescape(String s)
-   {
-      StringBuilder sbuf = new StringBuilder () ;
-      int l  = s.length() ;
-      int ch = -1 ;
-      int b, sumb = 0;
-      for (int i = 0 ; i < l ; i++)
-      {
-         /* Get next byte b from URL segment s */
-         switch (ch = s.charAt(i))
-         {
-	         case '%':
-	            ch = s.charAt (++i) ;
-	            int hb = (Character.isDigit ((char) ch) ? ch - '0'
-                  : 10+Character.toLowerCase((char) ch) - 'a') & 0xF ;
-               ch = s.charAt (++i) ;
-               int lb = (Character.isDigit ((char) ch) ? ch - '0'
-                  : 10+Character.toLowerCase ((char) ch)-'a') & 0xF ;
-               b = (hb << 4) | lb ;
-            break ;
-            case '+':
-               b = ' ' ;
-            break ;
-            default:
-               b = ch ;
-         }
-         /* Decode byte b as UTF-8, sumb collects incomplete chars */
-         if ((b & 0xc0) == 0x80)
-         {			// 10xxxxxx (continuation byte)
-	         sumb = (sumb << 6) | (b & 0x3f) ;	// Add to 6 bits to sumb
-         }
-         else
-         {					// Start of new sequence
-            if (i != 0)				// Not on 1st cycle
-            sbuf.append((char) sumb) ;		// Add previous char to sbuf
-            if ((b & 0x80) == 0x00)
-            {		// 0xxxxxxx (yields 7 bits)
-	            sumb = b;				// Store in sbuf
-            }
-            else
-            {				// 110xxxxx or 1110xxxx
-               sumb = b & 0x1f;			// (yields 5 or 4 bits)
-            }
-            /* We don't test if the UTF-8 encoding is well-formed */
-         }
+public class PSURIEncoder {
+  /**
+   * Unescape a string from the "x-www-form-urlencoded" form, to a normal form.
+   *
+   * @param s - the escaped URI form parameter to be unescaped.
+   */
+  public static String unescape(String s) {
+    StringBuilder sbuf = new StringBuilder();
+    int l = s.length();
+    int ch = -1;
+    int b, sumb = 0;
+    for (int i = 0; i < l; i++) {
+      /* Get next byte b from URL segment s */
+      switch (ch = s.charAt(i)) {
+        case '%':
+          ch = s.charAt(++i);
+          int hb =
+              (Character.isDigit((char) ch)
+                      ? ch - '0'
+                      : 10 + Character.toLowerCase((char) ch) - 'a')
+                  & 0xF;
+          ch = s.charAt(++i);
+          int lb =
+              (Character.isDigit((char) ch)
+                      ? ch - '0'
+                      : 10 + Character.toLowerCase((char) ch) - 'a')
+                  & 0xF;
+          b = (hb << 4) | lb;
+          break;
+        case '+':
+          b = ' ';
+          break;
+        default:
+          b = ch;
       }
-      if (sumb != 0)
-         sbuf.append((char) sumb) ;
-
-      return sbuf.toString() ;
-   }
-
-   /**
-    * Escpae a string to the "x-www-form-urlencoded" form, enhanced
-    * with the UTF-8-in-URL proposal. This is what happens:
-    *
-    * <ul>
-    * <li><p>The ASCII characters 'a' through 'z', 'A' through 'Z',
-    *        and '0' through '9' remain the same.
-    *
-    * <li><p>The space character ' ' is converted into a plus sign '+'.
-    *
-    * <li><p>All other ASCII characters are converted into the
-    *        3-character string "%xy", where xy is
-    *        the two-digit hexadecimal representation of the character
-    *        code
-    *
-    * <li><p>All non-ASCII characters are encoded in two steps: first
-    *        to a sequence of 2 or 3 bytes, using the UTF-8 algorithm;
-    *        secondly each of these bytes is encoded as "%xx".
-    * </ul>
-    *
-    * @param s The string to be escaped
-    * @return The escaped string
-    */
-   public static String escape(String s)
-   {
-      StringBuilder sbuf = new StringBuilder();
-      int len = s.length();
-      for (int i = 0; i < len; i++)
-      {
-         int ch = s.charAt(i);
-         if ('A' <= ch && ch <= 'Z')
-         {		// 'A'..'Z'
-	         sbuf.append((char)ch);
-         }
-         else if ('a' <= ch && ch <= 'z')
-         {	// 'a'..'z'
-	         sbuf.append((char)ch);
-         }
-         else if ('0' <= ch && ch <= '9')
-         {	// '0'..'9'
-	         sbuf.append((char)ch);
-         }
-         else if (ch == ' ')
-         {			// space
-            sbuf.append('+');
-         }
-         else if (ch <= 0x007f)
-         {		// other ASCII
-	         sbuf.append(hex[ch]);
-         }
-         else if (ch <= 0x07FF)
-         {		// non-ASCII <= 0x7FF
-	         sbuf.append(hex[0xc0 | (ch >> 6)]);
-	         sbuf.append(hex[0x80 | (ch & 0x3F)]);
-         }
-         else
-         {					// 0x7FF < ch <= 0xFFFF
-	         sbuf.append(hex[0xe0 | (ch >> 12)]);
-	         sbuf.append(hex[0x80 | ((ch >> 6) & 0x3F)]);
-	         sbuf.append(hex[0x80 | (ch & 0x3F)]);
-         }
+      /* Decode byte b as UTF-8, sumb collects incomplete chars */
+      if ((b & 0xc0) == 0x80) { // 10xxxxxx (continuation byte)
+        sumb = (sumb << 6) | (b & 0x3f); // Add to 6 bits to sumb
+      } else { // Start of new sequence
+        if (i != 0) // Not on 1st cycle
+        sbuf.append((char) sumb); // Add previous char to sbuf
+        if ((b & 0x80) == 0x00) { // 0xxxxxxx (yields 7 bits)
+          sumb = b; // Store in sbuf
+        } else { // 110xxxxx or 1110xxxx
+          sumb = b & 0x1f; // (yields 5 or 4 bits)
+        }
+        /* We don't test if the UTF-8 encoding is well-formed */
       }
-      return sbuf.toString();
-   }
+    }
+    if (sumb != 0) sbuf.append((char) sumb);
 
-   /**
-    * String array of hex chars required while escaping.
-    */
-   final static String[] hex =
-   {
+    return sbuf.toString();
+  }
+
+  /**
+   * Escpae a string to the "x-www-form-urlencoded" form, enhanced with the UTF-8-in-URL proposal.
+   * This is what happens:
+   *
+   * <ul>
+   *   <li>
+   *       <p>The ASCII characters 'a' through 'z', 'A' through 'Z', and '0' through '9' remain the
+   *       same.
+   *   <li>
+   *       <p>The space character ' ' is converted into a plus sign '+'.
+   *   <li>
+   *       <p>All other ASCII characters are converted into the 3-character string "%xy", where xy
+   *       is the two-digit hexadecimal representation of the character code
+   *   <li>
+   *       <p>All non-ASCII characters are encoded in two steps: first to a sequence of 2 or 3
+   *       bytes, using the UTF-8 algorithm; secondly each of these bytes is encoded as "%xx".
+   * </ul>
+   *
+   * @param s The string to be escaped
+   * @return The escaped string
+   */
+  public static String escape(String s) {
+    StringBuilder sbuf = new StringBuilder();
+    int len = s.length();
+    for (int i = 0; i < len; i++) {
+      int ch = s.charAt(i);
+      if ('A' <= ch && ch <= 'Z') { // 'A'..'Z'
+        sbuf.append((char) ch);
+      } else if ('a' <= ch && ch <= 'z') { // 'a'..'z'
+        sbuf.append((char) ch);
+      } else if ('0' <= ch && ch <= '9') { // '0'..'9'
+        sbuf.append((char) ch);
+      } else if (ch == ' ') { // space
+        sbuf.append('+');
+      } else if (ch <= 0x007f) { // other ASCII
+        sbuf.append(hex[ch]);
+      } else if (ch <= 0x07FF) { // non-ASCII <= 0x7FF
+        sbuf.append(hex[0xc0 | (ch >> 6)]);
+        sbuf.append(hex[0x80 | (ch & 0x3F)]);
+      } else { // 0x7FF < ch <= 0xFFFF
+        sbuf.append(hex[0xe0 | (ch >> 12)]);
+        sbuf.append(hex[0x80 | ((ch >> 6) & 0x3F)]);
+        sbuf.append(hex[0x80 | (ch & 0x3F)]);
+      }
+    }
+    return sbuf.toString();
+  }
+
+  /** String array of hex chars required while escaping. */
+  static final String[] hex = {
     "%00", "%01", "%02", "%03", "%04", "%05", "%06", "%07",
     "%08", "%09", "%0a", "%0b", "%0c", "%0d", "%0e", "%0f",
     "%10", "%11", "%12", "%13", "%14", "%15", "%16", "%17",
@@ -184,5 +157,5 @@ public class PSURIEncoder
     "%e8", "%e9", "%ea", "%eb", "%ec", "%ed", "%ee", "%ef",
     "%f0", "%f1", "%f2", "%f3", "%f4", "%f5", "%f6", "%f7",
     "%f8", "%f9", "%fa", "%fb", "%fc", "%fd", "%fe", "%ff"
-   };
+  };
 }

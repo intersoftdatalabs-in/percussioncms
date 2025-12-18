@@ -23,30 +23,31 @@ import java.util.Map;
 
 public class PSMapUtils {
 
-    public static boolean areEqualWithArrayValue(Map<String, String[]> first, Map<String, String[]> second) {
-        if (first.size() != second.size()) {
-            return false;
-        }
-
-        return first.entrySet().stream()
-                .allMatch(e -> Arrays.equals(e.getValue(), second.get(e.getKey())));
+  public static boolean areEqualWithArrayValue(
+      Map<String, String[]> first, Map<String, String[]> second) {
+    if (first.size() != second.size()) {
+      return false;
     }
 
-    public static boolean areEqualWithArrayListValue(Map<String, List> first, Map<String, List> second) {
-        if (first.size() != second.size()) {
-            return false;
-        }
+    return first.entrySet().stream()
+        .allMatch(e -> Arrays.equals(e.getValue(), second.get(e.getKey())));
+  }
 
-        Map.Entry<String, List> matchedEntry=null;
-        for(Map.Entry<String, List> e : first.entrySet()){
-            if(!second.containsKey(e.getKey())){
-                return false;
-            }
-            if(!e.getValue().containsAll(second.get(e.getKey()))){
-                return false;
-            }
-        }
-        return true;
+  public static boolean areEqualWithArrayListValue(
+      Map<String, List> first, Map<String, List> second) {
+    if (first.size() != second.size()) {
+      return false;
     }
 
+    Map.Entry<String, List> matchedEntry = null;
+    for (Map.Entry<String, List> e : first.entrySet()) {
+      if (!second.containsKey(e.getKey())) {
+        return false;
+      }
+      if (!e.getValue().containsAll(second.get(e.getKey()))) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

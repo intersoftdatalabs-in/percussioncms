@@ -90,10 +90,10 @@ public interface IPSAclService
     * @return list of <code>IPSAcl</code> objects, may be <code>null</code>
     * never empty.
     * 
-    * @throws PSSecurityException If any of the specified acls cannot be loaded.
+    * @throws PSServiceSecurityException If any of the specified acls cannot be loaded.
     */
    List<IPSAcl> loadAcls(List<IPSGuid> aclGuids)
-      throws PSSecurityException;
+      throws PSServiceSecurityException;
 
    /**
     * Just like {@link #loadAcls(List)}, except the object is always retrieved
@@ -101,7 +101,7 @@ public interface IPSAclService
     * parameter and return description.
     */
    List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids)
-      throws PSSecurityException;
+      throws PSServiceSecurityException;
    
    /**
     * Load the ACL for the specified guid. These objects are cached and shared
@@ -112,9 +112,9 @@ public interface IPSAclService
     * 
     * @return The acl, never <code>null</code>.
     * 
-    * @throws PSSecurityException If the load fails.
+    * @throws PSServiceSecurityException If the load fails.
     */
-   IPSAcl loadAcl(IPSGuid aclGuid) throws PSSecurityException;
+   IPSAcl loadAcl(IPSGuid aclGuid) throws PSServiceSecurityException;
    
    /**
     * Load ACLs for given list of Object guids. These objects are cached and
@@ -182,9 +182,9 @@ public interface IPSAclService
     * Each entry must not have been loaded with any of the
     * <code>loadAclXXX</code> methods.
     * 
-    * @throws PSSecurityException If the save fails.
+    * @throws PSServiceSecurityException If the save fails.
     */
-   List<IPSAcl>  saveAcls(List<IPSAcl> aclList) throws PSSecurityException;
+   List<IPSAcl>  saveAcls(List<IPSAcl> aclList) throws PSServiceSecurityException;
    
     /**
     * Delete the specified acl from the system.
@@ -192,9 +192,9 @@ public interface IPSAclService
     * @param aclGuid The acl guid, may not be <code>null</code>.  If the 
     * specified acl does not exist the method simply returns without error.
     * 
-    * @throws PSSecurityException If any delete fails.
+    * @throws PSServiceSecurityException If any delete fails.
     */
-    void deleteAcl(IPSGuid aclGuid) throws PSSecurityException;
+    void deleteAcl(IPSGuid aclGuid) throws PSServiceSecurityException;
    
     /**
     * Filter list of objectIds by list of communities items are visible in

@@ -22,21 +22,18 @@ import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemDefinition;
 
 /**
- * An object representation of the StandardItem.xsd schema.  Accessible
- * primarily by a remote client.
+ * An object representation of the StandardItem.xsd schema. Accessible primarily by a remote client.
  */
-public class PSClientItem extends PSCoreItem
-{
+public class PSClientItem extends PSCoreItem {
 
-   /**
-    * Creates a new <code>PSCoreItem</code> with only definition information and
-    * no data information.  This constructor will be used by the remote clients.
-    *
-    * @param itemDefinition must not be <code>null</code>.
-    * @throws IllegalArgumentException if the supplied id is invalid.
-    */
-   public PSClientItem(PSItemDefinition itemDefinition) throws PSCmsException
-   {
-       super(itemDefinition);
-   }
+  /**
+   * Creates a new <code>PSCoreItem</code> with only definition information and no data information.
+   * This constructor will be used by the remote clients.
+   *
+   * @param itemDefinition must not be <code>null</code>.
+   * @throws IllegalArgumentException if the supplied id is invalid.
+   */
+  public PSClientItem(PSItemDefinition itemDefinition) throws PSCmsException {
+    super(itemDefinition);
+  }
 }

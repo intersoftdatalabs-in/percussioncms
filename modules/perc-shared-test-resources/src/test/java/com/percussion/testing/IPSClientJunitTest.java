@@ -17,11 +17,8 @@
 package com.percussion.testing;
 
 /**
- * Marker interface indicating that a test case requires a Rhythmyx server
- * to run and it is invoked as a remote client (of the Rhythmyx server).
- * In contrast to {@link IPSClientBasedJunitTest} this test does not need
- * assistance in obtaining a server connection.
+ * Marker interface indicating that a test case requires a Rhythmyx server to run and it is invoked
+ * as a remote client (of the Rhythmyx server). In contrast to {@link IPSClientBasedJunitTest} this
+ * test does not need assistance in obtaining a server connection.
  */
-public interface IPSClientJunitTest
-{
-}
+public interface IPSClientJunitTest {}

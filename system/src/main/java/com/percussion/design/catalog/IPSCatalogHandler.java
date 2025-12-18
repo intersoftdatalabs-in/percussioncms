@@ -19,30 +19,22 @@ package com.percussion.design.catalog;
 
 import org.w3c.dom.Document;
 
-
 /**
- * The IPSCatalogHandler interface must be implemented by all catalog
- * request handlers. Each type of catalog request has its own handler.
- * The handler must construct the appropriate request from the given
- * input parameters.
+ * The IPSCatalogHandler interface must be implemented by all catalog request handlers. Each type of
+ * catalog request has its own handler. The handler must construct the appropriate request from the
+ * given input parameters.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSCatalogHandler {
-   /**
-    * Format the catalog request based upon the specified request
-    * information. If any required information is missing, an exception
-    * will be thrown.
-    *
-    * @param      out   the output stream to which the properly
-    *                     formatted request will be written
-    *
-    * @param      req   the request information
-    *
-    *
-    */
-   public abstract Document formatRequest(java.util.Properties req);
+  /**
+   * Format the catalog request based upon the specified request information. If any required
+   * information is missing, an exception will be thrown.
+   *
+   * @param out the output stream to which the properly formatted request will be written
+   * @param req the request information
+   */
+  public abstract Document formatRequest(java.util.Properties req);
 }
-

@@ -20,50 +20,46 @@ package com.percussion.security;
 import com.percussion.error.PSException;
 
 /**
- * The PSImpersonationException class is thrown to indicate that a native
- * method call to ImpersonateLoggedOnUser did not excecute successfully.
+ * The PSImpersonationException class is thrown to indicate that a native method call to
+ * ImpersonateLoggedOnUser did not excecute successfully.
  *
- * @author    Jian Huang
- * @version   1.0
- * @since     1.0
+ * @author Jian Huang
+ * @version 1.0
+ * @since 1.0
  */
-public class PSNativeMethodException extends PSException
-{
-   /**
-    * This one should only be used when logon failed.
-    */
-   public PSNativeMethodException(String message){
-      super(IPSSecurityErrors.NATIVE_AUTHENTICATION_FAILURE, new Object[] { message });
-   }
+public class PSNativeMethodException extends PSException {
+  /** This one should only be used when logon failed. */
+  public PSNativeMethodException(String message) {
+    super(IPSSecurityErrors.NATIVE_AUTHENTICATION_FAILURE, new Object[] {message});
+  }
 
-   /**
-    * Construct an exception for messages taking a single arguments.
-    *
-    * @param   msgCode      the error string indexed by this number to load
-    * @param   singleArg   the sole argument in the error message
-    */
-   public PSNativeMethodException(int msgCode, Object singleArg){
-      super(msgCode, singleArg);
-   }
+  /**
+   * Construct an exception for messages taking a single arguments.
+   *
+   * @param msgCode the error string indexed by this number to load
+   * @param singleArg the sole argument in the error message
+   */
+  public PSNativeMethodException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   /**
-    * Construct an exception for messages taking an array of arguments.
-    * Be sure to store the arguments in the correct order in the array,
-    * where {0} in the string is array element 0, etc.
-    *
-    * @param   msgCode      the error string indexed by this number to load
-    * @param   arrayArgs   the argument array in the error message
-    */
-   public PSNativeMethodException(int msgCode, Object[] arrayArgs){
-      super(msgCode, arrayArgs);
-   }
+  /**
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
+   *
+   * @param msgCode the error string indexed by this number to load
+   * @param arrayArgs the argument array in the error message
+   */
+  public PSNativeMethodException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Construct an exception for messages taking no arguments.
-    *
-    * @param   msgCode      the error string indexed by this number to load
-    */
-   public PSNativeMethodException(int msgCode){
-      super(msgCode);
-   }
+  /**
+   * Construct an exception for messages taking no arguments.
+   *
+   * @param msgCode the error string indexed by this number to load
+   */
+  public PSNativeMethodException(int msgCode) {
+    super(msgCode);
+  }
 }

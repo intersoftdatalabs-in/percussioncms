@@ -21,23 +21,22 @@ import com.ibm.cadf.middleware.AuditContext;
 
 public class AbstractEvent extends AuditContext {
 
-    private final static String SYSTEM_OBSERVER="service/bss/cms";
-    private String outcome;
-    public String getOutcome(){
-        return outcome;
-    }
+  private static final String SYSTEM_OBSERVER = "service/bss/cms";
+  private String outcome;
 
-    public void setOutcome(String outcome){
-        this.outcome = outcome;
-    }
+  public String getOutcome() {
+    return outcome;
+  }
 
-    public AbstractEvent(){
+  public void setOutcome(String outcome) {
+    this.outcome = outcome;
+  }
 
-        //Set some defaults
-        this.setOutcome(PSActionOutcome.UNKNOWN.name());
-        this.setObserverName(SYSTEM_OBSERVER);
-        this.setTargetName(SYSTEM_OBSERVER);
-    }
+  public AbstractEvent() {
 
-
+    // Set some defaults
+    this.setOutcome(PSActionOutcome.UNKNOWN.name());
+    this.setObserverName(SYSTEM_OBSERVER);
+    this.setTargetName(SYSTEM_OBSERVER);
+  }
 }

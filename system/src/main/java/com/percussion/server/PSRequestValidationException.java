@@ -21,88 +21,75 @@ import com.percussion.error.PSException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 /**
- * PSRequestValidationException is thrown when a request is deemed to
- * be invalidation. This usually occurs when an application has defined
- * selection criteria or validation rules and the conditions are not
- * met.
+ * PSRequestValidationException is thrown when a request is deemed to be invalidation. This usually
+ * occurs when an application has defined selection criteria or validation rules and the conditions
+ * are not met.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestValidationException extends PSException {
-   /**
-    * Construct an exception for messages taking only a single argument.
-    *
-    * @param msgCode       the error string to load
-    *
-    * @param singleArg      the argument to use as the sole argument in
-    *                      the error message
-    */
-   public PSRequestValidationException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
-   
-   /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
-    *
-    * @param msgCode       the error string to load
-    *
-    * @param arrayArgs      the array of arguments to use as the arguments
-    *                      in the error message
-    */
-   public PSRequestValidationException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
-   
-   /**
-    * Construct an exception for messages taking no arguments.
-    *
-    * @param msgCode       the error string to load
-    */
-   public PSRequestValidationException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Construct an exception for messages taking only a single argument.
+   *
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message
+   */
+  public PSRequestValidationException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   /**
-    * The specified validation rules were not met.
-    *
-    * @param validationRules      the rules which were not met
-    */
-   public PSRequestValidationException(
-      com.percussion.util.PSCollection validationRules)
-   {
-      super(
-         IPSServerErrors.VALIDATION_RULES_NOT_MET,
-         convertRulesToXmlString(validationRules));
-   }
+  /**
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
+   *
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   */
+  public PSRequestValidationException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
+  /**
+   * Construct an exception for messages taking no arguments.
+   *
+   * @param msgCode the error string to load
+   */
+  public PSRequestValidationException(int msgCode) {
+    super(msgCode);
+  }
 
-   private static String convertRulesToXmlString(
-      com.percussion.util.PSCollection validationRules)
-   {
-      org.w3c.dom.Document doc
-         = PSXmlDocumentBuilder.createXmlDocument();
-      org.w3c.dom.Element root
-         = PSXmlDocumentBuilder.createRoot(doc, "ValidationRules");
-      com.percussion.design.objectstore.PSCollectionComponent.appendCollectionToXml(
-         doc, root, validationRules);
+  /**
+   * The specified validation rules were not met.
+   *
+   * @param validationRules the rules which were not met
+   */
+  public PSRequestValidationException(com.percussion.util.PSCollection validationRules) {
+    super(IPSServerErrors.VALIDATION_RULES_NOT_MET, convertRulesToXmlString(validationRules));
+  }
 
-      java.io.StringWriter buf = new java.io.StringWriter();
-      try {
-         PSXmlDocumentBuilder.write(doc, buf);
-         return buf.toString();
-      } catch (java.io.IOException e) {
-         // shouldn't really happen (out of memory?!)
-         return "";
-      } finally {
-         if (buf!=null) try {buf.close();} catch (Exception e) { /*Ignore*/ };
-      }
-   }
+  private static String convertRulesToXmlString(com.percussion.util.PSCollection validationRules) {
+    org.w3c.dom.Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    org.w3c.dom.Element root = PSXmlDocumentBuilder.createRoot(doc, "ValidationRules");
+    com.percussion.design.objectstore.PSCollectionComponent.appendCollectionToXml(
+        doc, root, validationRules);
+
+    java.io.StringWriter buf = new java.io.StringWriter();
+    try {
+      PSXmlDocumentBuilder.write(doc, buf);
+      return buf.toString();
+    } catch (java.io.IOException e) {
+      // shouldn't really happen (out of memory?!)
+      return "";
+    } finally {
+      if (buf != null)
+        try {
+          buf.close();
+        } catch (Exception e) {
+          /*Ignore*/
+        }
+      ;
+    }
+  }
 }
-

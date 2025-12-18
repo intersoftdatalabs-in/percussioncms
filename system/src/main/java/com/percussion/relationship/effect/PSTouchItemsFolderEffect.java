@@ -20,22 +20,18 @@ import com.percussion.relationship.IPSExecutionContext;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 
-/**
- * 
- * @author adamgent
- *
- */
-public class PSTouchItemsFolderEffect extends PSFolderEffect
-{
+/** @author adamgent */
+public class PSTouchItemsFolderEffect extends PSFolderEffect {
 
-   /* Removed code from this class.  This is no longer required but may still be referenced on the folder relationship.
-    * 
-    *   */
-   @Override 
-   protected void onFolderChange(Object[] params, IPSRequestContext request, IPSExecutionContext context,
-         PSEffectResult result)
-   {
-      return;
-      
-   }
+  /* Removed code from this class.  This is no longer required but may still be referenced on the folder relationship.
+   *
+   *   */
+  @Override
+  protected void onFolderChange(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSEffectResult result) {
+    return;
+  }
 }

@@ -17,8 +17,7 @@
 
 package com.percussion.auditlog;
 
-public interface IPSAuditEvent  {
+public interface IPSAuditEvent {
 
-    public <T> T getAction();
-
+  public <T> T getAction();
 }

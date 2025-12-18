@@ -19,33 +19,21 @@ package com.percussion.extension;
 import com.percussion.error.PSException;
 
 /**
- * PSJavaScriptCompileException is thrown when an error occurs in the native
- * JavaScriptCompile handler.
+ * PSJavaScriptCompileException is thrown when an error occurs in the native JavaScriptCompile
+ * handler.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSJavaScriptCompileException extends PSException
-{
-   /**
-    * Constructs a failure with the specified message.
-    */
-   public PSJavaScriptCompileException(
-      String function, String message)
-   {
-      super(IPSExtensionErrors.JS_COMPILE_FAILED,
-         new Object[] { function, message } );
-   }
+public class PSJavaScriptCompileException extends PSException {
+  /** Constructs a failure with the specified message. */
+  public PSJavaScriptCompileException(String function, String message) {
+    super(IPSExtensionErrors.JS_COMPILE_FAILED, new Object[] {function, message});
+  }
 
-   /**
-    * Constructs a failure with the specified context information.
-    */
-   public PSJavaScriptCompileException(
-      String function, String message, String source)
-   {
-      super(IPSExtensionErrors.JS_COMPILE_FAILED_SRC,
-         new Object[] { function, message, source } );
-   }
+  /** Constructs a failure with the specified context information. */
+  public PSJavaScriptCompileException(String function, String message, String source) {
+    super(IPSExtensionErrors.JS_COMPILE_FAILED_SRC, new Object[] {function, message, source});
+  }
 }
-

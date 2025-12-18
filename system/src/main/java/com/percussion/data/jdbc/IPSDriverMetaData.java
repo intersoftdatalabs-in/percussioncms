@@ -19,29 +19,26 @@ package com.percussion.data.jdbc;
 
 import java.sql.SQLException;
 
-
 /**
- * The IPSDriverMetaData interface defines the mechanism by which driver
- * information can be cataloged. In particular, the names of servers
- * available through the driver.
- * 
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * The IPSDriverMetaData interface defines the mechanism by which driver information can be
+ * cataloged. In particular, the names of servers available through the driver.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSDriverMetaData {
-   /**
-    * Get the server names available through this driver.
-    * <p>
-    * The result set contains:
-    * <OL>
-    * <LI><B>SERVER_NAME</B> String => server name</LI>
-    * </OL>
-    *
-    * @return     a result set containing one server per row
-    *
-    * @exception  SQLException   if an error occurs accessing the servers
-    */
-   public java.sql.ResultSet getServers() throws SQLException;
+  /**
+   * Get the server names available through this driver.
+   *
+   * <p>The result set contains:
+   *
+   * <OL>
+   *   <LI><B>SERVER_NAME</B> String => server name
+   * </OL>
+   *
+   * @return a result set containing one server per row
+   * @exception SQLException if an error occurs accessing the servers
+   */
+  public java.sql.ResultSet getServers() throws SQLException;
 }
-

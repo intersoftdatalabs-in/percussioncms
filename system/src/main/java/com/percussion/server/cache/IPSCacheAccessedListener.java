@@ -18,19 +18,14 @@
 package com.percussion.server.cache;
 
 /**
- * Interface to allow classes to be notified when attempts are made to access
- * items from the cache.
+ * Interface to allow classes to be notified when attempts are made to access items from the cache.
  */
-public interface IPSCacheAccessedListener 
-{
-   /**
-    * Called to notify listeners when an attempt is made to access an item from
-    * the cache.
-    * 
-    * @param e The event, never <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>e</code> is <code>null</code>.
-    */
-   public void cacheAccessed(PSCacheEvent e);
-
+public interface IPSCacheAccessedListener {
+  /**
+   * Called to notify listeners when an attempt is made to access an item from the cache.
+   *
+   * @param e The event, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>e</code> is <code>null</code>.
+   */
+  public void cacheAccessed(PSCacheEvent e);
 }

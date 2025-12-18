@@ -25,223 +25,184 @@ import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSUIDefinition;
-
 import java.util.Iterator;
 
 /**
- * This class extracts definition data for <code>PSCoreItem</code> object
- * population.  It parses a <code>PSContentEditor</code> object and populates a
- * <code>PSCoreItem</code> object from that definition.  This cannot be
- * instantiated explicitely by callers.  This also uses a Visitor like pattern,
- * passing itself to acceptable object methods, and those objects understand
- * to call <code>getObject()</code> on this class.
+ * This class extracts definition data for <code>PSCoreItem</code> object population. It parses a
+ * <code>PSContentEditor</code> object and populates a <code>PSCoreItem</code> object from that
+ * definition. This cannot be instantiated explicitely by callers. This also uses a Visitor like
+ * pattern, passing itself to acceptable object methods, and those objects understand to call <code>
+ * getObject()</code> on this class.
  */
-public class PSItemDefExtractor implements IPSVisitor
-{
-   /**
-    * Cannot be instantiated by outsiders.  Does any initialization then calls
-    * processFieldSet();
-    *
-    * @param coreItem - assumed not <code>null</code>
-    * @throws PSCmsException if an error occurs populating the
-    * <code>coreItem</code>
-    */
-   private PSItemDefExtractor(PSCoreItem coreItem) throws PSCmsException
-   {
-      m_coreItem = coreItem;
-      processFieldSet(getFieldSet(), m_coreItem, false);
-   }
+public class PSItemDefExtractor implements IPSVisitor {
+  /**
+   * Cannot be instantiated by outsiders. Does any initialization then calls processFieldSet();
+   *
+   * @param coreItem - assumed not <code>null</code>
+   * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
+   */
+  private PSItemDefExtractor(PSCoreItem coreItem) throws PSCmsException {
+    m_coreItem = coreItem;
+    processFieldSet(getFieldSet(), m_coreItem, false);
+  }
 
-   /**
-    * Populates the <code>PSCoreItem</code> with it's definition.  This a
-    * utility method that removes this responsibility from the
-    * <code>PSCoreItem</code>.  This allows high-cohesion in the
-    * <code>PSCoreItem</code> and lowers the coupling between the
-    * <code>PSCoreItem</code> and the <code>com.percussion.objectstore</code>
-    * package.
-    *
-    * @param coreItem must not be <code>null</code>.
-    * @throws PSCmsException if an error occurs populating the
-    * <code>coreItem</code>
-    */
-   public static void populateItemDefinition(PSCoreItem coreItem)
-      throws PSCmsException
-   {
-      if(coreItem == null)
-         throw new IllegalArgumentException("coreItem must not be null");
+  /**
+   * Populates the <code>PSCoreItem</code> with it's definition. This a utility method that removes
+   * this responsibility from the <code>PSCoreItem</code>. This allows high-cohesion in the <code>
+   * PSCoreItem</code> and lowers the coupling between the <code>PSCoreItem</code> and the <code>
+   * com.percussion.objectstore</code> package.
+   *
+   * @param coreItem must not be <code>null</code>.
+   * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
+   */
+  public static void populateItemDefinition(PSCoreItem coreItem) throws PSCmsException {
+    if (coreItem == null) throw new IllegalArgumentException("coreItem must not be null");
 
-      PSItemDefExtractor xtr = new PSItemDefExtractor(coreItem);
-   }
+    PSItemDefExtractor xtr = new PSItemDefExtractor(coreItem);
+  }
 
-   /**
-    * This is the method that does the work.  Given a <code>PSFieldSet</code>
-    * it will create <code>PSItemFields</code>.  If an element of the
-    * <code>PSFieldSet</code> is another <code>PSFieldSet</code> and is of
-    * type complex child it creates a
-    * <code>PSItemChild</code> and <code>PSItemChildEntry</code> and then
-    * recursively calls itself to add the <code>PSItemFields</code> to the
-    * <code>PSItemChildEntry</code>.
-    *
-    * The PSCoreItem and the <code>PSItemChildEntry</code> are
-    * <code>IPSItemAccessor</code> objects and this object is a
-    * <code>IPSVisitor</code>.  This passes itself to the
-    * <code>IPSItemAccessors</code> <code>accept()</code> method.  The
-    * <code>IPSItemAccessor</code> then acts upon this object by
-    * calling <code>getObject()</code>.
-    *
-    * @param fieldSet the fieldset to parse - assumed not <code>null</code>
-    * @param itemAccessor the item on which to add the elements -
-    * assumed not <code>null</code>
-    * @param isMultiValue <code>true</code> if it is, otherwise
-    * <code>false</code>.
-    */
-   private void processFieldSet(
-      PSFieldSet fieldSet, IPSItemAccessor itemAccessor, boolean isMultiValue)
-   {
-      Iterator it = fieldSet.getAll();
-      PSField field = null;
-      PSDisplayMapping mapping = null;
-      while (it.hasNext())
-      {
-         Object o = it.next();
-         if (o instanceof PSFieldSet)
-         {
-            PSFieldSet childSet = (PSFieldSet)o;
+  /**
+   * This is the method that does the work. Given a <code>PSFieldSet</code> it will create <code>
+   * PSItemFields</code>. If an element of the <code>PSFieldSet</code> is another <code>PSFieldSet
+   * </code> and is of type complex child it creates a <code>PSItemChild</code> and <code>
+   * PSItemChildEntry</code> and then recursively calls itself to add the <code>PSItemFields</code>
+   * to the <code>PSItemChildEntry</code>.
+   *
+   * <p>The PSCoreItem and the <code>PSItemChildEntry</code> are <code>IPSItemAccessor</code>
+   * objects and this object is a <code>IPSVisitor</code>. This passes itself to the <code>
+   * IPSItemAccessors</code> <code>accept()</code> method. The <code>IPSItemAccessor</code> then
+   * acts upon this object by calling <code>getObject()</code>.
+   *
+   * @param fieldSet the fieldset to parse - assumed not <code>null</code>
+   * @param itemAccessor the item on which to add the elements - assumed not <code>null</code>
+   * @param isMultiValue <code>true</code> if it is, otherwise <code>false</code>.
+   */
+  private void processFieldSet(
+      PSFieldSet fieldSet, IPSItemAccessor itemAccessor, boolean isMultiValue) {
+    Iterator it = fieldSet.getAll();
+    PSField field = null;
+    PSDisplayMapping mapping = null;
+    while (it.hasNext()) {
+      Object o = it.next();
+      if (o instanceof PSFieldSet) {
+        PSFieldSet childSet = (PSFieldSet) o;
 
-            //Is it multiPropertySimpleChild
-            if(childSet.getType() == PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD)
-               // just add the fields to the parent core item
-               processFieldSet(childSet, m_coreItem, false);
+        // Is it multiPropertySimpleChild
+        if (childSet.getType() == PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD)
+          // just add the fields to the parent core item
+          processFieldSet(childSet, m_coreItem, false);
 
-            // Is it  simpleChild
-            else if(childSet.getType() == PSFieldSet.TYPE_SIMPLE_CHILD)
-               // this is a multivalue field, add to parent:
-               processFieldSet(childSet, m_coreItem, true);
+        // Is it  simpleChild
+        else if (childSet.getType() == PSFieldSet.TYPE_SIMPLE_CHILD)
+          // this is a multivalue field, add to parent:
+          processFieldSet(childSet, m_coreItem, true);
+        else if (childSet.getType() == PSFieldSet.TYPE_COMPLEX_CHILD) {
+          mapping = getDisplayMapping(childSet.getName());
+          if (mapping == null) continue; // ignore non-mapped fields
 
-            else if(childSet.getType() == PSFieldSet.TYPE_COMPLEX_CHILD)
-            {
-               mapping = getDisplayMapping(childSet.getName());
-               if (mapping == null)
-                  continue; // ignore non-mapped fields
+          // create child
+          PSItemChild child = new PSItemChild(childSet, mapping);
 
-               // create child
-               PSItemChild child = new PSItemChild(childSet, mapping);
+          // create entry (which is item accessor) and add entry to child
+          PSItemChildEntry entry = child.createChildEntry();
 
-               // create entry (which is item accessor) and add entry to child
-               PSItemChildEntry  entry = child.createChildEntry();
+          // add child to item:
+          m_object = child;
 
-               // add child to item:
-               m_object = child;
+          // TODO: SUPPORT CHILDREN OF CHILDREN???
+          itemAccessor.accept(this);
 
-               // TODO: SUPPORT CHILDREN OF CHILDREN???
-               itemAccessor.accept(this);
+          // null the object:
+          m_object = null;
 
-               // null the object:
-               m_object = null;
+          // now let's recurse and add the fields to the entry:
+          processFieldSet(childSet, entry, false);
+        }
+      } else if (o instanceof PSField) {
+        // handle fields:
+        field = (PSField) o;
+        // get ui set:
+        mapping = getDisplayMapping(field.getSubmitName());
+        if (mapping == null) continue; // ignore non-mapped fields
 
-               // now let's recurse and add the fields to the entry:
-               processFieldSet(childSet, entry, false);
-            }
-         }
-         else if (o instanceof PSField)
-         {
-            // handle fields:
-            field = (PSField)o;
-            // get ui set:
-            mapping = getDisplayMapping(field.getSubmitName());
-            if (mapping == null)
-               continue; // ignore non-mapped fields
-               
-            // create field and set to member
-            m_object = new PSItemField(field, mapping.getUISet(), isMultiValue);
-            // send this object to accessor for extraction
-            itemAccessor.accept(this);
-            // null the value for the next element.
-            m_object = null;
-         }
+        // create field and set to member
+        m_object = new PSItemField(field, mapping.getUISet(), isMultiValue);
+        // send this object to accessor for extraction
+        itemAccessor.accept(this);
+        // null the value for the next element.
+        m_object = null;
       }
-   }
+    }
+  }
 
-   /**
-    * Returns the <code>PSDisplayMapping</code> for the specified field name.  
-    * This depends on <code>getFieldSet()</code> being called first.  Which is 
-    * called by the ctor.
-    *
-    * @param fieldName - assumed not <code>null</code> or empty,
-    * is case sensitive
-    * 
-    * @return may be <code>null</code> as fields are not required to have a 
-    * <code>PSDisplayMapping</code>
-    */
-   private PSDisplayMapping getDisplayMapping(String fieldName)
-   {
-      // get ui definition for the label:
-      PSUIDefinition ceUiDef = m_parentMapper.getUIDefinition();
-   
-      // get the display mapper:
-      PSDisplayMapper disMpr = ceUiDef.getDisplayMapper();
-   
-        // get the display mapping:
-      PSDisplayMapping disMapping = disMpr.getMapping(fieldName);
-   
-      return disMapping;
-   }
+  /**
+   * Returns the <code>PSDisplayMapping</code> for the specified field name. This depends on <code>
+   * getFieldSet()</code> being called first. Which is called by the ctor.
+   *
+   * @param fieldName - assumed not <code>null</code> or empty, is case sensitive
+   * @return may be <code>null</code> as fields are not required to have a <code>PSDisplayMapping
+   *     </code>
+   */
+  private PSDisplayMapping getDisplayMapping(String fieldName) {
+    // get ui definition for the label:
+    PSUIDefinition ceUiDef = m_parentMapper.getUIDefinition();
 
-   /**
-    * Returns an <code>Object</code>.  This is called by a
-    * <code>IPSItemAccessor</code> when parsing a definition.
-    * @return Object - may be <code>null</code>
-    */
-   public Object getObject()
-   {
-      return m_object;
-   }
+    // get the display mapper:
+    PSDisplayMapper disMpr = ceUiDef.getDisplayMapper();
 
-   /**
-    * Gets the field set from the content editor, called by the ctor.
-    * @return the parent field set, never <code>null</code>.
-    */
-   private PSFieldSet getFieldSet() throws PSCmsException
-   {
-      // get pipe:
-      PSContentEditorPipe cePipe = (PSContentEditorPipe)
-         m_coreItem.getItemDefinition().getContentEditor().getPipe();
+    // get the display mapping:
+    PSDisplayMapping disMapping = disMpr.getMapping(fieldName);
 
-      if(cePipe == null)
-         throw new PSCmsException(
-            IPSCmsErrors.DATA_EXTRACTION_ERROR_NULL_DATAPIPE);
+    return disMapping;
+  }
 
-      // get Mapper:
-      PSContentEditorMapper ceMapper = cePipe.getMapper();
+  /**
+   * Returns an <code>Object</code>. This is called by a <code>IPSItemAccessor</code> when parsing a
+   * definition.
+   *
+   * @return Object - may be <code>null</code>
+   */
+  public Object getObject() {
+    return m_object;
+  }
 
-      // get field set:
-      PSFieldSet ceFieldSet = ceMapper.getFieldSet();
+  /**
+   * Gets the field set from the content editor, called by the ctor.
+   *
+   * @return the parent field set, never <code>null</code>.
+   */
+  private PSFieldSet getFieldSet() throws PSCmsException {
+    // get pipe:
+    PSContentEditorPipe cePipe =
+        (PSContentEditorPipe) m_coreItem.getItemDefinition().getContentEditor().getPipe();
 
-      m_parentMapper = ceMapper;
+    if (cePipe == null) throw new PSCmsException(IPSCmsErrors.DATA_EXTRACTION_ERROR_NULL_DATAPIPE);
 
-      return ceFieldSet;
-   }
+    // get Mapper:
+    PSContentEditorMapper ceMapper = cePipe.getMapper();
 
-   /**
-    * The definition to be used to create the <code>PSCoreItem</code>, set by
-    * <code>getFieldSet()</code> and should not change and should not be
-    * <code>null</code>.
-    */
+    // get field set:
+    PSFieldSet ceFieldSet = ceMapper.getFieldSet();
 
-   /**
-    * The Parent Mapper.  The top most mapper of the
-    * <code>PSContentEditor</code>, set by <code>getFieldSet()</code>, never
-    * <code>null</code>.
-    */
-   private PSContentEditorMapper m_parentMapper;
+    m_parentMapper = ceMapper;
 
-   /**
-    * The PSCoreItem being populated, set by the ctor, never <code>null</code>.
-    */
-   private PSCoreItem  m_coreItem;
+    return ceFieldSet;
+  }
 
-   /**
-    * Temporary field.  Mostly <code>null</code>.  Used in creation of objects.
-    */
-   private Object m_object;
+  /**
+   * The definition to be used to create the <code>PSCoreItem</code>, set by <code>getFieldSet()
+   * </code> and should not change and should not be <code>null</code>.
+   */
+
+  /**
+   * The Parent Mapper. The top most mapper of the <code>PSContentEditor</code>, set by <code>
+   * getFieldSet()</code>, never <code>null</code>.
+   */
+  private PSContentEditorMapper m_parentMapper;
+
+  /** The PSCoreItem being populated, set by the ctor, never <code>null</code>. */
+  private PSCoreItem m_coreItem;
+
+  /** Temporary field. Mostly <code>null</code>. Used in creation of objects. */
+  private Object m_object;
 }

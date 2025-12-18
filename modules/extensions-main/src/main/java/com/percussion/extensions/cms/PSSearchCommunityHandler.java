@@ -29,7 +29,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;
@@ -145,7 +145,7 @@ public class PSSearchCommunityHandler implements IPSRequestPreProcessor
                         {PSPermissions.READ, PSPermissions.RUNTIME_VISIBLE});
                   object_acl.addEntry(object_acl.getFirstOwner(), e);
                }
-               catch (PSSecurityException se)
+               catch (PSServiceSecurityException se)
                {
                   ms_log.debug(se);
                }
@@ -180,7 +180,7 @@ public class PSSearchCommunityHandler implements IPSRequestPreProcessor
             asvc.saveAcls(acls);
          }
       }
-      catch (PSSecurityException e1)
+      catch (PSServiceSecurityException e1)
       {
          ms_log.error(e1);
       }

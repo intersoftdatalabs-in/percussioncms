@@ -16,52 +16,41 @@
  */
 package com.percussion.servlets;
 
+import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import java.io.IOException;
 
 /**
- * Sets the request character encoding.
- * The encoding can be specified by requestEncoding filter parameter.
- * If the filter parameter is not specified, the value UTF-8 is used.
- * This filter was created based on the Tomcat wiki article
- * <a href="http://wiki.apache.org/tomcat/Tomcat/UTF-8">describing how
- * to make Tomcat to work with UTF8</a>.
+ * Sets the request character encoding. The encoding can be specified by requestEncoding filter
+ * parameter. If the filter parameter is not specified, the value UTF-8 is used. This filter was
+ * created based on the Tomcat wiki article <a
+ * href="http://wiki.apache.org/tomcat/Tomcat/UTF-8">describing how to make Tomcat to work with
+ * UTF8</a>.
  *
  * @author Andriy Palamarchuk
  */
-public class PSCharacterSetFilter implements Filter
-{
-   // see base
-   public void doFilter(ServletRequest request, ServletResponse response,
-         FilterChain next) throws IOException, ServletException
-   {
-      request.setCharacterEncoding(m_encoding);
-      next.doFilter(request, response);
-   }
+public class PSCharacterSetFilter implements Filter {
+  // see base
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
+      throws IOException, ServletException {
+    request.setCharacterEncoding(m_encoding);
+    next.doFilter(request, response);
+  }
 
-   /**
-    * Reads the filter configuration data.
-    */
-   public void init(FilterConfig config)
-   {
-      m_encoding = config.getInitParameter("requestEncoding");
-      if (m_encoding == null)
-      {
-         m_encoding = "UTF-8";
-      }
-   }
+  /** Reads the filter configuration data. */
+  public void init(FilterConfig config) {
+    m_encoding = config.getInitParameter("requestEncoding");
+    if (m_encoding == null) {
+      m_encoding = "UTF-8";
+    }
+  }
 
-   /**
-    * Does nothing.
-    */
-   public void destroy()
-   {
-   }
+  /** Does nothing. */
+  public void destroy() {}
 
-   private String m_encoding;
+  private String m_encoding;
 }
