@@ -219,7 +219,7 @@
         <dependency>
             <groupId>net.oauth.core</groupId>
             <artifactId>oauth</artifactId>
-            <version>20090531</version>
+            <version>20100527</version>
         </dependency>
         <dependency>
             <groupId>org.apache.myfaces.trinidad</groupId>
