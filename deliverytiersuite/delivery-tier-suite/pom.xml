@@ -49,13 +49,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <servlet.api.version>6.0.0</servlet.api.version>
         <servlet.spec>6.0.0</servlet.spec>
-        <spring.security.version>6.5.2</spring.security.version>
+        <spring.security.version>6.5.4</spring.security.version>
         <!-- Overrides Parent-->
-        <spring.version>6.2.10</spring.version>
+        <spring.version>6.2.11</spring.version>
         <sqlserver.version>12.4.1.jre8</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>10.1.44</tomcat.version>
+        <tomcat.version>10.1.47</tomcat.version>
         <xml.apis.version>1.4.01</xml.apis.version>
     </properties>
     <dependencyManagement>
