@@ -101,6 +101,15 @@
            <artifactId>xml-apis</artifactId>
            <scope>provided</scope>
        </dependency>
-   </dependencies>
+<dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-i18n</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

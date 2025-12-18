@@ -102,8 +102,9 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
+          <groupId>com.oracle.ojdbc</groupId>
+          <artifactId>ojdbc8</artifactId>
+          <version>${ojdbc8.version}</version>
           <scope>provided</scope>
       </dependency>
       <dependency>

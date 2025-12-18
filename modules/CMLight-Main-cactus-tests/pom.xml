@@ -73,6 +73,12 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>perc-deployer</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>servlet-utils</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
@@ -103,8 +109,8 @@
             <type>test-jar</type>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>cactus</groupId>
+            <dependency>
+            <groupId>org.apache.cactus</groupId>
             <artifactId>cactus</artifactId>
             <scope>test</scope>
             <exclusions>

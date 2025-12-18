@@ -236,8 +236,8 @@ public class PSLocaleHandler
 
       Properties props = getRepositoryProperties(rxroot);
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap(
-         props.getProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY),
-         props.getProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY), null);
+         props.getProperty(com.percussion.utils.container.IPSJdbcDbmsDefConstants.DB_BACKEND_PROPERTY),
+         props.getProperty(com.percussion.utils.container.IPSJdbcDbmsDefConstants.DB_DRIVER_NAME_PROPERTY), null);
 
       return dataTypeMap;
    }

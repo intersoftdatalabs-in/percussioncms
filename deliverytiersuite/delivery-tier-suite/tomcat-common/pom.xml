@@ -109,14 +109,5 @@
             </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>

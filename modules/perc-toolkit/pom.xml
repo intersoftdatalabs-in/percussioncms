@@ -149,6 +149,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.ccil.cowan.tagsoup</groupId>
+            <artifactId>tagsoup</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
         </dependency>
@@ -414,6 +420,12 @@
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-thumbsdb</artifactId>
             <version>${twelvemonkeys.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
 

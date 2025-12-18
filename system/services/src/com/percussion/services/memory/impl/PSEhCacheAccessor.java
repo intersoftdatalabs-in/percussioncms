@@ -27,7 +27,6 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.util.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import net.sf.ehcache.*;
-import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -365,19 +364,26 @@ public class PSEhCacheAccessor implements IPSCacheAccess
     */
    private PSCacheStatisticsSnapshot getCacheStatistics(Ehcache cache)
    {
+      net.sf.ehcache.statistics.StatisticsGateway stat = cache.getStatistics();
 
-      StatisticsGateway stat = cache.getStatistics();
-
-      long memItems = stat.getSize();
-      long memUsage = stat.getLocalHeapSizeInBytes();
+      long memItems = stat.getLocalHeapSize();
       long misses = stat.cacheMissCount();
       long totalHits = stat.cacheHitCount();
 
       long diskHits = stat.localDiskHitCount();
-      long diskItems = stat.localDiskPutAddedCount();
+      long diskItems = stat.getLocalDiskSize();
+      long memUsage = 0;
       long diskUsage = 0;
-      if (diskItems > 0 && memItems > 0)
-         diskUsage = diskItems * (memUsage / memItems);
+      try {
+         memUsage = cache.calculateInMemorySize();
+      } catch (IllegalStateException | CacheException e) {
+         // ignore size calculation failures
+      }
+      try {
+         diskUsage = cache.calculateOnDiskSize();
+      } catch (IllegalStateException | CacheException e) {
+         // ignore size calculation failures
+      }
 
       return new PSCacheStatisticsSnapshot(diskHits, diskItems, diskUsage,
             memItems, memUsage, misses, totalHits);      

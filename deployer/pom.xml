@@ -26,6 +26,7 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -60,9 +61,9 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>test</scope>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-i18n</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
          <groupId>org.hibernate</groupId>
@@ -168,7 +169,6 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>

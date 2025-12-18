@@ -30,7 +30,7 @@ import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.util.IPSHtmlParameters;
 import org.json.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;

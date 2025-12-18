@@ -290,9 +290,9 @@
             <version>${sqlserver.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>${oracle.version}</version>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -541,8 +541,8 @@
                                 <artifactId>mssql-jdbc</artifactId>
                             </dependency>
                             <dependency>
-                                <groupId>com.oracle</groupId>
-                                <artifactId>ojdbc6</artifactId>
+                                <groupId>com.oracle.ojdbc</groupId>
+                                <artifactId>ojdbc8</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>com.zaxxer</groupId>
@@ -904,9 +904,9 @@
                 <configuration>
                     <artifactItems>
                         <artifactItem>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>perc-service-wrapper</artifactId>
-                            <version>${project.version}</version>
+                            <groupId>com.oracle.ojdbc</groupId>
+                            <artifactId>ojdbc8</artifactId>
+                            <version>${ojdbc8.version}</version>
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>${assembly-directory}</outputDirectory>
@@ -1012,7 +1012,7 @@
                                 <!-- <type>embedded</type>-->
                                 <zipUrlInstaller>
                                     <url>
-                                        https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.12.v20180830/jetty-distribution-9.4.12.v20180830.zip
+                                        https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.54.v20250814/jetty-distribution-9.4.54.v20250814.zip
                                     </url>
                                 </zipUrlInstaller>
                                 <dependencies>
@@ -1043,8 +1043,9 @@
                                         <artifactId>mssql-jdbc</artifactId>
                                     </dependency>
                                     <dependency>
-                                        <groupId>com.oracle</groupId>
-                                        <artifactId>ojdbc6</artifactId>
+                                        <groupId>com.oracle.ojdbc</groupId>
+                                        <artifactId>ojdbc8</artifactId>
+                                        <version>${ojdbc8.version}</version>
                                     </dependency>
 
                                     <dependency>
@@ -1245,14 +1246,5 @@
         </profile>
 
     </profiles>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>

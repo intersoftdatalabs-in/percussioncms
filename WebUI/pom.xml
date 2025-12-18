@@ -621,15 +621,16 @@
 
 
         <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
             <exclusions>
 
-                <exclusion>
-                    <groupId>flexera.ia</groupId>
-                    <artifactId>IAClasses</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -990,43 +991,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>net.sourceforge.nekohtml</groupId>
             <artifactId>nekohtml</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>ant</artifactId>
-                    <groupId>ant</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>cargo</artifactId>
-                    <groupId>cargo</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.aspectj</groupId>
-                    <artifactId>aspectjrt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jtidy</artifactId>
-                    <groupId>jtidy</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xmlParserAPIs</artifactId>
-                </exclusion>
-
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -1043,12 +1016,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-server-ui-content</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>perc-system-cactus-tests</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -1158,9 +1125,22 @@
             <artifactId>solr-solrj</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-core</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-model</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-rio-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
@@ -1169,11 +1149,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-langdetect</artifactId>
+            <artifactId>tika-langdetect-optimaize</artifactId>
+            <version>${tika.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
 
         <dependency>

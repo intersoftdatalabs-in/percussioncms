@@ -19,7 +19,6 @@ package com.percussion.search.lucene.textconverter;
 import com.percussion.search.lucene.IPSLuceneConstants;
 import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tika.io.IOUtils;
 import org.junit.Ignore;
 
 import java.io.File;
@@ -151,17 +150,10 @@ public class PSTextConverterTest extends TestCase
    
    public void testTikaUnsupportedMimeTypeConversion() throws Exception
    {
-      InputStream is = null;
-      
-      try
+      try (InputStream is = loadFile("jpeg.jpg"))
       {
-         is = loadFile("jpeg.jpg");
          String text = new PSTikaTextConvertor().getConvertedText(is, "image/jpeg");
          assertTrue(StringUtils.isEmpty(text));
-      }
-      finally
-      {
-         IOUtils.closeQuietly(is);
       }
    }
 

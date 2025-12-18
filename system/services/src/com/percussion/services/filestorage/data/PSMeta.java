@@ -35,11 +35,11 @@ import org.apache.tika.metadata.CreativeCommons;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Geographic;
 import org.apache.tika.metadata.HttpHeaders;
-import org.apache.tika.metadata.MSOffice;
+import org.apache.tika.metadata.Office;
 import org.apache.tika.metadata.Message;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TIFF;
-import org.apache.tika.metadata.TikaMetadataKeys;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.metadata.TikaMimeKeys;
 
 /**
@@ -60,10 +60,10 @@ public class PSMeta
          Geographic,
          HttpHeaders,
          Message,
-         MSOffice,
+         Office,
          ClimateForcast,
          TIFF,
-         TikaMetadataKeys,
+         TikaCoreProperties,
          TikaMimeKeys,
          IPSFileMeta,
          Serializable,
@@ -350,7 +350,7 @@ public class PSMeta
    public String getOriginalFilename()
    {
 
-      return properties.get(Metadata.RESOURCE_NAME_KEY);
+      return properties.get(TikaCoreProperties.RESOURCE_NAME_KEY);
    }
 
    /**
@@ -360,7 +360,7 @@ public class PSMeta
    public void setOriginalFilename(String originalFilename)
    {
       if (originalFilename != null)
-         properties.put(Metadata.RESOURCE_NAME_KEY, originalFilename);
+         properties.put(TikaCoreProperties.RESOURCE_NAME_KEY, originalFilename);
    }
 
    /* (non-Javadoc)
