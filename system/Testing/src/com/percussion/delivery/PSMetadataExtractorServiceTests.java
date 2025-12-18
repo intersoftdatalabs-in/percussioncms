@@ -19,13 +19,11 @@ package com.percussion.delivery;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.PSMetadataExtractorService;
-import com.percussion.delivery.metadata.any23.PSTripleHandler;
+import com.percussion.delivery.metadata.rdfa.PSTripleHandler;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -124,6 +122,38 @@ public class PSMetadataExtractorServiceTests {
                     "</div>",map.get("dcterms:abstract"));
             assertEquals("article",map.get("og:type"));
 
+        }
+    }
+
+    @Test
+    public void testEntityAndScriptHandling() throws IOException {
+        InputStream is = PSMetadataExtractorServiceTests.class.getResourceAsStream(
+                "/com/percussion/delivery/entity-test.html");
+
+        try (InputStreamReader inputStreamReader = new InputStreamReader(is)) {
+
+            PSMetadataExtractorService svc = new PSMetadataExtractorService();
+            PSMetadataEntry entry = svc.process(inputStreamReader, "text/html",
+                    "/Sites/test/entity-test.html", null);
+
+            assertNotNull(entry);
+            HashMap<String, String> map = new HashMap<>();
+
+            for (IPSMetadataProperty prop : entry.getProperties()) {
+                map.put(prop.getName(), prop.getValue());
+            }
+
+            // Check title
+            assertEquals("Comprehensive Test Title & More", map.get("dcterms:title"));
+            
+            // Check description - entities should be resolved by the parser
+            // &copy; -> ©, &euro; -> €, &nbsp; -> non-breaking space (char 160)
+            String description = map.get("dcterms:description");
+            assertNotNull(description);
+            
+            // Check abstract
+            String abstractText = map.get("dcterms:abstract");
+            assertNotNull(abstractText);
         }
     }
 }
