@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     target-branch: "development-8.1.x"
     # optional: ignore known groups/artifacts that require Java 11+
     # ignore:
@@ -14,5 +14,5 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     target-branch: "development"
