@@ -25,7 +25,7 @@ jobs:
         cache: maven
 
     - name: Build project to install dependencies
-      run: mvn clean install -DskipTests
+      run: mvn clean install -DskipTests=true
       
     - name: Submit Dependency Snapshot
       uses: advanced-security/maven-dependency-submission-action@v4
