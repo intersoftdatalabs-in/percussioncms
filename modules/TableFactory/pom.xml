@@ -70,6 +70,12 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <version>4.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-legacy</artifactId>
             <version>${project.parent.version}</version>
@@ -87,8 +93,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>

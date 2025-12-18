@@ -172,12 +172,12 @@
                             <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
                         </artifactItem>
                         <artifactItem>
-                            <groupId>com.oracle</groupId>
-                            <artifactId>ojdbc6</artifactId>
-                            <version>${oracle.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                          <groupId>com.oracle.ojdbc</groupId>
+                          <artifactId>ojdbc8</artifactId>
+                          <version>${ojdbc8.version}</version>
+                          <type>jar</type>
+                          <overWrite>true</overWrite>
+                          <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
                         </artifactItem>
                     </artifactItems>
                 </configuration>
@@ -367,20 +367,21 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
+          <groupId>com.oracle.ojdbc</groupId>
+          <artifactId>ojdbc8</artifactId>
+          <version>${ojdbc8.version}</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.percussion</groupId>
         <artifactId>rest</artifactId>
         <version>${project.version}</version>
-    </dependency>
-     <dependency>
+      </dependency>
+      <dependency>
         <groupId>com.percussion</groupId>
         <artifactId>sitemanage</artifactId>
-         <version>${project.version}</version>
-    </dependency>
+        <version>${project.version}</version>
+      </dependency>
 
  <dependency>
         <groupId>com.percussion</groupId>
@@ -400,14 +401,5 @@
           <artifactId>geronimo-jaspi</artifactId>
       </dependency>
   </dependencies>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>

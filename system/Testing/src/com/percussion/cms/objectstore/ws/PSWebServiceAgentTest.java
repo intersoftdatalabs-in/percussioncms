@@ -238,7 +238,7 @@ public class PSWebServiceAgentTest
       catch (FileNotFoundException e)
       {
          log.error("Unable to locate file: {}" , DEFAULT_PROPERTIES_FILE);
-         System.exit(-1);
+         throw new RuntimeException(e);
       }
       catch (IOException e)
       {
@@ -246,7 +246,7 @@ public class PSWebServiceAgentTest
             "Error loading properties from file ({}): {}" ,
                  DEFAULT_PROPERTIES_FILE,
                  PSExceptionUtils.getMessageForLog(e));
-         System.exit(-1);
+         throw new RuntimeException(e);
       }
       finally
       {
@@ -281,8 +281,6 @@ public class PSWebServiceAgentTest
       {
          log.error(PSExceptionUtils.getDebugMessageForLog(e));
       }
-
-      System.exit(0);
    }
 
    /**
