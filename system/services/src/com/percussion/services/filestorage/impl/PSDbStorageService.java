@@ -40,6 +40,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.parser.AutoDetectParser;
@@ -160,12 +161,12 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       {
          PSPurgableTempFile ptFile = (PSPurgableTempFile)file;
          type=ptFile.getSourceContentType();
-         metadata.add(Metadata.RESOURCE_NAME_KEY, ptFile.getSourceFileName());
+         metadata.add(TikaCoreProperties.RESOURCE_NAME_KEY, ptFile.getSourceFileName());
          filename=ptFile.getSourceFileName();
       }
       else
       {
-         metadata.add(Metadata.RESOURCE_NAME_KEY, file.getName());
+         metadata.add(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
       }
        
       try

@@ -22,7 +22,6 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.search.lucene.IPSLuceneConstants;
 import com.percussion.server.PSServer;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +37,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.WriteOutContentHandler;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
@@ -144,17 +144,14 @@ public class PSTikaTextConvertor implements IPSLuceneTextConverter
       
       getTikaConfig();
       
-      TikaInputStream tis = null;
-
       Parser parser = new AutoDetectParser(m_tikaConfig);
       Metadata metadata = new Metadata();
       metadata.set(HttpHeaders.CONTENT_TYPE, mimetype);
       WriteOutContentHandler handler = new WriteOutContentHandler(writeLimit);
       BodyContentHandler bodyhandler = new BodyContentHandler(handler);
 
-      try
+      try (TikaInputStream tis = TikaInputStream.get(is))
       {
-         tis = TikaInputStream.get(is);
          // getFile() Forces tika to stream to temporary file. parse uses
          // hasFile to decide whether processing should be done
          // using file or in memory. We want to preserve memory.
@@ -162,22 +159,20 @@ public class PSTikaTextConvertor implements IPSLuceneTextConverter
          tis.getFile();
          parser.parse(tis, bodyhandler, metadata, new ParseContext());
       }
+      catch (SAXException e)
+      {
+         ms_log.warn("Document text is larger than current index write limit of "
+               + INDEX_WRITE_LIMIT
+               + " chars. "
+               + "Only text up to this will be indexed, you can increase limit by setting indexWriteLimit property in server.properties file. "
+               + "Increasing will use more memory.");
+         throw new PSExtensionProcessingException(e.getMessage(), e);
+      }
       catch (Exception e)
       {
-         if (handler.isWriteLimitReached(e))
-         {
-            ms_log.warn("Document text is larger than current index write limit of "
-                  + INDEX_WRITE_LIMIT
-                  + " chars. "
-                  + "Only text up to this will be indexed, you can increase limit by setting indexWriteLimit property in server.properties file. "
-                  + "Increasing will use more memory.");
-         }
-         else
-         {
-            ms_log.warn("Document cannot be indexed, set debug trace to see full stack: ",
-                  ExceptionUtils.getRootCause(e));
-            ms_log.debug("Document cannot be indexed", e);
-         }
+         ms_log.warn("Document cannot be indexed, set debug trace to see full stack: ",
+               ExceptionUtils.getRootCause(e));
+         ms_log.debug("Document cannot be indexed", e);
          throw new PSExtensionProcessingException(e.getMessage(),e);
       }
       /*
@@ -194,9 +189,6 @@ public class PSTikaTextConvertor implements IPSLuceneTextConverter
        */
       catch (OutOfMemoryError e)
       {
-         // try to close input stream to release any memory first before
-         // logging.
-         IOUtils.closeQuietly(tis);
          ms_log.error("Out of memory error while processing document while indexing"
                + " you may need to increase the java heap allocated to the CM1 server. "
                + "This may just be a document that cannot be handled currently by the underlying Tika processor. "
@@ -204,14 +196,25 @@ public class PSTikaTextConvertor implements IPSLuceneTextConverter
       }
       finally
       {
-         // Related to PDFBOX-1009 Limit the CMap-cache to external CMaps
-         // The static map is eating up memory when processing many documents.  Each
-         // font takes up about 5Mb of memory and this can raise above 1Gb or usage.
-         // we will clear here to release.
-         IOUtils.closeQuietly(tis);
-         IOUtils.closeQuietly(is);
+         closeSilently(is);
       }
 
       return bodyhandler.toString();
+   }
+
+   private void closeSilently(InputStream stream)
+   {
+      if (stream == null)
+      {
+         return;
+      }
+      try
+      {
+         stream.close();
+      }
+      catch (IOException e)
+      {
+         ms_log.debug("Failed to close stream", e);
+      }
    }
 }
