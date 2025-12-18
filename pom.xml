@@ -107,7 +107,7 @@
        <maven.jarsigner.plugin.version>3.0.0</maven.jarsigner.plugin.version>
        <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
        <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
-       <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+       <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
        <commons.file.upload.version>1.5</commons.file.upload.version>
        <commons.validator.version>1.7</commons.validator.version>
        <maven.site.plugin.version>3.8.2</maven.site.plugin.version>
