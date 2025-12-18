@@ -209,7 +209,7 @@
        <quartz.version>2.3.2</quartz.version>
        <rome.version>2.1.0</rome.version>
        <maven.source.jar.plugin.version>3.2.0</maven.source.jar.plugin.version>
-       <velocity.version>2.3</velocity.version>
+       <velocity.version>2.4.1</velocity.version>
        <velocity.tools.version>3.1</velocity.tools.version>
        <saxon.version>6.5.3</saxon.version>
        <owasp.csrfguard.version>4.5.0</owasp.csrfguard.version>
