@@ -1,0 +1,31 @@
+name: Dependency Submission
+
+on: 
+  push:
+    branches: [ "development-8.1.x" ]
+  workflow_dispatch: 
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  dependency-submission:  
+    runs-on: ubuntu-latest
+    
+    steps: 
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with: 
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build project to install dependencies
+      run: mvn clean install -DskipTests
+      
+    - name: Submit Dependency Snapshot
+      uses: advanced-security/maven-dependency-submission-action@v4
