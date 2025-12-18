@@ -5,12 +5,11 @@ updates:
     schedule:
       interval: "daily"
     target-branch: "development-8.1.x"
-    # optional: ignore known groups/artifacts that require Java 11+
-    # ignore:
-    #  - dependency-name: "com.example:some-new-lib"
-    #  - dependency-name: "com.foo:bar"
-    #    versions:
-    #      - ">=2.0.0"
+    # ignore known groups/artifacts that require > Java 1.8.0+
+    ignore:
+      - dependency-name: "org.apache.cxf:*"
+        versions:
+          - ">=3.6.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
