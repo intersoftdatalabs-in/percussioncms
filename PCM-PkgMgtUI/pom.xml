@@ -64,13 +64,15 @@
        <groupId>com.isomorphic.smartgwt.lgpl</groupId>
        <artifactId>smartgwt</artifactId>
        <version>12.0-p20200227</version>
-       <classifier>p20200227</classifier>
+       <scope>system</scope>
+       <systemPath>${project.basedir}/lib/smartgwt-12.0-p20200227.jar</systemPath>
     </dependency>
     <dependency>
        <groupId>com.isomorphic.smartgwt.lgpl</groupId>
        <artifactId>smartgwt-skins</artifactId>
        <version>12.0-p20200227</version>
-       <classifier>p20200227</classifier>
+       <scope>system</scope>
+       <systemPath>${project.basedir}/lib/smartgwt-skins-12.0-p20200227.jar</systemPath>
     </dependency>
    </dependencies>
   
