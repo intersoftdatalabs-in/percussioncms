@@ -71,13 +71,13 @@
     </scm>
     <properties>
         <activation.api.version>1.2.0</activation.api.version>
-        <activemq.version>5.16.8</activemq.version>
+        <activemq.version>6.2.0</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
-        <any23.version>2.3</any23.version>
+        <any23.version>2.7</any23.version>
         <aopalliance.version>1.0</aopalliance.version>
         <avalon.version>4.1.5</avalon.version>
-        <awssdk.version>1.12.261</awssdk.version>
+        <awssdk.version>1.12.795</awssdk.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.81</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -150,7 +150,7 @@
         <json.version>20240303</json.version>
         <jsoup.version>1.15.3</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
-        <junit5.version>5.13.0</junit5.version>
+        <junit5.version>6.0.1</junit5.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>4.17.0</liquibase.maven.plugin.version>
         <liquibase.version>4.17.0</liquibase.version>
@@ -216,12 +216,12 @@
         <solr.version>8.11.3</solr.version>
         <spotless.plugin.version>2.46.1</spotless.plugin.version>
         <!-- 5.17.x and up require Java 11 -->
-        <spring.version>6.2.10</spring.version>
+        <spring.version>6.2.11</spring.version>
         <sqlite.version>3.41.2.2</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <swagger.ui.version>4.1.3</swagger.ui.version>
         <swagger.version>2.1.10</swagger.version>
-        <tika.version>1.28.5</tika.version>
+        <tika.version>3.2.2</tika.version>
         <tinymce.version>5.10.9</tinymce.version>
         <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
@@ -932,7 +932,7 @@
             <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
-                <version>2.0.6</version>
+                <version>2.0.6.1</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
@@ -1516,7 +1516,7 @@
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
-                <version>1.8.0</version>
+                <version>1.8.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.derby</groupId>
