@@ -9,13 +9,11 @@
     </parent>
     <artifactId>webservices</artifactId>
     <packaging>jar</packaging>
-    <!-- <properties>
-        <axis.version>1.4</axis.version>
-        <axiscore.version>1.4</axiscore.version>
+    <properties>
+        <axis.version>1.4.2</axis.version>
+        <axiscore.version>1.4.2</axiscore.version>
     </properties>
-    -->
     <build>
-        <!--
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -117,6 +115,13 @@
                     </mappings>
                 </configuration>
                 <dependencies>
+                    <dependency>
+                        <groupId>axis</groupId>
+                        <artifactId>axis</artifactId>
+                        <version>1.4.2</version>
+                        <scope>system</scope>
+                        <systemPath>${project.basedir}/../../lib/axis-1.4.2.jar</systemPath>
+                    </dependency>
                     <dependency>
                         <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
@@ -246,7 +251,10 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-        <version>${axis.version}</version></dependency>
+            <version>1.4.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../lib/axis-1.4.2.jar</systemPath>
+        </dependency>
         <dependency>
             <groupId>javax.xml</groupId>
             <artifactId>jaxrpc-api</artifactId>
@@ -259,6 +267,4 @@
         </dependency>
 
     </dependencies>
--->
-    </build>
 </project>
