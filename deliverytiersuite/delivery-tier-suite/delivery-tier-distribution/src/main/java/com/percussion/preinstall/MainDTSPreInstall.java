@@ -21,6 +21,7 @@ import org.apache.axis.utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -72,16 +74,11 @@ public class MainDTSPreInstall {
         try {
 
             String javaHome = System.getProperty(PERC_JAVA_HOME);
-            if(javaHome == null || javaHome.trim().equalsIgnoreCase(""))
+            if(javaHome == null || javaHome.trim().isEmpty())
                 javaHome = System.getProperty(JAVA_HOME);
-            String javabin = "";
-
-            if(System.getProperty("file.separator").equals("/")) {
-                javabin = javaHome + "/bin/java";
-            }
-            else {
-                javabin = javaHome + "/bin/java.exe";
-            }
+            
+            Path javaBinPath = Paths.get(javaHome, "bin", System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
+            String javabin = javaBinPath.toString();
 
             String percVersion= System.getProperty(PERCUSSION_VERSION);
             if(percVersion== null)
@@ -98,21 +95,22 @@ public class MainDTSPreInstall {
             }
 
             System.out.println("Installation folder ="+args[0]);
-            Path installPath = Paths.get(args[0]);
+            Path installPath = Paths.get(args[0]).normalize();
+            
             String isProduction="true";
             isProduction=System.getProperty("install.prod.dts");
             System.out.println("====Will remove below code if value of is Production comes fine PSDeliveryTierServerTYpePanel"+isProduction);
-            String staging = installPath.toFile() + File.separator + "Staging";
-            File f = new File(staging);
-            String prod = installPath.toFile() + File.separator + "Deployment";
-            File f2 = new File(prod);
-            if(Files.exists(f.toPath()) && !Files.exists(f2.toPath())){
+            
+            Path staging = installPath.resolve("Staging");
+            Path prod = installPath.resolve("Deployment");
+            
+            if(Files.exists(staging) && !Files.exists(prod)){
                 isProduction="false";
             }
             //if isProduction value is not passed in and we are not able to figure out either, then set the value to be true
             //e.g. in case of upgrade installer is passing value $DTS_SERVER_TYPE$, which doesn't match any of the cases and thus fails
             if(isProduction == null || isProduction.isEmpty() ||
-                    (!isProduction.equalsIgnoreCase("true") && !isProduction.equalsIgnoreCase("false"))){
+                    (!isProduction.toLowerCase(Locale.ROOT).equals("true") && !isProduction.toLowerCase(Locale.ROOT).equals("false"))){
                 isProduction="true";//change done for dev environment
             }
 
@@ -151,13 +149,13 @@ public class MainDTSPreInstall {
 
             exitCode =  execJar(installAntJarPath,execPath,installPath,isProduction);
 
-        } catch (Exception e) {
+        } catch (IOException | URISyntaxException | InterruptedException e) {
             System.out.println("An unexpected error occurred processing installation files. " + e.getMessage());
-            throw  new AntJobFailedException(String.format("Installation failed. %s", e.getMessage()));
+            throw  new AntJobFailedException(String.format(Locale.ROOT, "Installation failed. %s", e.getMessage()));
         }
-        System.out.println(String.format("Done extracting exit code %d", exitCode));
+        System.out.println(String.format(Locale.ROOT, "Done extracting exit code %d", exitCode));
         if(exitCode != 0){
-            throw  new AntJobFailedException(String.format("Installation failed. Exit code: %d ",exitCode));
+            throw  new AntJobFailedException(String.format(Locale.ROOT, "Installation failed. Exit code: %d ",exitCode));
         }
     }
 
@@ -201,16 +199,12 @@ public class MainDTSPreInstall {
 
         String dir=installDir.toAbsolutePath().toString();
         String javaHome = System.getProperty(PERC_JAVA_HOME);
-        if(javaHome == null || javaHome.trim().equalsIgnoreCase(""))
+        if(javaHome == null || javaHome.trim().isEmpty())
             javaHome = System.getProperty(JAVA_HOME);
 
-        String javabin="";
-        if(System.getProperty("file.separator").equals("/")) {
-            javabin = javaHome + "/bin/java";
-        }
-        else {
-            javabin = javaHome + "/bin/java.exe";
-        }
+        Path javaBinPath = Paths.get(javaHome, "bin", System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
+        String javabin = javaBinPath.toString();
+        
         System.out.println("isProduction:" + isProduction);
         System.out.println("Install Dir:" + dir);
         System.out.println("Java Executable:" + javabin);
