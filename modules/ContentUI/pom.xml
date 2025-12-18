@@ -10,7 +10,7 @@
     <artifactId>perc-server-ui-content</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <hamcrest.version>2.2</hamcrest.version>
+        <hamcrest.version>3.0</hamcrest.version>
         <maven.compiler.release>11</maven.compiler.release>
         <!-- Java 11 compatibility -->
         <maven.compiler.source>11</maven.compiler.source>
