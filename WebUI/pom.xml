@@ -1161,6 +1161,8 @@
             <groupId>caja</groupId>
             <artifactId>caja</artifactId>
             <version>r3828</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/caja-r3828.jar</systemPath>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
         <dependency>
