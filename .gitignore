@@ -127,3 +127,4 @@ fabric.properties
 /modules/redirect-tool/apache-redirects.conf
 /modules/redirect-tool/redirects.json
 _remote.repositories
+**/spotless-index-file
