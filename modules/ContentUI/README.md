@@ -6,6 +6,7 @@
 * Class to generate search results in response to a search form posting. In general, the results generated are nodes readily render able in the dojo table widget in the form of JSON object.
 * Package for Unit Testing.
 
- ## Building
-  mvn clean install  
+## Building
+
+mvn clean install
 

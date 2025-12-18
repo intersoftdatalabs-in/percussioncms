@@ -1,6 +1,6 @@
 # perc-comments-services
 
-This modules contains all the backend support required by DTS for 
+This modules contains all the backend support required by DTS for
 
 * Comments Widget,
 * Like Widget
@@ -13,3 +13,4 @@ Provides REST services for above actions.
 ```
 mvn clean install
 ```
+

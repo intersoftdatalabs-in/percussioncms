@@ -14,3 +14,4 @@ This extension lets you use Mousetrap to record keyboard sequences and play them
     }
 </script>
 ```
+
