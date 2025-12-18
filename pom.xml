@@ -220,6 +220,19 @@
 
     <profiles>
         <profile>
+            <id>skip-all-tests</id>
+            <activation>
+                <property>
+                    <name>skipTests</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <skip.unit.tests>true</skip.unit.tests>
+                <skip.integration.tests>true</skip.integration.tests>
+            </properties>
+        </profile>
+        <profile>
             <id>all-tests</id>
             <properties>
                 <build.profile.id>all-tests</build.profile.id>
