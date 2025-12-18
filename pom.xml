@@ -100,7 +100,7 @@
         <commons.text.version>1.13.1</commons.text.version>
         <commons.validator.version>1.7</commons.validator.version>
         <cxf.version>3.5.11</cxf.version>
-        <derby.version>10.16.1.1</derby.version>
+        <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache.version>2.10.6</ehcache.version>
