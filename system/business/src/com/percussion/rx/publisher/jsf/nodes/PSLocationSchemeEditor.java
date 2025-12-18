@@ -33,7 +33,7 @@ import com.percussion.services.utils.jsf.validators.PSBaseValidator;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.myfaces.trinidad.component.core.input.CoreSelectOneChoice;
+// Removed dependency on Trinidad's CoreSelectOneChoice to avoid JSF ClientBehaviorHolder compile issues
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -652,9 +652,11 @@ public class PSLocationSchemeEditor extends PSBaseValidator
       // flush this cached Content Type object.  
       m_nodeDef = null; 
 
-      // reset the template choice 
+      // reset the template choice without Trinidad dependency
       UIComponent c = ctx.getViewRoot().findComponent("templateName");
-      ((CoreSelectOneChoice) c).resetValue(); 
+      if (c != null) {
+         c.getAttributes().remove("value");
+      }
    }
    
    /**
