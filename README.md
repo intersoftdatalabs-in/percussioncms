@@ -1,7 +1,7 @@
 # Percussion CMS
 This is the main project for Percussion CMS - the next version of Percussion CM1 and Rhythmyx.  
 
-![Java CI with Maven](https://github.com/percussion/percussioncms/workflows/Java%20CI%20with%20Maven/badge.svg)
+[![Maven Build](https://github.com/intersoftdatalabs-in/percussioncms/actions/workflows/dependency-submission.yml/badge.svg?branch=development-8.1.x)](https://github.com/intersoftdatalabs-in/percussioncms/actions/workflows/dependency-submission.yml)
 
 ## What is Percussion CMS?
 Percussion CMS is the next generation of Percussion Software's proprietary Rhythmyx and CM1 content management products.  The original headless CMS (1999), Percussion CMS has a long history of de-coupled deployments wth easily extensible integration points for delivering content in different formats to different channels.
