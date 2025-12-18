@@ -71,7 +71,7 @@
     </scm>
     <properties>
         <activation.api.version>1.2.0</activation.api.version>
-        <activemq.version>5.16.8</activemq.version>
+        <activemq.version>6.2.0</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <any23.version>2.3</any23.version>
