@@ -31,5 +31,4 @@ jobs:
     - name: Submit Dependency Snapshot
       uses: advanced-security/maven-dependency-submission-action@v4
       with:
-        ignore-maven-failure: true
-        maven-args: '-pl !modules/perc-distribution-tree'
+        maven-args: '-B -DskipTests=true -fn -pl !modules/perc-distribution-tree'
