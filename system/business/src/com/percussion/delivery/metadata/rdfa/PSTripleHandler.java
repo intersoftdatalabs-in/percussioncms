@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package com.percussion.delivery.metadata.any23;
+package com.percussion.delivery.metadata.rdfa;
 
 import com.percussion.delivery.metadata.PSMetadataExtractorService;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
 import com.percussion.error.PSExceptionUtils;
-import org.apache.any23.extractor.ExtractionContext;
-import org.apache.any23.writer.TripleHandler;
-import org.apache.any23.writer.TripleHandlerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,12 +39,12 @@ import java.util.regex.Pattern;
 
 
 /**
- * Custom TripleHandler to collect metadata properties when a file is processed.
+ * Custom RDFHandler to collect metadata properties when a file is processed using RDF4J.
  * 
  * @author miltonpividori
  * 
  */
-public class PSTripleHandler implements TripleHandler
+public class PSTripleHandler implements RDFHandler
 {
 
     private static final Logger log = LogManager.getLogger(PSTripleHandler.class);
@@ -131,24 +131,25 @@ public class PSTripleHandler implements TripleHandler
     }
 
     /**
-     * Any23 extractor executes this method with every namespace of the page.
+     * RDF4J handler method for receiving namespace declarations.
      */
-    @SuppressWarnings("unused")
-    public void receiveNamespace(String declaredNamespace, String namespaceUrl, ExtractionContext arg2)
-            throws TripleHandlerException
+    @Override
+    public void handleNamespace(String prefix, String uri) throws RDFHandlerException
     {
-        if (!namespaceUrl.equals(VOCAB_URL))
-            namespacesByUrl.put(namespaceUrl, declaredNamespace);
+        if (!uri.equals(VOCAB_URL))
+            namespacesByUrl.put(uri, prefix);
     }
 
     /**
-     * Any23 extractor executes this method with every triple of the page. Here
-     * the PSMetadataProperty objects are created with triples information.
+     * RDF4J handler method for receiving RDF statements (triples).
+     * Here the PSMetadataProperty objects are created with statement information.
      */
-    @SuppressWarnings("unused")
-    public void receiveTriple(Resource arg0, IRI propertyURL, Value propertyValue, IRI arg3, ExtractionContext arg4)
-            throws TripleHandlerException
+    @Override
+    public void handleStatement(Statement statement) throws RDFHandlerException
     {
+        IRI propertyURL = statement.getPredicate();
+        Value propertyValue = statement.getObject();
+        
         // Don't process accidental RDFa, as styles, etc.
         if (accidentalRDFa(propertyURL.toString()))
             return;
@@ -301,38 +302,20 @@ public class PSTripleHandler implements TripleHandler
         return new PropertyURLProcessingResult(completePropertyUrl, completePropertyUrl);
     }
 
-    @SuppressWarnings("unused")
-    public void close() throws TripleHandlerException
+    @Override
+    public void startRDF() throws RDFHandlerException
     {
         // no-op
     }
 
-    @SuppressWarnings("unused")
-    public void closeContext(ExtractionContext arg0) throws TripleHandlerException
+    @Override
+    public void endRDF() throws RDFHandlerException
     {
         // no-op
     }
 
-    @SuppressWarnings("unused")
-    public void endDocument(IRI arg0) throws TripleHandlerException
-    {
-        // no-op
-    }
-
-    @SuppressWarnings("unused")
-    public void openContext(ExtractionContext arg0) throws TripleHandlerException
-    {
-        // no-op
-    }
-
-    @SuppressWarnings("unused")
-    public void setContentLength(long arg0)
-    {
-        // no-op
-    }
-
-    @SuppressWarnings("unused")
-    public void startDocument(IRI arg0) throws TripleHandlerException
+    @Override
+    public void handleComment(String comment) throws RDFHandlerException
     {
         // no-op
     }

@@ -121,6 +121,10 @@
           <version>${project.parent.version}</version>
       </dependency>
       <dependency>
+          <groupId>net.sf.oval</groupId>
+          <artifactId>oval</artifactId>
+      </dependency>
+      <dependency>
           <groupId>com.percussion</groupId>
           <artifactId>perc-legacy</artifactId>
           <version>${project.parent.version}</version>
