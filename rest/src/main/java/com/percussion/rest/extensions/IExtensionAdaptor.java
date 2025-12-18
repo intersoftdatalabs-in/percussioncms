@@ -22,12 +22,12 @@ import java.util.List;
 
 public interface IExtensionAdaptor {
 
-	/***
-	 * Gets all extensions based on the specified ExtensionFilterOptions
-	 * @param baseURI
-	 * @param filter An ExtensionFilterOptions configured with the target filters
-	 * @return A list of Extensions.
-	 */
-	public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
-
+  /**
+   * * Gets all extensions based on the specified ExtensionFilterOptions
+   *
+   * @param baseURI
+   * @param filter An ExtensionFilterOptions configured with the target filters
+   * @return A list of Extensions.
+   */
+  public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
 }

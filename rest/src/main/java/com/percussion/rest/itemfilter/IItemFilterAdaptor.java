@@ -19,35 +19,38 @@ package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import com.percussion.services.error.PSNotFoundException;
-
 import java.util.List;
 
 public interface IItemFilterAdaptor {
 
-	/***
-	 * Get a list of the ItemFilters available on the system populated with rules and parameters.
-	 * @return A list of item filters
-	 */
-	public List<ItemFilter> getItemFilters();
+  /**
+   * * Get a list of the ItemFilters available on the system populated with rules and parameters.
+   *
+   * @return A list of item filters
+   */
+  public List<ItemFilter> getItemFilters();
 
-	/***
-	 * Update or create an ItemFilter
-	 * @param filter  The filter to update or create.  
-	 * @return The updated ItemFilter.
-	 */
-	public ItemFilter updateOrCreateItemFilter(ItemFilter filter);
-	
-	/***
-	 * Delete the specified item filter.
-	 * @param itemFilterId A valid ItemFilter id.  Filter must not be associated with any ContentLists or it won't be deleted.
-	 */
-	public void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException;
-	
-	/***
-	 * Get a single ItemFilter by id.
-	 * @param itemFilterId  A Valid ItemFilter id
-	 * @return The ItemFilter
-	 */
-	public ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException;
-	
+  /**
+   * * Update or create an ItemFilter
+   *
+   * @param filter The filter to update or create.
+   * @return The updated ItemFilter.
+   */
+  public ItemFilter updateOrCreateItemFilter(ItemFilter filter);
+
+  /**
+   * * Delete the specified item filter.
+   *
+   * @param itemFilterId A valid ItemFilter id. Filter must not be associated with any ContentLists
+   *     or it won't be deleted.
+   */
+  public void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException;
+
+  /**
+   * * Get a single ItemFilter by id.
+   *
+   * @param itemFilterId A Valid ItemFilter id
+   * @return The ItemFilter
+   */
+  public ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException;
 }

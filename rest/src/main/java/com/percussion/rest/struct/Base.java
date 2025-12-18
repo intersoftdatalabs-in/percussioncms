@@ -17,6 +17,4 @@
 
 package com.percussion.rest.struct;
 
-public class Base
-{
-}
+public class Base {}

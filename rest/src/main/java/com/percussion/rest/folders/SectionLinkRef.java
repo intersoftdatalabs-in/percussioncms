@@ -21,51 +21,46 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SectionLinkRef")
-public class SectionLinkRef extends LinkRef
-{
-    @Schema(name="type", required=false,description="type of section link.", allowableValues = "sectionlink,externallink")
-    String type;
+public class SectionLinkRef extends LinkRef {
+  @Schema(
+      name = "type",
+      required = false,
+      description = "type of section link.",
+      allowableValues = "sectionlink,externallink")
+  String type;
 
-    public static final String TYPE_INTERNAL = "internal";
+  public static final String TYPE_INTERNAL = "internal";
 
-    public static final String TYPE_EXTERNAL = "external";
+  public static final String TYPE_EXTERNAL = "external";
 
-    public static final String TYPE_SUBFOLDER = "subfolder";
+  public static final String TYPE_SUBFOLDER = "subfolder";
 
-    public SectionLinkRef()
-    {
-        super();
-    }
+  public SectionLinkRef() {
+    super();
+  }
 
-    public SectionLinkRef(String name, String href)
-    {
-        super(name, href);
-        type = "internal";
-    }
+  public SectionLinkRef(String name, String href) {
+    super(name, href);
+    type = "internal";
+  }
 
-    @JsonCreator
-    public SectionLinkRef(@JsonProperty("name")
-    String name, @JsonProperty("href")
-    String href, @JsonProperty("type")
-    String type)
-    {
-        super(name, href);
-        this.type = type;
+  @JsonCreator
+  public SectionLinkRef(
+      @JsonProperty("name") String name,
+      @JsonProperty("href") String href,
+      @JsonProperty("type") String type) {
+    super(name, href);
+    this.type = type;
+  }
 
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
+  public void setType(String type) {
+    this.type = type;
+  }
 }

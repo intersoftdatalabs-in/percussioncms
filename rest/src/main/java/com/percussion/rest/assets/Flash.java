@@ -20,42 +20,28 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Flash")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary Flash file.")
-public class Flash extends ImageInfo
-{
-	private String flashVersion;
-	private String usage;
-	/**
-	 * @return the flashVersion
-	 */
-	public String getFlashVersion()
-	{
-		return flashVersion;
-	}
-	/**
-	 * @param flashVersion the flashVersion to set
-	 */
-	public void setFlashVersion(String flashVersion)
-	{
-		this.flashVersion = flashVersion;
-	}
-	/**
-	 * @return the usage
-	 */
-	public String getUsage()
-	{
-		return usage;
-	}
-	/**
-	 * @param usage the usage to set
-	 */
-	public void setUsage(String usage)
-	{
-		this.usage = usage;
-	}
+@Schema(description = "Represents a binary Flash file.")
+public class Flash extends ImageInfo {
+  private String flashVersion;
+  private String usage;
+  /** @return the flashVersion */
+  public String getFlashVersion() {
+    return flashVersion;
+  }
+  /** @param flashVersion the flashVersion to set */
+  public void setFlashVersion(String flashVersion) {
+    this.flashVersion = flashVersion;
+  }
+  /** @return the usage */
+  public String getUsage() {
+    return usage;
+  }
+  /** @param usage the usage to set */
+  public void setUsage(String usage) {
+    this.usage = usage;
+  }
 }

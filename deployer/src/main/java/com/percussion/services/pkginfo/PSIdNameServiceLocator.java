@@ -19,19 +19,14 @@ package com.percussion.services.pkginfo;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- * Locator for the {@link IPSIdNameService}
- */
-public class PSIdNameServiceLocator extends PSBaseServiceLocator
-{
-   /**
-    * Find and return the id name service.
-    * 
-    * @return the service, never <code>null</code>.
-    */
-   public static IPSIdNameService getIdNameService()
-   {
-      return (IPSIdNameService) getCtx().getBean("sys_idNameService");
-   }
-
+/** Locator for the {@link IPSIdNameService} */
+public class PSIdNameServiceLocator extends PSBaseServiceLocator {
+  /**
+   * Find and return the id name service.
+   *
+   * @return the service, never <code>null</code>.
+   */
+  public static IPSIdNameService getIdNameService() {
+    return (IPSIdNameService) getCtx().getBean("sys_idNameService");
+  }
 }

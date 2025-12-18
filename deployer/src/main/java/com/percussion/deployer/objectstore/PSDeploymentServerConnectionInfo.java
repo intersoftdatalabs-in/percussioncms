@@ -22,253 +22,196 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates the data necessary to construct a
- * <code>PSDeploymentServerConnection</code>.
- */
-public class PSDeploymentServerConnectionInfo implements IPSDeployComponent
-{
-   /**
-    * Constructs the object using the specified parameters.
-    * 
-    * @param server The name of the server to connect to, may not be
-    *           <code>null</code> or empty.
-    * @param port The port on the server. Must be greater than 0.
-    * @param userid The user id to connect using, may not be <code>null</code>
-    *           or empty.
-    * @param password The password, may be <code>null</code> or empty. If
-    *           <code>null</code>, and empty <code>String</code> is stored.
-    * @param isPwdEncrypted If <code>true</code>, the password will be
-    *           treated as encrypted. Otherwise, it is assumed to be clear text
-    *           and will be encryted for storage or serialization to the server.
-    */
-   public PSDeploymentServerConnectionInfo(String server, int port,
-         String userid, String password, boolean encrypted)
-   {
-      // validate arguments
-      if (server == null || server.trim().length() == 0)
-         throw new IllegalArgumentException("server may not be null or empty");
+/** Encapsulates the data necessary to construct a <code>PSDeploymentServerConnection</code>. */
+public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
+  /**
+   * Constructs the object using the specified parameters.
+   *
+   * @param server The name of the server to connect to, may not be <code>null</code> or empty.
+   * @param port The port on the server. Must be greater than 0.
+   * @param userid The user id to connect using, may not be <code>null</code> or empty.
+   * @param password The password, may be <code>null</code> or empty. If <code>null</code>, and
+   *     empty <code>String</code> is stored.
+   * @param isPwdEncrypted If <code>true</code>, the password will be treated as encrypted.
+   *     Otherwise, it is assumed to be clear text and will be encryted for storage or serialization
+   *     to the server.
+   */
+  public PSDeploymentServerConnectionInfo(
+      String server, int port, String userid, String password, boolean encrypted) {
+    // validate arguments
+    if (server == null || server.trim().length() == 0)
+      throw new IllegalArgumentException("server may not be null or empty");
 
-      if (port <= 0)
-         throw new IllegalArgumentException("port must be greater than zero");
+    if (port <= 0) throw new IllegalArgumentException("port must be greater than zero");
 
-      if (userid == null || userid.trim().length() == 0)
-         throw new IllegalArgumentException("userid may not be null or empty");
+    if (userid == null || userid.trim().length() == 0)
+      throw new IllegalArgumentException("userid may not be null or empty");
 
-      m_server = server;
-      m_port = port;
-      m_userid = userid;
-      m_password = password;
-      m_isPwdEncrypted = encrypted;
-   }
+    m_server = server;
+    m_port = port;
+    m_userid = userid;
+    m_password = password;
+    m_isPwdEncrypted = encrypted;
+  }
 
-   /**
-    * Constructs the object from its XML representation.
-    * 
-    * @param source the element that represents the object, not
-    *           <code>null</code>.
-    * @throws PSUnknownNodeTypeException propagated from <code>fromXml</code>
-    *            if the XML element node does not represent a type supported by
-    *            the class.
-    */
-   public PSDeploymentServerConnectionInfo(Element source)
-         throws PSUnknownNodeTypeException
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
+  /**
+   * Constructs the object from its XML representation.
+   *
+   * @param source the element that represents the object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException propagated from <code>fromXml</code> if the XML element node
+   *     does not represent a type supported by the class.
+   */
+  public PSDeploymentServerConnectionInfo(Element source) throws PSUnknownNodeTypeException {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
 
-      fromXml(source);
-   }
+    fromXml(source);
+  }
 
-   // see base class for javadoc
-   public boolean equals(Object obj)
-   {
-      boolean result = false;
-      if (obj instanceof PSDeploymentServerConnectionInfo)
-      {
-         PSDeploymentServerConnectionInfo info = (PSDeploymentServerConnectionInfo) obj;
-         result = m_server.equals(info.m_server) && m_port == info.m_port
-               && m_userid.equals(info.m_userid) && m_password.equals(info.m_password)
-               && m_isPwdEncrypted == info.m_isPwdEncrypted;
-      }
-      return result;
-   }
-
-   // see base class for javadoc
-   public int hashCode()
-   {
-      StringBuilder fieldMashup = new StringBuilder();
-      fieldMashup.append(m_server).append("|");
-      fieldMashup.append(m_port).append("|");
-      fieldMashup.append(m_userid).append("|");
-      fieldMashup.append(m_password).append("|");
-      fieldMashup.append(m_isPwdEncrypted).append("|");
-      
-      return fieldMashup.toString().hashCode();
-   }
-
-   // see interface for javadoc
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc should not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(XML_ATTR_SERVER, m_server);
-      root.setAttribute(XML_ATTR_PORT, String.valueOf(m_port));
-      root.setAttribute(XML_ATTR_USERID, m_userid);
-      root.setAttribute(XML_ATTR_PASSWORD, m_password);
-      root.setAttribute(XML_ATTR_IS_PWD_ENCRYPTED, String
-            .valueOf(m_isPwdEncrypted));
-      return root;
-   }
-
-   // see interface for javadoc
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args =
-         {XML_NODE_NAME, sourceNode.getNodeName()};
-         throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
-
-      m_server = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_SERVER);
-      m_port = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(
-            sourceNode, XML_ATTR_PORT));
-      m_userid = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_USERID);
-      m_password = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_PASSWORD);
-      m_isPwdEncrypted = Boolean.getBoolean(PSDeployComponentUtils
-            .getRequiredAttribute(sourceNode, XML_ATTR_IS_PWD_ENCRYPTED));
-   }
-
-   // see interface for javadoc
-   public void copyFrom(IPSDeployComponent obj)
-   {
-      if (obj == null)
-         throw new IllegalArgumentException("obj parameter must not be null");
-
-      if (!(obj instanceof PSDeploymentServerConnectionInfo))
-         throw new IllegalArgumentException(
-               "obj wrong type, expecting PSServerConnectionInfo");
-
+  // see base class for javadoc
+  public boolean equals(Object obj) {
+    boolean result = false;
+    if (obj instanceof PSDeploymentServerConnectionInfo) {
       PSDeploymentServerConnectionInfo info = (PSDeploymentServerConnectionInfo) obj;
+      result =
+          m_server.equals(info.m_server)
+              && m_port == info.m_port
+              && m_userid.equals(info.m_userid)
+              && m_password.equals(info.m_password)
+              && m_isPwdEncrypted == info.m_isPwdEncrypted;
+    }
+    return result;
+  }
 
-      m_server = info.m_server;
-      m_port = info.m_port;
-      m_userid = info.m_userid;
-      m_password = info.m_password;
-      m_isPwdEncrypted = info.m_isPwdEncrypted;
+  // see base class for javadoc
+  public int hashCode() {
+    StringBuilder fieldMashup = new StringBuilder();
+    fieldMashup.append(m_server).append("|");
+    fieldMashup.append(m_port).append("|");
+    fieldMashup.append(m_userid).append("|");
+    fieldMashup.append(m_password).append("|");
+    fieldMashup.append(m_isPwdEncrypted).append("|");
 
-   }
+    return fieldMashup.toString().hashCode();
+  }
 
-   public boolean isPwdEncrypted()
-   {
-      return m_isPwdEncrypted;
-   }
+  // see interface for javadoc
+  public Element toXml(Document doc) {
+    if (doc == null) throw new IllegalArgumentException("doc should not be null");
 
-   public String getPassword()
-   {
-      return m_password;
-   }
+    Element root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(XML_ATTR_SERVER, m_server);
+    root.setAttribute(XML_ATTR_PORT, String.valueOf(m_port));
+    root.setAttribute(XML_ATTR_USERID, m_userid);
+    root.setAttribute(XML_ATTR_PASSWORD, m_password);
+    root.setAttribute(XML_ATTR_IS_PWD_ENCRYPTED, String.valueOf(m_isPwdEncrypted));
+    return root;
+  }
 
-   public int getPort()
-   {
-      return m_port;
-   }
+  // see interface for javadoc
+  public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
-   public String getServer()
-   {
-      return m_server;
-   }
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+      Object[] args = {XML_NODE_NAME, sourceNode.getNodeName()};
+      throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+    }
 
-   public String getUserid()
-   {
-      return m_userid;
-   }
+    m_server = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_SERVER);
+    m_port =
+        Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PORT));
+    m_userid = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_USERID);
+    m_password = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PASSWORD);
+    m_isPwdEncrypted =
+        Boolean.getBoolean(
+            PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_IS_PWD_ENCRYPTED));
+  }
 
-   /**
-    * Returns a string representation of the object.
-    * 
-    * @return concatenation of the userid, server, and port fields, never
-    *         <code>null</code> or empty.
-    */
-   public String toString()
-   {
-      return m_userid + "@" + m_server + ":" + m_port;
-   }
+  // see interface for javadoc
+  public void copyFrom(IPSDeployComponent obj) {
+    if (obj == null) throw new IllegalArgumentException("obj parameter must not be null");
 
-   /**
-    * Root node name of the object's XML representation.
-    */
-   public static final String XML_NODE_NAME = "PSXServerConnectionInfo";
+    if (!(obj instanceof PSDeploymentServerConnectionInfo))
+      throw new IllegalArgumentException("obj wrong type, expecting PSServerConnectionInfo");
 
-   /**
-    * The name of the server to connect to, set during ctor, never
-    * <code>null</code>, empty or modified after that.
-    */
-   private String m_server;
+    PSDeploymentServerConnectionInfo info = (PSDeploymentServerConnectionInfo) obj;
 
-   /**
-    * The port on the server to connect to, set during ctor, never modified
-    * after that.
-    */
-   private int m_port;
+    m_server = info.m_server;
+    m_port = info.m_port;
+    m_userid = info.m_userid;
+    m_password = info.m_password;
+    m_isPwdEncrypted = info.m_isPwdEncrypted;
+  }
 
-   /**
-    * The user's id. Set during ctor, never <code>null</code> or empty or
-    * modified after that.
-    */
-   private String m_userid;
+  public boolean isPwdEncrypted() {
+    return m_isPwdEncrypted;
+  }
 
-   /**
-    * The user's password. Set during ctor, may be empty, never
-    * <code>null</code> or modified after that.
-    */
-   private String m_password;
+  public String getPassword() {
+    return m_password;
+  }
 
-   /**
-    * If <code>true</code>, the password will be treated as encrypted.
-    * Otherwise, it is assumed to be clear text and will be encryted for storage
-    * or serialization to the server.
-    */
-   private boolean m_isPwdEncrypted;
+  public int getPort() {
+    return m_port;
+  }
 
-   /**
-    * Name of the attribute containing the isPwdEncrypted field in the object's
-    * XML representation.
-    */
-   private static final String XML_ATTR_IS_PWD_ENCRYPTED = "isPwdEncrypted";
+  public String getServer() {
+    return m_server;
+  }
 
-   /**
-    * Name of the attribute containing the password field in the object's XML
-    * representation.
-    */
-   private static final String XML_ATTR_PASSWORD = "password";
+  public String getUserid() {
+    return m_userid;
+  }
 
-   /**
-    * Name of the attribute containing the userid field in the object's XML
-    * representation.
-    */
-   private static final String XML_ATTR_USERID = "userid";
+  /**
+   * Returns a string representation of the object.
+   *
+   * @return concatenation of the userid, server, and port fields, never <code>null</code> or empty.
+   */
+  public String toString() {
+    return m_userid + "@" + m_server + ":" + m_port;
+  }
 
-   /**
-    * Name of the attribute containing the port field in the object's XML
-    * representation.
-    */
-   private static final String XML_ATTR_PORT = "port";
+  /** Root node name of the object's XML representation. */
+  public static final String XML_NODE_NAME = "PSXServerConnectionInfo";
 
-   /**
-    * Name of the attribute containing the server field in the object's XML
-    * representation.
-    */
-   private static final String XML_ATTR_SERVER = "server";
+  /**
+   * The name of the server to connect to, set during ctor, never <code>null</code>, empty or
+   * modified after that.
+   */
+  private String m_server;
 
+  /** The port on the server to connect to, set during ctor, never modified after that. */
+  private int m_port;
+
+  /** The user's id. Set during ctor, never <code>null</code> or empty or modified after that. */
+  private String m_userid;
+
+  /**
+   * The user's password. Set during ctor, may be empty, never <code>null</code> or modified after
+   * that.
+   */
+  private String m_password;
+
+  /**
+   * If <code>true</code>, the password will be treated as encrypted. Otherwise, it is assumed to be
+   * clear text and will be encryted for storage or serialization to the server.
+   */
+  private boolean m_isPwdEncrypted;
+
+  /**
+   * Name of the attribute containing the isPwdEncrypted field in the object's XML representation.
+   */
+  private static final String XML_ATTR_IS_PWD_ENCRYPTED = "isPwdEncrypted";
+
+  /** Name of the attribute containing the password field in the object's XML representation. */
+  private static final String XML_ATTR_PASSWORD = "password";
+
+  /** Name of the attribute containing the userid field in the object's XML representation. */
+  private static final String XML_ATTR_USERID = "userid";
+
+  /** Name of the attribute containing the port field in the object's XML representation. */
+  private static final String XML_ATTR_PORT = "port";
+
+  /** Name of the attribute containing the server field in the object's XML representation. */
+  private static final String XML_ATTR_SERVER = "server";
 }

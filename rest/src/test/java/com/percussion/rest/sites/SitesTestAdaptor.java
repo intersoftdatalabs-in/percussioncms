@@ -23,60 +23,61 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class SitesTestAdaptor implements ISiteAdaptor {
-    /***
-     * Find all sites.
-     * @return SiteList
-     */
-    @Override
-    public SiteList findAllSites() {
-        return null;
-    }
+  /**
+   * * Find all sites.
+   *
+   * @return SiteList
+   */
+  @Override
+  public SiteList findAllSites() {
+    return null;
+  }
 
-    /***
-     * Save a site
-     * @param site
-     */
-    @Override
-    public void saveSite(Site site) {
+  /**
+   * * Save a site
+   *
+   * @param site
+   */
+  @Override
+  public void saveSite(Site site) {}
 
-    }
+  /**
+   * *
+   *
+   * @param name
+   * @return
+   */
+  @Override
+  public Site findByName(String name) {
+    return null;
+  }
 
-    /***
-     *
-     * @param name
-     * @return
-     */
-    @Override
-    public Site findByName(String name) {
-        return null;
-    }
+  /**
+   * * find By Guid
+   *
+   * @param guid
+   * @return
+   */
+  @Override
+  public Site findByGuid(String guid) {
+    return null;
+  }
 
-    /***
-     * find By Guid
-     * @param guid
-     * @return
-     */
-    @Override
-    public Site findByGuid(String guid) {
-        return null;
-    }
+  /**
+   * * Delete the site
+   *
+   * @param site
+   */
+  @Override
+  public void deleteSite(Site site) {}
 
-    /***
-     * Delete the site
-     * @param site
-     */
-    @Override
-    public void deleteSite(Site site) {
-
-    }
-
-    /***
-     * Create a new Site
-     * @return
-     */
-    @Override
-    public Site createSite() {
-        return null;
-    }
-
+  /**
+   * * Create a new Site
+   *
+   * @return
+   */
+  @Override
+  public Site createSite() {
+    return null;
+  }
 }

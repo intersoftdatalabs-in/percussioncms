@@ -19,132 +19,124 @@ package com.percussion.rest.acls;
 
 import com.percussion.security.IPSTypedPrincipal;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 
 @XmlRootElement
 @Schema(description = "Typed Principal")
-public class TypedPrincipal implements  IPSTypedPrincipal{
+public class TypedPrincipal implements IPSTypedPrincipal {
 
-    @Schema(description="name", required=true)
-    private String name;
-    @Schema(description="type", required = true)
-    private IPSTypedPrincipal.PrincipalTypes type;
+  @Schema(description = "name", required = true)
+  private String name;
 
-    public String getName() {
-        return name;
-    }
+  @Schema(description = "type", required = true)
+  private IPSTypedPrincipal.PrincipalTypes type;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public IPSTypedPrincipal.PrincipalTypes getType() {
-        return type;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setType(IPSTypedPrincipal.PrincipalTypes type) {
-        this.type = type;
-    }
+  public IPSTypedPrincipal.PrincipalTypes getType() {
+    return type;
+  }
 
-    /**
-     * Test if the principaltype specified matches with this.
-     *
-     * @param principalType Entry type to check, must be one fo the PrincipalTypes
-     *                      enumerations.
-     * @return <code>true</code> if supplied entry type matches with this
-     * object's type <code>false</code> otherwise.
-     */
-    @Override
-    public boolean isType(PrincipalTypes principalType) {
-        return false;
-    }
+  public void setType(IPSTypedPrincipal.PrincipalTypes type) {
+    this.type = type;
+  }
 
-    /**
-     * Is this principal a community?
-     *
-     * @return <code>true</code> if this entry type is community
-     * <code>false</code> otherwise.
-     */
-    @Override
-    public boolean isCommunity() {
-        return false;
-    }
+  /**
+   * Test if the principaltype specified matches with this.
+   *
+   * @param principalType Entry type to check, must be one fo the PrincipalTypes enumerations.
+   * @return <code>true</code> if supplied entry type matches with this object's type <code>false
+   *     </code> otherwise.
+   */
+  @Override
+  public boolean isType(PrincipalTypes principalType) {
+    return false;
+  }
 
-    /**
-     * Is this ACL entry a community?
-     *
-     * @return <code>true</code> if this entry type is role <code>false</code>
-     * otherwise.
-     */
-    @Override
-    public boolean isRole() {
-        return false;
-    }
+  /**
+   * Is this principal a community?
+   *
+   * @return <code>true</code> if this entry type is community <code>false</code> otherwise.
+   */
+  @Override
+  public boolean isCommunity() {
+    return false;
+  }
 
-    /**
-     * Is this principal a user?
-     *
-     * @return <code>true</code> if this entry type is user (or system entry)
-     * <code>false</code> otherwise.
-     */
-    @Override
-    public boolean isUser() {
-        return false;
-    }
+  /**
+   * Is this ACL entry a community?
+   *
+   * @return <code>true</code> if this entry type is role <code>false</code> otherwise.
+   */
+  @Override
+  public boolean isRole() {
+    return false;
+  }
 
-    /**
-     * Is this principal a group?
-     *
-     * @return <code>true</code> if this entry type is group <code>false</code>
-     * otherwise.
-     */
-    @Override
-    public boolean isGroup() {
-        return false;
-    }
+  /**
+   * Is this principal a user?
+   *
+   * @return <code>true</code> if this entry type is user (or system entry) <code>false</code>
+   *     otherwise.
+   */
+  @Override
+  public boolean isUser() {
+    return false;
+  }
 
-    /**
-     * Is this principal a subject?
-     *
-     * @return <code>true</code> if this principal type is subject<code>false</code>
-     * otherwise.
-     */
-    @Override
-    public boolean isSubject() {
-        return false;
-    }
+  /**
+   * Is this principal a group?
+   *
+   * @return <code>true</code> if this entry type is group <code>false</code> otherwise.
+   */
+  @Override
+  public boolean isGroup() {
+    return false;
+  }
 
-    /**
-     * Is this principal a system entry?
-     *
-     * @return <code>true</code> if this entry type special user entry
-     * <code>false</code> otherwise.
-     */
-    @Override
-    public boolean isSystemEntry() {
-        return false;
-    }
+  /**
+   * Is this principal a subject?
+   *
+   * @return <code>true</code> if this principal type is subject<code>false</code> otherwise.
+   */
+  @Override
+  public boolean isSubject() {
+    return false;
+  }
 
-    /**
-     * Is this principal a system community?
-     *
-     * @return <code>true</code> if this entry system community
-     * <code>false</code> otherwise.
-     */
-    @Override
-    public boolean isSystemCommunity() {
-        return false;
-    }
+  /**
+   * Is this principal a system entry?
+   *
+   * @return <code>true</code> if this entry type special user entry <code>false</code> otherwise.
+   */
+  @Override
+  public boolean isSystemEntry() {
+    return false;
+  }
 
-    /**
-     * Get principal type.
-     *
-     * @return one of the PrincipalTypes enumerations.
-     */
-    @Override
-    public PrincipalTypes getPrincipalType() {
-        return null;
-    }
+  /**
+   * Is this principal a system community?
+   *
+   * @return <code>true</code> if this entry system community <code>false</code> otherwise.
+   */
+  @Override
+  public boolean isSystemCommunity() {
+    return false;
+  }
+
+  /**
+   * Get principal type.
+   *
+   * @return one of the PrincipalTypes enumerations.
+   */
+  @Override
+  public PrincipalTypes getPrincipalType() {
+    return null;
+  }
 }

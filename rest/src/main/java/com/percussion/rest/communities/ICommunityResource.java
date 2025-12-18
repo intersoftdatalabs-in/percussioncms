@@ -19,17 +19,19 @@ package com.percussion.rest.communities;
 
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-
 import java.util.List;
 
 public interface ICommunityResource {
 
-        public CommunityList createCommunities(List<String> names);
-        public CommunityList findCommunities(String name);
-        public CommunityList loadCommunities(GuidList ids,boolean lock, boolean overrideLock);
-        public void saveCommunities(CommunityList communities, boolean release);
-        public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
-        public CommunityVisibilityList getVisibilityByCommunity(
-                GuidList ids, ObjectTypeEnum type);
-}
+  public CommunityList createCommunities(List<String> names);
 
+  public CommunityList findCommunities(String name);
+
+  public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock);
+
+  public void saveCommunities(CommunityList communities, boolean release);
+
+  public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
+
+  public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type);
+}

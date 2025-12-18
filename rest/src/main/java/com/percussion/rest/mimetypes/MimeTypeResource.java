@@ -20,30 +20,26 @@ package com.percussion.rest.mimetypes;
 import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/***
- * Rest resource for working with mime types
- */
-@PSSiteManageBean(value="restMimeTypesResource")
+/** * Rest resource for working with mime types */
+@PSSiteManageBean(value = "restMimeTypesResource")
 @Path("/mimetypes")
 @XmlRootElement
 @Tag(name = "Mime Types", description = "Mime Type operations")
 public class MimeTypeResource {
 
-    @Autowired
-    private IMimeTypeAdaptor adaptor;
+  @Autowired private IMimeTypeAdaptor adaptor;
 
-    public MimeTypeResource(){}
+  public MimeTypeResource() {}
 
-    //@TODO: Replace me
-    @GET
-    @Operation(summary="Ping placeholder")
-    public String ping(){
-        return "pong";
-    }
+  // @TODO: Replace me
+  @GET
+  @Operation(summary = "Ping placeholder")
+  public String ping() {
+    return "pong";
+  }
 }

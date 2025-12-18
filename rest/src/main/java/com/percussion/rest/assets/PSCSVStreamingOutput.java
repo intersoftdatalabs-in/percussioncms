@@ -21,31 +21,28 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.annotation.XmlTransient;
 
-public class PSCSVStreamingOutput implements StreamingOutput{
+public class PSCSVStreamingOutput implements StreamingOutput {
 
-	protected static final String UTF8BOM = "\uFEFF";
-	
-	@XmlTransient
-	private List<String> rows;
-	
-	public PSCSVStreamingOutput(List<String> rows){
-		this.rows = rows;
-	}
-	
-	@Override
-	public void write(OutputStream os) throws IOException, WebApplicationException {
-		 try(OutputStreamWriter writer = new OutputStreamWriter(os,"UTF-8")) {
-			 writer.write(UTF8BOM);
-			 for (String s : rows) {
-				 writer.write(s);
-			 }
-			 writer.flush();
-		 }
-	}
-	
+  protected static final String UTF8BOM = "\uFEFF";
+
+  @XmlTransient private List<String> rows;
+
+  public PSCSVStreamingOutput(List<String> rows) {
+    this.rows = rows;
+  }
+
+  @Override
+  public void write(OutputStream os) throws IOException, WebApplicationException {
+    try (OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8")) {
+      writer.write(UTF8BOM);
+      for (String s : rows) {
+        writer.write(s);
+      }
+      writer.flush();
+    }
+  }
 }

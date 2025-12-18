@@ -19,19 +19,16 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class AssetNotFoundException extends RestExceptionBase
-{
-	public AssetNotFoundException()
-    {
-        super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
-	
-	public AssetNotFoundException(String message)
-	{
-		super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
-	}
+public class AssetNotFoundException extends RestExceptionBase {
+  public AssetNotFoundException() {
+    super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
 
-	public AssetNotFoundException(Throwable t){
-		super(t);
-	}
+  public AssetNotFoundException(String message) {
+    super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
+  }
+
+  public AssetNotFoundException(Throwable t) {
+    super(t);
+  }
 }

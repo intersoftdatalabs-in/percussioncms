@@ -20,50 +20,38 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "LinkRef")
-@Schema(description="LinkRef")
-public class LinkRef
-{
-    @Schema(required=false,description="link")
-    private String name;
+@Schema(description = "LinkRef")
+public class LinkRef {
+  @Schema(required = false, description = "link")
+  private String name;
 
-    @Schema(required=false,description="href to section or external source")
-    private String href;
+  @Schema(required = false, description = "href to section or external source")
+  private String href;
 
-    public LinkRef()
-    {
+  public LinkRef() {}
 
-    }
+  @JsonCreator
+  public LinkRef(@JsonProperty("name") String name, @JsonProperty("href") String href) {
+    this.name = name;
+    this.href = href;
+  }
 
-    @JsonCreator
-    public LinkRef(@JsonProperty("name")
-    String name, @JsonProperty("href")
-    String href)
-    {
-        this.name = name;
-        this.href = href;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getHref() {
+    return href;
+  }
 
-    public String getHref()
-    {
-        return href;
-    }
-
-    public void setHref(String href)
-    {
-        this.href = href;
-    }
+  public void setHref(String href) {
+    this.href = href;
+  }
 }

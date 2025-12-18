@@ -18,7 +18,6 @@
 package com.percussion.rest.errors;
 
 import java.util.List;
-
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -28,36 +27,35 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase>
-{
-    @Context
-    private HttpHeaders headers;
+public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase> {
+  @Context private HttpHeaders headers;
 
-    public Response toResponse(RestExceptionBase e)
-    {
+  public Response toResponse(RestExceptionBase e) {
 
-        ResponseBuilder rb = Response.status(e.getStatus()).entity(
-                new RestError(e.getErrorCode().getNumVal(), e.getClass().getSimpleName(), e.getMessage(), e.getDetailMessage(), e
-                        .getErrorData()));
+    ResponseBuilder rb =
+        Response.status(e.getStatus())
+            .entity(
+                new RestError(
+                    e.getErrorCode().getNumVal(),
+                    e.getClass().getSimpleName(),
+                    e.getMessage(),
+                    e.getDetailMessage(),
+                    e.getErrorData()));
 
-        List<MediaType> accepts = headers.getAcceptableMediaTypes();
-        MediaType mt = null;
-        if (accepts != null && accepts.size() > 0)
-        {
-            for (MediaType accept : accepts)
-            {
-                if (accept.equals(MediaType.APPLICATION_JSON) || accept.equals(MediaType.APPLICATION_XML))
-                {
-                    mt = accept;
-                    break;
-                }
-            }
+    List<MediaType> accepts = headers.getAcceptableMediaTypes();
+    MediaType mt = null;
+    if (accepts != null && accepts.size() > 0) {
+      for (MediaType accept : accepts) {
+        if (accept.equals(MediaType.APPLICATION_JSON) || accept.equals(MediaType.APPLICATION_XML)) {
+          mt = accept;
+          break;
         }
-        if (mt == null)
-            mt = MediaType.valueOf(MediaType.APPLICATION_XML);
-        // if not specified, use the default json
-        rb = rb.type(mt); // set the response type to the entity type.
-
-        return rb.build();
+      }
     }
+    if (mt == null) mt = MediaType.valueOf(MediaType.APPLICATION_XML);
+    // if not specified, use the default json
+    rb = rb.type(mt); // set the response type to the entity type.
+
+    return rb.build();
+  }
 }

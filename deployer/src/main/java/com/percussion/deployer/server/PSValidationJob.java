@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.client.PSDeploymentManager;
@@ -34,10 +34,6 @@ import com.percussion.server.job.IPSJobErrors;
 import com.percussion.server.job.PSJobException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.w3c.dom.Document;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.MessageFormat;
@@ -46,222 +42,188 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.w3c.dom.Document;
 
 /**
- * Job to validate all packages in an import descriptor.  Results are saved on
- * the server and may be retrieved using the archive ref.
+ * Job to validate all packages in an import descriptor. Results are saved on the server and may be
+ * retrieved using the archive ref.
  */
-public class PSValidationJob extends PSDeployJob
-{
-   /**
-    * Restores the import descriptor from the supplied document, and validates
-    * that the user is authorized to perform this job.  Saves the security token
-    * from the request to use for subsequent operations during the run method.
-    * <br>
-    * See Base class for more info.
-    */
-   @SuppressWarnings("unchecked")
-   @Override
-   public void init(int id, Document descriptor, PSRequest req, 
-      Properties initParams) 
-      throws PSAuthenticationFailedException, PSAuthorizationException, 
-         PSJobException
-   {
-      if (descriptor == null)
-         throw new IllegalArgumentException("descriptor may not be null");
-         
-      if (req == null)
-         throw new IllegalArgumentException("req may not be null");
+public class PSValidationJob extends PSDeployJob {
+  /**
+   * Restores the import descriptor from the supplied document, and validates that the user is
+   * authorized to perform this job. Saves the security token from the request to use for subsequent
+   * operations during the run method. <br>
+   * See Base class for more info.
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public void init(int id, Document descriptor, PSRequest req, Properties initParams)
+      throws PSAuthenticationFailedException, PSAuthorizationException, PSJobException {
+    if (descriptor == null) throw new IllegalArgumentException("descriptor may not be null");
 
-      super.init(id, req, initParams);      
-      
-      try 
-      {
-         m_descriptor = new PSImportDescriptor(descriptor.getDocumentElement());
-         List pkgList = new ArrayList();
-         Iterator<PSImportPackage> importPkgs = m_descriptor.getImportPackageList().iterator();
-         while (importPkgs.hasNext())
-         {
-            PSImportPackage importPkg = importPkgs.next();
-            pkgList.add(importPkg.getPackage());
-         }
-         initDepCount(pkgList.iterator(), false);
+    if (req == null) throw new IllegalArgumentException("req may not be null");
+
+    super.init(id, req, initParams);
+
+    try {
+      m_descriptor = new PSImportDescriptor(descriptor.getDocumentElement());
+      List pkgList = new ArrayList();
+      Iterator<PSImportPackage> importPkgs = m_descriptor.getImportPackageList().iterator();
+      while (importPkgs.hasNext()) {
+        PSImportPackage importPkg = importPkgs.next();
+        pkgList.add(importPkg.getPackage());
       }
-      catch (PSUnknownNodeTypeException | PSDeployException e)
-      {
-         throw new PSJobException(IPSJobErrors.INVALID_JOB_DESCRIPTOR, 
-            e.getLocalizedMessage());
+      initDepCount(pkgList.iterator(), false);
+    } catch (PSUnknownNodeTypeException | PSDeployException e) {
+      throw new PSJobException(IPSJobErrors.INVALID_JOB_DESCRIPTOR, e.getLocalizedMessage());
+    }
+  }
+
+  /** Runs this validation job. Validates all packages and saves the results. */
+  @SuppressWarnings("unchecked")
+  @Override
+  public void doRun() {
+    try {
+      validate(m_descriptor, this, getSecurityToken());
+
+      if (!isCancelled()) {
+        // write out the desciptor with the results using the archive ref
+        Document doc = PSXmlDocumentBuilder.createXmlDocument();
+        PSXmlDocumentBuilder.replaceRoot(doc, m_descriptor.toXml(doc));
+
+        File resultsFile =
+            new File(
+                PSDeploymentHandler.getValidationDir(),
+                m_descriptor.getArchiveInfo().getArchiveRef() + ".xml");
+        resultsFile.getParentFile().mkdirs();
+        resultsFile.deleteOnExit();
+
+        try (FileOutputStream out = new FileOutputStream(resultsFile)) {
+          PSXmlDocumentBuilder.write(doc, out);
+        }
+
+        setStatus(100);
+        setStatusMessage(PSDeploymentManager.getBundle().getString("completed"));
       }
-   }
-   
-   /**
-    * Runs this validation job.  Validates all packages and saves the results.
-    */
-   @SuppressWarnings("unchecked")
-   @Override
-   public void doRun() 
-   {
-      try 
-      {
-         validate(m_descriptor, this, getSecurityToken());
-         
-         if (!isCancelled())
-         {
-            // write out the desciptor with the results using the archive ref
-            Document doc = PSXmlDocumentBuilder.createXmlDocument();
-            PSXmlDocumentBuilder.replaceRoot(doc, m_descriptor.toXml(doc));
-               
-            File resultsFile = new File(
-               PSDeploymentHandler.getValidationDir(), m_descriptor.getArchiveInfo().getArchiveRef() 
-               + ".xml");
-            resultsFile.getParentFile().mkdirs();
-            resultsFile.deleteOnExit();
+    } catch (Exception ex) {
+      // getLocalizedMessage often returns empty string
+      setStatusMessage("error: " + ex.toString());
+      setStatus(-1);
+      LogManager.getLogger(getClass()).error("Error validating Deployer " + "package", ex);
+    } finally {
+      setCompleted();
+    }
+  }
 
-            try(FileOutputStream out = new FileOutputStream(resultsFile)){
-               PSXmlDocumentBuilder.write(doc, out);
-            }
+  /**
+   * Standalone validation method used by server-side services
+   *
+   * @param descriptor The import descriptor to validate, not <code>null</code>
+   * @param jobHandle Job handle to record status, not <code>null</code>
+   * @param tok Security token repesenting current user session, not <code>null</code>.
+   * @throws PSDeployException If there are any errors.
+   */
+  public void validate(PSImportDescriptor descriptor, IPSJobHandle jobHandle, PSSecurityToken tok)
+      throws PSDeployException, PSNotFoundException {
+    Validate.notNull(descriptor);
+    Validate.notNull(jobHandle);
+    Validate.notNull(tok);
 
-            setStatus(100);  
-            setStatusMessage(PSDeploymentManager.getBundle().getString("completed"));       
-         }
+    PSDbmsHelper dbmsHelper = null;
+    PSDependencyManager dm = null;
+
+    try {
+      ResourceBundle bundle = PSDeploymentManager.getBundle();
+      setStatusMessage(bundle.getString("init"));
+
+      // enable cache for non-system schema
+      dbmsHelper = PSDbmsHelper.getInstance();
+      dbmsHelper.enableSchemaCache();
+
+      // get the archive ref
+      PSArchiveInfo info = descriptor.getArchiveInfo();
+
+      // walk the packages and validate
+      PSDeploymentHandler dh = PSDeploymentHandler.getInstance();
+      dm = (PSDependencyManager) dh.getDependencyManager();
+
+      // enable dependency cache
+      dm.setIsDependencyCacheEnabled(true);
+
+      // generate the id map
+      PSDbmsInfo sourceDb = info.getRepositoryInfo();
+      List<PSImportPackage> importList = descriptor.getImportPackageList();
+
+      PSTransformsHandler th =
+          new PSTransformsHandler(tok, sourceDb.getDbmsIdentifier(), importList);
+
+      setStatusMessage(bundle.getString("generatingIdMap"));
+
+      // get the transformed id map
+      PSIdMap idMap = th.getIdMap();
+
+      // save the transformed id map
+      dh.getIdMapMgr().saveIdMap(idMap);
+
+      PSValidationCtx valCtx = new PSValidationCtx(jobHandle, descriptor, idMap);
+      valCtx.setValidateAncestors(descriptor.isAncestorValidationEnabled());
+
+      Iterator pkgs = descriptor.getImportPackageList().iterator();
+      while (pkgs.hasNext() && !isCancelled()) {
+        PSImportPackage pkg = (PSImportPackage) pkgs.next();
+        PSDeployableElement de = pkg.getPackage();
+        valCtx.addPackage(pkg);
+        String msg =
+            MessageFormat.format(
+                bundle.getString("processing"), new Object[] {de.getDisplayIdentifier()});
+        setStatusMessage(msg);
+        PSDependencyValidator dv = new PSDependencyValidator(tok, de, valCtx, descriptor.getName());
+        pkg.setValidationResults(dv.validate());
       }
-      catch (Exception ex) 
-      {
-         // getLocalizedMessage often returns empty string
-         setStatusMessage("error: " + ex.toString());
-         setStatus(-1);
-         LogManager.getLogger(getClass()).error("Error validating Deployer "
-               + "package", ex);
+
+      if (!isCancelled()) {
+        // write out the desciptor with the results using the archive ref
+        Document doc = PSXmlDocumentBuilder.createXmlDocument();
+        PSXmlDocumentBuilder.replaceRoot(doc, descriptor.toXml(doc));
+
+        File resultsFile =
+            new File(PSDeploymentHandler.VALIDATION_RESULTS_DIR, info.getArchiveRef() + ".xml");
+        resultsFile.getParentFile().mkdirs();
+        resultsFile.deleteOnExit();
+
+        try (FileOutputStream out = new FileOutputStream(resultsFile)) {
+          PSXmlDocumentBuilder.write(doc, out);
+        }
+
+        setStatus(100);
+        setStatusMessage(bundle.getString("completed"));
       }
-      finally
-      {
-         setCompleted();
-      }
-      
-   }
-   
-   /**
-    * Standalone validation method used by server-side services
-    * 
-    * @param descriptor The import descriptor to validate, not <code>null</code> 
-    * @param jobHandle Job handle to record status, not <code>null</code>
-    * @param tok Security token repesenting current user session, not <code>null</code>.
-    * 
-    * @throws PSDeployException If there are any errors.
-    */
-   public void validate(PSImportDescriptor descriptor, IPSJobHandle jobHandle, PSSecurityToken tok) throws PSDeployException, PSNotFoundException {
-       Validate.notNull(descriptor);
-       Validate.notNull(jobHandle);
-       Validate.notNull(tok);
-       
-       PSDbmsHelper dbmsHelper = null;
-       PSDependencyManager dm = null;
-       
-       try 
-       {
-          ResourceBundle bundle = PSDeploymentManager.getBundle();
-          setStatusMessage(bundle.getString("init"));
-       
-          // enable cache for non-system schema
-          dbmsHelper = PSDbmsHelper.getInstance();
-          dbmsHelper.enableSchemaCache();
-          
-          // get the archive ref
-          PSArchiveInfo info = descriptor.getArchiveInfo();
-          
-          // walk the packages and validate
-          PSDeploymentHandler dh = PSDeploymentHandler.getInstance();
-          dm = (PSDependencyManager) dh.getDependencyManager();
-          
-          // enable dependency cache
-          dm.setIsDependencyCacheEnabled(true);
-          
-          // generate the id map
-          PSDbmsInfo sourceDb = info.getRepositoryInfo();
-          List<PSImportPackage> importList = descriptor.getImportPackageList();
-                   
-          PSTransformsHandler th = new PSTransformsHandler(tok,
-                sourceDb.getDbmsIdentifier(), importList);
+    } catch (Exception ex) {
+      // getLocalizedMessage often returns empty string
+      setStatusMessage("error: " + ex.toString());
+      setStatus(-1);
+      LogManager.getLogger(getClass()).error("Error validating archive", ex);
+    } finally {
+      // disable non-system schema cache before releasing job lock
+      if (dbmsHelper != null) dbmsHelper.disableSchemaCache();
 
-          setStatusMessage(bundle.getString("generatingIdMap"));
+      // disable dependency cache before releasing job lock
+      if (dm != null) dm.setIsDependencyCacheEnabled(false);
 
-          // get the transformed id map
-          PSIdMap idMap = th.getIdMap();
+      setCompleted();
+    }
+  }
 
-          // save the transformed id map
-          dh.getIdMapMgr().saveIdMap(idMap);
-          
-          PSValidationCtx valCtx = new PSValidationCtx(jobHandle, descriptor,
-             idMap);
-          valCtx.setValidateAncestors(
-                  descriptor.isAncestorValidationEnabled());
+  // see base class
+  protected String getJobType() {
+    return "Validate Import Descriptor";
+  }
 
-         Iterator pkgs = descriptor.getImportPackageList().iterator();
-          while (pkgs.hasNext() && !isCancelled())
-          {
-             PSImportPackage pkg = (PSImportPackage)pkgs.next();
-             PSDeployableElement de = pkg.getPackage();
-             valCtx.addPackage(pkg);
-             String msg = MessageFormat.format(bundle.getString("processing"), 
-                new Object[] {de.getDisplayIdentifier()});
-             setStatusMessage(msg);
-             PSDependencyValidator dv = new PSDependencyValidator(
-                   tok, de, valCtx, descriptor.getName());
-             pkg.setValidationResults(dv.validate());            
-          }
-
-         if (!isCancelled())
-         {
-            // write out the desciptor with the results using the archive ref
-            Document doc = PSXmlDocumentBuilder.createXmlDocument();
-            PSXmlDocumentBuilder.replaceRoot(doc, descriptor.toXml(doc));
-
-            File resultsFile = new File(
-               PSDeploymentHandler.VALIDATION_RESULTS_DIR, info.getArchiveRef()
-               + ".xml");
-            resultsFile.getParentFile().mkdirs();
-            resultsFile.deleteOnExit();
-
-            try (FileOutputStream out = new FileOutputStream(resultsFile))
-            {
-               PSXmlDocumentBuilder.write(doc, out);
-            }
-
-            setStatus(100);
-            setStatusMessage(bundle.getString("completed"));
-         }
-      }
-      catch (Exception ex)
-      {
-         // getLocalizedMessage often returns empty string
-         setStatusMessage("error: " + ex.toString());
-         setStatus(-1);
-         LogManager.getLogger(getClass()).error("Error validating archive",
-            ex);
-       }
-       finally
-       {
-          // disable non-system schema cache before releasing job lock
-          if (dbmsHelper != null)
-             dbmsHelper.disableSchemaCache();
-
-          // disable dependency cache before releasing job lock
-          if (dm != null)
-             dm.setIsDependencyCacheEnabled(false);
-
-         setCompleted();
-       }
-   }
-   
-   // see base class
-   protected String getJobType()
-   {
-      return "Validate Import Descriptor";
-   }
-    
-   /** 
-    * The import descriptor supplied to the <code>init()</code> method, never
-    * <code>null</code> or modified after that.
-    */
-   private PSImportDescriptor m_descriptor;
+  /**
+   * The import descriptor supplied to the <code>init()</code> method, never <code>null</code> or
+   * modified after that.
+   */
+  private PSImportDescriptor m_descriptor;
 }

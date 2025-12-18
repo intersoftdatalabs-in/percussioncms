@@ -17,38 +17,33 @@
 
 package com.percussion.rest.users;
 
+import static junit.framework.TestCase.assertNotNull;
 
 import com.percussion.rest.MainTest;
-
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static junit.framework.TestCase.assertNotNull;
-
 @Category(IntegrationTest.class)
-public class UsersTest extends MainTest{
-    
-	
-	@Test
-	public void testNeverNul(){
-		User u = new User();
-		
-		assertNotNull("Should never be null",u.getBookmarkedPages());
-		assertNotNull("Should never be null",u.getEmailAddress());
-		assertNotNull("Should never be null",u.getFirstName());
-		assertNotNull("Should never be null",u.getLastName());
-		assertNotNull("Should never be null",u.getPersonalPage());
-		assertNotNull("Should never be null",u.getPersonAssets());
-		assertNotNull("Should never be null",u.getRecentAssetFolders());
-		assertNotNull("Should never be null",u.getRecentAssetTypes());
-		assertNotNull("Should never be null",u.getRecentPages());
-		assertNotNull("Should never be null",u.getRecentSiteFolders());
-		assertNotNull("Should never be null",u.getRoles());
-		assertNotNull("Should never be null",u.getRecentTemplates());
-		assertNotNull("Should never be null",u.getUserName());
-		assertNotNull("Should never be null",u.getUserType());
-		
-	}
+public class UsersTest extends MainTest {
 
+  @Test
+  public void testNeverNul() {
+    User u = new User();
+
+    assertNotNull("Should never be null", u.getBookmarkedPages());
+    assertNotNull("Should never be null", u.getEmailAddress());
+    assertNotNull("Should never be null", u.getFirstName());
+    assertNotNull("Should never be null", u.getLastName());
+    assertNotNull("Should never be null", u.getPersonalPage());
+    assertNotNull("Should never be null", u.getPersonAssets());
+    assertNotNull("Should never be null", u.getRecentAssetFolders());
+    assertNotNull("Should never be null", u.getRecentAssetTypes());
+    assertNotNull("Should never be null", u.getRecentPages());
+    assertNotNull("Should never be null", u.getRecentSiteFolders());
+    assertNotNull("Should never be null", u.getRoles());
+    assertNotNull("Should never be null", u.getRecentTemplates());
+    assertNotNull("Should never be null", u.getUserName());
+    assertNotNull("Should never be null", u.getUserType());
+  }
 }

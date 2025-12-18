@@ -18,64 +18,55 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Region")
-@Schema(name="Region",description="Represents a region of a page either defined locally or by the template.")
-public class Region
-{
-    @Schema(name="name",description="Name of the region.")
-    private String name;
+@Schema(
+    name = "Region",
+    description = "Represents a region of a page either defined locally or by the template.")
+public class Region {
+  @Schema(name = "name", description = "Name of the region.")
+  private String name;
 
-    @Schema(name="type", description="Type of region.",allowableValues = "TEMPLATE,LOCAL")
-    private String type;
+  @Schema(name = "type", description = "Type of region.", allowableValues = "TEMPLATE,LOCAL")
+  private String type;
 
-    @Schema(name="editable", description="Denotes if region is editable.")
-    private boolean editable;
+  @Schema(name = "editable", description = "Denotes if region is editable.")
+  private boolean editable;
 
-    @Schema(name="widgets", description="List of widgets within the region."  )
-    private List<Widget> widgets;
+  @Schema(name = "widgets", description = "List of widgets within the region.")
+  private List<Widget> widgets;
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public boolean isEditable()
-    {
-        return editable;
-    }
+  public boolean isEditable() {
+    return editable;
+  }
 
-    public void setEditable(boolean editable)
-    {
-        this.editable = editable;
-    }
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+  }
 
-    public List<Widget> getWidgets()
-    {
-        return widgets;
-    }
+  public List<Widget> getWidgets() {
+    return widgets;
+  }
 
-    public void setWidgets(List<Widget> widgets)
-    {
-        this.widgets = widgets;
-    }
-
+  public void setWidgets(List<Widget> widgets) {
+    this.widgets = widgets;
+  }
 }

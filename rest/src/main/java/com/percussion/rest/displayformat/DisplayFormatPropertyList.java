@@ -19,18 +19,18 @@ package com.percussion.rest.displayformat;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "DisplayFormatPropertyList")
-@ArraySchema(schema=@Schema(implementation = DisplayFormatProperty.class))
+@ArraySchema(schema = @Schema(implementation = DisplayFormatProperty.class))
 @XmlSeeAlso(DisplayFormatProperty.class)
 public class DisplayFormatPropertyList extends ArrayList<DisplayFormatProperty> {
-    public DisplayFormatPropertyList(Collection<? extends DisplayFormatProperty> c) {
-        super(c);
-    }
-    public DisplayFormatPropertyList(){}
+  public DisplayFormatPropertyList(Collection<? extends DisplayFormatProperty> c) {
+    super(c);
+  }
+
+  public DisplayFormatPropertyList() {}
 }

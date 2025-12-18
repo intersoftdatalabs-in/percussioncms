@@ -19,62 +19,64 @@ package com.percussion.rest.communities;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="CommunityRole")
-@Schema(description="Represents a Community Role association")
+@XmlRootElement(name = "CommunityRole")
+@Schema(description = "Represents a Community Role association")
 public class CommunityRole {
 
-    @Schema(description="The long id of the community")
-    private long communityid;
-    @Schema(description="The long id of the Role")
-    private long roleId;
-    @Schema(description="The name of the role")
-    private String roleName;
+  @Schema(description = "The long id of the community")
+  private long communityid;
 
-    @Schema(description="Guid of the community", required = true)
-    private Guid communityGuid;
-    @Schema(description="Guid of the Role", required=true)
-    private Guid roleGuid;
+  @Schema(description = "The long id of the Role")
+  private long roleId;
 
-    public Guid getCommunityGuid() {
-        return communityGuid;
-    }
+  @Schema(description = "The name of the role")
+  private String roleName;
 
-    public void setCommunityGuid(Guid communityGuid) {
-        this.communityGuid = communityGuid;
-    }
+  @Schema(description = "Guid of the community", required = true)
+  private Guid communityGuid;
 
-    public Guid getRoleGuid() {
-        return roleGuid;
-    }
+  @Schema(description = "Guid of the Role", required = true)
+  private Guid roleGuid;
 
-    public void setRoleGuid(Guid roleGuid) {
-        this.roleGuid = roleGuid;
-    }
+  public Guid getCommunityGuid() {
+    return communityGuid;
+  }
 
-    public long getCommunityid() {
-        return communityid;
-    }
+  public void setCommunityGuid(Guid communityGuid) {
+    this.communityGuid = communityGuid;
+  }
 
-    public void setCommunityid(long communityid) {
-        this.communityid = communityid;
-    }
+  public Guid getRoleGuid() {
+    return roleGuid;
+  }
 
-    public long getRoleId() {
-        return roleId;
-    }
+  public void setRoleGuid(Guid roleGuid) {
+    this.roleGuid = roleGuid;
+  }
 
-    public void setRoleId(long roleId) {
-        this.roleId = roleId;
-    }
+  public long getCommunityid() {
+    return communityid;
+  }
 
-    public String getRoleName() {
-        return roleName;
-    }
+  public void setCommunityid(long communityid) {
+    this.communityid = communityid;
+  }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
+  public long getRoleId() {
+    return roleId;
+  }
+
+  public void setRoleId(long roleId) {
+    this.roleId = roleId;
+  }
+
+  public String getRoleName() {
+    return roleName;
+  }
+
+  public void setRoleName(String roleName) {
+    this.roleName = roleName;
+  }
 }

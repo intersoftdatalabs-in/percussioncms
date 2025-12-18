@@ -17,5 +17,4 @@
 
 package com.percussion.rest.actions;
 
-public class TestActions {
-}
+public class TestActions {}

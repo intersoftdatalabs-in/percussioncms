@@ -19,15 +19,12 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class AssetAlreadyExistsException extends RestExceptionBase
-{
-	public AssetAlreadyExistsException()
-    {
-        super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.FORBIDDEN);
-    }
-	
-	public AssetAlreadyExistsException(String message)
-	{
-		super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.FORBIDDEN);
-	}
+public class AssetAlreadyExistsException extends RestExceptionBase {
+  public AssetAlreadyExistsException() {
+    super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.FORBIDDEN);
+  }
+
+  public AssetAlreadyExistsException(String message) {
+    super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.FORBIDDEN);
+  }
 }

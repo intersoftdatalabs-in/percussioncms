@@ -20,19 +20,23 @@ package com.percussion.rest.communities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CommunityRoleList")
 @XmlSeeAlso({CommunityRole.class})
-@ArraySchema(schema=@Schema(implementation = CommunityRole.class,description = "A List of CommunityRole associations"))
+@ArraySchema(
+    schema =
+        @Schema(
+            implementation = CommunityRole.class,
+            description = "A List of CommunityRole associations"))
 public class CommunityRoleList extends ArrayList<CommunityRole> {
-    public CommunityRoleList(Collection<? extends CommunityRole> c) {
-        super(c);
-    }
-    public CommunityRoleList(){}
+  public CommunityRoleList(Collection<? extends CommunityRole> c) {
+    super(c);
+  }
+
+  public CommunityRoleList() {}
 }

@@ -17,22 +17,20 @@
 
 package com.percussion.rest.sites;
 
-
 import com.percussion.cms.IPSConstants;
 import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
-@PSSiteManageBean(value="restSitesResource")
+@PSSiteManageBean(value = "restSitesResource")
 @Path("/sites")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -40,19 +38,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Lazy
 public class SitesResource {
 
-    @Autowired
-    ISiteAdaptor adaptor;
+  @Autowired ISiteAdaptor adaptor;
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
+  private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
-    public SitesResource(){
-        //NOOP
-    }
+  public SitesResource() {
+    // NOOP
+  }
 
-    @GET
-    @Path("/")
-    public SiteList listSites(){
-        return adaptor.findAllSites();
-    }
-
+  @GET
+  @Path("/")
+  public SiteList listSites() {
+    return adaptor.findAllSites();
+  }
 }

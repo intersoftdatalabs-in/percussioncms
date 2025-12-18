@@ -23,14 +23,13 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSDataTypeConverter;
-
 import java.io.File;
 import java.text.ParseException;
 
 /**
- * Takes a date string and transforms it to a new string using a supplied
- * format. See {@link java.text.SimpleDateFormat} for the supported format
- * patterns.
+ * Takes a date string and transforms it to a new string using a supplied format. See {@link
+ * java.text.SimpleDateFormat} for the supported format patterns.
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -48,38 +47,28 @@ import java.text.ParseException;
  * <td>Any valid simple date format</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
- * 
  */
-public class PSFormatDate implements IPSFieldOutputTransformer
-{
-   public Object processUdf(Object[] params, 
-         @SuppressWarnings("unused") IPSRequestContext request)
-         throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      String value = ep.getStringParam(0, null, true);
-      String format = ep.getStringParam(1, null, true);
+public class PSFormatDate implements IPSFieldOutputTransformer {
+  public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+    String format = ep.getStringParam(1, null, true);
 
-      String result;
-      try
-      {
-         result = PSDataTypeConverter.transformDateString(value, null,
-               format, true);
-      }
-      catch (ParseException e)
-      {
-         throw new PSConversionException(0, e.getLocalizedMessage());
-      }
+    String result;
+    try {
+      result = PSDataTypeConverter.transformDateString(value, null, format, true);
+    } catch (ParseException e) {
+      throw new PSConversionException(0, e.getLocalizedMessage());
+    }
 
-      return result;
-   }
+    return result;
+  }
 
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      // nothing to initialize
-   }
+  @SuppressWarnings("unused")
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // nothing to initialize
+  }
 }

@@ -21,137 +21,137 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PercArgs {
-    private boolean startServer;
-    private boolean startDTS;
-    private boolean startStagingDTS;
-    private boolean stopServer;
-    private boolean stopDTS;
-    private boolean stopStagingDTS;
-    private boolean status;
-    private boolean force;
-    private boolean help;
-    private boolean debugStartup;
-    private boolean  rxltTool;
+  private boolean startServer;
+  private boolean startDTS;
+  private boolean startStagingDTS;
+  private boolean stopServer;
+  private boolean stopDTS;
+  private boolean stopStagingDTS;
+  private boolean status;
+  private boolean force;
+  private boolean help;
+  private boolean debugStartup;
+  private boolean rxltTool;
 
-    private List<String> filteredArgs = new ArrayList<>();
+  private List<String> filteredArgs = new ArrayList<>();
 
+  public PercArgs(String[] args) {
+    boolean foundArg = false;
 
-
-    public PercArgs(String[] args) {
-        boolean foundArg = false;
-
-        for (String arg : args) {
-            switch (arg) {
-                case "--help":
-                    help = true;
-                case "--jettyHelp":
-                    filteredArgs.add("--help");
-                case "--debugWrapper":
-                    debugStartup = true;
-                case "--force":
-                    force = true;
-                case "--start":
-                    foundArg = true;
-                    startServer = true;
-                    startDTS = true;
-                    startStagingDTS = true;
-                    break;
-                case "--startServer":
-                    foundArg = true;
-                    startServer = true;
-                    break;
-                case "--startDTS":
-                    foundArg = true;
-                    startDTS = true;
-                    break;
-                case "--startStagingDTS":
-                    foundArg = true;
-                    startStagingDTS = true;
-                    break;
-                case "--stop":
-                    foundArg = true;
-                    stopServer = true;
-                    stopDTS = true;
-                    stopStagingDTS = true;
-                    break;
-                case "--stopServer":
-                    foundArg = true;
-                    stopServer = true;
-                    break;
-                case "--stopDTS":
-                    foundArg = true;
-                    stopDTS = true;
-                    break;
-                case "--stopStagingDTS":
-                    foundArg = true;
-                    stopStagingDTS = true;
-                    break;
-                case "--status":
-                    foundArg = true;
-                    status = true;
-                    break;
-                case "--rxlt":
-                    foundArg = true;
-                    rxltTool = true;
-                    break;
-                default:
-                    filteredArgs.add(arg);
-            }
-        }
-        // default to starting server
-        if (!foundArg) {
-            help = true;
-        }
+    for (String arg : args) {
+      switch (arg) {
+        case "--help":
+          help = true;
+        case "--jettyHelp":
+          filteredArgs.add("--help");
+        case "--debugWrapper":
+          debugStartup = true;
+        case "--force":
+          force = true;
+        case "--start":
+          foundArg = true;
+          startServer = true;
+          startDTS = true;
+          startStagingDTS = true;
+          break;
+        case "--startServer":
+          foundArg = true;
+          startServer = true;
+          break;
+        case "--startDTS":
+          foundArg = true;
+          startDTS = true;
+          break;
+        case "--startStagingDTS":
+          foundArg = true;
+          startStagingDTS = true;
+          break;
+        case "--stop":
+          foundArg = true;
+          stopServer = true;
+          stopDTS = true;
+          stopStagingDTS = true;
+          break;
+        case "--stopServer":
+          foundArg = true;
+          stopServer = true;
+          break;
+        case "--stopDTS":
+          foundArg = true;
+          stopDTS = true;
+          break;
+        case "--stopStagingDTS":
+          foundArg = true;
+          stopStagingDTS = true;
+          break;
+        case "--status":
+          foundArg = true;
+          status = true;
+          break;
+        case "--rxlt":
+          foundArg = true;
+          rxltTool = true;
+          break;
+        default:
+          filteredArgs.add(arg);
+      }
     }
-
-    public boolean isStartServer() {
-        return startServer;
+    // default to starting server
+    if (!foundArg) {
+      help = true;
     }
+  }
 
-    public boolean isStartDTS() {
-        return startDTS;
-    }
+  public boolean isStartServer() {
+    return startServer;
+  }
 
-    public boolean isStartStagingDTS() {
-        return startStagingDTS;
-    }
+  public boolean isStartDTS() {
+    return startDTS;
+  }
 
-    public boolean isStopServer() {
-        return stopServer;
-    }
+  public boolean isStartStagingDTS() {
+    return startStagingDTS;
+  }
 
-    public boolean isStopDTS() {
-        return stopDTS;
-    }
+  public boolean isStopServer() {
+    return stopServer;
+  }
 
-    public boolean isStopStagingDTS() {
-        return stopStagingDTS;
-    }
+  public boolean isStopDTS() {
+    return stopDTS;
+  }
 
-    public boolean isStatus() {
-        return status;
-    }
+  public boolean isStopStagingDTS() {
+    return stopStagingDTS;
+  }
 
-    public boolean isRxltTool() {
-        return rxltTool;
-    }
+  public boolean isStatus() {
+    return status;
+  }
 
-    /**
-     * Converts the list of command-line arguments and converts
-     * them to a String array.
-     * @return the list of arguments in a String array.
-     */
-    public String[] getFilteredArgs() {
-        return filteredArgs.toArray(new String[filteredArgs.size()]);
-    }
+  public boolean isRxltTool() {
+    return rxltTool;
+  }
 
-    public boolean isDebugStartup() {
-        return debugStartup;
-    }
+  /**
+   * Converts the list of command-line arguments and converts them to a String array.
+   *
+   * @return the list of arguments in a String array.
+   */
+  public String[] getFilteredArgs() {
+    return filteredArgs.toArray(new String[filteredArgs.size()]);
+  }
 
-    public boolean isForce() {
-        return force;
-    }
+  public boolean isDebugStartup() {
+    return debugStartup;
+  }
 
-    public boolean isHelp() { return help; }
+  public boolean isForce() {
+    return force;
+  }
+
+  public boolean isHelp() {
+    return help;
+  }
 }

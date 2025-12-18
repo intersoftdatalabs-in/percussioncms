@@ -19,12 +19,13 @@ package com.percussion.rest.preferences;
 
 public interface IPreferenceAdaptor {
 
+  UserPreferenceList getAllUserPreferences();
 
-    UserPreferenceList getAllUserPreferences();
-    UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs);
-    UserPreference loadPreference(String preference);
-    UserPreference savePreference(UserPreference pref);
-    void deletePreference(UserPreference pref);
+  UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs);
 
+  UserPreference loadPreference(String preference);
 
+  UserPreference savePreference(UserPreference pref);
+
+  void deletePreference(UserPreference pref);
 }

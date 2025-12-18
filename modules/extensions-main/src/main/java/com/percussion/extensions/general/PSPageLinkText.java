@@ -26,61 +26,48 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import java.util.ArrayList;
+import java.util.List;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import java.util.ArrayList;
-import java.util.List;
+public class PSPageLinkText extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 
-public class PSPageLinkText extends PSSimpleJavaUdfExtension
-implements IPSUdfProcessor
-{
+  private static final Logger log = LogManager.getLogger(PSPageLinkText.class);
 
-   private static final Logger log = LogManager.getLogger(PSPageLinkText.class);
+  /**
+   * Executes the UDF with the specified parameters and request context.
+   *
+   * @param params The parameter values of the exit, it is not used. It may be <code>null</code> or
+   *     empty.
+   * @param request The current request context. It may not be <code>null</code>.
+   * @return it returns the pagelinketext value for the pageid if the pageid exists in the request
+   *     otherwise returns empty string
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    if (request == null) throw new IllegalArgumentException("request may not be null.");
 
-   /**
-    * Executes the UDF with the specified parameters and request context.
-    *
-    * @param params The parameter values of the exit, it is not used. It may be
-    *    <code>null</code> or empty.
-    *
-    * @param request The current request context. It may not be 
-    *    <code>null</code>.
-    *
-    * @return it returns the pagelinketext value for the pageid if the pageid exists in the request
-    * otherwise returns empty string
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      if (request == null)
-         throw new IllegalArgumentException("request may not be null.");
-      
-      String pageId = request.getParameter("percpageid");
-      if(pageId == null)
-      {
-         return "";
-      }
-      String pageLinkText = "";
-      List<IPSGuid> ids = new ArrayList<>();
-      IPSGuid guid = PSGuidManagerLocator.getGuidMgr().makeGuid(pageId);
-      ids.add(guid);
-      IPSContentDesignWs service = 
-         PSContentWsLocator.getContentDesignWebservice();
-      
-      List<Node> nodes= service.findNodesByIds(ids, true);
-      Node node = nodes.get(0);
-      try
-      {
-         pageLinkText = node.getProperty("rx:resource_link_title").getString();
-      } catch (RepositoryException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-      return pageLinkText;
-   }
+    String pageId = request.getParameter("percpageid");
+    if (pageId == null) {
+      return "";
+    }
+    String pageLinkText = "";
+    List<IPSGuid> ids = new ArrayList<>();
+    IPSGuid guid = PSGuidManagerLocator.getGuidMgr().makeGuid(pageId);
+    ids.add(guid);
+    IPSContentDesignWs service = PSContentWsLocator.getContentDesignWebservice();
+
+    List<Node> nodes = service.findNodesByIds(ids, true);
+    Node node = nodes.get(0);
+    try {
+      pageLinkText = node.getProperty("rx:resource_link_title").getString();
+    } catch (RepositoryException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+    return pageLinkText;
+  }
 }
-

@@ -28,8 +28,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -37,40 +36,39 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@PSSiteManageBean(value="restLocationSchemeResource")
+@PSSiteManageBean(value = "restLocationSchemeResource")
 @Path("/locationschemes")
 @XmlRootElement
 @Tag(name = "Location Schemes", description = "Location Scheme operations")
 public class LocationSchemesResource {
 
-    @Autowired
-    ILocationSchemeAdaptor adaptor;
+  @Autowired ILocationSchemeAdaptor adaptor;
 
-    @Autowired
-    IExtensionAdaptor extensionAdaptor;
+  @Autowired IExtensionAdaptor extensionAdaptor;
 
-    @Context
-    private UriInfo uriInfo;
+  @Context private UriInfo uriInfo;
 
-    public LocationSchemesResource(){}
+  public LocationSchemesResource() {}
 
-    @GET
-    @Path("/generators")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary="Return a list of registered Location Scheme generators on the system",
-            responses={
-            @ApiResponse(responseCode = "200", description = "OK", content=@Content(
-                    array = @ArraySchema(schema=@Schema(implementation = Extension.class))
-            )),
-                    @ApiResponse(responseCode = "500", description = "Error")
-    })
-    public List<Extension> listLocationSchemeGenerators(){
-        ExtensionFilterOptions filter = new ExtensionFilterOptions();
+  @GET
+  @Path("/generators")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Return a list of registered Location Scheme generators on the system",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(array = @ArraySchema(schema = @Schema(implementation = Extension.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public List<Extension> listLocationSchemeGenerators() {
+    ExtensionFilterOptions filter = new ExtensionFilterOptions();
 
-        filter.setInterfacePattern("com.percussion.extension.IPSAssemblyLocation");
-        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(),filter));
-    }
-
+    filter.setInterfacePattern("com.percussion.extension.IPSAssemblyLocation");
+    return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
+  }
 }

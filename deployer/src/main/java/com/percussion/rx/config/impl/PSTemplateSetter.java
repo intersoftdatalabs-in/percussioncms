@@ -29,7 +29,6 @@ import com.percussion.services.assembly.data.PSAssemblyTemplate;
 import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.types.PSPair;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,337 +39,266 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-public class PSTemplateSetter extends PSSimplePropertySetter
-{
-   @Override
-   protected boolean applyProperty(Object obj, ObjectState state,
-         List<IPSAssociationSet> aSets, String propName, Object propValue)
-      throws Exception
-   {
-      if (! (obj instanceof IPSAssemblyTemplate))
-         throw new IllegalArgumentException("obj type must be IPSAssemblyTemplate.");
-      
-      PSAssemblyTemplate template = (PSAssemblyTemplate) obj;
-      if (GLOBAL_TEMPLATE.equals(propName))
-      {
-         setGlobalTemplate(template, propValue);
-      }
-      else if (SLOTS.equals(propName))
-      {
-         setListAssociation(aSets,
-               IPSAssociationSet.AssociationType.TEMPLATE_SLOT, propValue);
-      }
-      else if (BINDINGS.equals(propName))
-      {
-         setBindings(template, propValue);
-      }
-      else if (BINDING_SET.equals(propName))
-      {
-         setBindingSet(template, propValue);
-      }
-      else
-      {
-         super.applyProperty(obj, state, aSets, propName, propValue);
-      }
-      
-      return true;
-   }
+public class PSTemplateSetter extends PSSimplePropertySetter {
+  @Override
+  protected boolean applyProperty(
+      Object obj,
+      ObjectState state,
+      List<IPSAssociationSet> aSets,
+      String propName,
+      Object propValue)
+      throws Exception {
+    if (!(obj instanceof IPSAssemblyTemplate))
+      throw new IllegalArgumentException("obj type must be IPSAssemblyTemplate.");
 
-   /*
-    * //see base class method for details
-    */
-   @Override
-   protected boolean addPropertyDefs(Object obj, String propName,
-         Object pvalue, Map<String, Object> defs) throws PSNotFoundException {
-      if (super.addPropertyDefs(obj, propName, pvalue, defs))
-         return true;
-      
-      if (SLOTS.equals(propName) || BINDING_SET.equals(propName))
-      {
-         addFixmePropertyDefsForList(propName, pvalue, defs);
-      }
-      else if (BINDINGS.equals(propName))
-      {
-         IPSAssemblyTemplate tp = (IPSAssemblyTemplate) obj;
-         addPropertyDefsForMap(propName, pvalue, getBindings(tp), defs);
-      }
-      return true;
-   }
-   
-   /*
-    * //see base class method for details
-    */
-   @Override
-   protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
-      IPSAssemblyTemplate template = (IPSAssemblyTemplate) obj;
-      if (GLOBAL_TEMPLATE.equals(propName))
-      {
-         if (template.getGlobalTemplate() == null)
-            return null;
-         
-         IPSAssemblyService srv = PSAssemblyServiceLocator
-               .getAssemblyService();
-         IPSAssemblyTemplate t = srv
-               .findTemplate(template.getGlobalTemplate());
+    PSAssemblyTemplate template = (PSAssemblyTemplate) obj;
+    if (GLOBAL_TEMPLATE.equals(propName)) {
+      setGlobalTemplate(template, propValue);
+    } else if (SLOTS.equals(propName)) {
+      setListAssociation(aSets, IPSAssociationSet.AssociationType.TEMPLATE_SLOT, propValue);
+    } else if (BINDINGS.equals(propName)) {
+      setBindings(template, propValue);
+    } else if (BINDING_SET.equals(propName)) {
+      setBindingSet(template, propValue);
+    } else {
+      super.applyProperty(obj, state, aSets, propName, propValue);
+    }
 
-         return t == null ? null : t.getName();
-      }
-      else if (SLOTS.equals(propName))
-      {
-         List<String> slots = new ArrayList<>();
-         for (IPSTemplateSlot s : template.getSlots())
-         {
-            slots.add(s.getName());
-         }
-         return slots;
-      }
-      else if (BINDING_SET.equals(propName))
-      {
-         List<PSPair<String, String>> bList = new ArrayList<>();
-         for (IPSTemplateBinding b : template.getBindings())
-         {
-            bList.add(new PSPair<>(b.getVariable(), b
-                  .getExpression()));
-         }
-         return bList;
-      }
-      else if (BINDINGS.equals(propName))
-      {
-         return getBindings(template);
-      }
-      
-      return super.getPropertyValue(obj, propName);
-   }   
-   
-   /**
-    * Retrieves the bindings from the specified template into a map.
-    * 
-    * @param template the template in question, assumed not <code>null</code>.
-    * 
-    * @return the bindings that contains a {@link #BINDING_SEQ} entry for the
-    * order of the bindings. It cannot be <code>null</code>, but may be empty.
-    */
-   private Map<String, Object> getBindings(IPSAssemblyTemplate template)
-   {
-      List<String> seq = new ArrayList<>();
-      Map<String, Object> bindings = new HashMap<>();
-      for (IPSTemplateBinding b : template.getBindings())
-      {
-         bindings.put(b.getVariable(), b.getExpression());
-         seq.add(b.getVariable());
-      }
-      if (!bindings.isEmpty())
-      {
-         bindings.put(BINDING_SEQ, seq);
-      }
-      return bindings;
-   }
-   
-   /**
-    * Sets the {@link #GLOBAL_TEMPLATE} property.
-    * 
-    * @param template the template, assumed not <code>null</code>.
-    * @param propValue the name of the new global template, may not be
-    * <code>null</code>, but may be empty.
-    * 
-    * @throws PSAssemblyException if failed when search the global template.
-    */
-   private void setGlobalTemplate(IPSAssemblyTemplate template,
-         Object propValue) throws PSAssemblyException
-   {
+    return true;
+  }
+
+  /*
+   * //see base class method for details
+   */
+  @Override
+  protected boolean addPropertyDefs(
+      Object obj, String propName, Object pvalue, Map<String, Object> defs)
+      throws PSNotFoundException {
+    if (super.addPropertyDefs(obj, propName, pvalue, defs)) return true;
+
+    if (SLOTS.equals(propName) || BINDING_SET.equals(propName)) {
+      addFixmePropertyDefsForList(propName, pvalue, defs);
+    } else if (BINDINGS.equals(propName)) {
+      IPSAssemblyTemplate tp = (IPSAssemblyTemplate) obj;
+      addPropertyDefsForMap(propName, pvalue, getBindings(tp), defs);
+    }
+    return true;
+  }
+
+  /*
+   * //see base class method for details
+   */
+  @Override
+  protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
+    IPSAssemblyTemplate template = (IPSAssemblyTemplate) obj;
+    if (GLOBAL_TEMPLATE.equals(propName)) {
+      if (template.getGlobalTemplate() == null) return null;
+
       IPSAssemblyService srv = PSAssemblyServiceLocator.getAssemblyService();
-      IPSAssemblyTemplate t = srv.findTemplateByName((String)propValue);
+      IPSAssemblyTemplate t = srv.findTemplate(template.getGlobalTemplate());
 
-      if (t == null)
-         throw new PSConfigException("Cannot find global template \""
-               + propValue + "\".");
-      
-      template.setGlobalTemplate(t.getGUID());
-   }
-   
-   /**
-    * Set the {@link #BINDINGS} property. The bindings defined in this property
-    * will be merged into the current bindings of the template.
-    * 
-    * @param template the template, assumed not <code>null</code>.
-    * @param propValue the value of the new binding, may not be
-    * <code>null</code>, but may be empty.
-    */
-   @SuppressWarnings("unchecked")
-   private void setBindings(PSAssemblyTemplate template, Object propValue)
-   {
-      if (!(propValue instanceof Map))
-         throw new PSConfigException("The value type of the " + BINDINGS
-               + " must be Map");
-      
-      Map<String, Object> props = (Map<String, Object>) propValue;
-      if (props.isEmpty())
-         return;
-      
-      List<String> seq = mergeBinding(template, props);
-      reorderBindings(template, seq);      
-   }
-   
-   /**
-    * Reorder the bindings in the given template according to supplied sequence.
-    * 
-    * @param template the template, assumed not <code>null</code>.
-    * @param seq the sequence, may be <code>null</code> (do nothing in this 
-    * case).
-    */
-   private void reorderBindings(PSAssemblyTemplate template, List<String> seq)
-   {
-      if (seq == null)
-         return;
-      
-      List<PSTemplateBinding> src = template.getBindings();
-      List<PSTemplateBinding> target = new ArrayList<>();
-      
-      // add bindings from "src" to "target" according to "seq"
-      int index = 1; // it is 1 based index/sequence
-      for (String var : seq)
-      {
-         PSTemplateBinding b = getBinding(src, var);
-         if (b != null)
-         {
-            target.add(b);
-            src.remove(b);
-            b.setExecutionOrder(index++);
-         }
+      return t == null ? null : t.getName();
+    } else if (SLOTS.equals(propName)) {
+      List<String> slots = new ArrayList<>();
+      for (IPSTemplateSlot s : template.getSlots()) {
+        slots.add(s.getName());
       }
-      // append whatever left in "src" into "target"
-      for (PSTemplateBinding b : src)
-      {
-         b.setExecutionOrder(index++);
-         target.add(b);
+      return slots;
+    } else if (BINDING_SET.equals(propName)) {
+      List<PSPair<String, String>> bList = new ArrayList<>();
+      for (IPSTemplateBinding b : template.getBindings()) {
+        bList.add(new PSPair<>(b.getVariable(), b.getExpression()));
       }
-      template.setBindings(target);
-   }
+      return bList;
+    } else if (BINDINGS.equals(propName)) {
+      return getBindings(template);
+    }
 
-   /**
-    * Merges the given bindings into the supplied template.
-    * 
-    * @param template the template, assumed not <code>null</code>.
-    * @param map the binding properties, assumed not <code>null</code>, may be 
-    * empty.
-    * 
-    * @return the sequence property specified in the binding properties. It may
-    * be <code>null</code> if there is no sequence property specified.
-    */
-   private List<String> mergeBinding(IPSAssemblyTemplate template, 
-         Map<String, Object> map)
-   {
-      List<String> seqList = null;
-      for (Map.Entry<String, Object> entry : map.entrySet())
-      {
-         PSTemplateBinding binding = getBinding(template.getBindings(), entry.getKey());
-         if (binding != null)
-         {
-            binding.setExpression((String)entry.getValue());
-         }
-         else if (BINDING_SEQ.equalsIgnoreCase(entry.getKey()))
-         {
-            seqList = getSequenceList(entry.getValue());
-         }
-         else
-         {
-            binding = new PSTemplateBinding(template.getBindings().size(),
-                  entry.getKey(), (String)entry.getValue());
-            template.addBinding(binding);            
-         }
+    return super.getPropertyValue(obj, propName);
+  }
+
+  /**
+   * Retrieves the bindings from the specified template into a map.
+   *
+   * @param template the template in question, assumed not <code>null</code>.
+   * @return the bindings that contains a {@link #BINDING_SEQ} entry for the order of the bindings.
+   *     It cannot be <code>null</code>, but may be empty.
+   */
+  private Map<String, Object> getBindings(IPSAssemblyTemplate template) {
+    List<String> seq = new ArrayList<>();
+    Map<String, Object> bindings = new HashMap<>();
+    for (IPSTemplateBinding b : template.getBindings()) {
+      bindings.put(b.getVariable(), b.getExpression());
+      seq.add(b.getVariable());
+    }
+    if (!bindings.isEmpty()) {
+      bindings.put(BINDING_SEQ, seq);
+    }
+    return bindings;
+  }
+
+  /**
+   * Sets the {@link #GLOBAL_TEMPLATE} property.
+   *
+   * @param template the template, assumed not <code>null</code>.
+   * @param propValue the name of the new global template, may not be <code>null</code>, but may be
+   *     empty.
+   * @throws PSAssemblyException if failed when search the global template.
+   */
+  private void setGlobalTemplate(IPSAssemblyTemplate template, Object propValue)
+      throws PSAssemblyException {
+    IPSAssemblyService srv = PSAssemblyServiceLocator.getAssemblyService();
+    IPSAssemblyTemplate t = srv.findTemplateByName((String) propValue);
+
+    if (t == null)
+      throw new PSConfigException("Cannot find global template \"" + propValue + "\".");
+
+    template.setGlobalTemplate(t.getGUID());
+  }
+
+  /**
+   * Set the {@link #BINDINGS} property. The bindings defined in this property will be merged into
+   * the current bindings of the template.
+   *
+   * @param template the template, assumed not <code>null</code>.
+   * @param propValue the value of the new binding, may not be <code>null</code>, but may be empty.
+   */
+  @SuppressWarnings("unchecked")
+  private void setBindings(PSAssemblyTemplate template, Object propValue) {
+    if (!(propValue instanceof Map))
+      throw new PSConfigException("The value type of the " + BINDINGS + " must be Map");
+
+    Map<String, Object> props = (Map<String, Object>) propValue;
+    if (props.isEmpty()) return;
+
+    List<String> seq = mergeBinding(template, props);
+    reorderBindings(template, seq);
+  }
+
+  /**
+   * Reorder the bindings in the given template according to supplied sequence.
+   *
+   * @param template the template, assumed not <code>null</code>.
+   * @param seq the sequence, may be <code>null</code> (do nothing in this case).
+   */
+  private void reorderBindings(PSAssemblyTemplate template, List<String> seq) {
+    if (seq == null) return;
+
+    List<PSTemplateBinding> src = template.getBindings();
+    List<PSTemplateBinding> target = new ArrayList<>();
+
+    // add bindings from "src" to "target" according to "seq"
+    int index = 1; // it is 1 based index/sequence
+    for (String var : seq) {
+      PSTemplateBinding b = getBinding(src, var);
+      if (b != null) {
+        target.add(b);
+        src.remove(b);
+        b.setExecutionOrder(index++);
       }
-      return seqList;
-   }
-   
-   /**
-    * Validates the sequence object.
-    * 
-    * @param seq the sequence object in question, may not be <code>null</code>.
-    * 
-    * @return the sequence object in the expected type.
-    */
-   @SuppressWarnings("unchecked")
-   private List<String> getSequenceList(Object seq)
-   {
-      if (!(seq instanceof List))
-         throw new PSConfigException("\"" + BINDING_SEQ
-               + "\" property must be \"List\" type.");
+    }
+    // append whatever left in "src" into "target"
+    for (PSTemplateBinding b : src) {
+      b.setExecutionOrder(index++);
+      target.add(b);
+    }
+    template.setBindings(target);
+  }
 
-      return (List<String>) seq;
-   }
-   
-   /**
-    * Gets the specified binding from the given binding list.
-    * 
-    * @param bindings the binding list, assumed not <code>null</code>.
-    * @param name the name of the binding variable, may be <code>null</code> or
-    * empty.
-    *
-    * @return the looked up binding, may be <code>null</code> if cannot find.
-    */
-   private PSTemplateBinding getBinding(List<PSTemplateBinding> bindings,
-                                        String name)
-   {
-      for (IPSTemplateBinding binding : bindings)
-      {
-         if (binding.getVariable().equals(name))
-            return (PSTemplateBinding) binding;
+  /**
+   * Merges the given bindings into the supplied template.
+   *
+   * @param template the template, assumed not <code>null</code>.
+   * @param map the binding properties, assumed not <code>null</code>, may be empty.
+   * @return the sequence property specified in the binding properties. It may be <code>null</code>
+   *     if there is no sequence property specified.
+   */
+  private List<String> mergeBinding(IPSAssemblyTemplate template, Map<String, Object> map) {
+    List<String> seqList = null;
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      PSTemplateBinding binding = getBinding(template.getBindings(), entry.getKey());
+      if (binding != null) {
+        binding.setExpression((String) entry.getValue());
+      } else if (BINDING_SEQ.equalsIgnoreCase(entry.getKey())) {
+        seqList = getSequenceList(entry.getValue());
+      } else {
+        binding =
+            new PSTemplateBinding(
+                template.getBindings().size(), entry.getKey(), (String) entry.getValue());
+        template.addBinding(binding);
       }
-      return null;
-   }
-   
-   /**
-    * Set the whole bindings from the {@link #BINDING_SET} property.
-    * 
-    * @param template the template object, assumed not <code>null</code>.
-    * @param obj the {@link #BINDING_SET} property value. It may not be 
-    * <code>null</code>, but may be empty if clear the bindings of the template.
-    */
-   @SuppressWarnings("unchecked")
-   private void setBindingSet(IPSAssemblyTemplate template, Object obj)
-   {
-      if (!(obj instanceof List))
-         throw new PSConfigException("The value type of the " + BINDING_SET
-               + " must be List");
-      
-      List<PSPair<String, String>> bindings = (List<PSPair<String, String>>) obj;
-      template.getBindings().clear();
-      for (int i=0;  i < bindings.size(); i++)
-      {
-         PSPair<String, String> b = bindings.get(i);
-         PSTemplateBinding binding = new PSTemplateBinding(i + 1,
-               b.getFirst(), b.getSecond());
-         template.addBinding(binding);
-      }
-   }
+    }
+    return seqList;
+  }
 
-   /**
-    * The property name for the Global Template.
-    */
-   public static final String GLOBAL_TEMPLATE = "globalTemplate";
-   
+  /**
+   * Validates the sequence object.
+   *
+   * @param seq the sequence object in question, may not be <code>null</code>.
+   * @return the sequence object in the expected type.
+   */
+  @SuppressWarnings("unchecked")
+  private List<String> getSequenceList(Object seq) {
+    if (!(seq instanceof List))
+      throw new PSConfigException("\"" + BINDING_SEQ + "\" property must be \"List\" type.");
 
-   /**
-    * The property name for Template and Slots association.
-    */
-   public static final String SLOTS = "slots";
-   
-   /**
-    * The value of this property is used to replace the entire bindings of the
-    * template. Expected type of the value is {@link PSPair}
-    */
-   public static final String BINDING_SET = "bindingSet";
+    return (List<String>) seq;
+  }
 
-   /**
-    * The value of this property is used to merge the specified bindings into
-    * the current binding list of the template. The expected type of the value
-    * is <code>Map</code>. A optional entry with {@link #BINDING_SEQ} key can
-    * be used to reorder the specified bindings.
-    */
-   public static final String BINDINGS = "bindings";
+  /**
+   * Gets the specified binding from the given binding list.
+   *
+   * @param bindings the binding list, assumed not <code>null</code>.
+   * @param name the name of the binding variable, may be <code>null</code> or empty.
+   * @return the looked up binding, may be <code>null</code> if cannot find.
+   */
+  private PSTemplateBinding getBinding(List<PSTemplateBinding> bindings, String name) {
+    for (IPSTemplateBinding binding : bindings) {
+      if (binding.getVariable().equals(name)) return (PSTemplateBinding) binding;
+    }
+    return null;
+  }
 
-   /**
-    * The key name can be optionally specified in the {@link #BINDINGS} map.
-    */
-   public static final String BINDING_SEQ = "binding_sequence";
+  /**
+   * Set the whole bindings from the {@link #BINDING_SET} property.
+   *
+   * @param template the template object, assumed not <code>null</code>.
+   * @param obj the {@link #BINDING_SET} property value. It may not be <code>null</code>, but may be
+   *     empty if clear the bindings of the template.
+   */
+  @SuppressWarnings("unchecked")
+  private void setBindingSet(IPSAssemblyTemplate template, Object obj) {
+    if (!(obj instanceof List))
+      throw new PSConfigException("The value type of the " + BINDING_SET + " must be List");
+
+    List<PSPair<String, String>> bindings = (List<PSPair<String, String>>) obj;
+    template.getBindings().clear();
+    for (int i = 0; i < bindings.size(); i++) {
+      PSPair<String, String> b = bindings.get(i);
+      PSTemplateBinding binding = new PSTemplateBinding(i + 1, b.getFirst(), b.getSecond());
+      template.addBinding(binding);
+    }
+  }
+
+  /** The property name for the Global Template. */
+  public static final String GLOBAL_TEMPLATE = "globalTemplate";
+
+  /** The property name for Template and Slots association. */
+  public static final String SLOTS = "slots";
+
+  /**
+   * The value of this property is used to replace the entire bindings of the template. Expected
+   * type of the value is {@link PSPair}
+   */
+  public static final String BINDING_SET = "bindingSet";
+
+  /**
+   * The value of this property is used to merge the specified bindings into the current binding
+   * list of the template. The expected type of the value is <code>Map</code>. A optional entry with
+   * {@link #BINDING_SEQ} key can be used to reorder the specified bindings.
+   */
+  public static final String BINDINGS = "bindings";
+
+  /** The key name can be optionally specified in the {@link #BINDINGS} map. */
+  public static final String BINDING_SEQ = "binding_sequence";
 }
