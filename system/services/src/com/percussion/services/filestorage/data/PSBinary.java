@@ -22,6 +22,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
@@ -359,7 +360,7 @@ public class PSBinary implements Serializable
                String type = StringUtils.substringBefore(metaEntry.getValue(), ";");
                this.setMimeType(type);
             }
-            else if (keyName.equals(Metadata.RESOURCE_NAME_KEY))
+            else if (keyName.equals(TikaCoreProperties.RESOURCE_NAME_KEY))
             {
                this.setOriginalFilename(metaEntry.getValue());
             }

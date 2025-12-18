@@ -23,7 +23,6 @@ import com.percussion.services.content.IPSContentService;
 import com.percussion.services.content.PSContentServiceLocator;
 import com.percussion.services.content.data.PSKeyword;
 import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
 import org.apache.cactus.ServletTestCase;
 import org.junit.experimental.categories.Category;
 
@@ -49,25 +48,25 @@ public class PSKeywordDependencyHandlerTest extends ServletTestCase
       IPSContentService contentSvc = 
          PSContentServiceLocator.getContentService();
       List<PSKeyword> keywords = contentSvc.findKeywordsByLabel(null, null);
-      TestCase.assertTrue(keywords.size() > 0);
+      assertTrue(keywords.size() > 0);
       
       // test does dependency exist
       PSKeyword keyword = keywords.get(0);
             
-      PSDependencyHandler hdlr =
+      PSDependencyHandler hdlr = 
          PSDependencyManager.getInstance().getDependencyHandler(
                PSKeywordDependencyHandler.DEPENDENCY_TYPE);
             
       PSSecurityToken tok = new PSSecurityToken("test");
-      TestCase.assertTrue(hdlr.doesDependencyExist(tok, keyword.getValue()));
-      TestCase.assertFalse(hdlr.doesDependencyExist(tok, "9999"));
+      assertTrue(hdlr.doesDependencyExist(tok, keyword.getValue()));
+      assertFalse(hdlr.doesDependencyExist(tok, "9999"));
       
       // test get dependency, dependencies
       Set<PSDependency> keywordDeps = new HashSet<PSDependency>();
       for (PSKeyword k : keywords)
       {
          PSDependency dep = hdlr.getDependency(tok, k.getValue());
-         TestCase.assertTrue(dep != null);
+         assertTrue(dep != null);
          keywordDeps.add(dep);
       }     
       
@@ -75,11 +74,11 @@ public class PSKeywordDependencyHandlerTest extends ServletTestCase
       int i = 0;
       while (depIter.hasNext())
       {
-         TestCase.assertTrue(keywordDeps.contains(depIter.next()));
+         assertTrue(keywordDeps.contains(depIter.next()));
          i++;
       }
       
-      TestCase.assertTrue(keywordDeps.size() == i);
+      assertTrue(keywordDeps.size() == i);
    }
 }
 

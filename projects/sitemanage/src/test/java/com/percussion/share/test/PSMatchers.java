@@ -21,7 +21,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.percussion.share.test.xml.PSXhtmlValidator;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,7 +110,7 @@ public class PSMatchers
                 {
                     stream = IOUtils.toInputStream(item, "UTF-8");
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     // TODO Auto-generated catch block
                     throw new RuntimeException(e);

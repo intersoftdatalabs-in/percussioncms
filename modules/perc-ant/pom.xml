@@ -69,12 +69,12 @@
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>tablefactory</artifactId>
+            <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>perc-system</artifactId>
+            <artifactId>tablefactory</artifactId>
             <version>${project.parent.version}</version>
             <exclusions>
                 <exclusion>
@@ -82,6 +82,11 @@
                     <artifactId>tika-parsers</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
         </dependency>
 
         <dependency>
@@ -124,11 +129,6 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>

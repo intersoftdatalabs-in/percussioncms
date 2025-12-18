@@ -93,7 +93,8 @@
                             <configuration>
                                 <repositoryId>repo-man</repositoryId>
                                 <file>${download-folder}/download-file</file>
-                                <url>https://mvn.intsof.com/repositories/thirdparty/</url>
+                                <!-- Removed internal repo URL; configure deployment target as needed -->
+                                <url>https://repo.maven.apache.org/maven2</url>
                                 <groupId>com.tiny</groupId>
                                 <artifactId>tinymce</artifactId>
                                 <packaging>zip</packaging>
@@ -114,44 +115,22 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <id>copy-tinymce-archive</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>
-                                ${download-folder}
-                            </outputDirectory>
-                            <includeArtifactIds>tinymce</includeArtifactIds>
-                            <stripVersion>false</stripVersion>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <overWriteReleases>true</overWriteReleases>
-                        </configuration>
-                    </execution>
-
-                </executions>
-                <dependencies>
-
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>process-resources</phase>
-                        <id>import-upstream</id>
-                        <goals><goal>run</goal></goals>
+                        <id>download-tinymce</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                         <configuration>
                             <target>
-                                <echo message="unzip archive" />
+                                <mkdir dir="${download-folder}" />
+                                <echo message="Downloading TinyMCE ${tinymce.version} from CDN..." />
+                                <get src="${tinymce.url}" dest="${download-folder}/${download-file}" />
+                                <echo message="Extracting TinyMCE archive..." />
                                 <unzip src="${download-folder}/${download-file}" dest="${project.build.directory}" />
-                                <echo message="moving resources" />
+                                <echo message="Moving TinyMCE resources to package..." />
                                 <move todir="${destDir}">
                                     <fileset dir="${project.build.directory}/tinymce/js/tinymce" />
                                 </move>
@@ -164,45 +143,36 @@
                 </executions>
             </plugin>
             <plugin>
-            <groupId>com.samaxes.maven</groupId>
-            <artifactId>minify-maven-plugin</artifactId>
-            <executions>
-            <execution>
-                <id>min-common</id>
-                <phase>prepare-package</phase>
-
-                <goals>
-                    <goal>minify</goal>
-                </goals>
-                <configuration>
-                    <!-- <yuiDisableOptimizations>true</yuiDisableOptimizations>-->
-                    <webappSourceDir>${basedir}/src/main/resources/META-INF/resources</webappSourceDir>
-                    <webappTargetDir>${project.build.outputDirectory}/META-INF/resources</webappTargetDir>
-                    <skipMerge>true</skipMerge>
-                    <skipMinify>false</skipMinify>
-                    <jsSourceDir>sys_resources/tinymce/plugins</jsSourceDir>
-                    <jsSourceIncludes>
-                        <jsSourceInclude>**/plugin.js</jsSourceInclude>
-                    </jsSourceIncludes>
-                    <jsEngine>YUI</jsEngine>
-                    <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
-
-                </configuration>
-            </execution>
-            </executions>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>min-common</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                        <configuration>
+                            <webappSourceDir>${basedir}/src/main/resources/META-INF/resources</webappSourceDir>
+                            <webappTargetDir>${project.build.outputDirectory}/META-INF/resources</webappTargetDir>
+                            <skipMerge>true</skipMerge>
+                            <skipMinify>false</skipMinify>
+                            <jsSourceDir>sys_resources/tinymce/plugins</jsSourceDir>
+                            <jsSourceIncludes>
+                                <jsSourceInclude>**/plugin.js</jsSourceInclude>
+                            </jsSourceIncludes>
+                            <jsEngine>YUI</jsEngine>
+                            <yuiPreserveSemicolons>true</yuiPreserveSemicolons>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-
         </plugins>
 
-
     </build>
+
     <dependencies>
-        <dependency>
-            <groupId>com.tiny</groupId>
-            <artifactId>tinymce</artifactId>
-            <version>${tinymce.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- TinyMCE is downloaded directly from CDN during build; no Maven artifact dependency needed -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>

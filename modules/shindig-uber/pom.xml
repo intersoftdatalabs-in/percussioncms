@@ -210,6 +210,14 @@
             <version>${shindig.version}</version>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.code.guice</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.oauth.core</groupId>
+                    <artifactId>oauth-httpclient3</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
@@ -246,13 +254,24 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.code.guice</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.oauth.core</groupId>
+                    <artifactId>oauth-httpclient3</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>net.oauth.core</groupId>
                     <artifactId>oauth</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>caja</groupId>
+                    <artifactId>caja</artifactId>
                 </exclusion>
                 <exclusion>
                     <artifactId>google-collections</artifactId>
@@ -260,24 +279,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>net.oauth.core</groupId>
-            <artifactId>oauth</artifactId>
-            <version>20090531</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-jmx</artifactId>
-            <version>7.0.0</version>
-            <scope>compile</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.shindig</groupId>
             <artifactId>shindig-gadgets</artifactId>
             <version>${shindig.version}</version>
             <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.guice</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.oauth.core</groupId>
+                    <artifactId>oauth-httpclient3</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
@@ -319,13 +334,13 @@
             <artifactId>rome</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
+        <!-- Caja r3828 not available in Central; excluded from shindig-gadgets instead -->
+        <!-- <dependency>
             <groupId>caja</groupId>
             <artifactId>caja</artifactId>
-            <!-- required version for beta 5 includes html-sanitize-minified.js and opensocial package.-->
             <version>r3828</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.apache.shindig</groupId>
             <artifactId>shindig-features</artifactId>
@@ -339,15 +354,15 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.guice</groupId>
+            <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>2.0</version>
+            <version>3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
-            <version>2.0</version>
+            <version>3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -369,15 +384,6 @@
         </dependency>
 
     </dependencies>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>
 

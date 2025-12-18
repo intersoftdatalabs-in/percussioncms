@@ -246,8 +246,6 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <version>${axis.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.xml.soap</groupId>

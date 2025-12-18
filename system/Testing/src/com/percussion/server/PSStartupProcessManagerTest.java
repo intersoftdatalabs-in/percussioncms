@@ -29,7 +29,6 @@ import java.util.Properties;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
-import org.apache.tika.io.IOUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -117,15 +116,10 @@ public class PSStartupProcessManagerTest
    protected void validateProperty(File tmpFile, String name, String value) throws IOException, FileNotFoundException
    {
       Properties props = new Properties();
-      FileReader reader = new FileReader(tmpFile);
-      try
+      try (FileReader reader = new FileReader(tmpFile))
       {
          props.load(reader);
          assertEquals(value, props.getProperty(name));
-      }
-      finally
-      {
-         IOUtils.closeQuietly(reader);
       }
    }
 }

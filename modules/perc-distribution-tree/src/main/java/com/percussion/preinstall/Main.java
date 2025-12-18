@@ -255,11 +255,9 @@ public class Main {
                     Files.createDirectory(entryDest);
                     continue;
                 }
-                if(MainIAInstall.installerProxy!=null){
-                    MainIAInstall.showProgress(MainIAInstall.installerProxy,currentLineNo.get(),"Extracting temporary files...",entryDest.toString());
-                }else {
-                    System.out.println("Creating file " + entryDest);
-                }
+             
+                System.out.println("Creating file " + entryDest);
+                
                 Files.copy(archive.getInputStream(entry), entryDest);
 
 
@@ -328,22 +326,17 @@ public class Main {
                                 if (outBuff.timeElapsed() > 50)
                                     while (outBuff.hasNext()) {
                                         currentLineNo.getAndIncrement();
-                                        if (MainIAInstall.installerProxy != null) {
-                                            MainIAInstall.showProgress(MainIAInstall.installerProxy, currentLineNo.get(), "Installing files...", outBuff.getNext());
-                                        } else {
+                                      
                                             System.out.println(errBuff.getNext());
-                                        }
+                                        
                                     }
                                 // get the error output if at least 50 millis have passed
                                 if (errBuff.timeElapsed() > 50)
                                     while (errBuff.hasNext())
                                         currentErrLineNo.getAndIncrement();
 
-                                if (MainIAInstall.installerProxy != null) {
-                                    MainIAInstall.showProgress(MainIAInstall.installerProxy, currentErrLineNo.get(), "Installing files...", errBuff.getNext());
-                                } else {
-                                    System.err.println(errBuff.getNext());
-                                }
+                                System.err.println(errBuff.getNext());
+                            
                                 // sleep a bit bofore next run
                                 try {
                                     Thread.sleep(100);

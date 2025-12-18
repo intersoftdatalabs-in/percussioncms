@@ -90,7 +90,7 @@
                         </includes>
                     </filter>
                     <filter>
-                        <artifact>axis:axis</artifact>
+                        <artifact>org.apache.axis:axis</artifact>
                         <includes>
                             <include>**</include>
                         </includes>
@@ -230,6 +230,11 @@
                 </exclusion>
 
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>webservices</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
