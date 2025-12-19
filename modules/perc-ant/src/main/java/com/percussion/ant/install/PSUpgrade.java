@@ -22,14 +22,11 @@ import com.percussion.install.PSLogger;
 import com.percussion.install.RxUpgrade;
 
 /**
- * The execute method of this called when it is an upgrade.
- * Execute method inturn calls RxUpgrade class process method to
- * process the upgrade.
+ * The execute method of this called when it is an upgrade. Execute method inturn calls RxUpgrade
+ * class process method to process the upgrade. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -46,62 +43,53 @@ import com.percussion.install.RxUpgrade;
  *  </code>
  *
  * </pre>
- *
  */
-public class PSUpgrade extends PSAction
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      m_strRootDir = getRootDir();
+public class PSUpgrade extends PSAction {
+  // see base class
+  @Override
+  public void execute() {
+    m_strRootDir = getRootDir();
 
-      RxUpgrade upgrade = new RxUpgrade();
-      String[] pluginFiles = getUpgradeFileNames();
-      for (String fileName : pluginFiles) {
-         try {
-            upgrade.process(m_strRootDir, fileName);
-         } catch (Exception e) {
-            PSLogger.logError("file: " + fileName + " " +
-                    PSExceptionUtils.getMessageForLog(e));
-            PSLogger.logError(e);
-         }
+    RxUpgrade upgrade = new RxUpgrade();
+    String[] pluginFiles = getUpgradeFileNames();
+    for (String fileName : pluginFiles) {
+      try {
+        upgrade.process(m_strRootDir, fileName);
+      } catch (Exception e) {
+        PSLogger.logError("file: " + fileName + " " + PSExceptionUtils.getMessageForLog(e));
+        PSLogger.logError(e);
       }
-   }
+    }
+  }
 
-   /**
-    * Getter that returns UpgradeFileName.
-    * @return Upgrade File Name that was set on this bean.
-    */
-   public String[] getUpgradeFileNames()
-   {
-      return m_strCfgFiles;
-   }
+  /**
+   * Getter that returns UpgradeFileName.
+   *
+   * @return Upgrade File Name that was set on this bean.
+   */
+  public String[] getUpgradeFileNames() {
+    return m_strCfgFiles;
+  }
 
-   /**
-    * Setter for UpgradeFileName.
-    * @param fileNames, never <code>null</code> or <code>empty</code>.
-    */
-   public void setUpgradeFileNames(String fileNames)
-   {
-      if (fileNames==null || fileNames.trim().length() < 1)
-         throw new IllegalArgumentException("fileName may not be null or empty");
+  /**
+   * Setter for UpgradeFileName.
+   *
+   * @param fileNames, never <code>null</code> or <code>empty</code>.
+   */
+  public void setUpgradeFileNames(String fileNames) {
+    if (fileNames == null || fileNames.trim().length() < 1)
+      throw new IllegalArgumentException("fileName may not be null or empty");
 
-      m_strCfgFiles = convertToArray(fileNames);
-   }
+    m_strCfgFiles = convertToArray(fileNames);
+  }
 
-   /**************************************************************************
-    * Variables
-    **************************************************************************/
-   /**
-    * Root dir of this installation.
-    */
-   private String m_strRootDir = "";
+  /**
+   * ************************************************************************ Variables
+   * ************************************************************************
+   */
+  /** Root dir of this installation. */
+  private String m_strRootDir = "";
 
-   /**
-    * config file names for upgradeaction
-    */
-   private String[] m_strCfgFiles = {"rxupgrade.xml",
-   "rxOrphanedDataCleanupPlugins.xml"};
-
+  /** config file names for upgradeaction */
+  private String[] m_strCfgFiles = {"rxupgrade.xml", "rxOrphanedDataCleanupPlugins.xml"};
 }

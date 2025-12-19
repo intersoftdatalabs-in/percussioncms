@@ -18,7 +18,6 @@ package com.percussion.contentmigration.rules;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,41 +26,39 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PSIdMatchingMigrationRuleTest
-{
+public class PSIdMatchingMigrationRuleTest {
 
-    private Document sourceDoc = null;
+  private Document sourceDoc = null;
 
-    private Document targetDoc = null;
+  private Document targetDoc = null;
 
-    private PSIdMatchingMigrationRule matchingMigrationRule;
+  private PSIdMatchingMigrationRule matchingMigrationRule;
 
-    @Before
-    public void setup() throws IOException
-    {
-        sourceDoc = Jsoup.parse(new File("src/test/resources/contentmigration/sourceDoc.html"), "UTF-8");
-        targetDoc = Jsoup.parse(new File("src/test/resources/contentmigration/targetDoc.html"), "UTF-8");
-    }
+  @Before
+  public void setup() throws IOException {
+    sourceDoc =
+        Jsoup.parse(new File("src/test/resources/contentmigration/sourceDoc.html"), "UTF-8");
+    targetDoc =
+        Jsoup.parse(new File("src/test/resources/contentmigration/targetDoc.html"), "UTF-8");
+  }
 
-    @Test
-    public void testMatchingMigrationRule()
-    {
-        matchingMigrationRule = new PSIdMatchingMigrationRule();
-        String content = matchingMigrationRule.findMatchingContent("1", sourceDoc, targetDoc);
-        Elements elems = targetDoc.select("#perc-content");
-        Element elem = elems.get(0);
-        Assert.assertNotNull(content);
-        Assert.assertEquals(elem.html(), content);
-    }
-    
-    @Test
-    public void testNotMatchingMigrationRule()
-    {
-        matchingMigrationRule = new PSIdMatchingMigrationRule();
-        String content = matchingMigrationRule.findMatchingContent("2", sourceDoc, targetDoc);
-        Elements elems = targetDoc.select("#perc-content");
-        Element elem = elems.get(0);
-        Assert.assertNull(content);
-        Assert.assertNotSame(elem.html(), content);
-    }
+  @Test
+  public void testMatchingMigrationRule() {
+    matchingMigrationRule = new PSIdMatchingMigrationRule();
+    String content = matchingMigrationRule.findMatchingContent("1", sourceDoc, targetDoc);
+    Elements elems = targetDoc.select("#perc-content");
+    Element elem = elems.get(0);
+    Assert.assertNotNull(content);
+    Assert.assertEquals(elem.html(), content);
+  }
+
+  @Test
+  public void testNotMatchingMigrationRule() {
+    matchingMigrationRule = new PSIdMatchingMigrationRule();
+    String content = matchingMigrationRule.findMatchingContent("2", sourceDoc, targetDoc);
+    Elements elems = targetDoc.select("#perc-content");
+    Element elem = elems.get(0);
+    Assert.assertNull(content);
+    Assert.assertNotSame(elem.html(), content);
+  }
 }

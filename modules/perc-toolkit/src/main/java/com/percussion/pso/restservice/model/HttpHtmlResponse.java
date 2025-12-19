@@ -19,32 +19,28 @@ package com.percussion.pso.restservice.model;
 import org.apache.commons.httpclient.Header;
 import org.jsoup.nodes.Document;
 
-public class HttpHtmlResponse extends BaseHttpResponse{
+public class HttpHtmlResponse extends BaseHttpResponse {
 
-	private Document document;
-	
+  private Document document;
 
-	public HttpHtmlResponse(){}
+  public HttpHtmlResponse() {}
 
+  public void setDocument(Document document) {
+    this.document = document;
+  }
 
+  public Document getDocument() {
+    return document;
+  }
 
-	public void setDocument(Document document) {
-		this.document = document;
-	}
-
-
-	public Document getDocument() {
-		return document;
-	}
-
-	/***
-	 * Single Shot Constructor
-	 * @param doc
-	 * @param head
-	 */
-	public HttpHtmlResponse(Document doc, Header[] head){
-		this.setHeaders(head);
-		this.document = doc;
-	}
-	
+  /**
+   * * Single Shot Constructor
+   *
+   * @param doc
+   * @param head
+   */
+  public HttpHtmlResponse(Document doc, Header[] head) {
+    this.setHeaders(head);
+    this.document = doc;
+  }
 }

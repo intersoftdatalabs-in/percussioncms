@@ -28,66 +28,58 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.util.IPSHtmlParameters;
-
 import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A item input transformer to process/update any html links in the specified content. This is a thin wrapper, calls the managedlink service to do the actual work.
- * For new items the item id is not yet created when this exit gets processed, it calls manageNewItemLinks method in that case and sets a request private object
- * to track that. The managed link post processor exit checks the private object and if it is there and if its value is true then updates the parent id.
- * 
- * @author JaySeletz
+ * A item input transformer to process/update any html links in the specified content. This is a
+ * thin wrapper, calls the managedlink service to do the actual work. For new items the item id is
+ * not yet created when this exit gets processed, it calls manageNewItemLinks method in that case
+ * and sets a request private object to track that. The managed link post processor exit checks the
+ * private object and if it is there and if its value is true then updates the parent id.
  *
+ * @author JaySeletz
  */
-public class PSManagedLinkInputTransformer extends PSDefaultExtension implements IPSFieldInputTransformer
-{
+public class PSManagedLinkInputTransformer extends PSDefaultExtension
+    implements IPSFieldInputTransformer {
 
-    private IPSManagedLinkService service;
-    
-    /* (non-Javadoc)
-     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-     */
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-    {
-        super.init(def, codeRoot);
-        //This is for wiring the services
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  private IPSManagedLinkService service;
 
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   */
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    // This is for wiring the services
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String value = ep.getStringParam(0, null, true);
+    if (StringUtils.isBlank(value)) {
+      return value;
     }
-
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException
-    {
-        PSExtensionParams ep = new PSExtensionParams(params);
-        String value = ep.getStringParam(0, null, true);
-        if(StringUtils.isBlank(value)) {
-            return value;
-        }
-        String cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if(StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid))
-        {
-            value = service.manageNewItemLinks(value);
-            request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
-        }
-        else
-        {
-            cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
-            value = service.manageLinks(cid, value);
-        }
-        return value;
+    String cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
+      value = service.manageNewItemLinks(value);
+      request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
+    } else {
+      cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
+      value = service.manageLinks(cid, value);
     }
+    return value;
+  }
 
-    /**
-     * Setter for dependency injection
-     * 
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service)
-    {
-        this.service = service;
-    }
-
+  /**
+   * Setter for dependency injection
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

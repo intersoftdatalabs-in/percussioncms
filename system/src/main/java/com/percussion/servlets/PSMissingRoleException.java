@@ -21,18 +21,12 @@ import javax.security.auth.login.LoginException;
 /**
  * This exception is thrown when a user who has not been assigned to a valid role attempts to login.
  */
-public class PSMissingRoleException extends LoginException
-{
-   /**
-    * Compiler generated serial version ID used for serialization.
-    */
-   private static final long serialVersionUID = 3001331071170554554L;
+public class PSMissingRoleException extends LoginException {
+  /** Compiler generated serial version ID used for serialization. */
+  private static final long serialVersionUID = 3001331071170554554L;
 
-   /**
-    * See {@link LoginException#LoginException(String) base class} for desc.
-    */
-   public PSMissingRoleException(String msg)
-   {
-      super(msg);
-   }
+  /** See {@link LoginException#LoginException(String) base class} for desc. */
+  public PSMissingRoleException(String msg) {
+    super(msg);
+  }
 }

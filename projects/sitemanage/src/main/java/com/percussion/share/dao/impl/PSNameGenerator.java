@@ -14,48 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+/** */
 package com.percussion.share.dao.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSNameGenerator;
-
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.ext.Provider;
-
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Provider
 @PSSiteManageBean("nameGenerator")
-public class PSNameGenerator implements IPSNameGenerator
-{
-    private IPSIdMapper idMapper;
+public class PSNameGenerator implements IPSNameGenerator {
+  private IPSIdMapper idMapper;
 
-    /**
-     * Constructs a new local content name generator.
-     * 
-     * @param idMapper used for id generation, never <code>null</code>.
-     */
-    @Autowired
-    public PSNameGenerator(IPSIdMapper idMapper)
-    {
-        notNull(idMapper);
-        
-        this.idMapper = idMapper;
-    }
-    
-    public String generateLocalContentName()
-    {
-        return LOCAL_CONTENT_PREFIX + idMapper.getLocalContentId();
-    }
-    
-    /**
-     * Constant for the prefix used when generating names for local content items.
-     */
-    private static final String LOCAL_CONTENT_PREFIX = "LocalContent-";
+  /**
+   * Constructs a new local content name generator.
+   *
+   * @param idMapper used for id generation, never <code>null</code>.
+   */
+  @Autowired
+  public PSNameGenerator(IPSIdMapper idMapper) {
+    notNull(idMapper);
+
+    this.idMapper = idMapper;
+  }
+
+  public String generateLocalContentName() {
+    return LOCAL_CONTENT_PREFIX + idMapper.getLocalContentId();
+  }
+
+  /** Constant for the prefix used when generating names for local content items. */
+  private static final String LOCAL_CONTENT_PREFIX = "LocalContent-";
 }

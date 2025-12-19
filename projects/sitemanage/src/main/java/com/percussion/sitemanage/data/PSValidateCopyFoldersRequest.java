@@ -17,44 +17,33 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
 /**
- * Request object used for validating a source and destination folder for copy.  Both folder paths are required.  The
- * destination folder may not be empty.
+ * Request object used for validating a source and destination folder for copy. Both folder paths
+ * are required. The destination folder may not be empty.
  */
 @XmlRootElement(name = "ValidateCopyFoldersRequest")
-public class PSValidateCopyFoldersRequest extends PSItemByWfStateRequest
-{
-    public String getSrcFolder()
-    {
-        return srcFolder;
-    }
+public class PSValidateCopyFoldersRequest extends PSItemByWfStateRequest {
+  public String getSrcFolder() {
+    return srcFolder;
+  }
 
-    public void setSrcFolder(String srcFolder)
-    {
-        this.srcFolder = srcFolder;
-    }
+  public void setSrcFolder(String srcFolder) {
+    this.srcFolder = srcFolder;
+  }
 
-    public String getDestFolder()
-    {
-        return destFolder;
-    }
+  public String getDestFolder() {
+    return destFolder;
+  }
 
-    public void setDestFolder(String destFolder)
-    {
-        this.destFolder = destFolder;
-    }
+  public void setDestFolder(String destFolder) {
+    this.destFolder = destFolder;
+  }
 
-    @NotNull
-    private String srcFolder;
-    
-    @NotNull
-    @NotEmpty
-    private String destFolder;
+  @NotNull private String srcFolder;
 
+  @NotNull @NotEmpty private String destFolder;
 }

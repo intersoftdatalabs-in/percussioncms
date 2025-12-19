@@ -20,30 +20,27 @@ package com.percussion.apibridge;
 import com.percussion.rest.mimetypes.IMimeTypeAdaptor;
 import com.percussion.rest.mimetypes.MimeType;
 import com.percussion.util.PSSiteManageBean;
-
 import java.util.Collections;
 import java.util.List;
 
 @PSSiteManageBean
 public class MimeTypeAdaptor implements IMimeTypeAdaptor {
 
-    @Override
-    public MimeType getMimeType(String extension) {
-        return null;
-    }
+  @Override
+  public MimeType getMimeType(String extension) {
+    return null;
+  }
 
-    @Override
-    public List<MimeType> listMimeTypes() {
-        return Collections.emptyList();
-    }
+  @Override
+  public List<MimeType> listMimeTypes() {
+    return Collections.emptyList();
+  }
 
-    @Override
-    public MimeType createOrUpdateMimeType(MimeType type) {
-        return null;
-    }
+  @Override
+  public MimeType createOrUpdateMimeType(MimeType type) {
+    return null;
+  }
 
-    @Override
-    public void deleteMimeType(MimeType type) {
-
-    }
+  @Override
+  public void deleteMimeType(MimeType type) {}
 }

@@ -18,10 +18,8 @@ package com.percussion.extensions.general;
 
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -29,34 +27,25 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author paulhoward
  */
-public class PSSimpleJavaUdf_encodeForUrl extends PSSimpleJavaUdfExtension
-{
-   /**
-    * See class description.
-    * 
-    * @param params Expect 1 param. Will do a <code>toString</code> on it and
-    * then encode it for URL use. If <code>null</code> or empty, the empty
-    * string is returned.
-    * 
-    *  @param request Not used.
-    */
-   public Object processUdf(Object[] params, 
-         @SuppressWarnings("unused") IPSRequestContext request)
-   {
-      try
-      {
-         if (params == null || params.length == 0)
-            return StringUtils.EMPTY;
-         String s = params[0].toString();
-         String result = URLEncoder.encode(s, "UTF-8");
-         //we don't want to encode the path separators
-         result = result.replace("%2F", "/");
-         return result;
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         //should never happen
-         throw new RuntimeException(e);
-      }
-   }
+public class PSSimpleJavaUdf_encodeForUrl extends PSSimpleJavaUdfExtension {
+  /**
+   * See class description.
+   *
+   * @param params Expect 1 param. Will do a <code>toString</code> on it and then encode it for URL
+   *     use. If <code>null</code> or empty, the empty string is returned.
+   * @param request Not used.
+   */
+  public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request) {
+    try {
+      if (params == null || params.length == 0) return StringUtils.EMPTY;
+      String s = params[0].toString();
+      String result = URLEncoder.encode(s, "UTF-8");
+      // we don't want to encode the path separators
+      result = result.replace("%2F", "/");
+      return result;
+    } catch (UnsupportedEncodingException e) {
+      // should never happen
+      throw new RuntimeException(e);
+    }
+  }
 }

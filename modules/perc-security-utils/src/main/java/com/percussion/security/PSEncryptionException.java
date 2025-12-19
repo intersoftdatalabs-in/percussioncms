@@ -17,21 +17,20 @@
 
 package com.percussion.security;
 
+public class PSEncryptionException extends Exception {
+  public PSEncryptionException(String s, Throwable e) {
+    super(s, e);
+  }
 
-public class PSEncryptionException extends Exception{
-    public PSEncryptionException(String s, Throwable e) {
-        super(s, e);
-    }
+  public PSEncryptionException(String s) {
+    super(s);
+  }
 
-    public PSEncryptionException(String s) {
-        super(s);
-    }
+  public PSEncryptionException() {
+    super();
+  }
 
-    public PSEncryptionException() {
-        super();
-    }
-
-    public PSEncryptionException(Throwable t){
-        super(t);
-    }
+  public PSEncryptionException(Throwable t) {
+    super(t);
+  }
 }

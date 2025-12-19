@@ -16,12 +16,6 @@
  */
 package com.percussion.delivery.utils.spring;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.support.XmlWebApplicationContext;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,135 +26,131 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * Provides a configurable Context loader that can be used as the contextClass param
- * in a web.xml.  Will default to WEB-INF/beans.xml if it doesn't find a context 
- * in either {$catalina.base}/conf/perc/perc-context.properties or in 
- * WEB-INF/perc-context.properties.
- * 
- * The perc/conf location will always override what is defined in WEB-INF.
- * 
- *  example perc-context.properties
- *  ##################################### 
- *  # Specifies the context location to use.  May be over-ridden by placing this 
- *  # properties file into the {$catalina.base}/conf/perc/ folder.
- *  #
- *  # RDBMS - Hibernate Application Context
- *  contextLocation=/WEB-INF/beans.xml
- *  #
- *  # NOSQL - MongoDB Application Context
- *  #contextLocation=/WEB-INF/beans_mongodb.xml
- *  #############################################
+ * Provides a configurable Context loader that can be used as the contextClass param in a web.xml.
+ * Will default to WEB-INF/beans.xml if it doesn't find a context in either
+ * {$catalina.base}/conf/perc/perc-context.properties or in WEB-INF/perc-context.properties.
  *
+ * <p>The perc/conf location will always override what is defined in WEB-INF.
+ *
+ * <p>example perc-context.properties ##################################### # Specifies the context
+ * location to use. May be over-ridden by placing this # properties file into the
+ * {$catalina.base}/conf/perc/ folder. # # RDBMS - Hibernate Application Context
+ * contextLocation=/WEB-INF/beans.xml # # NOSQL - MongoDB Application Context
+ * #contextLocation=/WEB-INF/beans_mongodb.xml #############################################
  */
 @Configuration
-public class PSConfigurableApplicationContext extends XmlWebApplicationContext
-{
+public class PSConfigurableApplicationContext extends XmlWebApplicationContext {
 
-    private static final String DEFAULT_CONTEXT_CONFIG = "/WEB-INF/beans.xml";
-    private static final String PERC_CONTEXT_PROPS = "/WEB-INF/perc-context.properties";
-    private static final String PERC_CONTEXT_PROPS_USER = "/conf/perc/perc-context.properties";
-    private static final String PERC_CONTEXT_LOC = "contextLocation";
-    private static final String CATALINA_BASE = "catalina.base";
+  private static final String DEFAULT_CONTEXT_CONFIG = "/WEB-INF/beans.xml";
+  private static final String PERC_CONTEXT_PROPS = "/WEB-INF/perc-context.properties";
+  private static final String PERC_CONTEXT_PROPS_USER = "/conf/perc/perc-context.properties";
+  private static final String PERC_CONTEXT_LOC = "contextLocation";
+  private static final String CATALINA_BASE = "catalina.base";
 
-    //Log4j2 may not be present when this is run - so use java basic logger
-    private static final Logger log = LogManager.getLogger(PSConfigurableApplicationContext.class);
+  // Log4j2 may not be present when this is run - so use java basic logger
+  private static final Logger log = LogManager.getLogger(PSConfigurableApplicationContext.class);
 
-    PSConfigurableApplicationContext(){
-        super();
+  PSConfigurableApplicationContext() {
+    super();
+  }
+
+  /**
+   * Initialize the bean definition reader used for loading the bean definitions of this context.
+   * Default implementation is empty.
+   *
+   * <p>Can be overridden in subclasses, e.g. for turning off XML validation or using a different
+   * XmlBeanDefinitionParser implementation.
+   *
+   * @param beanDefinitionReader the bean definition reader used by this context
+   * @see XmlBeanDefinitionReader#setValidationMode
+   * @see XmlBeanDefinitionReader#setDocumentReaderClass
+   */
+  @Override
+  protected void initBeanDefinitionReader(XmlBeanDefinitionReader beanDefinitionReader) {
+    beanDefinitionReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
+    beanDefinitionReader.setValidating(false);
+
+    super.initBeanDefinitionReader(beanDefinitionReader);
+  }
+
+  /**
+   * * A convenience method for unit tests to use when testing multiple contexts. This should be
+   * called prior to loading the context in a given test.
+   *
+   * @param location The location to be set. For example: /WEB-INF/beans_mongodb.xml
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public static void switchContextLocation(String location) throws IOException, URISyntaxException {
+
+    Properties p = new Properties();
+    try (InputStream rs =
+        PSConfigurableApplicationContext.class.getResourceAsStream(PERC_CONTEXT_PROPS)) {
+      p.load(rs);
+      p.setProperty(PERC_CONTEXT_LOC, location);
     }
 
-    /**
-     * Initialize the bean definition reader used for loading the bean
-     * definitions of this context. Default implementation is empty.
-     * <p>Can be overridden in subclasses, e.g. for turning off XML validation
-     * or using a different XmlBeanDefinitionParser implementation.
-     *
-     * @param beanDefinitionReader the bean definition reader used by this context
-     * @see XmlBeanDefinitionReader#setValidationMode
-     * @see XmlBeanDefinitionReader#setDocumentReaderClass
-     */
-    @Override
-    protected void initBeanDefinitionReader(XmlBeanDefinitionReader beanDefinitionReader) {
-        beanDefinitionReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
-        beanDefinitionReader.setValidating(false);
+    URL url = PSConfigurableApplicationContext.class.getResource(PERC_CONTEXT_PROPS);
+    try (OutputStream fs = new FileOutputStream(new File(url.toURI()))) {
+      p.store(fs, null);
+    }
+  }
 
-        super.initBeanDefinitionReader(beanDefinitionReader);
+  @Override
+  public String[] getConfigLocations() {
+    return getDefaultConfigLocations();
+  }
+
+  @Override
+  protected String[] getDefaultConfigLocations() {
+
+    Properties props = new Properties();
+    String tomcatBase = null;
+    String targetContext = null;
+
+    // Get the properties from the server perc/conf dir
+    tomcatBase = System.getProperty(CATALINA_BASE);
+
+    // User configured properties
+    try (FileInputStream fs = new FileInputStream(tomcatBase + PERC_CONTEXT_PROPS_USER)) {
+
+      if (tomcatBase != null) {
+        props.load(fs);
+      }
+
+      targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
+    } catch (IOException e) {
+      log.info(e.getMessage());
     }
 
-    /***
-     * A convenience method for unit tests to use when testing multiple 
-     * contexts.  This should be called prior to loading the context in 
-     * a given test.
-     * 
-     * @param location The location to be set. For example: /WEB-INF/beans_mongodb.xml
-     * @throws IOException 
-     * @throws URISyntaxException 
-     */
-    public static void switchContextLocation(String location) throws IOException, URISyntaxException{
-        
-        Properties p = new Properties();
-        try (InputStream rs = PSConfigurableApplicationContext.class.getResourceAsStream(PERC_CONTEXT_PROPS)){
-            p.load(rs);
-            p.setProperty(PERC_CONTEXT_LOC, location);
-        }
-    
-        URL url = PSConfigurableApplicationContext.class.getResource(PERC_CONTEXT_PROPS);
-        try (OutputStream fs = new FileOutputStream(new File(url.toURI()))) {
-            p.store(fs,null);
-        }
+    if (targetContext == null) {
+      // WEB-IF properties
+      try (InputStream in =
+          Objects.requireNonNull(this.getServletContext())
+              .getResourceAsStream(PERC_CONTEXT_PROPS)) {
+        props.load(in);
+        targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
+        log.info("Selected {} from {}", targetContext, PERC_CONTEXT_LOC);
+      } catch (IOException e) {
+        log.info(e.getMessage());
+      }
     }
 
-    @Override
-    public String[] getConfigLocations() {
-        return getDefaultConfigLocations();
+    // Fall back to defaults if none of the properties are found.
+    if (targetContext == null || targetContext.equals("")) {
+      log.info(
+          "Unable to find a configured ContextLocation - selecting default: {}",
+          DEFAULT_CONTEXT_CONFIG);
+      targetContext = DEFAULT_CONTEXT_CONFIG;
     }
 
-
-    @Override
-    protected String[] getDefaultConfigLocations() {
-
-        Properties props = new Properties();
-        String tomcatBase=null;
-        String targetContext = null;
-
-        //Get the properties from the server perc/conf dir
-        tomcatBase = System.getProperty(CATALINA_BASE);
-
-        //User configured properties
-        try(FileInputStream fs = new FileInputStream(tomcatBase + PERC_CONTEXT_PROPS_USER)){
-
-            if(tomcatBase != null){
-                props.load(fs);
-            }
-                
-            targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
-        } catch (IOException e) {
-            log.info(e.getMessage());
-        }
-
-        if(targetContext == null){
-            //WEB-IF properties
-            try(InputStream in = Objects.requireNonNull(this.getServletContext()).getResourceAsStream(PERC_CONTEXT_PROPS))
-            {
-                    props.load(in);
-                    targetContext = props.getProperty(PERC_CONTEXT_LOC,null);
-                    log.info("Selected {} from {}",targetContext , PERC_CONTEXT_LOC );
-            } catch (IOException e) {
-                log.info(e.getMessage());
-            }
-        }
-        
-        //Fall back to defaults if none of the properties are found.
-        if(targetContext == null || targetContext.equals("")){
-            log.info("Unable to find a configured ContextLocation - selecting default: {}",
-                    DEFAULT_CONTEXT_CONFIG);
-            targetContext = DEFAULT_CONTEXT_CONFIG;
-        }
-
-        return new String[]{targetContext};
-    }
-
-
+    return new String[] {targetContext};
+  }
 }

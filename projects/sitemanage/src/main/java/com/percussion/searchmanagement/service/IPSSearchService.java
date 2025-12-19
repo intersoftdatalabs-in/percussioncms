@@ -16,55 +16,56 @@
  */
 package com.percussion.searchmanagement.service;
 
+import com.percussion.searchmanagement.data.PSSearchCriteria;
+import com.percussion.searchmanagement.error.PSSearchServiceException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.data.PSPagedItemPropertiesList;
-import com.percussion.searchmanagement.data.PSSearchCriteria;
-import com.percussion.searchmanagement.error.PSSearchServiceException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.List;
 
-public interface IPSSearchService
-{
-    /**
-     * Retrieve the items found after performing a full text search for the
-     * given text.
-     * 
-     * @param text , text must be specified. never <code>null</code>, or empty
-     * @return list of search result objects, never <code>null</code>, may be
-     *         empty.
-     * @throws <code>PSFinderServiceException</code> if any error occurs.
-     */
-    public PSPagedItemList search(PSSearchCriteria criteria) throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
-    
-    /**
-     * Creates the search result objects for the supplied content ids and returns them.
-     * @param criteria uses for search result columns
-     * @param contentIdList must not be <code>null</code>
-     * @return list of search result objects, never <code>null</code>, may be
-     *         empty.
-     * @throws PSSearchServiceException
-     */
-    public PSPagedItemList search(PSSearchCriteria criteria, List<Integer> contentIdList) throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
-    
-    /**
-     * Retrieve the items found after performing a full text search for the
-     * given text.
-     * @param criteria search sriteria
-     * @return list of search result objects, never <code>null</code>, may be
-     *         empty. The item list will have the list of {@link PSItemProperties}
-     * @throws <code>PSFinderServiceException</code> if any error occurs.
-     */
-    public PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria) throws PSSearchServiceException;
+public interface IPSSearchService {
+  /**
+   * Retrieve the items found after performing a full text search for the given text.
+   *
+   * @param text , text must be specified. never <code>null</code>, or empty
+   * @return list of search result objects, never <code>null</code>, may be empty.
+   * @throws <code>PSFinderServiceException</code> if any error occurs.
+   */
+  public PSPagedItemList search(PSSearchCriteria criteria)
+      throws PSSearchServiceException, PSValidationException, PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
 
-    public List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria);
+  /**
+   * Creates the search result objects for the supplied content ids and returns them.
+   *
+   * @param criteria uses for search result columns
+   * @param contentIdList must not be <code>null</code>
+   * @return list of search result objects, never <code>null</code>, may be empty.
+   * @throws PSSearchServiceException
+   */
+  public PSPagedItemList search(PSSearchCriteria criteria, List<Integer> contentIdList)
+      throws PSSearchServiceException, PSValidationException, PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
 
-    public PSPagedItemList searchByStatus(PSSearchCriteria criteria, List<Integer> contentIdList) throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
+  /**
+   * Retrieve the items found after performing a full text search for the given text.
+   *
+   * @param criteria search sriteria
+   * @return list of search result objects, never <code>null</code>, may be empty. The item list
+   *     will have the list of {@link PSItemProperties}
+   * @throws <code>PSFinderServiceException</code> if any error occurs.
+   */
+  public PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria)
+      throws PSSearchServiceException;
 
-    public PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria);
-    
+  public List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria);
 
+  public PSPagedItemList searchByStatus(PSSearchCriteria criteria, List<Integer> contentIdList)
+      throws PSSearchServiceException, PSValidationException, PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
+
+  public PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria);
 }

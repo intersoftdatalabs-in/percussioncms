@@ -17,36 +17,27 @@
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.error.PSExceptionUtils;
+import java.util.Comparator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Comparator;
+/** @author davidpardini */
+public class CountOrderTagComparator implements Comparator<JSONObject> {
+  private static final Logger log = LogManager.getLogger(CountOrderTagComparator.class);
 
-/**
- * @author davidpardini
- * 
- */
-public class CountOrderTagComparator implements Comparator<JSONObject>
-{
-    private static final Logger log = LogManager.getLogger(CountOrderTagComparator.class);
+  public int compare(JSONObject o1, JSONObject o2) {
 
-    public int compare(JSONObject o1, JSONObject o2)
-    {
-
-        int returnCompare = 0;
-        try
-        {
-            int countOb1 = ((Integer) o1.get(PSMetadataTagsHelper.TAG_COUNT));
-            int countOb2 = ((Integer) o2.get(PSMetadataTagsHelper.TAG_COUNT));
-            returnCompare = Integer.compare(countOb2, countOb1);
-        }
-        catch (JSONException e)
-        {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-        return returnCompare;
+    int returnCompare = 0;
+    try {
+      int countOb1 = ((Integer) o1.get(PSMetadataTagsHelper.TAG_COUNT));
+      int countOb2 = ((Integer) o2.get(PSMetadataTagsHelper.TAG_COUNT));
+      returnCompare = Integer.compare(countOb2, countOb1);
+    } catch (JSONException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+    return returnCompare;
+  }
 }

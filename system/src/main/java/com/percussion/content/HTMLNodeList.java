@@ -16,25 +16,20 @@
  */
 package com.percussion.content;
 
+import java.util.LinkedList;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.LinkedList;
+public class HTMLNodeList extends LinkedList implements NodeList {
+  public HTMLNodeList() {
+    super();
+  }
 
-public class HTMLNodeList extends LinkedList implements NodeList
-{
-   public HTMLNodeList()
-   {
-      super();
-   }
+  public Node item(int index) {
+    return (Node) get(index);
+  }
 
-   public Node item(int index)
-   {
-      return (Node)get(index);
-   }
-
-   public int getLength()
-   {
-      return size();
-   }
+  public int getLength() {
+    return size();
+  }
 }

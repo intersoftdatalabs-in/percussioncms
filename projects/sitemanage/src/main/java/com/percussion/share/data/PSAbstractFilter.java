@@ -19,25 +19,22 @@ package com.percussion.share.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
 public abstract class PSAbstractFilter<T> implements Predicate {
 
-    
-    public List<T> filter(Collection<T> resources) {
-        List<T> rvalue = new ArrayList<>(resources);
-        CollectionUtils.filter(rvalue, this);
-        return rvalue;
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean evaluate(Object obj)
-    {
-        return shouldKeep((T) obj);
-    }
-    
-    public abstract boolean shouldKeep(T resource);
+  public List<T> filter(Collection<T> resources) {
+    List<T> rvalue = new ArrayList<>(resources);
+    CollectionUtils.filter(rvalue, this);
+    return rvalue;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean evaluate(Object obj) {
+    return shouldKeep((T) obj);
+  }
+
+  public abstract boolean shouldKeep(T resource);
 }

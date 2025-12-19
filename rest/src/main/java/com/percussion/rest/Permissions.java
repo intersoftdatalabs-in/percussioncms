@@ -19,28 +19,18 @@ package com.percussion.rest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
-@Schema(description = "Indicates the permissions that the given subject / role can have to an object")
+@Schema(
+    description = "Indicates the permissions that the given subject / role can have to an object")
 public enum Permissions {
 
-    /**
-     * ACL permission Read.
-     */
-    READ,
-    /**
-     * ACL permission Update.
-     */
-    UPDATE,
-    /**
-     * ACL permission Delete.
-     */
-    DELETE,
-    /**
-     * ACL permission Runtime Visibility.
-     */
-    RUNTIME_VISIBLE,
-    /**
-     * Owner of the ACL means access to modify the ACL
-     */
-    OWNER
+  /** ACL permission Read. */
+  READ,
+  /** ACL permission Update. */
+  UPDATE,
+  /** ACL permission Delete. */
+  DELETE,
+  /** ACL permission Runtime Visibility. */
+  RUNTIME_VISIBLE,
+  /** Owner of the ACL means access to modify the ACL */
+  OWNER
 }

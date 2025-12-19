@@ -20,60 +20,55 @@ import org.apache.commons.codec.Encoder;
 
 /**
  * Replace xml reserved characters with their entity equivalents.
- * 
+ *
  * @author dougrand
  */
-public class PSXmlEncoder implements Encoder
-{
-   /**
-    * 
-    */
-   public PSXmlEncoder() {
-      super();
-   }
+public class PSXmlEncoder implements Encoder {
+  /** */
+  public PSXmlEncoder() {
+    super();
+  }
 
-   
-   /**
-    * (non-Javadoc)
-    * 
-    * @see org.apache.commons.codec.Encoder#encode(java.lang.Object)
-    */
-   public Object encode(Object arg0)
-   {
-      if(arg0 != null) {
-         String input = (String) arg0;
-         StringBuilder rval = new StringBuilder((int) (input.length() * 1.5));
-         for (int i = 0; i < input.length(); i++) {
-            char ch = input.charAt(i);
-            switch (ch) {
-               case '<':
-                  rval.append("&lt;");
-                  break;
-               case '>':
-                  rval.append("&gt;");
-                  break;
-               case '\"':
-                  rval.append("&quot;");
-                  break;
-               case '&':
-                  rval.append("&amp;");
-                  break;
-               case '\'':
-                  rval.append("&apos;");
-                  break;
-               default:  //TODO: Will this break unicode?
-                  if (ch > 127) {
-                     rval.append("&#");
-                     rval.append(Integer.toString(ch));
-                     rval.append(';');
-                  } else {
-                     rval.append(ch);
-                  }
+  /**
+   * (non-Javadoc)
+   *
+   * @see org.apache.commons.codec.Encoder#encode(java.lang.Object)
+   */
+  public Object encode(Object arg0) {
+    if (arg0 != null) {
+      String input = (String) arg0;
+      StringBuilder rval = new StringBuilder((int) (input.length() * 1.5));
+      for (int i = 0; i < input.length(); i++) {
+        char ch = input.charAt(i);
+        switch (ch) {
+          case '<':
+            rval.append("&lt;");
+            break;
+          case '>':
+            rval.append("&gt;");
+            break;
+          case '\"':
+            rval.append("&quot;");
+            break;
+          case '&':
+            rval.append("&amp;");
+            break;
+          case '\'':
+            rval.append("&apos;");
+            break;
+          default: // TODO: Will this break unicode?
+            if (ch > 127) {
+              rval.append("&#");
+              rval.append(Integer.toString(ch));
+              rval.append(';');
+            } else {
+              rval.append(ch);
             }
-         }
-         return rval.toString();
-      }else{
-         return arg0;
+        }
       }
-   }
+      return rval.toString();
+    } else {
+      return arg0;
+    }
+  }
 }

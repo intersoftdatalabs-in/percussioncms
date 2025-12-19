@@ -23,7 +23,6 @@ import com.percussion.rest.ObjectSummary;
 import com.percussion.rest.ObjectSummaryList;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -31,49 +30,49 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommunityVisibility {
 
+  @Schema(description = "The id of the Community")
+  private long id;
 
-    @Schema(description= "The id of the Community")
-    private long id;
-    @Schema(description="The Guid of the community")
-    private Guid guid;
+  @Schema(description = "The Guid of the community")
+  private Guid guid;
 
-    @ArraySchema(schema=@Schema(implementation = ObjectSummary.class))
-    ObjectSummaryList visibleObjects;
+  @ArraySchema(schema = @Schema(implementation = ObjectSummary.class))
+  ObjectSummaryList visibleObjects;
 
-    public CommunityVisibility(){}
+  public CommunityVisibility() {}
 
-    public CommunityVisibility(long id, Guid guid){
-        this.id = id;
-        this.guid = guid;
-    }
+  public CommunityVisibility(long id, Guid guid) {
+    this.id = id;
+    this.guid = guid;
+  }
 
-    public CommunityVisibility(long id, Guid guid, ObjectSummaryList visibleObjects){
-        this.id = id;
-        this.guid = guid;
-        this.visibleObjects = visibleObjects;
-    }
+  public CommunityVisibility(long id, Guid guid, ObjectSummaryList visibleObjects) {
+    this.id = id;
+    this.guid = guid;
+    this.visibleObjects = visibleObjects;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public Guid getGuid() {
-        return guid;
-    }
+  public Guid getGuid() {
+    return guid;
+  }
 
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 
-    public ObjectSummaryList getVisibleObjects() {
-        return visibleObjects;
-    }
+  public ObjectSummaryList getVisibleObjects() {
+    return visibleObjects;
+  }
 
-    public void setVisibleObjects(ObjectSummaryList visibleObjects) {
-        this.visibleObjects = visibleObjects;
-    }
+  public void setVisibleObjects(ObjectSummaryList visibleObjects) {
+    this.visibleObjects = visibleObjects;
+  }
 }

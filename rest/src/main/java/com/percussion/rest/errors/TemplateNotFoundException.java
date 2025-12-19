@@ -21,17 +21,14 @@ import javax.ws.rs.core.Response;
 
 public class TemplateNotFoundException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -613886841430682824L;
+  /** */
+  private static final long serialVersionUID = -613886841430682824L;
 
-	public TemplateNotFoundException()
-    {
-        super(RestErrorCode.TEMPLATE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
-    
-    public TemplateNotFoundException(String detailMessage){
-    	super(RestErrorCode.TEMPLATE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
-    }
+  public TemplateNotFoundException() {
+    super(RestErrorCode.TEMPLATE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
+
+  public TemplateNotFoundException(String detailMessage) {
+    super(RestErrorCode.TEMPLATE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
+  }
 }

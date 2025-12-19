@@ -23,82 +23,90 @@ import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
  * Helper class that will handle the call to move a page to the actual location.
- * 
+ *
  * @author Leonardo Hildt
- * 
  */
 @Component("importPageCreationHelper")
 @Lazy
-public class PSImportPageCreationHelper extends PSImportHelper
-{
+public class PSImportPageCreationHelper extends PSImportHelper {
 
-    private final String STATUS_MESSAGE = "Importing Page";
+  private final String STATUS_MESSAGE = "Importing Page";
 
-    private IPSPageCatalogService pageCatalogService;
+  private IPSPageCatalogService pageCatalogService;
 
-    @Autowired
-    public PSImportPageCreationHelper(final IPSPageCatalogService pageCatalogService)
-    {
-        this.pageCatalogService = pageCatalogService;
+  @Autowired
+  public PSImportPageCreationHelper(final IPSPageCatalogService pageCatalogService) {
+    this.pageCatalogService = pageCatalogService;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.percussion.sitemanage.importer.helpers.PSImportHelper#process
+   * (com.percussion.sitemanage.data.PSPageContent,
+   * com.percussion.sitemanage.data.PSSiteImportCtx)
+   */
+  @Override
+  public void process(PSPageContent pageContent, PSSiteImportCtx context)
+      throws PSSiteImportException {
+    startTimer();
+    notNull(pageContent);
+    notNull(context);
+
+    if (context.isCanceled()) {
+      return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.sitemanage.importer.helpers.PSImportHelper#process
-     * (com.percussion.sitemanage.data.PSPageContent,
-     * com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
-    @Override
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException
-    {
-        startTimer();
-        notNull(pageContent);
-        notNull(context);
+    context
+        .getLogger()
+        .appendLogMessage(
+            PSLogEntryType.STATUS,
+            STATUS_MESSAGE,
+            "Starting to move imported page " + context.getPageName() + " to the actual location");
 
-        if(context.isCanceled())
-        {
-            return;
-        }
+    // Call method to import the page
+    try {
+      pageCatalogService.createImportedPage(context.getCatalogedPageId());
+    } catch (Exception e) {
+      String errorMsg =
+          "Could not move the imported page "
+              + context.getPageName()
+              + "to the matching site folder.";
+      context.getLogger().appendLogMessage(PSLogEntryType.ERROR, STATUS_MESSAGE, errorMsg);
+      context
+          .getLogger()
+          .appendLogMessage(
+              PSLogEntryType.STATUS,
+              STATUS_MESSAGE,
+              errorMsg + " The error was: " + e.getLocalizedMessage());
 
-        context.getLogger().appendLogMessage(PSLogEntryType.STATUS, STATUS_MESSAGE,
-                "Starting to move imported page " + context.getPageName() + " to the actual location");
-
-        // Call method to import the page
-        try
-        {
-            pageCatalogService.createImportedPage(context.getCatalogedPageId());
-        }
-        catch (Exception e)
-        {
-            String errorMsg = "Could not move the imported page " + context.getPageName() + "to the matching site folder.";
-            context.getLogger().appendLogMessage(PSLogEntryType.ERROR, STATUS_MESSAGE, errorMsg);
-            context.getLogger().appendLogMessage(PSLogEntryType.STATUS, STATUS_MESSAGE, errorMsg + " The error was: " + e.getLocalizedMessage());
-            
-            throw new PSSiteImportException(errorMsg, e);
-        }
-
-        context.getLogger().appendLogMessage(PSLogEntryType.STATUS, STATUS_MESSAGE,
-                "Successfully moved imported page " + context.getPageName() + " to the actual location");
-        endTimer();
+      throw new PSSiteImportException(errorMsg, e);
     }
 
-    @Override
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
-    {
-        // NOOP - this is an optional helper
-    }
+    context
+        .getLogger()
+        .appendLogMessage(
+            PSLogEntryType.STATUS,
+            STATUS_MESSAGE,
+            "Successfully moved imported page "
+                + context.getPageName()
+                + " to the actual location");
+    endTimer();
+  }
 
-    @Override
-    public String getHelperMessage()
-    {
-        return STATUS_MESSAGE;
-    }
+  @Override
+  public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
+    // NOOP - this is an optional helper
+  }
+
+  @Override
+  public String getHelperMessage() {
+    return STATUS_MESSAGE;
+  }
 }

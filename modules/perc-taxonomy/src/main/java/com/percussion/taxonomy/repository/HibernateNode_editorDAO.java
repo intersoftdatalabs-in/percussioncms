@@ -18,30 +18,29 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Node_editor;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collection;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateNode_editorDAO extends HibernateDaoSupport implements Node_editorDAO {
 
-    public Node_editor getNode_editor(int id) {
-        return (Node_editor) getHibernateTemplate().get(Node_editor.class, new Integer(id));
-    }
+  public Node_editor getNode_editor(int id) {
+    return (Node_editor) getHibernateTemplate().get(Node_editor.class, new Integer(id));
+  }
 
-    public Collection getAllNode_editors() {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Node_editor nod");
-    }
+  public Collection getAllNode_editors() {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Node_editor nod");
+  }
 
-    public void saveNode_editor(Node_editor node_editor) {
-        getHibernateTemplate().saveOrUpdate(node_editor);
-    }
+  public void saveNode_editor(Node_editor node_editor) {
+    getHibernateTemplate().saveOrUpdate(node_editor);
+  }
 
-    public void removeNode_editor(Node_editor node_editor) {
-        getHibernateTemplate().delete(node_editor);
-    }
-    
-    public void removeNode_editors(Collection<Node_editor> node_editors) {
-        getHibernateTemplate().deleteAll(node_editors);
-    }
+  public void removeNode_editor(Node_editor node_editor) {
+    getHibernateTemplate().delete(node_editor);
+  }
+
+  public void removeNode_editors(Collection<Node_editor> node_editors) {
+    getHibernateTemplate().deleteAll(node_editors);
+  }
 }

@@ -16,6 +16,13 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
+import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
+import static com.percussion.util.PSSqlHelper.qualifyTableName;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang.Validate.notNull;
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
@@ -30,6 +37,14 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SQLQuery;
@@ -40,448 +55,411 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.percussion.services.utils.orm.PSDataCollectionHelper.MAX_IDS;
-import static com.percussion.util.PSSqlHelper.qualifyTableName;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
-/**
- * @author miltonpividori
- *
- */
+/** @author miltonpividori */
 @Component("pageDaoHelper")
 @Lazy
 @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = Exception.class)
-public class PSPageDaoHelper implements IPSPageDaoHelper
-{
+public class PSPageDaoHelper implements IPSPageDaoHelper {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    private Session getSession(){
-        return entityManager.unwrap(Session.class);
+  private Session getSession() {
+    return entityManager.unwrap(Session.class);
+  }
+
+  private IPSContentWs contentWs;
+
+  private IPSFolderHelper folderHelper;
+
+  private IPSIdMapper idMapper;
+
+  @Autowired
+  public PSPageDaoHelper(
+      IPSContentWs contentWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper) {
+    this.contentWs = contentWs;
+    this.folderHelper = folderHelper;
+    this.idMapper = idMapper;
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#setWorkflowAccordingToParentFolder(com.percussion.pagemanagement.data.PSPage)
+   */
+  public void setWorkflowAccordingToParentFolder(PSPage page) throws PSValidationException {
+    notNull(page, "page cannot be null");
+    notEmpty(page.getFolderPaths(), "page.folderpaths cannot be null");
+
+    // Get the parent folder and set the correct workflow id for the new page
+    page.setWorkflowId(getWorkflowIdForPath(page.getFolderPaths().get(0)));
+  }
+
+  public int getWorkflowIdForPath(String folderPath) throws PSValidationException {
+    notEmpty(folderPath);
+
+    int workflowId;
+    IPSGuid parentFolderGuid = contentWs.getIdByPath(folderPath);
+    if (parentFolderGuid != null) {
+      PSFolderProperties parentFolder =
+          folderHelper.findFolderProperties(idMapper.getString(parentFolderGuid));
+      workflowId = folderHelper.getValidWorkflowId(parentFolder);
+    } else {
+      IPSWorkflowService workflowService = PSWorkflowServiceLocator.getWorkflowService();
+      workflowId = workflowService.getDefaultWorkflowId().getUUID();
     }
 
+    return workflowId;
+  }
 
-    private IPSContentWs contentWs;
-    
-    private IPSFolderHelper folderHelper;
-    
-    private IPSIdMapper idMapper;
+  @Transactional
+  public Collection<Integer> findPageIdsByTemplate(String templateId) {
+    Session sess = getSession();
+    try {
+      String sql =
+          "select distinct CONTENTID from "
+              + qualifyTableName(PAGE_TABLE)
+              + " where TEMPLATEID = :template";
 
-
-    @Autowired
-    public PSPageDaoHelper(IPSContentWs contentWs, IPSFolderHelper folderHelper, IPSIdMapper idMapper)
-    {
-        this.contentWs = contentWs;
-        this.folderHelper = folderHelper;
-        this.idMapper = idMapper;
+      SQLQuery query = sess.createSQLQuery(sql);
+      query.setString(TEMPLATE_PARAM, templateId);
+      return query.list();
+    } catch (SQLException e) {
+      log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
+      throw new PSRuntimeException(e);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#setWorkflowAccordingToParentFolder(com.percussion.pagemanagement.data.PSPage)
-     */
-    public void setWorkflowAccordingToParentFolder(PSPage page) throws PSValidationException {
-        notNull(page, "page cannot be null");
-        notEmpty(page.getFolderPaths(), "page.folderpaths cannot be null");
-        
-        // Get the parent folder and set the correct workflow id for the new page
-        page.setWorkflowId(getWorkflowIdForPath(page.getFolderPaths().get(0)));
-    }
-    
-    public int getWorkflowIdForPath(String folderPath) throws PSValidationException {
-        notEmpty(folderPath);
-        
-        int workflowId;
-        IPSGuid parentFolderGuid = contentWs.getIdByPath(folderPath);
-        if (parentFolderGuid != null)
-        {
-            PSFolderProperties parentFolder = folderHelper.findFolderProperties(idMapper.getString(parentFolderGuid));
-            workflowId = folderHelper.getValidWorkflowId(parentFolder);
-        }
-        else
-        {
-            IPSWorkflowService workflowService = PSWorkflowServiceLocator.getWorkflowService();
-            workflowId = workflowService.getDefaultWorkflowId().getUUID();
-        }
-        
-        return workflowId;
-    }
-    
-    @Transactional
-    public Collection<Integer> findPageIdsByTemplate(String templateId)
-    {
-        Session sess = getSession();
-        try
-        {
-            String sql = "select distinct CONTENTID from " + qualifyTableName(PAGE_TABLE) + " where TEMPLATEID = :template";
-            
-            SQLQuery query = sess.createSQLQuery(sql);
-            query.setString(TEMPLATE_PARAM, templateId);
-            return query.list();
-        }
-        catch (SQLException e)
-        {
-            log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
-            throw new PSRuntimeException(e);
-        }
-    }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findPageIdsByTemplateInRecentRevision(java.lang.String)
-     */
-    @SuppressWarnings("unchecked")
-    @Transactional
-    public Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate)
-    {
-        notEmpty(deletedTemplate);
-        
-        Session sess = getSession();
-        try
-        {
-            String sql = "select distinct P.CONTENTID " +
-                         "from " + qualifyTableName(PAGE_TABLE) + " as P " +
-                         "inner join " + qualifyTableName(CONTENT_TABLE) + " as CS ON P.CONTENTID = CS.CONTENTID " +
-                         "where TEMPLATEID = :template " +
-                         "    and (CS.CURRENTREVISION = P.REVISIONID " +
-                         "         OR CS.TIPREVISION = P.REVISIONID) ";
-            
-            SQLQuery query = sess.createSQLQuery(sql);
-            query.setString(TEMPLATE_PARAM,deletedTemplate);
-            List<Integer> results = query.list();
-            if(results == null) 
-            {
-                return new ArrayList<>();
-            }
-            return query.list();
-        }
-        catch (SQLException e)
-        {
-            log.error("Failed to get the fully qualified table name for {}. Error: {}",
-                    PAGE_TABLE,
-                    PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+  }
 
-            //This method should not be failing upstream transactions with a runtime exception.
-            return new ArrayList<>();
-        }
-        
+  /* (non-Javadoc)
+   * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findPageIdsByTemplateInRecentRevision(java.lang.String)
+   */
+  @SuppressWarnings("unchecked")
+  @Transactional
+  public Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate) {
+    notEmpty(deletedTemplate);
+
+    Session sess = getSession();
+    try {
+      String sql =
+          "select distinct P.CONTENTID "
+              + "from "
+              + qualifyTableName(PAGE_TABLE)
+              + " as P "
+              + "inner join "
+              + qualifyTableName(CONTENT_TABLE)
+              + " as CS ON P.CONTENTID = CS.CONTENTID "
+              + "where TEMPLATEID = :template "
+              + "    and (CS.CURRENTREVISION = P.REVISIONID "
+              + "         OR CS.TIPREVISION = P.REVISIONID) ";
+
+      SQLQuery query = sess.createSQLQuery(sql);
+      query.setString(TEMPLATE_PARAM, deletedTemplate);
+      List<Integer> results = query.list();
+      if (results == null) {
+        return new ArrayList<>();
+      }
+      return query.list();
+    } catch (SQLException e) {
+      log.error(
+          "Failed to get the fully qualified table name for {}. Error: {}",
+          PAGE_TABLE,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+
+      // This method should not be failing upstream transactions with a runtime exception.
+      return new ArrayList<>();
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#replaceTemplateForPageInOlderRevisions(java.lang.String)
-     */
-    public void replaceTemplateForPageInOlderRevisions(String deletedTemplate)
-    {
-        notEmpty(deletedTemplate);
-        
-        // get the pages that we need to update
-        Collection<Integer> pages = findPageIdsByTemplate(deletedTemplate);
-        
-        // get the new template to use for each page
-        Map<String, String> mapPageToTemplate = findTemplateUsedByCurrentRevisionOfPages(new ArrayList<>(pages));
-        
-        // make the update of each page revision
-        replaceTemplateForPages(mapPageToTemplate, deletedTemplate);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#replaceTemplateForPageInOlderRevisions(java.lang.String)
+   */
+  public void replaceTemplateForPageInOlderRevisions(String deletedTemplate) {
+    notEmpty(deletedTemplate);
+
+    // get the pages that we need to update
+    Collection<Integer> pages = findPageIdsByTemplate(deletedTemplate);
+
+    // get the new template to use for each page
+    Map<String, String> mapPageToTemplate =
+        findTemplateUsedByCurrentRevisionOfPages(new ArrayList<>(pages));
+
+    // make the update of each page revision
+    replaceTemplateForPages(mapPageToTemplate, deletedTemplate);
+  }
+
+  /**
+   * Update old pages revisions that used the deleted template to use the one that is being use in
+   * the current revision of the page.
+   *
+   * @param mapPageToTemplate {@link Map}<{@link String}, {@link String}> with the pages ids and the
+   *     templates ids to update.
+   * @param deletedTemplate {@link String} with the id of the template that was deleted. Assumed not
+   *     <code>null</code>.
+   */
+  @Transactional
+  public void replaceTemplateForPages(
+      Map<String, String> mapPageToTemplate, String deletedTemplate) {
+    Session sess = getSession();
+    try {
+      String tableName = qualifyTableName(PAGE_TABLE);
+      for (Map.Entry<String, String> entry : mapPageToTemplate.entrySet()) {
+        String sql =
+            "UPDATE "
+                + tableName
+                + " "
+                + "SET TEMPLATEID = :template "
+                + "WHERE CONTENTID = :contentid"
+                + "    AND TEMPLATEID = :deletedtemplate";
+
+        SQLQuery query = sess.createSQLQuery(sql);
+
+        query.setString(TEMPLATE_PARAM, entry.getValue());
+        query.setInteger("contentid", Integer.parseInt(entry.getKey()));
+        query.setString("deletedtemplate", deletedTemplate);
+
+        query.executeUpdate();
+      }
+    } catch (SQLException e) {
+      log.error(ERROR_QUALIFY, PAGE_TABLE, CONTENT_TABLE);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSRuntimeException(e);
     }
+  }
 
-    /**
-     * Update old pages revisions that used the deleted template to use the one
-     * that is being use in the current revision of the page. 
-     * 
-     * @param mapPageToTemplate {@link Map}<{@link String}, {@link String}> with
-     *            the pages ids and the templates ids to update.
-     * @param deletedTemplate {@link String} with the id of the template that
-     *            was deleted. Assumed not <code>null</code>.
-     */
-    @Transactional
-    public void replaceTemplateForPages(Map<String, String> mapPageToTemplate, String deletedTemplate)
-    {
-        Session sess = getSession();
-        try
-        {
-            String tableName = qualifyTableName(PAGE_TABLE);
-            for(Map.Entry<String,String> entry : mapPageToTemplate.entrySet())
-            {
-                String sql = "UPDATE " + tableName + " "
-                           + "SET TEMPLATEID = :template "
-                           + "WHERE CONTENTID = :contentid"
-                           + "    AND TEMPLATEID = :deletedtemplate";
-
-                SQLQuery query = sess.createSQLQuery(sql);
-
-                query.setString(TEMPLATE_PARAM,entry.getValue());
-                query.setInteger("contentid",Integer.parseInt(entry.getKey()));
-                query.setString("deletedtemplate",deletedTemplate);
-
-                query.executeUpdate();
-            }
-        }
-        catch (SQLException e)
-        {
-            log.error(ERROR_QUALIFY, PAGE_TABLE,CONTENT_TABLE);
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new PSRuntimeException(e);
-        }    
+  /* (non-Javadoc)
+   * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findTemplateUsedByCurrentRevisionOfPages(List<Integer)
+   */
+  public Map<String, String> findTemplateUsedByCurrentRevisionOfPages(List<Integer> pages) {
+    if (isEmpty(pages)) {
+      return new HashMap<>();
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findTemplateUsedByCurrentRevisionOfPages(List<Integer)
-     */
-    public Map<String, String> findTemplateUsedByCurrentRevisionOfPages(List<Integer> pages)
-    {
-        if(isEmpty(pages))
-        {
-            return new HashMap<>();
-        }
-        
-        if (pages.size() < MAX_IDS)
-        {
-            return findTemplateUsedByCurrentRevision(pages);
-        }
-        else
-        {
-            // we need to paginate the query to avoid oracle problems
-            Map<String, String> mapPageToTemplate = new HashMap<>();
-            for (int i = 0; i < pages.size(); i += MAX_IDS)
-            {
-                int end = Math.min(i + MAX_IDS, pages.size());
-                // make the query
-                mapPageToTemplate.putAll(findTemplateUsedByCurrentRevision(pages.subList(i, end)));
-            }
-            return mapPageToTemplate;
-        }
+    if (pages.size() < MAX_IDS) {
+      return findTemplateUsedByCurrentRevision(pages);
+    } else {
+      // we need to paginate the query to avoid oracle problems
+      Map<String, String> mapPageToTemplate = new HashMap<>();
+      for (int i = 0; i < pages.size(); i += MAX_IDS) {
+        int end = Math.min(i + MAX_IDS, pages.size());
+        // make the query
+        mapPageToTemplate.putAll(findTemplateUsedByCurrentRevision(pages.subList(i, end)));
+      }
+      return mapPageToTemplate;
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findImportedPageIdsByTemplate(java.util.Collection<Integer>, java.lang.String)
-     */
-    @Transactional(noRollbackFor = Exception.class)
-    public Collection<Integer> findImportedPageIdsByTemplate(String templateId, List<Integer> pages )
-    {
-        
-        if(isEmpty(pages))
-        {
-            return new ArrayList<>();
-        }
-        
-        if (pages.size() < MAX_IDS)
-        {
-            return findPageIdsByTemplateAndImportedPageIds(templateId, pages);
-        }
-        else
-        {
-            // we need to paginate the query to avoid oracle problems
-            List<Integer> results =  new ArrayList<>();
-            for (int i = 0; i < pages.size(); i += MAX_IDS)
-            {
-                int end = Math.min(i + MAX_IDS, pages.size());
-                // make the query
-                results.addAll(findPageIdsByTemplateAndImportedPageIds(templateId, pages.subList(i, end)));
-            }
-            return results;
-        }
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.pagemanagement.dao.IPSPageDaoHelper#findImportedPageIdsByTemplate(java.util.Collection<Integer>, java.lang.String)
+   */
+  @Transactional(noRollbackFor = Exception.class)
+  public Collection<Integer> findImportedPageIdsByTemplate(String templateId, List<Integer> pages) {
+
+    if (isEmpty(pages)) {
+      return new ArrayList<>();
     }
 
-    /**
-     * Makes the query to find the template used by pages in the current
-     * revision. 
-     * 
-     * @param pages {@link List}<{@link Integer}> with the ids of the pages we
-     *            need to retrieve. Assumed not <code>null</code>.
-     * @return {@link Map}<{@link String}, {@link String}> never
-     *         <code>null</code> but may be empty.
-     */
-    @Transactional
-    public Map<String, String> findTemplateUsedByCurrentRevision(List<Integer> pages)
-    {
-        Map<String, String> mapPageToTemplate = new HashMap<>();
-
-        Session sess = getSession();
-        try
-        {
-            String sql = "SELECT P.CONTENTID, P.TEMPLATEID " 
-                       + "FROM " + qualifyTableName(PAGE_TABLE)
-                       + " AS P INNER JOIN " + qualifyTableName(CONTENT_TABLE)
-                       + " AS CS ON P.CONTENTID = CS.CONTENTID "
-                       + "WHERE P.CONTENTID IN (" + join(pages, ",") + ") "
-                       + "    AND CS.CURRENTREVISION = P.REVISIONID ";
-
-            SQLQuery query = sess.createSQLQuery(sql);
-
-            List<Object[]> results = query.list();
-            for(Object[] row : results)
-            {
-                mapPageToTemplate.put(row[0].toString(), row[1].toString());
-            }
-            return mapPageToTemplate;
-        }
-        catch (SQLException e)
-        {
-
-            log.error(ERROR_QUALIFY, PAGE_TABLE,CONTENT_TABLE);
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new PSRuntimeException(e);
-        }
+    if (pages.size() < MAX_IDS) {
+      return findPageIdsByTemplateAndImportedPageIds(templateId, pages);
+    } else {
+      // we need to paginate the query to avoid oracle problems
+      List<Integer> results = new ArrayList<>();
+      for (int i = 0; i < pages.size(); i += MAX_IDS) {
+        int end = Math.min(i + MAX_IDS, pages.size());
+        // make the query
+        results.addAll(findPageIdsByTemplateAndImportedPageIds(templateId, pages.subList(i, end)));
+      }
+      return results;
     }
-    
-    /**
-     * Makes the query to find the imported page ids that are using the
-     * unassigned template Id.
-     * 
-     * @param templateId {@link String} with the template id being used. Must
-     *            not be blank.
-     * @param pages {@link List}<{@link Integer}> with the ids of the pages we
-     *            need to retrieve. Assumed not <code>null</code>.
-     * @return {@link Map}<{@link String}, {@link String}> never
-     *         <code>null</code> but may be empty.
-     */
-    @Transactional(noRollbackFor = Exception.class)
-    public Collection<Integer> findPageIdsByTemplateAndImportedPageIds(String templateId, List<Integer> pages)
-    {
-        Session sess = getSession();
-        try
-        {
-            String sql = "select distinct CONTENTID from " + qualifyTableName(PAGE_TABLE) + " where TEMPLATEID ='"
-                    + templateId + "' AND CONTENTID in (" + join(pages, ",") + ") ";
-           
-            SQLQuery query = sess.createSQLQuery(sql);
-            return query.list();
-        }
-        catch (SQLException e)
-        {
-            log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new PSRuntimeException(e);
-        }
-     
-    }
-    
-    public Map<String, String> findLinkTextForCurrentRevisionOfPages(List<Integer> pages)
-    {
-        if(isEmpty(pages))
-        {
-            return new HashMap<>();
-        }
-        
-        if (pages.size() < MAX_IDS)
-        {
-            return findLinkTextForCurrentRevision(pages);
-        }
-        else
-        {
-            // we need to paginate the query to avoid oracle problems
-            Map<String, String> mapPageToLinkText = new HashMap<>();
-            for (int i = 0; i < pages.size(); i += MAX_IDS)
-            {
-                int end = Math.min(i + MAX_IDS, pages.size());
-                // make the query
-                mapPageToLinkText.putAll(findLinkTextForCurrentRevision(pages.subList(i, end)));
-            }
-            return mapPageToLinkText;
-        }
-    }
-    
-    @Transactional
-    public Map<String, String> findLinkTextForCurrentRevision(List<Integer> pages)
-    {
-        Map<String, String> mapPageToLinkText = new HashMap<>();
+  }
 
-        Session sess = getSession();
-        try
-        {
-            String sql = "SELECT P.CONTENTID, P.RESOURCE_LINK_TITLE " 
-                       + "FROM " + qualifyTableName(PAGE_TABLE)
-                       + " AS P INNER JOIN " + qualifyTableName(CONTENT_TABLE)
-                       + " AS CS ON P.CONTENTID = CS.CONTENTID "
-                       + "WHERE P.CONTENTID IN (" + join(pages, ",") + ") "
-                       + "    AND CS.CURRENTREVISION = P.REVISIONID ";
+  /**
+   * Makes the query to find the template used by pages in the current revision.
+   *
+   * @param pages {@link List}<{@link Integer}> with the ids of the pages we need to retrieve.
+   *     Assumed not <code>null</code>.
+   * @return {@link Map}<{@link String}, {@link String}> never <code>null</code> but may be empty.
+   */
+  @Transactional
+  public Map<String, String> findTemplateUsedByCurrentRevision(List<Integer> pages) {
+    Map<String, String> mapPageToTemplate = new HashMap<>();
 
-            SQLQuery query = sess.createSQLQuery(sql);
-            List<Object[]> results = query.list();
-            for(Object[] row : results)
-            {
-                mapPageToLinkText.put(row[0].toString(), row[1].toString());
-            }
-            return mapPageToLinkText;
-        }
-        catch (SQLException e)
-        {
-            log.error(ERROR_QUALIFY, PAGE_TABLE,CONTENT_TABLE);
-            throw new PSRuntimeException(e);
-        }
+    Session sess = getSession();
+    try {
+      String sql =
+          "SELECT P.CONTENTID, P.TEMPLATEID "
+              + "FROM "
+              + qualifyTableName(PAGE_TABLE)
+              + " AS P INNER JOIN "
+              + qualifyTableName(CONTENT_TABLE)
+              + " AS CS ON P.CONTENTID = CS.CONTENTID "
+              + "WHERE P.CONTENTID IN ("
+              + join(pages, ",")
+              + ") "
+              + "    AND CS.CURRENTREVISION = P.REVISIONID ";
+
+      SQLQuery query = sess.createSQLQuery(sql);
+
+      List<Object[]> results = query.list();
+      for (Object[] row : results) {
+        mapPageToTemplate.put(row[0].toString(), row[1].toString());
+      }
+      return mapPageToTemplate;
+    } catch (SQLException e) {
+
+      log.error(ERROR_QUALIFY, PAGE_TABLE, CONTENT_TABLE);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSRuntimeException(e);
+    }
+  }
+
+  /**
+   * Makes the query to find the imported page ids that are using the unassigned template Id.
+   *
+   * @param templateId {@link String} with the template id being used. Must not be blank.
+   * @param pages {@link List}<{@link Integer}> with the ids of the pages we need to retrieve.
+   *     Assumed not <code>null</code>.
+   * @return {@link Map}<{@link String}, {@link String}> never <code>null</code> but may be empty.
+   */
+  @Transactional(noRollbackFor = Exception.class)
+  public Collection<Integer> findPageIdsByTemplateAndImportedPageIds(
+      String templateId, List<Integer> pages) {
+    Session sess = getSession();
+    try {
+      String sql =
+          "select distinct CONTENTID from "
+              + qualifyTableName(PAGE_TABLE)
+              + " where TEMPLATEID ='"
+              + templateId
+              + "' AND CONTENTID in ("
+              + join(pages, ",")
+              + ") ";
+
+      SQLQuery query = sess.createSQLQuery(sql);
+      return query.list();
+    } catch (SQLException e) {
+      log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSRuntimeException(e);
+    }
+  }
+
+  public Map<String, String> findLinkTextForCurrentRevisionOfPages(List<Integer> pages) {
+    if (isEmpty(pages)) {
+      return new HashMap<>();
     }
 
-    private static final String ERROR_QUALIFY = "Failed to get the fully qualified table name for '{}' or '{}'";
-    private static final String PAGE_TABLE="CT_PAGE";
-    private static final String CONTENT_TABLE = "CONTENTSTATUS";
-    private static final String TEMPLATE_PARAM = "template";
-    private static final Logger log = LogManager.getLogger(PSPageDaoHelper.class);
-
-    @Transactional(noRollbackFor = Exception.class)
-    public Collection<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria, List<Integer> contentIDs)
-    {
-        Session sess = getSession();
-        try
-        {
-            String sql = "";
-            if(contentIDs.isEmpty()){
-                contentIDs.add(0);
-            }
-            if(criteria.getFolderPath().contains("Assets")){
-                sql = "select CS.CONTENTID from " + qualifyTableName("CONTENTSTATUS")
-                        + " AS CS WHERE CS.CONTENTID IN (" + join(contentIDs, ",") + ") AND CS.CONTENTTYPEID != " + PSFolder.FOLDER_CONTENT_TYPE_ID;
-                sql = formGetByStatusSQLQuery(criteria, sql);
-            }else{
-                sql = "SELECT DISTINCT P.CONTENTID "
-                        + "FROM " + qualifyTableName("CT_PAGE")
-                        + " AS P INNER JOIN " + qualifyTableName("CONTENTSTATUS")
-                        + " AS CS ON P.CONTENTID = CS.CONTENTID "
-                        + " WHERE P.CONTENTID IN (" + join(contentIDs, ",") + ") ";
-                sql = formGetByStatusSQLQuery(criteria, sql);
-            }
-
-            SQLQuery query = sess.createSQLQuery(sql);
-            return query.list();
-        }
-        catch (SQLException e)
-        {
-            String error = "Failed to get the fully qualified table name for 'CT_PAGE'";
-            log.error(error, e);
-            throw new PSRuntimeException(error, e);
-        }
+    if (pages.size() < MAX_IDS) {
+      return findLinkTextForCurrentRevision(pages);
+    } else {
+      // we need to paginate the query to avoid oracle problems
+      Map<String, String> mapPageToLinkText = new HashMap<>();
+      for (int i = 0; i < pages.size(); i += MAX_IDS) {
+        int end = Math.min(i + MAX_IDS, pages.size());
+        // make the query
+        mapPageToLinkText.putAll(findLinkTextForCurrentRevision(pages.subList(i, end)));
+      }
+      return mapPageToLinkText;
     }
+  }
 
-    private String formGetByStatusSQLQuery(PSSearchCriteria criteria, String sql){
+  @Transactional
+  public Map<String, String> findLinkTextForCurrentRevision(List<Integer> pages) {
+    Map<String, String> mapPageToLinkText = new HashMap<>();
 
-        if(criteria.getSearchFields().containsKey("templateid")){
-            sql = sql + " AND P.TEMPLATEID='"+criteria.getSearchFields().get("templateid")+"'";
-        }
-        if(criteria.getSearchFields().containsKey("sys_contenttypeid")){
-            sql = sql + " AND CS.CONTENTTYPEID="+criteria.getSearchFields().get("sys_contenttypeid");
-        }
-        if(criteria.getSearchFields().containsKey("sys_contentstateid")){
-            sql = sql + " AND CS.CONTENTSTATEID="+criteria.getSearchFields().get("sys_contentstateid");
-        }
-        if(criteria.getSearchFields().containsKey("sys_workflowid")){
-            sql = sql + " AND CS.WORKFLOWAPPID="+criteria.getSearchFields().get("sys_workflowid");
-        }
-        if(criteria.getSearchFields().containsKey("sys_contentlastmodifier")){
-            sql = sql + " AND CS.CONTENTLASTMODIFIER LIKE '%"+criteria.getSearchFields().get("sys_contentlastmodifier")+"%'";
-        }
-        return  sql;
+    Session sess = getSession();
+    try {
+      String sql =
+          "SELECT P.CONTENTID, P.RESOURCE_LINK_TITLE "
+              + "FROM "
+              + qualifyTableName(PAGE_TABLE)
+              + " AS P INNER JOIN "
+              + qualifyTableName(CONTENT_TABLE)
+              + " AS CS ON P.CONTENTID = CS.CONTENTID "
+              + "WHERE P.CONTENTID IN ("
+              + join(pages, ",")
+              + ") "
+              + "    AND CS.CURRENTREVISION = P.REVISIONID ";
+
+      SQLQuery query = sess.createSQLQuery(sql);
+      List<Object[]> results = query.list();
+      for (Object[] row : results) {
+        mapPageToLinkText.put(row[0].toString(), row[1].toString());
+      }
+      return mapPageToLinkText;
+    } catch (SQLException e) {
+      log.error(ERROR_QUALIFY, PAGE_TABLE, CONTENT_TABLE);
+      throw new PSRuntimeException(e);
     }
+  }
 
+  private static final String ERROR_QUALIFY =
+      "Failed to get the fully qualified table name for '{}' or '{}'";
+  private static final String PAGE_TABLE = "CT_PAGE";
+  private static final String CONTENT_TABLE = "CONTENTSTATUS";
+  private static final String TEMPLATE_PARAM = "template";
+  private static final Logger log = LogManager.getLogger(PSPageDaoHelper.class);
+
+  @Transactional(noRollbackFor = Exception.class)
+  public Collection<Integer> getContentIdsForFetchingByStatus(
+      PSSearchCriteria criteria, List<Integer> contentIDs) {
+    Session sess = getSession();
+    try {
+      String sql = "";
+      if (contentIDs.isEmpty()) {
+        contentIDs.add(0);
+      }
+      if (criteria.getFolderPath().contains("Assets")) {
+        sql =
+            "select CS.CONTENTID from "
+                + qualifyTableName("CONTENTSTATUS")
+                + " AS CS WHERE CS.CONTENTID IN ("
+                + join(contentIDs, ",")
+                + ") AND CS.CONTENTTYPEID != "
+                + PSFolder.FOLDER_CONTENT_TYPE_ID;
+        sql = formGetByStatusSQLQuery(criteria, sql);
+      } else {
+        sql =
+            "SELECT DISTINCT P.CONTENTID "
+                + "FROM "
+                + qualifyTableName("CT_PAGE")
+                + " AS P INNER JOIN "
+                + qualifyTableName("CONTENTSTATUS")
+                + " AS CS ON P.CONTENTID = CS.CONTENTID "
+                + " WHERE P.CONTENTID IN ("
+                + join(contentIDs, ",")
+                + ") ";
+        sql = formGetByStatusSQLQuery(criteria, sql);
+      }
+
+      SQLQuery query = sess.createSQLQuery(sql);
+      return query.list();
+    } catch (SQLException e) {
+      String error = "Failed to get the fully qualified table name for 'CT_PAGE'";
+      log.error(error, e);
+      throw new PSRuntimeException(error, e);
+    }
+  }
+
+  private String formGetByStatusSQLQuery(PSSearchCriteria criteria, String sql) {
+
+    if (criteria.getSearchFields().containsKey("templateid")) {
+      sql = sql + " AND P.TEMPLATEID='" + criteria.getSearchFields().get("templateid") + "'";
+    }
+    if (criteria.getSearchFields().containsKey("sys_contenttypeid")) {
+      sql = sql + " AND CS.CONTENTTYPEID=" + criteria.getSearchFields().get("sys_contenttypeid");
+    }
+    if (criteria.getSearchFields().containsKey("sys_contentstateid")) {
+      sql = sql + " AND CS.CONTENTSTATEID=" + criteria.getSearchFields().get("sys_contentstateid");
+    }
+    if (criteria.getSearchFields().containsKey("sys_workflowid")) {
+      sql = sql + " AND CS.WORKFLOWAPPID=" + criteria.getSearchFields().get("sys_workflowid");
+    }
+    if (criteria.getSearchFields().containsKey("sys_contentlastmodifier")) {
+      sql =
+          sql
+              + " AND CS.CONTENTLASTMODIFIER LIKE '%"
+              + criteria.getSearchFields().get("sys_contentlastmodifier")
+              + "%'";
+    }
+    return sql;
+  }
 }

@@ -23,66 +23,49 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.sitemanage.impl.PSSitePublishDaoHelper;
 import com.percussion.utils.guid.IPSGuid;
-import org.w3c.dom.Element;
-
 import java.io.PrintStream;
 import java.util.List;
+import org.w3c.dom.Element;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSUpgradePluginAddIncrementalPublishingConfig extends PSSpringUpgradePluginBase
-{
-   private PrintStream logger;
-   IPSSiteManager siteMgr;
-   
-   public PSUpgradePluginAddIncrementalPublishingConfig()
-   {
-      super();
+/** @author JaySeletz */
+public class PSUpgradePluginAddIncrementalPublishingConfig extends PSSpringUpgradePluginBase {
+  private PrintStream logger;
+  IPSSiteManager siteMgr;
+
+  public PSUpgradePluginAddIncrementalPublishingConfig() {
+    super();
+    siteMgr = PSSiteManagerLocator.getSiteManager();
+  }
+
+  public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
+
+    logger = config.getLogStream();
+
+    try {
+      // load all sites
       siteMgr = PSSiteManagerLocator.getSiteManager();
-   }
-
-   public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
-   {
-      
-      logger = config.getLogStream();
-      
-      try
-      {
-         // load all sites
-         siteMgr = PSSiteManagerLocator.getSiteManager();
-         List<IPSSite> sites = siteMgr.findAllSites();
-         for (IPSSite site : sites)
-         {
-            updateSiteForIncremental(site);
-         }
-         
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace(logger);
-         return new PSPluginResponse(PSPluginResponse.EXCEPTION,
-               e.getLocalizedMessage());
+      List<IPSSite> sites = siteMgr.findAllSites();
+      for (IPSSite site : sites) {
+        updateSiteForIncremental(site);
       }
 
-      return new PSPluginResponse(PSPluginResponse.SUCCESS, "");
-      
+    } catch (Exception e) {
+      e.printStackTrace(logger);
+      return new PSPluginResponse(PSPluginResponse.EXCEPTION, e.getLocalizedMessage());
+    }
 
-      
-      
-   }
+    return new PSPluginResponse(PSPluginResponse.SUCCESS, "");
+  }
 
-   private void updateSiteForIncremental(IPSSite site) throws PSNotFoundException {
-      // find default pub server
-      PSPubServer pubServer = PSSitePublishDaoHelper.getDefaultPubServer(site.getGUID());
-      
-      // create content list
-      IPSGuid itemFilterId = PSSitePublishDaoHelper.getPublicItemFilterGuid();
-      PSSitePublishDaoHelper.createIncrementalContentList(site, pubServer, itemFilterId);
-      
-      // create edition
-      PSSitePublishDaoHelper.createIncrementalEdition(site, pubServer, true);
-   }
+  private void updateSiteForIncremental(IPSSite site) throws PSNotFoundException {
+    // find default pub server
+    PSPubServer pubServer = PSSitePublishDaoHelper.getDefaultPubServer(site.getGUID());
 
+    // create content list
+    IPSGuid itemFilterId = PSSitePublishDaoHelper.getPublicItemFilterGuid();
+    PSSitePublishDaoHelper.createIncrementalContentList(site, pubServer, itemFilterId);
+
+    // create edition
+    PSSitePublishDaoHelper.createIncrementalEdition(site, pubServer, true);
+  }
 }

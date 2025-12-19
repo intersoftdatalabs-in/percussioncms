@@ -16,87 +16,68 @@
  */
 package com.percussion.pagemanagement.assembler;
 
+import com.percussion.utils.types.PSPair;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.percussion.utils.types.PSPair;
-
 public class PSCategoryTree {
 
-	private String category;
-	private PSPair<Integer, Integer> count;
-	private List<PSCategoryTree> children;
+  private String category;
+  private PSPair<Integer, Integer> count;
+  private List<PSCategoryTree> children;
 
-	public PSCategoryTree() {
-		super();
-	}
+  public PSCategoryTree() {
+    super();
+  }
 
-	/**
-	 * @param category
-	 */
-	public PSCategoryTree(String category) {
-		super();
-		this.category = category;
-		this.count = new PSPair<>(0, 0);
-		this.children =  new ArrayList<>();
-	}
+  /** @param category */
+  public PSCategoryTree(String category) {
+    super();
+    this.category = category;
+    this.count = new PSPair<>(0, 0);
+    this.children = new ArrayList<>();
+  }
 
-	/**
-	 * @param category
-	 * @param count
-	 * @param children
-	 */
-	public PSCategoryTree(String category, PSPair<Integer, Integer> count,
-			List<PSCategoryTree> children) {
-		super();
-		this.category = category;
-		this.count = count;
-		this.children = children;
-	}
+  /**
+   * @param category
+   * @param count
+   * @param children
+   */
+  public PSCategoryTree(
+      String category, PSPair<Integer, Integer> count, List<PSCategoryTree> children) {
+    super();
+    this.category = category;
+    this.count = count;
+    this.children = children;
+  }
 
-	/**
-	 * @return the category
-	 */
-	public String getCategory() {
-		return category;
-	}
+  /** @return the category */
+  public String getCategory() {
+    return category;
+  }
 
-	/**
-	 * @param category
-	 *            the category to set
-	 */
-	public void setCategory(String category) {
-		this.category = category;
-	}
+  /** @param category the category to set */
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-	/**
-	 * @return the count
-	 */
-	public PSPair<Integer, Integer> getCount() {
-		return count;
-	}
+  /** @return the count */
+  public PSPair<Integer, Integer> getCount() {
+    return count;
+  }
 
-	/**
-	 * @param count
-	 *            the count to set
-	 */
-	public void setCount(PSPair<Integer, Integer> count) {
-		this.count = count;
-	}
+  /** @param count the count to set */
+  public void setCount(PSPair<Integer, Integer> count) {
+    this.count = count;
+  }
 
-	/**
-	 * @return the children
-	 */
-	public List<PSCategoryTree> getChildren() {
-		return children;
-	}
+  /** @return the children */
+  public List<PSCategoryTree> getChildren() {
+    return children;
+  }
 
-	/**
-	 * @param children
-	 *            the children to set
-	 */
-	public void setChildren(List<PSCategoryTree> children) {
-		this.children = children;
-	}
-
+  /** @param children the children to set */
+  public void setChildren(List<PSCategoryTree> children) {
+    this.children = children;
+  }
 }

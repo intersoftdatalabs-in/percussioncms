@@ -20,79 +20,71 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-
-/**
- */
-@XmlRootElement(name="FileValue")
+/** */
+@XmlRootElement(name = "FileValue")
 public class FileValue implements Value {
 
-	/**
-	 * Field stringValue.
-	 */
-	private String stringValue;
-	
-	/**
-	 * Field href.
-	 */
-	private String href;
-	/**
-	 * Field type.
-	 */
-	public static final int TYPE=3;  
-	
+  /** Field stringValue. */
+  private String stringValue;
 
-	private String mimeType;
-	private String lastModified;
-	private String ETag;
-	/**
-	 * Method getStringValue.
-	 * @return String
-	 * @see Value#getStringValue()
-	 */
-	@XmlValue
-	public String getStringValue() {
-		return stringValue;
-	}
-	/**
-	 * Method setStringValue.
-	 * @param stringValue String
-	 * @see Value#setStringValue(String)
-	 */
-	public void setStringValue(String stringValue) {
-		this.stringValue = stringValue;
-	}
-	/**
-	 * Method setHref.
-	 * @param href String
-	 */
-	public void setHref(String href) {
-		this.href = href;
-	}
-	/**
-	 * Method getHref.
-	 * @return String
-	 */
-	@XmlAttribute
-	public String getHref() {
-		return href;
-	}
-//	public void setLastModified(String lastModified) {
-//		this.lastModified = lastModified;
-//	}
-//	
-//	public String getLastModified() {
-//		return lastModified;
-//	}
-//	
-//	public void setETag(String eTag) {
-//		ETag = eTag;
-//	}
-//	
-//	public String getETag() {
-//		return ETag;
-//	}
-	
-	
-	
-	
+  /** Field href. */
+  private String href;
+  /** Field type. */
+  public static final int TYPE = 3;
+
+  private String mimeType;
+  private String lastModified;
+  private String ETag;
+  /**
+   * Method getStringValue.
+   *
+   * @return String
+   * @see Value#getStringValue()
+   */
+  @XmlValue
+  public String getStringValue() {
+    return stringValue;
+  }
+  /**
+   * Method setStringValue.
+   *
+   * @param stringValue String
+   * @see Value#setStringValue(String)
+   */
+  public void setStringValue(String stringValue) {
+    this.stringValue = stringValue;
+  }
+  /**
+   * Method setHref.
+   *
+   * @param href String
+   */
+  public void setHref(String href) {
+    this.href = href;
+  }
+  /**
+   * Method getHref.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getHref() {
+    return href;
+  }
+  //	public void setLastModified(String lastModified) {
+  //		this.lastModified = lastModified;
+  //	}
+  //
+  //	public String getLastModified() {
+  //		return lastModified;
+  //	}
+  //
+  //	public void setETag(String eTag) {
+  //		ETag = eTag;
+  //	}
+  //
+  //	public String getETag() {
+  //		return ETag;
+  //	}
+
 }

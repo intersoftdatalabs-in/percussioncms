@@ -20,106 +20,115 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.acls.UserAccessLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement
-@Schema(description="ObjectSummary is a generic object representing high level information, including security acl's about an object on the system.  See ObjectType for the possible object types.")
+@Schema(
+    description =
+        "ObjectSummary is a generic object representing high level information, including security acl's about an object on the system.  See ObjectType for the possible object types.")
 public class ObjectSummary {
 
-    @Schema(description="Legacy id of the object if available")
-    long id;
-    @Schema(description="The Guid for this object")
-    Guid guid;
-    @Schema(description="The name of this object.  Unique for a given object type.")
-    String name;
-    @Schema(description="The label of this object.  May be null or empty.")
-    String label;
-    @Schema(description="The description of this object.")
-    String descripion;
-    @Schema(description="The type of this Object.  Must be a valid type")
-    ObjectTypeEnum type;
-    @Schema(description="When true, the object is locked by another user / session")
-    boolean objectLocked;
+  @Schema(description = "Legacy id of the object if available")
+  long id;
 
-    @Schema(description="If the Object is locked, will contain information about the lock.  May be null or empty if the object is not locked.")
-    ObjectLockSummary lockSummary;
+  @Schema(description = "The Guid for this object")
+  Guid guid;
 
-    @Schema(description = "The permissions for this object.")
-    private UserAccessLevel permissions;
+  @Schema(description = "The name of this object.  Unique for a given object type.")
+  String name;
 
-    public long getId() {
-        return id;
-    }
+  @Schema(description = "The label of this object.  May be null or empty.")
+  String label;
 
-    public UserAccessLevel getPermissions() {
-        return permissions;
-    }
+  @Schema(description = "The description of this object.")
+  String descripion;
 
-    public void setPermissions(UserAccessLevel permissions) {
-        this.permissions = permissions;
-    }
+  @Schema(description = "The type of this Object.  Must be a valid type")
+  ObjectTypeEnum type;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  @Schema(description = "When true, the object is locked by another user / session")
+  boolean objectLocked;
 
-    public Guid getGuid() {
-        return guid;
-    }
+  @Schema(
+      description =
+          "If the Object is locked, will contain information about the lock.  May be null or empty if the object is not locked.")
+  ObjectLockSummary lockSummary;
 
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  @Schema(description = "The permissions for this object.")
+  private UserAccessLevel permissions;
 
-    public String getName() {
-        return name;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public UserAccessLevel getPermissions() {
+    return permissions;
+  }
 
-    public String getLabel() {
-        return label;
-    }
+  public void setPermissions(UserAccessLevel permissions) {
+    this.permissions = permissions;
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public String getDescripion() {
-        return descripion;
-    }
+  public Guid getGuid() {
+    return guid;
+  }
 
-    public void setDescripion(String descripion) {
-        this.descripion = descripion;
-    }
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 
-    public ObjectTypeEnum getType() {
-        return type;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setType(ObjectTypeEnum type) {
-        this.type = type;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public boolean isObjectLocked() {
-        return objectLocked;
-    }
+  public String getLabel() {
+    return label;
+  }
 
-    public void setObjectLocked(boolean objectLocked) {
-        this.objectLocked = objectLocked;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    public ObjectLockSummary getLockSummary() {
-        return lockSummary;
-    }
+  public String getDescripion() {
+    return descripion;
+  }
 
-    public void setLockSummary(ObjectLockSummary lockSummary) {
-        this.lockSummary = lockSummary;
-    }
+  public void setDescripion(String descripion) {
+    this.descripion = descripion;
+  }
 
-    public ObjectSummary(){}
+  public ObjectTypeEnum getType() {
+    return type;
+  }
+
+  public void setType(ObjectTypeEnum type) {
+    this.type = type;
+  }
+
+  public boolean isObjectLocked() {
+    return objectLocked;
+  }
+
+  public void setObjectLocked(boolean objectLocked) {
+    this.objectLocked = objectLocked;
+  }
+
+  public ObjectLockSummary getLockSummary() {
+    return lockSummary;
+  }
+
+  public void setLockSummary(ObjectLockSummary lockSummary) {
+    this.lockSummary = lockSummary;
+  }
+
+  public ObjectSummary() {}
 }

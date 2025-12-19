@@ -21,28 +21,25 @@ import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSItemSummaryUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-public abstract class PSAbstractFullDataService<FULL,SUM extends IPSItemSummary> 
-    extends PSAbstractDataService<FULL, SUM, String> implements IPSDataService<FULL, SUM, String>
-{
+public abstract class PSAbstractFullDataService<FULL, SUM extends IPSItemSummary>
+    extends PSAbstractDataService<FULL, SUM, String> implements IPSDataService<FULL, SUM, String> {
 
-    protected IPSDataItemSummaryService itemSummaryService;
-    
-    public PSAbstractFullDataService(IPSDataItemSummaryService itemSummaryService, IPSGenericDao<FULL, String> dao)
-    {
-        super(dao);
-        this.itemSummaryService = itemSummaryService;
-    }
+  protected IPSDataItemSummaryService itemSummaryService;
 
-    public SUM find(String id) throws PSDataServiceException {
+  public PSAbstractFullDataService(
+      IPSDataItemSummaryService itemSummaryService, IPSGenericDao<FULL, String> dao) {
+    super(dao);
+    this.itemSummaryService = itemSummaryService;
+  }
 
-        validateIdParameter("find", id);
-        IPSItemSummary itemSummary = itemSummaryService.find(id);
-        SUM sum = createSummary(id);
-        PSItemSummaryUtils.copyProperties(itemSummary, sum);
-        return sum;
+  public SUM find(String id) throws PSDataServiceException {
 
-    }
-    
-    protected abstract SUM createSummary(String id);
+    validateIdParameter("find", id);
+    IPSItemSummary itemSummary = itemSummaryService.find(id);
+    SUM sum = createSummary(id);
+    PSItemSummaryUtils.copyProperties(itemSummary, sum);
+    return sum;
+  }
 
+  protected abstract SUM createSummary(String id);
 }

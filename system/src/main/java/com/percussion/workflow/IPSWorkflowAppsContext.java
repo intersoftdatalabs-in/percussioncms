@@ -18,80 +18,62 @@
 package com.percussion.workflow;
 
 import java.sql.SQLException;
+
 /**
  * An interface that defines methods for workflow applications context.
  *
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
+public interface IPSWorkflowAppsContext {
+  /**
+   * Gets the Workflow application ID
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return WorkflowAppID
+   */
+  public int getWorkFlowAppID() throws SQLException;
 
-public interface IPSWorkflowAppsContext
-{
-   /**
-    * Gets the Workflow application ID
-    * @author   Ram
-    *
-    * @version 1.0
-    *
-    *
-    * @param   none
-    *
-    * @return  WorkflowAppID
-    */
-   public int getWorkFlowAppID() throws SQLException;
+  /**
+   * Gets the Workflow application name
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return Workflow app name
+   */
+  public String getWorkFlowAppName() throws SQLException;
 
-   /**
-    * Gets the Workflow application name
-    * @author   Ram
-    *
-    * @version 1.0
-    *
-    *
-    * @param   none
-    *
-    * @return  Workflow app name
-    */
-   public String getWorkFlowAppName() throws SQLException;
+  /**
+   * Gets the Workflow application description
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return Workflow app description
+   */
+  public String getWorkFlowAppDescription() throws SQLException;
 
-   /**
-    * Gets the Workflow application description
-    * @author   Ram
-    *
-    * @version 1.0
-    *
-    *
-    * @param   none
-    *
-    * @return  Workflow app description
-    *
-    */
-   public String getWorkFlowAppDescription() throws SQLException;
+  /**
+   * Gets the Workflow application's administrator name
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return name of the Workflow application's administrator
+   */
+  public String getWorkFlowAdministrator() throws SQLException;
 
-   /**
-    * Gets the Workflow application's administrator name
-    * @author   Ram
-    *
-    * @version 1.0
-    *
-    *
-    * @param   none
-    *
-    * @return  name of the Workflow application's administrator
-    */
-   public String getWorkFlowAdministrator() throws SQLException;
-
-   /**
-    * Gets the Workflow application's initial stateID
-    * @author   Ram
-    *
-    * @version 1.0
-    *
-    *
-    * @param   none
-    *
-    * @return  Workflow's initial stateID
-    */
-   public int getWorkFlowInitialStateID() throws SQLException;
+  /**
+   * Gets the Workflow application's initial stateID
+   *
+   * @author Ram
+   * @version 1.0
+   * @param none
+   * @return Workflow's initial stateID
+   */
+  public int getWorkFlowInitialStateID() throws SQLException;
 }

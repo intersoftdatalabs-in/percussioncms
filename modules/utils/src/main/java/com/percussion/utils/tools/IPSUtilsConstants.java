@@ -16,29 +16,23 @@
  */
 package com.percussion.utils.tools;
 
-/**
- * General constants referenced by Utils classes
- */
-public interface IPSUtilsConstants
-{
-   /**
-    * The standard name of the preferred encoding for Rhythmyx. This encoding is
-    * guaranteed to be acceptable for XML parsers and HTTP servers, and should
-    * be some kind of Unicode so that we can be sure all characters are
-    * representable. This is the standard name for {@link #RX_JAVA_ENC}.
-    */
-   public static final String RX_STANDARD_ENC = "UTF-8";
+/** General constants referenced by Utils classes */
+public interface IPSUtilsConstants {
+  /**
+   * The standard name of the preferred encoding for Rhythmyx. This encoding is guaranteed to be
+   * acceptable for XML parsers and HTTP servers, and should be some kind of Unicode so that we can
+   * be sure all characters are representable. This is the standard name for {@link #RX_JAVA_ENC}.
+   */
+  public static final String RX_STANDARD_ENC = "UTF-8";
 
+  /**
+   * The standard name of the preferred encoding for Rhythmyx. This encoding is guaranteed to be
+   * acceptable for Sun's Java methods which take a character encoding, and should be some kind of
+   * Unicode so that we can be sure all characters are representable.This is the Java name for
+   * {@link #RX_STANDARD_ENC}.
+   */
+  public static final String RX_JAVA_ENC = "UTF-8";
 
-   /**
-    * The standard name of the preferred encoding for Rhythmyx. This encoding is
-    * guaranteed to be acceptable for Sun's Java methods which take a character
-    * encoding, and should be some kind of Unicode so that we can be sure all
-    * characters are representable.This is the Java name for 
-    * {@link #RX_STANDARD_ENC}.
-    */
-   public static final String RX_JAVA_ENC = "UTF-8";
-   public static final String SERVER_LOG = "Server";
-   public static final String  UNIT_TEST_LOG = "Unit Tests";
+  public static final String SERVER_LOG = "Server";
+  public static final String UNIT_TEST_LOG = "Unit Tests";
 }
-

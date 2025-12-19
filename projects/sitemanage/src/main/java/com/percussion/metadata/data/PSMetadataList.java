@@ -19,16 +19,14 @@ package com.percussion.metadata.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "metadata")
-@ArraySchema(schema=@Schema(implementation = PSMetadata.class))
+@ArraySchema(schema = @Schema(implementation = PSMetadata.class))
 public class PSMetadataList extends ArrayList<PSMetadata> {
-    public PSMetadataList(Collection<? extends PSMetadata> c) {
-        super(c);
-    }
+  public PSMetadataList(Collection<? extends PSMetadata> c) {
+    super(c);
+  }
 }

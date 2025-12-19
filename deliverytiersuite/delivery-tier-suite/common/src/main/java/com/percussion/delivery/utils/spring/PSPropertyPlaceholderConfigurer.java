@@ -16,66 +16,50 @@
  */
 package com.percussion.delivery.utils.spring;
 
-
 import com.percussion.delivery.utils.security.PSSecureProperty;
+import javax.annotation.Nonnull;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.util.StringValueResolver;
 
-import javax.annotation.Nonnull;
+/** @author erikserating */
+public class PSPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
 
-/**
- * @author erikserating
- *
- */
-public class PSPropertyPlaceholderConfigurer
-      extends
-        PropertySourcesPlaceholderConfigurer
-{
+  protected String key = null;
 
-   protected String key = null;
-   
-   /* (non-Javadoc)
-    * @see org.springframework.beans.factory.config.PropertyResourceConfigurer#convertPropertyValue(java.lang.String)
-    */
-   @Override
-   @Nonnull
-   protected String convertPropertyValue(@Nonnull String originalValue)
-   {
-      if(PSSecureProperty.isValueClouded(originalValue))
-         return PSSecureProperty.getValue(originalValue, key);
-      return originalValue;
-   }
+  /* (non-Javadoc)
+   * @see org.springframework.beans.factory.config.PropertyResourceConfigurer#convertPropertyValue(java.lang.String)
+   */
+  @Override
+  @Nonnull
+  protected String convertPropertyValue(@Nonnull String originalValue) {
+    if (PSSecureProperty.isValueClouded(originalValue))
+      return PSSecureProperty.getValue(originalValue, key);
+    return originalValue;
+  }
 
-   //Workaround for bug spring-framework/issues/13568
-   protected void doProcessProperties(ConfigurableListableBeanFactory beanFactoryToProcess,
-                                      final StringValueResolver valueResolver) {
+  // Workaround for bug spring-framework/issues/13568
+  protected void doProcessProperties(
+      ConfigurableListableBeanFactory beanFactoryToProcess,
+      final StringValueResolver valueResolver) {
 
-      super.doProcessProperties(beanFactoryToProcess,
-              new StringValueResolver() {
-                 @Override
-                 public String resolveStringValue(String strVal) {
-                    return convertPropertyValue(valueResolver.resolveStringValue(strVal));
-                 }
-              }
-      );
-   }
+    super.doProcessProperties(
+        beanFactoryToProcess,
+        new StringValueResolver() {
+          @Override
+          public String resolveStringValue(String strVal) {
+            return convertPropertyValue(valueResolver.resolveStringValue(strVal));
+          }
+        });
+  }
 
-   /**
-    * @return the key
-    */
-   public String getKey()
-   {
-      return key;
-   }
+  /** @return the key */
+  public String getKey() {
+    return key;
+  }
 
-   /**
-    * @param key the key to set
-    */
-   public void setKey(String key)
-   {
-      this.key = key;
-   }   
-   
-   
+  /** @param key the key to set */
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

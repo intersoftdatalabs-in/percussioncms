@@ -17,34 +17,33 @@
 
 package com.percussion.rest.displayformat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import org.junit.Test;
 
 public class TestDisplayFormat {
 
-    @Test
-    public void testToAndFromJson() throws IOException {
+  @Test
+  public void testToAndFromJson() throws IOException {
 
-        DisplayFormat f = new DisplayFormat();
-        f.setDescription("DescriptionTest");
-        f.setDisplayName("DisplayNameTest");
-        f.setInternalName("InternalNameTest");
+    DisplayFormat f = new DisplayFormat();
+    f.setDescription("DescriptionTest");
+    f.setDisplayName("DisplayNameTest");
+    f.setInternalName("InternalNameTest");
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(f);
-        System.out.println(json);
+    ObjectMapper mapper = new ObjectMapper();
+    String json = mapper.writeValueAsString(f);
+    System.out.println(json);
 
-        DisplayFormat d2 = new DisplayFormat();
-        d2 = mapper.readValue(json, DisplayFormat.class);
+    DisplayFormat d2 = new DisplayFormat();
+    d2 = mapper.readValue(json, DisplayFormat.class);
 
-        assertEquals("DescriptionTest", d2.getDescription());
-        assertEquals("DisplayNameTest", d2.getDisplayName());
-        assertEquals("InternalNameTest", d2.getInternalName());
+    assertEquals("DescriptionTest", d2.getDescription());
+    assertEquals("DisplayNameTest", d2.getDisplayName());
+    assertEquals("InternalNameTest", d2.getInternalName());
 
-        //TODO:  Finish me - test all the properties
-    }
+    // TODO:  Finish me - test all the properties
+  }
 }

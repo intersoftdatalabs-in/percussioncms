@@ -19,16 +19,14 @@ package com.percussion.dashboardmanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "gadget")
-@ArraySchema(schema=@Schema(implementation =PSGadget.class))
+@ArraySchema(schema = @Schema(implementation = PSGadget.class))
 public class PSGadgetList extends ArrayList<PSGadget> {
-    public PSGadgetList(Collection<? extends PSGadget> c) {
-        super(c);
-    }
+  public PSGadgetList(Collection<? extends PSGadget> c) {
+    super(c);
+  }
 }

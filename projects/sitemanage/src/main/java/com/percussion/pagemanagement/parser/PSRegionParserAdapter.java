@@ -20,16 +20,12 @@ import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegionFactory;
 
-public abstract class PSRegionParserAdapter<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-        implements
-            IPSRegionParserRegionFactory<REGION, CODE>,
-            IPSRegionParser<REGION, CODE>
-{
-    PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+public abstract class PSRegionParserAdapter<
+        REGION extends PSAbstractRegion, CODE extends PSRegionCode>
+    implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
+  PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
 
-    public PSParsedRegionTree<REGION, CODE> parse(String text)
-    {
-        return parser.parse(text);
-    }
-
+  public PSParsedRegionTree<REGION, CODE> parse(String text) {
+    return parser.parse(text);
+  }
 }

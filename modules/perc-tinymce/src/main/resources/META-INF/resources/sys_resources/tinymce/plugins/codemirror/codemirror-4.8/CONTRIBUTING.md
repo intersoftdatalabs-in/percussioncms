@@ -61,7 +61,7 @@ should be asked on the
 - Make sure all tests pass. Visit `test/index.html` in your browser to
   run them.
 - Submit a pull request
-([how to create a pull request](https://help.github.com/articles/fork-a-repo))
+  ([how to create a pull request](https://help.github.com/articles/fork-a-repo))
 
 ### Coding standards
 
@@ -70,7 +70,7 @@ should be asked on the
 - Note that the linter (`bin/lint`) which is run after each commit
   complains about unused variables and functions. Prefix their names
   with an underscore to muffle it.
-
 - CodeMirror does *not* follow JSHint or JSLint prescribed style.
   Patches that try to 'fix' code to pass one of these linters will be
   unceremoniously discarded.
+

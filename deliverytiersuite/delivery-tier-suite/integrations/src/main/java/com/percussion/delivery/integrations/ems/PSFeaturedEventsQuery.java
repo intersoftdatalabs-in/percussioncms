@@ -18,7 +18,6 @@
 package com.percussion.delivery.integrations.ems;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,56 +26,67 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSFeaturedEventsQuery {
 
-	private String startDate;
-	private String endDate;
-	private String eventNameSearch;
-	private String locationNameSearch;
-	private List<Integer> calendarsToSearch;
-	private List<Integer> eventTypesToSearch;
-	private String uDQanswer;
-	public String getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
-	public String getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
-	public String getEventNameSearch() {
-		return eventNameSearch;
-	}
-	public void setEventNameSearch(String eventNameSearch) {
-		this.eventNameSearch = eventNameSearch;
-	}
-	public String getLocationNameSearch() {
-		return locationNameSearch;
-	}
-	public void setLocationNameSearch(String locationNameSearch) {
-		this.locationNameSearch = locationNameSearch;
-	}
-	public List<Integer> getCalendarsToSearch() {
-		return calendarsToSearch;
-	}
-	public void setCalendarsToSearch(List<Integer> calendarsToSearch) {
-		this.calendarsToSearch = calendarsToSearch;
-	}
-	public List<Integer> getEventTypesToSearch() {
-		return eventTypesToSearch;
-	}
-	public void setEventTypesToSearch(List<Integer> eventTypesToSearch) {
-		this.eventTypesToSearch = eventTypesToSearch;
-	}
-	public String getuDQanswer() {
-		return uDQanswer;
-	}
-	public void setuDQanswer(String uDQanswer) {
-		this.uDQanswer = uDQanswer;
-	}
-	
-	
-	
+  private String startDate;
+  private String endDate;
+  private String eventNameSearch;
+  private String locationNameSearch;
+  private List<Integer> calendarsToSearch;
+  private List<Integer> eventTypesToSearch;
+  private String uDQanswer;
+
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  public String getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
+
+  public String getEventNameSearch() {
+    return eventNameSearch;
+  }
+
+  public void setEventNameSearch(String eventNameSearch) {
+    this.eventNameSearch = eventNameSearch;
+  }
+
+  public String getLocationNameSearch() {
+    return locationNameSearch;
+  }
+
+  public void setLocationNameSearch(String locationNameSearch) {
+    this.locationNameSearch = locationNameSearch;
+  }
+
+  public List<Integer> getCalendarsToSearch() {
+    return calendarsToSearch;
+  }
+
+  public void setCalendarsToSearch(List<Integer> calendarsToSearch) {
+    this.calendarsToSearch = calendarsToSearch;
+  }
+
+  public List<Integer> getEventTypesToSearch() {
+    return eventTypesToSearch;
+  }
+
+  public void setEventTypesToSearch(List<Integer> eventTypesToSearch) {
+    this.eventTypesToSearch = eventTypesToSearch;
+  }
+
+  public String getuDQanswer() {
+    return uDQanswer;
+  }
+
+  public void setuDQanswer(String uDQanswer) {
+    this.uDQanswer = uDQanswer;
+  }
 }

@@ -19,7 +19,4 @@ package com.percussion.dashboardmanagement.dao;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.dao.IPSGenericDao;
 
-public interface IPSDashboardDao extends IPSGenericDao<PSDashboard, String>
-{
-
-}
+public interface IPSDashboardDao extends IPSGenericDao<PSDashboard, String> {}

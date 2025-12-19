@@ -17,48 +17,45 @@
 
 package com.percussion.share.data;
 
+import com.percussion.pathmanagement.data.PSPathItem;
 import java.util.List;
 
-import com.percussion.pathmanagement.data.PSPathItem;
-
-/***
- * Represents a node in the CMS file tree.
- * 
- * @author natechadwick
+/**
+ * * Represents a node in the CMS file tree.
  *
+ * @author natechadwick
  */
 public class PSCMSTreeNode implements IPSTreeNode<PSPathItem> {
 
-	private IPSTreeNode<PSPathItem> parent;
-	private List<PSCMSTreeNode> children;
-	private PSPathItem value;
-	
-	@Override
-	public IPSTreeNode<PSPathItem> getParent() {
-		return this.parent;
-	}
+  private IPSTreeNode<PSPathItem> parent;
+  private List<PSCMSTreeNode> children;
+  private PSPathItem value;
 
-	@Override
-	public void setParent(IPSTreeNode<PSPathItem> node) {
-		this.parent = node;
-	}
-	
-	@Override
-	public List<IPSTreeNode<PSPathItem>> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public IPSTreeNode<PSPathItem> getParent() {
+    return this.parent;
+  }
 
-	@Override
-	public PSPathItem getValue() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void setParent(IPSTreeNode<PSPathItem> node) {
+    this.parent = node;
+  }
 
-	@Override
-	public void setValue(PSPathItem x) {
-		// TODO Auto-generated method stub
-		
-	}
+  @Override
+  public List<IPSTreeNode<PSPathItem>> getChildren() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
+  @Override
+  public PSPathItem getValue() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void setValue(PSPathItem x) {
+    // TODO Auto-generated method stub
+
+  }
 }

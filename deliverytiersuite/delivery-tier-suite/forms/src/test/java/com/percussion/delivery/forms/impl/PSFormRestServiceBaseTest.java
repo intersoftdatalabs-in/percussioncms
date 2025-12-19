@@ -18,6 +18,14 @@ package com.percussion.delivery.forms.impl;
 
 import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.delivery.utils.spring.PSConfigurableApplicationContext;
+import javax.servlet.http.HttpServlet;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import junit.framework.Assert;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
@@ -28,78 +36,57 @@ import org.junit.Test;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
 
-import javax.servlet.http.HttpServlet;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-/**
- * @author natechadwick
- *
- */
+/** @author natechadwick */
 public class PSFormRestServiceBaseTest extends JerseyTest {
 
+  public PSFormRestServiceBaseTest() {}
 
-	public PSFormRestServiceBaseTest(){
+  /** * Takes the context file as an arg and spins up grizzly to test rest methods. */
+  @Override
+  protected Application configure() {
+    ResourceConfig resourceConfig = new ResourceConfig(PSFormRestService.class);
+    resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
+    return resourceConfig;
+  }
 
-	}
+  @Override
+  protected DeploymentContext configureDeployment() {
+    return ServletDeploymentContext.forPackages("com.percussion.delivery.forms.impl")
+        .servletClass(HttpServlet.class)
+        .contextPath("perc-form-processor")
+        .addListener(ContextLoaderListener.class)
+        .addListener(RequestContextListener.class)
+        .addFilter(
+            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
+        .build();
+  }
 
-	/***
-	 * Takes the context file as an arg and spins up grizzly to
-	 * test rest methods.
-	 */
-	@Override
-	protected Application configure() {
-		ResourceConfig resourceConfig =  new ResourceConfig(PSFormRestService.class);
-		resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
-		return resourceConfig;
+  @Test
+  @Ignore
+  public void testGetRestVersion() {
+    Client client = ClientBuilder.newClient();
+    WebTarget webTarget = client.target("/forms/version");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    Response response = invocationBuilder.get();
+    Assert.assertNotNull(response);
+    Assert.assertEquals(200, response.getStatus());
+    Assert.assertEquals(testGetVersion(), response.getEntity());
+  }
 
-	}
+  private String testGetVersion() {
+    String version = PSVersionHelper.getVersion(this.getClass());
+    Assert.assertNotNull(version);
+    System.out.print(version);
+    return version;
+  }
 
-	@Override
-	protected DeploymentContext configureDeployment(){
-		return ServletDeploymentContext
-				.forPackages("com.percussion.delivery.forms.impl")
-				.servletClass(HttpServlet.class)
-				.contextPath("perc-form-processor")
-				.addListener(ContextLoaderListener.class)
-				.addListener(RequestContextListener.class)
-				.addFilter(org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-				.build();
-	}
-
-	@Test
-	@Ignore
-	public void testGetRestVersion(){
-		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target("/forms/version");
-		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-		Response response = invocationBuilder.get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200,response.getStatus());
-        Assert.assertEquals(testGetVersion(), response.getEntity());
-	}
-
-
-	private String testGetVersion(){
-		String version = PSVersionHelper.getVersion(this.getClass());
-		Assert.assertNotNull(version);
-		System.out.print(version);
-		return version;
-	}
-
-	@Test
-	@Ignore ("Integration tests are failing")
-	public void testCSRF(){
-		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target("/forms/csrf");
-		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-		Response response = invocationBuilder.get();
-		System.out.println(response.getEntity());
-	}
-
+  @Test
+  @Ignore("Integration tests are failing")
+  public void testCSRF() {
+    Client client = ClientBuilder.newClient();
+    WebTarget webTarget = client.target("/forms/csrf");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    Response response = invocationBuilder.get();
+    System.out.println(response.getEntity());
+  }
 }

@@ -16,62 +16,47 @@
  */
 package com.percussion.share.data;
 
-import static org.junit.Assert.*;
 import static com.percussion.share.test.PSDataObjectTestUtils.*;
+import static org.junit.Assert.*;
 
+import com.percussion.share.test.PSDataObjectTestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.percussion.share.test.PSDataObjectTestUtils;
+public abstract class PSDataObjectTestCase<T> {
 
-public abstract class PSDataObjectTestCase<T>
-{
-    
-    public abstract T getObject() throws Exception;
-    
-    protected T object;
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        object = getObject();
-        assertNotNull(object);
-    }
-    
-    
-    protected T getCopy() {
-        return PSDataObjectTestUtils.doXmlSerialization(object).actualSerialized;
-    }
-    
-    
-    @Test
-    public void testXmlSerialization() throws Exception
-    {
-        assertXmlSerialization(object);
-    }
-    
-    @Test
-    public void testEquals() throws Exception
-    {
-        assertEqualsMethod(object);
-    }
-    
-    @Test
-    public void testToString() throws Exception
-    {
-        assertNotNull(object.toString());
-    }
-    
-    @Test
-    public void testHashCode() throws Exception
-    {
-        
-    }
-    
-    @Test
-    public void testClone() throws Exception
-    {
-        
-    }
+  public abstract T getObject() throws Exception;
 
+  protected T object;
+
+  @Before
+  public void setUp() throws Exception {
+    object = getObject();
+    assertNotNull(object);
+  }
+
+  protected T getCopy() {
+    return PSDataObjectTestUtils.doXmlSerialization(object).actualSerialized;
+  }
+
+  @Test
+  public void testXmlSerialization() throws Exception {
+    assertXmlSerialization(object);
+  }
+
+  @Test
+  public void testEquals() throws Exception {
+    assertEqualsMethod(object);
+  }
+
+  @Test
+  public void testToString() throws Exception {
+    assertNotNull(object.toString());
+  }
+
+  @Test
+  public void testHashCode() throws Exception {}
+
+  @Test
+  public void testClone() throws Exception {}
 }

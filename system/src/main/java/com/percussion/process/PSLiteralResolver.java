@@ -20,26 +20,20 @@ package com.percussion.process;
 import java.util.Map;
 
 /**
- * PSLiteralResolver is the default resolver to be used when no resolver is
- * specified using the "resolver" attribute. The resolver just returns the
- * value passed to it.
+ * PSLiteralResolver is the default resolver to be used when no resolver is specified using the
+ * "resolver" attribute. The resolver just returns the value passed to it.
  */
-public class PSLiteralResolver extends PSBasicResolver
-{
-   /**
-    * Just returns the supplied template except if it was <code>null</code>,
-    * in which case "" is returned.
-    */   
-   protected String resolve(String template, Map ctx)
-      throws PSResolveException
-   {
-      if ((template == null))
-      {
-         template = "";
-      }
-      //suppress eclipse warning
-      if (null == ctx);
-      return template;
-   }
+public class PSLiteralResolver extends PSBasicResolver {
+  /**
+   * Just returns the supplied template except if it was <code>null</code>, in which case "" is
+   * returned.
+   */
+  protected String resolve(String template, Map ctx) throws PSResolveException {
+    if ((template == null)) {
+      template = "";
+    }
+    // suppress eclipse warning
+    if (null == ctx) ;
+    return template;
+  }
 }
-

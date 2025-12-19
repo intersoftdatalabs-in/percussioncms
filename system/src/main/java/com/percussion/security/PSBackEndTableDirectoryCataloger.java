@@ -23,9 +23,6 @@ import com.percussion.design.objectstore.PSGlobalSubject;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSErrorManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,242 +32,201 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * A directory cataloger using a backend table security provider configuration
- * as a directory source.
+ * A directory cataloger using a backend table security provider configuration as a directory
+ * source.
  */
-@SuppressWarnings(value={"unchecked"})
-public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger
-{
-   /**
-    * Construct a backend directory cataloger for the supplied properties.
-    *
-    * @param properties the properties with connection and user attribute
-    *    information, not <code>null</code> or empty. See
-    *    {@link PSBackEndConnection} for mor information.
-    */
-   public PSBackEndTableDirectoryCataloger(Properties properties)
-   {
-      m_backendConnection = new PSBackEndConnection(properties);
-   }
-   
-   /**
-    * Calls {@link #PSBackEndTableDirectoryCataloger(Properties)}, ignores other 
-    * param.
-    */
-   public PSBackEndTableDirectoryCataloger(Properties properties, 
-      PSServerConfiguration config)
-   {
-      this(properties);
-   }
+@SuppressWarnings(value = {"unchecked"})
+public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
+  /**
+   * Construct a backend directory cataloger for the supplied properties.
+   *
+   * @param properties the properties with connection and user attribute information, not <code>null
+   *     </code> or empty. See {@link PSBackEndConnection} for mor information.
+   */
+  public PSBackEndTableDirectoryCataloger(Properties properties) {
+    m_backendConnection = new PSBackEndConnection(properties);
+  }
 
-   /** @see IPSDirectoryCataloger */
-   public String getObjectAttributeName()
-   {
-      return m_backendConnection.getUserColumn();
-   }
+  /** Calls {@link #PSBackEndTableDirectoryCataloger(Properties)}, ignores other param. */
+  public PSBackEndTableDirectoryCataloger(Properties properties, PSServerConfiguration config) {
+    this(properties);
+  }
 
-   // see IPSDirectoryCataloger interface 
-   public String getCatalogerType()
-   {
-      return PSBackEndTableProvider.SP_NAME;
-   }
-   
-   // see IPSDirectoryCataloger interface 
-   public String getCatalogerDisplayType()
-   {
-      return PSBackEndTableProviderMetaData.SP_FULLNAME;
-   }      
-   
-   /** @see IPSDirectoryCataloger */
-   public String getAttribute(PSSubject user, String attributeName)
-   {
-      Collection attributeNames = new ArrayList();
-      attributeNames.add(attributeName);
+  /** @see IPSDirectoryCataloger */
+  public String getObjectAttributeName() {
+    return m_backendConnection.getUserColumn();
+  }
 
-      PSSubject subject = getAttributes(user, attributeNames);
-      
-      PSAttribute attribute = 
-         subject.getAttributes().getAttribute(attributeName);
-      List values = null;
-      if (attribute != null)
-         values = attribute.getValues();
+  // see IPSDirectoryCataloger interface
+  public String getCatalogerType() {
+    return PSBackEndTableProvider.SP_NAME;
+  }
 
-      return (values == null || values.isEmpty()) ? 
-         null : values.get(0).toString();
-   }
-   
-   /** @see IPSDirectoryCataloger */
-   public PSSubject getAttributes(PSSubject user)
-   {
-      return getAttributes(user, null);
-   }
+  // see IPSDirectoryCataloger interface
+  public String getCatalogerDisplayType() {
+    return PSBackEndTableProviderMetaData.SP_FULLNAME;
+  }
 
-   /** @see IPSDirectoryCataloger */
-   public PSSubject getAttributes(PSSubject user, Collection attributeNames)
-   {
-      if (user == null)
-         throw new IllegalArgumentException("user may not be null");
-      
-      // 1st clear all existing attributes from the supplied subject
-      PSAttributeList attributes = user.getAttributes();
-      while (attributes.size() > 0)
-         attributes.removeElementAt(0);
+  /** @see IPSDirectoryCataloger */
+  public String getAttribute(PSSubject user, String attributeName) {
+    Collection attributeNames = new ArrayList();
+    attributeNames.add(attributeName);
 
-      // 2nd prepare all requested attributes with null's
-      Iterator attrNames = null;
-      if (attributeNames == null || attributeNames.isEmpty())
-         attrNames = m_backendConnection.getUserAttributeNames();
-      else
-         attrNames = attributeNames.iterator();
-      while (attrNames.hasNext())
-         attributes.setAttribute((String) attrNames.next(), null);
+    PSSubject subject = getAttributes(user, attributeNames);
 
-      Connection conn = null;
-      PreparedStatement stmt = null;
-      ResultSet result = null;
-      try
-      {
-         conn = m_backendConnection.getDbConnection();
-         stmt = m_backendConnection.getPreparedStatement(user.getName(), conn);
-         result = stmt.executeQuery();
+    PSAttribute attribute = subject.getAttributes().getAttribute(attributeName);
+    List values = null;
+    if (attribute != null) values = attribute.getValues();
 
-         if (result.next())
-         {
-            Iterator attrs = attributes.iterator();
-            while (attrs.hasNext())
-            {
-               PSAttribute attr = (PSAttribute) attrs.next();
+    return (values == null || values.isEmpty()) ? null : values.get(0).toString();
+  }
 
-               String colName = m_backendConnection.getUserAttribute(
-                  attr.getName());
-               if (colName != null)
-               {
-                  List values = new ArrayList();
-                  values.add(result.getString(colName));
-                  attr.setValues(values);
-               }
-            }
-         }
+  /** @see IPSDirectoryCataloger */
+  public PSSubject getAttributes(PSSubject user) {
+    return getAttributes(user, null);
+  }
 
-         return user;
+  /** @see IPSDirectoryCataloger */
+  public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
+    if (user == null) throw new IllegalArgumentException("user may not be null");
+
+    // 1st clear all existing attributes from the supplied subject
+    PSAttributeList attributes = user.getAttributes();
+    while (attributes.size() > 0) attributes.removeElementAt(0);
+
+    // 2nd prepare all requested attributes with null's
+    Iterator attrNames = null;
+    if (attributeNames == null || attributeNames.isEmpty())
+      attrNames = m_backendConnection.getUserAttributeNames();
+    else attrNames = attributeNames.iterator();
+    while (attrNames.hasNext()) attributes.setAttribute((String) attrNames.next(), null);
+
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet result = null;
+    try {
+      conn = m_backendConnection.getDbConnection();
+      stmt = m_backendConnection.getPreparedStatement(user.getName(), conn);
+      result = stmt.executeQuery();
+
+      if (result.next()) {
+        Iterator attrs = attributes.iterator();
+        while (attrs.hasNext()) {
+          PSAttribute attr = (PSAttribute) attrs.next();
+
+          String colName = m_backendConnection.getUserAttribute(attr.getName());
+          if (colName != null) {
+            List values = new ArrayList();
+            values.add(result.getString(colName));
+            attr.setValues(values);
+          }
+        }
       }
-      catch (SQLException e)
-      {
-         throw new RuntimeException(PSErrorManager.createMessage(
-            IPSSecurityErrors.BETABLE_DIRECTORY_CATALOGER_ERROR, e.toString()));
-      }
-      finally
-      {
-         if (result != null)
-            try { result.close(); } catch (SQLException e) { /* noop */ }
 
-         if (stmt != null)
-            try { stmt.close(); } catch (SQLException e) { /* noop */ }
+      return user;
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          PSErrorManager.createMessage(
+              IPSSecurityErrors.BETABLE_DIRECTORY_CATALOGER_ERROR, e.toString()));
+    } finally {
+      if (result != null)
+        try {
+          result.close();
+        } catch (SQLException e) {
+          /* noop */
+        }
 
-         if (conn != null)
-            try { conn.close(); } catch (SQLException e) { /* noop */ }
-      }
-   }
+      if (stmt != null)
+        try {
+          stmt.close();
+        } catch (SQLException e) {
+          /* noop */
+        }
 
-   /** @see IPSDirectoryCataloger */
-   public Collection findUsers(PSConditional[] criteria,
-      Collection attributeNames)
-   {
-      Collection<PSSubject> subjects = new ArrayList<>();
-      
-      if (criteria == null || criteria.length == 0)
-         criteria = new PSConditional[] {null};
-      
-      Connection conn = null;
-      PreparedStatement stmt = null;
-      try
-      {
-         if (attributeNames == null || attributeNames.isEmpty())
-         {
-            attributeNames = new ArrayList();
-            Iterator attrs = m_backendConnection.getUserAttributeNames();
-            while(attrs.hasNext())
-               attributeNames.add(attrs.next());
-         }
-         
-         conn = m_backendConnection.getDbConnection();
-         
-         for (int i = 0; i < criteria.length; i++)
-         {
-            stmt = m_backendConnection.getPreparedStatement(criteria[i],
-               attributeNames, conn);
-            if (stmt == null)
-               continue;
-            
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next())
-            {
-               String name = rs.getString(m_backendConnection.getUserColumn());
-               PSAttributeList attList = new PSAttributeList();
-               Iterator attrs = attributeNames.iterator();
-               while (attrs.hasNext())
-               {
-                  String attr = (String) attrs.next();
+      if (conn != null)
+        try {
+          conn.close();
+        } catch (SQLException e) {
+          /* noop */
+        }
+    }
+  }
 
-                  List values = null;
-                  String colName = m_backendConnection.getUserAttribute(attr);
-                  if (colName != null)
-                  {
-                     values = new ArrayList();
-                     values.add(rs.getString(colName));                  
-                  }
+  /** @see IPSDirectoryCataloger */
+  public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
+    Collection<PSSubject> subjects = new ArrayList<>();
 
-                  attList.setAttribute(attr, values);
-               }
-               subjects.add(new PSGlobalSubject(name,
-                  PSSubject.SUBJECT_TYPE_USER, attList));
-            }
-            rs.close();
-            stmt.close();
-            stmt = null;
-         }
+    if (criteria == null || criteria.length == 0) criteria = new PSConditional[] {null};
+
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    try {
+      if (attributeNames == null || attributeNames.isEmpty()) {
+        attributeNames = new ArrayList();
+        Iterator attrs = m_backendConnection.getUserAttributeNames();
+        while (attrs.hasNext()) attributeNames.add(attrs.next());
       }
-      catch (Exception e)
-      {
-         // can't throw, so log it
-         ms_log.error("Error cataloging backend table users", e);
+
+      conn = m_backendConnection.getDbConnection();
+
+      for (int i = 0; i < criteria.length; i++) {
+        stmt = m_backendConnection.getPreparedStatement(criteria[i], attributeNames, conn);
+        if (stmt == null) continue;
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+          String name = rs.getString(m_backendConnection.getUserColumn());
+          PSAttributeList attList = new PSAttributeList();
+          Iterator attrs = attributeNames.iterator();
+          while (attrs.hasNext()) {
+            String attr = (String) attrs.next();
+
+            List values = null;
+            String colName = m_backendConnection.getUserAttribute(attr);
+            if (colName != null) {
+              values = new ArrayList();
+              values.add(rs.getString(colName));
+            }
+
+            attList.setAttribute(attr, values);
+          }
+          subjects.add(new PSGlobalSubject(name, PSSubject.SUBJECT_TYPE_USER, attList));
+        }
+        rs.close();
+        stmt.close();
+        stmt = null;
       }
-      finally
-      {
-         if (stmt != null)
-         {
-            try
-            {
-               stmt.close();
-            }
-            catch (SQLException e)
-            {
-            }
-         }
-         
-         if (conn != null)
-         {
-            try
-            {
-               conn.close();
-            }
-            catch (SQLException e)
-            {
-            }
-         }
+    } catch (Exception e) {
+      // can't throw, so log it
+      ms_log.error("Error cataloging backend table users", e);
+    } finally {
+      if (stmt != null) {
+        try {
+          stmt.close();
+        } catch (SQLException e) {
+        }
       }
-      
-      return subjects;
-   }
-   
-   /**
-    * The backend connection used to do directory cataloging. Initialized in
-    * constructor, never <code>null</code> or changed after that.
-    */
-   private PSBackEndConnection m_backendConnection = null;
-   
-    private static final Logger ms_log = LogManager.getLogger(
-      PSBackEndTableDirectoryCataloger.class);
+
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
+      }
+    }
+
+    return subjects;
+  }
+
+  /**
+   * The backend connection used to do directory cataloging. Initialized in constructor, never
+   * <code>null</code> or changed after that.
+   */
+  private PSBackEndConnection m_backendConnection = null;
+
+  private static final Logger ms_log = LogManager.getLogger(PSBackEndTableDirectoryCataloger.class);
 }

@@ -16,79 +16,63 @@
  */
 package com.percussion.ant;
 
+import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import java.io.File;
-
 /**
- * Task to create the workbench's help hints xml file and moves the
- * required resources to a specified folder. This task requires that the 
- * Jericho Html parser jar be on the classpath. *
+ * Task to create the workbench's help hints xml file and moves the required resources to a
+ * specified folder. This task requires that the Jericho Html parser jar be on the classpath. *
  */
-public class PSMakeHelpHints extends Task
-{
-   
-   /**
-    * The location of the help mappings file (Required)
-    * @param helpMappings
-    */
-   public void setHelpmappings(File helpMappings)
-   {
-      m_helpMappings = helpMappings;
-   }
-   
-   /**
-    * The help plugin directory where all the help files can be found
-    * (Required)
-    * @param helpPath
-    */
-   public void setHelppath(File helpPath)
-   {
-      m_helpPath = helpPath;
-   }
-   
-   /**
-    * The target path for the file to be created (Required)
-    * @param target
-    */
-   public void setTarget(File target)
-   {
-      m_target = target;
-   }
-     
-   /* 
-    * @see org.apache.tools.ant.Task#execute()
-    */
-   @Override
-   public void execute() throws BuildException
-   {
-      if(m_helpMappings == null)
-         throw new BuildException("helpmappings is required.");
-      if(m_helpPath == null)
-         throw new BuildException("helppath is required.");
-      if(m_target == null)
-         throw new BuildException("target is required.");     
-      
-      try
-      {
-         PSHelpHintFileCreator creator = new PSHelpHintFileCreator(
-            m_helpMappings, m_helpPath, m_target);
-         creator.createFile();
-         
-      }
-      catch (Exception e)
-      {
-         throw new BuildException(e);         
-      }
-   }
-   
-  
-   
-   
-   private File m_helpMappings;
-   private File m_helpPath;
-   private File m_target;
-   
+public class PSMakeHelpHints extends Task {
 
+  /**
+   * The location of the help mappings file (Required)
+   *
+   * @param helpMappings
+   */
+  public void setHelpmappings(File helpMappings) {
+    m_helpMappings = helpMappings;
+  }
+
+  /**
+   * The help plugin directory where all the help files can be found (Required)
+   *
+   * @param helpPath
+   */
+  public void setHelppath(File helpPath) {
+    m_helpPath = helpPath;
+  }
+
+  /**
+   * The target path for the file to be created (Required)
+   *
+   * @param target
+   */
+  public void setTarget(File target) {
+    m_target = target;
+  }
+
+  /*
+   * @see org.apache.tools.ant.Task#execute()
+   */
+  @Override
+  public void execute() throws BuildException {
+    if (m_helpMappings == null) throw new BuildException("helpmappings is required.");
+    if (m_helpPath == null) throw new BuildException("helppath is required.");
+    if (m_target == null) throw new BuildException("target is required.");
+
+    try {
+      PSHelpHintFileCreator creator =
+          new PSHelpHintFileCreator(m_helpMappings, m_helpPath, m_target);
+      creator.createFile();
+
+    } catch (Exception e) {
+      throw new BuildException(e);
+    }
+  }
+
+  private File m_helpMappings;
+  private File m_helpPath;
+  private File m_target;
 }

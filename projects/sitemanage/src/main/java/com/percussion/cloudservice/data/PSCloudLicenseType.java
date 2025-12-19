@@ -18,22 +18,22 @@
 package com.percussion.cloudservice.data;
 
 public enum PSCloudLicenseType {
-    PAGE_OPTIMIZER,
-    SOCIAL_PROMOTION;
-    
-    public String toFriendlyString() {
-        String value = this.toString();
-        
-        switch (this) {
-            case PAGE_OPTIMIZER:
-                value = "Page Optimizer";
-                break;
-                
-            case SOCIAL_PROMOTION:
-                value = "Social Promotion";
-                break;
-        }
-        
-        return value;
+  PAGE_OPTIMIZER,
+  SOCIAL_PROMOTION;
+
+  public String toFriendlyString() {
+    String value = this.toString();
+
+    switch (this) {
+      case PAGE_OPTIMIZER:
+        value = "Page Optimizer";
+        break;
+
+      case SOCIAL_PROMOTION:
+        value = "Social Promotion";
+        break;
     }
+
+    return value;
+  }
 }

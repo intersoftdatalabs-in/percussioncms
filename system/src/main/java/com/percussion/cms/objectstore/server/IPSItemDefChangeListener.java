@@ -20,38 +20,34 @@ import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.error.PSException;
 
 /**
- * This interface is designed to be used with the {@link PSItemDefManager} 
- * class. It provides a mechinism to allow users to register to receive
- * messages whenever a content editor is started or stopped.
+ * This interface is designed to be used with the {@link PSItemDefManager} class. It provides a
+ * mechinism to allow users to register to receive messages whenever a content editor is started or
+ * stopped.
  *
  * @author paulhoward
  */
-public interface IPSItemDefChangeListener
-{
-   /**
-    * Called when a content editor is successfully started.
-    * @param def The definition of the editor that started, never <code>
-    * null</code>.
-    * @param notify propagate a notification to the listener. If a series of
-    * changes are being done as a unit, this can be set to <code>false</code>
-    * for every call but the last.
-    * 
-    * @throws PSException If actions taken are not successful. This will 
-    * prevent the editor from starting, so it should be done with great care.
-    */
-   public void registered(PSItemDefinition def, boolean notify) throws PSException;
-   
-   /**
-    * Called when a content editor is shut down.
-    * 
-    * @param def The definition of the editor that stopped, never <code>
-    * null</code>.
-    * @param notify propagate a notification to the listener. If a series of
-    * changes are being done as a unit, this can be set to <code>false</code>
-    * for every call but the last.
-    * 
-    * @throws PSException If actions taken are not successful. This does not
-    * prevent the editor from stopping.
-    */
-   public void unregistered(PSItemDefinition def, boolean notify) throws PSException;
+public interface IPSItemDefChangeListener {
+  /**
+   * Called when a content editor is successfully started.
+   *
+   * @param def The definition of the editor that started, never <code>
+   * null</code>.
+   * @param notify propagate a notification to the listener. If a series of changes are being done
+   *     as a unit, this can be set to <code>false</code> for every call but the last.
+   * @throws PSException If actions taken are not successful. This will prevent the editor from
+   *     starting, so it should be done with great care.
+   */
+  public void registered(PSItemDefinition def, boolean notify) throws PSException;
+
+  /**
+   * Called when a content editor is shut down.
+   *
+   * @param def The definition of the editor that stopped, never <code>
+   * null</code>.
+   * @param notify propagate a notification to the listener. If a series of changes are being done
+   *     as a unit, this can be set to <code>false</code> for every call but the last.
+   * @throws PSException If actions taken are not successful. This does not prevent the editor from
+   *     stopping.
+   */
+  public void unregistered(PSItemDefinition def, boolean notify) throws PSException;
 }

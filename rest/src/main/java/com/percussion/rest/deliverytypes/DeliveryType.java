@@ -20,72 +20,75 @@ package com.percussion.rest.deliverytypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "DeliveryType")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description="Represents a Delivery Type.")
+@Schema(description = "Represents a Delivery Type.")
 public class DeliveryType {
 
-	   @Schema(required=false,description="id must match id supplied on url.  Typically not sent to the server.")
-	   Guid id;
+  @Schema(
+      required = false,
+      description = "id must match id supplied on url.  Typically not sent to the server.")
+  Guid id;
 
-	   @Schema(required=true,description="The name of the DeliveryType.  Must be unique.")
-	   String name;
+  @Schema(required = true, description = "The name of the DeliveryType.  Must be unique.")
+  String name;
 
-	   @Schema(required=false,description="A friendly description of this DeliveryType")
-	   String description;
+  @Schema(required = false, description = "A friendly description of this DeliveryType")
+  String description;
 
-	   @Schema(required=false,description="The Spring bean that implements this DeliveryType.  Typically configured in Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml")		  
-	   String beanName;
+  @Schema(
+      required = false,
+      description =
+          "The Spring bean that implements this DeliveryType.  Typically configured in Rhythmyx/WEB-INF/config/user/spring/publisher-beans.xml")
+  String beanName;
 
-	   @Schema( required=false,description="When set to true, Assembly will be invoked during Unpublishing operations for this DeliveryType")
-	   boolean unpublishingRequiresAssembly;
+  @Schema(
+      required = false,
+      description =
+          "When set to true, Assembly will be invoked during Unpublishing operations for this DeliveryType")
+  boolean unpublishingRequiresAssembly;
 
-	   public DeliveryType(){}
+  public DeliveryType() {}
 
-	public Guid getId() {
-		return id;
-	}
+  public Guid getId() {
+    return id;
+  }
 
-	public void setId(Guid id) {
-		this.id = id;
-	}
+  public void setId(Guid id) {
+    this.id = id;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public String getDescription() {
-		return description;
-	}
+  public String getDescription() {
+    return description;
+  }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	public String getBeanName() {
-		return beanName;
-	}
+  public String getBeanName() {
+    return beanName;
+  }
 
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
+  }
 
-	public boolean getUnpublishingRequiresAssembly() {
-		return unpublishingRequiresAssembly;
-	}
+  public boolean getUnpublishingRequiresAssembly() {
+    return unpublishingRequiresAssembly;
+  }
 
-	public void setUnpublishingRequiresAssembly(boolean unpublishingRequiresAssembly) {
-		this.unpublishingRequiresAssembly = unpublishingRequiresAssembly;
-	}
-	   
-	   
-	
-
+  public void setUnpublishingRequiresAssembly(boolean unpublishingRequiresAssembly) {
+    this.unpublishingRequiresAssembly = unpublishingRequiresAssembly;
+  }
 }

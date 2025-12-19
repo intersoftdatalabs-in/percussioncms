@@ -19,205 +19,149 @@ package com.percussion.pubserver.data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author ignacioerro
- *
- */
+/** @author ignacioerro */
 @XmlRootElement(name = "serverInfo")
-public class PSPublishServerInfo
-{
-    private static final long serialVersionUID = 1L;
-    
-    private Long serverId;
-    
-    private String serverName;
-    
-    private Boolean isDefault;
-    
-    private String description;
-    
-    private String type;
-    
-    private String serverType;
-    
-    private List<PSPublishServerProperty> properties = new ArrayList<>();
+public class PSPublishServerInfo {
+  private static final long serialVersionUID = 1L;
 
-    private Boolean isModified;
-    
-    private Boolean canIncrementalPublish;
-    
-    private Boolean isFullPublishRequired;
-    
-    private Date lastFullPublishDate;
-    
-    private Date lastIncrementalPublishDate;
-    
-    
-    /**
-     * @return the serverId
-     */
-    public Long getServerId()
-    {
-        return serverId;
-    }
+  private Long serverId;
 
-    /**
-     * @param serverId the serverId to set
-     */
-    public void setServerId(Long serverId)
-    {
-        this.serverId = serverId;
-    }
+  private String serverName;
 
-    /**
-     * @return the serverName
-     */
-    public String getServerName()
-    {
-        return serverName;
-    }
+  private Boolean isDefault;
 
-    /**
-     * @param serverName the serverName to set
-     */
-    public void setServerName(String serverName)
-    {
-        this.serverName = serverName;
-    }
+  private String description;
 
-    /**
-     * @return the isDefault
-     */
-    public Boolean getIsDefault()
-    {
-        return isDefault;
-    }
+  private String type;
 
-    /**
-     * @param isDefault the isDefault to set
-     */
-    public void setIsDefault(Boolean isDefault)
-    {
-        this.isDefault = isDefault;
-    }
+  private String serverType;
 
-    /**
-     * @return the description
-     */
-    public String getDescription()
-    {
-        return description;
-    }
+  private List<PSPublishServerProperty> properties = new ArrayList<>();
 
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  private Boolean isModified;
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  private Boolean canIncrementalPublish;
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  private Boolean isFullPublishRequired;
 
-    /**
-     * @return the properties
-     */
-    public List<PSPublishServerProperty> getProperties()
-    {
-        return properties;
-    }
+  private Date lastFullPublishDate;
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(List<PSPublishServerProperty> properties)
-    {
-        this.properties = properties;
-    }
+  private Date lastIncrementalPublishDate;
 
-    public void setIsModified(Boolean isModified)
-    {
-        this.isModified = isModified;
-    }
+  /** @return the serverId */
+  public Long getServerId() {
+    return serverId;
+  }
 
-    public Boolean getIsModified()
-    {
-        return isModified;
-    }
-    
-    public String findProperty(String key)
-    {
-        for (PSPublishServerProperty property : properties)
-        {
-            if (property.getKey().equalsIgnoreCase(key))
-                return property.getValue();
-        }
-        return null;
-    }
+  /** @param serverId the serverId to set */
+  public void setServerId(Long serverId) {
+    this.serverId = serverId;
+  }
 
-    public String getServerType() {
-	return serverType;
-    }
+  /** @return the serverName */
+  public String getServerName() {
+    return serverName;
+  }
 
-    public void setServerType(String serverType) {
-	this.serverType = serverType;
-    }
+  /** @param serverName the serverName to set */
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
+  }
 
-    public Boolean getCanIncrementalPublish()
-    {
-        return canIncrementalPublish;
-    }
+  /** @return the isDefault */
+  public Boolean getIsDefault() {
+    return isDefault;
+  }
 
-    public void setCanIncrementalPublish(Boolean canIncrementalPublish)
-    {
-        this.canIncrementalPublish = canIncrementalPublish;
-    }
+  /** @param isDefault the isDefault to set */
+  public void setIsDefault(Boolean isDefault) {
+    this.isDefault = isDefault;
+  }
 
-    public Boolean getIsFullPublishRequired()
-    {
-        return isFullPublishRequired;
-    }
+  /** @return the description */
+  public String getDescription() {
+    return description;
+  }
 
-    public void setIsFullPublishRequired(Boolean isFullPublishRequired)
-    {
-        this.isFullPublishRequired = isFullPublishRequired;
-    }
+  /** @param description the description to set */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Date getLastFullPublishDate()
-    {
-        return lastFullPublishDate;
-    }
+  /** @return the type */
+  public String getType() {
+    return type;
+  }
 
-    public void setLastFullPublishDate(Date lastFullPublishDate)
-    {
-        this.lastFullPublishDate = lastFullPublishDate;
-    }
+  /** @param type the type to set */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public Date getLastIncrementalPublishDate()
-    {
-        return lastIncrementalPublishDate;
-    }
+  /** @return the properties */
+  public List<PSPublishServerProperty> getProperties() {
+    return properties;
+  }
 
-    public void setLastIncrementalPublishDate(Date lastIncrementalPublishDate)
-    {
-        this.lastIncrementalPublishDate = lastIncrementalPublishDate;
-    }
+  /** @param properties the properties to set */
+  public void setProperties(List<PSPublishServerProperty> properties) {
+    this.properties = properties;
+  }
 
+  public void setIsModified(Boolean isModified) {
+    this.isModified = isModified;
+  }
+
+  public Boolean getIsModified() {
+    return isModified;
+  }
+
+  public String findProperty(String key) {
+    for (PSPublishServerProperty property : properties) {
+      if (property.getKey().equalsIgnoreCase(key)) return property.getValue();
+    }
+    return null;
+  }
+
+  public String getServerType() {
+    return serverType;
+  }
+
+  public void setServerType(String serverType) {
+    this.serverType = serverType;
+  }
+
+  public Boolean getCanIncrementalPublish() {
+    return canIncrementalPublish;
+  }
+
+  public void setCanIncrementalPublish(Boolean canIncrementalPublish) {
+    this.canIncrementalPublish = canIncrementalPublish;
+  }
+
+  public Boolean getIsFullPublishRequired() {
+    return isFullPublishRequired;
+  }
+
+  public void setIsFullPublishRequired(Boolean isFullPublishRequired) {
+    this.isFullPublishRequired = isFullPublishRequired;
+  }
+
+  public Date getLastFullPublishDate() {
+    return lastFullPublishDate;
+  }
+
+  public void setLastFullPublishDate(Date lastFullPublishDate) {
+    this.lastFullPublishDate = lastFullPublishDate;
+  }
+
+  public Date getLastIncrementalPublishDate() {
+    return lastIncrementalPublishDate;
+  }
+
+  public void setLastIncrementalPublishDate(Date lastIncrementalPublishDate) {
+    this.lastIncrementalPublishDate = lastIncrementalPublishDate;
+  }
 }

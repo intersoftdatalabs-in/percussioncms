@@ -22,32 +22,32 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String, String)}
- * 
- * @author yubingchen
+ * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String,
+ * String)}
  *
+ * @author yubingchen
  */
-public class PSHtmlUtils2Test
-{
-    @Test
-    public void testStripHtmlTag() throws Exception
-    {
-        // strip SCRIPT tag, where it contains text between begin & end tag
-        String hasTitleTag = "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div> </body></html>";
-        String hasTitleTag_stripped = "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag, hasTitleTag_stripped);
+public class PSHtmlUtils2Test {
+  @Test
+  public void testStripHtmlTag() throws Exception {
+    // strip SCRIPT tag, where it contains text between begin & end tag
+    String hasTitleTag =
+        "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div> </body></html>";
+    String hasTitleTag_stripped =
+        "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
+    validateStripHtml(hasTitleTag, hasTitleTag_stripped);
 
-        // strip SCRIPT tag, where it contains attribute only
-        String hasTitleTag1 = "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag1, hasTitleTag_stripped);
-    }
-    
-    private void validateStripHtml(String src, String strippedSrc)
-    {
-        String stripped = PSHtmlUtils.stripElement(src, "script");
-        assertEquals(strippedSrc, stripped);
-        
-        stripped = PSHtmlUtils.stripScriptElement(src);
-        assertEquals(strippedSrc, stripped);
-    }
+    // strip SCRIPT tag, where it contains attribute only
+    String hasTitleTag1 =
+        "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div> </body></html>";
+    validateStripHtml(hasTitleTag1, hasTitleTag_stripped);
+  }
+
+  private void validateStripHtml(String src, String strippedSrc) {
+    String stripped = PSHtmlUtils.stripElement(src, "script");
+    assertEquals(strippedSrc, stripped);
+
+    stripped = PSHtmlUtils.stripScriptElement(src);
+    assertEquals(strippedSrc, stripped);
+  }
 }

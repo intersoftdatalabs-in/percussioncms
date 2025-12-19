@@ -17,59 +17,46 @@
 
 package com.percussion.security;
 
-
 /**
- * The PSRoleEntry class defines the implementation of a role entry
- * within E2.
+ * The PSRoleEntry class defines the implementation of a role entry within E2.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSRoleEntry extends PSEntry 
-{
+public class PSRoleEntry extends PSEntry {
 
-   /**
-    * Construct a role entry object for the named entry.
-    *
-    * @param   name               the name of the role
-    *
-    * @param   accessLevel         the access level to assign this entry
-    */
-   public PSRoleEntry(String name, int accessLevel)
-   {
-      super(name, accessLevel);
-   }
+  /**
+   * Construct a role entry object for the named entry.
+   *
+   * @param name the name of the role
+   * @param accessLevel the access level to assign this entry
+   */
+  public PSRoleEntry(String name, int accessLevel) {
+    super(name, accessLevel);
+  }
 
-   /* ********************** PSEntry Implementation ********************** */
+  /* ********************** PSEntry Implementation ********************** */
 
-   /**
-    * Does the specified entry match this one? The entry must be of the
-    * same provider type. If one of the entries is a filter, it will use
-    * the information defined in the other entry to test for equality.
-    *   For PSRoleEntry, this method will always return false.
-    *
-    *   @param      entry         the entry to check
-    *
-    * @return                  <code>false</code> is always returned for the
-    *                           PSRoleEntry class
-    */
-   public boolean isMatch(PSEntry entry)
-   {
-      return false;
-   }
+  /**
+   * Does the specified entry match this one? The entry must be of the same provider type. If one of
+   * the entries is a filter, it will use the information defined in the other entry to test for
+   * equality. For PSRoleEntry, this method will always return false.
+   *
+   * @param entry the entry to check
+   * @return <code>false</code> is always returned for the PSRoleEntry class
+   */
+  public boolean isMatch(PSEntry entry) {
+    return false;
+  }
 
-   /**
-    * Is this class a filter? Filters can be used to perform checks against
-    * other entries based upon attributes, etc.
-    *   For PSRoleEntry, this method will always return false.
-    *
-    * @return                  <code>false</code> is always returned for the
-    *                           PSRoleEntry class
-    */
-   public boolean isFilter()
-   {
-      return false;
-   }
+  /**
+   * Is this class a filter? Filters can be used to perform checks against other entries based upon
+   * attributes, etc. For PSRoleEntry, this method will always return false.
+   *
+   * @return <code>false</code> is always returned for the PSRoleEntry class
+   */
+  public boolean isFilter() {
+    return false;
+  }
 }
-

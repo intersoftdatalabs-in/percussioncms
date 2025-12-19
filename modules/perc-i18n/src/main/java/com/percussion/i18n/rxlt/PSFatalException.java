@@ -17,26 +17,17 @@
 package com.percussion.i18n.rxlt;
 
 /**
- * Exception thrown to be thrown process continuation does not make sense in
- * which case the program will be aborted.
+ * Exception thrown to be thrown process continuation does not make sense in which case the program
+ * will be aborted.
  */
-public class PSFatalException
-   extends RuntimeException
-{
-   /**
-    * Default constructor, simply delegates to its base class counterpart.
-    */
-   public PSFatalException()
-   {
-      super();
-   }
+public class PSFatalException extends RuntimeException {
+  /** Default constructor, simply delegates to its base class counterpart. */
+  public PSFatalException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the error message, simply delegates to its base
-    * class counterpart.
-    */
-   public PSFatalException(String msg)
-   {
-      super(msg);
-   }
+  /** Constructor that takes the error message, simply delegates to its base class counterpart. */
+  public PSFatalException(String msg) {
+    super(msg);
+  }
 }

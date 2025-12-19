@@ -17,6 +17,8 @@
 
 package com.percussion.deployer.server;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.percussion.deployer.objectstore.PSArchive;
 import com.percussion.deployer.objectstore.PSArchiveInfo;
@@ -29,11 +31,6 @@ import com.percussion.deployer.objectstore.PSDeployableElement;
 import com.percussion.server.PSServer;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,153 +38,146 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-/**
- * Unit test for the <code>PSArchivHander</code> object.
- */
+/** Unit test for the <code>PSArchivHander</code> object. */
 @Category(IntegrationTest.class)
-public class PSArchiveHandlerTest
-{
-   /**
-    * Test all archive handler functionalities
-    *
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testAll() throws Exception
-   {
-      // create a new archive and its handler for WRITING
-      PSArchiveInfo info1 = PSArchiveInfoTest.getArchiveInfo(true);
-      PSArchive archive = new PSArchive(new File(PSServer.getRxDir().getAbsolutePath(), "ArchiveTest.pda"), info1);
-      PSArchiveHandler ah = new PSArchiveHandler(archive);
+public class PSArchiveHandlerTest {
+  /**
+   * Test all archive handler functionalities
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testAll() throws Exception {
+    // create a new archive and its handler for WRITING
+    PSArchiveInfo info1 = PSArchiveInfoTest.getArchiveInfo(true);
+    PSArchive archive =
+        new PSArchive(new File(PSServer.getRxDir().getAbsolutePath(), "ArchiveTest.pda"), info1);
+    PSArchiveHandler ah = new PSArchiveHandler(archive);
 
-      // prepare data
-      PSDeployableElement dep1 = new PSDeployableElement(
-         PSDependency.TYPE_SHARED, "1", "TestElem", "Test Element",
-         "myTestElement", true, false, false);
-      PSDeployableElement dep2 = new PSDeployableElement(
-         PSDependency.TYPE_LOCAL, "2", "TestElem2", "Test Element2",
-         "myTestElement2", true, false, false);
-      List depFiles1 = getDepFiles(dep1);
-      List depFiles2 = getDepFiles(dep2);
+    // prepare data
+    PSDeployableElement dep1 =
+        new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            "1",
+            "TestElem",
+            "Test Element",
+            "myTestElement",
+            true,
+            false,
+            false);
+    PSDeployableElement dep2 =
+        new PSDeployableElement(
+            PSDependency.TYPE_LOCAL,
+            "2",
+            "TestElem2",
+            "Test Element2",
+            "myTestElement2",
+            true,
+            false,
+            false);
+    List depFiles1 = getDepFiles(dep1);
+    List depFiles2 = getDepFiles(dep2);
 
-      // add the data to the archive
-      ah.addFiles(dep1, depFiles1.iterator());
-      ah.addFiles(dep2, depFiles2.iterator());
+    // add the data to the archive
+    ah.addFiles(dep1, depFiles1.iterator());
+    ah.addFiles(dep2, depFiles2.iterator());
 
-      // add dbmsinfo for one dep
-      PSDatasourceMap dsMap = new PSDatasourceMap("RhythmyxData", "");
-      List<PSDatasourceMap> infoList = new ArrayList<PSDatasourceMap>();
-      infoList.add(dsMap);      
-      ah.addDbmsInfoList(dep1, infoList);
-      
-      ah.close(); // Save the archive
+    // add dbmsinfo for one dep
+    PSDatasourceMap dsMap = new PSDatasourceMap("RhythmyxData", "");
+    List<PSDatasourceMap> infoList = new ArrayList<PSDatasourceMap>();
+    infoList.add(dsMap);
+    ah.addDbmsInfoList(dep1, infoList);
 
-      // retrieve the data file the archive for READING
-      archive = new PSArchive( new File("ArchiveTest.pda") );
-      ah = new PSArchiveHandler(archive);
+    ah.close(); // Save the archive
 
-      Iterator tgtDepFiles1 = ah.getFiles(dep1);
-      Iterator tgtDepFiles2 = ah.getFiles(dep2);
-      PSDependency tgtDep1 = getDepFromDepFile(ah, tgtDepFiles1.next());
-      PSDependency tgtDep2 = getDepFromDepFile(ah, tgtDepFiles2.next());
+    // retrieve the data file the archive for READING
+    archive = new PSArchive(new File("ArchiveTest.pda"));
+    ah = new PSArchiveHandler(archive);
 
-      // get the iterator again since it moved from above
-      tgtDepFiles1 = ah.getFiles(dep1);
-      tgtDepFiles2 = ah.getFiles(dep2);
+    Iterator tgtDepFiles1 = ah.getFiles(dep1);
+    Iterator tgtDepFiles2 = ah.getFiles(dep2);
+    PSDependency tgtDep1 = getDepFromDepFile(ah, tgtDepFiles1.next());
+    PSDependency tgtDep2 = getDepFromDepFile(ah, tgtDepFiles2.next());
 
-      // compare the data
-      assertTrue(PSArchiveManifestTest.doesFileListTheSame(depFiles1.iterator(),
-         tgtDepFiles1));
-      assertTrue(PSArchiveManifestTest.doesFileListTheSame(depFiles2.iterator(),
-         tgtDepFiles2));
+    // get the iterator again since it moved from above
+    tgtDepFiles1 = ah.getFiles(dep1);
+    tgtDepFiles2 = ah.getFiles(dep2);
 
-      assertTrue( dep1.equals(tgtDep1) );
-      assertTrue( dep2.equals(tgtDep2) );
-      
-      // check the dbmsinfo was restored
-      assertEquals(archive.getArchiveManifest().getDbmsInfoList(tgtDep1), 
-         infoList);
+    // compare the data
+    assertTrue(PSArchiveManifestTest.doesFileListTheSame(depFiles1.iterator(), tgtDepFiles1));
+    assertTrue(PSArchiveManifestTest.doesFileListTheSame(depFiles2.iterator(), tgtDepFiles2));
 
-      ah.close();
-   }
+    assertTrue(dep1.equals(tgtDep1));
+    assertTrue(dep2.equals(tgtDep2));
 
-   /**
-    * Get a specified dependency object from a Archive, the dependency object
-    * is specified by a dependency file.
-    *
-    * @param ah The archive object, assume not <code>null</code>.
-    * @param obj The <code>PSDependencyFile</code> object, which reference to
-    * the to be retrieved dependency object.
-    *
-    * @return The specified dependency object, it will never be
-    * <code>null</code>.
-    *
-    * @throws Exception if any error occures.
-    */
-   private static PSDependency getDepFromDepFile(PSArchiveHandler ah,
-      Object obj) throws Exception
-   {
-      PSDependencyFile depFile = (PSDependencyFile) obj;
-      InputStream in = ah.getFileData(depFile);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-      Element depEl = doc.getDocumentElement();
-      PSDeployableElement dep1 = new PSDeployableElement(depEl);
-      return dep1;
-   }
+    // check the dbmsinfo was restored
+    assertEquals(archive.getArchiveManifest().getDbmsInfoList(tgtDep1), infoList);
 
-   /**
-    * Creating a list with one dependency file item from a given dependency
-    * object. The dependency file points to a file which contains the
-    * dependency object in XML format.
-    *
-    * @param dep1 The dependency object. Assume it is not <code>null</code>
-    *
-    * @return A list with one <code>PSDependencyFile</code> object, it will
-    * never <code>null</code> or empty.
-    *
-    * @throws IOException if any error occures.
-    */
-   private static List getDepFiles(PSDependency dep1) throws IOException
-   {
-      List<PSDependencyFile> depFiles = new ArrayList<PSDependencyFile>();
-      depFiles.add(getDepFile(dep1));
-      return depFiles;
-   }
+    ah.close();
+  }
 
-   /**
-    * Writing a given dependency object (in XML format) into a temporary file
-    * and creating a dependency file from it.
-    *
-    * @param dep The dependency object to be written to a temporary file.
-    * Assuming it is not <code>null</code>.
-    *
-    * @return The created dependency file object. It will never be
-    * <code>null</code>.
-    *
-    * @throws IOException if any error occures.
-    */
-   private static PSDependencyFile getDepFile(PSDependency dep)
-      throws IOException
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element depEl = dep.toXml(doc);
-      PSXmlDocumentBuilder.replaceRoot(doc, depEl);
+  /**
+   * Get a specified dependency object from a Archive, the dependency object is specified by a
+   * dependency file.
+   *
+   * @param ah The archive object, assume not <code>null</code>.
+   * @param obj The <code>PSDependencyFile</code> object, which reference to the to be retrieved
+   *     dependency object.
+   * @return The specified dependency object, it will never be <code>null</code>.
+   * @throws Exception if any error occures.
+   */
+  private static PSDependency getDepFromDepFile(PSArchiveHandler ah, Object obj) throws Exception {
+    PSDependencyFile depFile = (PSDependencyFile) obj;
+    InputStream in = ah.getFileData(depFile);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+    Element depEl = doc.getDocumentElement();
+    PSDeployableElement dep1 = new PSDeployableElement(depEl);
+    return dep1;
+  }
 
-      File exportDir = new File(PSDeploymentHandler.EXPORT_ARCHIVE_DIR);
-      exportDir.mkdirs();
+  /**
+   * Creating a list with one dependency file item from a given dependency object. The dependency
+   * file points to a file which contains the dependency object in XML format.
+   *
+   * @param dep1 The dependency object. Assume it is not <code>null</code>
+   * @return A list with one <code>PSDependencyFile</code> object, it will never <code>null</code>
+   *     or empty.
+   * @throws IOException if any error occures.
+   */
+  private static List getDepFiles(PSDependency dep1) throws IOException {
+    List<PSDependencyFile> depFiles = new ArrayList<PSDependencyFile>();
+    depFiles.add(getDepFile(dep1));
+    return depFiles;
+  }
 
-      File file = File.createTempFile("dep_", ".xml", exportDir);
-      FileOutputStream out = new FileOutputStream(file);
-      PSXmlDocumentBuilder.write(doc, out);
+  /**
+   * Writing a given dependency object (in XML format) into a temporary file and creating a
+   * dependency file from it.
+   *
+   * @param dep The dependency object to be written to a temporary file. Assuming it is not <code>
+   *     null</code>.
+   * @return The created dependency file object. It will never be <code>null</code>.
+   * @throws IOException if any error occures.
+   */
+  private static PSDependencyFile getDepFile(PSDependency dep) throws IOException {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element depEl = dep.toXml(doc);
+    PSXmlDocumentBuilder.replaceRoot(doc, depEl);
 
-      PSDependencyFile depFile = new PSDependencyFile(
-         PSDependencyFile.TYPE_EXTENSION_DEF_XML, file);
+    File exportDir = new File(PSDeploymentHandler.EXPORT_ARCHIVE_DIR);
+    exportDir.mkdirs();
 
-      return depFile;
-   }
+    File file = File.createTempFile("dep_", ".xml", exportDir);
+    FileOutputStream out = new FileOutputStream(file);
+    PSXmlDocumentBuilder.write(doc, out);
 
+    PSDependencyFile depFile = new PSDependencyFile(PSDependencyFile.TYPE_EXTENSION_DEF_XML, file);
+
+    return depFile;
+  }
 }

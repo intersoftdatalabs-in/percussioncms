@@ -17,13 +17,10 @@
 
 package com.percussion.utils.thread;
 
-public class PSThreadInterruptedException extends RuntimeException
-{
+public class PSThreadInterruptedException extends RuntimeException {
 
-   public PSThreadInterruptedException()
-   {
-      super();
-      // TODO Auto-generated constructor stub
-   }
-
+  public PSThreadInterruptedException() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
 }

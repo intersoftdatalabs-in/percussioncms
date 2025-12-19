@@ -18,59 +18,55 @@
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * POJO class to hold the widget and content type information. 
- */
+/** POJO class to hold the widget and content type information. */
 @XmlRootElement(name = "WidgetContentType")
 @JsonRootName("WidgetContentType")
-public class PSWidgetContentType
-{
-    public String getWidgetId()
-    {
-        return widgetId;
-    }
-    public void setWidgetId(String widgetId)
-    {
-        this.widgetId = widgetId;
-    }
-    public String getWidgetLabel()
-    {
-        return widgetLabel;
-    }
-    public void setWidgetLabel(String widgetLabel)
-    {
-        this.widgetLabel = widgetLabel;
-    }
-    public String getContentTypeId()
-    {
-        return contentTypeId;
-    }
-    public void setContentTypeId(String contentTypeId)
-    {
-        this.contentTypeId = contentTypeId;
-    }
-    public String getContentTypeName()
-    {
-        return contentTypeName;
-    }
-    public void setContentTypeName(String contentTypeName)
-    {
-        this.contentTypeName = contentTypeName;
-    }
-    public String getIcon()
-    {
-        return icon;
-    }
-    public void setIcon(String icon)
-    {
-        this.icon = icon;
-    }
-    String widgetId;
-    String widgetLabel;
-    String contentTypeId;
-    String contentTypeName;
-    String icon;
+public class PSWidgetContentType {
+  public String getWidgetId() {
+    return widgetId;
+  }
+
+  public void setWidgetId(String widgetId) {
+    this.widgetId = widgetId;
+  }
+
+  public String getWidgetLabel() {
+    return widgetLabel;
+  }
+
+  public void setWidgetLabel(String widgetLabel) {
+    this.widgetLabel = widgetLabel;
+  }
+
+  public String getContentTypeId() {
+    return contentTypeId;
+  }
+
+  public void setContentTypeId(String contentTypeId) {
+    this.contentTypeId = contentTypeId;
+  }
+
+  public String getContentTypeName() {
+    return contentTypeName;
+  }
+
+  public void setContentTypeName(String contentTypeName) {
+    this.contentTypeName = contentTypeName;
+  }
+
+  public String getIcon() {
+    return icon;
+  }
+
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
+
+  String widgetId;
+  String widgetLabel;
+  String contentTypeId;
+  String contentTypeName;
+  String icon;
 }

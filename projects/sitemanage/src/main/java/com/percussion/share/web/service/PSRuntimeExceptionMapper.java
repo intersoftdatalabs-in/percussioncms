@@ -23,74 +23,62 @@ import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.util.PSSiteManageBean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.inject.Singleton;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * 
- * Maps All runtime exceptions into a valid {@link PSErrors error object} that can they be serialized
- * and used for the REST layer.
- * <p>
- * If the exception is a validation exception (implements {@link IPSValidationException}), an error code
- * of <code>400</code> will be returned with a {@link PSValidationErrors} object in the response. Otherwise
- * the error code is <code>500</code> with a {@link PSErrors} object in the response.
- * 
- * @author adamgent
+ * Maps All runtime exceptions into a valid {@link PSErrors error object} that can they be
+ * serialized and used for the REST layer.
  *
+ * <p>If the exception is a validation exception (implements {@link IPSValidationException}), an
+ * error code of <code>400</code> will be returned with a {@link PSValidationErrors} object in the
+ * response. Otherwise the error code is <code>500</code> with a {@link PSErrors} object in the
+ * response.
+ *
+ * @author adamgent
  */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("runtimeExceptionMapper")
-public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeException> implements ExceptionMapper<RuntimeException> {
+public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeException>
+    implements ExceptionMapper<RuntimeException> {
 
+  private static final String ERROR_MESSAGE =
+      "PSRuntimeExceptionMapper exception mapper mapped exception:";
 
-    private static final String ERROR_MESSAGE = "PSRuntimeExceptionMapper exception mapper mapped exception:";
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(RuntimeException exception) {
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(RuntimeException exception) {
-        
-        if( exception instanceof IPSValidationException ) {
-            log.debug(ERROR_MESSAGE, exception);
-            IPSValidationException ve = (IPSValidationException) exception;
-            PSErrors errors = ve.getValidationErrors();
-            if (errors != null) return errors;
-        }
-        else {
+    if (exception instanceof IPSValidationException) {
+      log.debug(ERROR_MESSAGE, exception);
+      IPSValidationException ve = (IPSValidationException) exception;
+      PSErrors errors = ve.getValidationErrors();
+      if (errors != null) return errors;
+    } else {
 
-            log.error("{} {}",ERROR_MESSAGE,PSExceptionUtils.getMessageForLog( exception));
+      log.error("{} {}", ERROR_MESSAGE, PSExceptionUtils.getMessageForLog(exception));
 
-            log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
-        }
-        
-        return PSErrorUtils.createErrorsFromException(exception);
-
-    }
-    
-    
-    
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected Status getStatus(RuntimeException exception)
-    {
-        if (exception instanceof IPSValidationException)
-            return Status.BAD_REQUEST;
-        return super.getStatus(exception);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
     }
 
+    return PSErrorUtils.createErrorsFromException(exception);
+  }
 
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Status getStatus(RuntimeException exception) {
+    if (exception instanceof IPSValidationException) return Status.BAD_REQUEST;
+    return super.getStatus(exception);
+  }
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 }

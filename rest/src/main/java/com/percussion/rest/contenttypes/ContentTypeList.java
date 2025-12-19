@@ -19,17 +19,16 @@ package com.percussion.rest.contenttypes;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentType")
-@ArraySchema(schema=@Schema(implementation = ContentType.class))
+@ArraySchema(schema = @Schema(implementation = ContentType.class))
 public class ContentTypeList extends ArrayList<ContentType> {
-    public ContentTypeList(Collection<? extends ContentType> c) {
-        super(c);
-    }
-    public ContentTypeList(){}
+  public ContentTypeList(Collection<? extends ContentType> c) {
+    super(c);
+  }
+
+  public ContentTypeList() {}
 }

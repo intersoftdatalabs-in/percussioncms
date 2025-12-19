@@ -18,64 +18,57 @@ package com.percussion.assetmanagement.data;
 
 import java.io.InputStream;
 
-/**
- * Used to request the creation of a binary asset during bulk upload.
- */
-public class PSBinaryAssetRequest extends PSAbstractAssetRequest
-{
-    /**
-     * Constructs a new binary asset request.
-     * 
-     * @param folderPath see {@link #setFolderPath(String)}.
-     * @param type see {@link #setType(AssetType)}.
-     * @param fileName see {@link #setFileName(String)}.
-     * @param fileType see {@link #setFileType(String)}.
-     * @param fileContents see {@link #setFileContents(InputStream)}.
-     */
-    public PSBinaryAssetRequest(String folderPath, AssetType type, String fileName, String fileType,
-            InputStream fileContents)
-    {
-        super();        
-        setFolderPath(folderPath);
-        setType(type);
-        setFileName(fileName);
-        setFileType(fileType);
-        setFileContents(fileContents);
-    }
-    
-    @Override
-    public void setType(AssetType type)
-    {
-        if (type != AssetType.FILE && type != AssetType.FLASH && type != AssetType.IMAGE)
-        {
-            throw new IllegalArgumentException("unsupported asset type : " + type);
-        }
-        
-        super.setType(type);
-    }
-    
-    /**
-     * Gets the type of the file for which the binary asset will be created.
-     * 
-     * @return the file's mime type, may be <code>null</code>.
-     */
-    public String getFileType()
-    {
-        return fileType;
+/** Used to request the creation of a binary asset during bulk upload. */
+public class PSBinaryAssetRequest extends PSAbstractAssetRequest {
+  /**
+   * Constructs a new binary asset request.
+   *
+   * @param folderPath see {@link #setFolderPath(String)}.
+   * @param type see {@link #setType(AssetType)}.
+   * @param fileName see {@link #setFileName(String)}.
+   * @param fileType see {@link #setFileType(String)}.
+   * @param fileContents see {@link #setFileContents(InputStream)}.
+   */
+  public PSBinaryAssetRequest(
+      String folderPath,
+      AssetType type,
+      String fileName,
+      String fileType,
+      InputStream fileContents) {
+    super();
+    setFolderPath(folderPath);
+    setType(type);
+    setFileName(fileName);
+    setFileType(fileType);
+    setFileContents(fileContents);
+  }
+
+  @Override
+  public void setType(AssetType type) {
+    if (type != AssetType.FILE && type != AssetType.FLASH && type != AssetType.IMAGE) {
+      throw new IllegalArgumentException("unsupported asset type : " + type);
     }
 
-    /**
-     * @param fileType may not be <code>null</code> or empty.
-     */
-    public void setFileType(String fileType)
-    {
-        this.fileType = fileType;
-    }
+    super.setType(type);
+  }
 
-    /**
-     * @see #getFileType()
-     * @see #setFileType(String)
-     */
-    private String fileType;
+  /**
+   * Gets the type of the file for which the binary asset will be created.
+   *
+   * @return the file's mime type, may be <code>null</code>.
+   */
+  public String getFileType() {
+    return fileType;
+  }
 
+  /** @param fileType may not be <code>null</code> or empty. */
+  public void setFileType(String fileType) {
+    this.fileType = fileType;
+  }
+
+  /**
+   * @see #getFileType()
+   * @see #setFileType(String)
+   */
+  private String fileType;
 }

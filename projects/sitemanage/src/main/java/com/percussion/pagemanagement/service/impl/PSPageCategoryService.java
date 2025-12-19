@@ -20,28 +20,23 @@ package com.percussion.pagemanagement.service.impl;
 import com.percussion.pagemanagement.dao.impl.PSCategoryConfigurationDao;
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.pagemanagement.service.IPSPageCategoryService;
-
 import com.percussion.share.service.exception.PSDataServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("pageCategoryService")
-public class PSPageCategoryService implements IPSPageCategoryService
-{
+public class PSPageCategoryService implements IPSPageCategoryService {
 
-    private PSCategoryConfigurationDao categoryConfigurationDao;
-    
-    @Autowired
-    public PSPageCategoryService(PSCategoryConfigurationDao categoryConfigurationDao)
-    {
-        super();
-        this.categoryConfigurationDao = categoryConfigurationDao;
-    }
+  private PSCategoryConfigurationDao categoryConfigurationDao;
 
+  @Autowired
+  public PSPageCategoryService(PSCategoryConfigurationDao categoryConfigurationDao) {
+    super();
+    this.categoryConfigurationDao = categoryConfigurationDao;
+  }
 
-    @Override
-    public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException {
-        return categoryConfigurationDao.getData();
-    }
-
+  @Override
+  public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException {
+    return categoryConfigurationDao.getData();
+  }
 }

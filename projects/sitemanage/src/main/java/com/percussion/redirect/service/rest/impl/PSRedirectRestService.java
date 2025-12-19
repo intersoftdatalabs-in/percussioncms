@@ -20,37 +20,31 @@ package com.percussion.redirect.service.rest.impl;
 import com.percussion.redirect.data.PSRedirectValidationData;
 import com.percussion.redirect.data.PSRedirectValidationResponse;
 import com.percussion.redirect.service.impl.PSRedirectService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 @Path("/redirect")
 @Component("pSRedirectRestService")
 @Lazy
-public class PSRedirectRestService
-{
-    private PSRedirectService redirectService;
+public class PSRedirectRestService {
+  private PSRedirectService redirectService;
 
-    @Autowired
-    public PSRedirectRestService(PSRedirectService redirectService)
-    {
-        this.redirectService = redirectService;
-    }
-    
-    @POST
-    @Produces(
-    {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Path("/validate")
-    public PSRedirectValidationResponse validate(PSRedirectValidationData data)
-    {
-        return redirectService.validate(data);
-    }
+  @Autowired
+  public PSRedirectRestService(PSRedirectService redirectService) {
+    this.redirectService = redirectService;
+  }
 
+  @POST
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+  @Path("/validate")
+  public PSRedirectValidationResponse validate(PSRedirectValidationData data) {
+    return redirectService.validate(data);
+  }
 }

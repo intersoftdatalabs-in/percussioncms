@@ -24,59 +24,53 @@ import com.percussion.design.objectstore.PSDataMapper;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSystemValidationException;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- * Plan builder for deleting simple child rows.  
- */
-public class PSSimpleChildDeletePlanBuilder extends PSModifyPlanBuilder
-{
-   // see superclass
-   public PSSimpleChildDeletePlanBuilder(PSContentEditorHandler ceh,
-      PSContentEditor ce, PSApplication app)
-   {
-      super(ceh, ce, app);
-   }
+/** Plan builder for deleting simple child rows. */
+public class PSSimpleChildDeletePlanBuilder extends PSModifyPlanBuilder {
+  // see superclass
+  public PSSimpleChildDeletePlanBuilder(
+      PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
+    super(ceh, ce, app);
+  }
 
-   /**
-    * Creates a plan that will delete any simple child rows.  See
-    * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
-    * super.createModifyPlan()} for details.
-    *
-    * @throws IllegalArgumentException if fieldSet type is not
-    * {@link PSFieldSet#TYPE_SIMPLE_CHILD}.
-    */
-   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper,
-      PSFieldSet fieldSet) throws PSSystemValidationException, SQLException
-   {
-      if (mapper == null || fieldSet == null)
-         throw new IllegalArgumentException("one or more params is null");
+  /**
+   * Creates a plan that will delete any simple child rows. See {@link
+   * PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet) super.createModifyPlan()} for
+   * details.
+   *
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_SIMPLE_CHILD}.
+   */
+  public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
+      throws PSSystemValidationException, SQLException {
+    if (mapper == null || fieldSet == null)
+      throw new IllegalArgumentException("one or more params is null");
 
-      if (fieldSet.getType() != PSFieldSet.TYPE_SIMPLE_CHILD)
-         throw new IllegalArgumentException(
-            "fieldSet type must be TYPE_SIMPLE_CHILD");
+    if (fieldSet.getType() != PSFieldSet.TYPE_SIMPLE_CHILD)
+      throw new IllegalArgumentException("fieldSet type must be TYPE_SIMPLE_CHILD");
 
-      PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_UPDATE_PLAN);
+    PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_UPDATE_PLAN);
 
-      ArrayList simpleChildMappings = new ArrayList(3);
+    ArrayList simpleChildMappings = new ArrayList(3);
 
-      // create delete resource
-      String reqName = "SimpleDelete" + mapper.getId();
-      PSDataMapper simpleDeleteSystemMapper =
-         PSApplicationBuilder.createSystemMappings(
+    // create delete resource
+    String reqName = "SimpleDelete" + mapper.getId();
+    PSDataMapper simpleDeleteSystemMapper =
+        PSApplicationBuilder.createSystemMappings(
             addTableKeys(simpleChildMappings, mapper, fieldSet).iterator());
 
-      PSApplicationBuilder.createDeleteDataset(m_internalApp, reqName,
-         m_ce, mapper, null, simpleDeleteSystemMapper);
+    PSApplicationBuilder.createDeleteDataset(
+        m_internalApp, reqName, m_ce, mapper, null, simpleDeleteSystemMapper);
 
-      // add to the plan
-      IPSModifyStep delStep = new PSUpdateStep(reqName,
-         m_internalApp.getRequestTypeHtmlParamName(),
-         m_internalApp.getRequestTypeValueDelete());
-      plan.addModifyStep(delStep);
-      
-      return plan;
-   }
+    // add to the plan
+    IPSModifyStep delStep =
+        new PSUpdateStep(
+            reqName,
+            m_internalApp.getRequestTypeHtmlParamName(),
+            m_internalApp.getRequestTypeValueDelete());
+    plan.addModifyStep(delStep);
+
+    return plan;
+  }
 }

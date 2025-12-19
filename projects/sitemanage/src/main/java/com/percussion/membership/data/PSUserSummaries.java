@@ -18,51 +18,43 @@ package com.percussion.membership.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when 
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userSummaries"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userSummaries"})
 @XmlRootElement(name = "getUsersResponse")
-public class PSUserSummaries
-{
-    private List<PSUserSummary> userSummaries;
-    
-    public PSUserSummaries()
-    {
-        userSummaries = new ArrayList<>();
+public class PSUserSummaries {
+  private List<PSUserSummary> userSummaries;
+
+  public PSUserSummaries() {
+    userSummaries = new ArrayList<>();
+  }
+
+  /**
+   * Get the list of summaries
+   *
+   * @param summaries The list, never <code>null</code>, may be empty.
+   */
+  public PSUserSummaries(List<PSUserSummary> summaries) {
+    if (summaries == null) {
+      this.userSummaries = new ArrayList<>();
+    } else {
+      this.userSummaries = summaries;
     }
-    
-    /**
-     * Get the list of summaries
-     * 
-     * @param summaries The list, never <code>null</code>, may be empty.
-     */
-    public PSUserSummaries(List<PSUserSummary> summaries)
-    {
-        if (summaries == null) {
-            this.userSummaries = new ArrayList<>();
-        }
-        else {
-            this.userSummaries = summaries;
-        }
-    }
-    
-    public List<PSUserSummary> getSummaries()
-    {
-        return userSummaries;
-    }
+  }
+
+  public List<PSUserSummary> getSummaries() {
+    return userSummaries;
+  }
 }

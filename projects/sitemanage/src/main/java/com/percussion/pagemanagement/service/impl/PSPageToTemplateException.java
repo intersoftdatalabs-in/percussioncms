@@ -17,13 +17,9 @@
 
 package com.percussion.pagemanagement.service.impl;
 
-public class PSPageToTemplateException extends Exception
-{
+public class PSPageToTemplateException extends Exception {
 
-    public PSPageToTemplateException(String string)
-    {
-        super(string);
-        
-    }
-
+  public PSPageToTemplateException(String string) {
+    super(string);
+  }
 }

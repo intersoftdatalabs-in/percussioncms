@@ -18,16 +18,20 @@
 package com.percussion.utils.container;
 
 import com.percussion.utils.xml.PSInvalidXmlException;
+import java.io.IOException;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.util.Map;
-
 public interface XMLEnabled {
-    Document toXml(Map<String,String> properties) throws IOException, SAXException, PSInvalidXmlException;
-    Document toXml() throws IOException, SAXException, PSInvalidXmlException;
-    void fromXml(Element el,Map<String,String> properties) throws IOException, SAXException, PSInvalidXmlException;
-    void fromXml(Element el) throws SAXException, IOException, PSInvalidXmlException;
+  Document toXml(Map<String, String> properties)
+      throws IOException, SAXException, PSInvalidXmlException;
+
+  Document toXml() throws IOException, SAXException, PSInvalidXmlException;
+
+  void fromXml(Element el, Map<String, String> properties)
+      throws IOException, SAXException, PSInvalidXmlException;
+
+  void fromXml(Element el) throws SAXException, IOException, PSInvalidXmlException;
 }

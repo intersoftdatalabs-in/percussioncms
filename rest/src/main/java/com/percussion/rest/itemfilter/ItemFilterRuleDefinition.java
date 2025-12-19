@@ -19,56 +19,51 @@ package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ItemFilterRuleDefinition")
-@Schema( description = "Represents an ItemFilter Rule")
+@Schema(description = "Represents an ItemFilter Rule")
 public class ItemFilterRuleDefinition {
 
-    private Guid ruleId;
+  private Guid ruleId;
 
-    private String name;
+  private String name;
 
-    private List<ItemFilterRuleDefinitionParam> params;
+  private List<ItemFilterRuleDefinitionParam> params;
 
+  public ItemFilterRuleDefinition() {}
 
-    public ItemFilterRuleDefinition(){}
+  /** Primary key */
+  public Guid getRuleId() {
+    return ruleId;
+  }
 
+  public void setRuleId(Guid ruleId) {
+    this.ruleId = ruleId;
+  }
 
-    /**
-     * Primary key
-     */
-    public Guid getRuleId() {
-        return ruleId;
-    }
+  /**
+   * Name of the rule referenced from the extensions manager, never <code>null</code> or empty after
+   * construction
+   */
+  public String getName() {
+    return name;
+  }
 
-    public void setRuleId(Guid ruleId) {
-        this.ruleId = ruleId;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Name of the rule referenced from the extensions manager, never
-     * <code>null</code> or empty after construction
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * A rule can reference parameters that control how the rule will be invoked. The parameters can
+   * be overridden when the rule is invoked.
+   */
+  public List<ItemFilterRuleDefinitionParam> getParams() {
+    return params;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * A rule can reference parameters that control how the rule will  be
-     * invoked. The parameters can be overridden when the rule is invoked.
-     */
-    public List<ItemFilterRuleDefinitionParam> getParams() {
-        return params;
-    }
-
-    public void setParams(List<ItemFilterRuleDefinitionParam> params) {
-        this.params = params;
-    }
+  public void setParams(List<ItemFilterRuleDefinitionParam> params) {
+    this.params = params;
+  }
 }

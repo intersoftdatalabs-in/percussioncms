@@ -18,42 +18,43 @@
 package com.percussion.redirect.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "data")
 @JsonRootName("data")
-public class PSRedirectValidationData
-{
-    public String getFromPath()
-    {
-        return fromPath;
-    }
-    public void setFromPath(String fromPath)
-    {
-        this.fromPath = fromPath;
-    }
-    public String getToPath()
-    {
-        return toPath;
-    }
-    public void setToPath(String toPath)
-    {
-        this.toPath = toPath;
-    }
-    public RedirectPathType getType()
-    {
-        return type;
-    }
-    public void setType(RedirectPathType type)
-    {
-        this.type = type;
-    }
-    private String fromPath;
-    private String toPath;
-    private RedirectPathType type;
-    
-    public enum RedirectPathType{
-        page, folder, section, site
-    }
+public class PSRedirectValidationData {
+  public String getFromPath() {
+    return fromPath;
+  }
+
+  public void setFromPath(String fromPath) {
+    this.fromPath = fromPath;
+  }
+
+  public String getToPath() {
+    return toPath;
+  }
+
+  public void setToPath(String toPath) {
+    this.toPath = toPath;
+  }
+
+  public RedirectPathType getType() {
+    return type;
+  }
+
+  public void setType(RedirectPathType type) {
+    this.type = type;
+  }
+
+  private String fromPath;
+  private String toPath;
+  private RedirectPathType type;
+
+  public enum RedirectPathType {
+    page,
+    folder,
+    section,
+    site
+  }
 }

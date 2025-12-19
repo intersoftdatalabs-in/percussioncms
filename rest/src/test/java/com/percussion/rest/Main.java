@@ -17,26 +17,20 @@
 
 package com.percussion.rest;
 
-
 import java.io.IOException;
-
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public final class Main {
-  
-    public final static String ENDPOINT_ADDRESS = "http://127.0.0.1:9000/rest";
 
+  public static final String ENDPOINT_ADDRESS = "http://127.0.0.1:9000/rest";
 
-    public static void main(String[] args) throws IOException {
-        
-      
-        AbstractApplicationContext  ctx = 
-                new ClassPathXmlApplicationContext(new String []{"test-context.xml"});
-          
-        ctx.registerShutdownHook();
-        System.in.read();
+  public static void main(String[] args) throws IOException {
 
-    }
-    
+    AbstractApplicationContext ctx =
+        new ClassPathXmlApplicationContext(new String[] {"test-context.xml"});
+
+    ctx.registerShutdownHook();
+    System.in.read();
+  }
 }

@@ -19,22 +19,15 @@ package com.percussion.delivery.metadata.data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a list of {@link PSMetadataRestTag} instances.
- *
- */
-public class PSMetadataRestTagList
-{
-    private List<PSMetadataRestTag> properties =
-        new ArrayList<>();
+/** Represents a list of {@link PSMetadataRestTag} instances. */
+public class PSMetadataRestTagList {
+  private List<PSMetadataRestTag> properties = new ArrayList<>();
 
-    public List<PSMetadataRestTag> getProperties()
-    {
-        return properties;
-    }
+  public List<PSMetadataRestTag> getProperties() {
+    return properties;
+  }
 
-    public void setProperties(List<PSMetadataRestTag> properties)
-    {
-        this.properties = properties;
-    }
+  public void setProperties(List<PSMetadataRestTag> properties) {
+    this.properties = properties;
+  }
 }

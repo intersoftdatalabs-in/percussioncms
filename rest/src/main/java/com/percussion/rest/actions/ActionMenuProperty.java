@@ -18,54 +18,55 @@
 package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ActionMenuProperty")
 @Schema(description = "Represents an Action Menu property")
 public class ActionMenuProperty {
 
-    @Schema(description="The action to which this property belongs.")
-    private int actionId;
+  @Schema(description = "The action to which this property belongs.")
+  private int actionId;
 
-    @Schema(description="The name of the property")
-    private String name;
-    @Schema(description="The value of the property")
-    private String value;
-    @Schema(description="The description of the property")
-    private String description;
+  @Schema(description = "The name of the property")
+  private String name;
 
-    public ActionMenuProperty(){}
+  @Schema(description = "The value of the property")
+  private String value;
 
-    public String getName() {
-        return name;
-    }
+  @Schema(description = "The description of the property")
+  private String description;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public ActionMenuProperty() {}
 
-    public String getValue() {
-        return value;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    public int getActionId() {
-        return actionId;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setActionId(int actionId) {
-        this.actionId = actionId;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public int getActionId() {
+    return actionId;
+  }
+
+  public void setActionId(int actionId) {
+    this.actionId = actionId;
+  }
 }

@@ -18,116 +18,82 @@ package com.percussion.delivery.comments.data;
 
 /**
  * A simple bean class to hold basic page/comment summary info.
- * 
+ *
  * @author erikserating
- * 
  */
-public class PSPageSummary
-{
-    private String pagePath;
+public class PSPageSummary {
+  private String pagePath;
 
-    private long commentCount;
+  private long commentCount;
 
-    private long approvedCount;
+  private long approvedCount;
 
-    private long newCommentCount;
+  private long newCommentCount;
 
-    /**
-    * 
-    */
-    public PSPageSummary()
-    {
+  /** */
+  public PSPageSummary() {}
 
-    }
+  /**
+   * @param pagePath
+   * @param commentCount
+   */
+  public PSPageSummary(String pagePath, long commentCount, long approvedCount) {
+    this.pagePath = pagePath;
+    this.commentCount = commentCount;
+    this.approvedCount = approvedCount;
+  }
 
-    /**
-     * @param pagePath
-     * @param commentCount
-     */
-    public PSPageSummary(String pagePath, long commentCount, long approvedCount)
-    {
-        this.pagePath = pagePath;
-        this.commentCount = commentCount;
-        this.approvedCount = approvedCount;
-    }
+  /**
+   * @param pagePath
+   * @param commentCount
+   * @param approvedCount
+   * @param newCommentCount
+   */
+  public PSPageSummary(
+      String pagePath, long commentCount, long approvedCount, long newCommentCount) {
+    this.pagePath = pagePath;
+    this.commentCount = commentCount;
+    this.approvedCount = approvedCount;
+    this.newCommentCount = newCommentCount;
+  }
 
-    /**
-     * @param pagePath
-     * @param commentCount
-     * @param approvedCount
-     * @param newCommentCount
-     * 
-     */
-    public PSPageSummary(String pagePath, long commentCount, long approvedCount, long newCommentCount)
-    {
-        this.pagePath = pagePath;
-        this.commentCount = commentCount;
-        this.approvedCount = approvedCount;
-        this.newCommentCount = newCommentCount;
-    }
+  /** @return the pagePath */
+  public String getPagePath() {
+    return pagePath;
+  }
 
-    /**
-     * @return the pagePath
-     */
-    public String getPagePath()
-    {
-        return pagePath;
-    }
+  /** @param pagePath the pagePath to set */
+  public void setPagePath(String pagePath) {
+    this.pagePath = pagePath;
+  }
 
-    /**
-     * @param pagePath the pagePath to set
-     */
-    public void setPagePath(String pagePath)
-    {
-        this.pagePath = pagePath;
-    }
+  /** @return the commentCount */
+  public long getCommentCount() {
+    return commentCount;
+  }
 
-    /**
-     * @return the commentCount
-     */
-    public long getCommentCount()
-    {
-        return commentCount;
-    }
+  /** @param commentCount the commentCount to set */
+  public void setCommentCount(long commentCount) {
+    this.commentCount = commentCount;
+  }
 
-    /**
-     * @param commentCount the commentCount to set
-     */
-    public void setCommentCount(long commentCount)
-    {
-        this.commentCount = commentCount;
-    }
+  /** @return the approvedCount */
+  public long getApprovedCount() {
+    return approvedCount;
+  }
 
-    /**
-     * @return the approvedCount
-     */
-    public long getApprovedCount()
-    {
-        return approvedCount;
-    }
+  /** @param approvedCount the approvedCount to set */
+  public void setApprovedCount(long approvedCount) {
+    this.approvedCount = approvedCount;
+  }
 
-    /**
-     * @param approvedCount the approvedCount to set
-     */
-    public void setApprovedCount(long approvedCount)
-    {
-        this.approvedCount = approvedCount;
-    }
+  /** @return the newCommentCount */
+  public long getNewCommentCount() {
+    return newCommentCount;
+  }
 
-    /**
-     * @return the newCommentCount
-     */
-    public long getNewCommentCount()
-    {
-        return newCommentCount;
-    }
-
-    /**
-     * @param newCommentCount the newCommentCount to set
-     */
-    public void setNewCommentCount(long newCommentCount)
-    {
-        this.newCommentCount = newCommentCount;
-    }
-
+  /** @param newCommentCount the newCommentCount to set */
+  public void setNewCommentCount(long newCommentCount) {
+    this.newCommentCount = newCommentCount;
+  }
 }

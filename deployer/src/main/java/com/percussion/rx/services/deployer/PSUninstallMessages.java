@@ -16,100 +16,76 @@
  */
 package com.percussion.rx.services.deployer;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Collection of uninstall messages object.
- * @author bjoginipally
  *
+ * @author bjoginipally
  */
 @XmlRootElement(name = "Messages")
-public class PSUninstallMessages
-{
+public class PSUninstallMessages {
 
-   /**
-    * 
-    */
-   public PSUninstallMessages()
-   {
-      super();
-   }
+  /** */
+  public PSUninstallMessages() {
+    super();
+  }
 
-   /**
-    * @param messages
-    */
-   public PSUninstallMessages(List<PSUninstallMessage> messages)
-   {
-      super();
-      if(messages != null)
-         m_messages = messages;
-   }
+  /** @param messages */
+  public PSUninstallMessages(List<PSUninstallMessage> messages) {
+    super();
+    if (messages != null) m_messages = messages;
+  }
 
-   /**
-    * @return the messages
-    */
-   @XmlElement(name="Message", type=PSUninstallMessage.class)
-   public List<PSUninstallMessage> getMessages()
-   {
+  /** @return the messages */
+  @XmlElement(name = "Message", type = PSUninstallMessage.class)
+  public List<PSUninstallMessage> getMessages() {
 
-      return m_messages;
-   }
+    return m_messages;
+  }
 
+  /** @param messages the messages to set */
+  public void setMessages(List<PSUninstallMessage> messages) {
+    m_messages = messages;
+  }
 
+  /**
+   * Adds a message to the collection.
+   *
+   * @param message the message to add, cannot be <code>null</code>.
+   */
+  public void add(PSUninstallMessage message) {
+    if (message == null) throw new IllegalArgumentException("message cannot be null.");
+    m_messages.add(message);
+  }
 
-   /**
-    * @param messages the messages to set
-    */
-   public void setMessages(List<PSUninstallMessage> messages)
-   {
-      m_messages = messages;
-   }
-   
-   /**
-    * Adds a message to the collection.
-    * @param message the message to add, cannot be <code>null</code>.
-    */
-   public void add(PSUninstallMessage message)
-   {
-      if(message == null)
-         throw new IllegalArgumentException("message cannot be null.");
-      m_messages.add(message);   
-   }
-   
-   /**
-    * Removes the specified message from the collection
-    * if it exists.
-    * @param message the message to be removed. May be <code>null</code>.
-    */
-   public void remove(PSUninstallMessage message)
-   {
-      m_messages.remove(message);   
-   }
-   
-   /**
-    * Removes all the messages from the collection.
-    */
-   public void clear()
-   {
-      m_messages.clear();
-   }
-   
-   /**
-    * The list of messages, never <code>null</code>, may
-    * be empty.
-    */
+  /**
+   * Removes the specified message from the collection if it exists.
+   *
+   * @param message the message to be removed. May be <code>null</code>.
+   */
+  public void remove(PSUninstallMessage message) {
+    m_messages.remove(message);
+  }
 
-   private List<PSUninstallMessage> m_messages = new ArrayList<>();
+  /** Removes all the messages from the collection. */
+  public void clear() {
+    m_messages.clear();
+  }
 
-   private Integer status = 0;
-   public Integer getStatus() {
-      return status;
-   }
-   public void setStatus(Integer status) {
-      this.status = status;
-   }
+  /** The list of messages, never <code>null</code>, may be empty. */
+  private List<PSUninstallMessage> m_messages = new ArrayList<>();
 
+  private Integer status = 0;
+
+  public Integer getStatus() {
+    return status;
+  }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 }

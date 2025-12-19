@@ -26,19 +26,17 @@ public class ASTLiteral extends SimpleNode {
     super(p, id);
   }
 
-  public void setValue(Comparable value)
-  {
-     m_value = value;
+  public void setValue(Comparable value) {
+    m_value = value;
   }
 
-  public Comparable getValue()
-  {
-     return m_value;
+  public Comparable getValue() {
+    return m_value;
   }
 
   private Comparable m_value;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

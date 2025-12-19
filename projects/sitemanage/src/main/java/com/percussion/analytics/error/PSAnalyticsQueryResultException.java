@@ -18,31 +18,22 @@ package com.percussion.analytics.error;
 
 /**
  * Runtime exception thrown by the <code>IPSAnalyticsQueryResult</code>
- * @author erikserating
  *
+ * @author erikserating
  */
-public class PSAnalyticsQueryResultException extends RuntimeException
-{
+public class PSAnalyticsQueryResultException extends RuntimeException {
 
-   
-   public PSAnalyticsQueryResultException()
-   {
-      
-   }
+  public PSAnalyticsQueryResultException() {}
 
-   public PSAnalyticsQueryResultException(String arg0)
-   {
-      super(arg0);
-   }
+  public PSAnalyticsQueryResultException(String arg0) {
+    super(arg0);
+  }
 
-   public PSAnalyticsQueryResultException(Throwable arg0)
-   {
-      super(arg0);
-   }   
-   
-   public PSAnalyticsQueryResultException(String arg0, Throwable arg1)
-   {
-      super(arg0, arg1);
-   }
+  public PSAnalyticsQueryResultException(Throwable arg0) {
+    super(arg0);
+  }
 
+  public PSAnalyticsQueryResultException(String arg0, Throwable arg1) {
+    super(arg0, arg1);
+  }
 }

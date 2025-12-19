@@ -17,65 +17,42 @@
 package com.percussion.pathmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * This class is posted to the rest service as part of a request to rename a folder.  It contains the relative path of
- * the folder which should be renamed as well as the new name for the folder.
- * 
+ * This class is posted to the rest service as part of a request to rename a folder. It contains the
+ * relative path of the folder which should be renamed as well as the new name for the folder.
+ *
  * @author peterfrontiero
  */
 @XmlRootElement(name = "RenameFolderItem")
 @JsonRootName("RenameFolderItem")
-public class PSRenameFolderItem
-{
-    /**
-     * @return the path of the folder to rename, never <code>null</code> or empty.
-     */
-    public String getPath()
-    {
-        return path;
-    }
+public class PSRenameFolderItem {
+  /** @return the path of the folder to rename, never <code>null</code> or empty. */
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * @param path the path of the folder to rename, may not be <code>null</code> or empty.
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  /** @param path the path of the folder to rename, may not be <code>null</code> or empty. */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * @return the new name of the folder, never <code>null</code> or empty.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /** @return the new name of the folder, never <code>null</code> or empty. */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param name the new name of the folder, never <code>null</code> or empty.
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  /** @param name the new name of the folder, never <code>null</code> or empty. */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * See {@link #getPath()}.
-     */
-    @NotNull
-    @NotBlank
-    private String path;
-    
-    /**
-     * See {@link #getName()}.
-     */
-    @NotNull
-    @NotBlank
-    private String name;
-   
+  /** See {@link #getPath()}. */
+  @NotNull @NotBlank private String path;
+
+  /** See {@link #getName()}. */
+  @NotNull @NotBlank private String name;
 }

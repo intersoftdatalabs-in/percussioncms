@@ -18,242 +18,229 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.ws.rs.core.UriBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.ws.rs.core.UriBuilder;
+import javax.xml.bind.annotation.XmlRootElement;
 
-//@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+// @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @XmlRootElement(name = "Page")
 @Schema(name = "Page", description = "Represents a page.")
-public class Page
-{
-    @Schema(name="id", description="Id of the page.")
-    private String id;
+public class Page {
+  @Schema(name = "id", description = "Id of the page.")
+  private String id;
 
-    @Schema(name="name",description="Name of the page.")
-    private String name;
+  @Schema(name = "name", description = "Name of the page.")
+  private String name;
 
-    @Schema(name="siteName", description="Name of the site the page belongs to.")
-    private String siteName;
+  @Schema(name = "siteName", description = "Name of the site the page belongs to.")
+  private String siteName;
 
-    @Schema(name="folderPath", description="Path from the site to the page.")
-    private String folderPath;
+  @Schema(name = "folderPath", description = "Path from the site to the page.")
+  private String folderPath;
 
-    @Schema(name="displayName", description="Name that will be displayed in the browser.")
-    private String displayName;
+  @Schema(name = "displayName", description = "Name that will be displayed in the browser.")
+  private String displayName;
 
-    @Schema(name="templateName",description="Name of the template for the page. Read-Only.  See the change-template resource.")
-    private String templateName;
+  @Schema(
+      name = "templateName",
+      description =
+          "Name of the template for the page. Read-Only.  See the change-template resource.")
+  private String templateName;
 
-    @Schema(name="summary", description="Summary of the page.")
-    private String summary;
+  @Schema(name = "summary", description = "Summary of the page.")
+  private String summary;
 
-    @Schema(name="overridePostDate", description="Override post date.")
-    private Date overridePostDate;
+  @Schema(name = "overridePostDate", description = "Override post date.")
+  private Date overridePostDate;
 
-    @Schema(name="workflow", description="Information on the workflow the page belongs to.")
-    private WorkflowInfo workflow;
+  @Schema(name = "workflow", description = "Information on the workflow the page belongs to.")
+  private WorkflowInfo workflow;
 
-    @Schema(name="seo", description="Information on the seo of the page.")
-    private SeoInfo seo;
+  @Schema(name = "seo", description = "Information on the seo of the page.")
+  private SeoInfo seo;
 
-    @Schema(name="calendar", description="Information on the calendar")
-    private CalendarInfo calendar;
+  @Schema(name = "calendar", description = "Information on the calendar")
+  private CalendarInfo calendar;
 
-    @Schema(name="code", description="Information on the code.")
-    private CodeInfo code;
+  @Schema(name = "code", description = "Information on the code.")
+  private CodeInfo code;
 
-    @Schema(name="body", description="Body of the page.")
-    private List<Region> body;
-    
-    @Schema(name="recentUsers", description="A list of users names that have recently used this Page")
-    private List<String> recentUsers;
+  @Schema(name = "body", description = "Body of the page.")
+  private List<Region> body;
 
-    @Schema(name="bookmarkedUsers", description="A list of user names that have bookmarked the page.")
-    private List<String> bookmarkedUsers;
+  @Schema(
+      name = "recentUsers",
+      description = "A list of users names that have recently used this Page")
+  private List<String> recentUsers;
 
-    public List<String> getRecentUsers() {
-    	if(recentUsers == null)
-    		recentUsers = new ArrayList<>();
-		
-    	return recentUsers;
-	}
+  @Schema(
+      name = "bookmarkedUsers",
+      description = "A list of user names that have bookmarked the page.")
+  private List<String> bookmarkedUsers;
 
-	public void setRecentUsers(List<String> recentUsers) {
-		this.recentUsers = recentUsers;
-	}
+  public List<String> getRecentUsers() {
+    if (recentUsers == null) recentUsers = new ArrayList<>();
 
-	public List<String> getBookmarkedUsers() {
-		if(bookmarkedUsers == null)
-			bookmarkedUsers = new ArrayList<>();
-		
-		return bookmarkedUsers;
-	}
+    return recentUsers;
+  }
 
-	public void setBookmarkedUsers(List<String> bookmarkedUsers) {
-		this.bookmarkedUsers = bookmarkedUsers;
-	}
+  public void setRecentUsers(List<String> recentUsers) {
+    this.recentUsers = recentUsers;
+  }
 
+  public List<String> getBookmarkedUsers() {
+    if (bookmarkedUsers == null) bookmarkedUsers = new ArrayList<>();
 
-    
+    return bookmarkedUsers;
+  }
 
-    public String getId()
-    {
-        return id;
-    }
+  public void setBookmarkedUsers(List<String> bookmarkedUsers) {
+    this.bookmarkedUsers = bookmarkedUsers;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getDisplayName()
-    {
-        return displayName;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setDisplayName(String displayName)
-    {
-        this.displayName = displayName;
-    }
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    public String getTemplateName()
-    {
-        return templateName;
-    }
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-    public void setTemplateName(String templateName)
-    {
-        this.templateName = templateName;
-    }
+  public String getTemplateName() {
+    return templateName;
+  }
 
-    public String getSummary()
-    {
-        return summary;
-    }
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
 
-    public void setSummary(String summary)
-    {
-        this.summary = summary;
-    }
+  public String getSummary() {
+    return summary;
+  }
 
-    public Date getOverridePostDate()
-    {
-        return overridePostDate;
-    }
+  public void setSummary(String summary) {
+    this.summary = summary;
+  }
 
-    public void setOverridePostDate(Date overridePostDate)
-    {
-        this.overridePostDate = overridePostDate;
-    }
+  public Date getOverridePostDate() {
+    return overridePostDate;
+  }
 
-    public WorkflowInfo getWorkflow()
-    {
-        return workflow;
-    }
+  public void setOverridePostDate(Date overridePostDate) {
+    this.overridePostDate = overridePostDate;
+  }
 
-    public void setWorkflow(WorkflowInfo workflow)
-    {
-        this.workflow = workflow;
-    }
+  public WorkflowInfo getWorkflow() {
+    return workflow;
+  }
 
-    public SeoInfo getSeo()
-    {
-        return seo;
-    }
+  public void setWorkflow(WorkflowInfo workflow) {
+    this.workflow = workflow;
+  }
 
-    public void setSeo(SeoInfo seo)
-    {
-        this.seo = seo;
-    }
+  public SeoInfo getSeo() {
+    return seo;
+  }
 
-    public CalendarInfo getCalendar()
-    {
-        return calendar;
-    }
+  public void setSeo(SeoInfo seo) {
+    this.seo = seo;
+  }
 
-    public void setCalendar(CalendarInfo calendar)
-    {
-        this.calendar = calendar;
-    }
+  public CalendarInfo getCalendar() {
+    return calendar;
+  }
 
-    public CodeInfo getCode()
-    {
-        return code;
-    }
+  public void setCalendar(CalendarInfo calendar) {
+    this.calendar = calendar;
+  }
 
-    public void setCode(CodeInfo code)
-    {
-        this.code = code;
-    }
+  public CodeInfo getCode() {
+    return code;
+  }
 
-    public List<Region> getBody()
-    {
-        return body;
-    }
+  public void setCode(CodeInfo code) {
+    this.code = code;
+  }
 
-    public void setBody(List<Region> body)
-    {
-        this.body = body;
-    }
+  public List<Region> getBody() {
+    return body;
+  }
 
-    @Override
-    public String toString()
-    {
-        return "Page [id=" + id + ", displayName=" + displayName + ", templateName=" + templateName + ", summary="
-                + summary + ", overridePostDate=" + overridePostDate + ", workflow=" + workflow + ", seo=" + seo
-                + ", calendar=" + calendar + ", code=" + code + ", body=" + body + "]";
-    }
+  public void setBody(List<Region> body) {
+    this.body = body;
+  }
 
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  @Override
+  public String toString() {
+    return "Page [id="
+        + id
+        + ", displayName="
+        + displayName
+        + ", templateName="
+        + templateName
+        + ", summary="
+        + summary
+        + ", overridePostDate="
+        + overridePostDate
+        + ", workflow="
+        + workflow
+        + ", seo="
+        + seo
+        + ", calendar="
+        + calendar
+        + ", code="
+        + code
+        + ", body="
+        + body
+        + "]";
+  }
 
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public URI getLinkRef(URI baseUri)
-    {
-        return getPageUri(baseUri, siteName, folderPath, name);
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    public static URI getPageUri(URI baseUri, String site, String folderPath, String name)
-    {
-        UriBuilder info = UriBuilder.fromUri(baseUri).path(PagesResource.class).path("by-path").path(site);
+  public URI getLinkRef(URI baseUri) {
+    return getPageUri(baseUri, siteName, folderPath, name);
+  }
 
-        if (folderPath != null && folderPath.length() > 0)
-            info = info.path(folderPath);
-        if (name != null && name.length() > 0)
-            info = info.path(name);
+  public static URI getPageUri(URI baseUri, String site, String folderPath, String name) {
+    UriBuilder info =
+        UriBuilder.fromUri(baseUri).path(PagesResource.class).path("by-path").path(site);
 
-        return info.build();
-    }
+    if (folderPath != null && folderPath.length() > 0) info = info.path(folderPath);
+    if (name != null && name.length() > 0) info = info.path(name);
 
+    return info.build();
+  }
 }

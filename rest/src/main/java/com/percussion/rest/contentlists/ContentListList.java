@@ -19,17 +19,16 @@ package com.percussion.rest.contentlists;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentList")
 @ArraySchema(schema = @Schema(implementation = ContentList.class))
 public class ContentListList extends ArrayList<ContentList> {
-    public ContentListList(Collection<? extends ContentList> c) {
-        super(c);
-    }
-    public ContentListList(){}
+  public ContentListList(Collection<? extends ContentList> c) {
+    super(c);
+  }
+
+  public ContentListList() {}
 }

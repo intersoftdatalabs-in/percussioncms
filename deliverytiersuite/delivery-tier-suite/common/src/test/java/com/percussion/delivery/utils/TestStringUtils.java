@@ -17,22 +17,20 @@
 
 package com.percussion.delivery.utils;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.Test;
+
 public class TestStringUtils {
 
+  public TestStringUtils() {}
 
-    public TestStringUtils(){}
+  @Test
+  public void testJoinURL() {
+    String ret = StringUtils.joinURL("https://test.com/", "/parttwo");
 
-    @Test
-    public void testJoinURL(){
-        String ret = StringUtils.joinURL("https://test.com/","/parttwo");
-
-     assertNotNull(ret);
-     assertEquals("https://test.com/parttwo",ret);
-
-    }
+    assertNotNull(ret);
+    assertEquals("https://test.com/parttwo", ret);
+  }
 }

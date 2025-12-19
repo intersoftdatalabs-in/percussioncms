@@ -17,23 +17,22 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * Unit tests for the PSGadgetUtils class.
  *
- * TODO:  Complete the test cases for this utility class.
+ * <p>TODO: Complete the test cases for this utility class.
  */
 public class PSGadgetUtilsTests {
 
-    @Test
-    public void testGetCompareFileName(){
-        assertEquals(
-                "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml",
-                   PSGadgetUtils.getGadgetFileNameForCompare("D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\repository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml"));
-
-    }
-
+  @Test
+  public void testGetCompareFileName() {
+    assertEquals(
+        "D:/DevEnv/Installs/803New/jetty/../cm/gadgets/repository/PercAssetStatusGadget/PercAssetStatusGadget.xml",
+        PSGadgetUtils.getGadgetFileNameForCompare(
+            "D:\\DevEnv\\Installs\\803New\\jetty\\..\\cm\\gadgets\\repository\\PercAssetStatusGadget\\PercAssetStatusGadget.xml"));
+  }
 }

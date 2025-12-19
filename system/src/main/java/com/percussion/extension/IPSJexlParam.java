@@ -23,16 +23,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Describe a single parameter. Parameter descriptions are in the order that
- * the annotated method uses them. 
- * 
+ * Describe a single parameter. Parameter descriptions are in the order that the annotated method
+ * uses them.
+ *
  * @author dougrand
  */
-@Documented 
-@Retention(RetentionPolicy.RUNTIME) 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface IPSJexlParam {
-   String   name();
-   String   type() default "";
-   String   description();
+  String name();
+
+  String type() default "";
+
+  String description();
 }

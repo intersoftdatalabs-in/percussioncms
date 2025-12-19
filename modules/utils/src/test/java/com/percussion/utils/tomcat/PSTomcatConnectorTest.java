@@ -17,25 +17,27 @@
 
 package com.percussion.utils.tomcat;
 
-import com.percussion.utils.container.PSAbstractConnector;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
+import com.percussion.utils.container.PSAbstractConnector;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class PSTomcatConnectorTest {
 
-    @Test
-    public void processProperties() {
-        Map<String,String> props = new HashMap<>();
-        props.put("testProp","testValue");
-        props.put("testProp2","testValue2");
-        PSAbstractConnector conn = new PSAbstractConnector.Builder().setProps(props).build();
+  @Test
+  public void processProperties() {
+    Map<String, String> props = new HashMap<>();
+    props.put("testProp", "testValue");
+    props.put("testProp2", "testValue2");
+    PSAbstractConnector conn = new PSAbstractConnector.Builder().setProps(props).build();
 
-        String result = conn.processPropertyReference("This is the value=${testProp} and value2=${testProp2} value3=${unknownProp}").get();
-        System.out.println("result="+result);
-        assertEquals("This is the value=testValue and value2=testValue2 value3=${unknownProp}",result);
-    }
+    String result =
+        conn.processPropertyReference(
+                "This is the value=${testProp} and value2=${testProp2} value3=${unknownProp}")
+            .get();
+    System.out.println("result=" + result);
+    assertEquals("This is the value=testValue and value2=testValue2 value3=${unknownProp}", result);
+  }
 }

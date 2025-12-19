@@ -17,50 +17,48 @@
 
 package com.percussion.taxonomy.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.servlet.ModelAndView;
+import com.percussion.taxonomy.TaxonomySecurityHelper;
+import com.percussion.taxonomy.service.Relationship_typeService;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.validation.BindException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.percussion.taxonomy.TaxonomySecurityHelper;
-import com.percussion.taxonomy.domain.Relationship_type;
-import com.percussion.taxonomy.service.Relationship_typeService;
-
-import java.util.Collection;
-
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller()
 public class Relationship_typeController {
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    private Relationship_typeService relationship_typeService;
+  protected final Logger logger = LogManager.getLogger(getClass());
+  private Relationship_typeService relationship_typeService;
 
-    public Relationship_typeController() {
-        //TODO: Fix me
+  public Relationship_typeController() {
+    // TODO: Fix me
     /*    setCommandClass(Relationship_type.class);
-        setCommandName("relationship_type");
-   */
-    }
+         setCommandName("relationship_type");
+    */
+  }
 
+  protected ModelAndView handle(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Object command,
+      BindException errors)
+      throws Exception {
+    // --------------------------- Templated - Modify or replace -----------------------------
+    TaxonomySecurityHelper.raise_error_if_cannot_admin();
+    Collection all = relationship_typeService.getAllRelationship_types();
+    Map<String, Object> myModel = new HashMap<String, Object>();
+    myModel.put("all", all);
+    return new ModelAndView("relationship_type", "model", myModel);
+    // ------------------------------------- End Template -----------------------------------------
+  }
 
-    protected ModelAndView handle(HttpServletRequest request, HttpServletResponse response,
-            Object command, BindException errors) throws Exception {
-        //--------------------------- Templated - Modify or replace -----------------------------
-    	TaxonomySecurityHelper.raise_error_if_cannot_admin();
-    	Collection all = relationship_typeService.getAllRelationship_types();
-        Map<String, Object> myModel = new HashMap<String, Object>();
-        myModel.put("all", all);
-        return new ModelAndView("relationship_type", "model", myModel);
-        //------------------------------------- End Template -----------------------------------------
-    }
-
-    public void setRelationship_typeService(Relationship_typeService relationship_typeService) {
-        this.relationship_typeService = relationship_typeService;
-    }
+  public void setRelationship_typeService(Relationship_typeService relationship_typeService) {
+    this.relationship_typeService = relationship_typeService;
+  }
 }

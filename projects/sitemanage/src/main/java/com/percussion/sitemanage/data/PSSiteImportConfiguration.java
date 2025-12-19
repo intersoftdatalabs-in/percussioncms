@@ -2,26 +2,26 @@ package com.percussion.sitemanage.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="SiteImportConfiguration")
+@XmlRootElement(name = "SiteImportConfiguration")
 public class PSSiteImportConfiguration {
 
-    private String mapQueryParamToPageName;
+  private String mapQueryParamToPageName;
 
-    public PSSite getSite() {
-        return site;
-    }
+  public PSSite getSite() {
+    return site;
+  }
 
-    public void setSite(PSSite site) {
-        this.site = site;
-    }
+  public void setSite(PSSite site) {
+    this.site = site;
+  }
 
-    private PSSite site;
+  private PSSite site;
 
-    public String getMapQueryParamToPageName() {
-        return mapQueryParamToPageName;
-    }
+  public String getMapQueryParamToPageName() {
+    return mapQueryParamToPageName;
+  }
 
-    public void setMapQueryParamToPageName(String mapQueryParamToPageName) {
-        this.mapQueryParamToPageName = mapQueryParamToPageName;
-    }
+  public void setMapQueryParamToPageName(String mapQueryParamToPageName) {
+    this.mapQueryParamToPageName = mapQueryParamToPageName;
+  }
 }

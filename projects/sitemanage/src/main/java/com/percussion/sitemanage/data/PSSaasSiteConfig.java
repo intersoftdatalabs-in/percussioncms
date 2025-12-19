@@ -17,17 +17,14 @@
 
 package com.percussion.sitemanage.data;
 
-public class PSSaasSiteConfig
-{
-    private PSSiteConfig siteConfig;
+public class PSSaasSiteConfig {
+  private PSSiteConfig siteConfig;
 
-    public PSSiteConfig getSiteConfig ()
-    {
-        return siteConfig;
-    }
+  public PSSiteConfig getSiteConfig() {
+    return siteConfig;
+  }
 
-    public void setSiteConfig (PSSiteConfig siteConfig)
-    {
-        this.siteConfig = siteConfig;
-    }
+  public void setSiteConfig(PSSiteConfig siteConfig) {
+    this.siteConfig = siteConfig;
+  }
 }

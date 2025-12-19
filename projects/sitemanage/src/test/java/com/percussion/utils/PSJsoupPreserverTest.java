@@ -24,47 +24,36 @@ import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 public class PSJsoupPreserverTest {
-	
-	private static String testCase1 = "<PRESERVE><div class=\"example\"></PRESERVE>";
-	private static String testCase2 = "<PRESERVE></div><!-- /.example --></PRESERVE>";
-	private static String testCase3 = "<PRESERVE><?php \n"
-         + "\n"
-         + "//Set stream options\n"
-         + "$context = stream_context_create(array('http' => array('ignore_errors' => true)));\n"
-         + "if(!isset($_GET['tfa_next'])) {\n"
-         + "echo file_get_contents('https://app.formassembly.com/rest/forms/view/329018',false,$context);\n"
-         + "} else {\n"
-         + "echo file_get_contents('https://app.formassembly.com/rest'.$_GET['tfa_next'],false,$context);\n"
-         + "}/n"
-         + "?>/n"
-         
-         
-         + "</PRESERVE>";
-	
 
+  private static String testCase1 = "<PRESERVE><div class=\"example\"></PRESERVE>";
+  private static String testCase2 = "<PRESERVE></div><!-- /.example --></PRESERVE>";
+  private static String testCase3 =
+      "<PRESERVE><?php \n"
+          + "\n"
+          + "//Set stream options\n"
+          + "$context = stream_context_create(array('http' => array('ignore_errors' => true)));\n"
+          + "if(!isset($_GET['tfa_next'])) {\n"
+          + "echo file_get_contents('https://app.formassembly.com/rest/forms/view/329018',false,$context);\n"
+          + "} else {\n"
+          + "echo file_get_contents('https://app.formassembly.com/rest'.$_GET['tfa_next'],false,$context);\n"
+          + "}/n"
+          + "?>/n"
+          + "</PRESERVE>";
 
-			
+  @Test
+  public void testCases() throws Exception {
+    String preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase1);
 
-	  @Test
-	    public void testCases() throws Exception
-	    {
-		  String preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase1);
-		 
-		  Document doc = Jsoup.parseBodyFragment(preserved);
-		  
-		  assertEquals(testCase1, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
-		  
-		  
-		  preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase2);
-		  doc = Jsoup.parseBodyFragment(preserved);
-		  assertEquals(testCase2, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
-		  
-		  preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase3);
-		  doc = Jsoup.parseBodyFragment(preserved);
-		  assertEquals(testCase3, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
-		  
-		  
-	    }
-		
+    Document doc = Jsoup.parseBodyFragment(preserved);
 
+    assertEquals(testCase1, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+
+    preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase2);
+    doc = Jsoup.parseBodyFragment(preserved);
+    assertEquals(testCase2, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+
+    preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(testCase3);
+    doc = Jsoup.parseBodyFragment(preserved);
+    assertEquals(testCase3, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+  }
 }

@@ -17,24 +17,22 @@
 
 package com.percussion.rest.util;
 
+import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.util.Date;
-
-/***
- * Useful shared utility methods. 
- *
- *
- */
+/** * Useful shared utility methods. */
 public class APIUtilities {
 
-	  /***
-     * Generates a filename based on the current date and time with the supplied prefix and extension.
-     * @param prefix A string containing valid URL characters that will be pre-pended to the file name
-     * @param extension A file extension (without the .)
-     * @return nonadaimages-2017-01-0312-13-10.csv
-     */
-    public static String getReportFileName(String prefix, String extension){
-    	return FastDateFormat.getInstance("'" + prefix +"-'yyyy-MM-dd-hh-mm-ss'." + extension + "'").format(new Date());
-    }
+  /**
+   * * Generates a filename based on the current date and time with the supplied prefix and
+   * extension.
+   *
+   * @param prefix A string containing valid URL characters that will be pre-pended to the file name
+   * @param extension A file extension (without the .)
+   * @return nonadaimages-2017-01-0312-13-10.csv
+   */
+  public static String getReportFileName(String prefix, String extension) {
+    return FastDateFormat.getInstance("'" + prefix + "-'yyyy-MM-dd-hh-mm-ss'." + extension + "'")
+        .format(new Date());
+  }
 }

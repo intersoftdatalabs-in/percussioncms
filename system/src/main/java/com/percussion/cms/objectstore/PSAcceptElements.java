@@ -17,66 +17,63 @@
 package com.percussion.cms.objectstore;
 
 /**
- * This class is used to define rules for elements to be included in the
- * Element returned in {@link PSItemComponent#toXml(Document,PSAcceptElements)} 
- * calls.  This may be expanded at a later date to provide more flexibility of 
- * including and excluding elements based on object values in the 
+ * This class is used to define rules for elements to be included in the Element returned in {@link
+ * PSItemComponent#toXml(Document,PSAcceptElements)} calls. This may be expanded at a later date to
+ * provide more flexibility of including and excluding elements based on object values in the
  * sys_StandardItem.xsd.
  */
-public class PSAcceptElements
-{
-   /**
-    * Creates an instance with the with the boolean rules specified
-    * by the parameters.
-    *
-    * @param includeFields
-    * @param includeChilds
-    * @param includeRelated
-    * @param includeBinary
-    */
-   public PSAcceptElements(boolean includeFields, boolean includeChildren,
-       boolean includeRelated, boolean includeBinary)
-   {
-      m_includeFields = includeFields;
-      m_includeChildren = includeChildren;
-      m_includeRelated = includeRelated;
-      m_includeBinary  = includeBinary;
+public class PSAcceptElements {
+  /**
+   * Creates an instance with the with the boolean rules specified by the parameters.
+   *
+   * @param includeFields
+   * @param includeChilds
+   * @param includeRelated
+   * @param includeBinary
+   */
+  public PSAcceptElements(
+      boolean includeFields,
+      boolean includeChildren,
+      boolean includeRelated,
+      boolean includeBinary) {
+    m_includeFields = includeFields;
+    m_includeChildren = includeChildren;
+    m_includeRelated = includeRelated;
+    m_includeBinary = includeBinary;
+  }
 
-   }
+  /**
+   * Specifies the inclusion of binary values in {@link PSFieldItem#toXml(Document)} calls. Include
+   * binary field values?
+   *
+   * @return <code>true</code> is they are to be included, otherwise <code>
+   * false</code>.
+   */
+  public boolean includeBinary() {
+    return m_includeBinary;
+  }
 
-   /**
-    * Specifies the inclusion of binary values in
-    * {@link PSFieldItem#toXml(Document)} calls.  Include binary field values?
-    *
-    * @return <code>true</code> is they are to be included, otherwise <code>
-    * false</code>.
-    */
-   public boolean includeBinary()
-   {
-      return m_includeBinary;
-   }
+  /**
+   * Use to indicate if fields should be included in a toXml call, default is <code>true</code>, may
+   * change.
+   */
+  private boolean m_includeFields = true;
 
-   /**
-    * Use to indicate if fields should be included in a toXml call, default
-    * is <code>true</code>, may change.
-    */
-   private boolean m_includeFields = true;
+  /**
+   * Use to indicate if child should be included in a toXml call, default is <code>true</code>, may
+   * change.
+   */
+  private boolean m_includeChildren = true;
 
-   /**
-    * Use to indicate if child should be included in a toXml call, default
-    * is <code>true</code>, may change.
-    */
-   private boolean m_includeChildren = true;
+  /**
+   * Use to indicate if related items should be included in a toXml call, default is <code>true
+   * </code>, may change.
+   */
+  private boolean m_includeRelated = true;
 
-   /**
-    * Use to indicate if related items should be included in a toXml call,
-    * default is <code>true</code>, may change.
-    */
-   private boolean m_includeRelated = true;
-
-   /**
-    * Use to indicate if binary fields should be included in a toXml call,
-    * default is <code>false</code>, may change.
-    */
-   private boolean m_includeBinary = true;
+  /**
+   * Use to indicate if binary fields should be included in a toXml call, default is <code>false
+   * </code>, may change.
+   */
+  private boolean m_includeBinary = true;
 }

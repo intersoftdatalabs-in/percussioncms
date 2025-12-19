@@ -17,72 +17,54 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Wrapper class to hold the list of {@link PSApprovableItems}.
- * 
+ *
  * @author leonardohildt
- * 
  */
 @XmlRootElement(name = "ApprovableItems")
-public class PSApprovableItems extends PSAbstractDataObject
-{
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+public class PSApprovableItems extends PSAbstractDataObject {
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * List of approvable items associated to the gadget
-     */
-    private List<PSApprovableItem> approvableItems;
+  /** List of approvable items associated to the gadget */
+  private List<PSApprovableItem> approvableItems;
 
-    private List<PSApprovableItem> processedItems;
+  private List<PSApprovableItem> processedItems;
 
-    private Map<String, String> errors = new HashMap<>();
+  private Map<String, String> errors = new HashMap<>();
 
-    public PSApprovableItems() {
-        // empty for jax-rs
-    }
+  public PSApprovableItems() {
+    // empty for jax-rs
+  }
 
-    /**
-     * @return the items
-     */
-    public List<PSApprovableItem> getApprovableItems()
-    {
-        return approvableItems;
-    }
+  /** @return the items */
+  public List<PSApprovableItem> getApprovableItems() {
+    return approvableItems;
+  }
 
-    public void setApprovableItems(List<PSApprovableItem> approvableItems)
-    {
-        this.approvableItems = approvableItems;
-    }
-    
-    public Map<String, String> getErrors()
-    {
-        return errors;
-    }
+  public void setApprovableItems(List<PSApprovableItem> approvableItems) {
+    this.approvableItems = approvableItems;
+  }
 
-    public void setErrors(Map<String, String> errors)
-    {
-        this.errors = errors;
-    }
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 
-    public List<PSApprovableItem> getProcessedItems()
-    {
-        return processedItems;
-    }
+  public void setErrors(Map<String, String> errors) {
+    this.errors = errors;
+  }
 
-    public void setProcessedItems(List<PSApprovableItem> processedItems)
-    {
-        this.processedItems = processedItems;
-    }
+  public List<PSApprovableItem> getProcessedItems() {
+    return processedItems;
+  }
 
+  public void setProcessedItems(List<PSApprovableItem> processedItems) {
+    this.processedItems = processedItems;
+  }
 }

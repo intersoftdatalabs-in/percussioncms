@@ -17,35 +17,24 @@
 package com.percussion.utils.data;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author miltonpividori
- *
- */
+/** @author miltonpividori */
 @XmlRootElement(name = "PrivateKeys")
-public class PSPrivateKeysResponse
-{
-    private List<String> keyNames;
+public class PSPrivateKeysResponse {
+  private List<String> keyNames;
 
-    public PSPrivateKeysResponse()
-    {
-        
-    }
-    
-    public PSPrivateKeysResponse(List<String> keyNames)
-    {
-        this.keyNames = keyNames;
-    }
+  public PSPrivateKeysResponse() {}
 
-    public List<String> getKeyNames()
-    {
-        return keyNames;
-    }
+  public PSPrivateKeysResponse(List<String> keyNames) {
+    this.keyNames = keyNames;
+  }
 
-    public void setKeyNames(List<String> keyNames)
-    {
-        this.keyNames = keyNames;
-    }
+  public List<String> getKeyNames() {
+    return keyNames;
+  }
+
+  public void setKeyNames(List<String> keyNames) {
+    this.keyNames = keyNames;
+  }
 }

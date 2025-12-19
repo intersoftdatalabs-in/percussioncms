@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * This class catalogs all macros defined on the server.
  * <p>
- * Macro catalog requests are sent to the server using the PSXMacroCatalog XML 
+ * Macro catalog requests are sent to the server using the PSXMacroCatalog XML
  * document. It's definition is as follows:
  * <pre><code>
  *
@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  *
  * <pre><code>
  *
- * The PSXMacroCatalogResults XML document is sent as the response. It's 
+ * The PSXMacroCatalogResults XML document is sent as the response. It's
  * definition is as follows:
  * <pre><code>
  *
@@ -45,90 +45,64 @@ import org.w3c.dom.Element;
  *
  * <pre><code>
  */
-
 public class PSMacroCatalogHandler extends PSCatalogRequestHandler
-   implements IPSCatalogRequestHandler
-{
-   /**
-    * Get the XML document types supported by this handler.
-    *
-    * @return the supported request type(s), never <code>null</code> or empty
-    */
-   public String[] getSupportedRequestTypes()
-   {
-      return new String[] { CATALOGER_NAME };
-   }
+    implements IPSCatalogRequestHandler {
+  /**
+   * Get the XML document types supported by this handler.
+   *
+   * @return the supported request type(s), never <code>null</code> or empty
+   */
+  public String[] getSupportedRequestTypes() {
+    return new String[] {CATALOGER_NAME};
+  }
 
-   /**
-    * Process the catalog request. This uses the XML document sent as the
-    * input data. The results are sent using <code>PSResponse</code> object in
-    * the supplied request object.
-    *
-    * @param request the request object containing all context data associated
-    *    with the request, may not be <code>null</code>
-    */
-   public void processRequest(PSRequest request)
-   {
-      if (request == null)
-         throw new IllegalArgumentException("request may not be null" );
+  /**
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * sent using <code>PSResponse</code> object in the supplied request object.
+   *
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>
+   */
+  public void processRequest(PSRequest request) {
+    if (request == null) throw new IllegalArgumentException("request may not be null");
 
-      Document doc = request.getInputDocument();
-      Element root = null;
-      if ((doc == null) || ((root = doc.getDocumentElement()) == null))
-      {
-         Object[] args = 
-         { 
-            REQ_CATEGORY_VALUE, 
-            REQ_TYPE_VALUE, 
-            CATALOGER_NAME 
-         };
-         createErrorResponse(
-            request, new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_MISSING, args));
-         return;
-      }
+    Document doc = request.getInputDocument();
+    Element root = null;
+    if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
+      Object[] args = {REQ_CATEGORY_VALUE, REQ_TYPE_VALUE, CATALOGER_NAME};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+      return;
+    }
 
-      // verify this is the appropriate request type
-      if (!CATALOGER_NAME.equals(root.getTagName()))
-      {
-         Object[] args = { CATALOGER_NAME, root.getTagName() };
-         createErrorResponse(request,
-            new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
-         return;
-      }
+    // verify this is the appropriate request type
+    if (!CATALOGER_NAME.equals(root.getTagName())) {
+      Object[] args = {CATALOGER_NAME, root.getTagName()};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+      return;
+    }
 
-      Document retDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element retRoot = PSXmlDocumentBuilder.createRoot(
-         retDoc, (CATALOGER_NAME + "Results"));
+    Document retDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element retRoot = PSXmlDocumentBuilder.createRoot(retDoc, (CATALOGER_NAME + "Results"));
 
-      retRoot.appendChild(PSServer.getMacros().toXml(retDoc));
+    retRoot.appendChild(PSServer.getMacros().toXml(retDoc));
 
-      // and send the result to the caller
-      sendXmlData(request, retDoc);
-   }
+    // and send the result to the caller
+    sendXmlData(request, retDoc);
+  }
 
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
-   
-   /**
-    * The cataloger name. This is the name used for the root element of the 
-    * request document.
-    */
-   public static final String CATALOGER_NAME = "PSXMacroCatalog";
+  /** Shutdown the request handler, freeing any associated resources. */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 
-   /**
-    * The request category, used to construct the cataloger class name.
-    */
-   public static final String REQ_CATEGORY_VALUE = "macro";
-   
-   /**
-    * The request type, use to construct the cataloger class name.
-    */
-   public static final String REQ_TYPE_VALUE = "Macro";
+  /** The cataloger name. This is the name used for the root element of the request document. */
+  public static final String CATALOGER_NAME = "PSXMacroCatalog";
+
+  /** The request category, used to construct the cataloger class name. */
+  public static final String REQ_CATEGORY_VALUE = "macro";
+
+  /** The request type, use to construct the cataloger class name. */
+  public static final String REQ_TYPE_VALUE = "Macro";
 }

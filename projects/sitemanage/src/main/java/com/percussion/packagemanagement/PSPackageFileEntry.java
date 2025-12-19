@@ -18,42 +18,33 @@ package com.percussion.packagemanagement;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="PackageFileEntry")
-public class PSPackageFileEntry
-{
-    private String packageName;
-    private PackageFileStatus status;
-    
-    public String getPackageName()
-    {
-        return packageName;
-    }
-    
-    public void setPackageName(String packageName)
-    {
-        this.packageName = packageName;
-    }
-    
-    public PackageFileStatus getStatus()
-    {
-        return status;
-    }
-    
-    public void setStatus(PackageFileStatus status)
-    {
-        this.status = status;
-    }
-    
-    public enum PackageFileStatus
-    {
-        FAILED,
-        INSTALLED,
-		REVERT,
-        UNINSTALL,
-        PENDING
-    }
+/** @author JaySeletz */
+@XmlRootElement(name = "PackageFileEntry")
+public class PSPackageFileEntry {
+  private String packageName;
+  private PackageFileStatus status;
+
+  public String getPackageName() {
+    return packageName;
+  }
+
+  public void setPackageName(String packageName) {
+    this.packageName = packageName;
+  }
+
+  public PackageFileStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(PackageFileStatus status) {
+    this.status = status;
+  }
+
+  public enum PackageFileStatus {
+    FAILED,
+    INSTALLED,
+    REVERT,
+    UNINSTALL,
+    PENDING
+  }
 }

@@ -18,29 +18,22 @@ package com.percussion.pagemanagement.service;
 
 /**
  * Exception for resource problems.
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSResourceServiceException extends RuntimeException
-{
+public class PSResourceServiceException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSResourceServiceException(String message)
-    {
-        super(message);
-    }
+  public PSResourceServiceException(String message) {
+    super(message);
+  }
 
-    public PSResourceServiceException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
+  public PSResourceServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public PSResourceServiceException(Throwable cause)
-    {
-        super(cause);
-    }
-
+  public PSResourceServiceException(Throwable cause) {
+    super(cause);
+  }
 }
-
-

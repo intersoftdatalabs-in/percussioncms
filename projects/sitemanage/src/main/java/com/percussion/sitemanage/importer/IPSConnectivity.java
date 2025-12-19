@@ -17,34 +17,29 @@
 package com.percussion.sitemanage.importer;
 
 import java.io.IOException;
-
 import org.jsoup.nodes.Document;
 
-/**
- * Inner interface to wrap connectivity JSoup connectivity
- */
-public interface IPSConnectivity
-{
-    /**
-     * Wraps Jsoup get, fulfills IOException around binary parsing
-     * 
-     * @return a Jsoup document
-     * @throws IOException when ignoreContent is set to false, and binary is
-     *             encountered
-     */
-    Document get() throws IOException;
+/** Inner interface to wrap connectivity JSoup connectivity */
+public interface IPSConnectivity {
+  /**
+   * Wraps Jsoup get, fulfills IOException around binary parsing
+   *
+   * @return a Jsoup document
+   * @throws IOException when ignoreContent is set to false, and binary is encountered
+   */
+  Document get() throws IOException;
 
-    /**
-     * Fulfills Jsoup getResponseStatusCode contract
-     * 
-     * @return a valid HTTP response code
-     */
-    int getResponseStatusCode();
+  /**
+   * Fulfills Jsoup getResponseStatusCode contract
+   *
+   * @return a valid HTTP response code
+   */
+  int getResponseStatusCode();
 
-    /**
-     * Fulfills Jsoup getResponseUrl contract
-     * 
-     * @return returns a String based representation for the URL
-     */
-    String getResponseUrl();
+  /**
+   * Fulfills Jsoup getResponseUrl contract
+   *
+   * @return returns a String based representation for the URL
+   */
+  String getResponseUrl();
 }

@@ -22,24 +22,18 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSFolderReso
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-
 /**
- * 
- * Visitor pattern for the different types of 
- * {@link PSResourceDefinition}s
- * 
- * @author adamgent
+ * Visitor pattern for the different types of {@link PSResourceDefinition}s
  *
+ * @author adamgent
  */
-public interface IPSResourceDefinitionVisitor
-{
-    
-    public void visit(PSAssetResource resource) throws PSDataServiceException;
-    
-    public void visit(PSFileResource resource);
-    
-    public void visit(PSFolderResource resource);
-    
-    public void visit(PSThemeResource resource);
+public interface IPSResourceDefinitionVisitor {
 
+  public void visit(PSAssetResource resource) throws PSDataServiceException;
+
+  public void visit(PSFileResource resource);
+
+  public void visit(PSFolderResource resource);
+
+  public void visit(PSThemeResource resource);
 }

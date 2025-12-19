@@ -19,15 +19,15 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.ContainerConfig;
 
-public interface ConfigurationAdaptorComposite<T extends ConfigurationCtx,U extends ContainerConfig> extends IPSConfigurationAdapter<T> {
+public interface ConfigurationAdaptorComposite<
+        T extends ConfigurationCtx, U extends ContainerConfig>
+    extends IPSConfigurationAdapter<T> {
 
-    void addConfigurationAdapter(IPSConfigurationAdapter<T> adapter);
+  void addConfigurationAdapter(IPSConfigurationAdapter<T> adapter);
 
-    U getConfig();
+  U getConfig();
 
-    void load();
+  void load();
 
-    void save();
-
-
+  void save();
 }

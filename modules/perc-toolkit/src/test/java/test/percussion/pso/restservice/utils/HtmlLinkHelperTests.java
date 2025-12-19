@@ -17,13 +17,6 @@
 package test.percussion.pso.restservice.utils;
 
 import com.percussion.pso.restservice.utils.HtmlLinkHelper;
-import junit.framework.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,106 +24,107 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import junit.framework.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.xml.sax.SAXException;
 
 public class HtmlLinkHelperTests {
 
-	@Test
-	public void testConvertToAbsoluteLink1() throws URISyntaxException, MalformedURLException {
-	
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
-		
-	}
+  @Test
+  public void testConvertToAbsoluteLink1() throws URISyntaxException, MalformedURLException {
 
-	@Test
-	public void testDotRelative() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "./image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
-		
-		
-	}
-	
-	@Test
-	public void testRootAbsoluteFile() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "/image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
-		
-		
-	}
-	
+    String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "image1.jpg");
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+  }
 
-	@Test
-	public void testRelativeDir() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images");
-		Assert.assertEquals("http://www.somedomain.com/images", test);
-		
-		
-	}
+  @Test
+  public void testDotRelative() throws MalformedURLException, URISyntaxException {
 
-	@Test
-	public void testRelativeDirTrailingSlash() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/");
-		Assert.assertEquals("http://www.somedomain.com/images/", test);
-		
-		
-	}
-	
-	@Test
-	public void testRelativeDirTrailingSlashFile() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.docx");
-		Assert.assertEquals("http://www.somedomain.com/images/file1.docx", test);
-		
-		
-	}
-	
-	
-	@Test
-	public void testRelativeDirTrailingSlashFileBookmark() throws MalformedURLException, URISyntaxException{
-		
-		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.html#234.78");
-		Assert.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
-		
-		
-	}
+    String test =
+        HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "./image1.jpg");
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+  }
 
-	@Test
-	public void testGetBaseLink() throws URISyntaxException, MalformedURLException{
+  @Test
+  public void testRootAbsoluteFile() throws MalformedURLException, URISyntaxException {
 
-		String test = HtmlLinkHelper.getBaseLink("http://www.somewhere.gov/news/about.html?month=03&year=2011");
-		
-		Assert.assertEquals("http://www.somewhere.gov/", test);
-	}
-	
-	
-	@Test
-	public void testBaseWithPort() throws MalformedURLException, URISyntaxException{
-		String test = HtmlLinkHelper.getBaseLink("http://www.somewhere.gov:8793/news/about.html?month=03&year=2011");
-		
-		Assert.assertEquals("http://www.somewhere.gov:8793/", test);
-	}
-	
-	@Test
-	@Ignore("Test is failing") //TODO: Fix me
-	public void testFixLinksRandom() throws IOException, TransformerException, ParserConfigurationException, SAXException, URISyntaxException{
-		
-		InputStream is = this.getClass().getResourceAsStream("randomcar.html");
-		
-		 Reader reader = new BufferedReader(new InputStreamReader(is));
-	        StringBuilder builder = new StringBuilder();
-	        char[] buffer = new char[8192];
-	        int read;
-	        while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
-	            builder.append(buffer, 0, read);
-	        }
+    String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "/image1.jpg");
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+  }
 
-		String n = HtmlLinkHelper.convertLinksToAbsolute("https://www.percussion.com/randomcar.html",builder.toString());
-		
-		Assert.assertEquals(builder.toString(), n);
-		
-	}
+  @Test
+  public void testRelativeDir() throws MalformedURLException, URISyntaxException {
+
+    String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images");
+    Assert.assertEquals("http://www.somedomain.com/images", test);
+  }
+
+  @Test
+  public void testRelativeDirTrailingSlash() throws MalformedURLException, URISyntaxException {
+
+    String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/");
+    Assert.assertEquals("http://www.somedomain.com/images/", test);
+  }
+
+  @Test
+  public void testRelativeDirTrailingSlashFile() throws MalformedURLException, URISyntaxException {
+
+    String test =
+        HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.docx");
+    Assert.assertEquals("http://www.somedomain.com/images/file1.docx", test);
+  }
+
+  @Test
+  public void testRelativeDirTrailingSlashFileBookmark()
+      throws MalformedURLException, URISyntaxException {
+
+    String test =
+        HtmlLinkHelper.convertToAbsoluteLink(
+            "http://www.somedomain.com/", "images/file1.html#234.78");
+    Assert.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
+  }
+
+  @Test
+  public void testGetBaseLink() throws URISyntaxException, MalformedURLException {
+
+    String test =
+        HtmlLinkHelper.getBaseLink("http://www.somewhere.gov/news/about.html?month=03&year=2011");
+
+    Assert.assertEquals("http://www.somewhere.gov/", test);
+  }
+
+  @Test
+  public void testBaseWithPort() throws MalformedURLException, URISyntaxException {
+    String test =
+        HtmlLinkHelper.getBaseLink(
+            "http://www.somewhere.gov:8793/news/about.html?month=03&year=2011");
+
+    Assert.assertEquals("http://www.somewhere.gov:8793/", test);
+  }
+
+  @Test
+  @Ignore("Test is failing") // TODO: Fix me
+  public void testFixLinksRandom()
+      throws IOException, TransformerException, ParserConfigurationException, SAXException,
+          URISyntaxException {
+
+    InputStream is = this.getClass().getResourceAsStream("randomcar.html");
+
+    Reader reader = new BufferedReader(new InputStreamReader(is));
+    StringBuilder builder = new StringBuilder();
+    char[] buffer = new char[8192];
+    int read;
+    while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
+      builder.append(buffer, 0, read);
+    }
+
+    String n =
+        HtmlLinkHelper.convertLinksToAbsolute(
+            "https://www.percussion.com/randomcar.html", builder.toString());
+
+    Assert.assertEquals(builder.toString(), n);
+  }
 }

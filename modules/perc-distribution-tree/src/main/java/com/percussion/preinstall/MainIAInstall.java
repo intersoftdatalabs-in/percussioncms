@@ -17,26 +17,24 @@
 
 package com.percussion.preinstall;
 
-import com.percussion.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MainIAInstall {
 
-    private static final Logger log = LogManager.getLogger(MainIAInstall.class);
+  private static final Logger log = LogManager.getLogger(MainIAInstall.class);
 
-    public static final int ESTIMATED_LINES=30000;
+  public static final int ESTIMATED_LINES = 30000;
 
-    public String getInstallStatusMessage() {
-        return "Installing files...";
-    }
+  public String getInstallStatusMessage() {
+    return "Installing files...";
+  }
 
-    public String getUninstallStatusMessage() {
-        return "Uninstalling files...";
-    }
+  public String getUninstallStatusMessage() {
+    return "Uninstalling files...";
+  }
 
-
-    public static float calculatePercentage(int lineNo){
-        return (lineNo * 100) / ESTIMATED_LINES;
-    }
+  public static float calculatePercentage(int lineNo) {
+    return (lineNo * 100) / ESTIMATED_LINES;
+  }
 }

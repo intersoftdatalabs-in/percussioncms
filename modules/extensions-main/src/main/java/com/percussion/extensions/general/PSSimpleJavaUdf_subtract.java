@@ -22,50 +22,42 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSCalculation;
 
 /**
- * The PSSimpleJavaUdf_subtract class performs subtraction operation for two numbers
- * given by a user defined function (UDF).
+ * The PSSimpleJavaUdf_subtract class performs subtraction operation for two numbers given by a user
+ * defined function (UDF).
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
-public class PSSimpleJavaUdf_subtract extends PSSimpleJavaUdfExtension
-{
-   /* ************ IPSUdfProcessor Interface Implementation ************ */
+public class PSSimpleJavaUdf_subtract extends PSSimpleJavaUdfExtension {
+  /* ************ IPSUdfProcessor Interface Implementation ************ */
 
-   /**
-    * Subtracts params[1] from params[0] and returns the result as a Double.
-    *
-    * @param params An array of 2 non-null elements. Any numeric type is allowed,
-    * as well as String, PSTextLiteral and PSNumericLiteral. Non numeric types are
-    * parsed and converted to numbers.
-    *
-    * @param      request         the current request context
-    *
-    * @return The result of subtracting params[1] from params[0], as a Double.
-    * If both are null, then null is returned.
-    *
-    * @exception  PSConversionException If 2 params are not supplied or the
-    * supplied params are not supported or could not be converted to a numeric
-    * type or 1 of the 2 params is null.
-    *
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      final int size = (params == null) ? 0 : params.length;
+  /**
+   * Subtracts params[1] from params[0] and returns the result as a Double.
+   *
+   * @param params An array of 2 non-null elements. Any numeric type is allowed, as well as String,
+   *     PSTextLiteral and PSNumericLiteral. Non numeric types are parsed and converted to numbers.
+   * @param request the current request context
+   * @return The result of subtracting params[1] from params[0], as a Double. If both are null, then
+   *     null is returned.
+   * @exception PSConversionException If 2 params are not supplied or the supplied params are not
+   *     supported or could not be converted to a numeric type or 1 of the 2 params is null.
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    final int size = (params == null) ? 0 : params.length;
 
-      if (size != 2){  // two parameters are required
-         int errCode = 0;
-         String arg0 = "expect 2 parameters, ";
-         arg0 += String.valueOf(size) + " parameters were specified.";
-         Object[] args = { arg0, "PSSimpleJavaUdf_subtract/processUdf" };
-         throw new PSConversionException(errCode, args);
-      }
+    if (size != 2) { // two parameters are required
+      int errCode = 0;
+      String arg0 = "expect 2 parameters, ";
+      arg0 += String.valueOf(size) + " parameters were specified.";
+      Object[] args = {arg0, "PSSimpleJavaUdf_subtract/processUdf"};
+      throw new PSConversionException(errCode, args);
+    }
 
-      Object o1 = params[0];
-      Object o2 = params[1];
+    Object o1 = params[0];
+    Object o2 = params[1];
 
-      return PSCalculation.subtract(o1, o2);
-   }
+    return PSCalculation.subtract(o1, o2);
+  }
 }

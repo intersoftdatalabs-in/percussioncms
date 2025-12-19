@@ -21,42 +21,38 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.util.PSSiteManageBean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("validationExceptionMapper")
-public class PSValidationExceptionMapper extends PSAbstractExceptionMapper<PSValidationException> implements ExceptionMapper<PSValidationException> {
+public class PSValidationExceptionMapper extends PSAbstractExceptionMapper<PSValidationException>
+    implements ExceptionMapper<PSValidationException> {
 
-        private static final String ERROR_MESSAGE = "PSValidationExceptionMapper exception mapper mapped exception:";
+  private static final String ERROR_MESSAGE =
+      "PSValidationExceptionMapper exception mapper mapped exception:";
 
-        /**
-         * The log instance to use for this class, never <code>null</code>.
-         */
-        private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(PSValidationException exception) {
-            log.debug(ERROR_MESSAGE, exception);
-            return exception.getValidationErrors();
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(PSValidationException exception) {
+    log.debug(ERROR_MESSAGE, exception);
+    return exception.getValidationErrors();
+  }
 
-    }
-
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected Status getStatus(PSValidationException exception)
-    {
-        return super.getStatus(exception);
-    }
-
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Status getStatus(PSValidationException exception) {
+    return super.getStatus(exception);
+  }
 }

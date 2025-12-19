@@ -19,14 +19,10 @@ package com.percussion.ant.install;
 
 import com.percussion.install.InstallUtil;
 
-
 /**
- * PSBrandProduct will brand the product with the brand code in the
- * installers property file.
+ * PSBrandProduct will brand the product with the brand code in the installers property file. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -44,14 +40,11 @@ import com.percussion.install.InstallUtil;
  *  </code>
  *
  * </pre>
- *
  */
-public class PSBrandProduct extends PSAction
-{
-   // see base class
-   @Override
-   public void execute()
-   {
-      InstallUtil.brandProduct(getRootDir());
-   }
+public class PSBrandProduct extends PSAction {
+  // see base class
+  @Override
+  public void execute() {
+    InstallUtil.brandProduct(getRootDir());
+  }
 }

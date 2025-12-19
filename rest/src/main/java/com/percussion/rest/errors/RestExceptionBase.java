@@ -18,109 +18,93 @@
 package com.percussion.rest.errors;
 
 import java.util.ResourceBundle;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement(name = "Error")
-public class RestExceptionBase extends WebApplicationException
-{
-    private RestErrorCode errorCode;
+public class RestExceptionBase extends WebApplicationException {
+  private RestErrorCode errorCode;
 
-    private String message;
+  private String message;
 
-    private String detailMessage;
+  private String detailMessage;
 
-    private Object errorData;
+  private Object errorData;
 
-    private Status status;
+  private Status status;
 
-    public RestExceptionBase()
-    {
-        
+  public RestExceptionBase() {}
+
+  public RestExceptionBase(
+      RestErrorCode errorCode, String detailMessage, Object errorData, Status status) {
+    this(errorCode, null, detailMessage, errorData, status);
+  }
+
+  public RestExceptionBase(
+      RestErrorCode errorCode,
+      String message,
+      String detailMessage,
+      Object errorData,
+      Status status) {
+    this.errorCode = errorCode;
+    if (message == null) {
+      ResourceBundle errorMsg =
+          ResourceBundle.getBundle("com.percussion.rest.errors.ErrorMessages");
+      this.message = errorMsg.getString(Integer.toString(errorCode.getNumVal()));
+    } else {
+      this.message = message;
     }
-    
-    public RestExceptionBase(RestErrorCode errorCode, String detailMessage, Object errorData, Status status)
-    {
-        this(errorCode, null, detailMessage, errorData, status);
+    this.detailMessage = detailMessage;
+    this.errorData = errorData;
+    if (status == null) {
+      this.status = Status.INTERNAL_SERVER_ERROR;
+    } else {
+      this.status = status;
     }
+  }
 
-    public RestExceptionBase(RestErrorCode errorCode, String message, String detailMessage, Object errorData, Status status)
-    {
-        this.errorCode = errorCode;
-        if (message == null)
-        {
-            ResourceBundle errorMsg = ResourceBundle.getBundle("com.percussion.rest.errors.ErrorMessages");
-            this.message = errorMsg.getString(Integer.toString(errorCode.getNumVal()));
-        }
-        else
-        {
-            this.message = message;
-        }
-        this.detailMessage = detailMessage;
-        this.errorData = errorData;
-        if (status == null)
-        {
-            this.status = Status.INTERNAL_SERVER_ERROR;
-        }
-        else
-        {
-            this.status = status;
-        }
+  public RestErrorCode getErrorCode() {
+    return errorCode;
+  }
 
-    }
+  public void setErrorCode(RestErrorCode errorCode) {
+    this.errorCode = errorCode;
+  }
 
-    public RestErrorCode getErrorCode()
-    {
-        return errorCode;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setErrorCode(RestErrorCode errorCode)
-    {
-        this.errorCode = errorCode;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public String getMessage()
-    {
-        return message;
-    }
+  public String getDetailMessage() {
+    return detailMessage;
+  }
 
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
+  public void setDetailMessage(String detailMessage) {
+    this.detailMessage = detailMessage;
+  }
 
-    public String getDetailMessage()
-    {
-        return detailMessage;
-    }
+  public Object getErrorData() {
+    return errorData;
+  }
 
-    public void setDetailMessage(String detailMessage)
-    {
-        this.detailMessage = detailMessage;
-    }
+  public void setErrorData(Object errorData) {
+    this.errorData = errorData;
+  }
 
-    public Object getErrorData()
-    {
-        return errorData;
-    }
+  public Status getStatus() {
+    return status;
+  }
 
-    public void setErrorData(Object errorData)
-    {
-        this.errorData = errorData;
-    }
+  public void setStatus(Status status) {
+    this.status = status;
+  }
 
-    public Status getStatus()
-    {
-        return status;
-    }
-
-    public void setStatus(Status status)
-    {
-        this.status = status;
-    }
-
-    public RestExceptionBase(Throwable cause){
-        super(cause);
-    }
+  public RestExceptionBase(Throwable cause) {
+    super(cause);
+  }
 }

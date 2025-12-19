@@ -18,66 +18,48 @@
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.percussion.user.service.IPSUserService;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * A single user that <strong>may or may not</strong> have been imported successfully.
  *
- * A single user that
- * <strong>may or may not</strong> have been
- * imported successfully.
- *
- * See {@link PSImportedUser#getStatus()}.
+ * <p>See {@link PSImportedUser#getStatus()}.
  *
  * @author adamgent
- *
  */
 @XmlRootElement(name = "ImportedUser")
 @JsonRootName("ImportedUser")
 public class PSImportedUser extends PSAbstractUser {
 
-    private static final long serialVersionUID = 1L;
-    private ImportStatus status = ImportStatus.SUCCESS;
+  private static final long serialVersionUID = 1L;
+  private ImportStatus status = ImportStatus.SUCCESS;
 
-    /**
-     * Was the user imported?
-     * @return never <code>null</code>.
-     */
-    public ImportStatus getStatus()
-    {
-        return status;
-    }
+  /**
+   * Was the user imported?
+   *
+   * @return never <code>null</code>.
+   */
+  public ImportStatus getStatus() {
+    return status;
+  }
 
+  public void setStatus(ImportStatus status) {
+    this.status = status;
+  }
 
-    public void setStatus(ImportStatus status)
-    {
-        this.status = status;
-    }
-
-
-    /**
-     *
-     * Indicates whether or not the users was imported.
-     * @author adamgent
-     *
-     */
-    public static enum ImportStatus {
-        /**
-         * The user was successfully imported.
-         */
-        SUCCESS,
-        /**
-         * The user already exists a back-end user.
-         */
-        DUPLICATE,
-        /**
-         * The user was not imported because its invalid name.
-         */
-        INVALID,
-        /**
-         * Some unknown error
-         */
-        ERROR
-    }
+  /**
+   * Indicates whether or not the users was imported.
+   *
+   * @author adamgent
+   */
+  public static enum ImportStatus {
+    /** The user was successfully imported. */
+    SUCCESS,
+    /** The user already exists a back-end user. */
+    DUPLICATE,
+    /** The user was not imported because its invalid name. */
+    INVALID,
+    /** Some unknown error */
+    ERROR
+  }
 }

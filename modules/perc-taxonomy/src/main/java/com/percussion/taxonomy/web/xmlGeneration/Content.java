@@ -21,21 +21,19 @@ import org.simpleframework.xml.Element;
 
 public class Content {
 
-    @Element
-    public Name name;
+  @Element public Name name;
 
-    public Content() {
-    }
+  public Content() {}
 
-    public Content(String name) {
-        this.name = new Name(name);
-    }
+  public Content(String name) {
+    this.name = new Name(name);
+  }
 
-    public Content(String name, String link) {
-        this.name = new Name(name, link);
-    }    
-    
-    public Content(String name, String link, String onclick) {
-        this.name = new Name(name, link, onclick);
-    }
+  public Content(String name, String link) {
+    this.name = new Name(name, link);
+  }
+
+  public Content(String name, String link, String onclick) {
+    this.name = new Name(name, link, onclick);
+  }
 }

@@ -16,82 +16,71 @@
  */
 package com.percussion.utils.jsr170;
 
+import java.io.InputStream;
+import java.util.Calendar;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
-import java.io.InputStream;
-import java.util.Calendar;
 
 /**
  * Represents a boolean value, allowing for some conversions to other types
- * @author dougrand
  *
+ * @author dougrand
  */
-public class PSBooleanValue extends PSBaseValue<Boolean>
-{ 
-   /**
-    * Ctor
-    * @param value must be compatible with {@link Boolean#parseBoolean(String)}
-    * and not <code>null</code>
-    */
-   public PSBooleanValue(String value) {
-      m_value = Boolean.parseBoolean(value);
-   }
+public class PSBooleanValue extends PSBaseValue<Boolean> {
+  /**
+   * Ctor
+   *
+   * @param value must be compatible with {@link Boolean#parseBoolean(String)} and not <code>null
+   *     </code>
+   */
+  public PSBooleanValue(String value) {
+    m_value = Boolean.parseBoolean(value);
+  }
 
-   /**
-    * Ctor
-    * @param arg0
-    */
-   public PSBooleanValue(boolean arg0) {
-      m_value = arg0;
-   }
+  /**
+   * Ctor
+   *
+   * @param arg0
+   */
+  public PSBooleanValue(boolean arg0) {
+    m_value = arg0;
+  }
 
-   public String getString() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return m_value ? "true" : "false";
-   }
+  public String getString()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return m_value ? "true" : "false";
+  }
 
-   public InputStream getStream() throws IllegalStateException,
-         RepositoryException
-   {
-      return PSValueConverter.convertToStream(getString());
-   }
+  public InputStream getStream() throws IllegalStateException, RepositoryException {
+    return PSValueConverter.convertToStream(getString());
+  }
 
-   public long getLong() throws ValueFormatException, IllegalStateException,
-         RepositoryException
-   {
-      throw new ValueFormatException("Unsupported conversion");
-   }
+  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("Unsupported conversion");
+  }
 
-   public double getDouble() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("Unsupported conversion");
-   }
+  public double getDouble()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("Unsupported conversion");
+  }
 
-   public Calendar getDate() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("Unsupported conversion");
-   }
+  public Calendar getDate()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("Unsupported conversion");
+  }
 
-   public boolean getBoolean() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return m_value;
-   }
+  public boolean getBoolean()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return m_value;
+  }
 
-   public int getType()
-   {
-      return PropertyType.BOOLEAN;
-   }
+  public int getType() {
+    return PropertyType.BOOLEAN;
+  }
 
-   @Override
-   public long getSizeInBytes()
-   {
-      return 4;
-   }
-   
-   
+  @Override
+  public long getSizeInBytes() {
+    return 4;
+  }
 }

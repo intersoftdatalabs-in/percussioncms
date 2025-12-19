@@ -18,11 +18,7 @@ package com.percussion.search;
 
 import java.util.Map;
 
-/**
- * @author JaySeletz
- *
- */
-public interface IPSFieldValueModifier
-{
-   void modifyFields(Map<String, Object> itemFragment);
+/** @author JaySeletz */
+public interface IPSFieldValueModifier {
+  void modifyFields(Map<String, Object> itemFragment);
 }

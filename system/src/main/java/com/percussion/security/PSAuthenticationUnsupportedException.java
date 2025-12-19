@@ -19,26 +19,18 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
- * PSAuthenticationUnsupportedException is thrown to indicate that AuthenticationUnsupported
- * has been denied to the requested resource. This may occur when connecting to
- * the server, or when attempting to access an application.
+ * PSAuthenticationUnsupportedException is thrown to indicate that AuthenticationUnsupported has
+ * been denied to the requested resource. This may occur when connecting to the server, or when
+ * attempting to access an application.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSAuthenticationUnsupportedException extends PSException
-{
-   /**
-    * Constructs an authentication unsupported exception with the default
-    * message.
-    */
-   public PSAuthenticationUnsupportedException(java.lang.String provider)
-   {
-      super(IPSSecurityErrors.AUTHENTICATION_NOT_SUPPORTED,
-            new Object[] { provider } );
-   }
+public class PSAuthenticationUnsupportedException extends PSException {
+  /** Constructs an authentication unsupported exception with the default message. */
+  public PSAuthenticationUnsupportedException(java.lang.String provider) {
+    super(IPSSecurityErrors.AUTHENTICATION_NOT_SUPPORTED, new Object[] {provider});
+  }
 }
-

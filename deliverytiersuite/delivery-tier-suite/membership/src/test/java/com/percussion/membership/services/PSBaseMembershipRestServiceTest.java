@@ -18,12 +18,6 @@ package com.percussion.membership.services;
 
 import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.membership.services.impl.PSMembershipService;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -31,52 +25,40 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
+/** @author natechadwick */
+public class PSBaseMembershipRestServiceTest extends JerseyTest {
 
-/**
- * @author natechadwick
- *
- */
+  public PSBaseMembershipRestServiceTest() {}
 
-public  class PSBaseMembershipRestServiceTest extends JerseyTest
-{
+  /** * Takes the context file as an arg and spins up grizzly to test rest methods. */
+  @Override
+  protected Application configure() {
+    return new ResourceConfig(PSMembershipService.class);
+  }
 
-    public PSBaseMembershipRestServiceTest() {
+  @Test
+  @Ignore
+  public void testGetRestVersion() {
 
-    }
+    Client client = ClientBuilder.newClient();
+    WebTarget webTarget = client.target("/membership/version");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    Response response = invocationBuilder.get();
+    Assert.assertNotNull(response);
+    Assert.assertEquals(200, response.getStatus());
+    Assert.assertEquals(testGetVersion(), response.getEntity());
+  }
 
-    /***
-     * Takes the context file as an arg and spins up grizzly to
-     * test rest methods.
-     *
-     */
-    @Override
-    protected Application configure() {
-        return new ResourceConfig(PSMembershipService.class);
-    }
-
-
-
-    @Test
-    @Ignore
-	public void testGetRestVersion(){
-
-
-        Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target("/membership/version");
-        Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200,response.getStatus());
-        Assert.assertEquals(testGetVersion(), response.getEntity());
-	}
-
-
-	private String testGetVersion(){
-		String version = PSVersionHelper.getVersion(this.getClass());
-		Assert.assertNotNull(version);
-		System.out.print(version);
-		return version;
-	}
-  
+  private String testGetVersion() {
+    String version = PSVersionHelper.getVersion(this.getClass());
+    Assert.assertNotNull(version);
+    System.out.print(version);
+    return version;
+  }
 }

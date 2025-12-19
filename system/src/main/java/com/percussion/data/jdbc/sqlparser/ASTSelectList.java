@@ -26,20 +26,17 @@ public class ASTSelectList extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
 
-  public void setAllColumns(boolean all)
-  {
-     m_allCols = all;
+  public void setAllColumns(boolean all) {
+    m_allCols = all;
   }
 
-  public boolean isAllColumns()
-  {
-     return m_allCols;
+  public boolean isAllColumns() {
+    return m_allCols;
   }
 
   private boolean m_allCols;

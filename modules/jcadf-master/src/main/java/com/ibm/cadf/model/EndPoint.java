@@ -17,68 +17,54 @@
 
 package com.ibm.cadf.model;
 
-import java.text.MessageFormat;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.text.MessageFormat;
+import org.apache.commons.lang3.StringUtils;
 
-public class EndPoint extends CADFType
-{
+public class EndPoint extends CADFType {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String url;
+  private String url;
 
-    private String name;
+  private String name;
 
-    private String port;
+  private String port;
 
-    public EndPoint(String url) throws CADFException
-    {
-        super();
-        this.url = url;
-    }
+  public EndPoint(String url) throws CADFException {
+    super();
+    this.url = url;
+  }
 
-    public String getUrl()
-    {
-        return url;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public void setUrl(String url)
-    {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getPort()
-    {
-        return port;
-    }
+  public String getPort() {
+    return port;
+  }
 
-    public void setPort(String port)
-    {
-        this.port = port;
-    }
+  public void setPort(String port) {
+    this.port = port;
+  }
 
-    @Override
-    public boolean isValid() throws CADFException
-    {
-        // Validation to ensure Endpoint required attributes are set.
-        if (StringUtils.isNotEmpty(this.url))
-            return true;
-        else
-            throw new CADFException(MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "url"));
-    }
-
+  @Override
+  public boolean isValid() throws CADFException {
+    // Validation to ensure Endpoint required attributes are set.
+    if (StringUtils.isNotEmpty(this.url)) return true;
+    else throw new CADFException(MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "url"));
+  }
 }

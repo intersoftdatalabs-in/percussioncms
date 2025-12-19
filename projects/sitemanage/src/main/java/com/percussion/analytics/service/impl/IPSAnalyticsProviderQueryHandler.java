@@ -18,11 +18,5 @@ package com.percussion.analytics.service.impl;
 
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 
-/**
- * @author erikserating
- *
- */
-public interface IPSAnalyticsProviderQueryHandler extends IPSAnalyticsProviderQueryService
-{
-
-}
+/** @author erikserating */
+public interface IPSAnalyticsProviderQueryHandler extends IPSAnalyticsProviderQueryService {}

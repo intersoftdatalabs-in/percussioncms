@@ -16,9 +16,6 @@
  */
 package com.percussion.xml.serialization.junit;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,77 +23,65 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A sample person class used in unit test of the
- * {@link com.percussion.xml.serialization.PSObjectSerializer} class. As can be
- * seen it is a simple java bean with a default ctor (required) and setXxx() and
- * getXxx() methods. It has some other java objects and a collection of an
- * object as fields.
+ * A sample person class used in unit test of the {@link
+ * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
+ * bean with a default ctor (required) and setXxx() and getXxx() methods. It has some other java
+ * objects and a collection of an object as fields.
  */
-public class Person
-{
-   private Name name;
+public class Person {
+  private Name name;
 
-   Address address;
+  Address address;
 
-   private List<Book> books = new ArrayList<Book>();
+  private List<Book> books = new ArrayList<Book>();
 
-   /**
-    * Default ctor. Required by serializer.
-    */
-   public Person()
-   {
-   }
+  /** Default ctor. Required by serializer. */
+  public Person() {}
 
-   public Person(String first, String last)
-   {
-      setName(new Name(first, last));
-   }
+  public Person(String first, String last) {
+    setName(new Name(first, last));
+  }
 
-   public void setName(Name name)
-   {
-      this.name = name;
-   }
+  public void setName(Name name) {
+    this.name = name;
+  }
 
-   public Name getName()
-   {
-      return name;
-   }
+  public Name getName() {
+    return name;
+  }
 
-   public Address getAddress()
-   {
-      return address;
-   }
+  public Address getAddress() {
+    return address;
+  }
 
-   public void setAddress(Address address)
-   {
-      this.address = address;
-   }
+  public void setAddress(Address address) {
+    this.address = address;
+  }
 
-   public void addBook(Book book)
-   {
-      books.add(book);
-   }
+  public void addBook(Book book) {
+    books.add(book);
+  }
 
-   public Iterator getBooks()
-   {
-      return books.iterator();
-   }
+  public Iterator getBooks() {
+    return books.iterator();
+  }
 
-   public void setBooks(Collection<Book> books)
-   {
-      this.books.addAll(books);
-   }
+  public void setBooks(Collection<Book> books) {
+    this.books.addAll(books);
+  }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Person)) return false;
-      Person person = (Person) o;
-      return Objects.equals(getName(), person.getName()) && Objects.equals(getAddress(), person.getAddress()) && Objects.equals(getBooks(), person.getBooks());
-   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Person)) return false;
+    Person person = (Person) o;
+    return Objects.equals(getName(), person.getName())
+        && Objects.equals(getAddress(), person.getAddress())
+        && Objects.equals(getBooks(), person.getBooks());
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(getName(), getAddress(), getBooks());
-   }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getAddress(), getBooks());
+  }
 }

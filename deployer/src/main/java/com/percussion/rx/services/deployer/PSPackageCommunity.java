@@ -18,77 +18,54 @@ package com.percussion.rx.services.deployer;
 
 /**
  * This class represents the packages and associated communities.
- * 
+ *
  * @author bjoginipally
- * 
  */
-public class PSPackageCommunity
-{
+public class PSPackageCommunity {
 
-   /**
-    * ctor
-    * 
-    */
-   PSPackageCommunity()
-   {
-      super();
+  /** ctor */
+  PSPackageCommunity() {
+    super();
+  }
 
-   }
+  /**
+   * Ctor
+   *
+   * @param pkg must not be blank.
+   * @param communities @see #setCommunities(String) for details.
+   */
+  PSPackageCommunity(String pkg, String communities) {
+    m_package = pkg;
+    setCommunities(communities);
+  }
 
-   /**
-    * Ctor
-    * 
-    * @param pkg must not be blank.
-    * @param communities @see #setCommunities(String) for details.
-    */
-   PSPackageCommunity(String pkg, String communities)
-   {
-      m_package = pkg;
-      setCommunities(communities);
-   }
+  /** @return communties for a package, never <code>null</code>, may be empty. */
+  public String getCommunities() {
+    return m_communities;
+  }
 
-   /**
-    * 
-    * @return communties for a package, never <code>null</code>, may be
-    * empty.
-    */
-   public String getCommunities()
-   {
-      return m_communities;
-   }
+  /**
+   * @param communities, May be <code>null</code> or empty. If <code>null</code> sets it to empty
+   *     string. If set must be a {@link PSPackageService#NAME_SEPARATOR} separated list.
+   */
+  public void setCommunities(String communities) {
+    if (communities == null) communities = "";
+    m_communities = communities;
+  }
 
-   /**
-    * @param communities, May be <code>null</code> or empty. If
-    * <code>null</code> sets it to empty string. If set must be a
-    * {@link PSPackageService#NAME_SEPARATOR} separated list.
-    */
-   public void setCommunities(String communities)
-   {
-      if (communities == null)
-         communities = "";
-      m_communities = communities;
-   }
+  /** @return The name of the package, never <code>null</code>, or empty. */
+  public String getPackage() {
+    return m_package;
+  }
 
-   /**
-    * @return The name of the package, never <code>null</code>, or empty.
-    */
-   public String getPackage()
-   {
-      return m_package;
-   }
+  /** @param pkg must not be blank. */
+  public void setPackage(String pkg) {
+    if (pkg == null || pkg.trim().length() < 1)
+      throw new IllegalArgumentException("pkg must not be blank");
+    m_package = pkg;
+  }
 
-   /**
-    * @param pkg must not be blank.
-    */
-   public void setPackage(String pkg)
-   {
-      if (pkg == null || pkg.trim().length() < 1)
-         throw new IllegalArgumentException("pkg must not be blank");
-      m_package = pkg;
-   }
+  private String m_communities;
 
-   private String m_communities;
-
-   private String m_package;
-
+  private String m_package;
 }

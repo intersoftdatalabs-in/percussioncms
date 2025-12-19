@@ -17,25 +17,19 @@
 
 package com.percussion.design.catalog;
 
-
-
 /**
- * The IPSCatalogRequestHandler interface defines the mechanism by which a
- * request is sent to the appropriate processing module.
- * 
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * The IPSCatalogRequestHandler interface defines the mechanism by which a request is sent to the
+ * appropriate processing module.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public interface IPSCatalogRequestHandler
-   extends com.percussion.server.IPSRequestHandler
-{
-   /**
-    * Get the request type(s) (XML document types) supported by this
-    * handler.
-    * 
-    * @return      the supported request type(s)
-    */
-   public String[] getSupportedRequestTypes();
+public interface IPSCatalogRequestHandler extends com.percussion.server.IPSRequestHandler {
+  /**
+   * Get the request type(s) (XML document types) supported by this handler.
+   *
+   * @return the supported request type(s)
+   */
+  public String[] getSupportedRequestTypes();
 }
-

@@ -18,19 +18,12 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Text;
 
-/***
- * Wrapper for the transcript of the feed if it is available.
- */
+/** * Wrapper for the transcript of the feed if it is available. */
 public class PSSynFeedTranscript {
 
-	private Text[] transcript;
-	
-	
-	public PSSynFeedTranscript(Text[] arg){
-		this.transcript = arg;
-	}
+  private Text[] transcript;
 
-
-	
-	
+  public PSSynFeedTranscript(Text[] arg) {
+    this.transcript = arg;
+  }
 }

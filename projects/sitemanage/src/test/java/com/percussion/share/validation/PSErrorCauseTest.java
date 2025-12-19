@@ -18,49 +18,39 @@ package com.percussion.share.validation;
 
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.validation.PSErrors.PSObjectError;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+public class PSErrorCauseTest {
 
-public class PSErrorCauseTest
-{
-
-    @Test
-    public void testCreateErrorCause() throws Throwable
-    {
-        Exception r;
-        try
-        {
-            throw new RuntimeException("Fail");
-        }
-        catch (Exception e)
-        {
-            r = e;
-        }
-
-        PSErrors errors = new PSErrors();
-        PSObjectError o = new PSObjectError();
-        o.setCause(new PSErrorCause(r));
-        List<String> args = new ArrayList<String>();
-        args.add("arg1");
-        args.add("arg2");
-        args.add("arg3");
-        o.setArguments(args);
-        errors.setGlobalError(o);
-        String xml = PSSerializerUtils.marshal(errors);
-        log.debug(xml);
-        System.out.println(xml);
-        PSErrors e = PSSerializerUtils.unmarshal(xml, PSErrors.class);
-        log.debug(e.getGlobalError().getCause());
-        
+  @Test
+  public void testCreateErrorCause() throws Throwable {
+    Exception r;
+    try {
+      throw new RuntimeException("Fail");
+    } catch (Exception e) {
+      r = e;
     }
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSErrorCauseTest.class);
+    PSErrors errors = new PSErrors();
+    PSObjectError o = new PSObjectError();
+    o.setCause(new PSErrorCause(r));
+    List<String> args = new ArrayList<String>();
+    args.add("arg1");
+    args.add("arg2");
+    args.add("arg3");
+    o.setArguments(args);
+    errors.setGlobalError(o);
+    String xml = PSSerializerUtils.marshal(errors);
+    log.debug(xml);
+    System.out.println(xml);
+    PSErrors e = PSSerializerUtils.unmarshal(xml, PSErrors.class);
+    log.debug(e.getGlobalError().getCause());
+  }
 
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSErrorCauseTest.class);
 }

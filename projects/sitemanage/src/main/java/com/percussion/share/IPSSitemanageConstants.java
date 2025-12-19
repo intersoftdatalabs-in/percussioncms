@@ -18,16 +18,13 @@
 package com.percussion.share;
 
 /**
- * This file contains various constants that are used across sitemanage
- * project. It serves as a registry.
+ * This file contains various constants that are used across sitemanage project. It serves as a
+ * registry.
  */
-public interface IPSSitemanageConstants
-{
-   /**
-    * Constant for site content type used to compare against itemSummary type property 
-    */
-    public static final String SITE_CONTENTTYPE = "site";
-public static final String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
-public static final String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
-}
+public interface IPSSitemanageConstants {
+  /** Constant for site content type used to compare against itemSummary type property */
+  public static final String SITE_CONTENTTYPE = "site";
 
+  public static final String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
+  public static final String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
+}

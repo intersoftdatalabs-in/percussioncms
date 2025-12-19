@@ -17,9 +17,8 @@
 
 package com.ibm.cadf;
 
-public interface Messages
-{
+public interface Messages {
 
-    public static String MISSING_MANDATORY_FIELDS = "Mandatory fields are missing, pass [{0}] the required fields";
-
+  public static String MISSING_MANDATORY_FIELDS =
+      "Mandatory fields are missing, pass [{0}] the required fields";
 }

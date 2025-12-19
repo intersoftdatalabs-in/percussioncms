@@ -16,37 +16,26 @@
  */
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.pagemanagement.data.PSWidgetDefinition;
+import com.percussion.pagemanagement.data.PSWidgetDefinition.UserPref;
+import com.percussion.pagemanagement.data.PSWidgetItem;
+import com.percussion.pagemanagement.service.IPSWidgetService;
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSWidgetDefinition;
-import com.percussion.pagemanagement.data.PSWidgetItem;
-import com.percussion.pagemanagement.data.PSWidgetDefinition.UserPref;
-import com.percussion.pagemanagement.service.IPSWidgetService;
+/** @author adamgent */
+public class PSWidgetUserPropertiesValidator extends PSWidgetPropertiesValidator<UserPref> {
 
-/**
- * 
- * @author adamgent
- *
- */
-public class PSWidgetUserPropertiesValidator extends PSWidgetPropertiesValidator<UserPref>
-{
+  public PSWidgetUserPropertiesValidator(IPSWidgetService widgetService) {
+    super(widgetService);
+  }
 
-    public PSWidgetUserPropertiesValidator(IPSWidgetService widgetService)
-    {
-        super(widgetService);
-    }
+  @Override
+  protected Map<String, Object> getProperties(PSWidgetItem widgetItem) {
+    return widgetItem.getProperties();
+  }
 
-    @Override
-    protected Map<String, Object> getProperties(PSWidgetItem widgetItem)
-    {
-        return widgetItem.getProperties();
-    }
-
-    @Override
-    protected Map<String, UserPref> getPropertyDefinitions(PSWidgetDefinition definition)
-    {
-        return PSWidgetUtils.getUserPrefs(definition);
-    }
-
+  @Override
+  protected Map<String, UserPref> getPropertyDefinitions(PSWidgetDefinition definition) {
+    return PSWidgetUtils.getUserPrefs(definition);
+  }
 }
-

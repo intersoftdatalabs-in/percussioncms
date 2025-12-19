@@ -17,5 +17,4 @@
 
 package com.percussion.rest.velocity;
 
-public interface IVelocityAdaptor {
-}
+public interface IVelocityAdaptor {}

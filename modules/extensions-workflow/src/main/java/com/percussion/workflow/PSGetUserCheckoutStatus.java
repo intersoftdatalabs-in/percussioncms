@@ -22,39 +22,30 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * Performs the same functionality as the base class 
- * {@link PSGetCheckoutStatus} except that the first param is the checked out
- * user name, not the content id of the item.
+ * Performs the same functionality as the base class {@link PSGetCheckoutStatus} except that the
+ * first param is the checked out user name, not the content id of the item.
  */
-public class PSGetUserCheckoutStatus extends PSGetCheckoutStatus
-{
-   /**
-    * See base class for more info.  The only difference is that this method
-    * expects the first parameter to be the checkedout user name.  May be 
-    * <code>null</code> or empty.
-    */
-   @Override
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      // same behavior as base class if no params
-      if ( null == params || params.length < 1)
-         return "";
-      
-      String result;
-      String checkedoutUser = params[0] == null ? "" : params[0].toString();
-      
-      try 
-      {
-         result = getCheckoutStatus(checkedoutUser, params, request);
-      }
-      catch (PSDataExtractionException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         throw new PSConversionException(e.getErrorCode(),
-            e.getErrorArguments());
-      }
-         
-      return result;
-   }
+public class PSGetUserCheckoutStatus extends PSGetCheckoutStatus {
+  /**
+   * See base class for more info. The only difference is that this method expects the first
+   * parameter to be the checkedout user name. May be <code>null</code> or empty.
+   */
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    // same behavior as base class if no params
+    if (null == params || params.length < 1) return "";
+
+    String result;
+    String checkedoutUser = params[0] == null ? "" : params[0].toString();
+
+    try {
+      result = getCheckoutStatus(checkedoutUser, params, request);
+    } catch (PSDataExtractionException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
+    }
+
+    return result;
+  }
 }

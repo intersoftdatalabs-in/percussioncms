@@ -18,37 +18,28 @@
 package com.percussion.process;
 
 import com.percussion.util.PSStringTemplate;
-
 import java.util.Map;
 
 /**
- * Class for resolving process parameter values. This class resolves the
- * value (specified using the "value" attribute) using the
- * <code>System.getProperty</code> method.
+ * Class for resolving process parameter values. This class resolves the value (specified using the
+ * "value" attribute) using the <code>System.getProperty</code> method.
  */
-public class PSEnvironmentResolver extends PSBasicResolver
-{
-   /**
-    * See base class for more details.
-    * 
-    * @param ctx Unused.
-    */
-   public String resolve(String var, Map ctx)
-      throws PSResolveException
-   {
-      //suppress eclipse warning
-      if (null == ctx);
-      
-      return resolveTemplate(var, new PSStringTemplate.IPSTemplateDictionary()
-      {
-         public String lookup(String key)
-         {
+public class PSEnvironmentResolver extends PSBasicResolver {
+  /**
+   * See base class for more details.
+   *
+   * @param ctx Unused.
+   */
+  public String resolve(String var, Map ctx) throws PSResolveException {
+    // suppress eclipse warning
+    if (null == ctx) ;
+
+    return resolveTemplate(
+        var,
+        new PSStringTemplate.IPSTemplateDictionary() {
+          public String lookup(String key) {
             return System.getProperty(key, "");
-         }
-      });
-   }
+          }
+        });
+  }
 }
-
-
-
-

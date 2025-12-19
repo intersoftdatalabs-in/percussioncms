@@ -21,17 +21,13 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 
 /**
- * Site architecture data service class. This interface extends from
- * {@link IPSDataService}.
- * 
+ * Site architecture data service class. This interface extends from {@link IPSDataService}.
+ *
  * @author bjoginipally
- * 
  */
-public interface IPSSiteArchitectureDataService extends
-      IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String>
-{
-   /**
-    * Returns the site site architecture object.
-    */
-   PSSiteArchitecture find(String id) throws PSValidationException, DataServiceLoadException,DataServiceNotFoundException;
+public interface IPSSiteArchitectureDataService
+    extends IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String> {
+  /** Returns the site site architecture object. */
+  PSSiteArchitecture find(String id)
+      throws PSValidationException, DataServiceLoadException, DataServiceNotFoundException;
 }

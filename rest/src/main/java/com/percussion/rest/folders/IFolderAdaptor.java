@@ -18,29 +18,34 @@
 package com.percussion.rest.folders;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 
-public interface IFolderAdaptor
-{
-    public Folder getFolder(URI baseURI, String site, String path, String folderName) throws BackendException;
+public interface IFolderAdaptor {
+  public Folder getFolder(URI baseURI, String site, String path, String folderName)
+      throws BackendException;
 
-    public Folder updateFolder(URI baseURI, Folder folder) throws BackendException;
+  public Folder updateFolder(URI baseURI, Folder folder) throws BackendException;
 
-    public void deleteFolder(URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders) throws BackendException;
+  public void deleteFolder(
+      URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders)
+      throws BackendException;
 
-    public Folder getFolder(URI baseURI, String id) throws BackendException;
-    
-    public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws BackendException;
-    
-    public void moveFolder(URI baseURI, String folderPath, String targetFolderPath) throws BackendException;
-    
-    public Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName) throws BackendException;
+  public Folder getFolder(URI baseURI, String id) throws BackendException;
 
-    public void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws Exception;
+  public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath)
+      throws BackendException;
 
-    public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) throws Exception;
+  public void moveFolder(URI baseURI, String folderPath, String targetFolderPath)
+      throws BackendException;
 
-    public void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
+  public Folder renameFolder(
+      URI baseURI, String site, String path, String folderName, String newName)
+      throws BackendException;
 
+  public void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath)
+      throws Exception;
+
+  public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) throws Exception;
+
+  public void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
 }

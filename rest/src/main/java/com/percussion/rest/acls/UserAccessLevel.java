@@ -20,44 +20,43 @@ package com.percussion.rest.acls;
 import com.percussion.rest.PermissionList;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema(description = "User Access Level")
 public class UserAccessLevel {
 
-    @Schema(description="Unique id of this access level")
-    private long id;
+  @Schema(description = "Unique id of this access level")
+  private long id;
 
-    @Schema(description="The permissions defined for this acl")
-    private Permissions permission;
+  @Schema(description = "The permissions defined for this acl")
+  private Permissions permission;
 
-    private PermissionList permissions;
+  private PermissionList permissions;
 
-    public PermissionList getPermissions() {
-        return permissions;
-    }
+  public PermissionList getPermissions() {
+    return permissions;
+  }
 
-    public void setPermissions(PermissionList permissions) {
-        this.permissions = permissions;
-    }
+  public void setPermissions(PermissionList permissions) {
+    this.permissions = permissions;
+  }
 
-    public Permissions getPermission() {
-        return permission;
-    }
+  public Permissions getPermission() {
+    return permission;
+  }
 
-    public void setPermission(Permissions permission) {
-        this.permission = permission;
-    }
+  public void setPermission(Permissions permission) {
+    this.permission = permission;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public UserAccessLevel(){}
+  public UserAccessLevel() {}
 }

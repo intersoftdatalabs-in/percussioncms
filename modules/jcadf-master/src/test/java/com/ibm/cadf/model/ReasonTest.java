@@ -19,26 +19,21 @@ package com.ibm.cadf.model;
 
 import static org.junit.Assert.assertEquals;
 
+import com.ibm.cadf.exception.CADFException;
 import java.io.IOException;
-
 import org.junit.Test;
 
-import com.ibm.cadf.exception.CADFException;
+public class ReasonTest {
 
-public class ReasonTest
-{
+  @Test
+  public void testReasonPositive() throws CADFException, IOException {
+    Reason reason = new Reason("File transfer", "10101", null, null);
+    assertEquals(true, reason.isValid());
+  }
 
-    @Test
-    public void testReasonPositive() throws CADFException, IOException
-    {
-        Reason reason = new Reason("File transfer", "10101", null, null);
-        assertEquals(true, reason.isValid());
-    }
-
-    @Test
-    public void testReasonNegative() throws CADFException, IOException
-    {
-        Reason reason = new Reason("File transfer", null, null, null);
-        assertEquals(false, reason.isValid());
-    }
+  @Test
+  public void testReasonNegative() throws CADFException, IOException {
+    Reason reason = new Reason("File transfer", null, null, null);
+    assertEquals(false, reason.isValid());
+  }
 }

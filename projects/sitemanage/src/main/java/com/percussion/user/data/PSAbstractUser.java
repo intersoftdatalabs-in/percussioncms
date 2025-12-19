@@ -17,41 +17,35 @@
 package com.percussion.user.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.text.Collator;
 
 /**
- * 
  * An abstract representation of a user.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
-public abstract class PSAbstractUser extends PSAbstractDataObject implements Comparable<PSAbstractUser>
-{
+public abstract class PSAbstractUser extends PSAbstractDataObject
+    implements Comparable<PSAbstractUser> {
 
-    private static final long serialVersionUID = 1L;
-    private String name;
+  private static final long serialVersionUID = 1L;
+  private String name;
 
-    /**
-     * The user name that uniquely identifies the user.
-     * 
-     * @return should not be <code>null</code> or empty 
-     *    unless the object is not finished being processed.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /**
+   * The user name that uniquely identifies the user.
+   *
+   * @return should not be <code>null</code> or empty unless the object is not finished being
+   *     processed.
+   */
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public int compareTo(PSAbstractUser o)
-    {
-        return Collator.getInstance().compare(this.getName(), o.getName());
-    }
+  @Override
+  public int compareTo(PSAbstractUser o) {
+    return Collator.getInstance().compare(this.getName(), o.getName());
+  }
 }

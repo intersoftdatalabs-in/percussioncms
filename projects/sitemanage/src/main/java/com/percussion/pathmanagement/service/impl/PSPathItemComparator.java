@@ -17,38 +17,27 @@
 package com.percussion.pathmanagement.service.impl;
 
 import com.percussion.pathmanagement.data.PSPathItem;
-
 import java.util.Comparator;
 
-/**
- * PathItem sorter to case insensitive sort alpha ascending.
- */
-public class PSPathItemComparator implements Comparator<PSPathItem>
-{
-    private static PSPathItemComparator instance;
-    
-    /**
-     */
-    private PSPathItemComparator()
-    {
-        
-    }
-    
-    public static Comparator<PSPathItem> getInstance()
-    {
-        if (instance == null)
-            instance = new PSPathItemComparator();
-        
-        return instance;
-    }
+/** PathItem sorter to case insensitive sort alpha ascending. */
+public class PSPathItemComparator implements Comparator<PSPathItem> {
+  private static PSPathItemComparator instance;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-     */
-    public int compare(PSPathItem a, PSPathItem b)
-    {
-        return a.getName().compareToIgnoreCase(b.getName());
-    }
+  /** */
+  private PSPathItemComparator() {}
+
+  public static Comparator<PSPathItem> getInstance() {
+    if (instance == null) instance = new PSPathItemComparator();
+
+    return instance;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+   */
+  public int compare(PSPathItem a, PSPathItem b) {
+    return a.getName().compareToIgnoreCase(b.getName());
+  }
 }

@@ -19,14 +19,9 @@ package com.percussion.apibridge;
 
 import com.percussion.rest.velocity.IVelocityAdaptor;
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @PSSiteManageBean
 public class VelocityAdaptor implements IVelocityAdaptor {
 
-
-    public VelocityAdaptor(){
-
-    }
+  public VelocityAdaptor() {}
 }

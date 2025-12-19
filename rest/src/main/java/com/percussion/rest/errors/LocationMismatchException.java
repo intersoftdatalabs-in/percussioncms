@@ -19,10 +19,8 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class LocationMismatchException extends RestExceptionBase
-{
-    public LocationMismatchException()
-    {
-        super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
-    }
+public class LocationMismatchException extends RestExceptionBase {
+  public LocationMismatchException() {
+    super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
+  }
 }

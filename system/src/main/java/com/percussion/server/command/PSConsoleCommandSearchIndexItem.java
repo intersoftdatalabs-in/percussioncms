@@ -30,98 +30,73 @@ import org.w3c.dom.Document;
  *
  * @author paulhoward
  */
-public class PSConsoleCommandSearchIndexItem
-   extends PSConsoleCommand
-{
-   /**
-    * Ctor required by framework.
-    * 
-    * @param args See class description for reqs.
-    * 
-    * @throws PSIllegalArgumentException If a numeric arg is not supplied.
-    * <p>Note: we use PSIllegal... here because that's what the framework uses.
-    */
-   public PSConsoleCommandSearchIndexItem(String cmdArgs)
-      throws PSIllegalArgumentException
-   {
-      super(cmdArgs);
-      if (null == cmdArgs)
-         cmdArgs = "";
-      m_id = -1;
-      try
-      {
-          m_id = Integer.parseInt(cmdArgs);
-      }
-      catch (NumberFormatException e)
-      {
-         //ignore, later check deals w/ this error
-      }
-      if (m_id < 0) 
-      {
-         throw new PSIllegalArgumentException(
-            IPSServerErrors.RCONSOLE_REQUIRES_CONTENTID, null);
-      }
-   }
-   
-   //see base class   
-   public Document execute(PSRequest request) 
-      throws PSConsoleCommandException
-   {
-      Document doc;
-      doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, 
-         getCommandName());
-      if (null != doc)
-         return doc;
+public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
+  /**
+   * Ctor required by framework.
+   *
+   * @param args See class description for reqs.
+   * @throws PSIllegalArgumentException If a numeric arg is not supplied.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
+   */
+  public PSConsoleCommandSearchIndexItem(String cmdArgs) throws PSIllegalArgumentException {
+    super(cmdArgs);
+    if (null == cmdArgs) cmdArgs = "";
+    m_id = -1;
+    try {
+      m_id = Integer.parseInt(cmdArgs);
+    } catch (NumberFormatException e) {
+      // ignore, later check deals w/ this error
+    }
+    if (m_id < 0) {
+      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_REQUIRES_CONTENTID, null);
+    }
+  }
 
-      int code;
-      String[] resultArgs = null;
-      
-      PSLocator locator = new PSLocator(m_id);
-      int result = PSSearchIndexEventQueue.getInstance().indexItem(locator);
-      if (result == -1)
-      {
-         code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES;
-         resultArgs = new String[2];
-         resultArgs[0] = "0";
-         PSItemDefManager mgr = PSItemDefManager.getInstance();
-         long type = mgr.getItemContentType(locator);
-         try
-         {
-            resultArgs[1] = mgr.contentTypeIdToName(type);
-         }
-         catch (PSInvalidContentTypeException e)
-         {
-            resultArgs[1] = type + " (invalid)";
-         }
+  // see base class
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc;
+    doc = PSConsoleCommandShowStatusSearch.getDisabledDoc(request, getCommandName());
+    if (null != doc) return doc;
+
+    int code;
+    String[] resultArgs = null;
+
+    PSLocator locator = new PSLocator(m_id);
+    int result = PSSearchIndexEventQueue.getInstance().indexItem(locator);
+    if (result == -1) {
+      code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED_INVALID_CTYPES;
+      resultArgs = new String[2];
+      resultArgs[0] = "0";
+      PSItemDefManager mgr = PSItemDefManager.getInstance();
+      long type = mgr.getItemContentType(locator);
+      try {
+        resultArgs[1] = mgr.contentTypeIdToName(type);
+      } catch (PSInvalidContentTypeException e) {
+        resultArgs[1] = type + " (invalid)";
       }
-      else
-      {
-         code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED;
-         resultArgs = new String[1];
-         resultArgs[0] = String.valueOf(result);
-      }
-      
-      doc = getResultsDocument(request, getCommandName(), code, 
-            resultArgs);
-      return doc;
-   }
-   
-   // see base class
-   protected String getCommandName()
-   {
-      return COMMAND_NAME;
-   }
-   
-   /**
-    * The full command that launched this handler. 
-    * <p>Note: this should be passed in rather than having it in two places,
-    * but the whole framework needs reworking so I'm not going to take that on
-    * now. 
-    */
-   private final static String COMMAND_NAME = "search index item";
-   
-   /**
-    * The content id passed to the ctor. Always a number > 0 after construction.
-    */
-   private int m_id;
+    } else {
+      code = IPSServerErrors.RCONSOLE_ITEMS_INDEXED;
+      resultArgs = new String[1];
+      resultArgs[0] = String.valueOf(result);
+    }
+
+    doc = getResultsDocument(request, getCommandName(), code, resultArgs);
+    return doc;
+  }
+
+  // see base class
+  protected String getCommandName() {
+    return COMMAND_NAME;
+  }
+
+  /**
+   * The full command that launched this handler.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
+   */
+  private static final String COMMAND_NAME = "search index item";
+
+  /** The content id passed to the ctor. Always a number > 0 after construction. */
+  private int m_id;
 }

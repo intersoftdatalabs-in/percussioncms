@@ -19,37 +19,35 @@ package com.percussion.rest.mimetypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/***
- * Represents a Mime Type registered on the system.
- */
-@Schema(name = "MimeType",description = "A mime type registered on the system")
+/** * Represents a Mime Type registered on the system. */
+@Schema(name = "MimeType", description = "A mime type registered on the system")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "MimeType")
 public class MimeType {
 
-    @Schema(name="extension",description="File extension associated with the type")
-    private String extension;
-    @Schema(name="type",description="The Mime Type string")
-    private String type;
+  @Schema(name = "extension", description = "File extension associated with the type")
+  private String extension;
 
-    public MimeType(){}
+  @Schema(name = "type", description = "The Mime Type string")
+  private String type;
 
-    public String getExtension() {
-        return extension;
-    }
+  public MimeType() {}
 
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
+  public String getExtension() {
+    return extension;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setExtension(String extension) {
+    this.extension = extension;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
 }

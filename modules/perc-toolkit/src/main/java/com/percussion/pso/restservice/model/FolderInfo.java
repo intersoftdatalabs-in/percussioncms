@@ -16,53 +16,55 @@
  */
 package com.percussion.pso.restservice.model;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 @XmlRootElement
 public class FolderInfo {
-	
-	private FolderAcl folderAcl;
-	private String pubFileName;
-	private String globalTemplate;
-	
-	List<ItemRef> folderItems;
-	@XmlElementWrapper(name="Contents")
-	@XmlElement(name="Item")
-	public List<ItemRef> getFolderItems() {
-		return folderItems;
-	}
 
-	public void setFolderItems(List<ItemRef> folderItems) {
-		this.folderItems = folderItems;
-	}
+  private FolderAcl folderAcl;
+  private String pubFileName;
+  private String globalTemplate;
 
-	public void setFolderAcl(FolderAcl folderAcl) {
-		this.folderAcl = folderAcl;
-	}
+  List<ItemRef> folderItems;
 
-	@XmlElement
-	public FolderAcl getFolderAcl() {
-		return folderAcl;
-	}
+  @XmlElementWrapper(name = "Contents")
+  @XmlElement(name = "Item")
+  public List<ItemRef> getFolderItems() {
+    return folderItems;
+  }
 
-	public void setPubFileName(String pubFileName) {
-		this.pubFileName = pubFileName;
-	}
-	@XmlAttribute
-	public String getPubFileName() {
-		return pubFileName;
-	}
-	
+  public void setFolderItems(List<ItemRef> folderItems) {
+    this.folderItems = folderItems;
+  }
 
-	public void setGlobalTemplate(String globalTemplate) {
-		this.globalTemplate = globalTemplate;
-	}
-	@XmlAttribute
-	public String getGlobalTemplate() {
-		return globalTemplate;
-	}
+  public void setFolderAcl(FolderAcl folderAcl) {
+    this.folderAcl = folderAcl;
+  }
+
+  @XmlElement
+  public FolderAcl getFolderAcl() {
+    return folderAcl;
+  }
+
+  public void setPubFileName(String pubFileName) {
+    this.pubFileName = pubFileName;
+  }
+
+  @XmlAttribute
+  public String getPubFileName() {
+    return pubFileName;
+  }
+
+  public void setGlobalTemplate(String globalTemplate) {
+    this.globalTemplate = globalTemplate;
+  }
+
+  @XmlAttribute
+  public String getGlobalTemplate() {
+    return globalTemplate;
+  }
 }

@@ -24,39 +24,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
-public class PSWidgetPropertyJsonTest
-{
+public class PSWidgetPropertyJsonTest {
 
-    private String number = "234";
-    private String string = "'hello'";
-    private String list = "['a','b','c']";
-    private String empty = "";
-    
-    @Test
-    public void testJson() throws Exception
-    {
-        log.debug(getObjectFromJson(list));
-        log.debug(getObjectFromJson(number));
-        log.debug(getObjectFromJson(string));
-        log.debug(getJsonFromObject(42));
-        log.debug(getJsonFromObject("42"));
-        
-        String trueJason = getJsonFromObject(Boolean.TRUE);
-        Object trueObject = getObjectFromJson(trueJason);
-        assertTrue(trueObject instanceof Boolean);
-        assertTrue((Boolean)trueObject);
-    }
-    
-    @Test
-    public void testEmptyJsonString() throws Exception
-    {
-        Object o = getObjectFromJson(empty);
-        assertThat(o, nullValue());
-    }
-    
-    
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSWidgetPropertyJsonTest.class);
+  private String number = "234";
+  private String string = "'hello'";
+  private String list = "['a','b','c']";
+  private String empty = "";
+
+  @Test
+  public void testJson() throws Exception {
+    log.debug(getObjectFromJson(list));
+    log.debug(getObjectFromJson(number));
+    log.debug(getObjectFromJson(string));
+    log.debug(getJsonFromObject(42));
+    log.debug(getJsonFromObject("42"));
+
+    String trueJason = getJsonFromObject(Boolean.TRUE);
+    Object trueObject = getObjectFromJson(trueJason);
+    assertTrue(trueObject instanceof Boolean);
+    assertTrue((Boolean) trueObject);
+  }
+
+  @Test
+  public void testEmptyJsonString() throws Exception {
+    Object o = getObjectFromJson(empty);
+    assertThat(o, nullValue());
+  }
+
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSWidgetPropertyJsonTest.class);
 }

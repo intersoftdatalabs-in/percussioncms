@@ -18,34 +18,25 @@ package com.percussion.pagemanagement.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
-/**
- * @author JaySeletz
- *
- */
+/** @author JaySeletz */
 @XmlRootElement(name = "WidgetPackageInfoRequest")
-public class PSWidgetPackageInfoRequest
-{
-    List<String> widgetNames = new ArrayList<>();
+public class PSWidgetPackageInfoRequest {
+  List<String> widgetNames = new ArrayList<>();
 
-    /**
-     * Get the list of widget names.
-     * 
-     * @return The list, never <code>null</code>, may be empty.
-     */
-    public List<String> getWidgetNames()
-    {
-        return widgetNames;
-    }
+  /**
+   * Get the list of widget names.
+   *
+   * @return The list, never <code>null</code>, may be empty.
+   */
+  public List<String> getWidgetNames() {
+    return widgetNames;
+  }
 
-    public void setWidgetNames(List<String> widgetNames)
-    {
-        Validate.notNull(widgetNames);
-        this.widgetNames = widgetNames;
-    }
-    
+  public void setWidgetNames(List<String> widgetNames) {
+    Validate.notNull(widgetNames);
+    this.widgetNames = widgetNames;
+  }
 }

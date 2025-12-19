@@ -19,39 +19,33 @@ package com.percussion.monitor.service;
 
 import static org.junit.Assert.*;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Test;
-
-import com.percussion.monitor.service.IPSMonitor;
-import com.percussion.monitor.service.PSMonitorService;
 import com.percussion.share.data.PSMapWrapper;
-import org.junit.experimental.categories.Category;
-
+import com.percussion.utils.testing.IntegrationTest;
 import java.util.Map;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class PSMonitorServiceTest {
 
-	@Test
-	public void testMonitorReferences() {
-		IPSMonitor monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-		IPSMonitor extraMonitor =  PSMonitorService.registerMonitor("EXTRA_TESTMONITOR", "testMonitorName");
-		monitor.setMessage("FUBAR");
-		monitor.setStatus("BARFU");
-		assertTrue(PSMonitorService.getMonitorDesignators().designator.size() == 2);
-		PSMapWrapper wrapper = PSMonitorService.getMonitor("TESTMONITOR").getStats();
-		Map map = wrapper.getEntries();
-		assertTrue(map.get("message").equals("FUBAR"));
-		assertTrue(map.get("status").equals("BARFU"));
-	}
-	
-	@Test
-	public void testDuplicateDesignation()
-	{
-		
-		IPSMonitor monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-		IPSMonitor monitorDeuce = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-		
-	}
+  @Test
+  public void testMonitorReferences() {
+    IPSMonitor monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+    IPSMonitor extraMonitor =
+        PSMonitorService.registerMonitor("EXTRA_TESTMONITOR", "testMonitorName");
+    monitor.setMessage("FUBAR");
+    monitor.setStatus("BARFU");
+    assertTrue(PSMonitorService.getMonitorDesignators().designator.size() == 2);
+    PSMapWrapper wrapper = PSMonitorService.getMonitor("TESTMONITOR").getStats();
+    Map map = wrapper.getEntries();
+    assertTrue(map.get("message").equals("FUBAR"));
+    assertTrue(map.get("status").equals("BARFU"));
+  }
 
+  @Test
+  public void testDuplicateDesignation() {
+
+    IPSMonitor monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+    IPSMonitor monitorDeuce = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+  }
 }

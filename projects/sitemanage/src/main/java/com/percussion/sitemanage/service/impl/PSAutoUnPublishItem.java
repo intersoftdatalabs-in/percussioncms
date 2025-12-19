@@ -36,89 +36,79 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.service.IPSSitePublishService;
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import com.percussion.webservices.PSWebserviceUtils;
+import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-
 /**
- * This is a workflow action that gets executed by the aging agent, Gets the locator from the supplied workflow context 
- * and calls the {@link IPSSitePublishService#publish(String, PubType, String, boolean, String)} to do the actual work.
- * Uses the type as PubType.TAKEDOWN_NOW.
- *
+ * This is a workflow action that gets executed by the aging agent, Gets the locator from the
+ * supplied workflow context and calls the {@link IPSSitePublishService#publish(String, PubType,
+ * String, boolean, String)} to do the actual work. Uses the type as PubType.TAKEDOWN_NOW.
  */
-public class PSAutoUnPublishItem extends PSDefaultExtension implements
-      IPSWorkflowAction
-{
+public class PSAutoUnPublishItem extends PSDefaultExtension implements IPSWorkflowAction {
 
-   /*
-    * //see base class method for details
-    */
-   @Override
-   public void init(IPSExtensionDef def, File codeRoot)
-      throws PSExtensionException
-   {
-      super.init(def, codeRoot);
-      PSSpringWebApplicationContextUtils.injectDependencies(this);
-   }
+  /*
+   * //see base class method for details
+   */
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-   /*
-    * //see base class method for details
-    */
-   public void performAction(IPSWorkFlowContext arg0, IPSRequestContext arg1)
-      throws PSExtensionProcessingException
-   {
-      try {
-         PSLocator loc = new PSLocator(arg0.getContentID(), arg0
-                 .getBaseRevisionNum());
-         String cguid = idMapper.getString(loc);
-         PSWebserviceUtils.setUserName("rxserver");
-         IPSItemSummary sum = itemSummaryService.find(cguid);
-         sitePublishService.publish(null, PubType.TAKEDOWN_NOW, cguid, sum.isResource(), null);
-      } catch (PSDataServiceException | IPSPubServerService.PSPubServerServiceException | IPSItemWorkflowService.PSItemWorkflowServiceException | IPSItemService.PSItemServiceException | PSNotFoundException e) {
-         log.error("Error un publishing content id: {} Error: {}", arg0.getContentID(),e.getMessage());
-         throw new PSExtensionProcessingException(e.getMessage(),e);
-      }
-   }
-   
-   //Services getters and setters used by spring to inject
-   public IPSDataItemSummaryService getItemSummaryService()
-   {
-      return itemSummaryService;
-   }
+  /*
+   * //see base class method for details
+   */
+  public void performAction(IPSWorkFlowContext arg0, IPSRequestContext arg1)
+      throws PSExtensionProcessingException {
+    try {
+      PSLocator loc = new PSLocator(arg0.getContentID(), arg0.getBaseRevisionNum());
+      String cguid = idMapper.getString(loc);
+      PSWebserviceUtils.setUserName("rxserver");
+      IPSItemSummary sum = itemSummaryService.find(cguid);
+      sitePublishService.publish(null, PubType.TAKEDOWN_NOW, cguid, sum.isResource(), null);
+    } catch (PSDataServiceException
+        | IPSPubServerService.PSPubServerServiceException
+        | IPSItemWorkflowService.PSItemWorkflowServiceException
+        | IPSItemService.PSItemServiceException
+        | PSNotFoundException e) {
+      log.error(
+          "Error un publishing content id: {} Error: {}", arg0.getContentID(), e.getMessage());
+      throw new PSExtensionProcessingException(e.getMessage(), e);
+    }
+  }
 
-   public void setItemSummaryService(IPSDataItemSummaryService itemSummaryService)
-   {
-      this.itemSummaryService = itemSummaryService;
-   }
+  // Services getters and setters used by spring to inject
+  public IPSDataItemSummaryService getItemSummaryService() {
+    return itemSummaryService;
+  }
 
-   public IPSSitePublishService getSitePublishService()
-   {
-      return sitePublishService;
-   }
+  public void setItemSummaryService(IPSDataItemSummaryService itemSummaryService) {
+    this.itemSummaryService = itemSummaryService;
+  }
 
-   public void setSitePublishService(IPSSitePublishService sitePublishService)
-   {
-      this.sitePublishService = sitePublishService;
-   }
+  public IPSSitePublishService getSitePublishService() {
+    return sitePublishService;
+  }
 
-   public IPSIdMapper getIdMapper()
-   {
-      return idMapper;
-   }
+  public void setSitePublishService(IPSSitePublishService sitePublishService) {
+    this.sitePublishService = sitePublishService;
+  }
 
-   public void setIdMapper(IPSIdMapper idMapper)
-   {
-      this.idMapper = idMapper;
-   }
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
 
-   private static final Logger log = LogManager.getLogger(PSAutoUnPublishItem.class);
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
 
-   //Services used
-   private IPSSitePublishService sitePublishService;
+  private static final Logger log = LogManager.getLogger(PSAutoUnPublishItem.class);
 
-   private IPSIdMapper idMapper;
+  // Services used
+  private IPSSitePublishService sitePublishService;
 
-   private IPSDataItemSummaryService itemSummaryService;
+  private IPSIdMapper idMapper;
 
+  private IPSDataItemSummaryService itemSummaryService;
 }

@@ -21,18 +21,14 @@ import javax.ws.rs.core.Response;
 
 public class ContentMigrationException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -613886841430682824L;
+  /** */
+  private static final long serialVersionUID = -613886841430682824L;
 
-	public ContentMigrationException()
-    {
-        super(RestErrorCode.CONTENT_MIGRATION_ERROR, null, null, Response.Status.NOT_FOUND);
-    }
-    
-    public ContentMigrationException(String detailMessage){
-    	super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
-    }
+  public ContentMigrationException() {
+    super(RestErrorCode.CONTENT_MIGRATION_ERROR, null, null, Response.Status.NOT_FOUND);
+  }
+
+  public ContentMigrationException(String detailMessage) {
+    super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
+  }
 }
-

@@ -16,13 +16,12 @@
  */
 package com.percussion.share.service;
 
-import java.util.List;
-
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
+import java.util.List;
 
-
-public interface IPSItemSummaryFactoryService extends IPSCatalogFactoryService<IPSItemSummary, String>
-{
-    public <F extends IPSItemSummary> List<F> findFolderChildren(IPSCatalogItemFactory<F, String> factory, String id) throws DataServiceLoadException;
+public interface IPSItemSummaryFactoryService
+    extends IPSCatalogFactoryService<IPSItemSummary, String> {
+  public <F extends IPSItemSummary> List<F> findFolderChildren(
+      IPSCatalogItemFactory<F, String> factory, String id) throws DataServiceLoadException;
 }

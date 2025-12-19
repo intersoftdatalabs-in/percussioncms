@@ -19,29 +19,21 @@ package com.percussion.cms.objectstore;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
-/**
- * See {@link PSDbComponentList base class} for details.
- */
-public class PSDFColumns extends PSDbComponentList
-{
-   /**
-    * ctor calls base class.
-    */
-   public PSDFColumns()
-      throws ClassNotFoundException, PSCmsException
-   {
-      super(PSDisplayColumn.class.getName());
-   }
 
-   /**
-    * Ctor for reserializing. See {@link
-    * PSDbComponentList#PSDbComponentList(Element) base ctor} for more details.
-    */
-   public PSDFColumns(Element src)
-      throws PSUnknownNodeTypeException
-   {
-      super(src);
-   }
+/** See {@link PSDbComponentList base class} for details. */
+public class PSDFColumns extends PSDbComponentList {
+  /** ctor calls base class. */
+  public PSDFColumns() throws ClassNotFoundException, PSCmsException {
+    super(PSDisplayColumn.class.getName());
+  }
 
-   public static final String XML_NODE_NAME = "PSXDFColumns";
+  /**
+   * Ctor for reserializing. See {@link PSDbComponentList#PSDbComponentList(Element) base ctor} for
+   * more details.
+   */
+  public PSDFColumns(Element src) throws PSUnknownNodeTypeException {
+    super(src);
+  }
+
+  public static final String XML_NODE_NAME = "PSXDFColumns";
 }

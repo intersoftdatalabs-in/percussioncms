@@ -23,62 +23,54 @@ import java.util.TreeMap;
 
 /**
  * Useful printer methods to aid in debugging
- * 
+ *
  * @author dougrand
  */
-public class PSTestPrinter
-{
-   /**
-    * Print the map entries in alphabetic order of the contained keys
-    * @param map the map, never <code>null</code>
-    */
-   @SuppressWarnings("unchecked")
-   public static void printMapEntries(Map map)
-   {
-      if (map == null)
-      {
-         throw new IllegalArgumentException("map may not be null");
-      }
-      Map<String,String> values = new TreeMap<String, String>();
-      Iterator<Map.Entry> i = map.entrySet().iterator();
-      while(i.hasNext())
-      {
-         Map.Entry e = i.next();
-         values.put(e.getKey().toString(), e.getValue().toString());
-      }
-      
-      Iterator<Map.Entry<String,String>> is = values.entrySet().iterator();
-      while(is.hasNext())
-      {
-         Map.Entry<String,String> e = is.next();
-         System.out.println(e.getKey() + ": " + e.getValue());
-      }
-   }
-   
-   /**
-    * Print the property entries in alphabetic order of the contained keys
-    * @param props the properties, never <code>null</code>
-    */
-   public static void printMapEntries(Properties props)
-   {
-      if (props == null)
-      {
-         throw new IllegalArgumentException("props may not be null");
-      }
-      Map<String,String> values = new TreeMap<String, String>();
-      Iterator<Map.Entry<Object,Object>> i = props.entrySet().iterator();
-      while(i.hasNext())
-      {
-         Map.Entry e = i.next();
-         values.put(e.getKey().toString(), e.getValue().toString());
-      }
-      
-      Iterator<Map.Entry<String,String>> is = values.entrySet().iterator();
-      while(is.hasNext())
-      {
-         Map.Entry<String,String> e = is.next();
-         System.out.println(e.getKey() + ": " + e.getValue());
-      }     
-   }
-   
+public class PSTestPrinter {
+  /**
+   * Print the map entries in alphabetic order of the contained keys
+   *
+   * @param map the map, never <code>null</code>
+   */
+  @SuppressWarnings("unchecked")
+  public static void printMapEntries(Map map) {
+    if (map == null) {
+      throw new IllegalArgumentException("map may not be null");
+    }
+    Map<String, String> values = new TreeMap<String, String>();
+    Iterator<Map.Entry> i = map.entrySet().iterator();
+    while (i.hasNext()) {
+      Map.Entry e = i.next();
+      values.put(e.getKey().toString(), e.getValue().toString());
+    }
+
+    Iterator<Map.Entry<String, String>> is = values.entrySet().iterator();
+    while (is.hasNext()) {
+      Map.Entry<String, String> e = is.next();
+      System.out.println(e.getKey() + ": " + e.getValue());
+    }
+  }
+
+  /**
+   * Print the property entries in alphabetic order of the contained keys
+   *
+   * @param props the properties, never <code>null</code>
+   */
+  public static void printMapEntries(Properties props) {
+    if (props == null) {
+      throw new IllegalArgumentException("props may not be null");
+    }
+    Map<String, String> values = new TreeMap<String, String>();
+    Iterator<Map.Entry<Object, Object>> i = props.entrySet().iterator();
+    while (i.hasNext()) {
+      Map.Entry e = i.next();
+      values.put(e.getKey().toString(), e.getValue().toString());
+    }
+
+    Iterator<Map.Entry<String, String>> is = values.entrySet().iterator();
+    while (is.hasNext()) {
+      Map.Entry<String, String> e = is.next();
+      System.out.println(e.getKey() + ": " + e.getValue());
+    }
+  }
 }

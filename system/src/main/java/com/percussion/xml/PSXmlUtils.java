@@ -21,16 +21,13 @@ import com.percussion.util.PSXMLDomUtil;
 
 /**
  * A utility class that contains methods useful for XML processing.
+ *
  * @deprecated Use com.percussion.util.PSXMLDomUtil instead
  */
-public class PSXmlUtils
-{
+public class PSXmlUtils {
 
-   /**
-    * @see com.percussion.util.PSXMLDomUtil#makeXmlName(String)
-    */
-   public static String makeXmlName(String str)
-   {
-      return PSXMLDomUtil.makeXmlName(str);
-   }
+  /** @see com.percussion.util.PSXMLDomUtil#makeXmlName(String) */
+  public static String makeXmlName(String str) {
+    return PSXMLDomUtil.makeXmlName(str);
+  }
 }

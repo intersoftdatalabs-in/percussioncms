@@ -17,7 +17,14 @@
 
 package com.percussion.utils.container;
 
+import static com.percussion.utils.io.PathUtils.DEPLOY_DIR_PROP;
+
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,65 +32,65 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static com.percussion.utils.io.PathUtils.DEPLOY_DIR_PROP;
-
 public class PSContainerUtilsFactoryTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private String rxdeploydir;
+  private String rxdeploydir;
 
-    @Before
-    public void setup(){
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
-    }
+  @Before
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
 
-    @After
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  @After
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-    @Test
-    //TODO: Fix Me: Test is currently ERROR - but not FAIL on the build server on line 82: BaseContainerUtils instance = PSContainerUtilsFactory.getInstance();
-    @Ignore
-    public void getInstance() throws IOException {
-        Path root = temporaryFolder.getRoot().toPath();
+  @Test
+  // TODO: Fix Me: Test is currently ERROR - but not FAIL on the build server on line 82:
+  // BaseContainerUtils instance = PSContainerUtilsFactory.getInstance();
+  @Ignore
+  public void getInstance() throws IOException {
+    Path root = temporaryFolder.getRoot().toPath();
 
-        InputStream srcInstallProps = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/installation.properties");
-        InputStream srcLoginConf = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/login.conf");
-        InputStream srcPercDsXML= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
-        InputStream srcPercDsProperties= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
+    InputStream srcInstallProps =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/installation.properties");
+    InputStream srcLoginConf =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/login.conf");
+    InputStream srcPercDsXML =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
+    InputStream srcPercDsProperties =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
 
-        temporaryFolder.newFolder("jetty","base","etc");
+    temporaryFolder.newFolder("jetty", "base", "etc");
 
-        Files.copy(srcInstallProps,root.resolve("jetty/base/etc/installation.properties"));
-        Files.copy(srcLoginConf,root.resolve("jetty/base/etc/login.conf"));
-        Files.copy(srcPercDsXML,root.resolve("jetty/base/etc/perc-ds.xml"));
-        Files.copy(srcPercDsProperties,root.resolve("jetty/base/etc/perc-ds.properties"));
+    Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
+    Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
+    Files.copy(srcPercDsXML, root.resolve("jetty/base/etc/perc-ds.xml"));
+    Files.copy(srcPercDsProperties, root.resolve("jetty/base/etc/perc-ds.properties"));
 
-        System.setProperty(DEPLOY_DIR_PROP, root.toAbsolutePath().toString());
-        BaseContainerUtils instance = PSContainerUtilsFactory.getInstance();
+    System.setProperty(DEPLOY_DIR_PROP, root.toAbsolutePath().toString());
+    BaseContainerUtils instance = PSContainerUtilsFactory.getInstance();
 
-        System.out.println("Loaded ="+instance.isLoaded());
+    System.out.println("Loaded =" + instance.isLoaded());
 
-        DefaultConfigurationContextImpl config = PSContainerUtilsFactory.getConfigurationContextInstance();
-        config.load();
+    DefaultConfigurationContextImpl config =
+        PSContainerUtilsFactory.getConfigurationContextInstance();
+    config.load();
 
-        DefaultConfigurationContextImpl config2 = PSContainerUtilsFactory.getConfigurationContextInstance(Paths.get(root.toAbsolutePath().toString()));
+    DefaultConfigurationContextImpl config2 =
+        PSContainerUtilsFactory.getConfigurationContextInstance(
+            Paths.get(root.toAbsolutePath().toString()));
 
-
-        config2.copyFrom(config);
-        config2.save();
-    }
-
+    config2.copyFrom(config);
+    config2.save();
+  }
 }

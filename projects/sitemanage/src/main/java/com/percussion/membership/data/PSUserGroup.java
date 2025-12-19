@@ -19,55 +19,38 @@ package com.percussion.membership.data;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "UserGroup")
-public class PSUserGroup
-{
-    private String email;
-    private String groups;
-    
-    /**
-     * Default ctor required by jax-b
-     */
-    public PSUserGroup()
-    {
-        
-    }
+public class PSUserGroup {
+  private String email;
+  private String groups;
 
-    
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
-        this.email = email;
-    }
-    
-    /**
-     * Get the user's email.
-     * 
-     * @return The email, not <code>null</code> or empty.
-     */
-    public String getEmail()
-    {
-        return email;
-    }
-    
-    /**
-     * @param groups the groups to set, may be empty or <code>null</code>.
-     */
-    public void setGroups(String groups)
-    {
-        this.groups = groups;
-    }
+  /** Default ctor required by jax-b */
+  public PSUserGroup() {}
 
-    /**
-     * @return the groups, may be empty or <code>null</code>.
-     */
-    public String getGroups()
-    {
-        return groups;
-    }
+  public void setEmail(String email) {
+    Validate.notEmpty(email);
+    this.email = email;
+  }
 
+  /**
+   * Get the user's email.
+   *
+   * @return The email, not <code>null</code> or empty.
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  /** @param groups the groups to set, may be empty or <code>null</code>. */
+  public void setGroups(String groups) {
+    this.groups = groups;
+  }
+
+  /** @return the groups, may be empty or <code>null</code>. */
+  public String getGroups() {
+    return groups;
+  }
 }

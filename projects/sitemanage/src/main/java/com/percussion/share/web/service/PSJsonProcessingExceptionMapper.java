@@ -20,40 +20,34 @@ package com.percussion.share.web.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
-public class PSJsonProcessingExceptionMapper extends PSAbstractExceptionMapper<JsonProcessingException> implements ExceptionMapper<JsonProcessingException> {
+public class PSJsonProcessingExceptionMapper
+    extends PSAbstractExceptionMapper<JsonProcessingException>
+    implements ExceptionMapper<JsonProcessingException> {
 
+  private static final String ERROR_MESSAGE = "JSON error: ";
 
-    private static final String ERROR_MESSAGE = "JSON error: ";
+  @Override
+  protected PSErrors createErrors(JsonProcessingException exception) {
+    String errorMessage = exception.getClass().getName();
 
-    @Override
-    protected PSErrors createErrors(JsonProcessingException exception) {
-        String errorMessage = exception.getClass().getName();
+    if (log.isDebugEnabled()) log.debug(errorMessage, exception);
 
-        if (log.isDebugEnabled())
-            log.debug(errorMessage, exception);
+    PSErrors errors = PSErrorUtils.createErrorsFromException(exception);
 
-        PSErrors errors = PSErrorUtils.createErrorsFromException(exception);
+    return errors;
+  }
 
-        return errors;
-    }
-
-
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
 }

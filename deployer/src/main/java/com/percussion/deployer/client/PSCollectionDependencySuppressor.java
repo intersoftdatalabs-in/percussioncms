@@ -18,53 +18,42 @@
 package com.percussion.deployer.client;
 
 import com.percussion.deployer.objectstore.PSDependency;
-
 import java.util.Collection;
 
 /**
- * A dependency suppressor that will suppress any dependency whose key is
- * included in a specified collection.
+ * A dependency suppressor that will suppress any dependency whose key is included in a specified
+ * collection.
  */
-public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
-{
-   /**
-    * Constructs a dependency suppressor to suppress members included in the
-    * specified collection.
-    * 
-    * @param dependenciesToSuppress a collection of dependency keys (Strings)
-    *           that should be suppressed, not <code>null</code>
-    */
-   public PSCollectionDependencySuppressor(Collection dependenciesToSuppress)
-   {
-      if (dependenciesToSuppress == null)
-         throw new IllegalArgumentException(
-               "dependenciesToSuppress may not be null");
-      m_depsToSuppress = dependenciesToSuppress;
-   }
+public class PSCollectionDependencySuppressor implements IPSDependencySuppressor {
+  /**
+   * Constructs a dependency suppressor to suppress members included in the specified collection.
+   *
+   * @param dependenciesToSuppress a collection of dependency keys (Strings) that should be
+   *     suppressed, not <code>null</code>
+   */
+  public PSCollectionDependencySuppressor(Collection dependenciesToSuppress) {
+    if (dependenciesToSuppress == null)
+      throw new IllegalArgumentException("dependenciesToSuppress may not be null");
+    m_depsToSuppress = dependenciesToSuppress;
+  }
 
-   /**
-    * Determines if the specified dependency should be suppressed by comparing
-    * that dependency's key against the collection of dependency keys provided
-    * to the constructor.
-    * 
-    * @param dependency the dependency to be evaluated for suppression, not
-    *           <code>null</code>
-    * 
-    * @return <code>true</code> if the dependency should be suppressed because
-    *         its key is included in the collection, <code>false</code>
-    *         otherwise.
-    */
-   public boolean suppress(PSDependency dependency)
-   {
-      if (dependency == null)
-         throw new IllegalArgumentException("dependency may not be null");
+  /**
+   * Determines if the specified dependency should be suppressed by comparing that dependency's key
+   * against the collection of dependency keys provided to the constructor.
+   *
+   * @param dependency the dependency to be evaluated for suppression, not <code>null</code>
+   * @return <code>true</code> if the dependency should be suppressed because its key is included in
+   *     the collection, <code>false</code> otherwise.
+   */
+  public boolean suppress(PSDependency dependency) {
+    if (dependency == null) throw new IllegalArgumentException("dependency may not be null");
 
-      return m_depsToSuppress.contains(dependency.getKey());
-   }
+    return m_depsToSuppress.contains(dependency.getKey());
+  }
 
-   /**
-    * Collection of dependency keys (Strings) that should be suppressed.
-    * Assigned in ctor, and never <code>null</code> after.
-    */
-   private Collection m_depsToSuppress;
+  /**
+   * Collection of dependency keys (Strings) that should be suppressed. Assigned in ctor, and never
+   * <code>null</code> after.
+   */
+  private Collection m_depsToSuppress;
 }

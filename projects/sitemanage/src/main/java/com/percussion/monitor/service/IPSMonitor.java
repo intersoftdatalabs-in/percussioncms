@@ -18,21 +18,15 @@
 package com.percussion.monitor.service;
 
 import com.percussion.share.data.PSMapWrapper;
-
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 
 public interface IPSMonitor extends Serializable {
 
-	public PSMapWrapper getStats();
-	
-	public void setStat(String designator, String Stat);
-	public void setStatus(String status);
-	public void setMessage(String message);
-	
+  public PSMapWrapper getStats();
+
+  public void setStat(String designator, String Stat);
+
+  public void setStatus(String status);
+
+  public void setMessage(String message);
 }

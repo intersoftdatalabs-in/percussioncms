@@ -20,18 +20,13 @@ package com.percussion.search;
 import com.percussion.error.PSException;
 
 /**
- * This exception is used when the search engine's administrative object is
- * in use by someone else.
+ * This exception is used when the search engine's administrative object is in use by someone else.
  *
  * @author paulhoward
  */
-public class PSAdminLockedException extends PSException
-{
-   /**
-    * Ctor
-    */
-   public PSAdminLockedException()
-   {
-      super(IPSSearchErrors.ADMIN_HANDLER_LOCKED);
-   }
+public class PSAdminLockedException extends PSException {
+  /** Ctor */
+  public PSAdminLockedException() {
+    super(IPSSearchErrors.ADMIN_HANDLER_LOCKED);
+  }
 }

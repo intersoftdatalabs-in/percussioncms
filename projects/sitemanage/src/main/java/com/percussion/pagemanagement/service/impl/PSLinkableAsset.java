@@ -16,152 +16,124 @@
  */
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.assetmanagement.data.PSAsset;
+import com.percussion.share.data.IPSLinkableContentItem;
 import java.util.List;
 import java.util.Map;
 
-import com.percussion.assetmanagement.data.PSAsset;
-import com.percussion.share.data.IPSLinkableContentItem;
+public class PSLinkableAsset implements IPSLinkableContentItem {
 
-public class PSLinkableAsset implements IPSLinkableContentItem
-{
+  private PSAsset asset;
+  private String folderPath;
 
-    private PSAsset asset;
-    private String folderPath;
+  public PSLinkableAsset(PSAsset asset, String folderPath) {
+    super();
+    this.asset = asset;
+    this.folderPath = folderPath;
+  }
 
-    public PSLinkableAsset(PSAsset asset, String folderPath)
-    {
-        super();
-        this.asset = asset;
-        this.folderPath = folderPath;
-    }
+  public Map<String, Object> getFields() {
+    return asset.getFields();
+  }
 
-    public Map<String, Object> getFields()
-    {
-        return asset.getFields();
-    }
+  public List<String> getFolderPaths() {
+    return asset.getFolderPaths();
+  }
 
-    public List<String> getFolderPaths()
-    {
-        return asset.getFolderPaths();
-    }
+  public boolean isFolder() {
+    return asset.isFolder();
+  }
 
-    public boolean isFolder()
-    {
-       return asset.isFolder();
-    }
-    
-    public Category getCategory()
-    {
-        return asset.getCategory();
-    }
-    
-    public void setCategory(Category cat)
-    {
-        asset.setCategory(cat);
-    }
-    
-    public String getIcon()
-    {
-        return asset.getIcon();
-    }
+  public Category getCategory() {
+    return asset.getCategory();
+  }
 
-    public String getId()
-    {
-        return asset.getId();
-    }
+  public void setCategory(Category cat) {
+    asset.setCategory(cat);
+  }
 
-    public String getName()
-    {
-        return asset.getName();
-    }
+  public String getIcon() {
+    return asset.getIcon();
+  }
 
-    public String getType()
-    {
-        return asset.getType();
-    }
+  public String getId() {
+    return asset.getId();
+  }
 
-    @Override
-    public int hashCode()
-    {
-        return asset.hashCode();
-    }
+  public String getName() {
+    return asset.getName();
+  }
 
-    public void setFields(Map<String, Object> fields)
-    {
-        asset.setFields(fields);
-    }
+  public String getType() {
+    return asset.getType();
+  }
 
-    public void setFolderPaths(List<String> paths)
-    {
-        asset.setFolderPaths(paths);
-    }
+  @Override
+  public int hashCode() {
+    return asset.hashCode();
+  }
 
-    public void setIcon(String icon)
-    {
-        asset.setIcon(icon);
-    }
+  public void setFields(Map<String, Object> fields) {
+    asset.setFields(fields);
+  }
 
-    public void setId(String id)
-    {
-        asset.setId(id);
-    }
+  public void setFolderPaths(List<String> paths) {
+    asset.setFolderPaths(paths);
+  }
 
-    public void setName(String name)
-    {
-        asset.setName(name);
-    }
+  public void setIcon(String icon) {
+    asset.setIcon(icon);
+  }
 
-    public void setType(String type)
-    {
-        asset.setType(type);
-    }
+  public void setId(String id) {
+    asset.setId(id);
+  }
 
-    @Override
-    public String toString()
-    {
-        return asset.toString();
-    }
+  public void setName(String name) {
+    asset.setName(name);
+  }
 
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  public void setType(String type) {
+    asset.setType(type);
+  }
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  @Override
+  public String toString() {
+    return asset.toString();
+  }
 
-    @Override
-    public String getLabel()
-    {
-        return asset.getLabel();
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    @Override
-    public void setLabel(String label)
-    {
-        asset.setLabel(label);        
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    public boolean isRevisionable()
-    {
-        return asset.isRevisionable();
-    }
+  @Override
+  public String getLabel() {
+    return asset.getLabel();
+  }
 
-    public void setRevisionable(boolean revisionable)
-    {
-        asset.setRevisionable(revisionable);
-    }
+  @Override
+  public void setLabel(String label) {
+    asset.setLabel(label);
+  }
 
-    @Override
-    public boolean isPage()
-    {
-        return asset.isPage();
-    }
-    
-    public boolean isResource()
-    {
-        return asset.isResource();
-    }
+  public boolean isRevisionable() {
+    return asset.isRevisionable();
+  }
+
+  public void setRevisionable(boolean revisionable) {
+    asset.setRevisionable(revisionable);
+  }
+
+  @Override
+  public boolean isPage() {
+    return asset.isPage();
+  }
+
+  public boolean isResource() {
+    return asset.isResource();
+  }
 }

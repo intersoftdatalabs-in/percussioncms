@@ -18,11 +18,7 @@ package com.percussion.widgetbuilder.utils.xform;
 
 import com.percussion.design.objectstore.PSControlMeta;
 
-/**
- * @author JaySeletz
- *
- */
-public interface IPSControlManager
-{
-    PSControlMeta getControl(String name);
+/** @author JaySeletz */
+public interface IPSControlManager {
+  PSControlMeta getControl(String name);
 }

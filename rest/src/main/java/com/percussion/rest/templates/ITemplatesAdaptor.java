@@ -22,6 +22,5 @@ import java.util.List;
 
 public interface ITemplatesAdaptor {
 
-List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
-
+  List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
 }

@@ -18,14 +18,17 @@
 package com.percussion.rest.actions;
 
 import com.percussion.webservices.PSErrorResultsException;
-
 import java.util.List;
 
 public interface IActionMenuAdaptor {
 
-  public List<ActionMenu> findMenus(String name, String label, Boolean item, Boolean dynamic, Boolean cascading) throws PSErrorResultsException;
-  public List<ActionMenu> findAllowedTransitions(Integer[] contentIds, Integer[] assignmentTypeIds);
-  public List<ActionMenu> findAllowedContentTypes(Integer[] contentIds);
-  public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA);
+  public List<ActionMenu> findMenus(
+      String name, String label, Boolean item, Boolean dynamic, Boolean cascading)
+      throws PSErrorResultsException;
 
+  public List<ActionMenu> findAllowedTransitions(Integer[] contentIds, Integer[] assignmentTypeIds);
+
+  public List<ActionMenu> findAllowedContentTypes(Integer[] contentIds);
+
+  public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA);
 }

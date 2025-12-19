@@ -20,28 +20,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A facade map hides an underlying immutable map so the data values can be
- * modified or removed. The underlying map is not changed by these operations.
- * <p>
- * It's important to note that the resulting composite map may have values that
- * are not present in the underlying map.
- * 
+ * A facade map hides an underlying immutable map so the data values can be modified or removed. The
+ * underlying map is not changed by these operations.
+ *
+ * <p>It's important to note that the resulting composite map may have values that are not present
+ * in the underlying map.
+ *
  * @author dougrand
- * 
  * @param <K> the key class for the map
  * @param <V> the value class for the map
  */
-public class PSFacadeMap<K, V> extends HashMap<K, V>
-{
-  
-   /**
-    * Construct a new facade map
-    * 
-    * @param mapToEncapsulate the map to encapsulate, never <code>null</code>
-    */
-   @SuppressWarnings("unchecked")
-   public PSFacadeMap(Map<K, ? extends V> mapToEncapsulate) {
-      super(mapToEncapsulate);
-   }
- 
+public class PSFacadeMap<K, V> extends HashMap<K, V> {
+
+  /**
+   * Construct a new facade map
+   *
+   * @param mapToEncapsulate the map to encapsulate, never <code>null</code>
+   */
+  @SuppressWarnings("unchecked")
+  public PSFacadeMap(Map<K, ? extends V> mapToEncapsulate) {
+    super(mapToEncapsulate);
+  }
 }

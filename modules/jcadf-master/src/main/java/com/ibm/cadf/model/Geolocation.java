@@ -19,125 +19,113 @@ package com.ibm.cadf.model;
 
 import com.ibm.cadf.exception.CADFException;
 
-public class Geolocation extends CADFType
-{
+public class Geolocation extends CADFType {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
+  private String id;
 
-    private String latitude;
+  private String latitude;
 
-    private String longitude;
+  private String longitude;
 
-    private String elevation;
+  private String elevation;
 
-    private String accuracy;
+  private String accuracy;
 
-    private String city;
+  private String city;
 
-    private String state;
+  private String state;
 
-    private String regionICANN;
+  private String regionICANN;
 
-    public Geolocation(String id, String latitude, String longitude, String elevation, String accuracy, String city,
-                    String state, String regionICANN) throws CADFException
-    {
-        super();
-        this.id = id;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.elevation = elevation;
-        this.accuracy = accuracy;
-        this.city = city;
-        this.state = state;
-        this.regionICANN = regionICANN;
-    }
+  public Geolocation(
+      String id,
+      String latitude,
+      String longitude,
+      String elevation,
+      String accuracy,
+      String city,
+      String state,
+      String regionICANN)
+      throws CADFException {
+    super();
+    this.id = id;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.elevation = elevation;
+    this.accuracy = accuracy;
+    this.city = city;
+    this.state = state;
+    this.regionICANN = regionICANN;
+  }
 
-    public String getId()
-    {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getLatitude()
-    {
-        return latitude;
-    }
+  public String getLatitude() {
+    return latitude;
+  }
 
-    public void setLatitude(String latitude)
-    {
-        this.latitude = latitude;
-    }
+  public void setLatitude(String latitude) {
+    this.latitude = latitude;
+  }
 
-    public String getLongitude()
-    {
-        return longitude;
-    }
+  public String getLongitude() {
+    return longitude;
+  }
 
-    public void setLongitude(String longitude)
-    {
-        this.longitude = longitude;
-    }
+  public void setLongitude(String longitude) {
+    this.longitude = longitude;
+  }
 
-    public String getElevation()
-    {
-        return elevation;
-    }
+  public String getElevation() {
+    return elevation;
+  }
 
-    public void setElevation(String elevation)
-    {
-        this.elevation = elevation;
-    }
+  public void setElevation(String elevation) {
+    this.elevation = elevation;
+  }
 
-    public String getAccuracy()
-    {
-        return accuracy;
-    }
+  public String getAccuracy() {
+    return accuracy;
+  }
 
-    public void setAccuracy(String accuracy)
-    {
-        this.accuracy = accuracy;
-    }
+  public void setAccuracy(String accuracy) {
+    this.accuracy = accuracy;
+  }
 
-    public String getCity()
-    {
-        return city;
-    }
+  public String getCity() {
+    return city;
+  }
 
-    public void setCity(String city)
-    {
-        this.city = city;
-    }
+  public void setCity(String city) {
+    this.city = city;
+  }
 
-    public String getState()
-    {
-        return state;
-    }
+  public String getState() {
+    return state;
+  }
 
-    public void setState(String state)
-    {
-        this.state = state;
-    }
+  public void setState(String state) {
+    this.state = state;
+  }
 
-    public String getRegionICANN()
-    {
-        return regionICANN;
-    }
+  public String getRegionICANN() {
+    return regionICANN;
+  }
 
-    public void setRegionICANN(String regionICANN)
-    {
-        this.regionICANN = regionICANN;
-    }
+  public void setRegionICANN(String regionICANN) {
+    this.regionICANN = regionICANN;
+  }
 
-    @Override
-    public boolean isValid()
-    {
-        return true;
-    }
-
+  @Override
+  public boolean isValid() {
+    return true;
+  }
 }

@@ -17,13 +17,12 @@
 
 package com.percussion.xml;
 
-public interface PSDtdTreeVisitor
-{
-   public Object visit(PSDtdNode node, Object data);
+public interface PSDtdTreeVisitor {
+  public Object visit(PSDtdNode node, Object data);
 
-   public Object visit(PSDtdElementEntry node, Object data);
+  public Object visit(PSDtdElementEntry node, Object data);
 
-   public Object visit(PSDtdNodeList node, Object data);
+  public Object visit(PSDtdNodeList node, Object data);
 
-   public Object visit(PSDtdDataElement node, Object data);
+  public Object visit(PSDtdDataElement node, Object data);
 }

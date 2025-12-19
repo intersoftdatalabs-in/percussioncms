@@ -19,14 +19,9 @@ package com.percussion.apibridge;
 
 import com.percussion.rest.jexl.IJexlAdaptor;
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @PSSiteManageBean
 public class JexlAdaptor implements IJexlAdaptor {
 
-    public JexlAdaptor(){
-
-    }
-
+  public JexlAdaptor() {}
 }

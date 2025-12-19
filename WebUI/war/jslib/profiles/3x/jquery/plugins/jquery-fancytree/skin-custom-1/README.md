@@ -12,3 +12,4 @@
 4. Edit and save your ui.fancytree.less file.<br>
    The `ui.fancytree.css` will be generated and updated automatically from
    the LESS file.
+

@@ -16,124 +16,88 @@
  */
 package com.percussion.pso.preview;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.util.IPSHtmlParameters;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- *  Location bean. 
+ * Location bean.
  *
  * @author DavidBenua
- *
  */
-public class SiteFolderLocation
-{
-   private String folderPath;
-   private int folderid; 
-   private IPSSite site;
-   
-   /**
-    * Default Constructor
-    */
-   public SiteFolderLocation()
-   {
-     
-   }
-   
-   /**
-    * Gets the parameter map for this location. These parameters are 
-    * unique to that location. 
-    * @return the map. 
-    */
-   public Map<String,Object> getParameterMap()
-   {
-      Map<String, Object> pmap = new HashMap<String, Object>(); 
-      pmap.put(IPSHtmlParameters.SYS_SITEID, String.valueOf(getSiteid())); 
-      pmap.put(IPSHtmlParameters.SYS_FOLDERID, String.valueOf(getFolderid())); 
-      return pmap;       
-   }
-   
-   /**
-    * Fixes a URL by applying the parameters in the map
-    * @param baseUrl
-    * @return the url with the parameters added. 
-    * @throws PSRequestParsingException
-    */
-   public String fixUrl(String baseUrl) throws PSRequestParsingException
-   {
-      PSOMutableUrl url = new PSOMutableUrl(baseUrl); 
-      url.setParamList(this.getParameterMap());    
-      return url.toString(); 
-   }
+public class SiteFolderLocation {
+  private String folderPath;
+  private int folderid;
+  private IPSSite site;
 
-   /**
-    * @return the siteName
-    */
-   public String getSiteName()
-   {
-      return site.getName(); 
-   }
+  /** Default Constructor */
+  public SiteFolderLocation() {}
 
+  /**
+   * Gets the parameter map for this location. These parameters are unique to that location.
+   *
+   * @return the map.
+   */
+  public Map<String, Object> getParameterMap() {
+    Map<String, Object> pmap = new HashMap<String, Object>();
+    pmap.put(IPSHtmlParameters.SYS_SITEID, String.valueOf(getSiteid()));
+    pmap.put(IPSHtmlParameters.SYS_FOLDERID, String.valueOf(getFolderid()));
+    return pmap;
+  }
 
-   /**
-    * @return the folderPath
-    */
-   public String getFolderPath()
-   {
-      return folderPath;
-   }
+  /**
+   * Fixes a URL by applying the parameters in the map
+   *
+   * @param baseUrl
+   * @return the url with the parameters added.
+   * @throws PSRequestParsingException
+   */
+  public String fixUrl(String baseUrl) throws PSRequestParsingException {
+    PSOMutableUrl url = new PSOMutableUrl(baseUrl);
+    url.setParamList(this.getParameterMap());
+    return url.toString();
+  }
 
-   /**
-    * @param folderPath the folderPath to set
-    */
-   public void setFolderPath(String folderPath)
-   {
-      this.folderPath = folderPath;
-   }
+  /** @return the siteName */
+  public String getSiteName() {
+    return site.getName();
+  }
 
-   /**
-    * @return the siteid
-    */
-   public long getSiteid()
-   {
-      return site.getSiteId(); 
-   }
+  /** @return the folderPath */
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-   /**
-    * @return the folderid
-    */
-   public int getFolderid()
-   {
-      return folderid;
-   }
+  /** @param folderPath the folderPath to set */
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-   /**
-    * @param folderid the folderid to set
-    */
-   public void setFolderid(int folderid)
-   {
-      this.folderid = folderid;
-   }
+  /** @return the siteid */
+  public long getSiteid() {
+    return site.getSiteId();
+  }
 
-   /**
-    * @return the site
-    */
-   public IPSSite getSite()
-   {
-      return site;
-   }
+  /** @return the folderid */
+  public int getFolderid() {
+    return folderid;
+  }
 
-   /**
-    * @param site the site to set
-    */
-   public void setSite(IPSSite site)
-   {
-      this.site = site;
-   }
+  /** @param folderid the folderid to set */
+  public void setFolderid(int folderid) {
+    this.folderid = folderid;
+  }
 
-  
+  /** @return the site */
+  public IPSSite getSite() {
+    return site;
+  }
+
+  /** @param site the site to set */
+  public void setSite(IPSSite site) {
+    this.site = site;
+  }
 }

@@ -17,54 +17,53 @@
 package com.percussion.dashboardmanagement.service;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
-import com.percussion.error.PSException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 import com.percussion.share.service.exception.PSDataServiceException;
-
 import java.util.List;
 
-public interface IPSGadgetService extends IPSDataService<PSGadget,PSGadget, String> {
+public interface IPSGadgetService extends IPSDataService<PSGadget, PSGadget, String> {
 
-    PSGadget save(PSGadget gadget);
-    List<PSGadget> findAll();
-    PSGadget find(String id);
-    void delete(String id);
-    
-    public static class PSGadgetServiceException extends PSDataServiceException {
+  PSGadget save(PSGadget gadget);
 
-        private static final long serialVersionUID = 1L;
+  List<PSGadget> findAll();
 
-        public PSGadgetServiceException(String message) {
-            super(message);
-        }
+  PSGadget find(String id);
 
-        public PSGadgetServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
+  void delete(String id);
 
-        public PSGadgetServiceException(Throwable cause) {
-            super(cause);
-        }
+  public static class PSGadgetServiceException extends PSDataServiceException {
 
-    }
-    
-    public static class PSGadgetNotFoundException extends PSGadgetServiceException implements IPSNotFoundException {
+    private static final long serialVersionUID = 1L;
 
-        private static final long serialVersionUID = 1L;
-
-        public PSGadgetNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSGadgetNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSGadgetNotFoundException(Throwable cause) {
-            super(cause);
-        }
-
+    public PSGadgetServiceException(String message) {
+      super(message);
     }
 
+    public PSGadgetServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSGadgetServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  public static class PSGadgetNotFoundException extends PSGadgetServiceException
+      implements IPSNotFoundException {
+
+    private static final long serialVersionUID = 1L;
+
+    public PSGadgetNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSGadgetNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSGadgetNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

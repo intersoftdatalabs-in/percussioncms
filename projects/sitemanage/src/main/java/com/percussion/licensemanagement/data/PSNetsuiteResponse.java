@@ -21,59 +21,40 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-/**
- * Container for status and message from calls to Netsuite.
- * Will be serialized to JSON.
- *
- */
+/** Container for status and message from calls to Netsuite. Will be serialized to JSON. */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder = {
-    "status","message"
-})
+@XmlType(
+    name = "",
+    propOrder = {"status", "message"})
 @XmlRootElement(name = "netsuiteResponse")
-public class PSNetsuiteResponse
-{
-    private String status;
-    private String message;
-   
-    public PSNetsuiteResponse(String status, String message){
-        this.status = status;
-        this.message = message;
-    }
-    
-    public PSNetsuiteResponse()
-    {
-        this.status = new String();
-        this.message = new String();
-    }
-    
-    /**
-     * @return the status
-     */
-    public String getStatus()
-    {
-        return status;
-    }
-    /**
-     * @param status the status to set
-     */
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-    /**
-     * @return the message
-     */
-    public String getMessage()
-    {
-        return message;
-    }
-    /**
-     * @param message the message to set
-     */
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
-    
+public class PSNetsuiteResponse {
+  private String status;
+  private String message;
+
+  public PSNetsuiteResponse(String status, String message) {
+    this.status = status;
+    this.message = message;
+  }
+
+  public PSNetsuiteResponse() {
+    this.status = new String();
+    this.message = new String();
+  }
+
+  /** @return the status */
+  public String getStatus() {
+    return status;
+  }
+  /** @param status the status to set */
+  public void setStatus(String status) {
+    this.status = status;
+  }
+  /** @return the message */
+  public String getMessage() {
+    return message;
+  }
+  /** @param message the message to set */
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

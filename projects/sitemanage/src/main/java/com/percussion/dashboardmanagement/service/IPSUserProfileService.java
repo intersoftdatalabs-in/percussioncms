@@ -20,45 +20,46 @@ import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
-public interface IPSUserProfileService extends IPSDataService<PSUserProfile,PSUserProfile, String> {
+public interface IPSUserProfileService
+    extends IPSDataService<PSUserProfile, PSUserProfile, String> {
 
-    PSUserProfile save(PSUserProfile profile) throws PSUserProfileServiceException;
-    PSUserProfile find(String userName) throws PSUserProfileNotFoundException, PSUserProfileServiceException; 
-    
-    public static class PSUserProfileServiceException extends RuntimeException {
+  PSUserProfile save(PSUserProfile profile) throws PSUserProfileServiceException;
 
-        private static final long serialVersionUID = 1L;
+  PSUserProfile find(String userName)
+      throws PSUserProfileNotFoundException, PSUserProfileServiceException;
 
-        public PSUserProfileServiceException(String message) {
-            super(message);
-        }
+  public static class PSUserProfileServiceException extends RuntimeException {
 
-        public PSUserProfileServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
+    private static final long serialVersionUID = 1L;
 
-        public PSUserProfileServiceException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-    
-    public static class PSUserProfileNotFoundException extends PSUserProfileServiceException implements IPSNotFoundException {
-
-        private static final long serialVersionUID = 1L;
-
-        public PSUserProfileNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSUserProfileNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSUserProfileNotFoundException(Throwable cause) {
-            super(cause);
-        }
-
+    public PSUserProfileServiceException(String message) {
+      super(message);
     }
 
+    public PSUserProfileServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSUserProfileServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  public static class PSUserProfileNotFoundException extends PSUserProfileServiceException
+      implements IPSNotFoundException {
+
+    private static final long serialVersionUID = 1L;
+
+    public PSUserProfileNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSUserProfileNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSUserProfileNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

@@ -20,35 +20,30 @@ package com.percussion.utils.container.adapters;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.PSDtsConfig;
-
 import java.nio.file.Path;
 
-public class DtsConnectorConfigurationAdapter implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+public class DtsConnectorConfigurationAdapter
+    implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
-    private static String PROD_PATH = "Deployment";
-    private static String STAGING_PATH = "Staging/Deployment";
-    private static String SERVER_XML = "Server/conf/server.xml";
-    private static String CATALINA_PROPERTIES = "Server/conf/perc/perc-catalina.properties";
+  private static String PROD_PATH = "Deployment";
+  private static String STAGING_PATH = "Staging/Deployment";
+  private static String SERVER_XML = "Server/conf/server.xml";
+  private static String CATALINA_PROPERTIES = "Server/conf/perc/perc-catalina.properties";
 
-    @Override
-    public void load(DefaultConfigurationContextImpl configurationContext) {
-        Path configRoot = configurationContext.getRootDir();
-        Path mainDts = configRoot.resolve(PROD_PATH);
-        Path stageDts = configRoot.resolve(STAGING_PATH);
-        Path connectorFileRoot = mainDts.resolve("Server");
+  @Override
+  public void load(DefaultConfigurationContextImpl configurationContext) {
+    Path configRoot = configurationContext.getRootDir();
+    Path mainDts = configRoot.resolve(PROD_PATH);
+    Path stageDts = configRoot.resolve(STAGING_PATH);
+    Path connectorFileRoot = mainDts.resolve("Server");
 
-        PSDtsConfig dtsConfig = new PSDtsConfig(configRoot);
-        dtsConfig.load();
-        configurationContext.getConfig().setDtsConfig(dtsConfig);
+    PSDtsConfig dtsConfig = new PSDtsConfig(configRoot);
+    dtsConfig.load();
+    configurationContext.getConfig().setDtsConfig(dtsConfig);
+  }
 
-    }
-
-
-    @Override
-    public void save(DefaultConfigurationContextImpl configurationContext) {
-      //TODO
-    }
-
-
+  @Override
+  public void save(DefaultConfigurationContextImpl configurationContext) {
+    // TODO
+  }
 }
-

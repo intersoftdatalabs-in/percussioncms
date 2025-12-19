@@ -18,10 +18,7 @@ package com.percussion.controls.contenteditor.checkboxtree;
 import javax.swing.tree.TreeCellRenderer;
 
 /**
- * Renderer interface that allows users to set and use extra parameters. These 
- * extra parameters can be used by subclasses to implement custom behavior.
+ * Renderer interface that allows users to set and use extra parameters. These extra parameters can
+ * be used by subclasses to implement custom behavior.
  */
-public interface IPSCheckboxTreeRenderer extends TreeCellRenderer, 
-   IPSExtraParameters
-{
-}
+public interface IPSCheckboxTreeRenderer extends TreeCellRenderer, IPSExtraParameters {}

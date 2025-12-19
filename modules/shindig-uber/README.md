@@ -1,4 +1,5 @@
 # shindig-uber
+
 This module contains support for Apache Shinding.
 Apache Shindig is the reference implementation of OpenSocial API specifications, versions 1.0.x and 2.0.x, a standard set of Social Network APIs which includes:
 
@@ -10,4 +11,5 @@ Apache Shindig is the reference implementation of OpenSocial API specifications,
 * Authorization
 
 ## Building
-  mvn clean install
+
+mvn clean install

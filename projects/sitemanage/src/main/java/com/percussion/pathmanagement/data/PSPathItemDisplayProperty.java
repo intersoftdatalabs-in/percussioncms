@@ -24,35 +24,28 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PSPathItemDisplayProperty", propOrder = {
-    "value"
-})
-public class PSPathItemDisplayProperty
-{
-    @XmlValue
-    protected String value;
+@XmlType(
+    name = "PSPathItemDisplayProperty",
+    propOrder = {"value"})
+public class PSPathItemDisplayProperty {
+  @XmlValue protected String value;
 
-    @XmlAttribute(required = true)
-    protected String name;
+  @XmlAttribute(required = true)
+  protected String name;
 
-    public String getValue()
-    {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String value)
-    {
-        this.name = value;
-    }
-
+  public void setName(String value) {
+    this.name = value;
+  }
 }

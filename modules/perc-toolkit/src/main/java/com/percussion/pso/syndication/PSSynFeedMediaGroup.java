@@ -18,20 +18,14 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.MediaGroup;
 
-/***
- * Velocity friendly wrapper aroound Media Groups.
- */
+/** * Velocity friendly wrapper aroound Media Groups. */
 public class PSSynFeedMediaGroup {
 
-	
-	private MediaGroup group;
-	
-	
-	//@TODO: Implement ME
-	
-	public PSSynFeedMediaGroup(MediaGroup arg){
-		group = arg;
-	}
-	
-	
+  private MediaGroup group;
+
+  // @TODO: Implement ME
+
+  public PSSynFeedMediaGroup(MediaGroup arg) {
+    group = arg;
+  }
 }

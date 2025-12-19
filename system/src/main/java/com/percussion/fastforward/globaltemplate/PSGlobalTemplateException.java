@@ -17,31 +17,28 @@
 package com.percussion.fastforward.globaltemplate;
 
 /**
- * Exception that can be thrown during creating and processing of outer 
- * templates
- * 
+ * Exception that can be thrown during creating and processing of outer templates
+ *
  * @author RammohanVangapalli
  */
-public class PSGlobalTemplateException extends Exception
-{
+public class PSGlobalTemplateException extends Exception {
 
-   /**
-    * Default Constructor
-    * @see Exception#Exception()
-    * 
-    */
-   public PSGlobalTemplateException()
-   {
-      super();
-   }
+  /**
+   * Default Constructor
+   *
+   * @see Exception#Exception()
+   */
+  public PSGlobalTemplateException() {
+    super();
+  }
 
-   /**
-    * Constructor that takes the message as string
-    * @param s
-    * @see Exception#Exception(java.lang.String)
-    */
-   public PSGlobalTemplateException(String s)
-   {
-      super(s);
-   }
+  /**
+   * Constructor that takes the message as string
+   *
+   * @param s
+   * @see Exception#Exception(java.lang.String)
+   */
+  public PSGlobalTemplateException(String s) {
+    super(s);
+  }
 }

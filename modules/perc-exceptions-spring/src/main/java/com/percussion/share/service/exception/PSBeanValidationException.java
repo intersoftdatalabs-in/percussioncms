@@ -20,33 +20,30 @@ package com.percussion.share.service.exception;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 /**
- * 
  * Used to validate Java Bean data objects (aka POJOs with out behavior).
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
 public class PSBeanValidationException extends PSSpringValidationException {
-    
 
-    private static final long serialVersionUID = 8097878230304938879L;
+  private static final long serialVersionUID = 8097878230304938879L;
 
-    public PSBeanValidationException(Throwable cause){
-        super(cause);
-    }
+  public PSBeanValidationException(Throwable cause) {
+    super(cause);
+  }
 
-    public PSBeanValidationException(Object target, String methodName) {
-        super(methodName);
-        init(target, methodName);
-    }
-    
-    public PSBeanValidationException(Object target, String methodName, String message, Throwable cause) {
-        super(message, cause);
-        init(target, methodName);
-        
-    }
-    
-    protected void init(Object target, String objectName) {
-        setSpringValidationErrors(new BeanPropertyBindingResult(target,objectName));
-    }
+  public PSBeanValidationException(Object target, String methodName) {
+    super(methodName);
+    init(target, methodName);
+  }
+
+  public PSBeanValidationException(
+      Object target, String methodName, String message, Throwable cause) {
+    super(message, cause);
+    init(target, methodName);
+  }
+
+  protected void init(Object target, String objectName) {
+    setSpringValidationErrors(new BeanPropertyBindingResult(target, objectName));
+  }
 }

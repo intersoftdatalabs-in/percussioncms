@@ -21,19 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public final class PropertyUtil
-{
-    public static Properties loadProperties(String fileName) throws IOException
-    {
-        Properties props = new Properties();
-        try(InputStream is = PropertyUtil.class.getResourceAsStream(fileName)){
-            props.load(is);
-            return props;
-        }
-        catch (IOException e)
-        {
-            throw e;
-        }
+public final class PropertyUtil {
+  public static Properties loadProperties(String fileName) throws IOException {
+    Properties props = new Properties();
+    try (InputStream is = PropertyUtil.class.getResourceAsStream(fileName)) {
+      props.load(is);
+      return props;
+    } catch (IOException e) {
+      throw e;
     }
-
+  }
 }

@@ -18,35 +18,30 @@ package com.percussion.rx.config.test;
 
 import com.percussion.rx.config.impl.PSConfigDefGenerator;
 import com.percussion.utils.tools.PSParseFragments;
+import java.util.Map;
 import junit.framework.TestCase;
 
-import java.util.Map;
+public class PSParseFragmentsTest extends TestCase {
+  public void testAll() throws Exception {
+    PSConfigDefGenerator gen = PSConfigDefGenerator.getInstance();
+    String content = gen.getFragementFileContents();
 
-public class PSParseFragmentsTest extends TestCase
-{
-   public void testAll() throws Exception
-   {
-      PSConfigDefGenerator gen = PSConfigDefGenerator.getInstance();
-      String content = gen.getFragementFileContents();
-      
-      Map<String, String> frags = PSParseFragments.parseContent(content);
-      assertTrue("Must have more than one fragments", frags.size() > 1);
-      
-      assertTrue("Must have XMLHEAD", frags.get("XMLHEAD") != null);
-      assertTrue("Must have SLOT", frags.get("SLOT") != null);
-   }
-   
-   public void testParse() throws Exception
-   {
-      String text = "1st\n2nd line\r\n3rd line";
-      String[] lines = PSParseFragments.splitByNewlines(text);
-      for (String line : lines)
-      {
-         char ch = line.charAt(line.length()-1);
-         assertTrue(ch != '\r' && ch != '\n');
-      }
-      assertTrue(lines[0].equals("1st"));
-      assertTrue(lines[1].equals("2nd line"));
-      assertTrue(lines[2].equals("3rd line"));
-   }
+    Map<String, String> frags = PSParseFragments.parseContent(content);
+    assertTrue("Must have more than one fragments", frags.size() > 1);
+
+    assertTrue("Must have XMLHEAD", frags.get("XMLHEAD") != null);
+    assertTrue("Must have SLOT", frags.get("SLOT") != null);
+  }
+
+  public void testParse() throws Exception {
+    String text = "1st\n2nd line\r\n3rd line";
+    String[] lines = PSParseFragments.splitByNewlines(text);
+    for (String line : lines) {
+      char ch = line.charAt(line.length() - 1);
+      assertTrue(ch != '\r' && ch != '\n');
+    }
+    assertTrue(lines[0].equals("1st"));
+    assertTrue(lines[1].equals("2nd line"));
+    assertTrue(lines[2].equals("3rd line"));
+  }
 }

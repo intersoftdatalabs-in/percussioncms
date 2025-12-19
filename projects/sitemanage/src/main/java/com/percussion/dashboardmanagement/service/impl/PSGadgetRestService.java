@@ -22,56 +22,47 @@ import com.percussion.dashboardmanagement.data.PSGadgetList;
 import com.percussion.dashboardmanagement.service.IPSGadgetService;
 import com.percussion.dashboardmanagement.service.IPSGadgetService.PSGadgetNotFoundException;
 import com.percussion.dashboardmanagement.service.IPSGadgetService.PSGadgetServiceException;
-
 import java.util.List;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Path("/gadget")
 @Component("gadgetRestService")
-public class PSGadgetRestService
-{
-    IPSGadgetService gadgetService;
-    @Autowired
-    public PSGadgetRestService(IPSGadgetService gadgetService)
-    {
-        this.gadgetService = gadgetService;
-    }
+public class PSGadgetRestService {
+  IPSGadgetService gadgetService;
 
-    @POST
-    @Path("/")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSGadget save(PSGadget gadget) throws PSGadgetServiceException
-    {
-        return gadgetService.save(gadget);
-    }
+  @Autowired
+  public PSGadgetRestService(IPSGadgetService gadgetService) {
+    this.gadgetService = gadgetService;
+  }
 
-    @GET
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public List<PSGadget> findAll() throws PSGadgetNotFoundException, PSGadgetServiceException
-    {
-        return new PSGadgetList(gadgetService.findAll());
-    }
+  @POST
+  @Path("/")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSGadget save(PSGadget gadget) throws PSGadgetServiceException {
+    return gadgetService.save(gadget);
+  }
 
-    @GET
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSGadget find(String id) throws PSGadgetNotFoundException, PSGadgetServiceException
-    {
-        return gadgetService.find(id);
-    }
+  @GET
+  @Path("/")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public List<PSGadget> findAll() throws PSGadgetNotFoundException, PSGadgetServiceException {
+    return new PSGadgetList(gadgetService.findAll());
+  }
 
-    @DELETE
-    @Path("/{id}")
-    public void delete(String id) throws PSGadgetNotFoundException, PSGadgetServiceException
-    {
-        gadgetService.delete(id);
-    }
+  @GET
+  @Path("/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSGadget find(String id) throws PSGadgetNotFoundException, PSGadgetServiceException {
+    return gadgetService.find(id);
+  }
 
+  @DELETE
+  @Path("/{id}")
+  public void delete(String id) throws PSGadgetNotFoundException, PSGadgetServiceException {
+    gadgetService.delete(id);
+  }
 }
