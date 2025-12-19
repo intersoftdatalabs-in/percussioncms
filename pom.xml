@@ -74,7 +74,7 @@
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <avalon.version>4.1.5</avalon.version>
-        <awssdk.version>1.12.261</awssdk.version>
+        <awssdk.version>1.12.796</awssdk.version>
         <axis.version>1.4.1</axis.version>
         <axiscore.version>1.4.2</axiscore.version>
         <batik.version>1.14</batik.version>
