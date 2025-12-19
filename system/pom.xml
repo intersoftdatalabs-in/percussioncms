@@ -1320,20 +1320,13 @@
                 <configuration>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <forkCount>1</forkCount>
+                    <forkCount>2</forkCount>
                     <reuseForks>false</reuseForks>
                     <argLine>-Xmx2048m -Djava.awt.headless=true</argLine>
                 </configuration>
                 <executions>
                     <execution>
                         <id>default-test</id>
-                        <configuration>
-                            <useManifestOnlyJar>false</useManifestOnlyJar>
-                            <useSystemClassLoader>false</useSystemClassLoader>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unit-tests</id>
                         <configuration>
                             <useManifestOnlyJar>false</useManifestOnlyJar>
                             <useSystemClassLoader>false</useSystemClassLoader>
