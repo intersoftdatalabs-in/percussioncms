@@ -17,73 +17,58 @@
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSDataItemSummary;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Class to use internally to use attributes from orphan assets. 
- * 
- * @author Santiago M. Murchio
+ * Class to use internally to use attributes from orphan assets.
  *
+ * @author Santiago M. Murchio
  */
 @XmlRootElement
-public class PSOrphanedAssetSummary extends PSDataItemSummary
-{
-    private static final long serialVersionUID = 1L;
+public class PSOrphanedAssetSummary extends PSDataItemSummary {
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Represents the SLOT_ID field from a {@link PSRelationship} object.
-     */
-    private String slotId;
-    
-    /**
-     * Represents the WIDGET_NAME field from a {@link PSRelationship} object.
-     */
-    private String widgetName;
-    
-    private int relationshipId;
-    
-    public PSOrphanedAssetSummary()
-    {
-        super();
-    }
-    
-    public PSOrphanedAssetSummary(String assetId, String slotId, String widgetName, int relationshipId)
-    {
-        setId(assetId);
-        this.slotId = slotId;
-        this.widgetName = widgetName;
-        this.relationshipId = relationshipId;
-    }
+  /** Represents the SLOT_ID field from a {@link PSRelationship} object. */
+  private String slotId;
 
-    public String getSlotId()
-    {
-        return slotId;
-    }
+  /** Represents the WIDGET_NAME field from a {@link PSRelationship} object. */
+  private String widgetName;
 
-    public void setSlotId(String slotId)
-    {
-        this.slotId = slotId;
-    }
+  private int relationshipId;
 
-    public String getWidgetName()
-    {
-        return widgetName;
-    }
+  public PSOrphanedAssetSummary() {
+    super();
+  }
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
-    
-    public int getRelationshipId()
-    {
-        return relationshipId;
-    }
-    
-    public void setRelationshipId(int id)
-    {
-        relationshipId = id;
-    }
+  public PSOrphanedAssetSummary(
+      String assetId, String slotId, String widgetName, int relationshipId) {
+    setId(assetId);
+    this.slotId = slotId;
+    this.widgetName = widgetName;
+    this.relationshipId = relationshipId;
+  }
 
+  public String getSlotId() {
+    return slotId;
+  }
+
+  public void setSlotId(String slotId) {
+    this.slotId = slotId;
+  }
+
+  public String getWidgetName() {
+    return widgetName;
+  }
+
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
+
+  public int getRelationshipId() {
+    return relationshipId;
+  }
+
+  public void setRelationshipId(int id) {
+    relationshipId = id;
+  }
 }

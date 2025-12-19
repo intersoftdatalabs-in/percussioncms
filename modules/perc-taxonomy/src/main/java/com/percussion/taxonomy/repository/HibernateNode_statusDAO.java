@@ -18,26 +18,25 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Node_status;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collection;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateNode_statusDAO extends HibernateDaoSupport implements Node_statusDAO {
 
-    public Node_status getNode_status(int id) {
-        return (Node_status) getHibernateTemplate().get(Node_status.class, new Integer(id));
-    }
+  public Node_status getNode_status(int id) {
+    return (Node_status) getHibernateTemplate().get(Node_status.class, new Integer(id));
+  }
 
-    public Collection getAllNode_statuss() {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Node_status nod");
-    }
+  public Collection getAllNode_statuss() {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Node_status nod");
+  }
 
-    public void saveNode_status(Node_status node_status) {
-        getHibernateTemplate().saveOrUpdate(node_status);
-    }
+  public void saveNode_status(Node_status node_status) {
+    getHibernateTemplate().saveOrUpdate(node_status);
+  }
 
-    public void removeNode_status(Node_status node_status) {
-        getHibernateTemplate().delete(node_status);
-    }
+  public void removeNode_status(Node_status node_status) {
+    getHibernateTemplate().delete(node_status);
+  }
 }

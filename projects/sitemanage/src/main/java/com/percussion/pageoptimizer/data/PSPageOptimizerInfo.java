@@ -18,36 +18,31 @@
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "PageOptimizerInfo")
-public class PSPageOptimizerInfo extends PSCloudServiceInfo
-{
-    private String pageOptimizerUrl;
-    
-    public String getPageOptimizerUrl()
-    {
-        return pageOptimizerUrl;
-    }
-    public void setPageOptimizerUrl(String pageOptimizerUrl)
-    {
-        this.pageOptimizerUrl = pageOptimizerUrl;
-        this.uiProvider = pageOptimizerUrl;
-    }
-    
-    @Override
-    public void setUiProvider(String uiProvider)
-    {
-        this.pageOptimizerUrl = uiProvider;
-        this.uiProvider = uiProvider;
-    }
-    
-    public static PSPageOptimizerInfo fromPSCloudServiceInfo(PSCloudServiceInfo cloudInfo)
-    {
-        PSPageOptimizerInfo info = new PSPageOptimizerInfo();
-        info.setClientIdentity(cloudInfo.getClientIdentity());
-        info.setPageOptimizerUrl(cloudInfo.getUiProvider());
-        return info;
-    }
+public class PSPageOptimizerInfo extends PSCloudServiceInfo {
+  private String pageOptimizerUrl;
+
+  public String getPageOptimizerUrl() {
+    return pageOptimizerUrl;
+  }
+
+  public void setPageOptimizerUrl(String pageOptimizerUrl) {
+    this.pageOptimizerUrl = pageOptimizerUrl;
+    this.uiProvider = pageOptimizerUrl;
+  }
+
+  @Override
+  public void setUiProvider(String uiProvider) {
+    this.pageOptimizerUrl = uiProvider;
+    this.uiProvider = uiProvider;
+  }
+
+  public static PSPageOptimizerInfo fromPSCloudServiceInfo(PSCloudServiceInfo cloudInfo) {
+    PSPageOptimizerInfo info = new PSPageOptimizerInfo();
+    info.setClientIdentity(cloudInfo.getClientIdentity());
+    info.setPageOptimizerUrl(cloudInfo.getUiProvider());
+    return info;
+  }
 }

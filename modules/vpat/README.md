@@ -15,3 +15,4 @@ It includes the following standards/guidelines:
 * [Revised Section 508 standards published January 18, 2017 and corrected January 22, 2018](https://www.access-board.gov/ict/)
 * [EN 301 549 Accessibility requirements for ICT products and services - V3.1.1 (2019-11)](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.01.01_60/en_301549v030101p.pdf)
 * [EN 301 549 Accessibility requirements for ICT products and services - V3.2.1 (2021-03)](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf)
+

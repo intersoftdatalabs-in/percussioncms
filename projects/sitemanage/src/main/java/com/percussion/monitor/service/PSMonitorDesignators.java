@@ -17,16 +17,12 @@
 
 package com.percussion.monitor.service;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class PSMonitorDesignators
-{
-	@XmlElement
-	public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+public class PSMonitorDesignators {
+  @XmlElement public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 }

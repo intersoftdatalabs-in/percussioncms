@@ -18,57 +18,42 @@ package com.percussion.server.command;
 
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Locale;
+/** This class dumps the currently used server resources to the server console. */
+public class PSConsoleCommandDumpHandlers extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     .
+   */
+  public PSConsoleCommandDumpHandlers(String cmdArgs) {
+    super(cmdArgs);
+  }
 
-/**
- * This class dumps the currently used server resources to the server console.
- */
-public class PSConsoleCommandDumpHandlers extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param cmdArgs the argument string to use when executing this command, 
-    *    may be <code>null</code>.
-    */
-   public PSConsoleCommandDumpHandlers(String cmdArgs)
-   {
-      super(cmdArgs);
-   }
+  /**
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
+   * @see IPSConsolCommand
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + " " + m_cmdArgs);
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   <P>
-    * The execution of this command results in the following XML document
-    * structure:
-    *   
-    * @see IPSConsolCommand
-    */
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, 
-         "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + 
-         " " + m_cmdArgs);
+    Locale loc;
+    if (request != null) loc = request.getPreferredLocale();
+    else loc = Locale.getDefault();
 
-      Locale loc;
-      if (request != null)
-         loc = request.getPreferredLocale();
-      else
-         loc = Locale.getDefault();
-      
-      return doc;
-   }
-   
-   /**
-    * The command entered in the server console to get the information produced
-    * in this class.
-    */
-   final static String ms_cmdName = "dump handlers";
+    return doc;
+  }
+
+  /** The command entered in the server console to get the information produced in this class. */
+  static final String ms_cmdName = "dump handlers";
 }
-

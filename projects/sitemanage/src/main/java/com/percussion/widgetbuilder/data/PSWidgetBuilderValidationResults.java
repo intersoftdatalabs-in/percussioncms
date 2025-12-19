@@ -17,45 +17,34 @@
 package com.percussion.widgetbuilder.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="WidgetBuilderValidationResults")
+/** @author JaySeletz */
+@XmlRootElement(name = "WidgetBuilderValidationResults")
 @JsonRootName("WidgetBuilderValidationResults")
-public class PSWidgetBuilderValidationResults
-{
-    private List<PSWidgetBuilderValidationResult> results;
-    private long definitionId;
+public class PSWidgetBuilderValidationResults {
+  private List<PSWidgetBuilderValidationResult> results;
+  private long definitionId;
 
-    public List<PSWidgetBuilderValidationResult> getResults()
-    {
-        return results;
-    }
+  public List<PSWidgetBuilderValidationResult> getResults() {
+    return results;
+  }
 
-    public void setResults(List<PSWidgetBuilderValidationResult> results)
-    {
-        this.results = results;
-    }
+  public void setResults(List<PSWidgetBuilderValidationResult> results) {
+    this.results = results;
+  }
 
-    /**
-     * Set the id of the validated definition
-     * 
-     * @param definitionId
-     */
-    public void setDefinitionId(long definitionId)
-    {
-        this.definitionId = definitionId;
-    }
+  /**
+   * Set the id of the validated definition
+   *
+   * @param definitionId
+   */
+  public void setDefinitionId(long definitionId) {
+    this.definitionId = definitionId;
+  }
 
-    public long getDefinitionId()
-    {
-        return definitionId;
-    }
-    
+  public long getDefinitionId() {
+    return definitionId;
+  }
 }

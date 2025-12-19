@@ -19,40 +19,33 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.data.PSResourceInstance;
 
 /**
- * 
- * This object contains state that is passed to script evaluators
- * for resolving links, locations, mime-type, and (eventually) output.
- * <strong>Since the script can mutate this object, 
- * this object may also contain the output data of the script.</strong>
- * <p>
- * Scripts can access this object through the binding/variable
- * <code>$perc</code>. One way a link and location generation script
- * can pass its data on is by getting the {@link #getResourceInstance() resource instance} 
- * and then setting the 
- * {@link PSResourceInstance#setLinkAndLocations(java.util.List) links and locations}.
- * <p>
- * The scripts can be found in the resource definition files.
- * 
- * @author adamgent
+ * This object contains state that is passed to script evaluators for resolving links, locations,
+ * mime-type, and (eventually) output. <strong>Since the script can mutate this object, this object
+ * may also contain the output data of the script.</strong>
  *
+ * <p>Scripts can access this object through the binding/variable <code>$perc</code>. One way a link
+ * and location generation script can pass its data on is by getting the {@link
+ * #getResourceInstance() resource instance} and then setting the {@link
+ * PSResourceInstance#setLinkAndLocations(java.util.List) links and locations}.
+ *
+ * <p>The scripts can be found in the resource definition files.
+ *
+ * @author adamgent
  */
 public class PSResourceScriptEvaluatorContext {
-    
-    private PSResourceInstance resourceInstance;
 
+  private PSResourceInstance resourceInstance;
 
-    /**
-     * The resource for this context.
-     * @return never <code>null</code>.
-     */
-    public PSResourceInstance getResourceInstance()
-    {
-        return resourceInstance;
-    }
+  /**
+   * The resource for this context.
+   *
+   * @return never <code>null</code>.
+   */
+  public PSResourceInstance getResourceInstance() {
+    return resourceInstance;
+  }
 
-    public void setResourceInstance(PSResourceInstance resourceInstance)
-    {
-        this.resourceInstance = resourceInstance;
-    }
+  public void setResourceInstance(PSResourceInstance resourceInstance) {
+    this.resourceInstance = resourceInstance;
+  }
 }
-

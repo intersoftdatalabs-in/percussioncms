@@ -18,31 +18,28 @@
 package com.percussion.rx.services.deployer;
 
 import com.percussion.services.error.PSNotFoundException;
-
 import java.util.List;
-
 
 public interface IPSPackageUninstaller {
 
-    /**
-     * Uninstall a package.
-     * 
-     * @param packageName the package name to uninstall, i.e. perc.widget.form
-     * @return a list of package uninstall messages
-     */
-    List<PSUninstallMessage> uninstallPackages(String packageName) throws PSNotFoundException;
-    
-    /**
-     * Uninstalls a package
-     * 
-     * @param packageName the name of the package to uninstall, i.e. perc.widget.form
-     * @param isRevertEntry <code>true</code> if is marked as REVERT in InstallPackages.xml.
-     * 
-     * This flag is needed in some cases if a package being uninstalled contains dependencies and
-     * if the package has a status of REVERT.  If this is the case we do not want to uninstall it.
-     * 
-     * @return the list of uninstall messages
-     */
-    List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry) throws PSNotFoundException;
+  /**
+   * Uninstall a package.
+   *
+   * @param packageName the package name to uninstall, i.e. perc.widget.form
+   * @return a list of package uninstall messages
+   */
+  List<PSUninstallMessage> uninstallPackages(String packageName) throws PSNotFoundException;
 
+  /**
+   * Uninstalls a package
+   *
+   * @param packageName the name of the package to uninstall, i.e. perc.widget.form
+   * @param isRevertEntry <code>true</code> if is marked as REVERT in InstallPackages.xml.
+   *     <p>This flag is needed in some cases if a package being uninstalled contains dependencies
+   *     and if the package has a status of REVERT. If this is the case we do not want to uninstall
+   *     it.
+   * @return the list of uninstall messages
+   */
+  List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry)
+      throws PSNotFoundException;
 }

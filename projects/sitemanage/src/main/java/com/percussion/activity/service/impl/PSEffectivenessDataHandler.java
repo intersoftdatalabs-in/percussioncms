@@ -25,10 +25,9 @@ import com.percussion.activity.service.IPSEffectivenessService;
 import com.percussion.share.service.impl.PSXmlDataHandler;
 import com.percussion.share.service.impl.jaxb.Pair;
 import com.percussion.share.service.impl.jaxb.Property;
+import com.percussion.share.service.impl.jaxb.Property.Pvalues;
 import com.percussion.share.service.impl.jaxb.Response;
 import com.percussion.share.service.impl.jaxb.Result;
-import com.percussion.share.service.impl.jaxb.Property.Pvalues;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,51 +35,45 @@ import java.util.Map;
 
 /**
  * This handler which provides sample effectiveness data from an xml file.
- * 
+ *
  * @author peterfrontiero
  */
-public class PSEffectivenessDataHandler extends PSXmlDataHandler implements IPSEffectivenessService
-{
-    @SuppressWarnings("unused")
-    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request, List<PSContentActivity> activity)
-    {
-        notNull(request);
-        notNull(activity);
-        
-        List<PSEffectiveness> eList = new ArrayList<>();
-                
-        Map<String, Object> props = new HashMap<>();
-        props.put("duration", request.getDuration());
-        props.put("durationType", request.getDurationType());
-        props.put("path", request.getPath());
-        props.put("usage", request.getUsage().name());
-        props.put("threshold", String.valueOf(request.getThreshold()));
-        
-        Response response = getData(props);
-        if (response != null)
-        {                
-            List<Result> results = response.getResult();
-            if (!results.isEmpty())
-            {
-                Result result = results.get(0);
-                List<Property> propList = result.getProperty();
-                if (!propList.isEmpty())
-                {
-                    Property prop = propList.get(0);
-                    Pvalues pvalues = prop.getPvalues();
-                    if (pvalues != null)
-                    {
-                        List<Pair> pairList = pvalues.getPair();
-                        for (Pair pair : pairList)
-                        {
-                            eList.add(new PSEffectiveness(pair.getValue1(), Long.valueOf(pair.getValue2())));
-                        }
-                    }
-                }
+public class PSEffectivenessDataHandler extends PSXmlDataHandler
+    implements IPSEffectivenessService {
+  @SuppressWarnings("unused")
+  public List<PSEffectiveness> getEffectiveness(
+      PSEffectivenessRequest request, List<PSContentActivity> activity) {
+    notNull(request);
+    notNull(activity);
+
+    List<PSEffectiveness> eList = new ArrayList<>();
+
+    Map<String, Object> props = new HashMap<>();
+    props.put("duration", request.getDuration());
+    props.put("durationType", request.getDurationType());
+    props.put("path", request.getPath());
+    props.put("usage", request.getUsage().name());
+    props.put("threshold", String.valueOf(request.getThreshold()));
+
+    Response response = getData(props);
+    if (response != null) {
+      List<Result> results = response.getResult();
+      if (!results.isEmpty()) {
+        Result result = results.get(0);
+        List<Property> propList = result.getProperty();
+        if (!propList.isEmpty()) {
+          Property prop = propList.get(0);
+          Pvalues pvalues = prop.getPvalues();
+          if (pvalues != null) {
+            List<Pair> pairList = pvalues.getPair();
+            for (Pair pair : pairList) {
+              eList.add(new PSEffectiveness(pair.getValue1(), Long.valueOf(pair.getValue2())));
             }
+          }
         }
-               
-        return eList;
+      }
     }
 
+    return eList;
+  }
 }

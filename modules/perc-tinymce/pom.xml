@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>core</artifactId>
         <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>perc-tinymce</artifactId>
-  <version>8.1.6-SNAPSHOT</version>
-
+    <version>8.1.6-SNAPSHOT</version>
     <licenses>
         <license>
             <name>LGPL-2.1</name>
@@ -20,122 +16,49 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <properties>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/sys_resources/tinymce/js/tinymce</destDir>
+        <download-file>tinymce-${tinymce.version}.zip</download-file>
+        <download-folder>${basedir}/target/tinymce-download</download-folder>
         <old.source.root>../..</old.source.root>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tinymce.url>https://download.tiny.cloud/tinymce/community/tinymce_${tinymce.version}.zip</tinymce.url>
-        <destDir>${project.build.outputDirectory}/META-INF/resources/sys_resources/tinymce/js/tinymce</destDir>
-        <download-folder>${basedir}/target/tinymce-download</download-folder>
-        <download-file>tinymce-${tinymce.version}.zip</download-file>
     </properties>
-<profiles>
-    <profile>
-        <id>populate-nexus</id>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <phase>process-resources</phase>
-                            <id>import-jetty-installs</id>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <mkdir dir="${download-folder}" />
-                                    <echo message="download archive" />
-                                    <get src="${tinymce.url}" dest="${download-folder}" />
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>copy-dependencies</id>
-                            <phase>none</phase>
-                        </execution>
-                        <execution>
-                            <id>analyze</id>
-                            <goals>
-                                <goal>analyze-only</goal>
-                            </goals>
-                            <configuration>
-                                <failOnWarning>false</failOnWarning>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <executions>
-
-
-
-                        <execution>
-                            <id>default-deploy</id>
-                            <phase>none</phase>
-                        </execution>
-                        <execution>
-                            <id>phantomjs-nexus-deploy-win</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>deploy-file</goal>
-                            </goals>
-                            <configuration>
-                                <repositoryId>repo-man</repositoryId>
-                                <file>${download-folder}/download-file</file>
-                                <!-- Removed internal repo URL; configure deployment target as needed -->
-                                <url>https://repo.maven.apache.org/maven2</url>
-                                <groupId>com.tiny</groupId>
-                                <artifactId>tinymce</artifactId>
-                                <packaging>zip</packaging>
-                                <generatePom>true</generatePom>
-                            </configuration>
-                        </execution>
-
-
-                    </executions>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-</profiles>
-
+    <dependencies>
+        <!-- TinyMCE is downloaded directly from CDN during build; no Maven artifact dependency needed -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rxutils</artifactId>
+            <version>8.1.6-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
                         <id>download-tinymce</id>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${download-folder}" />
-                                <echo message="Downloading TinyMCE ${tinymce.version} from CDN..." />
-                                <get src="${tinymce.url}" dest="${download-folder}/${download-file}" />
-                                <echo message="Extracting TinyMCE archive..." />
-                                <unzip src="${download-folder}/${download-file}" dest="${project.build.directory}" />
-                                <echo message="Moving TinyMCE resources to package..." />
+                                <mkdir dir="${download-folder}"/>
+                                <echo message="Downloading TinyMCE ${tinymce.version} from CDN..."/>
+                                <get dest="${download-folder}/${download-file}" src="${tinymce.url}"/>
+                                <echo message="Extracting TinyMCE archive..."/>
+                                <unzip dest="${project.build.directory}" src="${download-folder}/${download-file}"/>
+                                <echo message="Moving TinyMCE resources to package..."/>
                                 <move todir="${destDir}">
-                                    <fileset dir="${project.build.directory}/tinymce/js/tinymce" />
+                                    <fileset dir="${project.build.directory}/tinymce/js/tinymce"/>
                                 </move>
                                 <move todir="${destDir}/skins/lightgray">
-                                    <fileset dir="${destDir}/../../css" />
+                                    <fileset dir="${destDir}/../../css"/>
                                 </move>
                             </target>
                         </configuration>
@@ -148,10 +71,10 @@
                 <executions>
                     <execution>
                         <id>min-common</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>minify</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <webappSourceDir>${basedir}/src/main/resources/META-INF/resources</webappSourceDir>
                             <webappTargetDir>${project.build.outputDirectory}/META-INF/resources</webappTargetDir>
@@ -168,17 +91,80 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
-
-    <dependencies>
-        <!-- TinyMCE is downloaded directly from CDN during build; no Maven artifact dependency needed -->
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
-            <version>8.1.6-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>populate-nexus</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>import-jetty-installs</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${download-folder}"/>
+                                        <echo message="download archive"/>
+                                        <get dest="${download-folder}" src="${tinymce.url}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-dependencies</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>analyze</id>
+                                <goals>
+                                    <goal>analyze-only</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnWarning>false</failOnWarning>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>phantomjs-nexus-deploy-win</id>
+                                <goals>
+                                    <goal>deploy-file</goal>
+                                </goals>
+                                <phase>deploy</phase>
+                                <configuration>
+                                    <repositoryId>repo-man</repositoryId>
+                                    <file>${download-folder}/download-file</file>
+                                    <!-- Removed internal repo URL; configure deployment target as needed -->
+                                    <url>https://repo.maven.apache.org/maven2</url>
+                                    <groupId>com.tiny</groupId>
+                                    <artifactId>tinymce</artifactId>
+                                    <packaging>zip</packaging>
+                                    <generatePom>true</generatePom>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -22,31 +22,31 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @JsonRootName("gadget")
 public class GadgetEntry {
 
-    private String name;
-    private String baseuri;
-    private String file;
+  private String name;
+  private String baseuri;
+  private String file;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getBaseuri() {
-        return baseuri;
-    }
+  public String getBaseuri() {
+    return baseuri;
+  }
 
-    public void setBaseuri(String baseuri) {
-        this.baseuri = baseuri;
-    }
+  public void setBaseuri(String baseuri) {
+    this.baseuri = baseuri;
+  }
 
-    public String getFile() {
-        return file;
-    }
+  public String getFile() {
+    return file;
+  }
 
-    public void setFile(String file) {
-        this.file = file;
-    }
+  public void setFile(String file) {
+    this.file = file;
+  }
 }

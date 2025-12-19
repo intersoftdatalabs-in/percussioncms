@@ -18,32 +18,24 @@
 package com.percussion.relationship;
 
 /**
- * This class may define additional methods to pass sufficient informtion as
- * attempt result to relationship engine after executing the
- * {@link IPSEffect#attempt() method}. This information includes whether to test
- * for dependents' processing and error details if the test fails for some
+ * This class may define additional methods to pass sufficient informtion as attempt result to
+ * relationship engine after executing the {@link IPSEffect#attempt() method}. This information
+ * includes whether to test for dependents' processing and error details if the test fails for some
  * reason.
  */
-public class PSAttemptResult  extends PSEffectResult
-{
-   /**
-    * Default constructor. Does not do much.
-    */
-   public PSAttemptResult()
-   {
-   }
+public class PSAttemptResult extends PSEffectResult {
+  /** Default constructor. Does not do much. */
+  public PSAttemptResult() {}
 
-   /**
-    * Implementation for an abstract method, that does NOT allow to set a
-    * recursion flag by always throwing UnsupportedOperationException.
-    * This is to indicate to the effect implementer that it is an illegal
-    * operation for the attempt method.
-    *
-    * @param recurseDependents
-    * @throws UnsupportedOperationException always.
-    */
-   public void setRecurseDependents(boolean recurseDependents)
-   {
-      throw new UnsupportedOperationException("not allowed for attempt.");
-   }
+  /**
+   * Implementation for an abstract method, that does NOT allow to set a recursion flag by always
+   * throwing UnsupportedOperationException. This is to indicate to the effect implementer that it
+   * is an illegal operation for the attempt method.
+   *
+   * @param recurseDependents
+   * @throws UnsupportedOperationException always.
+   */
+  public void setRecurseDependents(boolean recurseDependents) {
+    throw new UnsupportedOperationException("not allowed for attempt.");
+  }
 }

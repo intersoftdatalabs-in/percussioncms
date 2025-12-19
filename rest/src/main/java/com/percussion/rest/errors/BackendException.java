@@ -20,16 +20,15 @@ package com.percussion.rest.errors;
 import com.percussion.error.PSException;
 
 public class BackendException extends PSException {
-    public BackendException(String message, Exception e) {
-        super(message,e);
-    }
+  public BackendException(String message, Exception e) {
+    super(message, e);
+  }
 
-    public BackendException(String message){
-        super(message);
-    }
+  public BackendException(String message) {
+    super(message);
+  }
 
-    public BackendException(Throwable cause){
-        super(cause);
-    }
-
+  public BackendException(Throwable cause) {
+    super(cause);
+  }
 }

@@ -84,11 +84,11 @@ Examine the template source. You will notice that it returns XML using the FO na
 
 Notice that Static Images can be referenced in the template. Place your images in the *rx_resources* folder.
 
-    <fo:static-content flow-name="xsl-region-before">
-        <fo:block>
-            <fo:external-graphic src="rx_resources/images/PDFmarginTop.jpg" content-width="20cm"/>
-        </fo:block>
-    </fo:static-content>
+        <fo:static-content flow-name="xsl-region-before">
+            <fo:block>
+                <fo:external-graphic src="rx_resources/images/PDFmarginTop.jpg" content-width="20cm"/>
+            </fo:block>
+        </fo:static-content>
 
 ### Bindings
 
@@ -107,3 +107,4 @@ You can edit the XSL directly within the Workbench. Go to the System Design view
 - **Apache FOP Website:** <http://xmlgraphics.apache.org/fop/>
 - **W3C FO Specification:** <http://www.w3.org/TR/2001/REC-xsl-20011015/>
 - **XSL FO Tutorial:** <http://www.antennahouse.com/XSLsample/XSLsample.htm>
+

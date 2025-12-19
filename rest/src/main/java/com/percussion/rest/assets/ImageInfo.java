@@ -20,43 +20,29 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ImageInfo")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary image.")
-public class ImageInfo extends BinaryFile
-{
-	private int width;
-	private int height;
-	
-	/**
-	 * @return the width
-	 */
-	public int getWidth()
-	{
-		return width;
-	}
-	/**
-	 * @param width the width to set
-	 */
-	public void setWidth(int width)
-	{
-		this.width = width;
-	}
-	/**
-	 * @return the height
-	 */
-	public int getHeight()
-	{
-		return height;
-	}
-	/**
-	 * @param height the height to set
-	 */
-	public void setHeight(int height)
-	{
-		this.height = height;
-	}
+@Schema(description = "Represents a binary image.")
+public class ImageInfo extends BinaryFile {
+  private int width;
+  private int height;
+
+  /** @return the width */
+  public int getWidth() {
+    return width;
+  }
+  /** @param width the width to set */
+  public void setWidth(int width) {
+    this.width = width;
+  }
+  /** @return the height */
+  public int getHeight() {
+    return height;
+  }
+  /** @param height the height to set */
+  public void setHeight(int height) {
+    this.height = height;
+  }
 }

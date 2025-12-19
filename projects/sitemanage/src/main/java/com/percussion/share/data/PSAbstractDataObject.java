@@ -17,36 +17,24 @@
 package com.percussion.share.data;
 
 import java.io.Serializable;
-
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * The base class for all data objects.
- * All data objects should extend this class or 
- * some derivative.
- * 
- * @author adamgent
+ * The base class for all data objects. All data objects should extend this class or some
+ * derivative.
  *
+ * @author adamgent
  */
-public class PSAbstractDataObject implements Serializable
-{
+public class PSAbstractDataObject implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        try
-        {
-            return BeanUtils.cloneBean(this);
-        }
-        catch (Exception e)
-        {
-            throw new CloneNotSupportedException();
-        }
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    try {
+      return BeanUtils.cloneBean(this);
+    } catch (Exception e) {
+      throw new CloneNotSupportedException();
     }
-    
+  }
 }

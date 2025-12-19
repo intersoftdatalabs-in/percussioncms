@@ -19,32 +19,33 @@ package com.percussion.delivery.exceptions;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.percussion.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.annotation.Priority;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Provider
 @Priority(1)
 public class PSJsonMappingErrorResponse implements ExceptionMapper<JsonMappingException> {
 
-    private static Logger log = LogManager.getLogger(PSJsonMappingErrorResponse.class);
-    /**
-     * Map an exception to a {@link Response}. Returning
-     * {@code null} results in a {@link Response.Status#NO_CONTENT}
-     * response. Throwing a runtime exception results in a
-     * {@link Response.Status#INTERNAL_SERVER_ERROR} response.
-     *
-     * @param exception the exception to map to a response.
-     * @return a response mapped from the supplied exception.
-     */
-    @Override
-    public Response toResponse(JsonMappingException exception) {
-        log.error(PSExceptionUtils.getMessageForLog(exception));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
-        return Response.status(500).entity("A server error happened. Please try your request again.").type("text/plain").build();
-    }
+  private static Logger log = LogManager.getLogger(PSJsonMappingErrorResponse.class);
+  /**
+   * Map an exception to a {@link Response}. Returning {@code null} results in a {@link
+   * Response.Status#NO_CONTENT} response. Throwing a runtime exception results in a {@link
+   * Response.Status#INTERNAL_SERVER_ERROR} response.
+   *
+   * @param exception the exception to map to a response.
+   * @return a response mapped from the supplied exception.
+   */
+  @Override
+  public Response toResponse(JsonMappingException exception) {
+    log.error(PSExceptionUtils.getMessageForLog(exception));
+    log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
+    return Response.status(500)
+        .entity("A server error happened. Please try your request again.")
+        .type("text/plain")
+        .build();
+  }
 }

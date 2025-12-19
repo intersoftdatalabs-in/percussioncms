@@ -21,23 +21,19 @@ import com.percussion.share.service.PSAbstractSimpleDataService;
 import com.percussion.sitemanage.dao.IPSSiteArchitectureDao;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 import com.percussion.sitemanage.service.IPSSiteArchitectureDataService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Transactional
 @Component("siteArchitectureDataService")
 @Lazy
-public class PSSiteArchitectureDataService extends
-      PSAbstractSimpleDataService<PSSiteArchitecture, String> implements
-      IPSSiteArchitectureDataService
-{
-   @Autowired
-   public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao)
-   {
-      super(dao);
-   }
+public class PSSiteArchitectureDataService
+    extends PSAbstractSimpleDataService<PSSiteArchitecture, String>
+    implements IPSSiteArchitectureDataService {
+  @Autowired
+  public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao) {
+    super(dao);
+  }
 }

@@ -19,73 +19,50 @@ package com.percussion.activity.data;
 
 import static org.apache.commons.lang.Validate.notEmpty;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotEmpty;
 
-
-/**
- * This object holds the effectiveness details of the items under named site or site folder.
- */
+/** This object holds the effectiveness details of the items under named site or site folder. */
 @JsonRootName(value = "Effectiveness")
-public class PSEffectiveness
-{
-    public PSEffectiveness()
-    {        
-    }
-    
-    /**
-     * Constructs an effectiveness object.
-     * 
-     * @param name see {@link #getName()}.
-     * @param effectiveness see {@link #getEffectiveness()}.
-     */
-    public PSEffectiveness(String name, Long effectiveness)
-    {
-        notEmpty(name);
-        
-        this.name = name;
-        this.effectiveness = effectiveness;
-    }
+public class PSEffectiveness {
+  public PSEffectiveness() {}
 
-    /**
-     * @return the the name of the site, section, or folder, never blank.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /**
+   * Constructs an effectiveness object.
+   *
+   * @param name see {@link #getName()}.
+   * @param effectiveness see {@link #getEffectiveness()}.
+   */
+  public PSEffectiveness(String name, Long effectiveness) {
+    notEmpty(name);
 
-    /**
-     * @param name must not be blank.
-     */
-    public void setName(String name)
-    {
-        notEmpty(name);
-        
-        this.name = name;
-    }
+    this.name = name;
+    this.effectiveness = effectiveness;
+  }
 
-    /**
-     * @return the calculated effectiveness value for the item.
-     */
-    public Long getEffectiveness()
-    {
-        return effectiveness;
-    }
+  /** @return the the name of the site, section, or folder, never blank. */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param effectiveness the effectiveness to set
-     */
-    public void setEffectiveness(Long effectiveness)
-    {
-        this.effectiveness = effectiveness;
-    }
+  /** @param name must not be blank. */
+  public void setName(String name) {
+    notEmpty(name);
 
-    @NotEmpty
-    private String name;
-    
-    private Long effectiveness;
- 
+    this.name = name;
+  }
+
+  /** @return the calculated effectiveness value for the item. */
+  public Long getEffectiveness() {
+    return effectiveness;
+  }
+
+  /** @param effectiveness the effectiveness to set */
+  public void setEffectiveness(Long effectiveness) {
+    this.effectiveness = effectiveness;
+  }
+
+  @NotEmpty private String name;
+
+  private Long effectiveness;
 }

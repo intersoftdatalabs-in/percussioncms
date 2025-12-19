@@ -1,4 +1,5 @@
 # servletutils
+
 This module contains backend support for servlet processing and utility apis for tomcat.
 
 * Provides utility methods such as determining configuration file paths relative to the servlet root directory.
@@ -6,4 +7,5 @@ This module contains backend support for servlet processing and utility apis for
 * Utility class to load and save HTTP based connectors from a Tomcat server.xml.
 
 ## Building
-  mvn clean install
+
+mvn clean install

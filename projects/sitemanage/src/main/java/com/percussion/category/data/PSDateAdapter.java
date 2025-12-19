@@ -17,28 +17,27 @@
 
 package com.percussion.category.data;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class PSDateAdapter extends XmlAdapter<String, LocalDateTime> {
 
-	@Override
-	public String marshal(LocalDateTime date) throws Exception {
+  @Override
+  public String marshal(LocalDateTime date) throws Exception {
 
-		if(date != null) {
-			return date.toString();
-		}
-
-		return null;
-	}
-
-	@Override
-	public LocalDateTime unmarshal(String date) throws Exception {
-        try {
-            return LocalDateTime.parse(date);
-        }catch(Exception e){
-            ;
-        }
-        return null;
+    if (date != null) {
+      return date.toString();
     }
+
+    return null;
+  }
+
+  @Override
+  public LocalDateTime unmarshal(String date) throws Exception {
+    try {
+      return LocalDateTime.parse(date);
+    } catch (Exception e) {;
+    }
+    return null;
+  }
 }

@@ -17,26 +17,21 @@
 
 package com.percussion.design.objectstore;
 
-
 /**
- * The IPSResults interface must be implemented by classes which can be
- * used for defining the results a data set will return. There are no
- * methods associated with the object store implementation. It is merely
- * a placeholder to enforce objects of the appropriate type are used.
+ * The IPSResults interface must be implemented by classes which can be used for defining the
+ * results a data set will return. There are no methods associated with the object store
+ * implementation. It is merely a placeholder to enforce objects of the appropriate type are used.
  *
  * @see PSDataSet
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSResults {
-   /**
-    * Performs a deep copy. 
-    * Implementing classes must override this method if the class contains 
-    * objects.
-    * clone Interface for IPSResults this method ideally has to be overiden by
-    * classes that implements IPSResults otherwise it will do a shallow copy.
-    */  
-   public Object clone();
+  /**
+   * Performs a deep copy. Implementing classes must override this method if the class contains
+   * objects. clone Interface for IPSResults this method ideally has to be overiden by classes that
+   * implements IPSResults otherwise it will do a shallow copy.
+   */
+  public Object clone();
 }

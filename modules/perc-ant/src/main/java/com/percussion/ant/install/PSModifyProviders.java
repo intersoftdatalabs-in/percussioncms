@@ -42,26 +42,22 @@ import com.percussion.server.PSServer;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSProperties;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
 
 /**
- * PSModifyProviders is a class which modifies legacy security providers
- * to conform to the newly supported configurations.  It also utilizes an
- * instance of RxISConfigureAppsDefs to convert the Applications, Defs, and
- * server configurations accordingly.
+ * PSModifyProviders is a class which modifies legacy security providers to conform to the newly
+ * supported configurations. It also utilizes an instance of RxISConfigureAppsDefs to convert the
+ * Applications, Defs, and server configurations accordingly. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -78,361 +74,289 @@ import java.util.List;
  *  </code>
  *
  * </pre>
- *
  */
-public class PSModifyProviders extends PSAction
-{
+public class PSModifyProviders extends PSAction {
 
-   private static final Logger log = LogManager.getLogger(PSModifyProviders.class);
-   // see base class
-   @Override
-   public void execute()
-   {
-      try
-      {
-         PSLogger.logInfo("Modifying security providers");
+  private static final Logger log = LogManager.getLogger(PSModifyProviders.class);
+  // see base class
+  @Override
+  public void execute() {
+    try {
+      PSLogger.logInfo("Modifying security providers");
 
-         IPSConfigFileLocator cfgFileLocator = new PSInstConfigFileLocator(
-               m_strRxRoot);
-         PSConfigurationCtx configCtx = new PSConfigurationCtx(cfgFileLocator,
-               PSServer.getPartOneKey());
-         IPSRepositoryInfo repInfo = new PSInstRepositoryInfo(m_strRxRoot);
-         PSSecurityProviderConverter spConverter = new PSSecurityProviderConverter(
-               configCtx, repInfo, true);
+      IPSConfigFileLocator cfgFileLocator = new PSInstConfigFileLocator(m_strRxRoot);
+      PSConfigurationCtx configCtx =
+          new PSConfigurationCtx(cfgFileLocator, PSServer.getPartOneKey());
+      IPSRepositoryInfo repInfo = new PSInstRepositoryInfo(m_strRxRoot);
+      PSSecurityProviderConverter spConverter =
+          new PSSecurityProviderConverter(configCtx, repInfo, true);
 
-         // perform necessary security provider conversions
-         spConverter.convert();
+      // perform necessary security provider conversions
+      spConverter.convert();
 
-         // perform necessary app/def/server configuration conversions
-         doConversion(configCtx, repInfo);
+      // perform necessary app/def/server configuration conversions
+      doConversion(configCtx, repInfo);
 
-         // save configurations
-         configCtx.saveConfigs();
+      // save configurations
+      configCtx.saveConfigs();
+    } catch (Exception e) {
+      PSLogger.logError(e.getMessage());
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /**
+   * Performs the conversion of Apps, Defs, server config.
+   *
+   * @param configCtx the object which holds the necessary configuration information.
+   * @param repInfo the object which holds the necessary repository information
+   */
+  private void doConversion(PSConfigurationCtx configCtx, IPSRepositoryInfo repInfo) {
+    try {
+      PSLogger.logInfo("Beginning Application/server/def configuration conversion");
+
+      PSBackendTableConverter betConverter = new PSBackendTableConverter(configCtx, repInfo, true);
+      PSTableLocatorConverter tblConverter = new PSTableLocatorConverter(configCtx, true);
+
+      List<IPSComponentConverter> converters = new ArrayList<IPSComponentConverter>();
+
+      converters.add(betConverter);
+      converters.add(tblConverter);
+
+      PSComponent.setComponentConverters(converters);
+
+      // Get the server properties
+      PSProperties serverProps = new PSProperties(m_strServerPropsFile);
+
+      // Get the objectstore properties
+      PSProperties objProps =
+          new PSProperties(
+              m_strRxRoot
+                  + File.separator
+                  + serverProps.getProperty(PROPS_OBJECT_STORE_VAR, PROPS_OBJECT_STORE));
+
+      // ObjectStore directory
+      File objDir =
+          new File(m_strRxRoot + File.separator + objProps.getProperty(PROPS_OBJECT_STORE_DIR));
+
+      // Convert the applications
+      convertApplications(objDir);
+
+      // Convert the definitions
+      File systemDef = new File(m_strSystemDef);
+      File sharedDef = new File(m_strSharedDefDir);
+
+      if (systemDef.exists()) convertDef(systemDef);
+
+      if (sharedDef.exists() && sharedDef.isDirectory()) {
+        File[] defs = sharedDef.listFiles();
+
+        for (int i = 0; i < defs.length; i++) {
+          File def = defs[i];
+          if (def.getName().endsWith(".xml")) convertDef(def);
+        }
       }
-      catch(Exception e)
-      {
-         PSLogger.logError(e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+
+    } catch (Exception e) {
+      PSLogger.logError(e.getMessage());
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /**
+   * Converts the application objects stored in the objectstore directory to datasources.
+   *
+   * @param objDir file which represents the objectstore directory, assumed not <code>null</code>
+   */
+  private void convertApplications(File objDir) {
+    String appName = null;
+    File appFile = null;
+    String[] apps = objDir.list();
+
+    for (int i = 0; i < apps.length; i++) {
+      appName = apps[i];
+      appFile = new File(objDir, appName);
+
+      if (appFile.isDirectory() || !appName.endsWith(".xml")) continue;
+
+      // Convert the application
+      convertApp(appFile);
+    }
+  }
+
+  /**
+   * Converts an application to use datasources. It does this by simply loading and then saving it.
+   * Also adds paths which allow anonymous access to the user security configuration file.
+   *
+   * @param appFile the app file, assumed not <code>null</code>
+   */
+  private void convertApp(File appFile) {
+    FileInputStream in = null;
+    FileInputStream userIn = null;
+    FileOutputStream out = null;
+    FileOutputStream userOut = null;
+    Document doc = null;
+    Document userDoc = null;
+    PSApplication app = null;
+    boolean anonymousAccess = false;
+
+    try {
+      in = new FileInputStream(appFile);
+      doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+      in.close();
+
+      // Load the application
+      app = new PSApplication(doc);
+
+      String path = "";
+      String authType = "";
+      PSAcl acl = app.getAcl();
+      PSAclEntry aclEntry = null;
+      PSCollection aclEntries = acl.getEntries();
+      PSSecurityConfiguration secConf = null;
+      File userSecConfFile = null;
+      int i;
+
+      // Add any entry with anonymous access allowed to user security configuration
+      for (i = 0; aclEntries != null && i < aclEntries.size(); i++) {
+        aclEntry = (PSAclEntry) aclEntries.get(i);
+        authType = aclEntry.getName();
+
+        if (authType.equalsIgnoreCase(PSAclEntry.ANONYMOUS_USER_NAME)) {
+          userSecConfFile = new File(m_strUserSecConf);
+          userIn = new FileInputStream(userSecConfFile);
+          userOut = null;
+          userDoc = PSXmlDocumentBuilder.createXmlDocument(userIn, false);
+
+          // Load the user security configuration
+          secConf = new PSSecurityConfiguration(userDoc);
+
+          // Add the new path with anonymous access
+          path = app.getRequestRoot();
+          authType = PSSecurityConfiguration.ANONYMOUS_AUTH_TYPE;
+          secConf.addPath(authType, path);
+          anonymousAccess = true;
+          break;
+        }
       }
-   }
 
-   /**
-    * Performs the conversion of Apps, Defs, server config.
-    *
-    * @param configCtx the object which holds the necessary configuration
-    *  information.
-    * @param repInfo the object which holds the necessary repository information
-    */
-   private void doConversion(PSConfigurationCtx configCtx,
-         IPSRepositoryInfo repInfo)
-   {
-      try
-      {
-         PSLogger.logInfo("Beginning Application/server/def configuration conversion");
+      // Convert slot name on any rxs_NavTreeSlotMarker exit
+      PSLogger.logInfo("Converting exit parameter slot names in application " + app.getName());
+      int convertedSlots = PSUpgradeDbAndHtmlAndXslFilesForSlotNames.convertSlotName(app);
+      PSLogger.logInfo(
+          "Converted "
+              + convertedSlots
+              + " exit parameter "
+              + "slot names in application "
+              + app.getName());
 
-         PSBackendTableConverter betConverter = new PSBackendTableConverter(
-               configCtx, repInfo, true);
-         PSTableLocatorConverter tblConverter = new PSTableLocatorConverter(
-               configCtx, true);
+      // Save the application
+      doc = app.toXml();
+      out = new FileOutputStream(appFile);
+      PSXmlDocumentBuilder.write(doc, out);
 
-         List<IPSComponentConverter> converters =
-            new ArrayList<IPSComponentConverter>();
-
-         converters.add(betConverter);
-         converters.add(tblConverter);
-
-         PSComponent.setComponentConverters(converters);
-
-         //Get the server properties
-         PSProperties serverProps = new PSProperties(m_strServerPropsFile);
-
-         //Get the objectstore properties
-         PSProperties objProps = new PSProperties(
-               m_strRxRoot + File.separator +
-               serverProps.getProperty(PROPS_OBJECT_STORE_VAR,
-                     PROPS_OBJECT_STORE));
-
-         //ObjectStore directory
-         File objDir = new File(
-               m_strRxRoot + File.separator +
-               objProps.getProperty(PROPS_OBJECT_STORE_DIR));
-
-         //Convert the applications
-         convertApplications(objDir);
-
-         //Convert the definitions
-         File systemDef = new File(m_strSystemDef);
-         File sharedDef = new File(m_strSharedDefDir);
-
-         if (systemDef.exists())
-            convertDef(systemDef);
-
-         if (sharedDef.exists() && sharedDef.isDirectory())
-         {
-            File[] defs = sharedDef.listFiles();
-
-            for (int i=0; i < defs.length; i++)
-            {
-               File def = defs[i];
-               if (def.getName().endsWith(".xml"))
-                  convertDef(def);
-            }
-         }
-
+      // Save the updated user security configuration
+      if (anonymousAccess) {
+        userIn.close();
+        userDoc = secConf.toXml();
+        userOut = new FileOutputStream(userSecConfFile);
+        PSXmlDocumentBuilder.write(userDoc, userOut);
       }
-      catch(Exception e)
-      {
-         PSLogger.logError(e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } catch (PSUnknownNodeTypeException ex) {
+      PSLogger.logError(ex.getMessage());
+      PSLogger.logError("This application will no longer be available from the workbench.");
+    } catch (Exception e) {
+      PSLogger.logError(e.getMessage());
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } finally {
+      try {
+        if (out != null) out.close();
+      } catch (Exception e) {
       }
-   }
 
-   /**
-    * Converts the application objects stored in the objectstore directory to
-    * datasources.
-    *
-    * @param objDir file which represents the objectstore directory,
-    * assumed not <code>null</code>
-    */
-   private void convertApplications(File objDir)
-   {
-      String appName = null;
-      File appFile = null;
-      String[] apps = objDir.list();
-     
-      for (int i = 0; i < apps.length; i++)
-      {
-         appName = apps[i];
-         appFile = new File(objDir, appName);
-
-         if (appFile.isDirectory() || !appName.endsWith(".xml"))
-            continue;
-        
-         //Convert the application
-         convertApp(appFile);
+      try {
+        if (userOut != null) userOut.close();
+      } catch (Exception e) {
       }
-   }
+    }
+  }
 
-   /**
-    * Converts an application to use datasources.
-    * It does this by simply loading and then saving it.  Also adds paths which
-    * allow anonymous access to the user security configuration file.
-    *
-    * @param appFile the app file, assumed not <code>null</code>
-    */
-   private void convertApp(File appFile)
-   {
-      FileInputStream in = null;
-      FileInputStream userIn = null;
-      FileOutputStream out = null;
-      FileOutputStream userOut = null;
-      Document doc = null;
-      Document userDoc = null;
-      PSApplication app = null;
-      boolean anonymousAccess = false;
+  /**
+   * Converts a definition to use datasources. It does this by simply loading and then saving it.
+   *
+   * @param defFile the def file, assumed not <code>null</code>
+   */
+  private void convertDef(File defFile) {
+    FileInputStream in = null;
+    FileOutputStream out = null;
+    Document doc = null;
+    IPSDocument def = null;
 
-      try
-      {
-         in = new FileInputStream(appFile);
-         doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-         in.close();
+    try {
+      in = new FileInputStream(defFile);
+      doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
 
-         //Load the application
-         app = new PSApplication(doc);
+      String defName = defFile.getName();
 
-         String path = "";
-         String authType = "";
-         PSAcl acl = app.getAcl();
-         PSAclEntry aclEntry = null;
-         PSCollection aclEntries = acl.getEntries();
-         PSSecurityConfiguration secConf = null;
-         File userSecConfFile = null;
-         int i;
+      // Load the definition
+      if (defName.equalsIgnoreCase("ContentEditorSystemDef.xml"))
+        def = new PSContentEditorSystemDef(doc);
+      else def = new PSContentEditorSharedDef(doc);
 
-         //Add any entry with anonymous access allowed to user security configuration
-         for (i=0; aclEntries != null && i < aclEntries.size(); i++)
-         {
-            aclEntry = (PSAclEntry) aclEntries.get(i);
-            authType = aclEntry.getName();
+      in.close();
 
-            if (authType.equalsIgnoreCase(PSAclEntry.ANONYMOUS_USER_NAME))
-            {
-               userSecConfFile = new File(m_strUserSecConf);
-               userIn = new FileInputStream(userSecConfFile);
-               userOut = null;
-               userDoc = PSXmlDocumentBuilder.createXmlDocument(userIn, false);
-
-               //Load the user security configuration
-               secConf = new PSSecurityConfiguration(userDoc);
-
-               //Add the new path with anonymous access
-               path = app.getRequestRoot();
-               authType = PSSecurityConfiguration.ANONYMOUS_AUTH_TYPE;
-               secConf.addPath(authType, path);
-               anonymousAccess = true;
-               break;
-            }
-         }
-
-         //Convert slot name on any rxs_NavTreeSlotMarker exit
-         PSLogger.logInfo("Converting exit parameter slot names in application "
-               + app.getName());
-         int convertedSlots =
-            PSUpgradeDbAndHtmlAndXslFilesForSlotNames.convertSlotName(app);
-         PSLogger.logInfo("Converted " + convertedSlots + " exit parameter "
-               + "slot names in application " + app.getName());
-
-         //Save the application
-         doc = app.toXml();
-         out = new FileOutputStream(appFile);
-         PSXmlDocumentBuilder.write(doc, out);
-
-         //Save the updated user security configuration
-         if (anonymousAccess)
-         {
-            userIn.close();
-            userDoc = secConf.toXml();
-            userOut = new FileOutputStream(userSecConfFile);
-            PSXmlDocumentBuilder.write(userDoc, userOut);
-         }
+      // Save the definition
+      doc = def.toXml();
+      out = new FileOutputStream(defFile);
+      PSXmlDocumentBuilder.write(doc, out);
+    } catch (Exception e) {
+      PSLogger.logError(e.getMessage());
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } finally {
+      try {
+        if (out != null) out.close();
+      } catch (Exception e) {
       }
-      catch (PSUnknownNodeTypeException ex)
-      {
-         PSLogger.logError(ex.getMessage());
-         PSLogger.logError("This application will no longer be available from the workbench.");
-      }
-      catch (Exception e)
-      {
-         PSLogger.logError(e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-      finally
-      {
-         try
-         {
-            if (out != null)
-               out.close();
-         }
-         catch (Exception e)
-         {
-         }
+    }
+  }
 
-         try
-         {
-            if (userOut != null)
-               userOut.close();
-         }
-         catch (Exception e)
-         {
-         }
-      }
-   }
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
 
-   /**
-    * Converts a definition to use datasources.
-    * It does this by simply loading and then saving it.
-    *
-    * @param defFile the def file, assumed not <code>null</code>
-    */
-   private void convertDef(File defFile)
-   {
-      FileInputStream in = null;
-      FileOutputStream out = null;
-      Document doc = null;
-      IPSDocument def = null;
+  /** The rhythmyx root directory */
+  private String m_strRxRoot = getRootDir();
 
-      try
-      {
-         in = new FileInputStream(defFile);
-         doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+  /** Location of server.properties */
+  private String m_strServerPropsFile =
+      m_strRxRoot + File.separator + "rxconfig/Server/server.properties";
 
-         String defName = defFile.getName();
+  /** Location of system definition */
+  private String m_strSystemDef =
+      m_strRxRoot + File.separator + "rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml";
 
-         //Load the definition
-         if (defName.equalsIgnoreCase("ContentEditorSystemDef.xml"))
-            def = new PSContentEditorSystemDef(doc);
-         else
-            def = new PSContentEditorSharedDef(doc);
+  /** Location of shared definition */
+  private String m_strSharedDefDir =
+      m_strRxRoot + File.separator + "rxconfig/Server/ContentEditors/shared";
 
-         in.close();
+  /** Location of user-security-conf.xml file */
+  private String m_strUserSecConf =
+      m_strRxRoot
+          + File.separator
+          + "AppServer/server/rx/deploy/rxapp.ear/"
+          + "rxapp.war/WEB-INF/config/user/security/user-security-conf.xml";
 
-         //Save the definition
-         doc = def.toXml();
-         out = new FileOutputStream(defFile);
-         PSXmlDocumentBuilder.write(doc, out);
-      }
-      catch (Exception e)
-      {
-         PSLogger.logError(e.getMessage());
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-      finally
-      {
-         try
-         {
-            if (out != null)
-               out.close();
-         }
-         catch (Exception e)
-         {
-         }
-      }
-   }
+  /** The objectstore property name in server.properties */
+  private final String PROPS_OBJECT_STORE_VAR = "objectStoreProperties";
 
-   /**************************************************************************
-    * Properties
-    *************************************************************************/
+  /** The default objectstore properties file */
+  private final String PROPS_OBJECT_STORE = "rxconfig/Server/objectstore.properties";
 
-   /**
-    * The rhythmyx root directory
-    */
-   private String m_strRxRoot = getRootDir();
-
-   /**
-    * Location of server.properties
-    */
-   private String m_strServerPropsFile = m_strRxRoot + File.separator
-   + "rxconfig/Server/server.properties";
-
-   /**
-    * Location of system definition
-    */
-   private String m_strSystemDef = m_strRxRoot + File.separator
-   + "rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml";
-
-   /**
-    * Location of shared definition
-    */
-   private String m_strSharedDefDir = m_strRxRoot + File.separator
-   + "rxconfig/Server/ContentEditors/shared";
-
-   /**
-    * Location of user-security-conf.xml file
-    */
-   private String m_strUserSecConf = m_strRxRoot + File.separator
-   + "AppServer/server/rx/deploy/rxapp.ear/"
-   + "rxapp.war/WEB-INF/config/user/security/user-security-conf.xml";
-
-   /**
-    * The objectstore property name in server.properties
-    */
-   private final String PROPS_OBJECT_STORE_VAR = "objectStoreProperties";
-
-   /**
-    * The default objectstore properties file
-    */
-   private final String PROPS_OBJECT_STORE =
-      "rxconfig/Server/objectstore.properties";
-
-   /**
-    * The objectstore directory property name in objectstore.properties
-    */
-   private final String PROPS_OBJECT_STORE_DIR = "objectDirectory";
-
-
+  /** The objectstore directory property name in objectstore.properties */
+  private final String PROPS_OBJECT_STORE_DIR = "objectDirectory";
 }
-

@@ -17,30 +17,23 @@
 package com.percussion.utils.jexl;
 
 /**
- * An exception that represents an error during Jexl Evaluation through the
- * Uberspect.
- * 
+ * An exception that represents an error during Jexl Evaluation through the Uberspect.
+ *
  * @author adamgent
- * 
  */
-public class PSJexlEvaluatorRuntimeException extends RuntimeException
-{
+public class PSJexlEvaluatorRuntimeException extends RuntimeException {
 
-   private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-   public PSJexlEvaluatorRuntimeException(String message)
-   {
-      super(message);
-   }
+  public PSJexlEvaluatorRuntimeException(String message) {
+    super(message);
+  }
 
-   public PSJexlEvaluatorRuntimeException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+  public PSJexlEvaluatorRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-   public PSJexlEvaluatorRuntimeException(Throwable cause)
-   {
-      super(cause);
-   }
-
+  public PSJexlEvaluatorRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

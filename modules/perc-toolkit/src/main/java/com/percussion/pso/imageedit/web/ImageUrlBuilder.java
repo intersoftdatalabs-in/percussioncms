@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 package com.percussion.pso.imageedit.web;
-public interface ImageUrlBuilder
-{
-   public String buildUrl(String imageKey);
-   public String extractKey(String url);
+
+public interface ImageUrlBuilder {
+  public String buildUrl(String imageKey);
+
+  public String extractKey(String url);
 }

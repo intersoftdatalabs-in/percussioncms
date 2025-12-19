@@ -19,97 +19,66 @@ package com.percussion.process;
 
 import com.percussion.util.PSStringTemplate;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
-
 import java.util.Map;
 
 /**
- * Abstract base class for process parameter resolvers. Derived classes must
- * implement the <code>resolveString</code> method.
+ * Abstract base class for process parameter resolvers. Derived classes must implement the <code>
+ * resolveString</code> method.
  */
-public class PSBasicResolver
-   implements IPSVariableResolver
-{
-   // see interface
-   public String getValue(String value, Map ctx) throws PSResolveException
-   {
-      if (null == value)
-         value = "";
-         
-      if (null == ctx)
-      {
-         throw new IllegalArgumentException("context cannot be null");
-      }
-      return resolve(value, ctx);
-   }
+public class PSBasicResolver implements IPSVariableResolver {
+  // see interface
+  public String getValue(String value, Map ctx) throws PSResolveException {
+    if (null == value) value = "";
 
-   /**
-    * Convenience method that calls {@link #resolveTemplate(String, 
-    * PSStringTemplate.IPSTemplateDictionary) resolveTemplate(template, 
-      new PSStringTemplate.PSMapDictionary(ctx))}.
-      
-    * @param template the actual string which needs resolution, may be 
-    * <code>null</code> or empty
-    *
-    * @param ctx a {@link Map map}, contains data for executing the
-    * process, may not be <code>null</code>. Each entry has <code>String</code>
-    * keys which are case-sensitive to template variabled and values are
-    * <code>toString</code>'d.
-    */
-   protected String resolve(String template, Map ctx)
-      throws PSResolveException
-   {
-      if (null == ctx)
-      {
-         throw new IllegalArgumentException("context cannot be null");
-      }
-      return resolveTemplate(template, 
-            new PSStringTemplate.PSMapDictionary(ctx));   
-   }
+    if (null == ctx) {
+      throw new IllegalArgumentException("context cannot be null");
+    }
+    return resolve(value, ctx);
+  }
 
-   /**
-    * This is the main resolver method. This method is called by the {@link
-    * #getValue(Map) getValue} method to do the actual work. It uses the
-    * {@link PSStringTemplate} class to do the work. See that class for 
-    * details. The default delimiters are used.
-    *
-    * @param template the actual string which needs resolution, may be
-    * <code>null</code> or empty
-    *
-    * @param ctx a {@link Map map}, contains data for executing the
-    * process, may not be <code>null</code>
-    *
-    * @return The processed template, never <code>null</code>, may be empty.
-    * 
-    * @throws PSResolveException if any error occurs resolving the specified
-    * string
-    */
-   protected String resolveTemplate(String template, 
-         PSStringTemplate.IPSTemplateDictionary ctx)
-      throws PSResolveException
-   {
-      if (null == ctx)
-      {
-         throw new IllegalArgumentException("context cannot be null");
-      }
+  /**
+   * Convenience method that calls {@link #resolveTemplate(String,
+   * PSStringTemplate.IPSTemplateDictionary) resolveTemplate(template, new
+   * PSStringTemplate.PSMapDictionary(ctx))}.
+   *
+   * @param template the actual string which needs resolution, may be <code>null</code> or empty
+   * @param ctx a {@link Map map}, contains data for executing the process, may not be <code>null
+   *     </code>. Each entry has <code>String</code> keys which are case-sensitive to template
+   *     variabled and values are <code>toString</code>'d.
+   */
+  protected String resolve(String template, Map ctx) throws PSResolveException {
+    if (null == ctx) {
+      throw new IllegalArgumentException("context cannot be null");
+    }
+    return resolveTemplate(template, new PSStringTemplate.PSMapDictionary(ctx));
+  }
 
-      if ((template == null) || (template.trim().length() < 1))
-      {
-         return "";
-      }
-      try
-      {
-         //    Expand variables
-         PSStringTemplate templ = new PSStringTemplate(template);
-         return templ.expand(ctx);
-      }
-      catch (PSStringTemplateException e)
-      {
-         throw new PSResolveException("Problem expanding variable: " +
-            e.getMessage());
-      }
-   }
+  /**
+   * This is the main resolver method. This method is called by the {@link #getValue(Map) getValue}
+   * method to do the actual work. It uses the {@link PSStringTemplate} class to do the work. See
+   * that class for details. The default delimiters are used.
+   *
+   * @param template the actual string which needs resolution, may be <code>null</code> or empty
+   * @param ctx a {@link Map map}, contains data for executing the process, may not be <code>null
+   *     </code>
+   * @return The processed template, never <code>null</code>, may be empty.
+   * @throws PSResolveException if any error occurs resolving the specified string
+   */
+  protected String resolveTemplate(String template, PSStringTemplate.IPSTemplateDictionary ctx)
+      throws PSResolveException {
+    if (null == ctx) {
+      throw new IllegalArgumentException("context cannot be null");
+    }
+
+    if ((template == null) || (template.trim().length() < 1)) {
+      return "";
+    }
+    try {
+      //    Expand variables
+      PSStringTemplate templ = new PSStringTemplate(template);
+      return templ.expand(ctx);
+    } catch (PSStringTemplateException e) {
+      throw new PSResolveException("Problem expanding variable: " + e.getMessage());
+    }
+  }
 }
-
-
-
-

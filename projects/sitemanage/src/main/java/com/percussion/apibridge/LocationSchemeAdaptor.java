@@ -26,20 +26,17 @@ import com.percussion.util.PSSiteManageBean;
 @PSSiteManageBean
 public class LocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    private IPSSiteManager siteManager;
+  private IPSSiteManager siteManager;
 
-    public LocationSchemeAdaptor(){
-       siteManager =  PSSiteManagerLocator.getSiteManager();
-    }
+  public LocationSchemeAdaptor() {
+    siteManager = PSSiteManagerLocator.getSiteManager();
+  }
 
+  @Override
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+    return null;
+  }
 
-    @Override
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
-        return null;
-    }
-
-    @Override
-    public void deletedLocationScheme(String guid) {
-
-    }
+  @Override
+  public void deletedLocationScheme(String guid) {}
 }

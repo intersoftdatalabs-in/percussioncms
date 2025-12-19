@@ -18,23 +18,16 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 
-/**
- * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
- * for details. 
- */
-public class PSDFProperties extends PSDbComponentCollection
-{
-   public PSDFProperties()
-      throws ClassNotFoundException, PSCmsException
-   {              
-      super(PSDFMultiProperty.class.getName());
-   }
-   
-   public String getNodeName()
-   {
-      return XML_NODE_NAME;
-   }
+/** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for details. */
+public class PSDFProperties extends PSDbComponentCollection {
+  public PSDFProperties() throws ClassNotFoundException, PSCmsException {
+    super(PSDFMultiProperty.class.getName());
+  }
 
-   // public static defined
-   public static final String XML_NODE_NAME = "PSX_PROPERTIES";
+  public String getNodeName() {
+    return XML_NODE_NAME;
+  }
+
+  // public static defined
+  public static final String XML_NODE_NAME = "PSX_PROPERTIES";
 }

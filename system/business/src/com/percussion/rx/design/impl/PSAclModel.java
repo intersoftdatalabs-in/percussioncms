@@ -21,7 +21,7 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.text.MessageFormat;
@@ -46,7 +46,7 @@ public class PSAclModel extends PSLimitedDesignModel
          IPSGuid guid = new PSGuid(PSTypeEnum.ACL, Long.parseLong(name));
          return service.loadAcl(guid);
       }
-      catch (PSSecurityException e)
+      catch (PSServiceSecurityException e)
       {
          String msg = "Failed to get the design object for name {0}";
          Object[] args = { name };
@@ -68,7 +68,7 @@ public class PSAclModel extends PSLimitedDesignModel
 
          service.deleteAcl(guid);
       }
-      catch (PSSecurityException e)
+      catch (PSServiceSecurityException e)
       {
          String msg = "Failed to delete the design object for guid {0}";
          Object[] args = { guid };

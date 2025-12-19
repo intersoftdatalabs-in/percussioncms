@@ -18,39 +18,35 @@ package com.percussion.utils.jdbc;
 
 import com.percussion.utils.spring.IPSBeanConfig;
 
-/**
- * Interface to describe the configuration used to obtain and use a database
- * connection.
- */
-public interface IPSDatasourceConfig extends IPSBeanConfig
-{
-   /**
-    * Get the name used to reference this datasource configuration.
-    * 
-    * @return The name, never <code>null</code> or empty.
-    */
-   public String getName();
+/** Interface to describe the configuration used to obtain and use a database connection. */
+public interface IPSDatasourceConfig extends IPSBeanConfig {
+  /**
+   * Get the name used to reference this datasource configuration.
+   *
+   * @return The name, never <code>null</code> or empty.
+   */
+  public String getName();
 
-   /**
-    * Get the name of the JNDI datasource specified by this configuration. 
-    * 
-    * @return The datasource name, never <code>null</code> or empty.
-    */
-   public String getDataSource();
+  /**
+   * Get the name of the JNDI datasource specified by this configuration.
+   *
+   * @return The datasource name, never <code>null</code> or empty.
+   */
+  public String getDataSource();
 
-   /**
-    * Get the name of the origin or schema specified by this configuration.
-    * 
-    * @return The origin or schema name, may be empty, never <code>null</code>.
-    */
-   public String getOrigin();
-   
-   /**
-    * Get the name of the origin or schema specified by this configuration.
-    * 
-    * @return The database name, may be empty, never <code>null</code>.
-    */
-   public String getDatabase();
+  /**
+   * Get the name of the origin or schema specified by this configuration.
+   *
+   * @return The origin or schema name, may be empty, never <code>null</code>.
+   */
+  public String getOrigin();
 
-    public void copyFrom(IPSDatasourceConfig config);
+  /**
+   * Get the name of the origin or schema specified by this configuration.
+   *
+   * @return The database name, may be empty, never <code>null</code>.
+   */
+  public String getDatabase();
+
+  public void copyFrom(IPSDatasourceConfig config);
 }

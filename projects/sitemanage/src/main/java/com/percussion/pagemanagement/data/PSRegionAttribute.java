@@ -17,62 +17,62 @@
 
 package com.percussion.pagemanagement.data;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Objects;
 
 @XmlRootElement(name = "RegionAttribute")
 public class PSRegionAttribute {
 
-    public PSRegionAttribute()
-    {
-        // Required JaxB no arg constructor
-    }
-    public PSRegionAttribute(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
+  public PSRegionAttribute() {
+    // Required JaxB no arg constructor
+  }
 
-    private String name;
-    private String value;
+  public PSRegionAttribute(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    @XmlElement
-    public String getName() {
-        return name;
-    }
+  private String name;
+  private String value;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  @XmlElement
+  public String getName() {
+    return name;
+  }
 
-    @XmlElement
-    public String getValue() {
-        return value;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  @XmlElement
+  public String getValue() {
+    return value;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSRegionAttribute)) return false;
-        PSRegionAttribute that = (PSRegionAttribute) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getValue(), that.getValue());
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getValue());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSRegionAttribute)) return false;
+    PSRegionAttribute that = (PSRegionAttribute) o;
+    return Objects.equals(getName(), that.getName()) && Objects.equals(getValue(), that.getValue());
+  }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionAttribute{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", value='").append(value).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getValue());
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSRegionAttribute{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", value='").append(value).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 }

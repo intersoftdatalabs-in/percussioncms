@@ -20,46 +20,42 @@ package com.percussion.queue;
 import com.percussion.queue.impl.PSSiteQueue;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
-
 import java.util.List;
 
-public interface IPSPageImportQueue
-{
+public interface IPSPageImportQueue {
 
-    void addCatalogedPageIds(PSSite s, String userAgent, List<Integer> ids);
-    
-    List<Integer> getImportingPageIds(Long siteId);
-    
-    List<Integer> getCatalogedPageIds(Long siteId);
-    
-    List<Integer> getImportedPageIds(Long siteId);
-    
-    void addImportedId(Long siteId, Integer id);
-    /**
-     * Remove the specified page from the specified site
-     * @param siteName the name of the site, not blank.
-     * @param pageId the imported page ID, not blank.
-     */
-    void removeImportPage(String siteName, String pageId);
-    
-    /**
-     * Gets the page IDs that are cached for the specified site.
-     * 
-     * @param siteContext the siteImportContext that has all details of site, not <code>null</code>.
-     * 
-     * @return the page IDs, which are cloned from the cached info, never <code>null</code>.
-     */
-    PSSiteQueue getPageIds(PSSiteImportCtx siteContext);
+  void addCatalogedPageIds(PSSite s, String userAgent, List<Integer> ids);
 
+  List<Integer> getImportingPageIds(Long siteId);
 
-    /**
-     * Gets the page IDs that are cached for the specified site.
-     *
-     * @param siteId the siteId
-     *
-     * @return the page IDs, which are cloned from the cached info, never <code>null</code>.
-     */
-    PSSiteQueue getPageIds(Long siteId);
+  List<Integer> getCatalogedPageIds(Long siteId);
 
-    public void dirtySiteQueue(Long siteId);
+  List<Integer> getImportedPageIds(Long siteId);
+
+  void addImportedId(Long siteId, Integer id);
+  /**
+   * Remove the specified page from the specified site
+   *
+   * @param siteName the name of the site, not blank.
+   * @param pageId the imported page ID, not blank.
+   */
+  void removeImportPage(String siteName, String pageId);
+
+  /**
+   * Gets the page IDs that are cached for the specified site.
+   *
+   * @param siteContext the siteImportContext that has all details of site, not <code>null</code>.
+   * @return the page IDs, which are cloned from the cached info, never <code>null</code>.
+   */
+  PSSiteQueue getPageIds(PSSiteImportCtx siteContext);
+
+  /**
+   * Gets the page IDs that are cached for the specified site.
+   *
+   * @param siteId the siteId
+   * @return the page IDs, which are cloned from the cached info, never <code>null</code>.
+   */
+  PSSiteQueue getPageIds(Long siteId);
+
+  public void dirtySiteQueue(Long siteId);
 }

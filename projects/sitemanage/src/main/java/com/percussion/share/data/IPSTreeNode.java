@@ -19,40 +19,45 @@ package com.percussion.share.data;
 
 import java.util.List;
 
-/***
- * Defines a TreeNode.  @see IPSTree
- * @author natechadwick
+/**
+ * * Defines a TreeNode. @see IPSTree
  *
+ * @author natechadwick
  */
 public interface IPSTreeNode<T> {
 
-	/***
-	 * Gets the Node's parent.
-	 * @return
-	 */
-	public IPSTreeNode<T> getParent();
-	
-	/***
-	 * Sets the Nodes parent.
-	 * @param node
-	 */
-	public void setParent(IPSTreeNode<T> node);
-	
-	/***
-	 * Gets the children of this node.
-	 * @return
-	 */
-	public List<IPSTreeNode<T>> getChildren();
+  /**
+   * * Gets the Node's parent.
+   *
+   * @return
+   */
+  public IPSTreeNode<T> getParent();
 
-	/***
-	 * Gets the Value stored in this node.
-	 * @return
-	 */
-	public T getValue();
-    
-	/***
-	 * Sets the value store din this node. 
-	 * @param x
-	 */
-	void setValue(T x);
+  /**
+   * * Sets the Nodes parent.
+   *
+   * @param node
+   */
+  public void setParent(IPSTreeNode<T> node);
+
+  /**
+   * * Gets the children of this node.
+   *
+   * @return
+   */
+  public List<IPSTreeNode<T>> getChildren();
+
+  /**
+   * * Gets the Value stored in this node.
+   *
+   * @return
+   */
+  public T getValue();
+
+  /**
+   * * Sets the value store din this node.
+   *
+   * @param x
+   */
+  void setValue(T x);
 }

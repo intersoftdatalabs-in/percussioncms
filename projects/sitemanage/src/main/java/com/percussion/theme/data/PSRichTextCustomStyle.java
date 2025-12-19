@@ -18,33 +18,28 @@
 package com.percussion.theme.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Data object for rich text custom styles.
- */
+/** Data object for rich text custom styles. */
 @XmlRootElement(name = "RichTextCustomStyle")
-public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable
-{
-    private String className;
-    private String classLabel;
-    public String getClassName()
-    {
-        return className;
-    }
-    public void setClassName(String className)
-    {
-        this.className = className;
-    }
-    public String getClassLabel()
-    {
-        return classLabel;
-    }
-    public void setClassLabel(String classLabel)
-    {
-        this.classLabel = classLabel;
-    }
+public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable {
+  private String className;
+  private String classLabel;
+
+  public String getClassName() {
+    return className;
+  }
+
+  public void setClassName(String className) {
+    this.className = className;
+  }
+
+  public String getClassLabel() {
+    return classLabel;
+  }
+
+  public void setClassLabel(String classLabel) {
+    this.classLabel = classLabel;
+  }
 }

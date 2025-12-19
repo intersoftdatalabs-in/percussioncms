@@ -17,29 +17,24 @@
 
 package com.percussion.sitemanage.data;
 
-public class PSSiteConfig
-{
-    private PSSiteInfo siteInfo;
+public class PSSiteConfig {
+  private PSSiteInfo siteInfo;
 
-    private PSPublisherInfo publisherInfo;
+  private PSPublisherInfo publisherInfo;
 
-    public PSSiteInfo getSiteInfo()
-    {
-        return siteInfo;
-    }
+  public PSSiteInfo getSiteInfo() {
+    return siteInfo;
+  }
 
-    public void setSiteInfo(PSSiteInfo siteInfo)
-    {
-        this.siteInfo = siteInfo;
-    }
+  public void setSiteInfo(PSSiteInfo siteInfo) {
+    this.siteInfo = siteInfo;
+  }
 
-    public PSPublisherInfo getPublisherInfo()
-    {
-        return publisherInfo;
-    }
+  public PSPublisherInfo getPublisherInfo() {
+    return publisherInfo;
+  }
 
-    public void setPublisherInfo(PSPublisherInfo publisherInfo)
-    {
-        this.publisherInfo = publisherInfo;
-    }
+  public void setPublisherInfo(PSPublisherInfo publisherInfo) {
+    this.publisherInfo = publisherInfo;
+  }
 }

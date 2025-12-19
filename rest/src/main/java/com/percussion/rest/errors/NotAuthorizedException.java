@@ -19,10 +19,8 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class NotAuthorizedException extends RestExceptionBase
-{
-    public NotAuthorizedException()
-    {
-        super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
-    }
+public class NotAuthorizedException extends RestExceptionBase {
+  public NotAuthorizedException() {
+    super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
+  }
 }

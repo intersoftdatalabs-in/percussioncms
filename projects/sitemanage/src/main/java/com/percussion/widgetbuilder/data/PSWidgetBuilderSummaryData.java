@@ -18,232 +18,176 @@ package com.percussion.widgetbuilder.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
-import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractPersistantObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 /**
- * Lightweight version of {@link PSWidgetBuilderDefinitionData} for serialization of 
- * summary data only.
- * 
- * @author JaySeletz
+ * Lightweight version of {@link PSWidgetBuilderDefinitionData} for serialization of summary data
+ * only.
  *
+ * @author JaySeletz
  */
-@XmlRootElement(name="WidgetBuilderSummaryData")
+@XmlRootElement(name = "WidgetBuilderSummaryData")
 @JsonRootName("WidgetBuilderSummaryData")
-public class PSWidgetBuilderSummaryData extends PSAbstractPersistantObject
-{
+public class PSWidgetBuilderSummaryData extends PSAbstractPersistantObject {
 
-    private long widgetId;
-    private String prefix;
-    private String author;
-    private String label;
-    private String publisherUrl;
-    private String description;
-    private String version;
-    private String toolTipMessage;
-    private String widgetTrayCustomizedIconPath;
-    private boolean responsive;
+  private long widgetId;
+  private String prefix;
+  private String author;
+  private String label;
+  private String publisherUrl;
+  private String description;
+  private String version;
+  private String toolTipMessage;
+  private String widgetTrayCustomizedIconPath;
+  private boolean responsive;
 
-    private static final long serialVersionUID = -1L;
-    
-    /**
-     * 
-     */
-    public PSWidgetBuilderSummaryData()
-    {
-        super();
-    }
+  private static final long serialVersionUID = -1L;
 
-    /**
-     * Copy ctor
-     * 
-     * @param src The summary to copy from, may not be <code>null</code>.
-     */
-    public PSWidgetBuilderSummaryData(PSWidgetBuilderSummaryData src)
-    {
-        Validate.notNull(src);
-        
-        author = src.author;
-        description = src.description;
-        label = src.label;
-        prefix = src.prefix;
-        publisherUrl = src.publisherUrl;
-        version = src.version;
-        widgetId = src.widgetId;
-        responsive = src.responsive;
-        toolTipMessage = src.toolTipMessage;
-        widgetTrayCustomizedIconPath = src.widgetTrayCustomizedIconPath;
+  /** */
+  public PSWidgetBuilderSummaryData() {
+    super();
+  }
 
-    }
-    
-    /**
-     * Create from dao object
-     * 
-     * @param dao The dao object to copy from, not <code>null</code>.
-     */
-    public PSWidgetBuilderSummaryData(PSWidgetBuilderDefinition dao)
-    {
-        Validate.notNull(dao);
-        setAuthor(dao.getAuthor());
-        setDescription(dao.getDescription());
-        setLabel(dao.getLabel());
-        setPrefix(dao.getPrefix());
-        setPublisherUrl(dao.getPublisherUrl());
-        setVersion(dao.getVersion());
-        setId(Long.toString(dao.getWidgetBuilderDefinitionId()));
-        setResponsive(dao.isResponsive());
-        setWidgetTrayCustomizedIconPath(dao.getWidgetTrayCustomizedIconPath());
-        setToolTipMessage(dao.getToolTipMessage());
-    }
+  /**
+   * Copy ctor
+   *
+   * @param src The summary to copy from, may not be <code>null</code>.
+   */
+  public PSWidgetBuilderSummaryData(PSWidgetBuilderSummaryData src) {
+    Validate.notNull(src);
 
-    public String getToolTipMessage() {
-        return toolTipMessage;
-    }
+    author = src.author;
+    description = src.description;
+    label = src.label;
+    prefix = src.prefix;
+    publisherUrl = src.publisherUrl;
+    version = src.version;
+    widgetId = src.widgetId;
+    responsive = src.responsive;
+    toolTipMessage = src.toolTipMessage;
+    widgetTrayCustomizedIconPath = src.widgetTrayCustomizedIconPath;
+  }
 
-    public void setToolTipMessage(String toolTipMessage) {
-        this.toolTipMessage = toolTipMessage;
-    }
+  /**
+   * Create from dao object
+   *
+   * @param dao The dao object to copy from, not <code>null</code>.
+   */
+  public PSWidgetBuilderSummaryData(PSWidgetBuilderDefinition dao) {
+    Validate.notNull(dao);
+    setAuthor(dao.getAuthor());
+    setDescription(dao.getDescription());
+    setLabel(dao.getLabel());
+    setPrefix(dao.getPrefix());
+    setPublisherUrl(dao.getPublisherUrl());
+    setVersion(dao.getVersion());
+    setId(Long.toString(dao.getWidgetBuilderDefinitionId()));
+    setResponsive(dao.isResponsive());
+    setWidgetTrayCustomizedIconPath(dao.getWidgetTrayCustomizedIconPath());
+    setToolTipMessage(dao.getToolTipMessage());
+  }
 
-    public String getWidgetTrayCustomizedIconPath() {
-        return widgetTrayCustomizedIconPath;
-    }
+  public String getToolTipMessage() {
+    return toolTipMessage;
+  }
 
-    public void setWidgetTrayCustomizedIconPath(String widgetTrayCustomizedIconPath) {
-        this.widgetTrayCustomizedIconPath = widgetTrayCustomizedIconPath;
-    }
+  public void setToolTipMessage(String toolTipMessage) {
+    this.toolTipMessage = toolTipMessage;
+  }
 
-    /**
-     * @return the prefix
-     */
-    public String getPrefix()
-    {
-        return prefix;
-    }
+  public String getWidgetTrayCustomizedIconPath() {
+    return widgetTrayCustomizedIconPath;
+  }
 
-    /**
-     * @param prefix the prefix to set
-     */
-    public void setPrefix(String prefix)
-    {
-        this.prefix = prefix;
-    }
+  public void setWidgetTrayCustomizedIconPath(String widgetTrayCustomizedIconPath) {
+    this.widgetTrayCustomizedIconPath = widgetTrayCustomizedIconPath;
+  }
 
-    /**
-     * @return the label
-     */
-    public String getLabel()
-    {
-        return label;
-    }
+  /** @return the prefix */
+  public String getPrefix() {
+    return prefix;
+  }
 
-    /**
-     * @return the author
-     */
-    public String getAuthor()
-    {
-       return author;
-    }
+  /** @param prefix the prefix to set */
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
 
-    /**
-     * @param author the author to set
-     */
-    public void setAuthor(String author)
-    {
-       this.author = author;
-    }
+  /** @return the label */
+  public String getLabel() {
+    return label;
+  }
 
-    /**
-     * @param label the label to set
-     */
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
+  /** @return the author */
+  public String getAuthor() {
+    return author;
+  }
 
-    /**
-     * @return the publisherUrl
-     */
-    public String getPublisherUrl()
-    {
-        return publisherUrl;
-    }
+  /** @param author the author to set */
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-    /**
-     * @param publisherUrl the publisherUrl to set
-     */
-    public void setPublisherUrl(String publisherUrl)
-    {
-        this.publisherUrl = publisherUrl;
-    }
+  /** @param label the label to set */
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    /**
-     * @return the description
-     */
-    public String getDescription()
-    {
-        return description;
-    }
+  /** @return the publisherUrl */
+  public String getPublisherUrl() {
+    return publisherUrl;
+  }
 
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  /** @param publisherUrl the publisherUrl to set */
+  public void setPublisherUrl(String publisherUrl) {
+    this.publisherUrl = publisherUrl;
+  }
 
-    /**
-     * @return the version
-     */
-    public String getVersion()
-    {
-        return version;
-    }
+  /** @return the description */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * @param version the version to set
-     */
-    public void setVersion(String version)
-    {
-        this.version = version;
-    }
+  /** @param description the description to set */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public boolean isResponsive()
-    {
-        return responsive;
-    }
+  /** @return the version */
+  public String getVersion() {
+    return version;
+  }
 
-    public void setResponsive(boolean responsive)
-    {
-        this.responsive = responsive;
-    }
+  /** @param version the version to set */
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
-    public long getWidgetId()
-    {
-        return this.widgetId;
-    }
+  public boolean isResponsive() {
+    return responsive;
+  }
 
-    public void setWidgetId(long id)
-    {
-        this.widgetId = id;
-        
-    }
+  public void setResponsive(boolean responsive) {
+    this.responsive = responsive;
+  }
 
-    @Override
-    public String getId()
-    {
-        return Long.toString(getWidgetId());
-    }
+  public long getWidgetId() {
+    return this.widgetId;
+  }
 
-    @Override
-    public void setId(String id)
-    {
-        setWidgetId(Long.parseLong(id));
-    }
+  public void setWidgetId(long id) {
+    this.widgetId = id;
+  }
 
+  @Override
+  public String getId() {
+    return Long.toString(getWidgetId());
+  }
+
+  @Override
+  public void setId(String id) {
+    setWidgetId(Long.parseLong(id));
+  }
 }

@@ -18,48 +18,41 @@ package com.percussion.install;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.PSProperties;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class RxDesignerOnlyPostInstaller
-{
+public class RxDesignerOnlyPostInstaller {
 
-   private static final Logger log = LogManager.getLogger(RxDesignerOnlyPostInstaller.class);
+  private static final Logger log = LogManager.getLogger(RxDesignerOnlyPostInstaller.class);
 
-   public RxDesignerOnlyPostInstaller() 
-   {
-      super();
-   }
+  public RxDesignerOnlyPostInstaller() {
+    super();
+  }
 
-   public static void main(String[] args) 
-   {
-      String rootDirectory = new String(".");
-      //current directory
-      if (args.length == 1) {
-         rootDirectory = args[0];
-      }
+  public static void main(String[] args) {
+    String rootDirectory = new String(".");
+    // current directory
+    if (args.length == 1) {
+      rootDirectory = args[0];
+    }
 
-      try
-      {
-         String strFileName = rootDirectory + File.separator + "bin" + File.separator + m_designerPropName;
-         File file = new File(strFileName);
-         if(!file.exists())
-            file.createNewFile();
+    try {
+      String strFileName =
+          rootDirectory + File.separator + "bin" + File.separator + m_designerPropName;
+      File file = new File(strFileName);
+      if (!file.exists()) file.createNewFile();
 
-         PSProperties props =  new PSProperties(strFileName);
-         props.setProperty("installRoot", rootDirectory);
-         props.store(new FileOutputStream(strFileName), null);
-      }
-      catch(IOException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
-   
-   private static String m_designerPropName = "designer.properties";
+      PSProperties props = new PSProperties(strFileName);
+      props.setProperty("installRoot", rootDirectory);
+      props.store(new FileOutputStream(strFileName), null);
+    } catch (IOException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  private static String m_designerPropName = "designer.properties";
 }

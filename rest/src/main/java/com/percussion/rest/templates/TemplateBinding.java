@@ -21,62 +21,60 @@ import com.percussion.rest.Guid;
 
 public class TemplateBinding {
 
+  private Guid bindingId;
+  private Integer version;
+  private Guid templateId;
+  private int executionOrder;
+  private String variable;
+  private String expression;
 
-	   private Guid bindingId;
-	   private Integer version;
-	   private Guid templateId;
-	   private int executionOrder;
-	   private String variable;
-	   private String expression;
+  public Guid getBindingId() {
+    return bindingId;
+  }
 
+  public void setBindingId(Guid bindingId) {
+    this.bindingId = bindingId;
+  }
 
-	public Guid getBindingId() {
-		return bindingId;
-	}
+  public Integer getVersion() {
+    return version;
+  }
 
-	public void setBindingId(Guid bindingId) {
-		this.bindingId = bindingId;
-	}
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
 
-	public Integer getVersion() {
-		return version;
-	}
+  public Guid getTemplateId() {
+    return templateId;
+  }
 
-	public void setVersion(Integer version) {
-		this.version = version;
-	}
+  public void setTemplateId(Guid templateId) {
+    this.templateId = templateId;
+  }
 
-	public Guid getTemplateId() {
-		return templateId;
-	}
+  public int getExecutionOrder() {
+    return executionOrder;
+  }
 
-	public void setTemplateId(Guid templateId) {
-		this.templateId = templateId;
-	}
+  public void setExecutionOrder(int executionOrder) {
+    this.executionOrder = executionOrder;
+  }
 
-	public int getExecutionOrder() {
-		return executionOrder;
-	}
+  public String getVariable() {
+    return variable;
+  }
 
-	public void setExecutionOrder(int executionOrder) {
-		this.executionOrder = executionOrder;
-	}
+  public void setVariable(String variable) {
+    this.variable = variable;
+  }
 
-	public String getVariable() {
-		return variable;
-	}
+  public String getExpression() {
+    return expression;
+  }
 
-	public void setVariable(String variable) {
-		this.variable = variable;
-	}
+  public void setExpression(String expression) {
+    this.expression = expression;
+  }
 
-	public String getExpression() {
-		return expression;
-	}
-
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-	public TemplateBinding(){}
+  public TemplateBinding() {}
 }

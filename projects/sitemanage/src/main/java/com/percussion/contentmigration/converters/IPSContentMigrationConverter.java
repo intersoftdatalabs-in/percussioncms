@@ -19,9 +19,10 @@ package com.percussion.contentmigration.converters;
 
 import java.util.Map;
 
-public interface IPSContentMigrationConverter
-{
-    String getWidgetDefId();
-    String getWidgetContentType();
-    Map<String, Object> convert(String source);    
+public interface IPSContentMigrationConverter {
+  String getWidgetDefId();
+
+  String getWidgetContentType();
+
+  Map<String, Object> convert(String source);
 }

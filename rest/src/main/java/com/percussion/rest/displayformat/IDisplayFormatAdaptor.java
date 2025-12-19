@@ -18,22 +18,27 @@
 package com.percussion.rest.displayformat;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorResultsException;
-
-
 import java.util.List;
 
 public interface IDisplayFormatAdaptor {
 
-    public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user);
-    public void deleteDisplayFormats(List<IPSGuid> ids, boolean ignoreDependencies, String session, String user);
-    public List<DisplayFormat> findAllDisplayFormats() throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException;
-    public DisplayFormat findDisplayFormat(IPSGuid id) throws PSCmsException, PSUnknownNodeTypeException;
-    public DisplayFormat findDisplayFormat(String name) throws PSCmsException, PSUnknownNodeTypeException;
-    public void saveDisplayFormats(List<DisplayFormat> displayFormats, boolean release, String session, String user);
+  public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user);
 
+  public void deleteDisplayFormats(
+      List<IPSGuid> ids, boolean ignoreDependencies, String session, String user);
+
+  public List<DisplayFormat> findAllDisplayFormats()
+      throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException;
+
+  public DisplayFormat findDisplayFormat(IPSGuid id)
+      throws PSCmsException, PSUnknownNodeTypeException;
+
+  public DisplayFormat findDisplayFormat(String name)
+      throws PSCmsException, PSUnknownNodeTypeException;
+
+  public void saveDisplayFormats(
+      List<DisplayFormat> displayFormats, boolean release, String session, String user);
 }

@@ -20,21 +20,23 @@ package com.percussion.rest.communities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CommunityVisibilityList")
 @XmlSeeAlso({CommunityVisibility.class})
-@ArraySchema(schema = @Schema(implementation=CommunityVisibility.class,
-        description = "A List of CommunityVisibility instances with their visible objects"))
+@ArraySchema(
+    schema =
+        @Schema(
+            implementation = CommunityVisibility.class,
+            description = "A List of CommunityVisibility instances with their visible objects"))
 public class CommunityVisibilityList extends ArrayList<CommunityVisibility> {
-    public CommunityVisibilityList(Collection<? extends CommunityVisibility> c) {
-        super(c);
-    }
-    public CommunityVisibilityList(){}
+  public CommunityVisibilityList(Collection<? extends CommunityVisibility> c) {
+    super(c);
+  }
+
+  public CommunityVisibilityList() {}
 }

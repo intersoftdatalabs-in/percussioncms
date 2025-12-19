@@ -17,20 +17,14 @@
 package com.percussion.user.data;
 
 /**
- * 
- * Indicates where the user name came from
- * and where the authentication is done.
- * 
+ * Indicates where the user name came from and where the authentication is done.
+ *
  * @author adamgent
  * @see PSUser
  */
 public enum PSUserProviderType {
-    /**
-     * A user created from with in the system (back-end table).
-     */
-    INTERNAL,
-    /**
-     * A user from a directory service such as LDAP or Active Directory.
-     */
-    DIRECTORY
+  /** A user created from with in the system (back-end table). */
+  INTERNAL,
+  /** A user from a directory service such as LDAP or Active Directory. */
+  DIRECTORY
 }

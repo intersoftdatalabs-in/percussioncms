@@ -17,54 +17,39 @@
 
 package com.percussion.pagemanagement.assembler;
 
-public class PSBlogMonth 
-{
+public class PSBlogMonth {
 
-    private String month;
+  private String month;
 
-    private Integer count;
+  private Integer count;
 
-    /**
-     * @param month
-     * @param count
-     */
-    public PSBlogMonth(String month, Integer count)
-    {
-        super();
-        this.month = month;
-        this.count = count;
-    }
+  /**
+   * @param month
+   * @param count
+   */
+  public PSBlogMonth(String month, Integer count) {
+    super();
+    this.month = month;
+    this.count = count;
+  }
 
-    /**
-     * @return the month
-     */
-    public String getMonth()
-    {
-        return month;
-    }
+  /** @return the month */
+  public String getMonth() {
+    return month;
+  }
 
-    /**
-     * @param month the month to set
-     */
-    public void setMonth(String month)
-    {
-        this.month = month;
-    }
+  /** @param month the month to set */
+  public void setMonth(String month) {
+    this.month = month;
+  }
 
-    /**
-     * @return the count
-     */
-    public Integer getCount()
-    {
-        return count;
-    }
+  /** @return the count */
+  public Integer getCount() {
+    return count;
+  }
 
-    /**
-     * @param count the number of counts to set
-     */
-    public void setCount(Integer count)
-    {
-        this.count = count;
-    }
-
+  /** @param count the number of counts to set */
+  public void setCount(Integer count) {
+    this.count = count;
+  }
 }

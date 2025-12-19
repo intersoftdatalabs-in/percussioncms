@@ -20,23 +20,30 @@ package com.percussion.rest.acls;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-import com.percussion.services.security.PSSecurityException;
-
+import com.percussion.services.security.PSServiceSecurityException;
 import java.util.List;
 
 public interface IAclAdaptor {
 
-    UserAccessLevel getUserAccessLevel(Guid objectGuid);
-    UserAccessLevel calculateUserAccessLevel(String aclGuid);
-    Acl createAcl(Guid objGuid, TypedPrincipal owner);
-    AclList loadAcls(GuidList aclGuids)throws PSSecurityException;
-    Acl loadAcl(Guid aclGuid) throws PSSecurityException;
-    AclList loadAclsForObjects(GuidList objectGuids);
-    Acl loadAclForObject(Guid objectGuid);
+  UserAccessLevel getUserAccessLevel(Guid objectGuid);
 
-    void saveAcls(AclList aclList) throws PSSecurityException;
-    void deleteAcl(Guid aclGuid) throws PSSecurityException;
-    GuidList filterByCommunities(GuidList aclList, List<String> communityNames);
-    GuidList findObjectsVisibleToCommunities(
-            List<String> communityNames, ObjectTypeEnum objectType);
+  UserAccessLevel calculateUserAccessLevel(String aclGuid);
+
+  Acl createAcl(Guid objGuid, TypedPrincipal owner);
+
+  AclList loadAcls(GuidList aclGuids) throws PSServiceSecurityException;
+
+  Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException;
+
+  AclList loadAclsForObjects(GuidList objectGuids);
+
+  Acl loadAclForObject(Guid objectGuid);
+
+  void saveAcls(AclList aclList) throws PSServiceSecurityException;
+
+  void deleteAcl(Guid aclGuid) throws PSServiceSecurityException;
+
+  GuidList filterByCommunities(GuidList aclList, List<String> communityNames);
+
+  GuidList findObjectsVisibleToCommunities(List<String> communityNames, ObjectTypeEnum objectType);
 }

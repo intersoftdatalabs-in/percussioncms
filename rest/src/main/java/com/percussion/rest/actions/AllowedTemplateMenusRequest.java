@@ -18,20 +18,19 @@
 package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema
 public class AllowedTemplateMenusRequest {
 
-    private int[] contentIds;
+  private int[] contentIds;
 
-    public int[] getContentIds() {
-        return contentIds;
-    }
+  public int[] getContentIds() {
+    return contentIds;
+  }
 
-    public void setContentIds(int[] contentIds) {
-        this.contentIds = contentIds;
-    }
+  public void setContentIds(int[] contentIds) {
+    this.contentIds = contentIds;
+  }
 }

@@ -24,19 +24,17 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.util.PSPurgableTempFile;
-import org.w3c.dom.Document;
-
 import java.io.File;
 import java.io.FileOutputStream;
+import org.w3c.dom.Document;
 
 /**
- * A Rhythmyx extension that copies a temporary XML document into an attached
- * file.
- * <p>
- * The text representation of the node or document is copied into an XML file.
- * When called as a pre-exit, the output is stored in an attached file.
- * <p>
- * The parameters to the extension are:
+ * A Rhythmyx extension that copies a temporary XML document into an attached file.
+ *
+ * <p>The text representation of the node or document is copied into an XML file. When called as a
+ * pre-exit, the output is stored in an attached file.
+ *
+ * <p>The parameters to the extension are:
  *
  * <table border="1">
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
@@ -70,81 +68,65 @@ import java.io.FileOutputStream;
  *     <td>platform default</td>
  *   </tr>
  * </table>
- * <p>
- * When called as a pre-exit, the sourceName <code>InputDocument</code> can
- * also be supplied. This name refers to the XML document loaded with the
- * update request.
- * <p>
- * The output for a pre-exit is always stored in an HTML parameter as a File.
- **/
-public class PSXdDomToFile extends PSDefaultExtension
-    implements IPSRequestPreProcessor
-{
-
-   /**
-    * This method handles the pre-exit request.
-    *
-    * @param params an array of objects representing the parameters. See the
-    * description under {@link PSXdDomToFile} for parameter details.
-    *
-    * @param request the request context for this request
-    *
-    * @throws PSExtensionProcessingException when a run time error is detected.
-    *
-    */
-   public void preProcessRequest(Object[] params, IPSRequestContext request)
-      throws PSAuthorizationException, PSRequestValidationException,
-         PSParameterMismatchException, PSExtensionProcessingException
-   {
-
-      PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
-
-      String sourceObjectName = PSXmlDomUtils.getParameter(params,0,
-            PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
-      String sourceNodeName = PSXmlDomUtils.getParameter(params,1,"");
-      String destName = PSXmlDomUtils.getParameter(params,2,"");
-      String encoding = PSXmlDomUtils.getParameter(params,3,"");
-
-      Document sourceDoc;
-      if(sourceObjectName.equals("InputDocument"))
-      {
-         sourceDoc = request.getInputDocument();
-      }
-      else
-      {
-         sourceDoc = (Document)request.getPrivateObject(sourceObjectName);
-      }
-
-      if(sourceDoc == null)
-      {
-         request.printTraceMessage("Source Document not present");
-         return;
-      }
-
-      try {
-         String resultText = PSXmlDomUtils.copyTextFromDocument(contxt, sourceDoc,
-                 sourceNodeName);
-
-         PSPurgableTempFile tempfile = new PSPurgableTempFile("xml", "xml", null);
-         try (FileOutputStream tfstream = new FileOutputStream((File) tempfile)) {
-            if (encoding.trim().length() == 0) {
-               //no encoding specified, use platform default
-               tfstream.write(resultText.getBytes());
-            } else {
-               tfstream.write(resultText.getBytes(encoding));
-            }
-
-            request.setParameter(destName, tempfile);
-         }
-      }
-      catch(Exception e)
-      {
-         contxt.handleException(e);
-      }
-   }
+ *
+ * <p>When called as a pre-exit, the sourceName <code>InputDocument</code> can also be supplied.
+ * This name refers to the XML document loaded with the update request.
+ *
+ * <p>The output for a pre-exit is always stored in an HTML parameter as a File.
+ */
+public class PSXdDomToFile extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   /**
-    * the name of the class: used for error handling.
-    */
-   private static final String  ms_className = "PSXdDomToFile";
+   * This method handles the pre-exit request.
+   *
+   * @param params an array of objects representing the parameters. See the description under {@link
+   *     PSXdDomToFile} for parameter details.
+   * @param request the request context for this request
+   * @throws PSExtensionProcessingException when a run time error is detected.
+   */
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+          PSExtensionProcessingException {
+
+    PSXmlDomContext contxt = new PSXmlDomContext(ms_className, request);
+
+    String sourceObjectName =
+        PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);
+    String sourceNodeName = PSXmlDomUtils.getParameter(params, 1, "");
+    String destName = PSXmlDomUtils.getParameter(params, 2, "");
+    String encoding = PSXmlDomUtils.getParameter(params, 3, "");
+
+    Document sourceDoc;
+    if (sourceObjectName.equals("InputDocument")) {
+      sourceDoc = request.getInputDocument();
+    } else {
+      sourceDoc = (Document) request.getPrivateObject(sourceObjectName);
+    }
+
+    if (sourceDoc == null) {
+      request.printTraceMessage("Source Document not present");
+      return;
+    }
+
+    try {
+      String resultText = PSXmlDomUtils.copyTextFromDocument(contxt, sourceDoc, sourceNodeName);
+
+      PSPurgableTempFile tempfile = new PSPurgableTempFile("xml", "xml", null);
+      try (FileOutputStream tfstream = new FileOutputStream((File) tempfile)) {
+        if (encoding.trim().length() == 0) {
+          // no encoding specified, use platform default
+          tfstream.write(resultText.getBytes());
+        } else {
+          tfstream.write(resultText.getBytes(encoding));
+        }
+
+        request.setParameter(destName, tempfile);
+      }
+    } catch (Exception e) {
+      contxt.handleException(e);
+    }
+  }
+
+  /** the name of the class: used for error handling. */
+  private static final String ms_className = "PSXdDomToFile";
 }

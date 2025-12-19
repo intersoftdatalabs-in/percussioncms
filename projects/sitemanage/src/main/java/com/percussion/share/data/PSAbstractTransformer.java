@@ -16,37 +16,32 @@
  */
 package com.percussion.share.data;
 
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.percussion.share.service.exception.PSDataServiceException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 
-public abstract class PSAbstractTransformer<OLD,NEW> implements Transformer
-{
+public abstract class PSAbstractTransformer<OLD, NEW> implements Transformer {
 
-    @SuppressWarnings("unchecked")
-    public List<NEW> collect(Collection<OLD> old) {
-        List<NEW> newList = new ArrayList<>();
-        newList.addAll(CollectionUtils.collect(old, this));
-        return newList;
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object transform(Object old)
-    {
-        try {
-            return doTransform((OLD)old);
-        } catch (PSDataServiceException e) {
-            //TODO: Not sure how to handle the error state here.
-            throw new RuntimeException(e);
-        }
-    }
-    
-    protected abstract NEW doTransform(OLD old) throws PSDataServiceException;
+  @SuppressWarnings("unchecked")
+  public List<NEW> collect(Collection<OLD> old) {
+    List<NEW> newList = new ArrayList<>();
+    newList.addAll(CollectionUtils.collect(old, this));
+    return newList;
+  }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Object transform(Object old) {
+    try {
+      return doTransform((OLD) old);
+    } catch (PSDataServiceException e) {
+      // TODO: Not sure how to handle the error state here.
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected abstract NEW doTransform(OLD old) throws PSDataServiceException;
 }
-

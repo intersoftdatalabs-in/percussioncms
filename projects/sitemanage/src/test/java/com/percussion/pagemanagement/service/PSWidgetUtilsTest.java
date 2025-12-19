@@ -19,64 +19,54 @@ package com.percussion.pagemanagement.service;
 import static com.percussion.pagemanagement.service.impl.PSWidgetUtils.*;
 import static org.junit.Assert.*;
 
-import org.junit.Test;
-
 import com.percussion.pagemanagement.service.impl.PSWidgetUtils.PSWidgetPropertyCoercionException;
+import org.junit.Test;
 
 /**
  * Test widget utils.
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSWidgetUtilsTest
-{
- 
-    @Test
-    public void testCoerceString() throws Exception
-    {
-        String actual = coerceProperty("my", "true", String.class);
-        assertEquals("true",actual);
-    }
-    
-    @Test(expected = PSWidgetPropertyCoercionException.class)
-    public void testCoerceBadString() throws Exception
-    {
-        coerceProperty("my", 1, String.class);
-    }
-    
-    @Test
-    public void testCoerceBoolean() throws Exception
-    {
-        Boolean actual = coerceProperty("my", "true", Boolean.class);
-        assertTrue(actual);
-        
-        actual = coerceProperty("my", true, Boolean.class);
-        assertTrue(actual);
-    }
-    
-    @Test
-    public void testCoerceNumber() throws Exception
-    {
-        Number actual = coerceProperty("my", 1, Number.class);
-        assertEquals(1, actual);
-        
-        actual = coerceProperty("my", "1", Number.class);
-        assertEquals(1, actual);
-    }
-    
-    @Test(expected=PSWidgetPropertyCoercionException.class)
-    public void testCoerceBlankSpaces() throws Exception
-    {
-        Number actual = coerceProperty("my", "  ", Number.class);
-        assertEquals(1, actual);
-    }
-    
-    @Test(expected=PSWidgetPropertyBlankStringCoercionException.class)
-    public void testCoerceBlankString() throws Exception
-    {
-        Number actual = coerceProperty("my", "", Number.class);
-        assertEquals(1, actual);
-    }
+public class PSWidgetUtilsTest {
 
+  @Test
+  public void testCoerceString() throws Exception {
+    String actual = coerceProperty("my", "true", String.class);
+    assertEquals("true", actual);
+  }
+
+  @Test(expected = PSWidgetPropertyCoercionException.class)
+  public void testCoerceBadString() throws Exception {
+    coerceProperty("my", 1, String.class);
+  }
+
+  @Test
+  public void testCoerceBoolean() throws Exception {
+    Boolean actual = coerceProperty("my", "true", Boolean.class);
+    assertTrue(actual);
+
+    actual = coerceProperty("my", true, Boolean.class);
+    assertTrue(actual);
+  }
+
+  @Test
+  public void testCoerceNumber() throws Exception {
+    Number actual = coerceProperty("my", 1, Number.class);
+    assertEquals(1, actual);
+
+    actual = coerceProperty("my", "1", Number.class);
+    assertEquals(1, actual);
+  }
+
+  @Test(expected = PSWidgetPropertyCoercionException.class)
+  public void testCoerceBlankSpaces() throws Exception {
+    Number actual = coerceProperty("my", "  ", Number.class);
+    assertEquals(1, actual);
+  }
+
+  @Test(expected = PSWidgetPropertyBlankStringCoercionException.class)
+  public void testCoerceBlankString() throws Exception {
+    Number actual = coerceProperty("my", "", Number.class);
+    assertEquals(1, actual);
+  }
 }
-

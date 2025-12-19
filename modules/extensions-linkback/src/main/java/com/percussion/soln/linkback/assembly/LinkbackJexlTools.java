@@ -20,43 +20,41 @@ import com.percussion.extension.*;
 import com.percussion.soln.linkback.codec.LinkbackTokenCodec;
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
+import java.io.File;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.util.Map;
-
-/**
- * JEXL function to encode assembly parameters into a linkback token.
- */
+/** JEXL function to encode assembly parameters into a linkback token. */
 public class LinkbackJexlTools implements IPSJexlExpression {
 
-    private static final Logger log = LogManager.getLogger(LinkbackJexlTools.class);
+  private static final Logger log = LogManager.getLogger(LinkbackJexlTools.class);
 
-    private LinkbackTokenCodec linkbackCodec = null;
+  private LinkbackTokenCodec linkbackCodec = null;
 
-    @IPSJexlMethod(description = "encode a map of parameters into a linkback token.", 
-            params = { @IPSJexlParam(name = "map", description = "map of <String, Object>") })
-    public String encode(Map<String, Object> map) {
-        return linkbackCodec.encode(map);
-    }
-    
-    public String getLinkbackParamName() {
-        return LinkbackUtils.LINKBACK_PARAM_NAME;
-    }
+  @IPSJexlMethod(
+      description = "encode a map of parameters into a linkback token.",
+      params = {@IPSJexlParam(name = "map", description = "map of <String, Object>")})
+  public String encode(Map<String, Object> map) {
+    return linkbackCodec.encode(map);
+  }
 
-    public LinkbackTokenCodec getLinkbackCodec() {
-        return linkbackCodec;
-    }
+  public String getLinkbackParamName() {
+    return LinkbackUtils.LINKBACK_PARAM_NAME;
+  }
 
-    public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
-        this.linkbackCodec = linkbackCodec;
-    }
+  public LinkbackTokenCodec getLinkbackCodec() {
+    return linkbackCodec;
+  }
 
-    public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
-        if (linkbackCodec == null) {
-            log.debug("create a default codec");
-            linkbackCodec = new StringLinkBackTokenImpl();
-        }
+  public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
+    this.linkbackCodec = linkbackCodec;
+  }
+
+  public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
+    if (linkbackCodec == null) {
+      log.debug("create a default codec");
+      linkbackCodec = new StringLinkBackTokenImpl();
     }
+  }
 }

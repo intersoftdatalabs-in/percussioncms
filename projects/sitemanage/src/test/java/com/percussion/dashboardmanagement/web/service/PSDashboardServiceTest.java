@@ -22,51 +22,48 @@ import static org.junit.Assert.assertNotNull;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
 @Ignore("SUT are not used")
-public class PSDashboardServiceTest extends PSRestTestCase<PSDashboardServiceTest.DashboardRestClient> {
-    
-    protected DashboardRestClient restClient;
+public class PSDashboardServiceTest
+    extends PSRestTestCase<PSDashboardServiceTest.DashboardRestClient> {
 
-    @Test
-    public void testLoad() throws Exception {
-        PSDashboard actual = restClient.load();
-        assertNotNull(actual);
+  protected DashboardRestClient restClient;
+
+  @Test
+  public void testLoad() throws Exception {
+    PSDashboard actual = restClient.load();
+    assertNotNull(actual);
+  }
+
+  @Test
+  public void testSave() throws Exception {
+    PSDashboard gadget = new PSDashboard();
+    PSDashboard actual = restClient.save(gadget);
+    assertNotNull(actual);
+    assertEquals("Dashboard should have admin1 as id: ", "admin1", actual.getId());
+    // assertEquals("Gadget ids should be the same", gadget.getId(), actual.getId());
+  }
+
+  @Override
+  protected DashboardRestClient getRestClient(String baseUrl) {
+    restClient = new DashboardRestClient(baseUrl);
+    return restClient;
+  }
+
+  public static class DashboardRestClient extends PSDataServiceRestClient<PSDashboard> {
+    public DashboardRestClient(String url) {
+      super(PSDashboard.class, url, "/Rhythmyx/services/dashboardmanagement/dashboard/");
     }
 
-    @Test
-    public void testSave() throws Exception
-    {
-        PSDashboard gadget = new PSDashboard();
-        PSDashboard actual = restClient.save(gadget);
-        assertNotNull(actual);
-        assertEquals("Dashboard should have admin1 as id: ", "admin1", actual.getId());
-        //assertEquals("Gadget ids should be the same", gadget.getId(), actual.getId());
+    public PSDashboard load() {
+      return getObjectFromPath(getPath());
     }
 
-    
     @Override
-    protected DashboardRestClient getRestClient(String baseUrl) {
-        restClient = new DashboardRestClient(baseUrl);
-        return restClient;
+    public PSDashboard save(PSDashboard dashboard) {
+      return getObjectFromPath(getPath());
     }
-    
-    
-    public static class DashboardRestClient extends PSDataServiceRestClient<PSDashboard> {
-        public DashboardRestClient(String url) {
-            super(PSDashboard.class, url, "/Rhythmyx/services/dashboardmanagement/dashboard/");
-        }        
- 
-        public PSDashboard load() {
-            return getObjectFromPath(getPath());
-        }
-        @Override
-        public PSDashboard save(PSDashboard dashboard) {
-            return getObjectFromPath(getPath());
-        }
-    }
-
+  }
 }

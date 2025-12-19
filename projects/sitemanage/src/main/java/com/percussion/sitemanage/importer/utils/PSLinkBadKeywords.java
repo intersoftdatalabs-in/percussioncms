@@ -20,41 +20,39 @@ package com.percussion.sitemanage.importer.utils;
 import java.util.HashSet;
 
 public class PSLinkBadKeywords {
-    private static final HashSet<String>  mFilterSet = new HashSet<String>() {
+  private static final HashSet<String> mFilterSet =
+      new HashSet<String>() {
         {
-            add("more");
-            add("this");
-            add("that");
-            add("click here");
-            add("there");
-            add("here");
-            add("over there");
+          add("more");
+          add("this");
+          add("that");
+          add("click here");
+          add("there");
+          add("here");
+          add("over there");
         }
-    };
+      };
 
+  /**
+   * Applies the filters to a given String
+   *
+   * @param stringForFilter the String to be filtered
+   * @return a filtered String
+   */
+  public static boolean isStringInFilterList(final String stringToFind) {
+    return mFilterSet.contains(stringToFind.toLowerCase());
+  }
 
-    /**
-     * Applies the filters to a given String
-     * 
-     * @param stringForFilter
-     *            the String to be filtered
-     * @return a filtered String
-     */
-    public static boolean isStringInFilterList(final String stringToFind) {
-        return mFilterSet.contains(stringToFind.toLowerCase());        
-    }
-    
-    public static String filterLinkTextString(String stringForFilter)
-    {
-        String returnString;
-        returnString = stringForFilter.replace("Link to ", ""); // WordPress filter
-        returnString = returnString.replace("link to ", ""); // WordPress filter
-        returnString = returnString.replace("Browse to ", "");
-        returnString = returnString.replace("browse to ", "");
-        returnString = returnString.replace("Navigate to ", "");
-        returnString = returnString.replace("navigate to ", "");
-        returnString = returnString.replace("Click here for ", "");
-        returnString = returnString.replace("click here for ", "");
-        return returnString;
-    }
+  public static String filterLinkTextString(String stringForFilter) {
+    String returnString;
+    returnString = stringForFilter.replace("Link to ", ""); // WordPress filter
+    returnString = returnString.replace("link to ", ""); // WordPress filter
+    returnString = returnString.replace("Browse to ", "");
+    returnString = returnString.replace("browse to ", "");
+    returnString = returnString.replace("Navigate to ", "");
+    returnString = returnString.replace("navigate to ", "");
+    returnString = returnString.replace("Click here for ", "");
+    returnString = returnString.replace("click here for ", "");
+    return returnString;
+  }
 }

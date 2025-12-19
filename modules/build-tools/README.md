@@ -1,4 +1,5 @@
 # build-tools
+
 This Module has build-tools configurations like:-
 
 * Checkstyle configuration
@@ -6,6 +7,8 @@ This Module has build-tools configurations like:-
 * Spotbugs filters
 
 ## Building
+
 ```
 mvn clean install
 ```
+

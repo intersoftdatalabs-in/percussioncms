@@ -19,29 +19,23 @@ package com.percussion.rx.config;
 import com.percussion.rx.config.data.PSConfigStatus.ConfigStatus;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.Collection;
 
-/**
- * Interface to allow classes to listen for changes to package configurations.
- */
-public interface IPSConfigChangeListener
-{
-   /**
-    * Called to notify listeners when a configuration has been applied to a
-    * package.
-    * 
-    * @param ids a set of IDs of the configured Design Objects, never
-    * <code>null</code> or empty.
-    * @param status The status of the package configuration, never
-    * <code>null</code>.
-    */
-   public void configChanged(Collection<IPSGuid> ids, ConfigStatus status) throws PSNotFoundException;
-   
-   /**
-    * Called to notify listeners before a configuration is applied to a package.
-    * 
-    * @param name The package name, never <code>null</code> or empty.
-    */
-   public void preConfiguration(String name) throws PSNotFoundException;
+/** Interface to allow classes to listen for changes to package configurations. */
+public interface IPSConfigChangeListener {
+  /**
+   * Called to notify listeners when a configuration has been applied to a package.
+   *
+   * @param ids a set of IDs of the configured Design Objects, never <code>null</code> or empty.
+   * @param status The status of the package configuration, never <code>null</code>.
+   */
+  public void configChanged(Collection<IPSGuid> ids, ConfigStatus status)
+      throws PSNotFoundException;
+
+  /**
+   * Called to notify listeners before a configuration is applied to a package.
+   *
+   * @param name The package name, never <code>null</code> or empty.
+   */
+  public void preConfiguration(String name) throws PSNotFoundException;
 }

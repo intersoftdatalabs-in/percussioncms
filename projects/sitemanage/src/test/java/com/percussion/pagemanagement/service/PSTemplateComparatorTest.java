@@ -21,38 +21,35 @@ import static org.junit.Assert.assertEquals;
 
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.impl.PSTemplateService.PSTemplateSorter;
-
 import java.util.List;
-
 import org.junit.Test;
 
-public class PSTemplateComparatorTest
-{
-    
-    PSTemplateSummary a = create("a", "");
-    PSTemplateSummary A = create("perc.base.A","Z");
-    PSTemplateSummary b = create("perc.base.b", "b");
-    PSTemplateSummary B = create("b", "B");
-    {
-        A.setReadOnly(true);
-        b.setReadOnly(true);
-    }
-    List<PSTemplateSummary> sums = asList(b,A,B,a);
-    PSTemplateSorter comparator = new PSTemplateSorter();
-    private PSTemplateSummary create(String name, String label) {
-        PSTemplateSummary s = new PSTemplateSummary();
-        s.setName(name);
-        s.setLabel(label);
-        return s;
-    }
-    
-    @Test
-    public void testCaseInsenstive() throws Exception
-    {
-        List<PSTemplateSummary> expected = asList(a,A,b,B);
-        List<PSTemplateSummary> actual =  comparator.sort(sums);
-        assertEquals(expected, actual);
-    }
+public class PSTemplateComparatorTest {
 
+  PSTemplateSummary a = create("a", "");
+  PSTemplateSummary A = create("perc.base.A", "Z");
+  PSTemplateSummary b = create("perc.base.b", "b");
+  PSTemplateSummary B = create("b", "B");
+
+  {
+    A.setReadOnly(true);
+    b.setReadOnly(true);
+  }
+
+  List<PSTemplateSummary> sums = asList(b, A, B, a);
+  PSTemplateSorter comparator = new PSTemplateSorter();
+
+  private PSTemplateSummary create(String name, String label) {
+    PSTemplateSummary s = new PSTemplateSummary();
+    s.setName(name);
+    s.setLabel(label);
+    return s;
+  }
+
+  @Test
+  public void testCaseInsenstive() throws Exception {
+    List<PSTemplateSummary> expected = asList(a, A, b, B);
+    List<PSTemplateSummary> actual = comparator.sort(sums);
+    assertEquals(expected, actual);
+  }
 }
-

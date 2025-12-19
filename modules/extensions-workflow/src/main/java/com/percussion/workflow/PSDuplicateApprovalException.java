@@ -17,64 +17,49 @@
 package com.percussion.workflow;
 
 import com.percussion.error.PSException;
+
 /**
- * This error class is used to indicate that a user has tried to
- * perform a transition on a content item when they already have a pending
- * transition approval from that state.
+ * This error class is used to indicate that a user has tried to perform a transition on a content
+ * item when they already have a pending transition approval from that state.
  */
-public class PSDuplicateApprovalException extends PSException
-{
-   /**
-    * Construct an exception for messages taking locale and msgCode arguments.
-    *
-    * @param language  language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>. 
-    *
-    * @param msgCode the error string to load
-    */
-   public PSDuplicateApprovalException(String language, int msgCode)
-   {
-      super(language, msgCode);
-   }
+public class PSDuplicateApprovalException extends PSException {
+  /**
+   * Construct an exception for messages taking locale and msgCode arguments.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   */
+  public PSDuplicateApprovalException(String language, int msgCode) {
+    super(language, msgCode);
+  }
 
-   /**
-    * Construct an exception for messages taking locale and message code
-   * arguments and and a single argument.
-    *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>.
-    *
-    * @param msgCode the error string to load
-    *
-    * @param singleArg the argument to use as the sole argument in
-    * the error message. Can be <code>null</code>.
-    */
-   public PSDuplicateApprovalException(String language, int msgCode,
-                                    Object singleArg)
-   {
-      super(language, msgCode, singleArg);
-   }
+  /**
+   * Construct an exception for messages taking locale and message code arguments and and a single
+   * argument.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message. Can be <code>
+   *     null</code>.
+   */
+  public PSDuplicateApprovalException(String language, int msgCode, Object singleArg) {
+    super(language, msgCode, singleArg);
+  }
 
-   /**
-    * Construct an exception for messages taking language, message code 
-    * and an array of arguments. Be sure to store the arguments in the 
-    * correct order in the array, where {0} in the string is array 
-    * element 0, etc.
-    *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>.
-    *
-    * @param msgCode  the error string to load
-    *
-    * @param arrayArgs   the array of arguments to use as the arguments
-    * in the error message. Can be <code>null</code>.
-    */
-   public PSDuplicateApprovalException(String language, int msgCode,
-                                    Object[] arrayArgs)
-   {
-      super(language, msgCode, arrayArgs);
-   }
+  /**
+   * Construct an exception for messages taking language, message code and an array of arguments. Be
+   * sure to store the arguments in the correct order in the array, where {0} in the string is array
+   * element 0, etc.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. Can be
+   *     <code>null</code>.
+   */
+  public PSDuplicateApprovalException(String language, int msgCode, Object[] arrayArgs) {
+    super(language, msgCode, arrayArgs);
+  }
 }

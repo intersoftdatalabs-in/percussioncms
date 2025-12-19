@@ -18,30 +18,26 @@ package test.percussion.pso.imageedit.data;
 
 import static org.junit.Assert.*;
 
+import com.percussion.pso.imageedit.data.ByteArrayDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.percussion.pso.imageedit.data.ByteArrayDataSource;
+public class ByteArrayDataSourceTest {
+  private static final Logger log = LogManager.getLogger(ByteArrayDataSourceTest.class);
 
-public class ByteArrayDataSourceTest
-{
-   private static final Logger log = LogManager.getLogger(ByteArrayDataSourceTest.class);
-   
-   ByteArrayDataSource cut; 
-   @Before
-   public void setUp() throws Exception
-   {
-     
-   }
-   @Test
-   public final void testByteArrayDataSourceStringStringInt()
-   {
-      log.debug("testing new bytearraydatasource"); 
-      cut = new ByteArrayDataSource("xname", "text/plain", 42);
-      assertEquals("xname", cut.getName());
-      assertEquals("text/plain", cut.getContentType()); 
-      assertEquals(0, cut.getBytes().length); 
-   }
+  ByteArrayDataSource cut;
+
+  @Before
+  public void setUp() throws Exception {}
+
+  @Test
+  public final void testByteArrayDataSourceStringStringInt() {
+    log.debug("testing new bytearraydatasource");
+    cut = new ByteArrayDataSource("xname", "text/plain", 42);
+    assertEquals("xname", cut.getName());
+    assertEquals("text/plain", cut.getContentType());
+    assertEquals(0, cut.getBytes().length);
+  }
 }

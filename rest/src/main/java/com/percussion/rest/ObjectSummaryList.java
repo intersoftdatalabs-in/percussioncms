@@ -20,17 +20,17 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "ObjectSummaryList")
-@ArraySchema(schema=@Schema(implementation = ObjectSummary.class))
-public class ObjectSummaryList  extends ArrayList<ObjectSummary> {
-    public ObjectSummaryList(Collection<? extends ObjectSummary> c) {
-        super(c);
-    }
-    public ObjectSummaryList(){}
+@ArraySchema(schema = @Schema(implementation = ObjectSummary.class))
+public class ObjectSummaryList extends ArrayList<ObjectSummary> {
+  public ObjectSummaryList(Collection<? extends ObjectSummary> c) {
+    super(c);
+  }
+
+  public ObjectSummaryList() {}
 }

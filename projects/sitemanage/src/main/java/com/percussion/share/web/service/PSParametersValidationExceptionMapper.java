@@ -21,36 +21,36 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.share.service.exception.PSParametersValidationException;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.util.PSSiteManageBean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("parametersValidationExceptionMapper")
-public class PSParametersValidationExceptionMapper extends PSAbstractExceptionMapper<PSParametersValidationException> implements ExceptionMapper<PSParametersValidationException> {
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
-    private static final String ERROR_MESSAGE = "PSParametersValidationExceptionMapper exception mapper mapped exception:";
+public class PSParametersValidationExceptionMapper
+    extends PSAbstractExceptionMapper<PSParametersValidationException>
+    implements ExceptionMapper<PSParametersValidationException> {
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  private static final String ERROR_MESSAGE =
+      "PSParametersValidationExceptionMapper exception mapper mapped exception:";
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(PSParametersValidationException exception) {
-        log.debug(ERROR_MESSAGE, exception);
-        return exception.getValidationErrors();
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(PSParametersValidationException exception) {
+    log.debug(ERROR_MESSAGE, exception);
+    return exception.getValidationErrors();
+  }
 
-    }
-
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(PSParametersValidationException exception)
-    {
-        return super.getStatus(exception);
-    }
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Response.Status getStatus(PSParametersValidationException exception) {
+    return super.getStatus(exception);
+  }
 }

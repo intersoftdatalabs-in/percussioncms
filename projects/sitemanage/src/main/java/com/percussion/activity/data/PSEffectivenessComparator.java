@@ -20,15 +20,13 @@ package com.percussion.activity.data;
 import java.util.Comparator;
 
 /**
- * Used for sorting effectiveness objects.  Will sort descending based on effectiveness value.  Objects with equal
- * effectiveness values will be sorted by name.
+ * Used for sorting effectiveness objects. Will sort descending based on effectiveness value.
+ * Objects with equal effectiveness values will be sorted by name.
  */
-public class PSEffectivenessComparator implements Comparator<PSEffectiveness>
-{
-    public int compare(PSEffectiveness ep1, PSEffectiveness ep2)
-    {
-        int eComp = ep2.getEffectiveness().compareTo(ep1.getEffectiveness());
+public class PSEffectivenessComparator implements Comparator<PSEffectiveness> {
+  public int compare(PSEffectiveness ep1, PSEffectiveness ep2) {
+    int eComp = ep2.getEffectiveness().compareTo(ep1.getEffectiveness());
 
-        return (eComp == 0) ? ep1.getName().compareTo(ep2.getName()) : eComp;
-    }
+    return (eComp == 0) ? ep1.getName().compareTo(ep2.getName()) : eComp;
+  }
 }

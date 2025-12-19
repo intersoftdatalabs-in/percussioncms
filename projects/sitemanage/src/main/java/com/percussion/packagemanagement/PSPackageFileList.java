@@ -17,38 +17,29 @@
 package com.percussion.packagemanagement;
 
 import com.percussion.share.dao.PSSerializerUtils;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="PackageFileList")
-public class PSPackageFileList
-{
-    private List<PSPackageFileEntry> entries;
-    
-    @XmlElement(name="PackageFileEntry")
-    public List<PSPackageFileEntry> getEntries()
-    {
-        return entries;
-    }
-    public void setEntries(List<PSPackageFileEntry> entries)
-    {
-        this.entries = entries;
-    }
-    
-    public static PSPackageFileList fromXml(String xmlString)
-    {
-        return PSSerializerUtils.unmarshal(xmlString, PSPackageFileList.class);
-    }
-    
-    public String toXml()
-    {
-        return PSSerializerUtils.marshal(this);
-    }
+/** @author JaySeletz */
+@XmlRootElement(name = "PackageFileList")
+public class PSPackageFileList {
+  private List<PSPackageFileEntry> entries;
+
+  @XmlElement(name = "PackageFileEntry")
+  public List<PSPackageFileEntry> getEntries() {
+    return entries;
+  }
+
+  public void setEntries(List<PSPackageFileEntry> entries) {
+    this.entries = entries;
+  }
+
+  public static PSPackageFileList fromXml(String xmlString) {
+    return PSSerializerUtils.unmarshal(xmlString, PSPackageFileList.class);
+  }
+
+  public String toXml() {
+    return PSSerializerUtils.marshal(this);
+  }
 }

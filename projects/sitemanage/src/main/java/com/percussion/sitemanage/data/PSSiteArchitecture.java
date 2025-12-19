@@ -17,85 +17,57 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.StringUtils;
 
-@XmlRootElement(name="SiteArchitecture")
-public class PSSiteArchitecture extends PSAbstractPersistantObject
-{
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.share.data.PSAbstractPersistantObject#getId()
-    */
-   @Override
-   public String getId()
-   {
-      return getName();
-   }
+@XmlRootElement(name = "SiteArchitecture")
+public class PSSiteArchitecture extends PSAbstractPersistantObject {
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.share.data.PSAbstractPersistantObject#getId()
+   */
+  @Override
+  public String getId() {
+    return getName();
+  }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.share.data.PSAbstractPersistantObject#setId(java.io.Serializable)
-    */
-   @Override
-   public void setId(String id)
-   {
-      setName(id);
-   }
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.share.data.PSAbstractPersistantObject#setId(java.io.Serializable)
+   */
+  @Override
+  public void setId(String id) {
+    setName(id);
+  }
 
-   /**
-    * @return The name of the site, never blank.
-    */
-   public String getName()
-   {
-      return name;
-   }
+  /** @return The name of the site, never blank. */
+  public String getName() {
+    return name;
+  }
 
-   /**
-    * @param name of the site must not be blank.
-    */
-   public void setName(String name)
-   {
-      if(StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name must not be blank");
-      this.name = name;
-   }
+  /** @param name of the site must not be blank. */
+  public void setName(String name) {
+    if (StringUtils.isBlank(name)) throw new IllegalArgumentException("name must not be blank");
+    this.name = name;
+  }
 
-   /**
-    * @return the sub sections of site, may be <code>null</code> or empty.
-    */
-   public List<PSSiteSection> getSections()
-   {
-      return sections;
-   }
+  /** @return the sub sections of site, may be <code>null</code> or empty. */
+  public List<PSSiteSection> getSections() {
+    return sections;
+  }
 
-   /**
-    * @param sections sub sections of site, may be <code>null</code> or empty.
-    */
-   public void setSections(List<PSSiteSection> sections)
-   {
-      this.sections = sections;
-   }
+  /** @param sections sub sections of site, may be <code>null</code> or empty. */
+  public void setSections(List<PSSiteSection> sections) {
+    this.sections = sections;
+  }
 
-   /**
-    * The name of the site.
-    */
-   private String name;
-   
-   /**
-    * List of {@link PSSiteSection} objects that are under the site.
-    */
-   private List<PSSiteSection> sections;
-   
-   /**
-    * 
-    */
-   private static final long serialVersionUID = 8249374630117416709L;
+  /** The name of the site. */
+  private String name;
 
+  /** List of {@link PSSiteSection} objects that are under the site. */
+  private List<PSSiteSection> sections;
 
-
+  /** */
+  private static final long serialVersionUID = 8249374630117416709L;
 }

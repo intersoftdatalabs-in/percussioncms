@@ -17,129 +17,83 @@
 package com.percussion.rest.editions;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-
-/**
- * This response object stores the information returned from a publish request.
- */
+/** This response object stores the information returned from a publish request. */
 @XmlRootElement(name = "EditionPublishResponse")
 @JsonRootName("EditionPublishResponse")
-public class PublishResponse
-{
-   /**
-    * See {@link #getSiteName()}.
-    */
-   String siteName;
+public class PublishResponse {
+  /** See {@link #getSiteName()}. */
+  String siteName;
 
-   /**
-    * See {@link #getStatus()}.
-    */
-   String status;
+  /** See {@link #getStatus()}. */
+  String status;
 
-   /**
-    * See {@link #getDelivered()}.
-    */
-   String delivered;
+  /** See {@link #getDelivered()}. */
+  String delivered;
 
-   /**
-    * See {@link #getFailures()}.
-    */
-   String failures;
-   
-   String warningMessage;
-   
-    long jobid;
+  /** See {@link #getFailures()}. */
+  String failures;
 
-    public long getJobid()
-    {
-        return jobid;
-    }
+  String warningMessage;
 
-    public void setJobid(long jobid)
-    {
-        this.jobid = jobid;
-    }
+  long jobid;
 
-/**
-    * @return the name of the site to be published.
-    */
-   public String getSiteName()
-   {
-      return siteName;
-   }
+  public long getJobid() {
+    return jobid;
+  }
 
-   /**
-    * @param siteName the name of the site to be published.
-    */
-   public void setSiteName(String siteName)
-   {
-      this.siteName = siteName;
-   }
+  public void setJobid(long jobid) {
+    this.jobid = jobid;
+  }
 
-   /**
-    * @return the publishing status, never blank.
-    */
-   public String getStatus()
-   {
-      return status;
-   }
+  /** @return the name of the site to be published. */
+  public String getSiteName() {
+    return siteName;
+  }
 
-   /**
-    * @param status the publishing status. May not be blank.
-    */
-   public void setStatus(String status)
-   {
-      this.status = status;
-   }
+  /** @param siteName the name of the site to be published. */
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-   /**
-    * @return the number of items delivered, never blank.
-    */
-   public String getDelivered()
-   {
-      return delivered;
-   }
+  /** @return the publishing status, never blank. */
+  public String getStatus() {
+    return status;
+  }
 
-   /**
-    * @param delivered the number of items delivered. May not be blank.
-    */
-   public void setDelivered(String delivered)
-   {
-      this.delivered = delivered;
-   }
-   
-   /**
-    * @return the number of failures, never blank.
-    */
-   public String getFailures()
-   {
-      return failures;
-   }
+  /** @param status the publishing status. May not be blank. */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-   /**
-    * @param failures the number of failures. May not be blank.
-    */
-   public void setFailures(String failures)
-   {
-      this.failures = failures;
-   }
-   
-    /**
-     * @return the warning message.
-     */
-    public String getWarningMessage()
-    {
-        return warningMessage;
-    }
+  /** @return the number of items delivered, never blank. */
+  public String getDelivered() {
+    return delivered;
+  }
 
-    /**
-     * @param warningMessage the warning message.
-     */
-    public void setWarningMessage(String warningMessage)
-    {
-        this.warningMessage = warningMessage;
-    }
+  /** @param delivered the number of items delivered. May not be blank. */
+  public void setDelivered(String delivered) {
+    this.delivered = delivered;
+  }
 
+  /** @return the number of failures, never blank. */
+  public String getFailures() {
+    return failures;
+  }
+
+  /** @param failures the number of failures. May not be blank. */
+  public void setFailures(String failures) {
+    this.failures = failures;
+  }
+
+  /** @return the warning message. */
+  public String getWarningMessage() {
+    return warningMessage;
+  }
+
+  /** @param warningMessage the warning message. */
+  public void setWarningMessage(String warningMessage) {
+    this.warningMessage = warningMessage;
+  }
 }

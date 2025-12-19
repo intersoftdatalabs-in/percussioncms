@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
+        <artifactId>delivery-tier-suite</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>delivery-tier-distribution</artifactId>
-
     <properties>
-        <tomcat-directory>${basedir}/target/tomcat</tomcat-directory>
-        <assembly-directory>${basedir}/target/classes/distribution</assembly-directory>
         <ant-installer>${assembly-directory}/rxconfig/Installer</ant-installer>
+        <assembly-directory>${basedir}/target/classes/distribution</assembly-directory>
+        <tomcat-directory>${basedir}/target/tomcat</tomcat-directory>
     </properties>
     <dependencies>
         <dependency>
@@ -88,31 +84,26 @@
             <artifactId>perc-ant</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -167,30 +158,26 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-core</artifactId>
                 </exclusion>
-            <exclusion>
+                <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-api</artifactId>
-            </exclusion>
+                </exclusion>
                 <exclusion>
-                  <groupId>org.apache.logging.log4j</groupId>
+                    <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jul</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-appserver</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-web</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
-
             </exclusions>
         </dependency>
         <dependency>
@@ -247,17 +234,14 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jul</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-appserver</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-web</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
@@ -300,56 +284,48 @@
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-appserver</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <!--<dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-web</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency> -->
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-iostreams</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
@@ -361,19 +337,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.4.2</version>
         </dependency>
-
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -385,7 +358,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
@@ -445,50 +417,28 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jul</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-appserver</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-web</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
-
             </exclusions>
         </dependency>
-
     </dependencies>
     <build>
         <finalName>delivery-tier-distribution</finalName>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>keytool-maven-plugin</artifactId>
                 <version>1.5</version>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <id>clean</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <id>genkey</id>
-                        <goals>
-                            <goal>generateKeyPair</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <keystore>${project.build.directory}/tomcat-ssl.keystore</keystore>
                     <dname>cn=localhost</dname>
@@ -498,8 +448,23 @@
                     <keyalg>RSA</keyalg>
                     <validity>1825</validity>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>clean</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>genkey</id>
+                        <goals>
+                            <goal>generateKeyPair</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
@@ -509,12 +474,9 @@
                         <!-- <type>embedded</type>-->
                         <!-- TODO: This really should be moved to be mirrored on Percussion's nexus server -->
                         <zipUrlInstaller>
-                            <url>
-                                https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
-                            </url>
+                            <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                         </zipUrlInstaller>
                         <systemProperties>
-
                             <systemProperties>
                                 <derby.system.home>derbydata</derby.system.home>
                             </systemProperties>
@@ -552,7 +514,6 @@
                                 <groupId>commons-lang</groupId>
                                 <artifactId>commons-lang</artifactId>
                             </dependency>
-
                             <!-- log4j2 -->
                             <dependency>
                                 <groupId>org.apache.logging.log4j</groupId>
@@ -579,9 +540,9 @@
                                 <artifactId>log4j-appserver</artifactId>
                             </dependency>
                             <dependency>
-                                    <groupId>com.percussion.deliverytier</groupId>
-                                    <artifactId>perc-tomcat-common</artifactId>
-                                </dependency>
+                                <groupId>com.percussion.deliverytier</groupId>
+                                <artifactId>perc-tomcat-common</artifactId>
+                            </dependency>
                             <dependency>
                                 <groupId>com.google.code.morphia</groupId>
                                 <artifactId>morphia</artifactId>
@@ -623,8 +584,8 @@
                                 <artifactId>xercesImpl</artifactId>
                             </dependency>
                             <dependency>
-                            <groupId>xml-apis</groupId>
-                            <artifactId>xml-apis</artifactId>
+                                <groupId>xml-apis</groupId>
+                                <artifactId>xml-apis</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>commons-logging</groupId>
@@ -658,23 +619,19 @@
                                 <groupId>org.springframework</groupId>
                                 <artifactId>spring-core</artifactId>
                             </dependency>
-
                             <dependency>
                                 <groupId>org.springframework</groupId>
                                 <artifactId>spring-beans</artifactId>
                             </dependency>
-
                             <dependency>
                                 <groupId>org.springframework</groupId>
                                 <artifactId>spring-web</artifactId>
                             </dependency>
-
                             <dependency>
                                 <groupId>org.springframework</groupId>
                                 <artifactId>spring-context</artifactId>
                             </dependency>
                         </dependencies>
-
                     </container>
                     <configuration>
                         <files>
@@ -688,7 +645,7 @@
                             </file>
                         </files>
                         <configfiles>
-						    <configfile>
+                            <configfile>
                                 <file>${project.basedir}/src/main/conf/perc/perc-security.properties</file>
                                 <todir>conf/perc</todir>
                             </configfile>
@@ -701,8 +658,7 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/conf/perc/perc-datasources.xml.sample-MYSQL-MARIADB
-                                </file>
+                                <file>${project.basedir}/src/main/conf/perc/perc-datasources.xml.sample-MYSQL-MARIADB</file>
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
@@ -718,8 +674,7 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/conf/perc/perc-secured-sections.properties.sample
-                                </file>
+                                <file>${project.basedir}/src/main/conf/perc/perc-secured-sections.properties.sample</file>
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
@@ -758,17 +713,14 @@
                                 <file>${project.basedir}/src/main/tomcat9/conf/context.xml</file>
                                 <todir>conf</todir>
                             </configfile>
-
                             <configfile>
                                 <file>${project.basedir}/src/main/tomcat9/conf/server.xml</file>
                                 <todir>conf</todir>
                             </configfile>
-
                             <configfile>
                                 <file>${project.basedir}/src/main/tomcat9/conf/log4j2-tomcat.xml</file>
                                 <todir>log4j2/conf</todir>
                             </configfile>
-
                             <configfile>
                                 <file>${project.basedir}/src/main/tomcat9/conf/catalina.properties</file>
                                 <todir>conf</todir>
@@ -796,18 +748,12 @@
                         </configfiles>
                         <properties>
                             <cargo.runtime.args>dts-realm.xml</cargo.runtime.args>
-
                             <!--<cargo.logging>high</cargo.logging>-->
                             <cargo.jvmargs>-Xms256m -Xmx3072m -Xdebug -Xnoagent
                                 -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -XX:+DisableExplicitGC
-                                -Xverify:none -Djava.awt.headless=true
-                            </cargo.jvmargs>
-
-
+                                -Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
                             <cargo.servlet.port>9980</cargo.servlet.port>
-
                         </properties>
-
                         <users>
                             <user>
                                 <name>ps_manager</name>
@@ -817,56 +763,46 @@
                                 </roles>
                             </user>
                         </users>
-
                     </configuration>
                     <deployables>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-metadata-services</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-comments-services</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-form-processor</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-integrations</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-membership-services</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>perc-polls-services</artifactId>
                             <type>war</type>
                         </deployable>
-
                         <deployable>
                             <groupId>com.percussion.deliverytier</groupId>
                             <artifactId>feeds</artifactId>
-
                             <type>war</type>
                         </deployable>
                         <deployable>
                             <groupId>com.percussion</groupId>
                             <artifactId>perc-common-ui</artifactId>
-
                             <type>war</type>
                         </deployable>
                     </deployables>
@@ -877,121 +813,112 @@
                 <executions>
                     <execution>
                         <id>configure-cargo</id>
-                        <phase>process-classes</phase>
                         <goals>
                             <goal>configure</goal>
                         </goals>
+                        <phase>process-classes</phase>
                     </execution>
                     <execution>
                         <id>prepare-cargo-package</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>package</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-            <execution>
-                <id>copy</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>copy</goal>
-                </goals>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.oracle.ojdbc</groupId>
+                                    <artifactId>ojdbc8</artifactId>
+                                    <version>${ojdbc8.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}</outputDirectory>
+                                    <destFileName>perc-service-wrapper.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-ant</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${ant-installer}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/wars</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>com.oracle.ojdbc</groupId>
-                            <artifactId>ojdbc8</artifactId>
-                            <version>${ojdbc8.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}</outputDirectory>
-                            <destFileName>perc-service-wrapper.jar</destFileName>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>perc-ant</artifactId>
-                            <version>${project.parent.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${ant-installer}</outputDirectory>
-                        </artifactItem>
-                    </artifactItems>
-                    <outputDirectory>${project.build.directory}/wars</outputDirectory>
-                    <overWriteReleases>false</overWriteReleases>
-                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
-            </execution>
-            </executions>
             </plugin>
-            <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <mainClass>
-                            com.percussion.preinstall.MainDTSPreInstall
-                        </mainClass>
-                    </manifest>
-                </archive>
-            </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>populate perc distribution</id>
-                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <phase>process-resources</phase>
                         <configuration>
                             <target>
                                 <!-- TODO Add additional deployment files here -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="${basedir}/src/main/rootFiles" />
+                                    <fileset dir="${basedir}/src/main/rootFiles"/>
                                 </copy>
-                             <!-- Perc-Ant -->
+                                <!-- Perc-Ant -->
                                 <copy todir="${ant-installer}">
                                     <fileset dir="{basedir}/../../../../modules/perc-ant/target/">
-                                        <include name="perc-ant*.jar" />
+                                        <include name="perc-ant*.jar"/>
                                     </fileset>
                                 </copy>
                                 <!-- Version.properties -->
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="{basedir}/../../../../modules/utils/target/classes/com/percussion/util/">
-                                        <include name="Version.properties" />
+                                        <include name="Version.properties"/>
                                     </fileset>
                                 </copy>
-                                <mkdir dir="${assembly-directory}/rxconfig/secure" />
+                                <mkdir dir="${assembly-directory}/rxconfig/secure"/>
                                 <copy todir="${assembly-directory}/rxconfig/secure">
                                     <fileset dir="{basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption">
-                                        <include name=".legacy-key" />
+                                        <include name=".legacy-key"/>
                                     </fileset>
                                 </copy>
-                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" />
-                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" />
-                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties" />
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager"/>
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager"/>
+                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
-
         </plugins>
-
-
     </build>
     <profiles>
-
         <profile>
             <id>jetty9x</id>
             <build>
@@ -1001,7 +928,6 @@
                         <artifactId>cargo-maven2-plugin</artifactId>
                         <version>1.6.10</version>
                         <configuration>
-
                             <container>
                                 <containerId>jetty9x</containerId>
                                 <timeout>240000</timeout>
@@ -1011,16 +937,13 @@
                                 </systemProperties>
                                 <!-- <type>embedded</type>-->
                                 <zipUrlInstaller>
-                                    <url>
-                                        https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.54.v20250814/jetty-distribution-9.4.54.v20250814.zip
-                                    </url>
+                                    <url>https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.54.v20250814/jetty-distribution-9.4.54.v20250814.zip</url>
                                 </zipUrlInstaller>
                                 <dependencies>
                                     <!-- https://mvnrepository.com/artifact/c3p0/c3p0 -->
                                     <dependency>
                                         <groupId>c3p0</groupId>
                                         <artifactId>c3p0</artifactId>
-
                                     </dependency>
                                     <dependency>
                                         <groupId>org.apache.derby</groupId>
@@ -1047,17 +970,14 @@
                                         <artifactId>ojdbc8</artifactId>
                                         <version>${ojdbc8.version}</version>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.apache.logging.log4j</groupId>
                                         <artifactId>log4j-api</artifactId>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.apache.logging.log4j</groupId>
                                         <artifactId>log4j-core</artifactId>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.apache.logging.log4j</groupId>
                                         <artifactId>log4j-1.2-api</artifactId>
@@ -1089,38 +1009,29 @@
                                     <dependency>
                                         <groupId>com.percussion</groupId>
                                         <artifactId>rxutils</artifactId>
-
                                     </dependency>
                                     <dependency>
                                         <groupId>com.percussion</groupId>
                                         <artifactId>servlet-utils</artifactId>
-
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.springframework</groupId>
                                         <artifactId>spring-core</artifactId>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.springframework</groupId>
                                         <artifactId>spring-beans</artifactId>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.springframework</groupId>
                                         <artifactId>spring-web</artifactId>
                                     </dependency>
-
                                     <dependency>
                                         <groupId>org.springframework</groupId>
                                         <artifactId>spring-context</artifactId>
                                     </dependency>
-
                                 </dependencies>
-
                             </container>
-
                             <configuration>
                                 <filters>
                                     <filter>
@@ -1132,33 +1043,25 @@
                                         </excludes>
                                     </filter>
                                 </filters>
-
                                 <properties>
                                     <cargo.servlet.port>9980</cargo.servlet.port>
                                     <cargo.runtime.args>${project.basedir}/src/main/resources/etc/dts-realm.xml
-                                        ${project.basedir}/src/main/resources/etc/dts-realm.properties
-                                    </cargo.runtime.args>
-                                    <cargo.datasource.datasource.derby>
-                                        cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
+                                        ${project.basedir}/src/main/resources/etc/dts-realm.properties</cargo.runtime.args>
+                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
                                         cargo.datasource.url=jdbc:derby:derbyDB;create=true|
                                         cargo.datasource.jndi=jdbc/CargoDS|
                                         cargo.datasource.username=APP|
-                                        cargo.datasource.password=nonemptypassword
-                                    </cargo.datasource.datasource.derby>
+                                        cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
                                     <!--  <cargo.jetty.realm.name>metadata</cargo.jetty.realm.name>-->
                                 </properties>
-
                                 <configfiles>
                                     <configfile>
                                         <file>${project.basedir}/src/main/resources/log4j2.xml</file>
                                         <todir>resources</todir>
-
                                     </configfile>
                                     <configfile>
-
                                         <file>${project.basedir}/src/main/resources/etc/dts-realm.xml</file>
                                         <todir>etc</todir>
-
                                     </configfile>
                                     <configfile>
                                         <file>${project.basedir}/src/main/resources/etc/dts-realm.properties</file>
@@ -1176,56 +1079,46 @@
                                 </users>
                             </configuration>
                             <deployables>
-
                                 <deployable>
                                     <groupId>com.percussion.deliverytier</groupId>
                                     <artifactId>perc-metadata-services</artifactId>
-
                                     <type>war</type>
                                 </deployable>
-
-                                     <deployable>
-                                         <groupId>com.percussion.deliverytier</groupId>
-                                         <artifactId>perc-comments-services</artifactId>
-
-                                         <type>war</type>
-                                     </deployable>
-                                     <deployable>
-                                         <groupId>com.percussion.deliverytier</groupId>
-                                         <artifactId>perc-form-processor</artifactId>
-
-                                         <type>war</type>
-                                     </deployable>
-
-                                     <deployable>
-                                         <groupId>com.percussion.deliverytier</groupId>
-                                         <artifactId>perc-membership-services</artifactId>
-
-                                         <type>war</type>
-                                     </deployable>
-                                     <deployable>
-                                         <groupId>com.percussion.deliverytier</groupId>
-                                         <artifactId>perc-polls-services</artifactId>
-
-                                         <type>war</type>
-                                     </deployable>
-
+                                <deployable>
+                                    <groupId>com.percussion.deliverytier</groupId>
+                                    <artifactId>perc-comments-services</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                                <deployable>
+                                    <groupId>com.percussion.deliverytier</groupId>
+                                    <artifactId>perc-form-processor</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                                <deployable>
+                                    <groupId>com.percussion.deliverytier</groupId>
+                                    <artifactId>perc-membership-services</artifactId>
+                                    <type>war</type>
+                                </deployable>
+                                <deployable>
+                                    <groupId>com.percussion.deliverytier</groupId>
+                                    <artifactId>perc-polls-services</artifactId>
+                                    <type>war</type>
+                                </deployable>
                             </deployables>
                             <packager>
                                 <outputLocation>${assembly-directory}/Deployment/Server</outputLocation>
                             </packager>
                         </configuration>
-
                     </plugin>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>create-my-bundle</id>
-                                <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
+                                <phase>package</phase>
                                 <configuration>
                                     <descriptorRefs>
                                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -1244,7 +1137,5 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
 </project>

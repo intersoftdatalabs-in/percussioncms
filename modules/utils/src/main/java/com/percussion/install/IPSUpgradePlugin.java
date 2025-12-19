@@ -16,24 +16,21 @@
  */
 
 package com.percussion.install;
+
 import org.w3c.dom.Element;
 
 /**
- * The IPSUpgardePlugin interface is the general interface that a Rhythmyx 
- * plugin must implement. Any plugin that implements this interface can be 
- * registered via the configuration XML file.
- * 
+ * The IPSUpgardePlugin interface is the general interface that a Rhythmyx plugin must implement.
+ * Any plugin that implements this interface can be registered via the configuration XML file.
  */
-
-public interface IPSUpgradePlugin
-{
-   /**
-    * This is the method the plugin manager calls for every plugin. process() 
-    * shall perform all its upgrade tasks.
-    * @param config object of IPSUpgradeModule class
-    * @param elemData is data Element of plugin element
-    * @return PSPluginResponse object, <code>null</code> if not a pre-upgrade
-    * plugin
-    */
-   PSPluginResponse process(IPSUpgradeModule config, Element elemData);
+public interface IPSUpgradePlugin {
+  /**
+   * This is the method the plugin manager calls for every plugin. process() shall perform all its
+   * upgrade tasks.
+   *
+   * @param config object of IPSUpgradeModule class
+   * @param elemData is data Element of plugin element
+   * @return PSPluginResponse object, <code>null</code> if not a pre-upgrade plugin
+   */
+  PSPluginResponse process(IPSUpgradeModule config, Element elemData);
 }

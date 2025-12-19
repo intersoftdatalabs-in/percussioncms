@@ -19,44 +19,33 @@ package com.percussion.security;
 
 import com.percussion.error.PSException;
 
-
 /**
- * PSRoleAlreadyDefinedException is thrown to indicate that a role
- * definition was attempted on a role which already exists.
+ * PSRoleAlreadyDefinedException is thrown to indicate that a role definition was attempted on a
+ * role which already exists.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSRoleAlreadyDefinedException extends PSException
-{
-   /**
-    * Constructs a role already defined exception with the default
-    * message.
-    *
-    * @param   appName            the app name (local prefix)
-    *
-    * @param   roleName            the name of the role
-    */
-   public PSRoleAlreadyDefinedException(   java.lang.String appName,
-                                          java.lang.String roleName)
-   {
-      super(IPSSecurityErrors.LOCAL_ROLE_ALREADY_DEFINED,
-            new Object[] { roleName, appName });
-   }
+public class PSRoleAlreadyDefinedException extends PSException {
+  /**
+   * Constructs a role already defined exception with the default message.
+   *
+   * @param appName the app name (local prefix)
+   * @param roleName the name of the role
+   */
+  public PSRoleAlreadyDefinedException(java.lang.String appName, java.lang.String roleName) {
+    super(IPSSecurityErrors.LOCAL_ROLE_ALREADY_DEFINED, new Object[] {roleName, appName});
+  }
 
-   /**
-    * Constructs a role already defined exception for non-application ACLs
-    * with the default message. If an application ACL is throwing this
-    * exception, be sure to use the constructor which takes the name
-    * of the application.
-    *
-    * @param   roleName            the name of the role
-    */
-   public PSRoleAlreadyDefinedException(java.lang.String roleName)
-   {
-      super(IPSSecurityErrors.GLOBAL_ROLE_ALREADY_DEFINED,
-            new Object[] { roleName });
-   }
+  /**
+   * Constructs a role already defined exception for non-application ACLs with the default message.
+   * If an application ACL is throwing this exception, be sure to use the constructor which takes
+   * the name of the application.
+   *
+   * @param roleName the name of the role
+   */
+  public PSRoleAlreadyDefinedException(java.lang.String roleName) {
+    super(IPSSecurityErrors.GLOBAL_ROLE_ALREADY_DEFINED, new Object[] {roleName});
+  }
 }
-

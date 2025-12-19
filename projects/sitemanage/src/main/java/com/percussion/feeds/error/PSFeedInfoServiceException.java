@@ -16,44 +16,29 @@
  */
 package com.percussion.feeds.error;
 
-/**
- * @author erikserating
- *
- */
-public class PSFeedInfoServiceException extends Exception
-{
+/** @author erikserating */
+public class PSFeedInfoServiceException extends Exception {
 
-    /**
-     * 
-     */
-    public PSFeedInfoServiceException()
-    {
-        super();
-    }
+  /** */
+  public PSFeedInfoServiceException() {
+    super();
+  }
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public PSFeedInfoServiceException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
+  /**
+   * @param message
+   * @param cause
+   */
+  public PSFeedInfoServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    /**
-     * @param message
-     */
-    public PSFeedInfoServiceException(String message)
-    {
-        super(message);
-    }
+  /** @param message */
+  public PSFeedInfoServiceException(String message) {
+    super(message);
+  }
 
-    /**
-     * @param cause
-     */
-    public PSFeedInfoServiceException(Throwable cause)
-    {
-        super(cause);
-    }
-   
+  /** @param cause */
+  public PSFeedInfoServiceException(Throwable cause) {
+    super(cause);
+  }
 }

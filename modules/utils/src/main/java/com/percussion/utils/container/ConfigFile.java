@@ -20,21 +20,18 @@ package com.percussion.utils.container;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class ConfigFile implements IConfigFile{
+public class ConfigFile implements IConfigFile {
 
+  @Override
+  public Path getPath() {
+    return null;
+  }
 
-    @Override
-    public Path getPath() {
-        return null;
-    }
+  @Override
+  public Map<String, String> load() {
+    return null;
+  }
 
-    @Override
-    public Map<String, String> load() {
-        return null;
-    }
-
-    @Override
-    public void save(Map<String, String> properties) {
-
-    }
+  @Override
+  public void save(Map<String, String> properties) {}
 }

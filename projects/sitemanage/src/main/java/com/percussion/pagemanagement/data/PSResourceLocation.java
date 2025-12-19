@@ -20,25 +20,17 @@ import net.sf.oval.constraint.NotNull;
 
 /**
  * Represents the physical location of an asset resource.
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSResourceLocation
-{
-    @NotNull
-    private String filePath;
+public class PSResourceLocation {
+  @NotNull private String filePath;
 
-    public String getFilePath()
-    {
-        return filePath;
-    }
+  public String getFilePath() {
+    return filePath;
+  }
 
-    public void setFilePath(String filePath)
-    {
-        this.filePath = filePath;
-    }
-    
-    
-
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
 }
-

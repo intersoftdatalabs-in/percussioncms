@@ -16,75 +16,70 @@
  */
 package com.percussion.pagemanagement.data;
 
+import com.percussion.pagemanagement.data.PSWidgetDefinition.AbstractUserPref;
 import java.util.Date;
 import java.util.List;
 
-import com.percussion.pagemanagement.data.PSWidgetDefinition.AbstractUserPref;
-
 /**
  * Represents the different data types that a widget property can have.
- * 
+ *
  * @see PSWidgetItem#getProperties()
  * @see PSWidgetItem#getCssProperties()
  * @author adamgent
- *
  */
 public enum PSWidgetPropertyDataType {
-    
-    STRING("string", String.class),
-    ENUM("enum", String.class),
-    NUMBER("number", Number.class),
-    BOOL("bool", Boolean.class),
-    HIDDEN("hidden", Object.class),
-    DATE("date", Date.class),
-    LIST("list", List.class);
-    
-    private String name;
-    private Class<?> javaType;
+  STRING("string", String.class),
+  ENUM("enum", String.class),
+  NUMBER("number", Number.class),
+  BOOL("bool", Boolean.class),
+  HIDDEN("hidden", Object.class),
+  DATE("date", Date.class),
+  LIST("list", List.class);
 
-    private PSWidgetPropertyDataType(String name, Class<?> javaType)
-    {
-        this.name = name;
-        this.javaType = javaType;
-    }
+  private String name;
+  private Class<?> javaType;
 
-    /**
-     * Gets the nominal value of the data type.
-     * @return never <code>null</code> or empty.
-     */
-    public String getName()
-    {
-        return name;
-    }
+  private PSWidgetPropertyDataType(String name, Class<?> javaType) {
+    this.name = name;
+    this.javaType = javaType;
+  }
 
-    /**
-     * The java type that the widget property should be.
-     * @return never <code>null</code>.
-     */
-    public Class<?> getJavaType()
-    {
-        return javaType;
-    }
-    
-    /**
-     * Gets the data type from widget property definition.
-     * @param userPref never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    public static PSWidgetPropertyDataType fromDefinition(AbstractUserPref userPref) {
-        return parseType(userPref.getDatatype());
-    }
-    
-    /**
-     * Parse the {@link #getName()} property definition type.
-     * @param name
-     * @return never <code>null</code>.
-     */
-    public static PSWidgetPropertyDataType parseType(String name) {
-        String n = name.toUpperCase();
-        return valueOf(n);
-    }
-    
+  /**
+   * Gets the nominal value of the data type.
+   *
+   * @return never <code>null</code> or empty.
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * The java type that the widget property should be.
+   *
+   * @return never <code>null</code>.
+   */
+  public Class<?> getJavaType() {
+    return javaType;
+  }
+
+  /**
+   * Gets the data type from widget property definition.
+   *
+   * @param userPref never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  public static PSWidgetPropertyDataType fromDefinition(AbstractUserPref userPref) {
+    return parseType(userPref.getDatatype());
+  }
+
+  /**
+   * Parse the {@link #getName()} property definition type.
+   *
+   * @param name
+   * @return never <code>null</code>.
+   */
+  public static PSWidgetPropertyDataType parseType(String name) {
+    String n = name.toUpperCase();
+    return valueOf(n);
+  }
 }
-
-

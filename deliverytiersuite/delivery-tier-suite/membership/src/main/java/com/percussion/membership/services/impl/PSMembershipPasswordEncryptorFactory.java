@@ -21,18 +21,15 @@ import org.jasypt.util.password.PasswordEncryptor;
 
 /**
  * Factory class to get a password encryptor
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSMembershipPasswordEncryptorFactory
-{
-    public static PasswordEncryptor getPasswordEncryptor()
-    {
-        ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
-        passwordEncryptor.setAlgorithm("SHA-256");
-        passwordEncryptor.setPlainDigest(false);
-        
-        return passwordEncryptor;
-    }
+public class PSMembershipPasswordEncryptorFactory {
+  public static PasswordEncryptor getPasswordEncryptor() {
+    ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
+    passwordEncryptor.setAlgorithm("SHA-256");
+    passwordEncryptor.setPlainDigest(false);
+
+    return passwordEncryptor;
+  }
 }

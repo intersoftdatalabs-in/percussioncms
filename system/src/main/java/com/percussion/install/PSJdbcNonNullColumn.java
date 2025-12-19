@@ -20,31 +20,22 @@ import com.percussion.tablefactory.IPSJdbcTableDataHandler;
 import com.percussion.tablefactory.PSJdbcColumnData;
 
 /**
- * Data handler object which makes all the values of the column (specified in
- * the handler's Xml) non-null.
+ * Data handler object which makes all the values of the column (specified in the handler's Xml)
+ * non-null.
  *
- * All the <code>null</code> values in this column are modified based on the
- * default value specified in the handler's Xml. Non-null column are not
- * modified.
+ * <p>All the <code>null</code> values in this column are modified based on the default value
+ * specified in the handler's Xml. Non-null column are not modified.
  */
-public class PSJdbcNonNullColumn extends PSJdbcUniqueColumn
-   implements IPSJdbcTableDataHandler
-{
-   /**
-    * If <code>value</code> is null then returns a column data object whose
-    * value equals the default value (specified in the handler's Xml) for the
-    * column being altered, otherwise returns a column data having the
-    * value <code>value</code>.
-    *
-    * See {@link PSJdbcUniqueColumn#getColumnValue(String)} for details.
-    */
-   protected PSJdbcColumnData getColumnValue(String value)
-   {
-      if (value == null)
-         value = m_value;
-      return new PSJdbcColumnData(m_column, value);
-   }
-
+public class PSJdbcNonNullColumn extends PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
+  /**
+   * If <code>value</code> is null then returns a column data object whose value equals the default
+   * value (specified in the handler's Xml) for the column being altered, otherwise returns a column
+   * data having the value <code>value</code>.
+   *
+   * <p>See {@link PSJdbcUniqueColumn#getColumnValue(String)} for details.
+   */
+  protected PSJdbcColumnData getColumnValue(String value) {
+    if (value == null) value = m_value;
+    return new PSJdbcColumnData(m_column, value);
+  }
 }
-
-

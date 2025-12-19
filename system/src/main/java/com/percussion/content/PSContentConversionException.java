@@ -18,50 +18,35 @@ package com.percussion.content;
 
 import com.percussion.error.PSException;
 
-/**
- * This exception is used to propagate errors that occur during content 
- * conversion.
- */
-public class PSContentConversionException extends PSException
-{
-   // see base class
-   public PSContentConversionException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+/** This exception is used to propagate errors that occur during content conversion. */
+public class PSContentConversionException extends PSException {
+  // see base class
+  public PSContentConversionException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   // see base class
-   public PSContentConversionException(
-      String language,
-      int msgCode,
-      Object singleArg)
-   {
-      super(language, msgCode, singleArg);
-   }
+  // see base class
+  public PSContentConversionException(String language, int msgCode, Object singleArg) {
+    super(language, msgCode, singleArg);
+  }
 
-   // see base class
-   public PSContentConversionException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
+  // see base class
+  public PSContentConversionException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   // see base class
-   public PSContentConversionException(String language, int msgCode, 
-      Object[] arrayArgs)
-   {
-      super(language, msgCode, arrayArgs);
-   }
+  // see base class
+  public PSContentConversionException(String language, int msgCode, Object[] arrayArgs) {
+    super(language, msgCode, arrayArgs);
+  }
 
-   // see base class
-   public PSContentConversionException(int msgCode)
-   {
-      super(msgCode);
-   }
+  // see base class
+  public PSContentConversionException(int msgCode) {
+    super(msgCode);
+  }
 
-   // see base class
-   public PSContentConversionException(String language, int msgCode)
-   {
-      super(language, msgCode);
-   }
-
+  // see base class
+  public PSContentConversionException(String language, int msgCode) {
+    super(language, msgCode);
+  }
 }

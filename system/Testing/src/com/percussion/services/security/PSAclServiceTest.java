@@ -538,7 +538,7 @@ public class PSAclServiceTest
             aclService.loadAcl(aclGuid);
             fail("Should have thrown");
          }
-         catch (PSSecurityException e)
+         catch (com.percussion.services.security.PSServiceSecurityException e)
          {
             // expected
          }

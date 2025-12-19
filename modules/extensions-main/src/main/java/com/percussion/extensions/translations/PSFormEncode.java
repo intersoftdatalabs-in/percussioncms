@@ -23,58 +23,45 @@ import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Will turn a &lt;form&gt; tag into a &lt;div&gt; tag that has
- * a special attribute marker to indicate it is actually a form. 
- * Must use with the <code>PSFormDecode</code> input translation
- * to be sure the form tag is put back to its normal syntax.
- * 
- * Requires the first parameter to be the field name of the field to
- * be translated.
- *  
- * This is used to get around an issues with form tags not working
- * in EditLive single instance.
- * 
- * @author erikserating
+ * Will turn a &lt;form&gt; tag into a &lt;div&gt; tag that has a special attribute marker to
+ * indicate it is actually a form. Must use with the <code>PSFormDecode</code> input translation to
+ * be sure the form tag is put back to its normal syntax.
  *
+ * <p>Requires the first parameter to be the field name of the field to be translated.
+ *
+ * <p>This is used to get around an issues with form tags not working in EditLive single instance.
+ *
+ * @author erikserating
  */
-public class PSFormEncode implements IPSFieldInputTransformer
-{
+public class PSFormEncode implements IPSFieldInputTransformer {
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSUdfProcessor#
-    * processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
-    */
-   @SuppressWarnings("unused")
-   public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      String name = ep.getStringParam(0, null, false);
-      if(StringUtils.isBlank(name))
-      {
-         Object[] args = new Object[]{"name"};
-         throw new PSConversionException(
-            IPSExtensionErrors.MISSING_REQUIRED_PARAM_NO, args);
-      }
-      String value = request.getParameter(name);
-      return PSFormEncodeDecodeHelper.encode(value);
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSUdfProcessor#
+   * processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
+   */
+  @SuppressWarnings("unused")
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    String name = ep.getStringParam(0, null, false);
+    if (StringUtils.isBlank(name)) {
+      Object[] args = new Object[] {"name"};
+      throw new PSConversionException(IPSExtensionErrors.MISSING_REQUIRED_PARAM_NO, args);
+    }
+    String value = request.getParameter(name);
+    return PSFormEncodeDecodeHelper.encode(value);
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#
-    * init(com.percussion.extension.IPSExtensionDef, java.io.File)
-    */
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-   {
-      // no-op      
-   }
-
-  
-
+  /* (non-Javadoc)
+   * @see com.percussion.extension.IPSExtension#
+   * init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   */
+  @SuppressWarnings("unused")
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    // no-op
+  }
 }

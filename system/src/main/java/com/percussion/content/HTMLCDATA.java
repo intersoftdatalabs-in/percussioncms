@@ -20,57 +20,41 @@ package com.percussion.content;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 
-
 /**
- * Similar to HTMLText, but this class specifically represents the context of
- * a CDATA within the HTML.
+ * Similar to HTMLText, but this class specifically represents the context of a CDATA within the
+ * HTML.
  */
-public class HTMLCDATA extends HTMLText implements CDATASection
-{
-   /**
-    * Initializes CDATASection node with an initial value within CDATA.
-    */
-   public HTMLCDATA( String initialValue )
-   {
-      super( );
-      setData( initialValue );
-   }
+public class HTMLCDATA extends HTMLText implements CDATASection {
+  /** Initializes CDATASection node with an initial value within CDATA. */
+  public HTMLCDATA(String initialValue) {
+    super();
+    setData(initialValue);
+  }
 
+  /** Default constructor. */
+  public HTMLCDATA() {
+    super();
+  }
 
-   /**
-    * Default constructor.
-    */
-   public HTMLCDATA()
-   {
-      super();
-   }
+  /**
+   * Defines this node as a CDATA Section.
+   *
+   * @return CDATA_SECTION_NODE.
+   */
+  public short getNodeType() {
+    return CDATA_SECTION_NODE;
+  }
 
-   /**
-    * Defines this node as a CDATA Section.
-    *
-    * @return CDATA_SECTION_NODE.
-    */
-   public short getNodeType()
-   {
-      return CDATA_SECTION_NODE;
-   }
+  /** @return The data string of this CDATA object. */
+  public String getData() throws DOMException {
+    return m_data.toString();
+  }
 
-   /**
-    * @return The data string of this CDATA object.
-    */
-   public String getData() throws DOMException
-   {
-      return m_data.toString();
-   }
+  /** @param data The data string to set/replace the data owned by this CDATA. */
+  public void setData(String data) throws DOMException {
+    m_data.setLength(0);
+    m_data.append(data);
+  }
 
-   /**
-    * @param data The data string to set/replace the data owned by this CDATA.
-    */
-   public void setData( String data ) throws DOMException
-   {
-      m_data.setLength( 0 );
-      m_data.append( data );
-   }
-
-   private StringBuilder m_data = new StringBuilder();
+  private StringBuilder m_data = new StringBuilder();
 }

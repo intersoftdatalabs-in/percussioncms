@@ -21,41 +21,41 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorResultsException;
+import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @Lazy
-public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor{
-    @Override
-    public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
-        return null;
-    }
+public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor {
+  @Override
+  public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
+    return null;
+  }
 
-    @Override
-    public void deleteDisplayFormats(List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
+  @Override
+  public void deleteDisplayFormats(
+      List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {}
 
-    }
+  @Override
+  public List<DisplayFormat> findAllDisplayFormats()
+      throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
+    return null;
+  }
 
-    @Override
-    public List<DisplayFormat> findAllDisplayFormats() throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
-        return null;
-    }
+  @Override
+  public DisplayFormat findDisplayFormat(IPSGuid id)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    return null;
+  }
 
-    @Override
-    public DisplayFormat findDisplayFormat(IPSGuid id) throws PSCmsException, PSUnknownNodeTypeException {
-        return null;
-    }
+  @Override
+  public DisplayFormat findDisplayFormat(String name)
+      throws PSCmsException, PSUnknownNodeTypeException {
+    return null;
+  }
 
-    @Override
-    public DisplayFormat findDisplayFormat(String name) throws PSCmsException, PSUnknownNodeTypeException {
-        return null;
-    }
-
-    @Override
-    public void saveDisplayFormats(List<DisplayFormat> displayFormats, boolean release, String session, String user) {
-
-    }
+  @Override
+  public void saveDisplayFormats(
+      List<DisplayFormat> displayFormats, boolean release, String session, String user) {}
 }

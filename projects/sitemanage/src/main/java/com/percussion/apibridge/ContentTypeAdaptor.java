@@ -24,7 +24,6 @@ import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,47 +31,51 @@ import java.util.List;
 @PSSiteManageBean
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
-    private IPSContentDesignWs designSvc;
-    public ContentTypeAdaptor(){
-        designSvc = PSContentWsLocator.getContentDesignWebservice();
+  private IPSContentDesignWs designSvc;
+
+  public ContentTypeAdaptor() {
+    designSvc = PSContentWsLocator.getContentDesignWebservice();
+  }
+
+  /**
+   * * List all content types available to the System
+   *
+   * @param baseUri Requesting URI
+   * @return A list of all available Content Types
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri) {
+    List<ContentType> ret = new ArrayList<>();
+
+    List<IPSCatalogSummary> types = designSvc.findContentTypes("*");
+    for (IPSCatalogSummary s : types) {
+      ret.add(ApiUtils.convertContentType(s));
     }
+    return ret;
+  }
 
-    /***
-     * List all content types available to the System
-     * @param baseUri Requesting URI
-     * @return A list of all available Content Types
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri) {
-        List<ContentType> ret = new ArrayList<>();
+  /**
+   * * List ContentTypes available for the specified Site
+   *
+   * @param baseUri Originating URI
+   * @param siteId Site Id for Site to filter Types by
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri, int siteId) {
 
-            List<IPSCatalogSummary> types = designSvc.findContentTypes("*");
-            for(IPSCatalogSummary s : types){
-                ret.add(ApiUtils.convertContentType(s));
-            }
-        return ret;
-    }
+    return null;
+  }
 
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param siteId Site Id for Site to filter Types by
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-
-        return null;
-    }
-
-    /***
-     * List ContentTypes available for the specified Site
-     * @param baseUri Originating URI
-     * @param filter A ContentTypeFilter that can be used to filter content types.
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-        return null;
-    }
+  /**
+   * * List ContentTypes available for the specified Site
+   *
+   * @param baseUri Originating URI
+   * @param filter A ContentTypeFilter that can be used to filter content types.
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
+    return null;
+  }
 }

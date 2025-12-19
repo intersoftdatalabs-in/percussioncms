@@ -21,33 +21,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Relationship data structure for caching during processing of inline links. An 
- * object of this class is built purely from all outgoing relationships of the 
- * parent item. The relationships are of the category Active Assembly.
- * 
- * The fields in this should ideally be initialized once per parent content item 
- * processing
- * 
+ * Relationship data structure for caching during processing of inline links. An object of this
+ * class is built purely from all outgoing relationships of the parent item. The relationships are
+ * of the category Active Assembly.
+ *
+ * <p>The fields in this should ideally be initialized once per parent content item processing
+ *
  * @see com.percussion.cms.PSSingleValueBuilder
- * 
- */    
-public class PSRelationshipData
-{
-   /**
-    * Map of all dependent items' contentids and the promotable version list for 
-    * each contentid. The promotable version list is initialized to
-    * <code>null</code> and is built on ad hoc basis. The key is the Integer 
-    * representing the contentid and the value is a list of Integer versions of 
-    * contentids of the previous promotable versions of the item with contentid 
-    * which is the key part of this object. Never <code>null</code>.  
-    */
-   public Map<Integer, List<Integer>> m_contentIdPathMap = new HashMap<>();
+ */
+public class PSRelationshipData {
+  /**
+   * Map of all dependent items' contentids and the promotable version list for each contentid. The
+   * promotable version list is initialized to <code>null</code> and is built on ad hoc basis. The
+   * key is the Integer representing the contentid and the value is a list of Integer versions of
+   * contentids of the previous promotable versions of the item with contentid which is the key part
+   * of this object. Never <code>null</code>.
+   */
+  public Map<Integer, List<Integer>> m_contentIdPathMap = new HashMap<>();
 
-   /**
-    * Map of all relationshipids (Integer) and the contentids of all outgoing 
-    * relationships of active assembly category for the parent item. The key is 
-    * the Integer version of the relationshipid and the value is the Integer
-    * version of the dependent's contentid. Never <code>null</code>.
-    */
-   public Map<Integer,Integer> m_relIdContentIdMap = new HashMap<>();
+  /**
+   * Map of all relationshipids (Integer) and the contentids of all outgoing relationships of active
+   * assembly category for the parent item. The key is the Integer version of the relationshipid and
+   * the value is the Integer version of the dependent's contentid. Never <code>null</code>.
+   */
+  public Map<Integer, Integer> m_relIdContentIdMap = new HashMap<>();
 }

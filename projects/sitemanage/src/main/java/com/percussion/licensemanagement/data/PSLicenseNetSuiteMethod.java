@@ -20,80 +20,67 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.Validate;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder =
-{"id", "methodName", "methodType", "url"})
+@XmlType(
+    name = "",
+    propOrder = {"id", "methodName", "methodType", "url"})
 @XmlRootElement(name = "method")
-public class PSLicenseNetSuiteMethod 
-{
-    private String id; 
-    
-    private String methodName;
-    
-    private String methodType;
+public class PSLicenseNetSuiteMethod {
+  private String id;
 
-    private String url;
-    
-    public PSLicenseNetSuiteMethod()
-    {
-    }
-    
-    public PSLicenseNetSuiteMethod(JSONObject methodInfo)
-    {
-        Validate.notNull(methodInfo);
-        
-        id = methodInfo.getString("id");
-        methodName = methodInfo.getString("methodName");
-        methodType = methodInfo.getString("methodType");
-        url = methodInfo.getString("url");
-    }
-    
-    public String getId()
-    {
-        return String.valueOf(id);
-    }
+  private String methodName;
 
-    public void setId(String id)
-    {
-        Validate.notEmpty(id);
-        this.id = id;
-    }
+  private String methodType;
 
-    public String getMethodName()
-    {
-        return methodName;
-    }
+  private String url;
 
-    public void setMethodName(String methodName)
-    {
-        Validate.notEmpty(methodName);
-        this.methodName = methodName;
-    }
+  public PSLicenseNetSuiteMethod() {}
 
-    public String getUrl()
-    {
-        return url;
-    }
+  public PSLicenseNetSuiteMethod(JSONObject methodInfo) {
+    Validate.notNull(methodInfo);
 
-    public void setUrl(String url)
-    {
-        Validate.notEmpty(url);
-        this.url = url;
-    }
+    id = methodInfo.getString("id");
+    methodName = methodInfo.getString("methodName");
+    methodType = methodInfo.getString("methodType");
+    url = methodInfo.getString("url");
+  }
 
-    public void setMethodType(String methodType)
-    {
-        Validate.notEmpty(methodType);
-        this.methodType = methodType;        
-    }
+  public String getId() {
+    return String.valueOf(id);
+  }
 
-    public String getMethodType()
-    {
-        return methodType;
-    }
+  public void setId(String id) {
+    Validate.notEmpty(id);
+    this.id = id;
+  }
+
+  public String getMethodName() {
+    return methodName;
+  }
+
+  public void setMethodName(String methodName) {
+    Validate.notEmpty(methodName);
+    this.methodName = methodName;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    Validate.notEmpty(url);
+    this.url = url;
+  }
+
+  public void setMethodType(String methodType) {
+    Validate.notEmpty(methodType);
+    this.methodType = methodType;
+  }
+
+  public String getMethodType() {
+    return methodType;
+  }
 }

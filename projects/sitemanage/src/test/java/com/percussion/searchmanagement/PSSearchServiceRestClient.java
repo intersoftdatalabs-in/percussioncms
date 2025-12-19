@@ -17,19 +17,16 @@
 
 package com.percussion.searchmanagement;
 
-import com.percussion.share.data.PSPagedItemList;
 import com.percussion.searchmanagement.data.PSSearchCriteria;
+import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.test.PSDataServiceRestClient;
 
-public class PSSearchServiceRestClient extends PSDataServiceRestClient<PSPagedItemList>
-{
-    public PSSearchServiceRestClient(String url)
-    {
-        super(PSPagedItemList.class, url, "/Rhythmyx/services/searchmanagement/search");
-    }
+public class PSSearchServiceRestClient extends PSDataServiceRestClient<PSPagedItemList> {
+  public PSSearchServiceRestClient(String url) {
+    super(PSPagedItemList.class, url, "/Rhythmyx/services/searchmanagement/search");
+  }
 
-    public PSPagedItemList search(PSSearchCriteria criteria)
-    {
-        return postObjectToPath(concatPath(getPath(), "/get"), criteria, PSPagedItemList.class);
-    }
+  public PSPagedItemList search(PSSearchCriteria criteria) {
+    return postObjectToPath(concatPath(getPath(), "/get"), criteria, PSPagedItemList.class);
+  }
 }

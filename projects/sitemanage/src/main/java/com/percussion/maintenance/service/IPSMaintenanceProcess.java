@@ -18,20 +18,16 @@ package com.percussion.maintenance.service;
 
 /**
  * A process that is performing maintenance work.
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public interface IPSMaintenanceProcess
-{
+public interface IPSMaintenanceProcess {
 
-    /**
-     * Each process must have an ID that uniquely identifies it, should be human readable.  Simplest implementation is
-     * to use the class name
-     * 
-     * @return The id, not <code>null<code/> or empty.
-     */
-    String getProcessId();
-
-
+  /**
+   * Each process must have an ID that uniquely identifies it, should be human readable.  Simplest implementation is
+   * to use the class name
+   *
+   * @return The id, not <code>null<code/> or empty.
+   */
+  String getProcessId();
 }

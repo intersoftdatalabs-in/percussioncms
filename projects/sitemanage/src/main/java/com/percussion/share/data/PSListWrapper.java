@@ -18,26 +18,19 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple wrapper around a list class to allow it to be serialized by CXF.
- *
- */
+/** A simple wrapper around a list class to allow it to be serialized by CXF. */
 @JsonRootName(value = "pslist")
-public class PSListWrapper
-{
-    private List<String> list = new ArrayList<>();
+public class PSListWrapper {
+  private List<String> list = new ArrayList<>();
 
-    public List<String> getList()
-    {
-        return list;
-    }
+  public List<String> getList() {
+    return list;
+  }
 
-    public void setList(List<String> list)
-    {
-        this.list = list;
-    }
+  public void setList(List<String> list) {
+    this.list = list;
+  }
 }

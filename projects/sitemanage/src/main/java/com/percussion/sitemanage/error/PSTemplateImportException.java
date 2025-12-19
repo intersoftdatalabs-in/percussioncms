@@ -18,25 +18,21 @@ package com.percussion.sitemanage.error;
 
 import com.percussion.share.service.exception.PSDataServiceException;
 
-/**
- * @author LucasPiccoli
- *
- */
-public class PSTemplateImportException extends PSDataServiceException
-{
-    public PSTemplateImportException() {
-        super();
-    }
+/** @author LucasPiccoli */
+public class PSTemplateImportException extends PSDataServiceException {
+  public PSTemplateImportException() {
+    super();
+  }
 
-    public PSTemplateImportException(String message) {
-        super(message);
-    }
+  public PSTemplateImportException(String message) {
+    super(message);
+  }
 
-    public PSTemplateImportException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSTemplateImportException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public PSTemplateImportException(Throwable cause) {
-        super(cause);
-    }
+  public PSTemplateImportException(Throwable cause) {
+    super(cause);
+  }
 }

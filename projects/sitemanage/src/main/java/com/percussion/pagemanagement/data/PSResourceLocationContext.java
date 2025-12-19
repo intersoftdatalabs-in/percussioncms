@@ -16,63 +16,50 @@
  */
 package com.percussion.pagemanagement.data;
 
-public class PSResourceLocationContext
-{
-    
-    private String siteId;
-    
-    private String folderPath;
-    
-    private Number legacyFileContext;
-    
-    private Mode mode;
-    
-    public static enum Mode {
-        PUBLISH, PREVIEW;
-    }
+public class PSResourceLocationContext {
 
-    public String getSiteId()
-    {
-        return siteId;
-    }
+  private String siteId;
 
-    public void setSiteId(String siteId)
-    {
-        this.siteId = siteId;
-    }
+  private String folderPath;
 
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  private Number legacyFileContext;
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  private Mode mode;
 
-    public Number getLegacyFileContext()
-    {
-        return legacyFileContext;
-    }
+  public static enum Mode {
+    PUBLISH,
+    PREVIEW;
+  }
 
-    public void setLegacyFileContext(Number legacyFileContext)
-    {
-        this.legacyFileContext = legacyFileContext;
-    }
+  public String getSiteId() {
+    return siteId;
+  }
 
-    public Mode getMode()
-    {
-        return mode;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public void setMode(Mode mode)
-    {
-        this.mode = mode;
-    }
-    
-    
-    
+  public String getFolderPath() {
+    return folderPath;
+  }
 
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
+
+  public Number getLegacyFileContext() {
+    return legacyFileContext;
+  }
+
+  public void setLegacyFileContext(Number legacyFileContext) {
+    this.legacyFileContext = legacyFileContext;
+  }
+
+  public Mode getMode() {
+    return mode;
+  }
+
+  public void setMode(Mode mode) {
+    this.mode = mode;
+  }
 }
-

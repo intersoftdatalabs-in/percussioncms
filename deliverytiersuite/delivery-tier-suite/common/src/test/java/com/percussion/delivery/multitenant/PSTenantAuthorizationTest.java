@@ -18,22 +18,16 @@ package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
 
-
 /**
- * Responsible for testing of the tenant authorization module. 
- * 
- * @author natechadwick
+ * Responsible for testing of the tenant authorization module.
  *
+ * @author natechadwick
  */
-public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest{
+public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest {
 
-	/**
-	 * @param wad
-	 */
-//	public PSTenantAuthorizationTest(WebAppDescriptor wad) {
-//		super(wad);
-//	}
+  /** @param wad */
+  //	public PSTenantAuthorizationTest(WebAppDescriptor wad) {
+  //		super(wad);
+  //	}
 
-	
-	
 }

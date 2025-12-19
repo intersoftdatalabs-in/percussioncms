@@ -16,93 +16,83 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 
 /**
  * Represents a calendar value
- * @author dougrand
  *
+ * @author dougrand
  */
-public class PSCalendarValue extends PSBaseValue<Calendar>
-{  
-   /**
-    * Ctor
-    * @param date the date, never <code>null</code>
-    */
-   public PSCalendarValue(Date date) {
-      if (date == null)
-      {
-         throw new IllegalArgumentException("date may not be null");
-      }
-      m_value = new GregorianCalendar();
-      m_value.setTime(date);
-   }
+public class PSCalendarValue extends PSBaseValue<Calendar> {
+  /**
+   * Ctor
+   *
+   * @param date the date, never <code>null</code>
+   */
+  public PSCalendarValue(Date date) {
+    if (date == null) {
+      throw new IllegalArgumentException("date may not be null");
+    }
+    m_value = new GregorianCalendar();
+    m_value.setTime(date);
+  }
 
-   /**
-    * Ctor
-    * @param calendar the calendar value, never <code>null</code>
-    */
-   public PSCalendarValue(Calendar calendar) {
-      if (calendar == null)
-      {
-         throw new IllegalArgumentException("calendar may not be null");
-      }
-      m_value = calendar;
-   }
+  /**
+   * Ctor
+   *
+   * @param calendar the calendar value, never <code>null</code>
+   */
+  public PSCalendarValue(Calendar calendar) {
+    if (calendar == null) {
+      throw new IllegalArgumentException("calendar may not be null");
+    }
+    m_value = calendar;
+  }
 
-   public String getString() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return PSValueConverter.convertToString(getDate());
-   }
+  public String getString()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return PSValueConverter.convertToString(getDate());
+  }
 
-   public InputStream getStream() throws IllegalStateException,
-         RepositoryException
-   {
-      return PSValueConverter.convertToStream(getString());
-   }
+  public InputStream getStream() throws IllegalStateException, RepositoryException {
+    return PSValueConverter.convertToStream(getString());
+  }
 
-   public long getLong() throws ValueFormatException, IllegalStateException,
-         RepositoryException
-   {
-      return getDate().getTimeInMillis();
-   }
+  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
+    return getDate().getTimeInMillis();
+  }
 
-   public double getDouble() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return getDate().getTimeInMillis();
-   }
+  public double getDouble()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return getDate().getTimeInMillis();
+  }
 
-   public Calendar getDate() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      return getValue();
-   }
+  public Calendar getDate()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    return getValue();
+  }
 
-   public boolean getBoolean() throws ValueFormatException,
-         IllegalStateException, RepositoryException
-   {
-      throw new ValueFormatException("Cannot convert value");
-   }
+  public boolean getBoolean()
+      throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("Cannot convert value");
+  }
 
-   public int getType()
-   {
-      return PropertyType.DATE;
-   }  
-   
-   /**
-    * Get the calendar data from the value;
-    * @return the value, never <code>null</code>.
-    */
-   private Calendar getValue()
-   {
-      return m_value;
-   }
+  public int getType() {
+    return PropertyType.DATE;
+  }
+
+  /**
+   * Get the calendar data from the value;
+   *
+   * @return the value, never <code>null</code>.
+   */
+  private Calendar getValue() {
+    return m_value;
+  }
 }

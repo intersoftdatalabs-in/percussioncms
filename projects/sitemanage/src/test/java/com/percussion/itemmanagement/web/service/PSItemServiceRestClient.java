@@ -18,40 +18,33 @@
 package com.percussion.itemmanagement.web.service;
 
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
-import com.percussion.share.data.PSNoContent;
 import com.percussion.share.test.PSObjectRestClient;
 
 /**
  * The class used for unit test on REST layer.
- * 
+ *
  * @author peterfrontiero
  */
-public class PSItemServiceRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/itemmanagement/item/";
+public class PSItemServiceRestClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/itemmanagement/item/";
 
-    public PSItemServiceRestClient(String baseUrl)
-    {
-        super(baseUrl);
-    }
+  public PSItemServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public PSRevisionsSummary getRevisions(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
-    }
+  public PSRevisionsSummary getRevisions(String id) {
+    return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
+  }
 
-    public void restoreRevision(String id)
-    {
-        GET(concatPath(getPath(), "restoreRevision", id));
-    }
+  public void restoreRevision(String id) {
+    GET(concatPath(getPath(), "restoreRevision", id));
+  }
 
-    public String getPath()
-    {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

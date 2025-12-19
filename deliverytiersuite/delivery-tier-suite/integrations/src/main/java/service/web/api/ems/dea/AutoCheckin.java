@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -53,264 +51,207 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "emailAddress",
-    "webUserID",
-    "udfid",
-    "udfValue",
-    "buildingID",
-    "roomID",
-    "floorID",
-    "bookingDate",
-    "eventType"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "emailAddress",
+      "webUserID",
+      "udfid",
+      "udfValue",
+      "buildingID",
+      "roomID",
+      "floorID",
+      "bookingDate",
+      "eventType"
+    })
 @XmlRootElement(name = "AutoCheckin")
 public class AutoCheckin {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "EmailAddress")
-    protected String emailAddress;
-    @XmlElement(name = "WebUserID")
-    protected int webUserID;
-    @XmlElement(name = "UDFID")
-    protected int udfid;
-    @XmlElement(name = "UDFValue")
-    protected String udfValue;
-    @XmlElement(name = "BuildingID")
-    protected int buildingID;
-    @XmlElement(name = "RoomID")
-    protected int roomID;
-    @XmlElement(name = "FloorID")
-    protected int floorID;
-    @XmlElement(name = "BookingDate", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
-    @XmlElement(name = "EventType")
-    protected int eventType;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "EmailAddress")
+  protected String emailAddress;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "WebUserID")
+  protected int webUserID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "UDFID")
+  protected int udfid;
 
-    /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmailAddress() {
-        return emailAddress;
-    }
+  @XmlElement(name = "UDFValue")
+  protected String udfValue;
 
-    /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEmailAddress(String value) {
-        this.emailAddress = value;
-    }
+  @XmlElement(name = "BuildingID")
+  protected int buildingID;
 
-    /**
-     * Gets the value of the webUserID property.
-     * 
-     */
-    public int getWebUserID() {
-        return webUserID;
-    }
+  @XmlElement(name = "RoomID")
+  protected int roomID;
 
-    /**
-     * Sets the value of the webUserID property.
-     * 
-     */
-    public void setWebUserID(int value) {
-        this.webUserID = value;
-    }
+  @XmlElement(name = "FloorID")
+  protected int floorID;
 
-    /**
-     * Gets the value of the udfid property.
-     * 
-     */
-    public int getUDFID() {
-        return udfid;
-    }
+  @XmlElement(name = "BookingDate", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar bookingDate;
 
-    /**
-     * Sets the value of the udfid property.
-     * 
-     */
-    public void setUDFID(int value) {
-        this.udfid = value;
-    }
+  @XmlElement(name = "EventType")
+  protected int eventType;
 
-    /**
-     * Gets the value of the udfValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUDFValue() {
-        return udfValue;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Sets the value of the udfValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUDFValue(String value) {
-        this.udfValue = value;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Gets the value of the buildingID property.
-     * 
-     */
-    public int getBuildingID() {
-        return buildingID;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the value of the buildingID property.
-     * 
-     */
-    public void setBuildingID(int value) {
-        this.buildingID = value;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
-    public int getRoomID() {
-        return roomID;
-    }
+  /**
+   * Gets the value of the emailAddress property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getEmailAddress() {
+    return emailAddress;
+  }
 
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
+  /**
+   * Sets the value of the emailAddress property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setEmailAddress(String value) {
+    this.emailAddress = value;
+  }
 
-    /**
-     * Gets the value of the floorID property.
-     * 
-     */
-    public int getFloorID() {
-        return floorID;
-    }
+  /** Gets the value of the webUserID property. */
+  public int getWebUserID() {
+    return webUserID;
+  }
 
-    /**
-     * Sets the value of the floorID property.
-     * 
-     */
-    public void setFloorID(int value) {
-        this.floorID = value;
-    }
+  /** Sets the value of the webUserID property. */
+  public void setWebUserID(int value) {
+    this.webUserID = value;
+  }
 
-    /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
-    }
+  /** Gets the value of the udfid property. */
+  public int getUDFID() {
+    return udfid;
+  }
 
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
+  /** Sets the value of the udfid property. */
+  public void setUDFID(int value) {
+    this.udfid = value;
+  }
 
-    /**
-     * Gets the value of the eventType property.
-     * 
-     */
-    public int getEventType() {
-        return eventType;
-    }
+  /**
+   * Gets the value of the udfValue property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUDFValue() {
+    return udfValue;
+  }
 
-    /**
-     * Sets the value of the eventType property.
-     * 
-     */
-    public void setEventType(int value) {
-        this.eventType = value;
-    }
+  /**
+   * Sets the value of the udfValue property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUDFValue(String value) {
+    this.udfValue = value;
+  }
 
+  /** Gets the value of the buildingID property. */
+  public int getBuildingID() {
+    return buildingID;
+  }
+
+  /** Sets the value of the buildingID property. */
+  public void setBuildingID(int value) {
+    this.buildingID = value;
+  }
+
+  /** Gets the value of the roomID property. */
+  public int getRoomID() {
+    return roomID;
+  }
+
+  /** Sets the value of the roomID property. */
+  public void setRoomID(int value) {
+    this.roomID = value;
+  }
+
+  /** Gets the value of the floorID property. */
+  public int getFloorID() {
+    return floorID;
+  }
+
+  /** Sets the value of the floorID property. */
+  public void setFloorID(int value) {
+    this.floorID = value;
+  }
+
+  /**
+   * Gets the value of the bookingDate property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getBookingDate() {
+    return bookingDate;
+  }
+
+  /**
+   * Sets the value of the bookingDate property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setBookingDate(XMLGregorianCalendar value) {
+    this.bookingDate = value;
+  }
+
+  /** Gets the value of the eventType property. */
+  public int getEventType() {
+    return eventType;
+  }
+
+  /** Sets the value of the eventType property. */
+  public void setEventType(int value) {
+    this.eventType = value;
+  }
 }

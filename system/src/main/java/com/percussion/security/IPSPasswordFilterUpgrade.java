@@ -17,24 +17,23 @@
 
 package com.percussion.security;
 
-/***
- * Provides an interface for Password Filters to use when upgrading
- * encryption algorithms used in Password hashing.
- *
+/**
+ * * Provides an interface for Password Filters to use when upgrading encryption algorithms used in
+ * Password hashing.
  */
 public interface IPSPasswordFilterUpgrade {
 
-    /***
-     * Will encrypt the password using the hashing / encryption
-     * routine used in the previous version of the software.
-     *
-     * This is to allow Security Providers to re-encrypt passwords
-     * on login after a security update.
-     *
-     * @param password
-     * @return
-     */
-    String legacyEncrypt(String password);
+  /**
+   * * Will encrypt the password using the hashing / encryption routine used in the previous version
+   * of the software.
+   *
+   * <p>This is to allow Security Providers to re-encrypt passwords on login after a security
+   * update.
+   *
+   * @param password
+   * @return
+   */
+  String legacyEncrypt(String password);
 
-    String getLegacyAlgorithm();
+  String getLegacyAlgorithm();
 }

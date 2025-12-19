@@ -18,66 +18,65 @@
 package com.percussion.rest.acls;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-@Schema(description="AclEntry")
+@Schema(description = "AclEntry")
 public class AclEntry {
 
-    private long id;
-    private String name;
-    private Principal principal;
-    private TypedPrincipal type;
-    private UserAccessLevelList permissions;
+  private long id;
+  private String name;
+  private Principal principal;
+  private TypedPrincipal type;
+  private UserAccessLevelList permissions;
 
-    private long aclId;
+  private long aclId;
 
-    public long getAclId() {
-        return aclId;
-    }
+  public long getAclId() {
+    return aclId;
+  }
 
-    public void setAclId(long aclId) {
-        this.aclId = aclId;
-    }
+  public void setAclId(long aclId) {
+    this.aclId = aclId;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Principal getPrincipal() {
-        return principal;
-    }
+  public Principal getPrincipal() {
+    return principal;
+  }
 
-    public void setPrincipal(Principal principal) {
-        this.principal = principal;
-    }
+  public void setPrincipal(Principal principal) {
+    this.principal = principal;
+  }
 
-    public TypedPrincipal getType() {
-        return type;
-    }
+  public TypedPrincipal getType() {
+    return type;
+  }
 
-    public void setType(TypedPrincipal type) {
-        this.type = type;
-    }
+  public void setType(TypedPrincipal type) {
+    this.type = type;
+  }
 
-    public UserAccessLevelList getPermissions() {
-        return permissions;
-    }
+  public UserAccessLevelList getPermissions() {
+    return permissions;
+  }
 
-    public void setPermissions(UserAccessLevelList permissions) {
-        this.permissions = permissions;
-    }
+  public void setPermissions(UserAccessLevelList permissions) {
+    this.permissions = permissions;
+  }
 }

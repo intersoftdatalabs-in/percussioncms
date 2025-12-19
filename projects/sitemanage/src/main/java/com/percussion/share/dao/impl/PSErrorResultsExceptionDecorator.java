@@ -16,43 +16,36 @@
  */
 package com.percussion.share.dao.impl;
 
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.webservices.PSErrorResultsException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.PSErrorResultsException;
-
 /**
- * Wraps a Legacy Webservice multi error exception into a single exception
- * by wrapping one of the original exceptions.
- * <p>
- * Most of the operations in the new system are done on a single item so wrapping
- * the first exception found is generally the real exception we want.
- * 
- * @author adamgent
+ * Wraps a Legacy Webservice multi error exception into a single exception by wrapping one of the
+ * original exceptions.
  *
+ * <p>Most of the operations in the new system are done on a single item so wrapping the first
+ * exception found is generally the real exception we want.
+ *
+ * @author adamgent
  */
-public class PSErrorResultsExceptionDecorator extends PSExceptionDecorator
-{
+public class PSErrorResultsExceptionDecorator extends PSExceptionDecorator {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSErrorResultsExceptionDecorator(String message, PSErrorResultsException cause)
-    {
-        this(cause);
+  public PSErrorResultsExceptionDecorator(String message, PSErrorResultsException cause) {
+    this(cause);
+  }
+
+  public PSErrorResultsExceptionDecorator(PSErrorResultsException cause) {
+    Map<IPSGuid, Object> errors = cause.getErrors();
+    Throwable realCause = cause;
+    if (!errors.isEmpty()) {
+      Entry<IPSGuid, Object> entry = errors.entrySet().iterator().next();
+      Object object = entry.getValue();
+      if (object instanceof Throwable) realCause = (Throwable) object;
     }
-    
-    public PSErrorResultsExceptionDecorator(PSErrorResultsException cause)
-    {
-        Map<IPSGuid, Object> errors =  cause.getErrors();
-        Throwable realCause = cause;
-        if (! errors.isEmpty() ) {
-            Entry<IPSGuid, Object> entry = errors.entrySet().iterator().next();
-            Object object = entry.getValue();
-            if (object instanceof Throwable)
-                realCause = (Throwable) object;
-        }
-        wrap(realCause);
-    }
+    wrap(realCause);
+  }
 }
-

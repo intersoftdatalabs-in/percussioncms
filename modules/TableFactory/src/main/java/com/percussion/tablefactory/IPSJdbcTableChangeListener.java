@@ -16,15 +16,12 @@
  */
 package com.percussion.tablefactory;
 
-/**
- * Interface used by classes that wish to be informed about table changes.
- */
-public interface IPSJdbcTableChangeListener
-{
-   /**
-    * Called when a table change event occurs.
-    * 
-    * @param e The change event, never <code>null</code>.
-    */
-   public void tableChanged(PSJdbcTableChangeEvent e);
+/** Interface used by classes that wish to be informed about table changes. */
+public interface IPSJdbcTableChangeListener {
+  /**
+   * Called when a table change event occurs.
+   *
+   * @param e The change event, never <code>null</code>.
+   */
+  public void tableChanged(PSJdbcTableChangeEvent e);
 }

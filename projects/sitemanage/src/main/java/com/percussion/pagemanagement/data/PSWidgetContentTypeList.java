@@ -18,16 +18,14 @@
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "WidgetContentType")
 @JsonRootName("WidgetContentType")
 public class PSWidgetContentTypeList extends ArrayList<PSWidgetContentType> {
-    public PSWidgetContentTypeList(Collection<? extends PSWidgetContentType> c) {
-        super(c);
-    }
+  public PSWidgetContentTypeList(Collection<? extends PSWidgetContentType> c) {
+    super(c);
+  }
 }

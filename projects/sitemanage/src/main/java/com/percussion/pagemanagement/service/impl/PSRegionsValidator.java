@@ -16,50 +16,41 @@
  */
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.pagemanagement.data.PSRegion;
+import com.percussion.share.service.exception.PSBeanValidationException;
+import com.percussion.share.validation.PSAbstractBeanValidator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.percussion.pagemanagement.data.PSRegion;
-import com.percussion.share.service.exception.PSBeanValidationException;
-import com.percussion.share.validation.PSAbstractBeanValidator;
-
 /**
- * Validates Regions for duplicate ids.
- * Makes sure there are not duplicate regionIds
+ * Validates Regions for duplicate ids. Makes sure there are not duplicate regionIds
+ *
  * @author adamgent
  * @param <BEAN> bean type to validate
- *
  */
-public abstract class PSRegionsValidator<BEAN> extends PSAbstractBeanValidator<BEAN>
-{
+public abstract class PSRegionsValidator<BEAN> extends PSAbstractBeanValidator<BEAN> {
 
-    @Override
-    protected void doValidation(BEAN bean, PSBeanValidationException e)
-    {
-        Iterator<PSRegion> regions = getRegions(bean, e);
-        if (regions != null)
-            doRegions(regions, e);
-        
-    }
-    
-    public abstract String getField();
-    
-    public abstract Iterator<PSRegion> getRegions(BEAN wa, PSBeanValidationException e);
-    
-    
-    protected void doRegions(Iterator<PSRegion>  it, PSBeanValidationException e) {
-        Set<String> ids = new HashSet<>();
-        
-        while(it.hasNext()) {
-            PSRegion region = it.next();
-            if (ids.contains(region.getRegionId())) {
-                e.reject("region.dupIds", "Duplicate ids for region");
-            }
-            else {
-                ids.add(region.getRegionId());
-            }
-        }
-    }
+  @Override
+  protected void doValidation(BEAN bean, PSBeanValidationException e) {
+    Iterator<PSRegion> regions = getRegions(bean, e);
+    if (regions != null) doRegions(regions, e);
+  }
 
+  public abstract String getField();
+
+  public abstract Iterator<PSRegion> getRegions(BEAN wa, PSBeanValidationException e);
+
+  protected void doRegions(Iterator<PSRegion> it, PSBeanValidationException e) {
+    Set<String> ids = new HashSet<>();
+
+    while (it.hasNext()) {
+      PSRegion region = it.next();
+      if (ids.contains(region.getRegionId())) {
+        e.reject("region.dupIds", "Duplicate ids for region");
+      } else {
+        ids.add(region.getRegionId());
+      }
+    }
+  }
 }

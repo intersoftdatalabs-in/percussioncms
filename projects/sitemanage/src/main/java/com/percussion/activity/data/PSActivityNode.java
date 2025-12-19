@@ -19,91 +19,61 @@ package com.percussion.activity.data;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Name/path container for activity which also includes the content types of the active items.
- */
-public class PSActivityNode
-{
-    String siteName;
-    String name;
-    String path;
-    List<String> contentTypes;
-    
-    public PSActivityNode(String siteName, String name, String path, List<String> contentTypes)
-    {
-        this.siteName = siteName;
-        this.name = name;
-        this.path = path;
-        this.contentTypes = contentTypes;
-    }
-    
-    public PSActivityNode(String siteName, String name, String path, String contentType)
-    {
-        this(siteName, name, path, Collections.singletonList(contentType));
-    }
-    
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+/** Name/path container for activity which also includes the content types of the active items. */
+public class PSActivityNode {
+  String siteName;
+  String name;
+  String path;
+  List<String> contentTypes;
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public PSActivityNode(String siteName, String name, String path, List<String> contentTypes) {
+    this.siteName = siteName;
+    this.name = name;
+    this.path = path;
+    this.contentTypes = contentTypes;
+  }
 
-    /**
-     * @return the path
-     */
-    public String getPath()
-    {
-        return path;
-    }
+  public PSActivityNode(String siteName, String name, String path, String contentType) {
+    this(siteName, name, path, Collections.singletonList(contentType));
+  }
 
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  /** @return the name */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @return the contentTypes
-     */
-    public List<String> getContentTypes()
-    {
-        return contentTypes;
-    }
+  /** @param name the name to set */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * @param contentTypes the contentTypes to set
-     */
-    public void setContentTypes(List<String> contentTypes)
-    {
-        this.contentTypes = contentTypes;
-    }
+  /** @return the path */
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * @return the siteName
-     */
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  /** @param path the path to set */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * @param siteName the siteName to set
-     */
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+  /** @return the contentTypes */
+  public List<String> getContentTypes() {
+    return contentTypes;
+  }
 
+  /** @param contentTypes the contentTypes to set */
+  public void setContentTypes(List<String> contentTypes) {
+    this.contentTypes = contentTypes;
+  }
+
+  /** @return the siteName */
+  public String getSiteName() {
+    return siteName;
+  }
+
+  /** @param siteName the siteName to set */
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 }

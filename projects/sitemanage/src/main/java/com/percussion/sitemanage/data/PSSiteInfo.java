@@ -17,17 +17,14 @@
 
 package com.percussion.sitemanage.data;
 
-public class PSSiteInfo
-{
-    private String siteName;
+public class PSSiteInfo {
+  private String siteName;
 
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 }

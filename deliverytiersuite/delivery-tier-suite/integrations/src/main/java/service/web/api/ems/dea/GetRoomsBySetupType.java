@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -46,144 +44,105 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "buildingID",
-    "roomTypeID",
-    "floorID",
-    "setupTypeID"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userName", "password", "buildingID", "roomTypeID", "floorID", "setupTypeID"})
 @XmlRootElement(name = "GetRoomsBySetupType")
 public class GetRoomsBySetupType {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "BuildingID")
-    protected int buildingID;
-    @XmlElement(name = "RoomTypeID")
-    protected int roomTypeID;
-    @XmlElement(name = "FloorID")
-    protected int floorID;
-    @XmlElement(name = "SetupTypeID")
-    protected int setupTypeID;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "BuildingID")
+  protected int buildingID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "RoomTypeID")
+  protected int roomTypeID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "FloorID")
+  protected int floorID;
 
-    /**
-     * Gets the value of the buildingID property.
-     * 
-     */
-    public int getBuildingID() {
-        return buildingID;
-    }
+  @XmlElement(name = "SetupTypeID")
+  protected int setupTypeID;
 
-    /**
-     * Sets the value of the buildingID property.
-     * 
-     */
-    public void setBuildingID(int value) {
-        this.buildingID = value;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Gets the value of the roomTypeID property.
-     * 
-     */
-    public int getRoomTypeID() {
-        return roomTypeID;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Sets the value of the roomTypeID property.
-     * 
-     */
-    public void setRoomTypeID(int value) {
-        this.roomTypeID = value;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Gets the value of the floorID property.
-     * 
-     */
-    public int getFloorID() {
-        return floorID;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Sets the value of the floorID property.
-     * 
-     */
-    public void setFloorID(int value) {
-        this.floorID = value;
-    }
+  /** Gets the value of the buildingID property. */
+  public int getBuildingID() {
+    return buildingID;
+  }
 
-    /**
-     * Gets the value of the setupTypeID property.
-     * 
-     */
-    public int getSetupTypeID() {
-        return setupTypeID;
-    }
+  /** Sets the value of the buildingID property. */
+  public void setBuildingID(int value) {
+    this.buildingID = value;
+  }
 
-    /**
-     * Sets the value of the setupTypeID property.
-     * 
-     */
-    public void setSetupTypeID(int value) {
-        this.setupTypeID = value;
-    }
+  /** Gets the value of the roomTypeID property. */
+  public int getRoomTypeID() {
+    return roomTypeID;
+  }
 
+  /** Sets the value of the roomTypeID property. */
+  public void setRoomTypeID(int value) {
+    this.roomTypeID = value;
+  }
+
+  /** Gets the value of the floorID property. */
+  public int getFloorID() {
+    return floorID;
+  }
+
+  /** Sets the value of the floorID property. */
+  public void setFloorID(int value) {
+    this.floorID = value;
+  }
+
+  /** Gets the value of the setupTypeID property. */
+  public int getSetupTypeID() {
+    return setupTypeID;
+  }
+
+  /** Sets the value of the setupTypeID property. */
+  public void setSetupTypeID(int value) {
+    this.setupTypeID = value;
+  }
 }

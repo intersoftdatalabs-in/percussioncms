@@ -18,49 +18,37 @@
 package com.percussion.tablefactory;
 
 /**
- * This class encapsulates the WHERE clause of the SELECT statement.
- * For usage, see the main method of PSJdbcSelectFilter class.
+ * This class encapsulates the WHERE clause of the SELECT statement. For usage, see the main method
+ * of PSJdbcSelectFilter class.
  */
-public class PSJdbcFilterContainer extends PSJdbcSelectFilter
-{
-   /**
-    * Joins the filter to the filters already contained in the container
-    * using AND clause.
-    * @param filter contains a single condition of the WHERE clause, may not
-    * be <code>null</code>
-    */
-   public void doAND(PSJdbcSelectFilter filter)
-   {
-      if (m_filter.trim().length() != 0)
-      {
-         m_filter = "(" + m_filter + ")";
-         m_filter += STR_AND;
-         m_filter += "(" + filter + ")";
-      }
-      else
-      {
-         m_filter = filter.toString();
-      }
-   }
+public class PSJdbcFilterContainer extends PSJdbcSelectFilter {
+  /**
+   * Joins the filter to the filters already contained in the container using AND clause.
+   *
+   * @param filter contains a single condition of the WHERE clause, may not be <code>null</code>
+   */
+  public void doAND(PSJdbcSelectFilter filter) {
+    if (m_filter.trim().length() != 0) {
+      m_filter = "(" + m_filter + ")";
+      m_filter += STR_AND;
+      m_filter += "(" + filter + ")";
+    } else {
+      m_filter = filter.toString();
+    }
+  }
 
-   /**
-    * Joins the filter to the filters already contained in the container
-    * using OR clause.
-    * @param filter contains a single condition of the WHERE clause, may not
-    * be <code>null</code>
-    */
-   public void doOR(PSJdbcSelectFilter filter)
-   {
-      if (m_filter.trim().length() != 0)
-      {
-         m_filter = "(" + m_filter + ")";
-         m_filter += STR_OR;
-         m_filter += "(" + filter + ")";
-      }
-      else
-      {
-         m_filter = filter.toString();
-      }
-   }
+  /**
+   * Joins the filter to the filters already contained in the container using OR clause.
+   *
+   * @param filter contains a single condition of the WHERE clause, may not be <code>null</code>
+   */
+  public void doOR(PSJdbcSelectFilter filter) {
+    if (m_filter.trim().length() != 0) {
+      m_filter = "(" + m_filter + ")";
+      m_filter += STR_OR;
+      m_filter += "(" + filter + ")";
+    } else {
+      m_filter = filter.toString();
+    }
+  }
 }
-

@@ -17,62 +17,44 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author Leonardo Hildt
- * 
- */
+/** @author Leonardo Hildt */
 @XmlRootElement(name = "BulkApprovalJob")
-public class PSBulkApprovalJobStatus extends PSAbstractDataObject
-{
+public class PSBulkApprovalJobStatus extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Job Id for publishing job. Unique and never <code>null</code>.
-     */
-    private long jobId;
+  /** Job Id for publishing job. Unique and never <code>null</code>. */
+  private long jobId;
 
-    /**
-     * Job status
-     */
-    private String status;
+  /** Job status */
+  private String status;
 
-    private PSApprovableItems items;
+  private PSApprovableItems items;
 
-    public long getJobId()
-    {
-        return jobId;
-    }
+  public long getJobId() {
+    return jobId;
+  }
 
-    public void setJobId(long jobId)
-    {
-        this.jobId = jobId;
-    }
-    public String getStatus()
-    {
-        return status;
-    }
+  public void setJobId(long jobId) {
+    this.jobId = jobId;
+  }
 
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public PSApprovableItems getItems()
-    {
-        return items;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public void setItems(PSApprovableItems items)
-    {
-        this.items = items;
-    }
+  public PSApprovableItems getItems() {
+    return items;
+  }
+
+  public void setItems(PSApprovableItems items) {
+    this.items = items;
+  }
 }

@@ -18,31 +18,25 @@ package com.percussion.deployer.services;
 
 /**
  * Handle deploy service exceptions
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
-public class PSDeployServiceException extends Exception
-{
-   private static final long serialVersionUID = 1L;
+public class PSDeployServiceException extends Exception {
+  private static final long serialVersionUID = 1L;
 
-   public PSDeployServiceException() 
-   {
-      super();
-   }
+  public PSDeployServiceException() {
+    super();
+  }
 
-   public PSDeployServiceException(String message, Throwable cause) 
-   {
-      super(message, cause);
-   }
+  public PSDeployServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-   public PSDeployServiceException(String message) 
-   {
-      super(message);
-   }
+  public PSDeployServiceException(String message) {
+    super(message);
+  }
 
-   public PSDeployServiceException(Throwable cause) 
-   {
-      super(cause);
-   }
-
+  public PSDeployServiceException(Throwable cause) {
+    super(cause);
+  }
 }

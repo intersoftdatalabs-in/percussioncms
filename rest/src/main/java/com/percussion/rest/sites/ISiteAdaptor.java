@@ -19,44 +19,47 @@ package com.percussion.rest.sites;
 
 public interface ISiteAdaptor {
 
+  /**
+   * * Find all sites.
+   *
+   * @return SiteList
+   */
+  SiteList findAllSites();
 
-    /***
-     * Find all sites.
-     * @return SiteList
-     */
-    SiteList findAllSites();
+  /**
+   * * Save a site
+   *
+   * @param site
+   */
+  void saveSite(Site site);
 
-    /***
-     * Save a site
-     * @param site
-     */
-    void saveSite(Site site);
+  /**
+   * *
+   *
+   * @param name
+   * @return
+   */
+  Site findByName(String name);
 
-    /***
-     *
-     * @param name
-     * @return
-     */
-    Site findByName(String name);
+  /**
+   * * find By Guid
+   *
+   * @param guid
+   * @return
+   */
+  Site findByGuid(String guid);
 
-    /***
-     * find By Guid
-     * @param guid
-     * @return
-     */
-    Site findByGuid(String guid);
+  /**
+   * * Delete the site
+   *
+   * @param site
+   */
+  void deleteSite(Site site);
 
-    /***
-     * Delete the site
-     * @param site
-     */
-    void deleteSite(Site site);
-
-    /***
-     * Create a new Site
-     * @return
-     */
-    Site createSite();
-
-
+  /**
+   * * Create a new Site
+   *
+   * @return
+   */
+  Site createSite();
 }

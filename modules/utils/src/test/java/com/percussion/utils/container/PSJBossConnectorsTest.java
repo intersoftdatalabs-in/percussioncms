@@ -17,55 +17,52 @@
 
 package com.percussion.utils.container;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 public class PSJBossConnectorsTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    File root;
+  File root;
 
+  @Before
+  public void setup() throws IOException {
+    root = tempFolder.newFolder();
+    if (!Files.exists(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"))) {
+      Path p =
+          Files.createDirectories(
+              root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"));
 
-    @Before
-    public void setup() throws IOException {
-         root = tempFolder.newFolder();
-         if(! Files.exists(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"))) {
-             Path p = Files.createDirectories(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"));
-
-             Files.copy(
-                     getClass().getResourceAsStream("/com/percussion/utils/container/AppServer/server/rx/deploy/jboss-web.deployer/server.xml"),
-                     p.resolve("server.xml"));
-         }
+      Files.copy(
+          getClass()
+              .getResourceAsStream(
+                  "/com/percussion/utils/container/AppServer/server/rx/deploy/jboss-web.deployer/server.xml"),
+          p.resolve("server.xml"));
     }
+  }
 
-    @Test
-    public void load() throws IOException {
+  @Test
+  public void load() throws IOException {
 
+    PSJBossConnectors c = new PSJBossConnectors(root);
+    c.load();
+    System.out.println(c);
+  }
 
-        PSJBossConnectors c = new PSJBossConnectors(root);
-        c.load();
-        System.out.println(c);
+  @Test
+  @Ignore("TODO: This test is failing. Fix it please!")
+  public void save() throws IOException {
 
-    }
-
-    @Test
-    @Ignore("TODO: This test is failing. Fix it please!")
-    public void save() throws IOException {
-
-
-        PSJBossConnectors c = new PSJBossConnectors(root);
-        c.load();
-        c.save();
-    }
-
+    PSJBossConnectors c = new PSJBossConnectors(root);
+    c.load();
+    c.save();
+  }
 }

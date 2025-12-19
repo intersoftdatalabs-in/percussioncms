@@ -18,8 +18,4 @@ package com.percussion.share.data;
 
 import com.percussion.share.service.IPSLinkableItem;
 
-public interface IPSLinkableContentItem extends IPSContentItem, IPSLinkableItem
-{
-
-}
-
+public interface IPSLinkableContentItem extends IPSContentItem, IPSLinkableItem {}

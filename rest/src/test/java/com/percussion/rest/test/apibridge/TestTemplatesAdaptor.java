@@ -20,22 +20,20 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.templates.ITemplatesAdaptor;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSummary;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
-
-    /**
-     * @param baseUri
-     * @param filter
-     * @return
-     */
-    @Override
-    public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
-        return null;
-    }
+  /**
+   * @param baseUri
+   * @param filter
+   * @return
+   */
+  @Override
+  public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
+    return null;
+  }
 }

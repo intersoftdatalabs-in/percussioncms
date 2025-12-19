@@ -25,194 +25,162 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSWidgetItemSummary;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.sitemanage.data.PSSiteSummary;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import java.util.List;
-
-@XmlSeeAlso({PSPage.class,
-        PSSiteSummary.class,
-        PSAsset.class,
-        PSAssetSummary.class,
-        PSDataItemSummarySingleFolderPath.class,
-        PSEmptyPage.class,
-        PSNullSiteSummary.class,
-        PSOrphanedAssetSummary.class,
-        PSPathItem.class,
-        PSWidgetItemSummary.class
+@XmlSeeAlso({
+  PSPage.class,
+  PSSiteSummary.class,
+  PSAsset.class,
+  PSAssetSummary.class,
+  PSDataItemSummarySingleFolderPath.class,
+  PSEmptyPage.class,
+  PSNullSiteSummary.class,
+  PSOrphanedAssetSummary.class,
+  PSPathItem.class,
+  PSWidgetItemSummary.class
 })
 @XmlRootElement
-public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary
-{
+public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary {
 
+  private String id;
+  private String name;
 
-    private String id;
-    private String name;
-    
-    private List<String> folderPaths;
-    
-    private String icon;
-    
-    private Category category;
-    
-    private boolean revisionable = false;
-    
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * See {@link #getType()} for detail.
-     */
-    private String type;
+  private List<String> folderPaths;
 
-    /**
-     * See {@link #getLabel()} for detail.
-     */
-    private String label;
-    
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  private String icon;
 
-    @Override
-    public void setId(String id)
-    {
-        this.id = id;
-    }    
-    
-    public String getName()
-    {
-        return name;
-    }
+  private Category category;
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  private boolean revisionable = false;
 
-    public List<String> getFolderPaths()
-    {
-        return folderPaths;
-    }
+  private static final long serialVersionUID = 1L;
 
-    public void setFolderPaths(List<String> paths)
-    {
-        this.folderPaths = paths;
-    }
+  /** See {@link #getType()} for detail. */
+  private String type;
 
-    public String getIcon()
-    {
-        return icon;
-    }
+  /** See {@link #getLabel()} for detail. */
+  private String label;
 
-    public void setIcon(String icon)
-    {
-        this.icon = icon;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Gets the content type of the item.
-     * 
-     * @return the content type, not blank for a valid object.
-     */
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    public String getType()
-    {
-        return type;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * Sets the content type of the item.
-     * 
-     * @param type new content type, should not be blank for a valid object.
-     *  
-     * @see #getType()
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Determines if this is a folder.
-     * 
-     * @return <code>true</code> if this is a folder; otherwise return 
-     * <code>false</code>.
-     */
-    public boolean isFolder()
-    {
-        return "Folder".equals(type) || "FSFolder".equals(type);
-    }
-    
-    @Override
-    public boolean isPage()
-    {
-        return "percPage".equals(type);
-    }
-    
-    public boolean isResource()
-    {
-        return !isPage() && ("percImageAsset".equals(type) || "percFileAsset".equals(type) ||
-                "percFlashAsset".equals(type));
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Category getCategory()
-    {
-        return category;
-    }
-    
-    public void setCategory(Category category)
-    {
-        this.category = category;
-    }
-    
-    /**
-     * Gets the content type label of the item.
-     * 
-     * @return the content type label, not blank for a valid object.
-     */
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    public String getLabel()
-    {
-        return label;
-    }
+  public List<String> getFolderPaths() {
+    return folderPaths;
+  }
 
-    /**
-     * Sets the content type label of the item.
-     * 
-     * @param label new content type label, should not be blank for a valid object.
-     *  
-     * @see #getLabel()
-     */
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-    
-    
-    
-    public boolean isRevisionable()
-    {
-        return revisionable;
-    }
+  public void setFolderPaths(List<String> paths) {
+    this.folderPaths = paths;
+  }
 
-    public void setRevisionable(boolean revisionable)
-    {
-        this.revisionable = revisionable;
-    }
+  public String getIcon() {
+    return icon;
+  }
 
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
 
+  /**
+   * Gets the content type of the item.
+   *
+   * @return the content type, not blank for a valid object.
+   */
+  @NotNull
+  @NotEmpty
+  @NotBlank
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * The type for a site item summary
-     */
-    public static final String TYPE_SITE = "site";    
+  /**
+   * Sets the content type of the item.
+   *
+   * @param type new content type, should not be blank for a valid object.
+   * @see #getType()
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  /**
+   * Determines if this is a folder.
+   *
+   * @return <code>true</code> if this is a folder; otherwise return <code>false</code>.
+   */
+  public boolean isFolder() {
+    return "Folder".equals(type) || "FSFolder".equals(type);
+  }
+
+  @Override
+  public boolean isPage() {
+    return "percPage".equals(type);
+  }
+
+  public boolean isResource() {
+    return !isPage()
+        && ("percImageAsset".equals(type)
+            || "percFileAsset".equals(type)
+            || "percFlashAsset".equals(type));
+  }
+
+  public Category getCategory() {
+    return category;
+  }
+
+  public void setCategory(Category category) {
+    this.category = category;
+  }
+
+  /**
+   * Gets the content type label of the item.
+   *
+   * @return the content type label, not blank for a valid object.
+   */
+  @NotNull
+  @NotEmpty
+  @NotBlank
+  public String getLabel() {
+    return label;
+  }
+
+  /**
+   * Sets the content type label of the item.
+   *
+   * @param label new content type label, should not be blank for a valid object.
+   * @see #getLabel()
+   */
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public boolean isRevisionable() {
+    return revisionable;
+  }
+
+  public void setRevisionable(boolean revisionable) {
+    this.revisionable = revisionable;
+  }
+
+  /** The type for a site item summary */
+  public static final String TYPE_SITE = "site";
 }

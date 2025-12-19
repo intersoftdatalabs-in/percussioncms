@@ -17,44 +17,34 @@
 package com.percussion.ui.data;
 
 import com.percussion.pathmanagement.data.PSPathItem;
-
 import java.util.List;
 
-/**
- * @author miltonpividori
- *
- */
-public class PSDisplayPropertiesCriteria
-{
-    private List<PSPathItem> items;
-    
-    private PSSimpleDisplayFormat format;
-    
-    private boolean isDisplayFormatRequired = true;
-    
-    public PSDisplayPropertiesCriteria(List<PSPathItem> items, PSSimpleDisplayFormat format)
-    {
-        this.items = items;
-        this.format = format;
-    }
+/** @author miltonpividori */
+public class PSDisplayPropertiesCriteria {
+  private List<PSPathItem> items;
 
-    public List<PSPathItem> getItems()
-    {
-        return items;
-    }
+  private PSSimpleDisplayFormat format;
 
-    public PSSimpleDisplayFormat getFormat()
-    {
-        return format;
-    }
+  private boolean isDisplayFormatRequired = true;
 
-    public boolean isDisplayFormatRequired()
-    {
-        return isDisplayFormatRequired;
-    }
+  public PSDisplayPropertiesCriteria(List<PSPathItem> items, PSSimpleDisplayFormat format) {
+    this.items = items;
+    this.format = format;
+  }
 
-    public void setDisplayFormatRequired(boolean isDisplayFormatRequired)
-    {
-        this.isDisplayFormatRequired = isDisplayFormatRequired;
-    }
+  public List<PSPathItem> getItems() {
+    return items;
+  }
+
+  public PSSimpleDisplayFormat getFormat() {
+    return format;
+  }
+
+  public boolean isDisplayFormatRequired() {
+    return isDisplayFormatRequired;
+  }
+
+  public void setDisplayFormatRequired(boolean isDisplayFormatRequired) {
+    this.isDisplayFormatRequired = isDisplayFormatRequired;
+  }
 }

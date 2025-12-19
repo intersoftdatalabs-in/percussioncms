@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
+/** */
 package com.percussion.utils;
 
 import com.percussion.delivery.client.IPSDeliveryClient.HttpMethodType;
@@ -28,160 +26,148 @@ import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.integritymanagement.data.PSIntegrityTask.TaskStatus;
 import com.percussion.utils.types.PSPair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * Check and report on the health status of the DTS and all of its services
- * 
+ *
  * @author robertjohansen
- * 
  */
 @Component("dtsStatusProvider")
 public class PSDTSStatusProvider implements IPSDTSStatusProvider {
-    //Root of server
-    private String serverRoot;
+  // Root of server
+  private String serverRoot;
 
-    //external services - services external from CM1 (List - in case more need to be added)
-    
-    private final Map<String,String> externalServices = new HashMap<String,String>(){{
-        put("perc-polls-services","/perc-polls-services/polls/version");
-    }};
-    
-    private final Map<String,String> services = new HashMap<String,String>() {{
-        put(PSDeliveryInfo.SERVICE_FEEDS, "/feeds/rss/version");
-        put(PSDeliveryInfo.SERVICE_INDEXER, "/perc-metadata-services/metadata/version");
-        put(PSDeliveryInfo.SERVICE_COMMENTS,"/perc-comments-services/comment/version");
-        put(PSDeliveryInfo.SERVICE_FORMS,"perc-form-processor/form/version");
-        put(PSDeliveryInfo.SERVICE_MEMBERSHIP,"/perc-membership-services/membership/version");
-    }};
+  // external services - services external from CM1 (List - in case more need to be added)
 
-    private IPSDeliveryInfoService deliveryService;
+  private final Map<String, String> externalServices =
+      new HashMap<String, String>() {
+        {
+          put("perc-polls-services", "/perc-polls-services/polls/version");
+        }
+      };
 
-    private PSDeliveryClient deliveryClient;
+  private final Map<String, String> services =
+      new HashMap<String, String>() {
+        {
+          put(PSDeliveryInfo.SERVICE_FEEDS, "/feeds/rss/version");
+          put(PSDeliveryInfo.SERVICE_INDEXER, "/perc-metadata-services/metadata/version");
+          put(PSDeliveryInfo.SERVICE_COMMENTS, "/perc-comments-services/comment/version");
+          put(PSDeliveryInfo.SERVICE_FORMS, "perc-form-processor/form/version");
+          put(PSDeliveryInfo.SERVICE_MEMBERSHIP, "/perc-membership-services/membership/version");
+        }
+      };
 
-    /**
-     * Default constructor
-     */
-    @Autowired
-    public PSDTSStatusProvider(IPSDeliveryInfoService service)
-    {
-        deliveryService = service;
-        deliveryClient = new PSDeliveryClient();
-        serverRoot = deliveryService.findBaseByServerType(null);
+  private IPSDeliveryInfoService deliveryService;
+
+  private PSDeliveryClient deliveryClient;
+
+  /** Default constructor */
+  @Autowired
+  public PSDTSStatusProvider(IPSDeliveryInfoService service) {
+    deliveryService = service;
+    deliveryClient = new PSDeliveryClient();
+    serverRoot = deliveryService.findBaseByServerType(null);
+  }
+
+  /**
+   * Returns Health status of DTS and all services - No Services are represented if DTS is not
+   * running Services are represented as key values in a map with a PSPair representing Status
+   * (success or failed) in the first element and the response message in the second element. The
+   * first element of the PSPair will always represent Status.
+   */
+  @Override
+  public Map<String, PSPair<TaskStatus, String>> getDTSStatusReport() {
+    Map<String, PSPair<TaskStatus, String>> statusReport = new HashMap<>();
+
+    // Check the status of the DTS - if down return status of dts else continue checking services
+    PSPair<Boolean, String> dtsPair = getExternalTomcatServiceStatus(serverRoot);
+    if (!dtsPair.getFirst()) {
+      statusReport.put("dts", new PSPair<>(TaskStatus.FAILED, dtsPair.getSecond()));
+      return statusReport;
+    }
+    statusReport.put("dts", new PSPair<>(TaskStatus.SUCCESS, dtsPair.getSecond()));
+
+    // check the external services and add the status to the report
+    for (Map.Entry<String, String> externalService : externalServices.entrySet()) {
+      if (!getExternalTomcatServiceStatus(serverRoot + externalService.getValue()).getFirst()) {
+        statusReport.put(
+            externalService.getKey(), new PSPair<>(TaskStatus.FAILED, dtsPair.getSecond()));
+      } else {
+        statusReport.put(
+            externalService.getKey(), new PSPair<>(TaskStatus.SUCCESS, dtsPair.getSecond()));
+      }
     }
 
-    /**
-     * Returns Health status of DTS and all services - No Services are
-     * represented if DTS is not running Services are represented as key values
-     * in a map with a PSPair representing Status (success or failed) in the
-     * first element and the response message in the second element. The first
-     * element of the PSPair will always represent Status.
-     */
-    @Override
-    public Map<String, PSPair<TaskStatus, String>> getDTSStatusReport()
-    {
-        Map<String, PSPair<TaskStatus, String>> statusReport = new HashMap<>();
-        
-        //Check the status of the DTS - if down return status of dts else continue checking services
-        PSPair<Boolean, String> dtsPair = getExternalTomcatServiceStatus(serverRoot);
-        if (!dtsPair.getFirst())
-        {
-            statusReport.put("dts", new PSPair<>(TaskStatus.FAILED, dtsPair.getSecond()));
-            return statusReport;
-        }
-        statusReport.put("dts", new PSPair<>(TaskStatus.SUCCESS, dtsPair.getSecond()));
-        
-        //check the external services and add the status to the report
-        for(Map.Entry<String, String> externalService : externalServices.entrySet())
-        {
-            if (!getExternalTomcatServiceStatus(serverRoot + externalService.getValue()).getFirst()) {
-                statusReport.put(externalService.getKey(), new PSPair<>(TaskStatus.FAILED, dtsPair.getSecond()));
-            }
-            else {
-                statusReport.put(externalService.getKey(), new PSPair<>(TaskStatus.SUCCESS, dtsPair.getSecond()));
-            }
-        }
-        
-        for (Map.Entry<String, String> entry : services.entrySet())
-        {
-            PSPair<TaskStatus,String> pair = getServiceStatus(entry.getKey(),entry.getValue());
-            statusReport.put(entry.getKey(),pair);
-        }
-        
-        return statusReport;
-    }
-     
-    /**
-     * Get the status of the specified service
-     * @param service Name of service
-     * @param serviceURL url from service to /version (ping url)
-     * @return PSPair where first represents status and second is response message
-     */
-    private PSPair<TaskStatus,String> getServiceStatus(String service, String serviceURL)
-    {
-        try
-        {
-            PSDeliveryInfo server = deliveryService.findByService(service);
-            String message = deliveryClient.getString(new PSDeliveryActionOptions(server, serviceURL,
-                    HttpMethodType.GET, false));
-            return new PSPair<>(TaskStatus.SUCCESS, message);
-        }
-        catch (RuntimeException e)
-        {
-            return new PSPair<>(TaskStatus.FAILED, PSExceptionUtils.getMessageForLog(e));
-        }
+    for (Map.Entry<String, String> entry : services.entrySet()) {
+      PSPair<TaskStatus, String> pair = getServiceStatus(entry.getKey(), entry.getValue());
+      statusReport.put(entry.getKey(), pair);
     }
 
-    /**
-     * Get the status of the external serivce
-     * such as polls and or just root tomcat
-     * @return PSPair<Status,Message>
-     */
-    private PSPair<Boolean, String> getExternalTomcatServiceStatus(String surl)
-    {
-        try
-        {
-            boolean alive = false;
-            String response = "";
-            URL url = new URL(surl);
-            if(url.getProtocol().equalsIgnoreCase("https")){
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("Content-Type", "*/*");
-    
-                response = conn.getResponseMessage();
-                if(response.contains("OK")) {
-                    alive = true;
-                }
-            }
-            else{
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("Content-Type", "*/*");
-    
-                response = conn.getResponseMessage();
-                if(response.contains("OK")) {
-                    alive = true;
-                }
-                
-            }
-            return new PSPair<>(alive, response);
-        }
-        catch (ConnectException e)
-        {
-            return new PSPair<>(false,PSExceptionUtils.getMessageForLog(e));
-        }
-        catch (IOException e)
-        {
-            return new PSPair<>(false,PSExceptionUtils.getMessageForLog(e));
-        }
+    return statusReport;
+  }
+
+  /**
+   * Get the status of the specified service
+   *
+   * @param service Name of service
+   * @param serviceURL url from service to /version (ping url)
+   * @return PSPair where first represents status and second is response message
+   */
+  private PSPair<TaskStatus, String> getServiceStatus(String service, String serviceURL) {
+    try {
+      PSDeliveryInfo server = deliveryService.findByService(service);
+      String message =
+          deliveryClient.getString(
+              new PSDeliveryActionOptions(server, serviceURL, HttpMethodType.GET, false));
+      return new PSPair<>(TaskStatus.SUCCESS, message);
+    } catch (RuntimeException e) {
+      return new PSPair<>(TaskStatus.FAILED, PSExceptionUtils.getMessageForLog(e));
     }
+  }
+
+  /**
+   * Get the status of the external serivce such as polls and or just root tomcat
+   *
+   * @return PSPair<Status,Message>
+   */
+  private PSPair<Boolean, String> getExternalTomcatServiceStatus(String surl) {
+    try {
+      boolean alive = false;
+      String response = "";
+      URL url = new URL(surl);
+      if (url.getProtocol().equalsIgnoreCase("https")) {
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", "*/*");
+
+        response = conn.getResponseMessage();
+        if (response.contains("OK")) {
+          alive = true;
+        }
+      } else {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", "*/*");
+
+        response = conn.getResponseMessage();
+        if (response.contains("OK")) {
+          alive = true;
+        }
+      }
+      return new PSPair<>(alive, response);
+    } catch (ConnectException e) {
+      return new PSPair<>(false, PSExceptionUtils.getMessageForLog(e));
+    } catch (IOException e) {
+      return new PSPair<>(false, PSExceptionUtils.getMessageForLog(e));
+    }
+  }
 }

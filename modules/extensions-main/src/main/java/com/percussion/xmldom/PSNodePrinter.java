@@ -20,27 +20,24 @@ package com.percussion.xmldom;
 import java.io.Writer;
 
 /**
- * This class is separated from PSXmlTreeWaker.java to fix a specific bug for
- * xmldom package. The idea is to not jeopardise other areas (as treewalker is
- * used everywhere) by making this change for xmldom. The only difference is
- * that the pretty print via indentation is completely disabled. This is to
- * avoid problems with  mixing the content between xml (html) nodes which is
- * very common with any HTML editor control like Ektron control.
- * @deprecated moved to com.percussion.xml package to avoid cyclic dependency
- * after it is being used in a class in com.percussion.cms package. 
- * This class is a deprecated class that simply extends 
- * com.percussion.xml.PSNodePrinter and is kept around for backward compatibility.
+ * This class is separated from PSXmlTreeWaker.java to fix a specific bug for xmldom package. The
+ * idea is to not jeopardise other areas (as treewalker is used everywhere) by making this change
+ * for xmldom. The only difference is that the pretty print via indentation is completely disabled.
+ * This is to avoid problems with mixing the content between xml (html) nodes which is very common
+ * with any HTML editor control like Ektron control.
+ *
+ * @deprecated moved to com.percussion.xml package to avoid cyclic dependency after it is being used
+ *     in a class in com.percussion.cms package. This class is a deprecated class that simply
+ *     extends com.percussion.xml.PSNodePrinter and is kept around for backward compatibility.
  */
-public class PSNodePrinter extends com.percussion.xml.PSNodePrinter
-{
-   /**
-    * Only constructor. Takes the print writer as the argument.
-    * @param out must not be <code>null</code>.
-    * @throws IllegalArgumentException
-    */
-   public PSNodePrinter(Writer out)
-   {
-      super(out);
-   }   
-   
+public class PSNodePrinter extends com.percussion.xml.PSNodePrinter {
+  /**
+   * Only constructor. Takes the print writer as the argument.
+   *
+   * @param out must not be <code>null</code>.
+   * @throws IllegalArgumentException
+   */
+  public PSNodePrinter(Writer out) {
+    super(out);
+  }
 }

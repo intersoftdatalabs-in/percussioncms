@@ -30,66 +30,59 @@ import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * This class is notified on relationship changes.  It is used to re-index pages which are affected by the deletion of
- * shared assets.
- * 
+ * This class is notified on relationship changes. It is used to re-index pages which are affected
+ * by the deletion of shared assets.
+ *
  * @author peterfrontiero
  */
-
 @PSSiteManageBean("sharedRelationshipDeleteListener")
-public class PSSharedRelationshipDeleteListener implements IPSNotificationListener
-{
-    IPSPageIndexService indexService;
+public class PSSharedRelationshipDeleteListener implements IPSNotificationListener {
+  IPSPageIndexService indexService;
 
-    @Autowired
-    public PSSharedRelationshipDeleteListener(IPSNotificationService notificationService, 
-            IPSPageIndexService indexService)
-    {
-        if (notificationService != null)
-        {
-            notificationService.addListener(EventType.RELATIONSHIP_CHANGED, this);
-        }
-        
-        this.indexService = indexService;
+  @Autowired
+  public PSSharedRelationshipDeleteListener(
+      IPSNotificationService notificationService, IPSPageIndexService indexService) {
+    if (notificationService != null) {
+      notificationService.addListener(EventType.RELATIONSHIP_CHANGED, this);
     }
 
-    public void notifyEvent(PSNotificationEvent event) throws PSValidationException {
-        notNull(event, "event");
-        isTrue(EventType.RELATIONSHIP_CHANGED == event.getType(), 
-                "Should only be registered for relationship changes.");
+    this.indexService = indexService;
+  }
 
-        // filter out all relationship changes except delete
-        PSRelationshipChangeEvent relEvent = (PSRelationshipChangeEvent) event.getTarget();
-        if (relEvent.getAction() != PSRelationshipChangeEvent.ACTION_REMOVE)
-        {
-            return;
-        }
-        
-        // filter out all relationships except shared
-        Set<Integer> sharedOwnerIds = new HashSet<>();
-        
-        Iterator iter = relEvent.getRelationships().iterator();
-        while (iter.hasNext())
-        {
-            PSRelationship rel = (PSRelationship) iter.next();
-            if (rel.getConfig().getName().equals(PSWidgetAssetRelationshipService.SHARED_ASSET_WIDGET_REL_TYPE))
-            {
-                sharedOwnerIds.add(rel.getOwner().getId());
-            }
-        }
-        
-        if (!sharedOwnerIds.isEmpty())
-        {
-            // index the shared asset owners
-            indexService.index(sharedOwnerIds);
-        }
+  public void notifyEvent(PSNotificationEvent event) throws PSValidationException {
+    notNull(event, "event");
+    isTrue(
+        EventType.RELATIONSHIP_CHANGED == event.getType(),
+        "Should only be registered for relationship changes.");
+
+    // filter out all relationship changes except delete
+    PSRelationshipChangeEvent relEvent = (PSRelationshipChangeEvent) event.getTarget();
+    if (relEvent.getAction() != PSRelationshipChangeEvent.ACTION_REMOVE) {
+      return;
     }
-    
+
+    // filter out all relationships except shared
+    Set<Integer> sharedOwnerIds = new HashSet<>();
+
+    Iterator iter = relEvent.getRelationships().iterator();
+    while (iter.hasNext()) {
+      PSRelationship rel = (PSRelationship) iter.next();
+      if (rel.getConfig()
+          .getName()
+          .equals(PSWidgetAssetRelationshipService.SHARED_ASSET_WIDGET_REL_TYPE)) {
+        sharedOwnerIds.add(rel.getOwner().getId());
+      }
+    }
+
+    if (!sharedOwnerIds.isEmpty()) {
+      // index the shared asset owners
+      indexService.index(sharedOwnerIds);
+    }
+  }
 }

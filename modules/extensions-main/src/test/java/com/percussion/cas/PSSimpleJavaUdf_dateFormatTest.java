@@ -26,118 +26,101 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 /**
- * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and
- * {@link PSSimpleJavaUdf_dateFormatEx}.
- * 
+ * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and {@link PSSimpleJavaUdf_dateFormatEx}.
+ *
  * @author DougRand
  */
 @Category(UnitTest.class)
-public class PSSimpleJavaUdf_dateFormatTest extends PSSimpleJavaUdfBaseTest
-{
-   @Test
-   public void testDateFormat() throws Exception
-   {
-      PSSimpleJavaUdf_dateFormat dateFormat = new PSSimpleJavaUdf_dateFormat();
-      PSTextLiteral truevalue = new PSTextLiteral("true");
-      PSTextLiteral truevalue2 = new PSTextLiteral("True");
-      PSTextLiteral falsevalue = new PSTextLiteral("false");
-      PSTextLiteral falsevalue2 = new PSTextLiteral("False");
-      
-      // Arguments are format, date, [ returnNullForEmpty]
-      String date = (String) callUDF(dateFormat, null, null);
-      
-      if (date == null || date.trim().length() == 0)
-      {
-         throw new AssertionFailedError("Date should be non-null");
-      }
-      
-      String date2 = (String) callUDF(dateFormat, null, "MM/dd/yyyy");
-      if (date2 == null || date2.trim().length() == 0)
-      {
-         throw new AssertionFailedError("Date should be non-null");
-      }      
-      if (date2.charAt(2) != '/' || 
-         date2.charAt(5) != '/')
-      {
-         throw new AssertionFailedError("Date must follow output format");
-      }         
-      
-      String date3 = (String) callUDF(dateFormat, null, null, null, truevalue);
-      if (date3 != null)
-      {
-         throw new AssertionFailedError("Date must be null for input date null and returnNull true");
-      }
-      
-      String date4 = (String) callUDF(dateFormat, null, null, null, truevalue2);
-      if (date4 != null)
-      {
-         throw new AssertionFailedError("Date must be null for input date null and returnNull true");
-      } 
-      
-      String date5 = (String) callUDF(dateFormat, null, null, null, falsevalue);
-      if (date5 == null)
-      {
-         throw new AssertionFailedError("Date must be non-null for input date null and returnNull false");
-      }  
-      
-      String date6 = (String) callUDF(dateFormat, null, null, null, falsevalue2);
-      if (date6 == null)
-      {
-         throw new AssertionFailedError("Date must be non-null for input date null and returnNull false");
-      }                  
-   }
+public class PSSimpleJavaUdf_dateFormatTest extends PSSimpleJavaUdfBaseTest {
+  @Test
+  public void testDateFormat() throws Exception {
+    PSSimpleJavaUdf_dateFormat dateFormat = new PSSimpleJavaUdf_dateFormat();
+    PSTextLiteral truevalue = new PSTextLiteral("true");
+    PSTextLiteral truevalue2 = new PSTextLiteral("True");
+    PSTextLiteral falsevalue = new PSTextLiteral("false");
+    PSTextLiteral falsevalue2 = new PSTextLiteral("False");
 
-   @Test
-   public void testDateFormatEx() throws Exception
-   {
-      PSSimpleJavaUdf_dateFormatEx dateFormatEx = new PSSimpleJavaUdf_dateFormatEx();
-      PSTextLiteral truevalue = new PSTextLiteral("true");
-      PSTextLiteral truevalue2 = new PSTextLiteral("True");
-      PSTextLiteral falsevalue = new PSTextLiteral("false");
-      PSTextLiteral falsevalue2 = new PSTextLiteral("False");
-            
-      // Arguments are format, date, [ returnNullForEmpty]
-      String date = (String) callUDF(dateFormatEx, null, null);
-      
-      if (date == null || date.trim().length() == 0)
-      {
-         throw new AssertionFailedError("Date should be non-null");
-      }
-      
-      String date2 = (String) callUDF(dateFormatEx, null, "MM/dd/yyyy");
-      if (date2 == null || date2.trim().length() == 0)
-      {
-         throw new AssertionFailedError("Date should be non-null");
-      }      
-      if (date2.charAt(2) != '/' || 
-         date2.charAt(5) != '/')
-      {
-         throw new AssertionFailedError("Date must follow output format");
-      }         
-      
-      String date3 = (String) callUDF(dateFormatEx, null, null, null, null, truevalue);
-      if (date3 != null)
-      {
-         throw new AssertionFailedError("Date must be null for input date null and returnNull true");
-      }
-      
-      String date4 = (String) callUDF(dateFormatEx, null, null, null, null, truevalue2);
-      if (date4 != null)
-      {
-         throw new AssertionFailedError("Date must be null for input date null and returnNull true");
-      } 
-      
-      String date5 = (String) callUDF(dateFormatEx, null, null, null, null, falsevalue);
-      if (date5 == null)
-      {
-         throw new AssertionFailedError("Date must be non-null for input date null and returnNull false");
-      }  
-      
-      String date6 = (String) callUDF(dateFormatEx, null, null, null, null, falsevalue2);
-      if (date6 == null)
-      {
-         throw new AssertionFailedError("Date must be non-null for input date null and returnNull false");
-      }                  
-   }   
+    // Arguments are format, date, [ returnNullForEmpty]
+    String date = (String) callUDF(dateFormat, null, null);
 
+    if (date == null || date.trim().length() == 0) {
+      throw new AssertionFailedError("Date should be non-null");
+    }
+
+    String date2 = (String) callUDF(dateFormat, null, "MM/dd/yyyy");
+    if (date2 == null || date2.trim().length() == 0) {
+      throw new AssertionFailedError("Date should be non-null");
+    }
+    if (date2.charAt(2) != '/' || date2.charAt(5) != '/') {
+      throw new AssertionFailedError("Date must follow output format");
+    }
+
+    String date3 = (String) callUDF(dateFormat, null, null, null, truevalue);
+    if (date3 != null) {
+      throw new AssertionFailedError("Date must be null for input date null and returnNull true");
+    }
+
+    String date4 = (String) callUDF(dateFormat, null, null, null, truevalue2);
+    if (date4 != null) {
+      throw new AssertionFailedError("Date must be null for input date null and returnNull true");
+    }
+
+    String date5 = (String) callUDF(dateFormat, null, null, null, falsevalue);
+    if (date5 == null) {
+      throw new AssertionFailedError(
+          "Date must be non-null for input date null and returnNull false");
+    }
+
+    String date6 = (String) callUDF(dateFormat, null, null, null, falsevalue2);
+    if (date6 == null) {
+      throw new AssertionFailedError(
+          "Date must be non-null for input date null and returnNull false");
+    }
+  }
+
+  @Test
+  public void testDateFormatEx() throws Exception {
+    PSSimpleJavaUdf_dateFormatEx dateFormatEx = new PSSimpleJavaUdf_dateFormatEx();
+    PSTextLiteral truevalue = new PSTextLiteral("true");
+    PSTextLiteral truevalue2 = new PSTextLiteral("True");
+    PSTextLiteral falsevalue = new PSTextLiteral("false");
+    PSTextLiteral falsevalue2 = new PSTextLiteral("False");
+
+    // Arguments are format, date, [ returnNullForEmpty]
+    String date = (String) callUDF(dateFormatEx, null, null);
+
+    if (date == null || date.trim().length() == 0) {
+      throw new AssertionFailedError("Date should be non-null");
+    }
+
+    String date2 = (String) callUDF(dateFormatEx, null, "MM/dd/yyyy");
+    if (date2 == null || date2.trim().length() == 0) {
+      throw new AssertionFailedError("Date should be non-null");
+    }
+    if (date2.charAt(2) != '/' || date2.charAt(5) != '/') {
+      throw new AssertionFailedError("Date must follow output format");
+    }
+
+    String date3 = (String) callUDF(dateFormatEx, null, null, null, null, truevalue);
+    if (date3 != null) {
+      throw new AssertionFailedError("Date must be null for input date null and returnNull true");
+    }
+
+    String date4 = (String) callUDF(dateFormatEx, null, null, null, null, truevalue2);
+    if (date4 != null) {
+      throw new AssertionFailedError("Date must be null for input date null and returnNull true");
+    }
+
+    String date5 = (String) callUDF(dateFormatEx, null, null, null, null, falsevalue);
+    if (date5 == null) {
+      throw new AssertionFailedError(
+          "Date must be non-null for input date null and returnNull false");
+    }
+
+    String date6 = (String) callUDF(dateFormatEx, null, null, null, null, falsevalue2);
+    if (date6 == null) {
+      throw new AssertionFailedError(
+          "Date must be non-null for input date null and returnNull false");
+    }
+  }
 }

@@ -27,43 +27,38 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean("itemIdResolver")
-public class PSItemIdResolver
-{
-    IPSContentDesignWs contentDesignWs;
-    IPSIdMapper idMapper;
-    
-    
-    @Autowired
-    public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper)
-    {
-        super();
-        this.contentDesignWs = contentDesignWs;
-        this.idMapper = idMapper;
-    }
+public class PSItemIdResolver {
+  IPSContentDesignWs contentDesignWs;
+  IPSIdMapper idMapper;
 
+  @Autowired
+  public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper) {
+    super();
+    this.contentDesignWs = contentDesignWs;
+    this.idMapper = idMapper;
+  }
 
+  public String getId(IPSAssemblyItem item) {
+    IPSGuid pageGuid = item.getId();
+    String id = idMapper.getString(pageGuid);
+    return id;
+  }
 
-    public String getId(IPSAssemblyItem item) {
-        IPSGuid pageGuid = item.getId();
-        String id = idMapper.getString(pageGuid);
-        return id;
+  public String getId(PSAbstractPersistantObject item) {
+    notNull(item.getId(), "item id");
+    IPSGuid guid = idMapper.getGuid(item.getId());
+    guid = contentDesignWs.getItemGuid(guid);
+    String pageId = idMapper.getString(guid);
+    return pageId;
+  }
+
+  public void updateItemId(PSAbstractPersistantObject item) {
+    if (item.getId() != null) {
+      /*
+       * We need to set the proper revisioned id on the item.
+       */
+      String pageId = getId(item);
+      item.setId(pageId);
     }
-    
-    public String getId(PSAbstractPersistantObject item) {
-        notNull(item.getId(), "item id");
-        IPSGuid guid = idMapper.getGuid(item.getId());
-        guid = contentDesignWs.getItemGuid(guid);
-        String pageId = idMapper.getString(guid);
-        return pageId;
-    }
-    
-    public void updateItemId(PSAbstractPersistantObject item) {
-        if (item.getId() != null) {
-            /*
-             * We need to set the proper revisioned id on the item.
-             */
-            String pageId = getId(item);
-            item.setId(pageId);
-        }
-    }
+  }
 }

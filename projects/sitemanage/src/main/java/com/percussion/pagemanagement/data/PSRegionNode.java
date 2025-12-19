@@ -17,67 +17,61 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.Objects;
 
 /**
- * Represents a node in the region tree.
- * Currently a node is either a region or template code.
- * @author adamgent
+ * Represents a node in the region tree. Currently a node is either a region or template code.
  *
+ * @author adamgent
  */
-public abstract class PSRegionNode extends PSAbstractDataObject
-{
-    
-    
-    private static final long serialVersionUID = 1L;
-    
-    private PSRegionOwnerType ownerType;
-    
-    
-    /**
-     * Visitor pattern to avoid casting.
-     * @param visitor visitor.
-     */
-    public abstract void accept(IPSRegionNodeVisitor visitor);
+public abstract class PSRegionNode extends PSAbstractDataObject {
 
-    /*
-     * TODO Not sure if this is needed really.
-     * Ideally merged region should extend this class but it does not.
-     */
-    public PSRegionOwnerType getOwnerType()
-    {
-        return ownerType;
-    }
+  private static final long serialVersionUID = 1L;
 
-    public void setOwnerType(PSRegionOwnerType ownerType)
-    {
-        this.ownerType = ownerType;
-    }
+  private PSRegionOwnerType ownerType;
 
-    
-    public static enum PSRegionOwnerType {
-        PAGE, TEMPLATE;
-    }
+  /**
+   * Visitor pattern to avoid casting.
+   *
+   * @param visitor visitor.
+   */
+  public abstract void accept(IPSRegionNodeVisitor visitor);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSRegionNode)) return false;
-        PSRegionNode that = (PSRegionNode) o;
-        return getOwnerType() == that.getOwnerType();
-    }
+  /*
+   * TODO Not sure if this is needed really.
+   * Ideally merged region should extend this class but it does not.
+   */
+  public PSRegionOwnerType getOwnerType() {
+    return ownerType;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getOwnerType());
-    }
+  public void setOwnerType(PSRegionOwnerType ownerType) {
+    this.ownerType = ownerType;
+  }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionNode{");
-        sb.append("ownerType=").append(ownerType);
-        sb.append('}');
-        return sb.toString();
-    }
+  public static enum PSRegionOwnerType {
+    PAGE,
+    TEMPLATE;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSRegionNode)) return false;
+    PSRegionNode that = (PSRegionNode) o;
+    return getOwnerType() == that.getOwnerType();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getOwnerType());
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSRegionNode{");
+    sb.append("ownerType=").append(ownerType);
+    sb.append('}');
+    return sb.toString();
+  }
 }

@@ -17,10 +17,9 @@
 
 package com.percussion.utils.container;
 
-
 public interface IPSConfigurationAdapter<T extends ConfigurationCtx> {
 
-    void load(T configurationContext);
-    void save(T configurationContext);
+  void load(T configurationContext);
 
+  void save(T configurationContext);
 }

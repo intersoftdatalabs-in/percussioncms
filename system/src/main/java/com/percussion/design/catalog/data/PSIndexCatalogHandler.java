@@ -22,16 +22,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSIndexCatalogHandler class implements cataloging of
- * indexes. This request type is used to locate the indexes defined
- * on a table. Indexes are used to sort data. This allows for faster
- * access to the data. They can also be used to enforce unique column
- * values.
- * <p>
- * Index catalog requests are sent to the server using the
- * PSXIndexCatalog XML document. Its definition is as follows:
+ * The PSIndexCatalogHandler class implements cataloging of indexes. This request type is used to
+ * locate the indexes defined on a table. Indexes are used to sort data. This allows for faster
+ * access to the data. They can also be used to enforce unique column values.
+ *
+ * <p>Index catalog requests are sent to the server using the PSXIndexCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXIndexCatalog (datasource?, tableName)&gt;
  *
@@ -44,12 +42,12 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName       (#PCDATA)&gt;
  * </pre>
  *
- * The PSXIndexCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXIndexCatalogResults XML document is sent as the response. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXIndexCatalogResults (datasource, tableName, Index*)&gt;
  *
- *    &lt;!-- the name of the datasource which was queried, empty to indicate 
+ *    &lt;!-- the name of the datasource which was queried, empty to indicate
  *    the repository.
  *     --&gt;
  *    &lt;!ELEMENT datasource             (#PCDATA)&gt;
@@ -97,80 +95,66 @@ import org.w3c.dom.Element;
  *    &gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSIndexCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSIndexCatalogHandler()
-   {
-      super();
-   }
+public class PSIndexCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSIndexCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>data</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Index</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>Datasource</td>
-    *       <td>the name of the datasource being queried, may be omitted to
-    *       query the repository</td>
-    *       <td>no</td></tr>
-    *   <tr><td>TableName</td>
-    *       <td>the name of the table for which indexes should be returned</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String) req.get("RequestCategory");
-      if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>data</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Index</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>Datasource</td>
+   *       <td>the name of the datasource being queried, may be omitted to
+   *       query the repository</td>
+   *       <td>no</td></tr>
+   *   <tr><td>TableName</td>
+   *       <td>the name of the table for which indexes should be returned</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"data".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String) req.get("RequestType");
-      if ((sTemp == null) || !"Index".equalsIgnoreCase(sTemp))
-      {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Index".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String datasource = (String) req.get("Datasource");
+    String datasource = (String) req.get("Datasource");
 
-      String tableName = (String) req.get("TableName");
-      if (tableName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: TableName");
+    String tableName = (String) req.get("TableName");
+    if (tableName == null) throw new IllegalArgumentException("reqd prop not specified: TableName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXIndexCatalog");
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXIndexCatalog");
 
-      if (datasource != null)
-         PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", 
-            datasource);
+    if (datasource != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "datasource", datasource);
 
-      PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

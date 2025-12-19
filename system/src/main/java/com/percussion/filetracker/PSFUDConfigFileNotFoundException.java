@@ -18,27 +18,21 @@
 package com.percussion.filetracker;
 
 /**
- * This exception is thrown when the applocation fails to load the configuration
- * document (rxfidconfig.xml) in the working directory.
+ * This exception is thrown when the applocation fails to load the configuration document
+ * (rxfidconfig.xml) in the working directory.
  */
-public class PSFUDConfigFileNotFoundException
-   extends Exception
-{
-   /**
-    * Default constructor
-    */
-   public PSFUDConfigFileNotFoundException()
-   {
-      super();
-   }
-   /**
-    * Constructor that takes the error message as parameter
-    *
-    * @param msg as String
-    *
-    */
-   public PSFUDConfigFileNotFoundException(String msg)
-   {
-      super(msg);
-   }
+public class PSFUDConfigFileNotFoundException extends Exception {
+  /** Default constructor */
+  public PSFUDConfigFileNotFoundException() {
+    super();
+  }
+
+  /**
+   * Constructor that takes the error message as parameter
+   *
+   * @param msg as String
+   */
+  public PSFUDConfigFileNotFoundException(String msg) {
+    super(msg);
+  }
 }

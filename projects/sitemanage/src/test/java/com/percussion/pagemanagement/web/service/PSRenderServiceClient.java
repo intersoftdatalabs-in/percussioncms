@@ -22,46 +22,40 @@ import com.percussion.pagemanagement.data.PSRenderResult;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.share.test.PSObjectRestClient;
 
-public class PSRenderServiceClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/pagemanagement/render";
-    {
-        addAccept("text/html");
-    }
+public class PSRenderServiceClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/pagemanagement/render";
 
-    public String getPath()
-    {
-        return path;
-    }
+  {
+    addAccept("text/html");
+  }
 
-    public PSRenderResult renderRegion(PSPage page, String regionId) 
-    {
-        return postObjectToPath(concatPath(getPath(),"page", regionId), page, 
-                PSRenderResult.class);
-    }
-    
-    public PSRenderResult renderRegion(PSTemplate template, String regionId) 
-    {
-        return postObjectToPath(concatPath(getPath(),"template", regionId), template, 
-                PSRenderResult.class);
-    }
-    
-    
-    public String renderPage(String id) {
-        return GET(concatPath(path, "page", id));
-    }
-    
-    public String renderPageForEdit(String id) {
-        return GET(concatPath(path, "page/editmode", id));
-    }
-    
-    public String renderTemplate(String id) {
-        return GET(concatPath(path, "template", id));
-    }
-    
-    public PSRegion parse(String html) {
-        String response = POST(concatPath(path, "parse"), html);
-        return objectFromResponseBody(response, PSRegion.class);
-    }
+  public String getPath() {
+    return path;
+  }
 
+  public PSRenderResult renderRegion(PSPage page, String regionId) {
+    return postObjectToPath(concatPath(getPath(), "page", regionId), page, PSRenderResult.class);
+  }
+
+  public PSRenderResult renderRegion(PSTemplate template, String regionId) {
+    return postObjectToPath(
+        concatPath(getPath(), "template", regionId), template, PSRenderResult.class);
+  }
+
+  public String renderPage(String id) {
+    return GET(concatPath(path, "page", id));
+  }
+
+  public String renderPageForEdit(String id) {
+    return GET(concatPath(path, "page/editmode", id));
+  }
+
+  public String renderTemplate(String id) {
+    return GET(concatPath(path, "template", id));
+  }
+
+  public PSRegion parse(String html) {
+    String response = POST(concatPath(path, "parse"), html);
+    return objectFromResponseBody(response, PSRegion.class);
+  }
 }

@@ -20,80 +20,54 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "BinaryFile")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary file.")
-public class BinaryFile
-{
-	private String filename;
-	private String extension;
-	private long size;
-	private String type;
+@Schema(description = "Represents a binary file.")
+public class BinaryFile {
+  private String filename;
+  private String extension;
+  private long size;
+  private String type;
 
-	/**
-	 * @return the fileName
-	 */
-	public String getFilename()
-	{
-		return filename;
-	}
+  /** @return the fileName */
+  public String getFilename() {
+    return filename;
+  }
 
-	/**
-	 * @param fileName the fileName to set
-	 */
-	public void setFilename(String fileName)
-	{
-		this.filename = fileName;
-	}
+  /** @param fileName the fileName to set */
+  public void setFilename(String fileName) {
+    this.filename = fileName;
+  }
 
-	/**
-	 * @return the extension
-	 */
-	public String getExtension()
-	{
-		return extension;
-	}
+  /** @return the extension */
+  public String getExtension() {
+    return extension;
+  }
 
-	/**
-	 * @param extension the extension to set
-	 */
-	public void setExtension(String extension)
-	{
-		this.extension = extension;
-	}
+  /** @param extension the extension to set */
+  public void setExtension(String extension) {
+    this.extension = extension;
+  }
 
-	/**
-	 * @return the size
-	 */
-	public long getSize()
-	{
-		return size;
-	}
+  /** @return the size */
+  public long getSize() {
+    return size;
+  }
 
-	/**
-	 * @param size the size to set
-	 */
-	public void setSize(long size)
-	{
-		this.size = size;
-	}
+  /** @param size the size to set */
+  public void setSize(long size) {
+    this.size = size;
+  }
 
-	/**
-	 * @return the type
-	 */
-	public String getType()
-	{
-		return type;
-	}
+  /** @return the type */
+  public String getType() {
+    return type;
+  }
 
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(String type)
-	{
-		this.type = type;
-	}
+  /** @param type the type to set */
+  public void setType(String type) {
+    this.type = type;
+  }
 }

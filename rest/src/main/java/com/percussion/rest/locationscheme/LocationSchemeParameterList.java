@@ -19,16 +19,16 @@ package com.percussion.rest.locationscheme;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "LocationSchemeParemeterList")
-@ArraySchema(schema=@Schema(implementation = LocationSchemeParameter.class))
+@ArraySchema(schema = @Schema(implementation = LocationSchemeParameter.class))
 public class LocationSchemeParameterList extends ArrayList<LocationSchemeParameter> {
-    public LocationSchemeParameterList(Collection<? extends LocationSchemeParameter> c) {
-        super(c);
-    }
-    public LocationSchemeParameterList(){}
+  public LocationSchemeParameterList(Collection<? extends LocationSchemeParameter> c) {
+    super(c);
+  }
+
+  public LocationSchemeParameterList() {}
 }

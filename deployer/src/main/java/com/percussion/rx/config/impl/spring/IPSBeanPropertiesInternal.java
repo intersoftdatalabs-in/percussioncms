@@ -17,7 +17,6 @@
 package com.percussion.rx.config.impl.spring;
 
 import com.percussion.rx.config.IPSBeanProperties;
-
 import java.io.File;
 
 /**
@@ -25,15 +24,12 @@ import java.io.File;
  *
  * @author YuBingChen
  */
-public interface IPSBeanPropertiesInternal extends IPSBeanProperties
-{
-   /**
-    * Gets the properties file. This is not exposed through the interface, but
-    * can be called directly, e.g., from unit test.
-    * 
-    * @return the properties file, never <code>null</code>.
-    */
-   File getPropertiesFile();
-   
-
+public interface IPSBeanPropertiesInternal extends IPSBeanProperties {
+  /**
+   * Gets the properties file. This is not exposed through the interface, but can be called
+   * directly, e.g., from unit test.
+   *
+   * @return the properties file, never <code>null</code>.
+   */
+  File getPropertiesFile();
 }

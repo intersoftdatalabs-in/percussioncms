@@ -27,8 +27,7 @@ public class ASTQuerySpecification extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
@@ -36,14 +35,12 @@ public class ASTQuerySpecification extends SimpleNode {
   public static final int DISTINCT = 0;
   public static final int ALL = 1;
 
-  public void setType(int type)
-  {
-     m_type = type;
+  public void setType(int type) {
+    m_type = type;
   }
 
-  public int getType()
-  {
-     return m_type;
+  public int getType() {
+    return m_type;
   }
 
   private int m_type = ALL;

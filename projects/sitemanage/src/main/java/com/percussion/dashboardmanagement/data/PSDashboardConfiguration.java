@@ -17,27 +17,22 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "DashboardConfig")
-@XmlType(name = "", propOrder = {
-    "gadgets"
-})
-public class PSDashboardConfiguration extends PSAbstractDataObject
-{
-    private List<PSGadget> gadgets;
+@XmlType(
+    name = "",
+    propOrder = {"gadgets"})
+public class PSDashboardConfiguration extends PSAbstractDataObject {
+  private List<PSGadget> gadgets;
 
-    public List<PSGadget> getGadgets()
-    {
-        return gadgets;
-    }
+  public List<PSGadget> getGadgets() {
+    return gadgets;
+  }
 
-    public void setGadgets(List<PSGadget> gadgets)
-    {
-        this.gadgets = gadgets;
-    }
+  public void setGadgets(List<PSGadget> gadgets) {
+    this.gadgets = gadgets;
+  }
 }

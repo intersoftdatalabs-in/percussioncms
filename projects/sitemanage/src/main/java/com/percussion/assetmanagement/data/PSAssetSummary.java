@@ -16,18 +16,13 @@
  */
 package com.percussion.assetmanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "AssetSummary")
-public class PSAssetSummary extends PSDataItemSummary implements IPSItemSummary
-{
+public class PSAssetSummary extends PSDataItemSummary implements IPSItemSummary {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 8746257239286031092L;
-
+  /** */
+  private static final long serialVersionUID = 8746257239286031092L;
 }

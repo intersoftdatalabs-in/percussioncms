@@ -17,32 +17,27 @@
 
 package com.percussion.server.cache;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
-public class PSAutotuneCacheLocator extends PSBaseServiceLocator
-{
-   private static volatile PSAutotuneCache autoTuneCache = null;
-   
-   /**
-    * Get summary manager.
-    * 
-    * @return Summary manager, never <code>null</code>
-    * @throws PSMissingBeanConfigurationException If the configuration does not
-    * contain the required bean.
-    */
-   public static PSAutotuneCache getAutotuneCache()
-      throws PSMissingBeanConfigurationException
-   {
-      if (autoTuneCache == null) {
-         synchronized (PSAutotuneCacheLocator.class)
-         {
-            if (autoTuneCache == null) {
-               autoTuneCache = (PSAutotuneCache) getCtx().getBean("sys_autotuneCache");
-            }
-         }
+public class PSAutotuneCacheLocator extends PSBaseServiceLocator {
+  private static volatile PSAutotuneCache autoTuneCache = null;
+
+  /**
+   * Get summary manager.
+   *
+   * @return Summary manager, never <code>null</code>
+   * @throws PSMissingBeanConfigurationException If the configuration does not contain the required
+   *     bean.
+   */
+  public static PSAutotuneCache getAutotuneCache() throws PSMissingBeanConfigurationException {
+    if (autoTuneCache == null) {
+      synchronized (PSAutotuneCacheLocator.class) {
+        if (autoTuneCache == null) {
+          autoTuneCache = (PSAutotuneCache) getCtx().getBean("sys_autotuneCache");
+        }
       }
-      return autoTuneCache;
-   }
-
+    }
+    return autoTuneCache;
+  }
 }

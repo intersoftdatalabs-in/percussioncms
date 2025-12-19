@@ -17,8 +17,6 @@
 
 package com.percussion.preinstall;
 
-import org.apache.axis.utils.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,187 +33,215 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class MainDTSPreInstall {
-    private static String DISTRIBUTION_DIR="distribution";
-    private static final String PERC_JAVA_HOME="perc.java.home";
-    private static final String JAVA_HOME="java.home";
-    private static final String PERCUSSION_VERSION="perc.version";
-    private static final String INSTALL_TEMPDIR="percDTSInstallTmp_";
-    private static final String PERC_ANT_JAR="perc-ant";
-    private static final String ANT_INSTALL="installDts.xml";
+  private static String DISTRIBUTION_DIR = "distribution";
+  private static final String PERC_JAVA_HOME = "perc.java.home";
+  private static final String JAVA_HOME = "java.home";
+  private static final String PERCUSSION_VERSION = "perc.version";
+  private static final String INSTALL_TEMPDIR = "percDTSInstallTmp_";
+  private static final String PERC_ANT_JAR = "perc-ant";
+  private static final String ANT_INSTALL = "installDts.xml";
 
-    /**
-     * Find a jar by path pattern to avoid hard coding / forcing version.
-     *
-     * @param execPath Folder containing the jar
-     * @param fileNameWithPattern A File name with a glob pattern like perc-ant-*.jar
-     * @return Path to the ant jar
-     * @throws IOException
-     */
-    private static Path getVersionLessJarFilePath(Path execPath, String fileNameWithPattern) throws IOException {
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(execPath.toAbsolutePath(), fileNameWithPattern)) {
-            List<Path> paths = new ArrayList<>();
-            for (Path path : ds) {
-                paths.add(path);
-            }
-            if (paths.isEmpty()) {
-                throw new IOException(fileNameWithPattern + " not found.");
-            } else if (paths.size() == 1) {
-                return paths.get(0);
-            } else {
-                System.out.println("Warning: Multiple " + fileNameWithPattern + " jars found, selecting the first one: " + paths.get(0).toAbsolutePath().toString());
-                return paths.get(0);
-            }
-        }
+  /**
+   * Find a jar by path pattern to avoid hard coding / forcing version.
+   *
+   * @param execPath Folder containing the jar
+   * @param fileNameWithPattern A File name with a glob pattern like perc-ant-*.jar
+   * @return Path to the ant jar
+   * @throws IOException
+   */
+  private static Path getVersionLessJarFilePath(Path execPath, String fileNameWithPattern)
+      throws IOException {
+    try (DirectoryStream<Path> ds =
+        Files.newDirectoryStream(execPath.toAbsolutePath(), fileNameWithPattern)) {
+      List<Path> paths = new ArrayList<>();
+      for (Path path : ds) {
+        paths.add(path);
+      }
+      if (paths.isEmpty()) {
+        throw new IOException(fileNameWithPattern + " not found.");
+      } else if (paths.size() == 1) {
+        return paths.get(0);
+      } else {
+        System.out.println(
+            "Warning: Multiple "
+                + fileNameWithPattern
+                + " jars found, selecting the first one: "
+                + paths.get(0).toAbsolutePath().toString());
+        return paths.get(0);
+      }
     }
+  }
 
-    private static File tmpFolder;
-    public static void main(String[] args) {
-        int exitCode = 0;
-        try {
+  private static File tmpFolder;
 
-            String javaHome = System.getProperty(PERC_JAVA_HOME);
-            if(javaHome == null || javaHome.trim().isEmpty())
-                javaHome = System.getProperty(JAVA_HOME);
-            
-            Path javaBinPath = Paths.get(javaHome, "bin", System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
-            String javabin = javaBinPath.toString();
+  public static void main(String[] args) {
+    int exitCode = 0;
+    try {
 
-            String percVersion= System.getProperty(PERCUSSION_VERSION);
-            if(percVersion== null)
-                percVersion="";
+      String javaHome = System.getProperty(PERC_JAVA_HOME);
+      if (javaHome == null || javaHome.trim().isEmpty()) javaHome = System.getProperty(JAVA_HOME);
 
-            System.out.println("perc.java.home="+javaHome);
-            System.out.println("java.executable="+javabin);
-            System.out.println("perc.version=" + percVersion);
+      Path javaBinPath =
+          Paths.get(
+              javaHome,
+              "bin",
+              System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
+      String javabin = javaBinPath.toString();
 
-            if (args.length<1)
-            {
-                System.out.println("Must specify installation or upgrade folder");
-                System.exit(0);
-            }
+      String percVersion = System.getProperty(PERCUSSION_VERSION);
+      if (percVersion == null) percVersion = "";
 
-            System.out.println("Installation folder ="+args[0]);
-            Path installPath = Paths.get(args[0]).normalize();
-            
-            String isProduction="true";
-            isProduction=System.getProperty("install.prod.dts");
-            System.out.println("====Will remove below code if value of is Production comes fine PSDeliveryTierServerTYpePanel"+isProduction);
-            
-            Path staging = installPath.resolve("Staging");
-            Path prod = installPath.resolve("Deployment");
-            
-            if(Files.exists(staging) && !Files.exists(prod)){
-                isProduction="false";
-            }
-            //if isProduction value is not passed in and we are not able to figure out either, then set the value to be true
-            //e.g. in case of upgrade installer is passing value $DTS_SERVER_TYPE$, which doesn't match any of the cases and thus fails
-            if(isProduction == null || isProduction.isEmpty() ||
-                    (!isProduction.toLowerCase(Locale.ROOT).equals("true") && !isProduction.toLowerCase(Locale.ROOT).equals("false"))){
-                isProduction="true";//change done for dev environment
-            }
+      System.out.println("perc.java.home=" + javaHome);
+      System.out.println("java.executable=" + javabin);
+      System.out.println("perc.version=" + percVersion);
 
-            Path installSrc;
-            Path currentJar = Paths.get(MainDTSPreInstall.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            if (!Files.isDirectory(currentJar)) {
-                installSrc = Files.createTempDirectory(INSTALL_TEMPDIR);
-                System.out.println("install.tempdir=" + installSrc);
-                // add option to not delete for debugging
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
+      if (args.length < 1) {
+        System.out.println("Must specify installation or upgrade folder");
+        System.exit(0);
+      }
 
-                    public void run() {
-                        try {
-                            Files.walk(installSrc)
-                                    .sorted(Comparator.reverseOrder())
-                                    .map(Path::toFile)
-                                    .forEach(File::delete);
-                        } catch (IOException ex) {
-                            System.out.println("An error occurred processing installation files. " +  ex.getMessage());
-                        }
+      System.out.println("Installation folder =" + args[0]);
+      Path installPath = Paths.get(args[0]).normalize();
+
+      String isProduction = "true";
+      isProduction = System.getProperty("install.prod.dts");
+      System.out.println(
+          "====Will remove below code if value of is Production comes fine PSDeliveryTierServerTYpePanel"
+              + isProduction);
+
+      Path staging = installPath.resolve("Staging");
+      Path prod = installPath.resolve("Deployment");
+
+      if (Files.exists(staging) && !Files.exists(prod)) {
+        isProduction = "false";
+      }
+      // if isProduction value is not passed in and we are not able to figure out either, then set
+      // the value to be true
+      // e.g. in case of upgrade installer is passing value $DTS_SERVER_TYPE$, which doesn't match
+      // any of the cases and thus fails
+      if (isProduction == null
+          || isProduction.isEmpty()
+          || (!isProduction.toLowerCase(Locale.ROOT).equals("true")
+              && !isProduction.toLowerCase(Locale.ROOT).equals("false"))) {
+        isProduction = "true"; // change done for dev environment
+      }
+
+      Path installSrc;
+      Path currentJar =
+          Paths.get(
+              MainDTSPreInstall.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+      if (!Files.isDirectory(currentJar)) {
+        installSrc = Files.createTempDirectory(INSTALL_TEMPDIR);
+        System.out.println("install.tempdir=" + installSrc);
+        // add option to not delete for debugging
+        Runtime.getRuntime()
+            .addShutdownHook(
+                new Thread() {
+                  @Override
+                  public void run() {
+                    try {
+                      Files.walk(installSrc)
+                          .sorted(Comparator.reverseOrder())
+                          .map(Path::toFile)
+                          .forEach(File::delete);
+                    } catch (IOException ex) {
+                      System.out.println(
+                          "An error occurred processing installation files. " + ex.getMessage());
                     }
+                  }
                 });
 
-                extractArchive(currentJar, installSrc, DISTRIBUTION_DIR);
-            } else {
-                System.out.println("Running from extracted jar");
-                installSrc = currentJar.resolve(DISTRIBUTION_DIR);
-            }
+        extractArchive(currentJar, installSrc, DISTRIBUTION_DIR);
+      } else {
+        System.out.println("Running from extracted jar");
+        installSrc = currentJar.resolve(DISTRIBUTION_DIR);
+      }
 
+      Path execPath = installSrc.resolve(Paths.get("rxconfig", "Installer"));
+      Path installAntJarPath =
+          execPath.resolve(getVersionLessJarFilePath(execPath, PERC_ANT_JAR + "-*.jar"));
 
-            Path execPath = installSrc.resolve(Paths.get("rxconfig","Installer"));
-            Path installAntJarPath = execPath.resolve(
-                    getVersionLessJarFilePath(
-                            execPath,PERC_ANT_JAR + "-*.jar"));
+      exitCode = execJar(installAntJarPath, execPath, installPath, isProduction);
 
-            exitCode =  execJar(installAntJarPath,execPath,installPath,isProduction);
-
-        } catch (IOException | URISyntaxException | InterruptedException e) {
-            System.out.println("An unexpected error occurred processing installation files. " + e.getMessage());
-            throw  new AntJobFailedException(String.format(Locale.ROOT, "Installation failed. %s", e.getMessage()));
-        }
-        System.out.println(String.format(Locale.ROOT, "Done extracting exit code %d", exitCode));
-        if(exitCode != 0){
-            throw  new AntJobFailedException(String.format(Locale.ROOT, "Installation failed. Exit code: %d ",exitCode));
-        }
+    } catch (IOException | URISyntaxException | InterruptedException e) {
+      System.out.println(
+          "An unexpected error occurred processing installation files. " + e.getMessage());
+      throw new AntJobFailedException(
+          String.format(Locale.ROOT, "Installation failed. %s", e.getMessage()));
     }
+    System.out.println(String.format(Locale.ROOT, "Done extracting exit code %d", exitCode));
+    if (exitCode != 0) {
+      throw new AntJobFailedException(
+          String.format(Locale.ROOT, "Installation failed. Exit code: %d ", exitCode));
+    }
+  }
 
+  public static void extractArchive(Path archiveFile, Path destPath, String folderPrefix)
+      throws IOException {
 
+    Files.createDirectories(destPath); // create dest path folder(s)
 
-    public static void extractArchive(Path archiveFile, Path destPath,String folderPrefix) throws IOException {
+    try (ZipFile archive = new ZipFile(archiveFile.toFile())) {
 
-        Files.createDirectories(destPath); // create dest path folder(s)
+      // sort entries by name to always create folders first
+      List<? extends ZipEntry> entries =
+          archive.stream()
+              .sorted(Comparator.comparing(ZipEntry::getName))
+              .collect(Collectors.toList());
 
-        try (ZipFile archive = new ZipFile(archiveFile.toFile())) {
+      // copy each entry in the dest path
+      for (ZipEntry entry : entries) {
+        String entryName = entry.getName();
+        if (!entryName.startsWith(folderPrefix)) continue;
 
-            // sort entries by name to always create folders first
-            List<? extends ZipEntry> entries = archive.stream()
-                    .sorted(Comparator.comparing(ZipEntry::getName))
-                    .collect(Collectors.toList());
+        String name = entryName.substring(folderPrefix.length() + 1);
+        if (name.length() == 0) continue;
 
-            // copy each entry in the dest path
-            for (ZipEntry entry : entries) {
-                String entryName = entry.getName();
-                if (!entryName.startsWith(folderPrefix))
-                    continue;
+        Path entryDest = destPath.resolve(name);
 
-                String name = entryName.substring(folderPrefix.length()+1);
-                if (name.length()==0)
-                    continue;
-
-                Path entryDest = destPath.resolve(name);
-
-                if (entry.isDirectory()) {
-                    Files.createDirectory(entryDest);
-                    continue;
-                }
-                System.out.println("Creating file "+entryDest);
-                Files.copy(archive.getInputStream(entry), entryDest);
-            }
+        if (entry.isDirectory()) {
+          Files.createDirectory(entryDest);
+          continue;
         }
+        System.out.println("Creating file " + entryDest);
+        Files.copy(archive.getInputStream(entry), entryDest);
+      }
     }
+  }
 
-    public static int execJar(Path jar, Path execPath, Path installDir,String isProduction) throws IOException,
-            InterruptedException {
+  public static int execJar(Path jar, Path execPath, Path installDir, String isProduction)
+      throws IOException, InterruptedException {
 
-        String dir=installDir.toAbsolutePath().toString();
-        String javaHome = System.getProperty(PERC_JAVA_HOME);
-        if(javaHome == null || javaHome.trim().isEmpty())
-            javaHome = System.getProperty(JAVA_HOME);
+    String dir = installDir.toAbsolutePath().toString();
+    String javaHome = System.getProperty(PERC_JAVA_HOME);
+    if (javaHome == null || javaHome.trim().isEmpty()) javaHome = System.getProperty(JAVA_HOME);
 
-        Path javaBinPath = Paths.get(javaHome, "bin", System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
-        String javabin = javaBinPath.toString();
-        
-        System.out.println("isProduction:" + isProduction);
-        System.out.println("Install Dir:" + dir);
-        System.out.println("Java Executable:" + javabin);
+    Path javaBinPath =
+        Paths.get(
+            javaHome,
+            "bin",
+            System.getProperty("file.separator").equals("/") ? "java" : "java.exe");
+    String javabin = javaBinPath.toString();
 
+    System.out.println("isProduction:" + isProduction);
+    System.out.println("Install Dir:" + dir);
+    System.out.println("Java Executable:" + javabin);
 
-        ProcessBuilder builder = new ProcessBuilder(
-                javabin,"-Dinstall.prod.dts="+isProduction,"-Dfile.encoding=UTF8","-Dsun.jnu.encoding=UTF8","-Dinstall.dir="+dir, "-Drxdeploydir="+dir,"-jar", jar.toAbsolutePath().toString(),"-f",ANT_INSTALL).directory(execPath.toFile());
-        Process process = builder.inheritIO().start();
-        process.waitFor();
-        return process.exitValue();
-    }
-
-
+    ProcessBuilder builder =
+        new ProcessBuilder(
+                javabin,
+                "-Dinstall.prod.dts=" + isProduction,
+                "-Dfile.encoding=UTF8",
+                "-Dsun.jnu.encoding=UTF8",
+                "-Dinstall.dir=" + dir,
+                "-Drxdeploydir=" + dir,
+                "-jar",
+                jar.toAbsolutePath().toString(),
+                "-f",
+                ANT_INSTALL)
+            .directory(execPath.toFile());
+    Process process = builder.inheritIO().start();
+    process.waitFor();
+    return process.exitValue();
+  }
 }

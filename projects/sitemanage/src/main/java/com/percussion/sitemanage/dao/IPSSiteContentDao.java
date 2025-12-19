@@ -25,20 +25,18 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
 public interface IPSSiteContentDao {
-    /**
-     * The name of the home page item created automatically during site creation.
-     */
-    String HOME_PAGE_NAME = "index.html";
+  /** The name of the home page item created automatically during site creation. */
+  String HOME_PAGE_NAME = "index.html";
 
-    void createRelatedItems(PSSite site);
+  void createRelatedItems(PSSite site);
 
-    void copy(PSSite srcSite, PSSite destSite);
+  void copy(PSSite srcSite, PSSite destSite);
 
-    PSPage getHomePage(PSSiteSummary site) throws PSNavException, PSDataServiceException;
+  PSPage getHomePage(PSSiteSummary site) throws PSNavException, PSDataServiceException;
 
-    String getNavTitle(PSSiteSummary siteSummary) throws PSNavException, PSDataServiceException;
+  String getNavTitle(PSSiteSummary siteSummary) throws PSNavException, PSDataServiceException;
 
-    void loadTemplateInfo(PSSite site) throws PSDataServiceException;
+  void loadTemplateInfo(PSSite site) throws PSDataServiceException;
 
-    void deleteRelatedItems(PSSiteSummary summary) throws IPSGenericDao.DeleteException;
+  void deleteRelatedItems(PSSiteSummary summary) throws IPSGenericDao.DeleteException;
 }

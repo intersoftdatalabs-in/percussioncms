@@ -17,6 +17,7 @@
 
 package com.percussion.delivery.integrations.ems;
 
+import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -26,20 +27,16 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
-
-    @ApplicationPath("/")
-    public class PSIntegrationApplication extends  ResourceConfig {
-        public PSIntegrationApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSEmsProxyRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-
-
-        }
-    }
+@ApplicationPath("/")
+public class PSIntegrationApplication extends ResourceConfig {
+  public PSIntegrationApplication() {
+    register(RequestContextFilter.class);
+    register(SpringComponentProvider.class);
+    register(AutowiredInjectResolver.class);
+    register(SpringLifecycleListener.class);
+    register(SpringWebApplicationInitializer.class);
+    register(PSEmsProxyRestService.class);
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+  }
+}

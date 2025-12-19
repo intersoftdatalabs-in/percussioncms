@@ -21,35 +21,29 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="CategoryConfig")
-public class PSCategoryConfiguration
-{
-    private Tree tree;
-    
-    @XmlElement(name="tree")
-    public Tree getTree()
-    {
-        return tree;
-    }
-    public void setTree(Tree tree)
-    {
-        this.tree = tree;
-    }
+@XmlRootElement(name = "CategoryConfig")
+public class PSCategoryConfiguration {
+  private Tree tree;
 
-    public static class Tree 
-    {
-        private String url;
+  @XmlElement(name = "tree")
+  public Tree getTree() {
+    return tree;
+  }
 
-        @XmlAttribute(name="url")
-        public String getUrl()
-        {
-            return url;
-        }
-        public void setUrl(String url)
-        {
-            this.url = url;
-        }
-        
+  public void setTree(Tree tree) {
+    this.tree = tree;
+  }
+
+  public static class Tree {
+    private String url;
+
+    @XmlAttribute(name = "url")
+    public String getUrl() {
+      return url;
     }
 
+    public void setUrl(String url) {
+      this.url = url;
+    }
+  }
 }

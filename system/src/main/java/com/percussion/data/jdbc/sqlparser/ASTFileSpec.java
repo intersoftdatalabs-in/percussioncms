@@ -18,37 +18,38 @@
 package com.percussion.data.jdbc.sqlparser;
 
 public class ASTFileSpec extends SimpleNode {
-   public ASTFileSpec(int id) {
-      super(id);
-   }
-   
-   public ASTFileSpec(SQLParser p, int id) {
-      super(p, id);
-   }
-   
-   
-   /** Accept the visitor. **/
-   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
-      return visitor.visit(this, data);
-   }
-   
-   public void setValue(String filePath)
-   {
-      // remove double quotes from beginning and end
-      filePath = filePath.substring(1, filePath.length() - 1);
-      if (filePath.endsWith("*"))
-      {
-         m_isRecursive = true;
-         // remove * from end
-         filePath = filePath.substring(0, filePath.length() - 1);
-      }
-      m_filePath = filePath;
-   }
-   
-   public String getValue() { return m_filePath; }
-   
-   public boolean isRecursive() { return m_isRecursive; }
-   
-   private String m_filePath;
-   private boolean m_isRecursive = false;
+  public ASTFileSpec(int id) {
+    super(id);
+  }
+
+  public ASTFileSpec(SQLParser p, int id) {
+    super(p, id);
+  }
+
+  /** Accept the visitor. * */
+  public Object jjtAccept(SQLParserVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
+
+  public void setValue(String filePath) {
+    // remove double quotes from beginning and end
+    filePath = filePath.substring(1, filePath.length() - 1);
+    if (filePath.endsWith("*")) {
+      m_isRecursive = true;
+      // remove * from end
+      filePath = filePath.substring(0, filePath.length() - 1);
+    }
+    m_filePath = filePath;
+  }
+
+  public String getValue() {
+    return m_filePath;
+  }
+
+  public boolean isRecursive() {
+    return m_isRecursive;
+  }
+
+  private String m_filePath;
+  private boolean m_isRecursive = false;
 }

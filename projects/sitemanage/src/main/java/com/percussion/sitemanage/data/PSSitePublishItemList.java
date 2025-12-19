@@ -19,16 +19,14 @@ package com.percussion.sitemanage.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SitePublishItem")
-@ArraySchema(schema=@Schema(implementation = PSSitePublishItem.class))
+@ArraySchema(schema = @Schema(implementation = PSSitePublishItem.class))
 public class PSSitePublishItemList extends ArrayList<PSSitePublishItem> {
-    public PSSitePublishItemList(Collection<? extends PSSitePublishItem> c) {
-        super(c);
-    }
+  public PSSitePublishItemList(Collection<? extends PSSitePublishItem> c) {
+    super(c);
+  }
 }

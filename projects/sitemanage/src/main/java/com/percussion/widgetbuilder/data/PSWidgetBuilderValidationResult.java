@@ -17,76 +17,60 @@
 package com.percussion.widgetbuilder.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
-/**
- * @author JaySeletz
- *
- */
-@XmlRootElement(name="WidgetBuilderValidationResult")
-public class PSWidgetBuilderValidationResult
-{
-    String category;
-    String name;
-    String message;
-    
-    public PSWidgetBuilderValidationResult()
-    {
-        
-    }
-    
-    /**
-     * @param category
-     * @param name
-     * @param message
-     */
-    public PSWidgetBuilderValidationResult(String category, String name, String message)
-    {
-        Validate.notEmpty(category);
-        Validate.notEmpty(name);
-        Validate.notEmpty(message);
-        
-        this.category = category;
-        this.name = name;
-        this.message = message;
-    }
+/** @author JaySeletz */
+@XmlRootElement(name = "WidgetBuilderValidationResult")
+public class PSWidgetBuilderValidationResult {
+  String category;
+  String name;
+  String message;
 
-    public String getCategory()
-    {
-        return category;
-    }
+  public PSWidgetBuilderValidationResult() {}
 
-    public String getName()
-    {
-        return name;
-    }
+  /**
+   * @param category
+   * @param name
+   * @param message
+   */
+  public PSWidgetBuilderValidationResult(String category, String name, String message) {
+    Validate.notEmpty(category);
+    Validate.notEmpty(name);
+    Validate.notEmpty(message);
 
-    public String getMessage()
-    {
-        return message;
-    }
+    this.category = category;
+    this.name = name;
+    this.message = message;
+  }
 
-    public void setCategory(String category)
-    {
-        this.category = category;
-    }
+  public String getCategory() {
+    return category;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public enum ValidationCategory
-    {
-        GENERAL,
-        CONTENT,
-        RESOURCES,
-        DISPLAY
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public enum ValidationCategory {
+    GENERAL,
+    CONTENT,
+    RESOURCES,
+    DISPLAY
+  }
 }

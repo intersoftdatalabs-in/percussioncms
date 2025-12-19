@@ -17,120 +17,78 @@
 
 package com.percussion.utils.server;
 
-
 /**
- * The IPSCgiVariables interface is provided as a convenient mechanism
- * for accessing the names of the pre-defined CGI variables.
+ * The IPSCgiVariables interface is provided as a convenient mechanism for accessing the names of
+ * the pre-defined CGI variables.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSCgiVariables {
-   /**
-    * The server software version.
-    */
-   public static final String CGI_SERVER_SOFTWARE      = "SERVER-SOFTWARE";
+  /** The server software version. */
+  public static final String CGI_SERVER_SOFTWARE = "SERVER-SOFTWARE";
 
-   /**
-    * The "extra" info sent with the request.
-    */
-   public static final String CGI_PATH_INFO            = "PATH-INFO";
+  /** The "extra" info sent with the request. */
+  public static final String CGI_PATH_INFO = "PATH-INFO";
 
-   /**
-    * The path with virtual-physical mappings applied.
-    */
-   public static final String CGI_PATH_TRANSLATED      = "PATH-TRANSLATED";
+  /** The path with virtual-physical mappings applied. */
+  public static final String CGI_PATH_TRANSLATED = "PATH-TRANSLATED";
 
-   /**
-    * The virtual path of the executing script.
-    */
-   public static final String CGI_SCRIPT_NAME         = "SCRIPT-NAME";
+  /** The virtual path of the executing script. */
+  public static final String CGI_SCRIPT_NAME = "SCRIPT-NAME";
 
-   /**
-    * The type of authentication performed.
-    */
-   public static final String CGI_AUTH_TYPE            = "AUTH-TYPE";
+  /** The type of authentication performed. */
+  public static final String CGI_AUTH_TYPE = "AUTH-TYPE";
 
-   /**
-    * The user name submitted for authentication.
-    */
-   public static final String CGI_AUTH_USER_NAME      = "AUTH-USER";
+  /** The user name submitted for authentication. */
+  public static final String CGI_AUTH_USER_NAME = "AUTH-USER";
 
-   /**
-    * The password submitted for authentication.
-    */
-   public static final String CGI_AUTH_PASSWORD         = "AUTH-PASSWORD";
+  /** The password submitted for authentication. */
+  public static final String CGI_AUTH_PASSWORD = "AUTH-PASSWORD";
 
-   /**
-    * The type of content sent with the request.
-    */
-   public static final String CGI_CONTENT_TYPE         = "Content-Type";
+  /** The type of content sent with the request. */
+  public static final String CGI_CONTENT_TYPE = "Content-Type";
 
-   /**
-    * The length of the data (content) sent with the request.
-    */
-   public static final String CGI_CONTENT_LENGTH      = "Content-Length";
+  /** The length of the data (content) sent with the request. */
+  public static final String CGI_CONTENT_LENGTH = "Content-Length";
 
-   /**
-    * The MIME types supported by the client.
-    */
-   public static final String CGI_MIME_TYPES            = "Accept";
+  /** The MIME types supported by the client. */
+  public static final String CGI_MIME_TYPES = "Accept";
 
-   /**
-    * The type of software used to make the request.
-    */
-   public static final String CGI_REQUESTOR_SOFTWARE   = "User-Agent";
+  /** The type of software used to make the request. */
+  public static final String CGI_REQUESTOR_SOFTWARE = "User-Agent";
 
-   /**
-    * The key size used for the secure connection.
-    */
-   public static final String CGI_HTTPS_KEYSIZE         = "HTTPS-KEYSIZE";
-   
-   /**
-    * The E2 specific request type variable.
-    */
-   public static final String   CGI_PS_REQUEST_TYPE = "PS-Request-Type";
+  /** The key size used for the secure connection. */
+  public static final String CGI_HTTPS_KEYSIZE = "HTTPS-KEYSIZE";
 
-   /**
-    * The E2 specific application name variable.
-    */
-   public static final String   CGI_PS_APP_NAME         = "PS-Application";
+  /** The E2 specific request type variable. */
+  public static final String CGI_PS_REQUEST_TYPE = "PS-Request-Type";
 
-   /**
-    * The E2 specific data set name variable.
-    */
-   public static final String   CGI_PS_DATA_SET_NAME      = "PS-DataSet";
+  /** The E2 specific application name variable. */
+  public static final String CGI_PS_APP_NAME = "PS-Application";
 
-   /**
-    * The filter sets this to "1" to indicate that a request came from
-    * the filter.
-    */
-   public static final String REQ_FILTERED_CGIVAR = "PS-Relative-Req";
+  /** The E2 specific data set name variable. */
+  public static final String CGI_PS_DATA_SET_NAME = "PS-DataSet";
 
-   /**
-    * The HTTP/1.0 Pragma header which may contain:
-    *
-    */
-   public static final String CGI_HTTP_PRAGMA         = "HTTP-PRAGMA";
+  /** The filter sets this to "1" to indicate that a request came from the filter. */
+  public static final String REQ_FILTERED_CGIVAR = "PS-Relative-Req";
 
-   /**
-    * The HTTP/1.1 Cache-Control header which may contain:
-    *
-    */
-   public static final String CGI_HTTP_CACHE_CONTROL   = "HTTP-CACHE-CONTROL";
+  /** The HTTP/1.0 Pragma header which may contain: */
+  public static final String CGI_HTTP_PRAGMA = "HTTP-PRAGMA";
 
-   /**
-    * When SSL certificates are used to authenticate, this is the certificate
-    * of the user making the request.
-    */
-   public static final String CGI_CERT_SUBJECT   = "CERT-SUBJECT";
+  /** The HTTP/1.1 Cache-Control header which may contain: */
+  public static final String CGI_HTTP_CACHE_CONTROL = "HTTP-CACHE-CONTROL";
 
-   /**
-    * When SSL certificates are used to authenticate, this is the certificate
-    * of the entity who issued the certificate to the user making the
-    * request.
-    */
-   public static final String CGI_CERT_ISSUER   = "CERT-ISSUER";
+  /**
+   * When SSL certificates are used to authenticate, this is the certificate of the user making the
+   * request.
+   */
+  public static final String CGI_CERT_SUBJECT = "CERT-SUBJECT";
+
+  /**
+   * When SSL certificates are used to authenticate, this is the certificate of the entity who
+   * issued the certificate to the user making the request.
+   */
+  public static final String CGI_CERT_ISSUER = "CERT-ISSUER";
 }
-

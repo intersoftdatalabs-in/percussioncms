@@ -18,7 +18,6 @@
 package com.percussion.delivery.integrations.ems;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,50 +25,59 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSEventQuery {
-	
-	private String startDate;
-	private String endDate;
-	private String eventName;
-	private String location;
-	private List<Integer> calendars;
-	private List<Integer> eventTypes;
-	
-	public String getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
-	public String getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
-	public String getEventName() {
-		return eventName;
-	}
-	public void setEventName(String eventName) {
-		this.eventName = eventName;
-	}
-	public String getLocation() {
-		return location;
-	}
-	public void setLocation(String location) {
-		this.location = location;
-	}
-	public List<Integer> getCalendars() {
-		return calendars;
-	}
-	public void setCalendars(List<Integer> calendars) {
-		this.calendars = calendars;
-	}
-	public List<Integer> getEventTypes() {
-		return eventTypes;
-	}
-	public void setEventTypes(List<Integer> eventTypes) {
-		this.eventTypes = eventTypes;
-	}
 
+  private String startDate;
+  private String endDate;
+  private String eventName;
+  private String location;
+  private List<Integer> calendars;
+  private List<Integer> eventTypes;
 
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  public String getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
+
+  public String getEventName() {
+    return eventName;
+  }
+
+  public void setEventName(String eventName) {
+    this.eventName = eventName;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public List<Integer> getCalendars() {
+    return calendars;
+  }
+
+  public void setCalendars(List<Integer> calendars) {
+    this.calendars = calendars;
+  }
+
+  public List<Integer> getEventTypes() {
+    return eventTypes;
+  }
+
+  public void setEventTypes(List<Integer> eventTypes) {
+    this.eventTypes = eventTypes;
+  }
 }

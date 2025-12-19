@@ -17,96 +17,86 @@
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import java.io.Serializable;
-
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Class to pass the information regarding the conversion of an HTML widget into
- * Rich Text widget, from and to UI and server.
- * 
+ * Class to pass the information regarding the conversion of an HTML widget into Rich Text widget,
+ * from and to UI and server.
+ *
  * @author Santiago M. Murchio
- * 
  */
-@XmlType(name = "", propOrder =
-{"originalAssetId", "ownerId", "widgetId", "widgetName", "targetAssetType", "sharedAsset"})
+@XmlType(
+    name = "",
+    propOrder = {
+      "originalAssetId",
+      "ownerId",
+      "widgetId",
+      "widgetName",
+      "targetAssetType",
+      "sharedAsset"
+    })
 @XmlRootElement(name = "PSCreateAssetRequest")
-public class PSCreateAssetRequest extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = 1L;
+public class PSCreateAssetRequest extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    private String originalAssetId;
+  private String originalAssetId;
 
-    private String ownerId;
+  private String ownerId;
 
-    private String widgetId;
+  private String widgetId;
 
-    private String widgetName;
+  private String widgetName;
 
-    private String targetAssetType;
+  private String targetAssetType;
 
-    private Boolean sharedAsset;
+  private Boolean sharedAsset;
 
-    public String getOriginalAssetId()
-    {
-        return originalAssetId;
-    }
+  public String getOriginalAssetId() {
+    return originalAssetId;
+  }
 
-    public void setOriginalAssetId(String originalAssetId)
-    {
-        this.originalAssetId = originalAssetId;
-    }
+  public void setOriginalAssetId(String originalAssetId) {
+    this.originalAssetId = originalAssetId;
+  }
 
-    public String getOwnerId()
-    {
-        return ownerId;
-    }
+  public String getOwnerId() {
+    return ownerId;
+  }
 
-    public void setOwnerId(String ownerId)
-    {
-        this.ownerId = ownerId;
-    }
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
 
-    public String getWidgetId()
-    {
-        return widgetId;
-    }
+  public String getWidgetId() {
+    return widgetId;
+  }
 
-    public void setWidgetId(String widgetId)
-    {
-        this.widgetId = widgetId;
-    }
+  public void setWidgetId(String widgetId) {
+    this.widgetId = widgetId;
+  }
 
-    public String getWidgetName()
-    {
-        return widgetName;
-    }
+  public String getWidgetName() {
+    return widgetName;
+  }
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public String getTargetAssetType()
-    {
-        return targetAssetType;
-    }
+  public String getTargetAssetType() {
+    return targetAssetType;
+  }
 
-    public void setTargetAssetType(String targetAssetType)
-    {
-        this.targetAssetType = targetAssetType;
-    }
+  public void setTargetAssetType(String targetAssetType) {
+    this.targetAssetType = targetAssetType;
+  }
 
-    public boolean isSharedAsset()
-    {
-        return sharedAsset;
-    }
+  public boolean isSharedAsset() {
+    return sharedAsset;
+  }
 
-    public void setSharedAsset(boolean sharedAsset)
-    {
-        this.sharedAsset = sharedAsset;
-    }
+  public void setSharedAsset(boolean sharedAsset) {
+    this.sharedAsset = sharedAsset;
+  }
 }

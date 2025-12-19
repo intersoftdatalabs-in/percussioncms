@@ -18,144 +18,120 @@ package com.percussion.sitemanage.importer;
 
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
 import com.percussion.utils.types.PSPair;
-import org.apache.commons.lang.Validate;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.Validate;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSSiteImportLogger implements IPSSiteImportLogger
-{
-    private PSLogObjectType objectType;
-    
-    private StringBuilder log;
-    
+/** @author JaySeletz */
+public class PSSiteImportLogger implements IPSSiteImportLogger {
+  private PSLogObjectType objectType;
 
-    /**
-     * Separator for parts of a log msg.
-     */
-    private static final String LOG_MSG_SEP = ": ";
-    
-    /**
-     * List of messages, first part is the category, second part is the message
-     */
-    private List<PSPair<String, String>> errorLogMessages = null; 
-    
-    private CountDownLatch waitingThreadCount = null;
-    
-    /**
-     * Construct a logger.
-     * 
-     * @param objectType The type of object being imported.
-     */
-    public PSSiteImportLogger(PSLogObjectType objectType)
-    {
-        Validate.notNull(objectType);
-        this.objectType = objectType;
-        log = new StringBuilder();
-    }
-    
-    @Override
-    public void appendLogMessage(PSLogEntryType type, String category, String message)
-    {
-        Validate.notNull(type);
-        Validate.notEmpty(category);
-        Validate.notEmpty(message);
-        
-        log.append(type);
-        log.append(LOG_MSG_SEP);
-        log.append(category);
-        log.append(LOG_MSG_SEP);
-        log.append(message);
-        log.append("\n");
-        
-        if (type.equals(PSLogEntryType.ERROR) && errorLogMessages != null)
-        {
-            errorLogMessages.add(new PSPair<>(category, message));
-        }
-    }
-    
-    /**
-     * Gets the current log buffer as a String.
-     */
-    public String getLog()
-    {
-        return log.toString();
-    }
-    
-    @Override
-    public PSLogObjectType getType()
-    {
-        return objectType;
-    }
+  private StringBuilder log;
 
-    @Override
-    public void logErrors()
-    {
+  /** Separator for parts of a log msg. */
+  private static final String LOG_MSG_SEP = ": ";
 
-        errorLogMessages = new ArrayList<>();
+  /** List of messages, first part is the category, second part is the message */
+  private List<PSPair<String, String>> errorLogMessages = null;
+
+  private CountDownLatch waitingThreadCount = null;
+
+  /**
+   * Construct a logger.
+   *
+   * @param objectType The type of object being imported.
+   */
+  public PSSiteImportLogger(PSLogObjectType objectType) {
+    Validate.notNull(objectType);
+    this.objectType = objectType;
+    log = new StringBuilder();
+  }
+
+  @Override
+  public void appendLogMessage(PSLogEntryType type, String category, String message) {
+    Validate.notNull(type);
+    Validate.notEmpty(category);
+    Validate.notEmpty(message);
+
+    log.append(type);
+    log.append(LOG_MSG_SEP);
+    log.append(category);
+    log.append(LOG_MSG_SEP);
+    log.append(message);
+    log.append("\n");
+
+    if (type.equals(PSLogEntryType.ERROR) && errorLogMessages != null) {
+      errorLogMessages.add(new PSPair<>(category, message));
     }
-    
-    @Override
-    public List<PSImportLogEntry> getErrors(PSLogObjectType type, String objectId, String description)
-    {
-        Validate.notNull(type);
-        Validate.notEmpty(objectId);
-        Validate.notEmpty(description);
-        
-        if (errorLogMessages == null)
-            return null;
-        
-        List<PSImportLogEntry> result = new ArrayList<>();
-        for (PSPair<String,String> message : errorLogMessages)
-        {
-            result.add(new PSImportLogEntry(objectId, type.name(), new Date(), description, message.getFirst(), message.getSecond()));
-        }
-        
-        return result;
+  }
+
+  /** Gets the current log buffer as a String. */
+  public String getLog() {
+    return log.toString();
+  }
+
+  @Override
+  public PSLogObjectType getType() {
+    return objectType;
+  }
+
+  @Override
+  public void logErrors() {
+
+    errorLogMessages = new ArrayList<>();
+  }
+
+  @Override
+  public List<PSImportLogEntry> getErrors(
+      PSLogObjectType type, String objectId, String description) {
+    Validate.notNull(type);
+    Validate.notEmpty(objectId);
+    Validate.notEmpty(description);
+
+    if (errorLogMessages == null) return null;
+
+    List<PSImportLogEntry> result = new ArrayList<>();
+    for (PSPair<String, String> message : errorLogMessages) {
+      result.add(
+          new PSImportLogEntry(
+              objectId,
+              type.name(),
+              new Date(),
+              description,
+              message.getFirst(),
+              message.getSecond()));
     }
 
-    @Override
-    public synchronized void setWaitCount(int count)
-    {
-        if (waitingThreadCount != null)
-        {
-            throw new IllegalStateException("wait count has already been set on this object");
-        }
-        
-        waitingThreadCount = new CountDownLatch(count);
+    return result;
+  }
+
+  @Override
+  public synchronized void setWaitCount(int count) {
+    if (waitingThreadCount != null) {
+      throw new IllegalStateException("wait count has already been set on this object");
     }
 
-    @Override
-    public void removeFromWaitCount()
-    {
-        if (waitingThreadCount != null)
-        {
-            waitingThreadCount.countDown();
-        }
-    }
+    waitingThreadCount = new CountDownLatch(count);
+  }
 
-    @Override
-    public void waitForThreads(long timeoutSeconds)
-    {
-        if (waitingThreadCount == null)
-            return;
-        
-        try
-        {
-            waitingThreadCount.await(timeoutSeconds, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-        }
+  @Override
+  public void removeFromWaitCount() {
+    if (waitingThreadCount != null) {
+      waitingThreadCount.countDown();
     }
-    
-    
+  }
+
+  @Override
+  public void waitForThreads(long timeoutSeconds) {
+    if (waitingThreadCount == null) return;
+
+    try {
+      waitingThreadCount.await(timeoutSeconds, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
 }

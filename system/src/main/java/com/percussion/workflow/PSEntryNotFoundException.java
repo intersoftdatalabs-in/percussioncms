@@ -18,77 +18,62 @@ package com.percussion.workflow;
 
 import com.percussion.error.PSException;
 
-public class PSEntryNotFoundException extends PSException
-{
-   /**
-    * Construct the exception using error message text.
-    * @param msg error message. Can be <code>null</code>. 
-    */
-   public PSEntryNotFoundException(String msg)
-   {
-      super(msg);
-   }
+public class PSEntryNotFoundException extends PSException {
+  /**
+   * Construct the exception using error message text.
+   *
+   * @param msg error message. Can be <code>null</code>.
+   */
+  public PSEntryNotFoundException(String msg) {
+    super(msg);
+  }
 
-   /**
-    * Construct the exception using message code.
-    * @param msgCode  the error string to load
-    */
-   public PSEntryNotFoundException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Construct the exception using message code.
+   *
+   * @param msgCode the error string to load
+   */
+  public PSEntryNotFoundException(int msgCode) {
+    super(msgCode);
+  }
 
-   /**
-    * Construct an exception for messages taking locale and msgCode arguments.
-    *
-    * @param language  language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>.
-    *
-    * @param msgCode the error string to load
-    */
-   public PSEntryNotFoundException(String language, int msgCode)
-   {
-      super(language, msgCode);
-   }
+  /**
+   * Construct an exception for messages taking locale and msgCode arguments.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   */
+  public PSEntryNotFoundException(String language, int msgCode) {
+    super(language, msgCode);
+  }
 
-   /**
-    * Construct an exception for messages taking locale and message code
-   * arguments and and a single argument.
-    *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>.
-    *
-    * @param msgCode the error string to load
-    *
-    * @param singleArg the argument to use as the sole argument in
-    * the error message. Can be <code>null</code>. 
-    */
-   public PSEntryNotFoundException(String language, int msgCode,
-                                    Object singleArg)
-   {
-      super(language, msgCode, singleArg);
-   }
+  /**
+   * Construct an exception for messages taking locale and message code arguments and and a single
+   * argument.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message. Can be <code>
+   *     null</code>.
+   */
+  public PSEntryNotFoundException(String language, int msgCode, Object singleArg) {
+    super(language, msgCode, singleArg);
+  }
 
-   /**
-    * Construct an exception for messages taking language, message code 
-    * and an array of arguments. Be sure to store the arguments in the 
-    * correct order in the array, where {0} in the string is array 
-    * element 0, etc.
-    *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle e.g. 'en-us', may be
-    * <code>null</code> or <code>empty</code>.
-    *
-    * @param msgCode  the error string to load
-    *
-    * @param arrayArgs   the array of arguments to use as the arguments
-    * in the error message. Can be <code>null</code>.
-    */
-   public PSEntryNotFoundException(String language, int msgCode,
-                                    Object[] arrayArgs)
-   {
-      super(language, msgCode, arrayArgs);
-   }
+  /**
+   * Construct an exception for messages taking language, message code and an array of arguments. Be
+   * sure to store the arguments in the correct order in the array, where {0} in the string is array
+   * element 0, etc.
+   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. Can be
+   *     <code>null</code>.
+   */
+  public PSEntryNotFoundException(String language, int msgCode, Object[] arrayArgs) {
+    super(language, msgCode, arrayArgs);
+  }
 }

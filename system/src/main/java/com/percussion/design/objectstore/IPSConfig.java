@@ -17,16 +17,12 @@
 
 package com.percussion.design.objectstore;
 
-/**
- * An interface to be implemented by all server configurations stored in the
- * system repository.
- */
-public interface IPSConfig 
-{
-   /**
-    * Gets <code>String</code> representaion of this configuration.
-    * 
-    * @return the string, never <code>null</code> or empty.
-    */
-   public String getConfigString();   
+/** An interface to be implemented by all server configurations stored in the system repository. */
+public interface IPSConfig {
+  /**
+   * Gets <code>String</code> representaion of this configuration.
+   *
+   * @return the string, never <code>null</code> or empty.
+   */
+  public String getConfigString();
 }

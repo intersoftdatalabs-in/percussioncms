@@ -18,13 +18,12 @@ package com.percussion.share.service.exception;
 
 import com.percussion.share.validation.PSValidationErrors;
 
-
 public interface IPSValidationException {
-    
-    /**
-     * Serializable Validation errors.
-     * @return maybe <code>null</code>.
-     */
-    public PSValidationErrors getValidationErrors();
 
+  /**
+   * Serializable Validation errors.
+   *
+   * @return maybe <code>null</code>.
+   */
+  public PSValidationErrors getValidationErrors();
 }

@@ -20,11 +20,11 @@ package com.percussion.utils;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import org.springframework.context.ApplicationContext;
 
-public class PSSpringBeanProvider  {
+public class PSSpringBeanProvider {
 
-    static private ApplicationContext applicationContext;
+  private static ApplicationContext applicationContext;
 
-    public static Object getBean(String beanName) {
-        return PSSpringWebApplicationContextUtils.getWebApplicationContext().getBean(beanName);
-    }
+  public static Object getBean(String beanName) {
+    return PSSpringWebApplicationContextUtils.getWebApplicationContext().getBean(beanName);
+  }
 }

@@ -15,67 +15,59 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
- * The tree render controls the behavior on screen. This one returns the 
- * rendered component if the tree contains an instance of 
- * <code>PSCheckBoxTreeNode</code>.
- */   
-public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer 
-   implements IPSCheckboxTreeRenderer
-{
-   /* (non-Javadoc)
-    * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent(
-    *    javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, 
-    *    boolean)
-    */
-   @Override
-   public Component getTreeCellRendererComponent(JTree tree, Object value,
-      boolean isSelected, boolean isExpanded, boolean isLeaf, int row,
-      boolean ownsFocus)
-   {
-      if (value instanceof PSCheckboxTreeNode)
-      {
-         PSCheckboxTreeNode node = (PSCheckboxTreeNode) value;
-         return node.getRenderedComponent();
-      }
+ * The tree render controls the behavior on screen. This one returns the rendered component if the
+ * tree contains an instance of <code>PSCheckBoxTreeNode</code>.
+ */
+public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer
+    implements IPSCheckboxTreeRenderer {
+  /* (non-Javadoc)
+   * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent(
+   *    javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int,
+   *    boolean)
+   */
+  @Override
+  public Component getTreeCellRendererComponent(
+      JTree tree,
+      Object value,
+      boolean isSelected,
+      boolean isExpanded,
+      boolean isLeaf,
+      int row,
+      boolean ownsFocus) {
+    if (value instanceof PSCheckboxTreeNode) {
+      PSCheckboxTreeNode node = (PSCheckboxTreeNode) value;
+      return node.getRenderedComponent();
+    }
 
-      return super.getTreeCellRendererComponent(tree, value, isSelected,
-         isExpanded, isLeaf, row, ownsFocus);
-   }
-   
-   /* (non-Javadoc)
-    * @see IPSCheckboxTreeRenderer#getParameters()
-    */
-   public Map<String, String> getParameters()
-   {
-      return m_parameters;
-   }
+    return super.getTreeCellRendererComponent(
+        tree, value, isSelected, isExpanded, isLeaf, row, ownsFocus);
+  }
 
-   /* (non-Javadoc)
-    * @see IPSCheckboxTreeRenderer#setParameters()
-    */
-   public void setParameters(Map<String, String> parameters)
-   {
-      if (parameters == null)
-         m_parameters = new HashMap<>();
-      else
-         m_parameters = parameters;
-   }
+  /* (non-Javadoc)
+   * @see IPSCheckboxTreeRenderer#getParameters()
+   */
+  public Map<String, String> getParameters() {
+    return m_parameters;
+  }
 
-   /**
-    * The extra parameters set for this renderer, never <code>null</code>, may
-    * be empty.
-    */
-   private Map<String, String> m_parameters = new HashMap<>();
-   
-   /**
-    * Generated serial version id.
-    */
-   private static final long serialVersionUID = -5871298110935968333L;
+  /* (non-Javadoc)
+   * @see IPSCheckboxTreeRenderer#setParameters()
+   */
+  public void setParameters(Map<String, String> parameters) {
+    if (parameters == null) m_parameters = new HashMap<>();
+    else m_parameters = parameters;
+  }
+
+  /** The extra parameters set for this renderer, never <code>null</code>, may be empty. */
+  private Map<String, String> m_parameters = new HashMap<>();
+
+  /** Generated serial version id. */
+  private static final long serialVersionUID = -5871298110935968333L;
 }

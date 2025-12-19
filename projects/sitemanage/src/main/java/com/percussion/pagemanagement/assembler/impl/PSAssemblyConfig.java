@@ -18,16 +18,12 @@ package com.percussion.pagemanagement.assembler.impl;
 
 import com.percussion.util.IPSHtmlParameters;
 
-public class PSAssemblyConfig
-{
-    public static final String PERC_RESOURCE_ID_PARAM_NAME = IPSHtmlParameters.PERC_RESOURCE_DEFINITION_ID;
-    public static final String PERC_RESOURCE_BINDING_NAME = "perc_resource";
-    public static final String PERC_RESOURCE_ASSEMBLY_TEMPLATE = "perc.sys.resource";
-    
-    public static String PREVIEW_PAGE_BINDING_NAME = "$_previewPage"; 
-    public static String PREVIEW_TEMPLATE_BINDING_NAME = "$_previewTemplate";
-    
-    
+public class PSAssemblyConfig {
+  public static final String PERC_RESOURCE_ID_PARAM_NAME =
+      IPSHtmlParameters.PERC_RESOURCE_DEFINITION_ID;
+  public static final String PERC_RESOURCE_BINDING_NAME = "perc_resource";
+  public static final String PERC_RESOURCE_ASSEMBLY_TEMPLATE = "perc.sys.resource";
 
+  public static String PREVIEW_PAGE_BINDING_NAME = "$_previewPage";
+  public static String PREVIEW_TEMPLATE_BINDING_NAME = "$_previewTemplate";
 }
-

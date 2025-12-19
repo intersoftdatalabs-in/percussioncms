@@ -16,43 +16,35 @@
  */
 package com.percussion.error;
 
-import com.percussion.error.PSException;
-
 /**
- * Generic exception class to be used for relationship errors. More specific 
- * relationship errors should be derived from this class.
+ * Generic exception class to be used for relationship errors. More specific relationship errors
+ * should be derived from this class.
  */
-public class PSRelationshipException extends PSException
-{
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object)
-    */ 
-   public PSRelationshipException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+public class PSRelationshipException extends PSException {
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see com.percussion.error.PSException#PSException(int,Object)
+   */
+  public PSRelationshipException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see com.percussion.error.PSException#PSException(int,Object[])
+   */
+  public PSRelationshipException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object[])
-    */ 
-   public PSRelationshipException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
-
-
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int)
-    */ 
-   public PSRelationshipException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see com.percussion.error.PSException#PSException(int)
+   */
+  public PSRelationshipException(int msgCode) {
+    super(msgCode);
+  }
 }

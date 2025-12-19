@@ -19,66 +19,58 @@ package com.percussion.maintenance.service;
 import static org.junit.Assert.*;
 
 import com.percussion.maintenance.service.impl.PSMaintenanceManager;
-
 import org.junit.Test;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSMaintenanceManagerTest
-{
-    
-    
-    @Test
-    public void test()
-    {
-        IPSMaintenanceManager maintenanceManager = new PSMaintenanceManager();
-        
-        IPSMaintenanceProcess process = new PSMockMaintenanceProcess("Proc1");
-        maintenanceManager.startingWork(process);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        assertFalse(maintenanceManager.hasFailures());
-        
-        maintenanceManager.workCompleted(process);
-        assertFalse(maintenanceManager.isWorkInProgress());
-        assertFalse(maintenanceManager.hasFailures());
-        
-        maintenanceManager.startingWork(process);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        maintenanceManager.workFailed(process);
-        assertFalse(maintenanceManager.isWorkInProgress());
-        assertTrue(maintenanceManager.hasFailures());
-        maintenanceManager.clearFailures();
-        assertFalse(maintenanceManager.hasFailures());
-        
-        maintenanceManager = new PSMaintenanceManager();
-        
-        IPSMaintenanceProcess proc1 = new PSMockMaintenanceProcess("Proc1");
-        maintenanceManager.startingWork(proc1);
-        IPSMaintenanceProcess proc2 = new PSMockMaintenanceProcess("Proc2");
-        maintenanceManager.startingWork(proc2);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        assertFalse(maintenanceManager.hasFailures());
-        maintenanceManager.workCompleted(proc2);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        maintenanceManager.workCompleted(proc1);
-        assertFalse(maintenanceManager.isWorkInProgress());
-        assertFalse(maintenanceManager.hasFailures());
-        
-        maintenanceManager.startingWork(proc1);
-        maintenanceManager.startingWork(proc2);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        assertFalse(maintenanceManager.hasFailures());
-        
-        maintenanceManager.workFailed(proc1);
-        assertTrue(maintenanceManager.isWorkInProgress());
-        assertTrue(maintenanceManager.hasFailures());
-        maintenanceManager.workCompleted(proc2);
-        assertFalse(maintenanceManager.isWorkInProgress());
-        assertTrue(maintenanceManager.hasFailures());
-        maintenanceManager.clearFailures();
-        assertFalse(maintenanceManager.hasFailures());
-        
-    }
+/** @author JaySeletz */
+public class PSMaintenanceManagerTest {
+
+  @Test
+  public void test() {
+    IPSMaintenanceManager maintenanceManager = new PSMaintenanceManager();
+
+    IPSMaintenanceProcess process = new PSMockMaintenanceProcess("Proc1");
+    maintenanceManager.startingWork(process);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    assertFalse(maintenanceManager.hasFailures());
+
+    maintenanceManager.workCompleted(process);
+    assertFalse(maintenanceManager.isWorkInProgress());
+    assertFalse(maintenanceManager.hasFailures());
+
+    maintenanceManager.startingWork(process);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    maintenanceManager.workFailed(process);
+    assertFalse(maintenanceManager.isWorkInProgress());
+    assertTrue(maintenanceManager.hasFailures());
+    maintenanceManager.clearFailures();
+    assertFalse(maintenanceManager.hasFailures());
+
+    maintenanceManager = new PSMaintenanceManager();
+
+    IPSMaintenanceProcess proc1 = new PSMockMaintenanceProcess("Proc1");
+    maintenanceManager.startingWork(proc1);
+    IPSMaintenanceProcess proc2 = new PSMockMaintenanceProcess("Proc2");
+    maintenanceManager.startingWork(proc2);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    assertFalse(maintenanceManager.hasFailures());
+    maintenanceManager.workCompleted(proc2);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    maintenanceManager.workCompleted(proc1);
+    assertFalse(maintenanceManager.isWorkInProgress());
+    assertFalse(maintenanceManager.hasFailures());
+
+    maintenanceManager.startingWork(proc1);
+    maintenanceManager.startingWork(proc2);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    assertFalse(maintenanceManager.hasFailures());
+
+    maintenanceManager.workFailed(proc1);
+    assertTrue(maintenanceManager.isWorkInProgress());
+    assertTrue(maintenanceManager.hasFailures());
+    maintenanceManager.workCompleted(proc2);
+    assertFalse(maintenanceManager.isWorkInProgress());
+    assertTrue(maintenanceManager.hasFailures());
+    maintenanceManager.clearFailures();
+    assertFalse(maintenanceManager.hasFailures());
+  }
 }

@@ -19,10 +19,8 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class UnknownUserException extends RestExceptionBase
-{
-    public UnknownUserException()
-    {
-        super(RestErrorCode.UNKNOWN_USER, null, null, Response.Status.NOT_FOUND);
-    }
+public class UnknownUserException extends RestExceptionBase {
+  public UnknownUserException() {
+    super(RestErrorCode.UNKNOWN_USER, null, null, Response.Status.NOT_FOUND);
+  }
 }

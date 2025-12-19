@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getRoomDetailsResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getRoomDetailsResult"})
 @XmlRootElement(name = "GetRoomDetailsResponse")
 public class GetRoomDetailsResponse {
 
-    @XmlElement(name = "GetRoomDetailsResult")
-    protected String getRoomDetailsResult;
+  @XmlElement(name = "GetRoomDetailsResult")
+  protected String getRoomDetailsResult;
 
-    /**
-     * Gets the value of the getRoomDetailsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetRoomDetailsResult() {
-        return getRoomDetailsResult;
-    }
+  /**
+   * Gets the value of the getRoomDetailsResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetRoomDetailsResult() {
+    return getRoomDetailsResult;
+  }
 
-    /**
-     * Sets the value of the getRoomDetailsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetRoomDetailsResult(String value) {
-        this.getRoomDetailsResult = value;
-    }
-
+  /**
+   * Sets the value of the getRoomDetailsResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetRoomDetailsResult(String value) {
+    this.getRoomDetailsResult = value;
+  }
 }

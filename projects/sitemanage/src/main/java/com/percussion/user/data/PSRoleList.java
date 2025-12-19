@@ -15,57 +15,41 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
+/** */
 package com.percussion.user.data;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A list of roles.
- * <p>
- * Some tools have problems serializing a list of strings hence
- * this wrapping object.
- * 
+ *
+ * <p>Some tools have problems serializing a list of strings hence this wrapping object.
+ *
  * @author adamgent
  * @author DavidBenua
- * 
  */
 @XmlRootElement(name = "RoleList")
 @JsonRootName("RoleList")
-public class PSRoleList extends PSAbstractDataObject
-{
+public class PSRoleList extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
-    private List<String> roles; 
-    
-    public PSRoleList()
-    {
-        roles = new ArrayList<>();
-    }
+  private static final long serialVersionUID = 1L;
+  private List<String> roles;
 
-    /**
-     * @return the roles
-     */
-    public List<String> getRoles()
-    {
-        return roles;
-    }
+  public PSRoleList() {
+    roles = new ArrayList<>();
+  }
 
-    /**
-     * @param roles the roles to set
-     */
-    public void setRoles(List<String> roles)
-    {
-        this.roles = roles;
-    }
-    
-    
+  /** @return the roles */
+  public List<String> getRoles() {
+    return roles;
+  }
+
+  /** @param roles the roles to set */
+  public void setRoles(List<String> roles) {
+    this.roles = roles;
+  }
 }

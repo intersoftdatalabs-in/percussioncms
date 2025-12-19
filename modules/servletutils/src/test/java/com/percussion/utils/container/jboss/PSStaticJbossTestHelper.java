@@ -17,42 +17,37 @@
 
 package com.percussion.utils.container.jboss;
 
-import java.io.File;
-
-import com.percussion.utils.container.PSContainerUtilsFactory;
-
 import static com.percussion.util.PSResourceUtils.getResourcePath;
 
-public class PSStaticJbossTestHelper
-{
-   
-   public static void setJettyContainerType()
-   {
+import java.io.File;
 
-   }
+public class PSStaticJbossTestHelper {
 
- 
-   public static File getPropertiesFile(String name)
-   {
-      File f = new File(getTestRootDir(), name);
-      return f;
-   }
+  public static void setJettyContainerType() {}
 
-   public static File getTestRootDir()
-   {
+  public static File getPropertiesFile(String name) {
+    File f = new File(getTestRootDir(), name);
+    return f;
+  }
 
-      File f = new File(getResourcePath( PSStaticJbossTestHelper.class,"/com/percussion/utils/jboss"));
-      return f;
-   }
+  public static File getTestRootDir() {
 
-   public static File getTomcatTestDir()
-   {
-      File f = new File(getResourcePath(PSStaticJbossTestHelper.class,"/com/percussion/utils/tomcat"));
-      return f;
-   }
-   public static File  getSpringConfigDir(){
-      File f = new File(getResourcePath(PSStaticJbossTestHelper.class,"/com/percussion/design/objectstore/legacy"));
-      return f;
-   }
+    File f =
+        new File(getResourcePath(PSStaticJbossTestHelper.class, "/com/percussion/utils/jboss"));
+    return f;
+  }
 
+  public static File getTomcatTestDir() {
+    File f =
+        new File(getResourcePath(PSStaticJbossTestHelper.class, "/com/percussion/utils/tomcat"));
+    return f;
+  }
+
+  public static File getSpringConfigDir() {
+    File f =
+        new File(
+            getResourcePath(
+                PSStaticJbossTestHelper.class, "/com/percussion/design/objectstore/legacy"));
+    return f;
+  }
 }

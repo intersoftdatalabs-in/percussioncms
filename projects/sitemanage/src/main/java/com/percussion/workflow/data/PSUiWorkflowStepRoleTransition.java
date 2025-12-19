@@ -17,52 +17,38 @@
 package com.percussion.workflow.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class contains the structure of the transition for the role in an
- * specific step. The object is composed of a permission.
- * 
+ * This class contains the structure of the transition for the role in an specific step. The object
+ * is composed of a permission.
+ *
  * @author leonardohildt
  * @author rafaelsalis
- * 
  */
 @XmlRootElement(name = "WorkflowStepRoleTransition")
-public class PSUiWorkflowStepRoleTransition extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = -1L;
+public class PSUiWorkflowStepRoleTransition extends PSAbstractDataObject {
+  private static final long serialVersionUID = -1L;
 
-    private String transitionPermission;
+  private String transitionPermission;
 
-    public PSUiWorkflowStepRoleTransition()
-    {
-        super();
-    }
-    
-    /**
-     * @return the permission for the transition
-     */
-    public String getTransitionPermission()
-    {
-        return transitionPermission;
-    }
+  public PSUiWorkflowStepRoleTransition() {
+    super();
+  }
 
-    /**
-     * @param transitionPermission
-     */
-    public PSUiWorkflowStepRoleTransition(String transitionPermission)
-    {
-        super();
-        this.transitionPermission = transitionPermission;
-    }
+  /** @return the permission for the transition */
+  public String getTransitionPermission() {
+    return transitionPermission;
+  }
 
-    /**
-     * @param the permission for the transition to set
-     */
-    public void setTransitionPermission(String transitionPermission)
-    {
-        this.transitionPermission = transitionPermission;
-    }
-    
+  /** @param transitionPermission */
+  public PSUiWorkflowStepRoleTransition(String transitionPermission) {
+    super();
+    this.transitionPermission = transitionPermission;
+  }
+
+  /** @param the permission for the transition to set */
+  public void setTransitionPermission(String transitionPermission) {
+    this.transitionPermission = transitionPermission;
+  }
 }

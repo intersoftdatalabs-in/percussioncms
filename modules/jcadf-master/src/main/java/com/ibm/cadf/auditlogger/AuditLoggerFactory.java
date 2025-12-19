@@ -21,27 +21,21 @@ import com.ibm.cadf.auditlogger.csv.CSVAuditLogger;
 import com.ibm.cadf.auditlogger.json.JsonAuditLogger;
 import com.ibm.cadf.util.Constants;
 
-public class AuditLoggerFactory
-{
+public class AuditLoggerFactory {
 
-    /**
-     * The default file format is csv
-     * 
-     * @param auditorType
-     * @return
-     */
-    public static AuditLogger getAuditLogger(String auditorType)
-    {
+  /**
+   * The default file format is csv
+   *
+   * @param auditorType
+   * @return
+   */
+  public static AuditLogger getAuditLogger(String auditorType) {
 
-        if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_CSV))
-        {
-            return CSVAuditLogger.getInstance();
-        }
-        else if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_JSON))
-        {
-            return JsonAuditLogger.getInstance();
-        }
-        return CSVAuditLogger.getInstance();
+    if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_CSV)) {
+      return CSVAuditLogger.getInstance();
+    } else if (auditorType.equals(Constants.AUDIT_FORMAT_TYPE_JSON)) {
+      return JsonAuditLogger.getInstance();
     }
-
+    return CSVAuditLogger.getInstance();
+  }
 }

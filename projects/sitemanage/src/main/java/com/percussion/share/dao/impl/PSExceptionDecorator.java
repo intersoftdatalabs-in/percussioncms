@@ -19,42 +19,35 @@ package com.percussion.share.dao.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * This decorator wraps an existing exception making 
- * instances of this class look like the wrapped exception.
- * <p>
- * This is different than chaining exceptions where the 
- * {@link #getCause()} is the real exception you wanted
- * to throw.
- * <p>
- * The reason why you would use this class or a derivative 
- * instead of chaining is to avoid useless and unnecessary stack
- * information.
- *  
- * @author adamgent
+ * This decorator wraps an existing exception making instances of this class look like the wrapped
+ * exception.
  *
+ * <p>This is different than chaining exceptions where the {@link #getCause()} is the real exception
+ * you wanted to throw.
+ *
+ * <p>The reason why you would use this class or a derivative instead of chaining is to avoid
+ * useless and unnecessary stack information.
+ *
+ * @author adamgent
  */
-public class PSExceptionDecorator extends RuntimeException
-{
+public class PSExceptionDecorator extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-    private String message;
-    
-    protected void wrap(Throwable cause) {
-        notNull(cause);
-        setMessage(cause.getMessage());
-        setStackTrace(cause.getStackTrace());
-        initCause(cause.getCause());
-    }
+  private static final long serialVersionUID = 1L;
+  private String message;
 
-    @Override
-    public String getMessage()
-    {
-        return message;
-    }
-    
-    protected void setMessage(String message)
-    {
-        this.message = message;
-    }
+  protected void wrap(Throwable cause) {
+    notNull(cause);
+    setMessage(cause.getMessage());
+    setStackTrace(cause.getStackTrace());
+    initCause(cause.getCause());
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
+  protected void setMessage(String message) {
+    this.message = message;
+  }
 }
-

@@ -16,16 +16,14 @@
  */
 package com.percussion.delivery.comments.services;
 
-
-/***
- * 
- * @author natechadwick
+/**
+ * *
  *
+ * @author natechadwick
  */
 public class PSCommentsRestServiceTestsRDBMSTest extends PSCommentsRestServiceBaseTest {
 
-
-	public PSCommentsRestServiceTestsRDBMSTest(){
-	   // super("classpath:test-beans.xml");
-	}
+  public PSCommentsRestServiceTestsRDBMSTest() {
+    // super("classpath:test-beans.xml");
+  }
 }

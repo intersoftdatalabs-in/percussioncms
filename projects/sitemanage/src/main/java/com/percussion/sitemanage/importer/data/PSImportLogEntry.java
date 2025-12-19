@@ -17,160 +17,142 @@
 package com.percussion.sitemanage.importer.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.Date;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import org.apache.commons.lang.Validate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * @author JaySeletz
- *
- */
+/** @author JaySeletz */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSImportLogEntry")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSImportLogEntry")
 @Table(name = "PSX_IMPORTLOGENTRY")
+public class PSImportLogEntry extends PSAbstractDataObject {
+  @Id
+  @Column(name = "LOGENTRYID")
+  private long logEntryId = -1L;
 
-public class PSImportLogEntry extends PSAbstractDataObject
-{
-    @Id
-    @Column(name = "LOGENTRYID")    
-    private long logEntryId = -1L;
-    
-    @Basic
-    @Column(name = "OBJECTID")
-    private String objectId;
-    
-    @Basic
-    @Column(name = "OBJECT_TYPE")
-    private String objectType;
-    
-    @Basic
-    @Column(name = "LOGENTRY_DATE")
-    private Date logEntryDate;
-    
-    @Basic
-    @Column(name = "DATA")
-    private String logData;
-    
-    @Basic
-    @Column(name = "CATEGORY")
-    private String category;
-    
-    @Basic
-    @Column(name = "DESCRIPTION")
-    private String description;
-    
-    public PSImportLogEntry()
-    {
-        
-    }
-    
-    public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String logData)
-    {
-        this(objectId, objectType, logEntryDate, null, null, logData);
-    }
-    
-    /**
-     * @param objectId The id of the object being logged, not <code>null<code/> or empty.
-     * @param objectType The type of the object being logged, not <code>null</code> or empty.
-     * @param date The date of the log, not <code>null</code>.
-     * @param description An optional description of the object, may be <code>null</code>.
-     * @param category An optional category, may be <code>null</code>.
-     * @param logData The log message, not <code>null<code/> or empty.
-     */
-    public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String description, String category, String logData)
-    {
-        Validate.notEmpty(objectType);
-        Validate.notEmpty(objectId);
-        Validate.notNull(logEntryDate);
-        Validate.notNull(logData);
-        
-        this.objectId = objectId;
-        this.objectType = objectType;
-        this.logEntryDate = logEntryDate;
-        this.description = description;
-        this.category = category;
-        this.logData = logData;
-    }
+  @Basic
+  @Column(name = "OBJECTID")
+  private String objectId;
 
-    public long getLogEntryId()
-    {
-        return logEntryId;
-    }
+  @Basic
+  @Column(name = "OBJECT_TYPE")
+  private String objectType;
 
-    public void setLogEntryId(long logEntryId)
-    {
-        this.logEntryId = logEntryId;
-    }
+  @Basic
+  @Column(name = "LOGENTRY_DATE")
+  private Date logEntryDate;
 
-    public String getObjectId()
-    {
-        return objectId;
-    }
+  @Basic
+  @Column(name = "DATA")
+  private String logData;
 
-    public void setObjectId(String objectId)
-    {
-        Validate.notEmpty(objectId);
-        this.objectId = objectId;
-    }
+  @Basic
+  @Column(name = "CATEGORY")
+  private String category;
 
-    public String getType()
-    {
-        return objectType;        
-    }
+  @Basic
+  @Column(name = "DESCRIPTION")
+  private String description;
 
-    public void setType(String type)
-    {
-        Validate.notEmpty(type);
-        this.objectType = type;
-    }
+  public PSImportLogEntry() {}
 
-    public Date getLogEntryDate()
-    {
-        return logEntryDate;
-    }
+  public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String logData) {
+    this(objectId, objectType, logEntryDate, null, null, logData);
+  }
 
-    public void setLogEntryDate(Date logEntryDate)
-    {
-        Validate.notNull(logEntryDate);
-        this.logEntryDate = logEntryDate;
-    }
+  /**
+   * @param objectId The id of the object being logged, not <code>null<code/> or empty.
+   * @param objectType The type of the object being logged, not <code>null</code> or empty.
+   * @param date The date of the log, not <code>null</code>.
+   * @param description An optional description of the object, may be <code>null</code>.
+   * @param category An optional category, may be <code>null</code>.
+   * @param logData The log message, not <code>null<code/> or empty.
+   */
+  public PSImportLogEntry(
+      String objectId,
+      String objectType,
+      Date logEntryDate,
+      String description,
+      String category,
+      String logData) {
+    Validate.notEmpty(objectType);
+    Validate.notEmpty(objectId);
+    Validate.notNull(logEntryDate);
+    Validate.notNull(logData);
 
-    public String getLogData()
-    {
-        return logData;
-    }
+    this.objectId = objectId;
+    this.objectType = objectType;
+    this.logEntryDate = logEntryDate;
+    this.description = description;
+    this.category = category;
+    this.logData = logData;
+  }
 
-    public void setLogData(String logData)
-    {
-        Validate.notNull(logData);
-        this.logData = logData;
-    }
-    
-    /**
-     * Get the category, may be <code>null</code>.
-     * @return
-     */
-    public String getCategory()
-    {
-        return category;
-    }
+  public long getLogEntryId() {
+    return logEntryId;
+  }
 
-    /**
-     * Get the description, may be <code>null</code>.
-     * @return
-     */
-    public String getDescription()
-    {
-        return description;
-    }
+  public void setLogEntryId(long logEntryId) {
+    this.logEntryId = logEntryId;
+  }
+
+  public String getObjectId() {
+    return objectId;
+  }
+
+  public void setObjectId(String objectId) {
+    Validate.notEmpty(objectId);
+    this.objectId = objectId;
+  }
+
+  public String getType() {
+    return objectType;
+  }
+
+  public void setType(String type) {
+    Validate.notEmpty(type);
+    this.objectType = type;
+  }
+
+  public Date getLogEntryDate() {
+    return logEntryDate;
+  }
+
+  public void setLogEntryDate(Date logEntryDate) {
+    Validate.notNull(logEntryDate);
+    this.logEntryDate = logEntryDate;
+  }
+
+  public String getLogData() {
+    return logData;
+  }
+
+  public void setLogData(String logData) {
+    Validate.notNull(logData);
+    this.logData = logData;
+  }
+
+  /**
+   * Get the category, may be <code>null</code>.
+   *
+   * @return
+   */
+  public String getCategory() {
+    return category;
+  }
+
+  /**
+   * Get the description, may be <code>null</code>.
+   *
+   * @return
+   */
+  public String getDescription() {
+    return description;
+  }
 }

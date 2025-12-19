@@ -23,25 +23,20 @@ import com.percussion.pso.jexl.PSOObjectFinder;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * A UDF to get the user community name. 
- * This function, which has previously been available 
- * only in JEXL, can now be accessed in an XML application. 
+ * A UDF to get the user community name. This function, which has previously been available only in
+ * JEXL, can now be accessed in an XML application.
  *
  * @author davidbenua
- *
  */
-public class PSOUserCommunityUDF extends PSSimpleJavaUdfExtension
-      implements
-         IPSUdfProcessor
-{
-   /**
-    * Gets the user community from user session.  
-    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
-    */
-   public Object processUdf(Object[] arg0, IPSRequestContext arg1)
-         throws PSConversionException
-   {
-      PSOObjectFinder finder = new PSOObjectFinder(); 
-      return finder.getUserCommunity(); 
-   }
+public class PSOUserCommunityUDF extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /**
+   * Gets the user community from user session.
+   *
+   * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext)
+   */
+  public Object processUdf(Object[] arg0, IPSRequestContext arg1) throws PSConversionException {
+    PSOObjectFinder finder = new PSOObjectFinder();
+    return finder.getUserCommunity();
+  }
 }

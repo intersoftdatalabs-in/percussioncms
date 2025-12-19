@@ -19,7 +19,6 @@ package com.percussion.rest.locationscheme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "LocationSchemeParameter")
@@ -27,49 +26,49 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Schema(description = "Represents a Location Scheme Parameter")
 public class LocationSchemeParameter {
 
-    @Schema(name="name", description="The globally unique name of this parameter")
-    String name;
+  @Schema(name = "name", description = "The globally unique name of this parameter")
+  String name;
 
-    @Schema(name = "sequence", description = "The order of this parameter")
-    Integer sequence;
+  @Schema(name = "sequence", description = "The order of this parameter")
+  Integer sequence;
 
-    @Schema(name = "type", description = "The type of this parameter")
-    String type;
+  @Schema(name = "type", description = "The type of this parameter")
+  String type;
 
-    @Schema(name="value",description="The value for this parameter")
-    String value;
+  @Schema(name = "value", description = "The value for this parameter")
+  String value;
 
-    public LocationSchemeParameter(){}
+  public LocationSchemeParameter() {}
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Integer getSequence() {
-        return sequence;
-    }
+  public Integer getSequence() {
+    return sequence;
+  }
 
-    public void setSequence(Integer sequence) {
-        this.sequence = sequence;
-    }
+  public void setSequence(Integer sequence) {
+    this.sequence = sequence;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

@@ -16,27 +16,17 @@
  */
 package com.percussion.maintenance.service;
 
+/** @author JaySeletz */
+public class PSMockMaintenanceProcess implements IPSMaintenanceProcess {
+  private String id;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSMockMaintenanceProcess implements IPSMaintenanceProcess
-{
-    private String id;
+  /** @param string */
+  public PSMockMaintenanceProcess(String id) {
+    this.id = id;
+  }
 
-    /**
-     * @param string
-     */
-    public PSMockMaintenanceProcess(String id)
-    {
-        this.id = id;
-    }
-
-    @Override
-    public String getProcessId()
-    {
-        return id;
-    }
-
+  @Override
+  public String getProcessId() {
+    return id;
+  }
 }

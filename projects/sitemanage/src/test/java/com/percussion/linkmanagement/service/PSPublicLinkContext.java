@@ -20,34 +20,25 @@ import com.percussion.pagemanagement.data.PSRenderLinkContext;
 import com.percussion.pagemanagement.data.PSRenderLinkContext.Mode;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
-/**
- * @author JaySeletz
- *
- */
-public final class PSPublicLinkContext extends PSRenderLinkContext
-{
-    private final Mode mode = Mode.PUBLISH;
-    
-    private PSSiteSummary site;
+/** @author JaySeletz */
+public final class PSPublicLinkContext extends PSRenderLinkContext {
+  private final Mode mode = Mode.PUBLISH;
 
-    /**
-     * @param mode
-     */
-    public PSPublicLinkContext(PSSiteSummary site)
-    {
-        this.site = site;
-        super.setDeliveryContext(true);
-    }
+  private PSSiteSummary site;
 
-    @Override
-    public Mode getMode()
-    {
-        return mode;
-    }
+  /** @param mode */
+  public PSPublicLinkContext(PSSiteSummary site) {
+    this.site = site;
+    super.setDeliveryContext(true);
+  }
 
-    @Override
-    public PSSiteSummary getSite()
-    {
-        return site;
-    }
+  @Override
+  public Mode getMode() {
+    return mode;
+  }
+
+  @Override
+  public PSSiteSummary getSite() {
+    return site;
+  }
 }

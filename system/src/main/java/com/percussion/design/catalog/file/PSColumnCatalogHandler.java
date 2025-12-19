@@ -22,15 +22,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
  * The PSColumnCatalogHandler class implements cataloging of virtual column
- * data using the file system driver.  
+ * data using the file system driver.
  * <p>
  * Column catalog requests are sent to the server using the PSXColumnCatalog
  * XML document. Its definition is as follows:
  * <pre>
- *    &lt;!ELEMENT PSXColumnCatalog (driverName, serverName?, loginId?, 
+ *    &lt;!ELEMENT PSXColumnCatalog (driverName, serverName?, loginId?,
  *    loginPw?, databaseName?, schemaName?, tableName)&gt;
  *
  *    &lt;!-- the name of the driver being queried.
@@ -65,7 +64,7 @@ import org.w3c.dom.Element;
  * The PSXColumnCatalogResults XML document is sent as the response. Its
  * definition is as follows:
  * <pre>
- *    &lt;!ELEMENT PSXColumnCatalogResults (driverName, serverName, 
+ *    &lt;!ELEMENT PSXColumnCatalogResults (driverName, serverName,
  *    databaseName, schemaName, tableName, Column*)&gt;
  *
  *    &lt;!-- the name of the driver which was queried.
@@ -122,117 +121,95 @@ import org.w3c.dom.Element;
  * @version    1.0
  * @since      1.0
  */
-public class PSColumnCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSColumnCatalogHandler()
-   {
-      super();
-   }
+public class PSColumnCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSColumnCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>file</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>Column</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>DriverName</td>
-    *       <td>the name of the driver being queried</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>ServerName</td>
-    *       <td>the name of the server being queried</td>
-    *       <td>no</td></tr>
-    *   <tr><td>LoginId</td>
-    *       <td>the user name for the back end login</td>
-    *       <td>no</td></tr>
-    *   <tr><td>LoginPw</td>
-    *       <td>the encoded password for the associated login</td>
-    *       <td>no</td></tr>
-    *   <tr><td>DatabaseName</td>
-    *       <td>the name of the database being queried</td>
-    *       <td>no</td></tr>
-    *   <tr><td>SchemaName</td>
-    *       <td>the name of the schema the table belongs to</td>
-    *       <td>no</td></tr>
-    *   <tr><td>TableName</td>
-    *       <td>the name of the table for which columns should be returned</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"file".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>file</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>Column</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>DriverName</td>
+   *       <td>the name of the driver being queried</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>ServerName</td>
+   *       <td>the name of the server being queried</td>
+   *       <td>no</td></tr>
+   *   <tr><td>LoginId</td>
+   *       <td>the user name for the back end login</td>
+   *       <td>no</td></tr>
+   *   <tr><td>LoginPw</td>
+   *       <td>the encoded password for the associated login</td>
+   *       <td>no</td></tr>
+   *   <tr><td>DatabaseName</td>
+   *       <td>the name of the database being queried</td>
+   *       <td>no</td></tr>
+   *   <tr><td>SchemaName</td>
+   *       <td>the name of the schema the table belongs to</td>
+   *       <td>no</td></tr>
+   *   <tr><td>TableName</td>
+   *       <td>the name of the table for which columns should be returned</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"file".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ( (sTemp == null) || !"Column".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"Column".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      String driverName = (String)req.get("DriverName");
-      if (driverName == null)
-         throw new IllegalArgumentException(
-            "reqd prop not specified: DriverName");
-      if (!(driverName.equals("psfilesystem") || driverName.equals("psxml")))
-         throw new IllegalArgumentException(
-            "invalid property value specified for DriverName: " + driverName);
+    String driverName = (String) req.get("DriverName");
+    if (driverName == null)
+      throw new IllegalArgumentException("reqd prop not specified: DriverName");
+    if (!(driverName.equals("psfilesystem") || driverName.equals("psxml")))
+      throw new IllegalArgumentException(
+          "invalid property value specified for DriverName: " + driverName);
 
-      String tableName = (String)req.get("TableName");
-      if (tableName == null)
-         throw new IllegalArgumentException("reqd prop not specified: TableName");
+    String tableName = (String) req.get("TableName");
+    if (tableName == null) throw new IllegalArgumentException("reqd prop not specified: TableName");
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      Element root = PSXmlDocumentBuilder.createRoot(   reqDoc,
-                                                      "PSXColumnCatalog");
-      PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                       "driverName", driverName);
+    Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXColumnCatalog");
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "driverName", driverName);
 
-      sTemp = (String)req.get("ServerName");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                          "serverName", sTemp);
+    sTemp = (String) req.get("ServerName");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "serverName", sTemp);
 
-      sTemp = (String)req.get("LoginId");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                          "loginId", sTemp);
+    sTemp = (String) req.get("LoginId");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "loginId", sTemp);
 
-      sTemp = (String)req.get("LoginPw");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                          "loginPw", sTemp);
+    sTemp = (String) req.get("LoginPw");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "loginPw", sTemp);
 
-      sTemp = (String)req.get("DatabaseName");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                          "databaseName", sTemp);
+    sTemp = (String) req.get("DatabaseName");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "databaseName", sTemp);
 
-      sTemp = (String)req.get("SchemaName");
-      if (sTemp != null)
-         PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                          "schemaName", sTemp);
+    sTemp = (String) req.get("SchemaName");
+    if (sTemp != null) PSXmlDocumentBuilder.addElement(reqDoc, root, "schemaName", sTemp);
 
-        PSXmlDocumentBuilder.addElement(   reqDoc, root,
-                                       "tableName", tableName);
+    PSXmlDocumentBuilder.addElement(reqDoc, root, "tableName", tableName);
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }

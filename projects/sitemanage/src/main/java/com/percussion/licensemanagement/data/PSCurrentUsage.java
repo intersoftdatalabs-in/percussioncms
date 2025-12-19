@@ -16,41 +16,24 @@
  */
 package com.percussion.licensemanagement.data;
 
-/**
- * @author LucasPiccoli
- *
- */
-public class PSCurrentUsage
-{
-    Integer currentLivePages;
-    Integer currentLiveSites;
-    /**
-     * @return the currentLivePages
-     */
-    public Integer getCurrentLivePages()
-    {
-        return currentLivePages;
-    }
-    /**
-     * @param currentLivePages the currentLivePages to set
-     */
-    public void setCurrentLivePages(Integer currentLivePages)
-    {
-        this.currentLivePages = currentLivePages;
-    }
-    /**
-     * @return the currentLiveSites
-     */
-    public Integer getCurrentLiveSites()
-    {
-        return currentLiveSites;
-    }
-    /**
-     * @param currentLiveSites the currentLiveSites to set
-     */
-    public void setCurrentLiveSites(Integer currentLiveSites)
-    {
-        this.currentLiveSites = currentLiveSites;
-    }
-    
+/** @author LucasPiccoli */
+public class PSCurrentUsage {
+  Integer currentLivePages;
+  Integer currentLiveSites;
+  /** @return the currentLivePages */
+  public Integer getCurrentLivePages() {
+    return currentLivePages;
+  }
+  /** @param currentLivePages the currentLivePages to set */
+  public void setCurrentLivePages(Integer currentLivePages) {
+    this.currentLivePages = currentLivePages;
+  }
+  /** @return the currentLiveSites */
+  public Integer getCurrentLiveSites() {
+    return currentLiveSites;
+  }
+  /** @param currentLiveSites the currentLiveSites to set */
+  public void setCurrentLiveSites(Integer currentLiveSites) {
+    this.currentLiveSites = currentLiveSites;
+  }
 }

@@ -16,58 +16,53 @@
  */
 package com.percussion.dashboardmanagement.service.impl;
 
-import java.util.List;
-
-
 import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.dashboardmanagement.service.IPSUserProfileService;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.util.PSSiteManageBean;
+import java.util.List;
 
 @PSSiteManageBean("userProfileService")
 public class PSUserProfileService implements IPSUserProfileService {
 
- 
-    public PSUserProfile save(PSUserProfile userProfile) throws PSUserProfileServiceException {
-        return userProfile;
-    }
+  public PSUserProfile save(PSUserProfile userProfile) throws PSUserProfileServiceException {
+    return userProfile;
+  }
 
-    private PSUserProfile createProfile(String userName) {
-        PSUserProfile profile = new PSUserProfile();
-        profile.setUserName(userName);
-        return profile;
-    }
-    
-    public PSUserProfile find(String userName) throws PSUserProfileNotFoundException,
-            PSUserProfileServiceException {
-        return createProfile(userName);
-        
-    }
-    
-    public PSUserProfile load(String id) throws com.percussion.share.service.IPSDataService.DataServiceLoadException
-    {
-        return find(id);
-    }
+  private PSUserProfile createProfile(String userName) {
+    PSUserProfile profile = new PSUserProfile();
+    profile.setUserName(userName);
+    return profile;
+  }
 
-    public List<PSUserProfile> findAll() throws com.percussion.share.service.IPSDataService.DataServiceLoadException,
-            com.percussion.share.service.IPSDataService.DataServiceNotFoundException {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new UnsupportedOperationException("getAll is not yet supported");
-    }
+  public PSUserProfile find(String userName)
+      throws PSUserProfileNotFoundException, PSUserProfileServiceException {
+    return createProfile(userName);
+  }
 
-    public void delete(String id) throws com.percussion.share.service.IPSDataService.DataServiceDeleteException {
-        // TODO Auto-generated method stub
-        //
-        throw new UnsupportedOperationException("remove is not yet supported");
-    }
+  public PSUserProfile load(String id)
+      throws com.percussion.share.service.IPSDataService.DataServiceLoadException {
+    return find(id);
+  }
 
-    public PSValidationErrors validate(PSUserProfile object) {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new UnsupportedOperationException("validate is not yet supported");
-    }
+  public List<PSUserProfile> findAll()
+      throws com.percussion.share.service.IPSDataService.DataServiceLoadException,
+          com.percussion.share.service.IPSDataService.DataServiceNotFoundException {
+    // TODO Auto-generated method stub
+    // return null;
+    throw new UnsupportedOperationException("getAll is not yet supported");
+  }
 
+  public void delete(String id)
+      throws com.percussion.share.service.IPSDataService.DataServiceDeleteException {
+    // TODO Auto-generated method stub
+    //
+    throw new UnsupportedOperationException("remove is not yet supported");
+  }
 
-
+  public PSValidationErrors validate(PSUserProfile object) {
+    // TODO Auto-generated method stub
+    // return null;
+    throw new UnsupportedOperationException("validate is not yet supported");
+  }
 }

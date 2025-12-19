@@ -18,20 +18,16 @@ package com.percussion.xsl.encoding;
 
 import java.io.IOException;
 
-/**
- * Defines the Cp1252 character encoding for the Saxon XSLT processor.
- */
-public class PSCp1252CharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSCp1252CharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("Cp1252", "java-Cp1252.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSCp1252CharacterSet() throws IOException
-   {
-      super("Cp1252", "java-Cp1252.xml");
-   }
+/** Defines the Cp1252 character encoding for the Saxon XSLT processor. */
+public class PSCp1252CharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSCp1252CharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("Cp1252",
+   * "java-Cp1252.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSCp1252CharacterSet() throws IOException {
+    super("Cp1252", "java-Cp1252.xml");
+  }
 }
