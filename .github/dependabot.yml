@@ -18,7 +18,10 @@ updates:
           - ">=2.5.0"
       - dependency-name: "org.springframework:*"
         versions:
-          - ">=6.0.0"          
+          - ">=6.0.0"
+      - dependency-name: "org.apache.tika:*"
+        versions:
+          - ">=3.0.0"          
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
