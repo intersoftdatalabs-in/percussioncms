@@ -154,7 +154,7 @@
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>4.17.0</liquibase.maven.plugin.version>
         <liquibase.version>4.17.0</liquibase.version>
-        <log4j2.version>2.25.1</log4j2.version>
+        <log4j2.version>2.25.3</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
         <maven.antrun.plugin.version>3.1.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
