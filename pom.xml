@@ -195,7 +195,7 @@
         <opencsv.version>5.11.2</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
-        <owl.version>5.1.10</owl.version>
+        <owl.version>5.5.1</owl.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.4.0</poi.version>
