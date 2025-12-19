@@ -10,8 +10,8 @@ updates:
       - dependency-name: "org.apache.cxf:*"
         versions:
           - ">=3.6.0"
-       - dependency-name: "org.basepom.maven:duplicate-finder-maven-plugin"
-         versions:
+      - dependency-name: "org.basepom.maven:duplicate-finder-maven-plugin"
+        versions:
           - ">=2.0.0"
   - package-ecosystem: "maven"
     directory: "/"
