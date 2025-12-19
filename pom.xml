@@ -70,7 +70,7 @@
         <url>https://github.com/percussion/percussioncms</url>
     </scm>
     <properties>
-        <activemq.version>5.16.7</activemq.version>
+        <activemq.version>5.16.8</activemq.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <avalon.version>4.1.5</avalon.version>
