@@ -199,7 +199,7 @@
         <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
         <spotless.plugin.version>2.30.0</spotless.plugin.version>
         <!-- 5.17.x and up require Java 11 -->
-        <spring.version>5.3.39</spring.version>
+        <spring.version>7.0.2</spring.version>
         <sqlite.version>3.41.2.2</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <swagger.ui.version>3.51.2</swagger.ui.version>
