@@ -148,7 +148,7 @@
         <jetty.version>12.0.25</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20240303</json.version>
-        <jsoup.version>1.15.3</jsoup.version>
+        <jsoup.version>1.21.2</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
         <junit5.version>6.0.1</junit5.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
@@ -173,7 +173,7 @@
         <maven.failsafe.plugin.version>3.5.3</maven.failsafe.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
-        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
+        <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
         <maven.jarsigner.plugin.version>3.1.0</maven.jarsigner.plugin.version>
         <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
         <maven.jxr.plugin.version>3.6.0</maven.jxr.plugin.version>
@@ -196,7 +196,7 @@
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
         <owl.version>5.1.10</owl.version>
-        <pdfbox.version>2.0.24</pdfbox.version>
+        <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.4.0</poi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1544,7 +1544,7 @@
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc11</artifactId>
-                <version>23.9.0.25.07</version>
+                <version>23.26.0.0.0</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -1710,7 +1710,7 @@
             <dependency>
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
-                <version>3.4.2</version>
+                <version>4.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.yahoo.platform.yui</groupId>
