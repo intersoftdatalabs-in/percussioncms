@@ -11,7 +11,7 @@ updates:
         versions:
           - ">=3.6.0"
        - dependency-name: "org.basepom.maven:duplicate-finder-maven-plugin"
-        versions:
+         versions:
           - ">=2.0.0"
   - package-ecosystem: "maven"
     directory: "/"
