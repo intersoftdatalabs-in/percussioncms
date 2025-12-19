@@ -17,32 +17,33 @@
 
 package com.percussion.taxonomy.repository;
 
+import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 import java.util.Map;
-import com.percussion.taxonomy.domain.*;
 
 public interface ValueServiceInf {
 
-    //////////////////////////////////////////////////////////////////////////
-    
-   public Collection<Value> getAllValues();
+  //////////////////////////////////////////////////////////////////////////
 
-   public Value getValue(int id);
+  public Collection<Value> getAllValues();
 
-   //////////////////////////////////////////////////////////////////////////
+  public Value getValue(int id);
 
-   public void removeValue(Value value);
+  //////////////////////////////////////////////////////////////////////////
 
-   public void saveValue(Value value);
+  public void removeValue(Value value);
 
-   //////////////////////////////////////////////////////////////////////////
+  public void saveValue(Value value);
 
-   public Map<String, String> saveValuesFromParams(Map<String, String[]> params,
-                                                   Collection<Attribute> attributes,
-                                                   Node node, 
-                                                   int langID, 
-                                                   String user_name);
+  //////////////////////////////////////////////////////////////////////////
 
-   //////////////////////////////////////////////////////////////////////////
+  public Map<String, String> saveValuesFromParams(
+      Map<String, String[]> params,
+      Collection<Attribute> attributes,
+      Node node,
+      int langID,
+      String user_name);
+
+  //////////////////////////////////////////////////////////////////////////
 
 }

@@ -20,96 +20,77 @@ import com.percussion.monitor.service.IPSMonitor;
 import com.percussion.monitor.service.PSMonitorService;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublishingJobStatusCallback;
-
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Monitor the number of publishing jobs running
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSPublishingProcessMonitor implements IPSPublishingJobStatusCallback
-{
-    private static final String STATUS_MSG_SOME = " publishing jobs running";
-    private static final String STATUS_MSG_ONE = " publishing job running";
-    private static final String STATUS_MSG_NONE = "No publishing jobs running";
-    
-    private static IPSMonitor monitor = null;
-    
-    private static Set<Long> jobIds = new HashSet<>();
-    
-    private static IPSPublishingJobStatusCallback callback = null;
-    
-    public PSPublishingProcessMonitor()
-    {
-        monitor = PSMonitorService.registerMonitor("Publishing", "Publishing");
-        updateStatusMessage();
-        callback = this;
-    }
-    
-    private static void updateStatusMessage()
-    {
-        if (monitor == null) {
-            return;
-        }
-        
-        int count;
-        synchronized (jobIds)
-        {
-            count = jobIds.size();
-        }
-        
-        StringBuilder buf = new StringBuilder();
+public class PSPublishingProcessMonitor implements IPSPublishingJobStatusCallback {
+  private static final String STATUS_MSG_SOME = " publishing jobs running";
+  private static final String STATUS_MSG_ONE = " publishing job running";
+  private static final String STATUS_MSG_NONE = "No publishing jobs running";
 
-        if (count == 0)
-        {
-            buf.append(STATUS_MSG_NONE);
-        }
-        else
-        {
-            buf.append(count);
-            buf.append(count == 1 ? STATUS_MSG_ONE : STATUS_MSG_SOME);
-        }
-        
-        monitor.setMessage(buf.toString());
-    }
-    
-    
+  private static IPSMonitor monitor = null;
 
-    /**
-     * Get the callback to use for pub status updates
-     * 
-     * @return The callback, not <code>null</code>.
-     */
-    public static IPSPublishingJobStatusCallback getPublishingJobStatusCallback()
-    {
-        return callback;
-    }
-    
-    @Override
-    public void notifyStatus(IPSPublisherJobStatus status)
-    {
-        synchronized (jobIds)
-        {
-            jobIds.remove(status.getJobId());
-        }
-        
-        updateStatusMessage();
+  private static Set<Long> jobIds = new HashSet<>();
+
+  private static IPSPublishingJobStatusCallback callback = null;
+
+  public PSPublishingProcessMonitor() {
+    monitor = PSMonitorService.registerMonitor("Publishing", "Publishing");
+    updateStatusMessage();
+    callback = this;
+  }
+
+  private static void updateStatusMessage() {
+    if (monitor == null) {
+      return;
     }
 
-    /**
-     * @param jobId
-     */
-    public static void startPublishingJob(long jobId)
-    {
-        synchronized (jobIds)
-        {
-            jobIds.add(jobId);
-        }
-        
-        updateStatusMessage();
+    int count;
+    synchronized (jobIds) {
+      count = jobIds.size();
     }
 
+    StringBuilder buf = new StringBuilder();
+
+    if (count == 0) {
+      buf.append(STATUS_MSG_NONE);
+    } else {
+      buf.append(count);
+      buf.append(count == 1 ? STATUS_MSG_ONE : STATUS_MSG_SOME);
+    }
+
+    monitor.setMessage(buf.toString());
+  }
+
+  /**
+   * Get the callback to use for pub status updates
+   *
+   * @return The callback, not <code>null</code>.
+   */
+  public static IPSPublishingJobStatusCallback getPublishingJobStatusCallback() {
+    return callback;
+  }
+
+  @Override
+  public void notifyStatus(IPSPublisherJobStatus status) {
+    synchronized (jobIds) {
+      jobIds.remove(status.getJobId());
+    }
+
+    updateStatusMessage();
+  }
+
+  /** @param jobId */
+  public static void startPublishingJob(long jobId) {
+    synchronized (jobIds) {
+      jobIds.add(jobId);
+    }
+
+    updateStatusMessage();
+  }
 }

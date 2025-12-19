@@ -16,27 +16,22 @@
  */
 package com.percussion.assetmanagement.data;
 
+import com.percussion.share.data.IPSContentItem;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.percussion.share.data.IPSContentItem;
-
 @XmlRootElement(name = "Asset")
-public class PSAsset extends PSAssetSummary implements IPSContentItem
-{ 
-    private Map<String, Object> fields = new HashMap<>();
+public class PSAsset extends PSAssetSummary implements IPSContentItem {
+  private Map<String, Object> fields = new HashMap<>();
 
-    public Map<String, Object> getFields()
-    {
-        return fields;
-    }
+  public Map<String, Object> getFields() {
+    return fields;
+  }
 
-    public void setFields(Map<String, Object> fields)
-    {
-        this.fields = fields;
-    }
-    
-    private static final long serialVersionUID = 8252999104256582955L;   
+  public void setFields(Map<String, Object> fields) {
+    this.fields = fields;
+  }
+
+  private static final long serialVersionUID = 8252999104256582955L;
 }

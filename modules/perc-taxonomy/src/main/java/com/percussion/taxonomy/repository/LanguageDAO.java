@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface LanguageDAO {
 
-    public Collection getAllLanguages();
+  public Collection getAllLanguages();
 
-    public Language getLanguage(int id);
+  public Language getLanguage(int id);
 
-    public void removeLanguage(Language language);
+  public void removeLanguage(Language language);
 
-    public void saveLanguage(Language language);
+  public void saveLanguage(Language language);
 }

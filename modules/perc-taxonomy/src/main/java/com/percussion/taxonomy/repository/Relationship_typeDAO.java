@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Relationship_typeDAO {
 
-    public Collection getAllRelationship_types();
+  public Collection getAllRelationship_types();
 
-    public Relationship_type getRelationship_type(int id);
+  public Relationship_type getRelationship_type(int id);
 
-    public void removeRelationship_type(Relationship_type relationship_type);
+  public void removeRelationship_type(Relationship_type relationship_type);
 
-    public void saveRelationship_type(Relationship_type relationship_type);
+  public void saveRelationship_type(Relationship_type relationship_type);
 }

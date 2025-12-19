@@ -17,35 +17,34 @@
 
 package com.percussion.delivery.integrations;
 
-import org.springframework.stereotype.Component;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
+import org.springframework.stereotype.Component;
 
 @Path("/integrations")
 @Component
 public class IntegrationsRestService {
 
-    public IntegrationsRestService(){
-        //NOOP
-    }
+  public IntegrationsRestService() {
+    // NOOP
+  }
 
-    @HEAD
-    @Path("/csrf")
-    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response)  {
-        Cookie[] cookies = request.getCookies();
-        if(cookies == null){
-            return;
-        }
-        for(Cookie cookie: cookies){
-            if("XSRF-TOKEN".equals(cookie.getName())){
-                response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
-                response.setHeader("X-CSRF-TOKEN", cookie.getValue());
-            }
-        }
+  @HEAD
+  @Path("/csrf")
+  public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return;
     }
+    for (Cookie cookie : cookies) {
+      if ("XSRF-TOKEN".equals(cookie.getName())) {
+        response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
+        response.setHeader("X-CSRF-TOKEN", cookie.getValue());
+      }
+    }
+  }
 }

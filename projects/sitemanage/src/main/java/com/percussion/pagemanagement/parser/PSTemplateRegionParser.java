@@ -16,56 +16,47 @@
  */
 package com.percussion.pagemanagement.parser;
 
+import com.percussion.pagemanagement.data.PSRegion;
+import com.percussion.pagemanagement.data.PSRegionCode;
+import com.percussion.pagemanagement.data.PSRegionTree;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSRegion;
-import com.percussion.pagemanagement.data.PSRegionCode;
-import com.percussion.pagemanagement.data.PSRegionNode;
-import com.percussion.pagemanagement.data.PSRegionTree;
+public class PSTemplateRegionParser extends PSRegionParserAdapter<PSRegion, PSRegionCode> {
 
-public class PSTemplateRegionParser extends PSRegionParserAdapter<PSRegion, PSRegionCode>
-{
+  PSRegionTree regionTree;
+  Map<String, PSRegion> regions;
 
-    PSRegionTree regionTree;
-    Map<String, PSRegion> regions;
-    
-    
-    public PSTemplateRegionParser(Map<String, PSRegion> regions)
-    {
-        super();
-        this.regions = regions;
+  public PSTemplateRegionParser(Map<String, PSRegion> regions) {
+    super();
+    this.regions = regions;
+  }
+
+  public PSRegion createRegion(String regionId) {
+    PSRegion region = regions.get(regionId);
+    if (region != null) {
+      region.setChildren(new ArrayList<>());
+    } else {
+      region = new PSRegion();
     }
+    region.setRegionId(regionId);
+    return region;
+  }
 
-    public PSRegion createRegion(String regionId)
-    {
-        PSRegion region = regions.get(regionId);
-        if(region != null) {
-            region.setChildren(new ArrayList<>());
-        }
-        else {
-            region = new PSRegion();
-        }
-        region.setRegionId(regionId);
-        return region;
-    }
+  public PSRegionCode createRegionCode() {
+    return new PSRegionCode();
+  }
 
-    public PSRegionCode createRegionCode()
-    {
-        return new PSRegionCode();
-    }
+  public PSRegion createRootRegion() {
+    return new PSRegion();
+  }
 
-    public PSRegion createRootRegion()
-    {
-        return new PSRegion();
-    }
-    
-    public static PSParsedRegionTree<PSRegion, PSRegionCode> parse(Map<String, PSRegion> regions, String html) {
-        regions = regions == null ? new HashMap<>() : regions;
-        PSTemplateRegionParser parser = new PSTemplateRegionParser(regions);
-        PSParsedRegionTree<PSRegion, PSRegionCode> pt = parser.parse(html);
-        return pt;
-    }
-
+  public static PSParsedRegionTree<PSRegion, PSRegionCode> parse(
+      Map<String, PSRegion> regions, String html) {
+    regions = regions == null ? new HashMap<>() : regions;
+    PSTemplateRegionParser parser = new PSTemplateRegionParser(regions);
+    PSParsedRegionTree<PSRegion, PSRegionCode> pt = parser.parse(html);
+    return pt;
+  }
 }

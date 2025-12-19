@@ -30,32 +30,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean
 public class EditionAdaptor implements IEditionsAdaptor {
 
-    @Autowired
-    private IPSPublishingWs pubWs;
+  @Autowired private IPSPublishingWs pubWs;
 
-    public EditionAdaptor(){
-        //Default ctor
-    }
+  public EditionAdaptor() {
+    // Default ctor
+  }
 
-    private IPSGuid getEditionGuidFromId(String id){
-        return PSGuidUtils.makeGuid(Long.parseLong(id), PSTypeEnum.EDITION);
-    }
+  private IPSGuid getEditionGuidFromId(String id) {
+    return PSGuidUtils.makeGuid(Long.parseLong(id), PSTypeEnum.EDITION);
+  }
 
-    @Override
-    public PublishResponse publish(String id) {
+  @Override
+  public PublishResponse publish(String id) {
 
-       return loadPublishResponseFromStatus(pubWs.getPublishingJobStatus(
-               pubWs.startPublishingJob(
-                       getEditionGuidFromId(id),null)));
-    }
+    return loadPublishResponseFromStatus(
+        pubWs.getPublishingJobStatus(pubWs.startPublishingJob(getEditionGuidFromId(id), null)));
+  }
 
-    private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status){
-        PublishResponse ret =  new PublishResponse();
+  private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status) {
+    PublishResponse ret = new PublishResponse();
 
-        ret.setDelivered(String.valueOf(status.countItemsDelivered()));
-        ret.setFailures(String.valueOf(status.countFailedItems()));
-        ret.setJobid(status.getJobId());
-        ret.setStatus(status.getState().getDisplayName());
-        return ret;
-    }
+    ret.setDelivered(String.valueOf(status.countItemsDelivered()));
+    ret.setFailures(String.valueOf(status.countFailedItems()));
+    ret.setJobid(status.getJobId());
+    ret.setStatus(status.getState().getDisplayName());
+    return ret;
+  }
 }

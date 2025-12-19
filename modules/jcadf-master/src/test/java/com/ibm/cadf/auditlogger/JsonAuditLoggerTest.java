@@ -17,12 +17,6 @@
 
 package com.ibm.cadf.auditlogger;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ibm.cadf.EventFactory;
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.model.CADFType;
@@ -32,56 +26,63 @@ import com.ibm.cadf.model.Measurement;
 import com.ibm.cadf.model.Metric;
 import com.ibm.cadf.model.Resource;
 import com.ibm.cadf.util.Constants;
+import java.io.File;
+import java.io.IOException;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JsonAuditLoggerTest
-{
+public class JsonAuditLoggerTest {
 
-    @Before
-    public void setUp()
-    {
-        System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
+  @Before
+  public void setUp() {
+    System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
+  }
+
+  @Test
+  public void testJsonAuditing() throws CADFException, IOException {
+
+    File file = new File(Constants.JSON_AUDIT_FILES_NAME);
+    if (file.exists()) {
+      file.delete();
     }
+    AuditLogger auditLogger = AuditLoggerFactory.getAuditLogger(Constants.AUDIT_FORMAT_TYPE_JSON);
+    String initiatorId = Identifier.generateUniqueId();
+    Resource initiator = new Resource(initiatorId);
+    initiator.setTypeURI("/testcase");
+    initiator.setName("AuditLoggerTest");
 
-    @Test
-    public void testJsonAuditing() throws CADFException, IOException
-    {
+    String targetId = Identifier.generateUniqueId();
+    Resource target = new Resource(targetId);
+    target.setTypeURI("/configurator");
+    target.setName("Configuration Component");
 
-        File file = new File(Constants.JSON_AUDIT_FILES_NAME);
-        if (file.exists())
-        {
-            file.delete();
-        }
-        AuditLogger auditLogger = AuditLoggerFactory.getAuditLogger(Constants.AUDIT_FORMAT_TYPE_JSON);
-        String initiatorId = Identifier.generateUniqueId();
-        Resource initiator = new Resource(initiatorId);
-        initiator.setTypeURI("/testcase");
-        initiator.setName("AuditLoggerTest");
+    String observerId = Identifier.generateUniqueId();
+    Resource observer = new Resource(observerId);
+    observer.setTypeURI("/management");
+    observer.setName("Management Component");
 
-        String targetId = Identifier.generateUniqueId();
-        Resource target = new Resource(targetId);
-        target.setTypeURI("/configurator");
-        target.setName("Configuration Component");
+    // Reason reason = new Reason("File transfer", "10101", null, null);
 
-        String observerId = Identifier.generateUniqueId();
-        Resource observer = new Resource(observerId);
-        observer.setTypeURI("/management");
-        observer.setName("Management Component");
+    Event event =
+        EventFactory.getEventInstance(
+            CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
+            Identifier.generateUniqueId(),
+            "Send File",
+            "successful",
+            initiator,
+            null,
+            target,
+            null,
+            observer,
+            null);
 
-        // Reason reason = new Reason("File transfer", "10101", null, null);
+    String metricId = Identifier.generateUniqueId();
+    Metric metric1 = new Metric(metricId, "size", "MB");
+    Measurement measurement1 = new Measurement("FileData", metric1, null);
+    Measurement measurement2 = new Measurement("FileData", metric1, null);
 
-        Event event = EventFactory.getEventInstance(CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
-                                                    Identifier.generateUniqueId(), "Send File", "successful",
-                                                    initiator, null, target, null, observer, null);
-
-        String metricId = Identifier.generateUniqueId();
-        Metric metric1 = new Metric(metricId, "size", "MB");
-        Measurement measurement1 = new Measurement("FileData", metric1, null);
-        Measurement measurement2 = new Measurement("FileData", metric1, null);
-
-        event.addMeasurement(measurement1);
-        event.addMeasurement(measurement2);
-        auditLogger.audit(event);
-
-    }
-
+    event.addMeasurement(measurement1);
+    event.addMeasurement(measurement2);
+    auditLogger.audit(event);
+  }
 }

@@ -24,13 +24,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestLocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    @Override
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
-        return null;
-    }
+  @Override
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+    return null;
+  }
 
-    @Override
-    public void deletedLocationScheme(String guid) {
-
-    }
+  @Override
+  public void deletedLocationScheme(String guid) {}
 }

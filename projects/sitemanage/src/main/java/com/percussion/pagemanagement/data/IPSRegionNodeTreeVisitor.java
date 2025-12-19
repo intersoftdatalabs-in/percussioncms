@@ -17,18 +17,16 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * When walking a {@link PSRegionNode} tree
- * the {@link #getStartRegionNodeVisitor()} will visit regions when they are entered.
- * {@link #getEndRegionNodeVisitor()} will visit regions when they are exited.
- * 
- * 
+ * When walking a {@link PSRegionNode} tree the {@link #getStartRegionNodeVisitor()} will visit
+ * regions when they are entered. {@link #getEndRegionNodeVisitor()} will visit regions when they
+ * are exited.
+ *
  * @see IPSRegionNodeVisitor
  * @see PSAbstractRegionNodeTreeVisitor
  * @author adamgent
- *
  */
 public interface IPSRegionNodeTreeVisitor {
-    public IPSRegionNodeVisitor getStartRegionNodeVisitor();
-    public IPSRegionNodeVisitor getEndRegionNodeVisitor();
-    
+  public IPSRegionNodeVisitor getStartRegionNodeVisitor();
+
+  public IPSRegionNodeVisitor getEndRegionNodeVisitor();
 }

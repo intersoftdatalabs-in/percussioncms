@@ -17,19 +17,18 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Node_editorDAO {
 
-    public Collection getAllNode_editors();
+  public Collection getAllNode_editors();
 
-    public Node_editor getNode_editor(int id);
+  public Node_editor getNode_editor(int id);
 
-    public void removeNode_editor(Node_editor node_editor);
-    
-    public void removeNode_editors(Collection<Node_editor> node_editors);
+  public void removeNode_editor(Node_editor node_editor);
 
-    public void saveNode_editor(Node_editor node_editor);
+  public void removeNode_editors(Collection<Node_editor> node_editors);
+
+  public void saveNode_editor(Node_editor node_editor);
 }

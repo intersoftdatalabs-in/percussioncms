@@ -16,24 +16,20 @@
  */
 package com.percussion.deployer.services;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
-public class PSDeployServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSDeployService dsr = null;
-   public static IPSDeployService getDeployService() throws PSMissingBeanConfigurationException
-   {
-       if (dsr==null)
-       {
-           synchronized (PSDeployServiceLocator.class)
-           {
-               if (dsr==null)
-               {
-                   dsr = (IPSDeployService) getBean("sys_deployerService");
-               }
-           }
-       }
-      return dsr;
-   }
+public class PSDeployServiceLocator extends PSBaseServiceLocator {
+  private static volatile IPSDeployService dsr = null;
+
+  public static IPSDeployService getDeployService() throws PSMissingBeanConfigurationException {
+    if (dsr == null) {
+      synchronized (PSDeployServiceLocator.class) {
+        if (dsr == null) {
+          dsr = (IPSDeployService) getBean("sys_deployerService");
+        }
+      }
+    }
+    return dsr;
+  }
 }

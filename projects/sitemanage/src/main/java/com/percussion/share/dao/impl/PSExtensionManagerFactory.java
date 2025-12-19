@@ -16,27 +16,21 @@
  */
 package com.percussion.share.dao.impl;
 
-import org.springframework.beans.factory.FactoryBean;
-
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.server.PSServer;
+import org.springframework.beans.factory.FactoryBean;
 
-public class PSExtensionManagerFactory implements FactoryBean
-{
+public class PSExtensionManagerFactory implements FactoryBean {
 
-    public IPSExtensionManager getObject() throws Exception
-    {
-        return PSServer.getExtensionManager(null);
-    }
+  public IPSExtensionManager getObject() throws Exception {
+    return PSServer.getExtensionManager(null);
+  }
 
-    public Class<IPSExtensionManager> getObjectType()
-    {
-        return IPSExtensionManager.class;
-    }
+  public Class<IPSExtensionManager> getObjectType() {
+    return IPSExtensionManager.class;
+  }
 
-    public boolean isSingleton()
-    {
-        return true;
-    }
-
+  public boolean isSingleton() {
+    return true;
+  }
 }

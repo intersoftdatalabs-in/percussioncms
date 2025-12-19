@@ -18,111 +18,84 @@
 package com.percussion.tablefactory;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * This class contains a list of <code>PSJdbcExecutionStepLog</code>
- * objects which encapsulate the result of execution of each step
- * of an execution plan.
+ * This class contains a list of <code>PSJdbcExecutionStepLog</code> objects which encapsulate the
+ * result of execution of each step of an execution plan.
  */
-public class PSJdbcExecutionPlanLog
-{
-   /**
-    * Returns an iterator over the list of
-    * <code>PSJdbcExecutionStepLog</code> objects.
-    *
-    * @return an iterator over the list of
-    * <code>PSJdbcExecutionStepLog</code> objects, never <code>null</code>,
-    * may be empty.
-    */
-   public Iterator<PSJdbcExecutionStepLog> getStepLogs()
-   {
-      return m_logDataList.iterator();
-   }
+public class PSJdbcExecutionPlanLog {
+  /**
+   * Returns an iterator over the list of <code>PSJdbcExecutionStepLog</code> objects.
+   *
+   * @return an iterator over the list of <code>PSJdbcExecutionStepLog</code> objects, never <code>
+   *     null</code>, may be empty.
+   */
+  public Iterator<PSJdbcExecutionStepLog> getStepLogs() {
+    return m_logDataList.iterator();
+  }
 
-   /**
-    * Adds a <code>PSJdbcExecutionStepLog</code> object to its internal list.
-    *
-    * @param stepLogData the <code>PSJdbcExecutionStepLog</code> object
-    * containing the result of execution of a step, never
-    * <code>null</code>
-    *
-    * @throws IllegalArgumentException if stepLogData is <code>null</code>
-    */
-   public void addStepLogData(PSJdbcExecutionStepLog stepLogData)
-   {
-      if (stepLogData == null)
-         throw new IllegalArgumentException("stepLogData may not be null");
-      m_logDataList.add(stepLogData);
-   }
+  /**
+   * Adds a <code>PSJdbcExecutionStepLog</code> object to its internal list.
+   *
+   * @param stepLogData the <code>PSJdbcExecutionStepLog</code> object containing the result of
+   *     execution of a step, never <code>null</code>
+   * @throws IllegalArgumentException if stepLogData is <code>null</code>
+   */
+  public void addStepLogData(PSJdbcExecutionStepLog stepLogData) {
+    if (stepLogData == null) throw new IllegalArgumentException("stepLogData may not be null");
+    m_logDataList.add(stepLogData);
+  }
 
-   /**
-    * Removes all the elements from its internal list of
-    * <code>PSJdbcExecutionStepLog</code> objects.
-    */
-   public void clearStepLogs()
-   {
-      m_logDataList.clear();
-   }
+  /**
+   * Removes all the elements from its internal list of <code>PSJdbcExecutionStepLog</code> objects.
+   */
+  public void clearStepLogs() {
+    m_logDataList.clear();
+  }
 
-   /**
-    * Serializes this object's state to Xml.
-    *
-    * @param doc the document to use when creating elements, may not be
-    * <code>null</code>.
-    *
-    * @return the element containing this object's state,
-    * never <code>null</code>.
-    *
-    * @throws IllegalArgumentException if doc is <code>null</code>.
-    */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
+  /**
+   * Serializes this object's state to Xml.
+   *
+   * @param doc the document to use when creating elements, may not be <code>null</code>.
+   * @return the element containing this object's state, never <code>null</code>.
+   * @throws IllegalArgumentException if doc is <code>null</code>.
+   */
+  public Element toXml(Document doc) {
+    if (doc == null) throw new IllegalArgumentException("doc may not be null");
 
-      // create the root element
-      Element   root = doc.createElement(NODE_NAME);
-      Iterator<PSJdbcExecutionStepLog> list = getStepLogs();
-      while (list.hasNext())
-      {
-         PSJdbcExecutionStepLog stepLogData =
-                 list.next();
-         root.appendChild(stepLogData.toXml(doc));
-      }
-
-      return root;
+    // create the root element
+    Element root = doc.createElement(NODE_NAME);
+    Iterator<PSJdbcExecutionStepLog> list = getStepLogs();
+    while (list.hasNext()) {
+      PSJdbcExecutionStepLog stepLogData = list.next();
+      root.appendChild(stepLogData.toXml(doc));
     }
 
-   /**
-    * Serializes this object's state to String.
-    *
-    * @return the string containing this object's state,
-    * never <code>null</code> or empty
-    *
-    */
-   public String toString()
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = toXml(doc);
-      return PSXmlDocumentBuilder.toString(root);
-    }
+    return root;
+  }
 
-   /**
-    * The name of this objects root Xml element.
-    */
-   public static final String NODE_NAME = "PlanLogData";
+  /**
+   * Serializes this object's state to String.
+   *
+   * @return the string containing this object's state, never <code>null</code> or empty
+   */
+  public String toString() {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = toXml(doc);
+    return PSXmlDocumentBuilder.toString(root);
+  }
 
-   /**
-    * Contains a list of <code>PSJdbcExecutionStepLog</code> objects,
-    * never <code>null</code>, may be empty
-    */
-   private List<PSJdbcExecutionStepLog> m_logDataList = new ArrayList<>();
+  /** The name of this objects root Xml element. */
+  public static final String NODE_NAME = "PlanLogData";
 
+  /**
+   * Contains a list of <code>PSJdbcExecutionStepLog</code> objects, never <code>null</code>, may be
+   * empty
+   */
+  private List<PSJdbcExecutionStepLog> m_logDataList = new ArrayList<>();
 }
-

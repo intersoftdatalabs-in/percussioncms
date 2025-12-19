@@ -31,74 +31,66 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean("pageIndexService")
-public class PSPageIndexService implements IPSPageIndexService
-{
-    
-    private static final Logger log = LogManager.getLogger(PSPageIndexService.class.getName());
-    
-    IPSIdMapper idMapper;
+public class PSPageIndexService implements IPSPageIndexService {
 
-    IPSPageDao pageDao;
+  private static final Logger log = LogManager.getLogger(PSPageIndexService.class.getName());
 
-    IPSWorkflowHelper workflowHelper;
+  IPSIdMapper idMapper;
 
-    IPSPageDaoHelper pageDaoHelper;
+  IPSPageDao pageDao;
 
-    PSIndexHelper indexHelper;
+  IPSWorkflowHelper workflowHelper;
 
-    @Autowired
-    public PSPageIndexService(IPSIdMapper idMapper, IPSPageDao pageDao, IPSWorkflowHelper workflowHelper,
-            IPSPageDaoHelper pageDaoHelper, PSIndexHelper indexHelper)
-    {
-        this.indexHelper = indexHelper;
-        this.idMapper = idMapper;
-        this.pageDao = pageDao;
-        this.workflowHelper = workflowHelper;
-        this.pageDaoHelper = pageDaoHelper;
-    }
+  IPSPageDaoHelper pageDaoHelper;
 
-    public void index(Set<Integer> ids) throws PSValidationException {
-        notNull(ids);
+  PSIndexHelper indexHelper;
 
-        Set<PSLocator> locators = new HashSet<>();
+  @Autowired
+  public PSPageIndexService(
+      IPSIdMapper idMapper,
+      IPSPageDao pageDao,
+      IPSWorkflowHelper workflowHelper,
+      IPSPageDaoHelper pageDaoHelper,
+      PSIndexHelper indexHelper) {
+    this.indexHelper = indexHelper;
+    this.idMapper = idMapper;
+    this.pageDao = pageDao;
+    this.workflowHelper = workflowHelper;
+    this.pageDaoHelper = pageDaoHelper;
+  }
 
-        for (Integer id : ids)
-        {
-            IPSGuid guid = PSGuidUtils.makeGuid(id, PSTypeEnum.LEGACY_CONTENT);
-            String guidStr = idMapper.getString(guid);
-            try
-            {
-                if (workflowHelper.isPage(guidStr))
-                {
-                    locators.add(idMapper.getLocator(guidStr));
-                }
-            }
-            catch (PSNotFoundException e)
-            {
-                log.error("Error indexing page with id: " + id, e);
-            }
-            
-            if (workflowHelper.isTemplate(guidStr))
-            {
-                Collection<Integer> pageIds = pageDaoHelper.findPageIdsByTemplate(guidStr);
-                for (Integer pageId : pageIds)
-                {
-                    locators.add(new PSLocator(pageId.intValue()));
-                }
-            }
+  public void index(Set<Integer> ids) throws PSValidationException {
+    notNull(ids);
+
+    Set<PSLocator> locators = new HashSet<>();
+
+    for (Integer id : ids) {
+      IPSGuid guid = PSGuidUtils.makeGuid(id, PSTypeEnum.LEGACY_CONTENT);
+      String guidStr = idMapper.getString(guid);
+      try {
+        if (workflowHelper.isPage(guidStr)) {
+          locators.add(idMapper.getLocator(guidStr));
         }
+      } catch (PSNotFoundException e) {
+        log.error("Error indexing page with id: " + id, e);
+      }
 
-        indexHelper.addItemsForIndex(locators);
+      if (workflowHelper.isTemplate(guidStr)) {
+        Collection<Integer> pageIds = pageDaoHelper.findPageIdsByTemplate(guidStr);
+        for (Integer pageId : pageIds) {
+          locators.add(new PSLocator(pageId.intValue()));
+        }
+      }
     }
 
+    indexHelper.addItemsForIndex(locators);
+  }
 }

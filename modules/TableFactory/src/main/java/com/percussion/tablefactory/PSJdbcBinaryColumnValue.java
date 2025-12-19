@@ -19,41 +19,33 @@ package com.percussion.tablefactory;
 
 import java.io.FileInputStream;
 
-/***
- * Contains a binary column value. 
- * 
- * @author natechadwick
+/**
+ * * Contains a binary column value.
  *
+ * @author natechadwick
  */
-public class PSJdbcBinaryColumnValue
-{
-   private FileInputStream stream;
-   private long fileSize;
-   
-   public PSJdbcBinaryColumnValue(FileInputStream stream, long l){
-      this.setStream(stream);
-      this.setFileSize(l);
-   }
+public class PSJdbcBinaryColumnValue {
+  private FileInputStream stream;
+  private long fileSize;
 
-   public FileInputStream getStream()
-   {
-      return stream;
-   }
+  public PSJdbcBinaryColumnValue(FileInputStream stream, long l) {
+    this.setStream(stream);
+    this.setFileSize(l);
+  }
 
-   public void setStream(FileInputStream stream)
-   {
-      this.stream = stream;
-   }
+  public FileInputStream getStream() {
+    return stream;
+  }
 
-   public long getFileSize()
-   {
-      return fileSize;
-   }
+  public void setStream(FileInputStream stream) {
+    this.stream = stream;
+  }
 
-   public void setFileSize(long fileSize)
-   {
-      this.fileSize = fileSize;
-   }
+  public long getFileSize() {
+    return fileSize;
+  }
 
-   
+  public void setFileSize(long fileSize) {
+    this.fileSize = fileSize;
+  }
 }

@@ -20,18 +20,15 @@ package com.percussion.share.service;
 import com.percussion.share.async.PSAsyncJobStatus;
 import com.percussion.share.test.PSObjectRestClient;
 
-public class PSAsyncJobStatusRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/share/jobstatus/";
+public class PSAsyncJobStatusRestClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/share/jobstatus/";
 
-    public PSAsyncJobStatus getStatus(String jobId)
-    {
-        return getObjectFromPath(concatPath(path, jobId), PSAsyncJobStatus.class);
-    }
-    
-    public Long startDummyJob()
-    {
-        //return getObjectFromPath(concatPath(path, "startDummyJob"), Long.class);
-        return Long.valueOf(GET(concatPath(path, "startTestJob")));
-    }
+  public PSAsyncJobStatus getStatus(String jobId) {
+    return getObjectFromPath(concatPath(path, jobId), PSAsyncJobStatus.class);
+  }
+
+  public Long startDummyJob() {
+    // return getObjectFromPath(concatPath(path, "startDummyJob"), Long.class);
+    return Long.valueOf(GET(concatPath(path, "startTestJob")));
+  }
 }

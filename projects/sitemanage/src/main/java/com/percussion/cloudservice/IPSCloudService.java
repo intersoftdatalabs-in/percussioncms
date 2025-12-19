@@ -22,84 +22,84 @@ import com.percussion.cloudservice.data.PSCloudServiceInfo;
 import com.percussion.cloudservice.data.PSCloudServicePageData;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-public interface IPSCloudService
-{
-    /**
-     * Determine if cloud services are active (licensed)
-     * @return true if services are active; false otherwise
-     */
-    public boolean isActive();
-    
-    /**
-     * Determine if the given license type is active
-     * @param licenseType
-     * @return true if service is active; false otherwise
-     */
-    public boolean isActive(PSCloudLicenseType licenseType);
-    
-    /**
-     * Get a map of license types to isActive 
-     * @return string in JSON format
-     */
-    public String getActiveState();
-    
-    /**
-     * Get the cloud services info (client identity, UI provider, etc...)
-     * @return cloud services info
-     */
-    public PSCloudServiceInfo getInfo() throws PSCloudServiceException;
-    
-    /**
-     * Get the cloud services info (client identity, UI provider, etc...) for the given license type
-     * @param licenseType
-     * @return cloud services info
-     */
-    public PSCloudServiceInfo getInfo(PSCloudLicenseType licenseType) throws PSCloudServiceException;
-    
-    /**
-     * Get the page data for the given page
-     * @param pageId
-     * @return page data
-     */
-    public PSCloudServicePageData getPageData(String pageId) throws PSCloudServiceException;
-    
-    /**
-     * Get the page data for the given page using the given license type
-     * @param licenseType
-     * @param pageId
-     * @return page data
-     */
-    public PSCloudServicePageData getPageData(PSCloudLicenseType licenseType, String pageId);
-    
-    /**
-     * Save the page data
-     * @param pageData
-     */
-    public void savePageData(PSCloudServicePageData pageData);
+public interface IPSCloudService {
+  /**
+   * Determine if cloud services are active (licensed)
+   *
+   * @return true if services are active; false otherwise
+   */
+  public boolean isActive();
 
-    /**
-     * This is a RuntimeException, it is thrown when there is an error occurs in this service.
-     */
-    public static class PSCloudServiceException extends PSDataServiceException
-    {
-        public PSCloudServiceException()
-        {
-            super();
-        }
+  /**
+   * Determine if the given license type is active
+   *
+   * @param licenseType
+   * @return true if service is active; false otherwise
+   */
+  public boolean isActive(PSCloudLicenseType licenseType);
 
-        public PSCloudServiceException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
+  /**
+   * Get a map of license types to isActive
+   *
+   * @return string in JSON format
+   */
+  public String getActiveState();
 
-        public PSCloudServiceException(String message)
-        {
-            super(message);
-        }
+  /**
+   * Get the cloud services info (client identity, UI provider, etc...)
+   *
+   * @return cloud services info
+   */
+  public PSCloudServiceInfo getInfo() throws PSCloudServiceException;
 
-        public PSCloudServiceException(Throwable cause)
-        {
-            super(cause);
-        }
+  /**
+   * Get the cloud services info (client identity, UI provider, etc...) for the given license type
+   *
+   * @param licenseType
+   * @return cloud services info
+   */
+  public PSCloudServiceInfo getInfo(PSCloudLicenseType licenseType) throws PSCloudServiceException;
+
+  /**
+   * Get the page data for the given page
+   *
+   * @param pageId
+   * @return page data
+   */
+  public PSCloudServicePageData getPageData(String pageId) throws PSCloudServiceException;
+
+  /**
+   * Get the page data for the given page using the given license type
+   *
+   * @param licenseType
+   * @param pageId
+   * @return page data
+   */
+  public PSCloudServicePageData getPageData(PSCloudLicenseType licenseType, String pageId);
+
+  /**
+   * Save the page data
+   *
+   * @param pageData
+   */
+  public void savePageData(PSCloudServicePageData pageData);
+
+  /** This is a RuntimeException, it is thrown when there is an error occurs in this service. */
+  public static class PSCloudServiceException extends PSDataServiceException {
+    public PSCloudServiceException() {
+      super();
     }
+
+    public PSCloudServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSCloudServiceException(String message) {
+      super(message);
+    }
+
+    public PSCloudServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

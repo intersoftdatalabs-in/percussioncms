@@ -17,17 +17,17 @@
 package com.percussion.utils.jsr170;
 
 /**
- * A property interceptor allows a property to present a translated value rather
- * than the original value to a caller.
- * 
+ * A property interceptor allows a property to present a translated value rather than the original
+ * value to a caller.
+ *
  * @author dougrand
  */
-public interface IPSPropertyInterceptor
-{
-   /**
-    * Translate the original value to a transformed value
-    * @param originalValue the original value, may be <code>null</code>
-    * @return the transformed value, may be <code>null</code>
-    */
-   public Object translate(Object originalValue); 
+public interface IPSPropertyInterceptor {
+  /**
+   * Translate the original value to a transformed value
+   *
+   * @param originalValue the original value, may be <code>null</code>
+   * @return the transformed value, may be <code>null</code>
+   */
+  public Object translate(Object originalValue);
 }

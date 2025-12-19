@@ -17,5 +17,4 @@
 
 package com.percussion.rest.jexl;
 
-public interface IJexlAdaptor {
-}
+public interface IJexlAdaptor {}

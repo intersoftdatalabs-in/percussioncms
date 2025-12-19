@@ -19,7 +19,6 @@ package com.percussion.recent.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,14 +28,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Entity for PSRecentService service.
- * 
+ *
  * @author Stephen Bolton
  */
 @Entity
@@ -44,129 +42,108 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "PSX_RECENT")
 @XmlRootElement(name = "recent")
 @JsonRootName("recent")
-public class PSRecent extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = 1L;
+public class PSRecent extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    public static enum RecentType {
-        ITEM(20), TEMPLATE(6), SITE_FOLDER(10), ASSET_FOLDER(10), ASSET_TYPE(6);
-        private final int maxSize;
+  public static enum RecentType {
+    ITEM(20),
+    TEMPLATE(6),
+    SITE_FOLDER(10),
+    ASSET_FOLDER(10),
+    ASSET_TYPE(6);
+    private final int maxSize;
 
-        RecentType(int maxSize)
-        {
-            this.maxSize = maxSize;
-        }
-
-        public int MaxSize()
-        {
-            return this.maxSize;
-        }
+    RecentType(int maxSize) {
+      this.maxSize = maxSize;
     }
 
-    @Id
-    @GenericGenerator(name = "id", strategy = "com.percussion.data.utils.PSNextNumberHibernateGenerator")
-    @GeneratedValue(generator = "id")
-    @Column(name = "ID", nullable = false)
-    private int id;
-
-    @Column(name = "USER_NAME")
-    private String user;
-
-    /**
-     * siteName can be null for recent entries that 
-     * do not need to be filtered by site.
-     */
-    @Basic
-    @Column(name = "SITE_NAME")
-    private String siteName;
-
-    @Column(name = "TYPE")
-    @Enumerated(EnumType.STRING)
-    private RecentType type;
-
-    @Column(name = "SORTORDER")
-    private int order;
-
-    /**
-     * Representation of value based upon the type and
-     * controlled by the service
-     */
-    @Column(name = "VALUE")
-    private String value;
-
-    /**
-     *
-     * @param user
-     * @param siteName
-     * @param type
-     * @param order
-     * @param value
-     */
-    public PSRecent(String user, String siteName, RecentType type, int order, String value)
-    {
-        this.user = user;
-        this.siteName = siteName;
-        this.type = type;
-        this.order = order;
-        this.value = value;
+    public int MaxSize() {
+      return this.maxSize;
     }
+  }
 
-    /**
-    * 
-    */
-    public PSRecent()
-    {
+  @Id
+  @GenericGenerator(
+      name = "id",
+      strategy = "com.percussion.data.utils.PSNextNumberHibernateGenerator")
+  @GeneratedValue(generator = "id")
+  @Column(name = "ID", nullable = false)
+  private int id;
 
-    }
+  @Column(name = "USER_NAME")
+  private String user;
 
-    public String getUser()
-    {
-        return user;
-    }
+  /** siteName can be null for recent entries that do not need to be filtered by site. */
+  @Basic
+  @Column(name = "SITE_NAME")
+  private String siteName;
 
-    public void setUser(String user)
-    {
-        this.user = user;
-    }
+  @Column(name = "TYPE")
+  @Enumerated(EnumType.STRING)
+  private RecentType type;
 
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  @Column(name = "SORTORDER")
+  private int order;
 
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+  /** Representation of value based upon the type and controlled by the service */
+  @Column(name = "VALUE")
+  private String value;
 
-    public RecentType getType()
-    {
-        return type;
-    }
+  /**
+   * @param user
+   * @param siteName
+   * @param type
+   * @param order
+   * @param value
+   */
+  public PSRecent(String user, String siteName, RecentType type, int order, String value) {
+    this.user = user;
+    this.siteName = siteName;
+    this.type = type;
+    this.order = order;
+    this.value = value;
+  }
 
-    public void setType(RecentType type)
-    {
-        this.type = type;
-    }
+  /** */
+  public PSRecent() {}
 
-    public int getOrder()
-    {
-        return order;
-    }
+  public String getUser() {
+    return user;
+  }
 
-    public void setOrder(int order)
-    {
-        this.order = order;
-    }
+  public void setUser(String user) {
+    this.user = user;
+  }
 
-    public String getValue()
-    {
-        return value;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
+  public RecentType getType() {
+    return type;
+  }
+
+  public void setType(RecentType type) {
+    this.type = type;
+  }
+
+  public int getOrder() {
+    return order;
+  }
+
+  public void setOrder(int order) {
+    this.order = order;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

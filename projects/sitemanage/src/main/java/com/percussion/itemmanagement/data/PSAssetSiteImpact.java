@@ -17,78 +17,56 @@
 
 package com.percussion.itemmanagement.data;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.data.PSItemProperties;
+import java.util.HashSet;
+import java.util.Set;
 
-/***
- * Java representation of the Site Impact of an Asset
- * 
- * @author natechadwick
+/**
+ * * Java representation of the Site Impact of an Asset
  *
+ * @author natechadwick
  */
 public class PSAssetSiteImpact {
 
-	private Set<PSItemProperties> ownerPages;
-	private Set<PSTemplateSummary> ownerTemplates;
-	private Set<IPSSite> ownerSites;
-	
-	public PSAssetSiteImpact() {
-		ownerPages = new HashSet<>();
-		ownerTemplates = new HashSet<>();
-		ownerSites = new HashSet<>();
-	}
+  private Set<PSItemProperties> ownerPages;
+  private Set<PSTemplateSummary> ownerTemplates;
+  private Set<IPSSite> ownerSites;
 
+  public PSAssetSiteImpact() {
+    ownerPages = new HashSet<>();
+    ownerTemplates = new HashSet<>();
+    ownerSites = new HashSet<>();
+  }
 
-	/**
-	 * @return the ownerTemplates
-	 */
-	public Set<PSTemplateSummary> getOwnerTemplates() {
-		return ownerTemplates;
-	}
+  /** @return the ownerTemplates */
+  public Set<PSTemplateSummary> getOwnerTemplates() {
+    return ownerTemplates;
+  }
 
+  /** @param ownerTemplates the ownerTemplates to set */
+  public void setOwnerTemplates(Set<PSTemplateSummary> ownerTemplates) {
+    this.ownerTemplates = ownerTemplates;
+  }
 
-	/**
-	 * @param ownerTemplates the ownerTemplates to set
-	 */
-	public void setOwnerTemplates(Set<PSTemplateSummary> ownerTemplates) {
-		this.ownerTemplates = ownerTemplates;
-	}
+  /** @return the ownerPages */
+  public Set<PSItemProperties> getOwnerPages() {
+    return ownerPages;
+  }
 
+  /** @param ownerPages the ownerPages to set */
+  public void setOwnerPages(Set<PSItemProperties> ownerPages) {
+    this.ownerPages = ownerPages;
+  }
 
-	/**
-	 * @return the ownerPages
-	 */
-	public Set<PSItemProperties> getOwnerPages() {
-		return ownerPages;
-	}
+  /** @return the ownerSites */
+  public Set<IPSSite> getOwnerSites() {
+    return ownerSites;
+  }
 
-
-	/**
-	 * @param ownerPages the ownerPages to set
-	 */
-	public void setOwnerPages(Set<PSItemProperties> ownerPages) {
-		this.ownerPages = ownerPages;
-	}
-
-
-	/**
-	 * @return the ownerSites
-	 */
-	public Set<IPSSite> getOwnerSites() {
-		return ownerSites;
-	}
-
-
-	/**
-	 * @param ownerSites the ownerSites to set
-	 */
-	public void setOwnerSites(Set<IPSSite> ownerSites) {
-		this.ownerSites = ownerSites;
-	}
-
+  /** @param ownerSites the ownerSites to set */
+  public void setOwnerSites(Set<IPSSite> ownerSites) {
+    this.ownerSites = ownerSites;
+  }
 }

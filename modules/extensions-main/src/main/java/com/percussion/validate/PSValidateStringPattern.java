@@ -22,36 +22,30 @@ import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
-
 import java.io.File;
 import java.util.regex.Pattern;
 
-public class PSValidateStringPattern implements IPSFieldValidator
-{
+public class PSValidateStringPattern implements IPSFieldValidator {
 
-   public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException
-   {
-      String value, regex;
-      PSExtensionParams ep = new PSExtensionParams(params);
-      value = ep.getStringParam(0, null, false);
-      regex = ep.getStringParam(1, null, true);
-      
-      if (value == null)
-      {
-         return false;
-      }
-      
-      if (value == null || !Pattern.matches(regex,value))
-      {
-         return false;
-      }
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    String value, regex;
+    PSExtensionParams ep = new PSExtensionParams(params);
+    value = ep.getStringParam(0, null, false);
+    regex = ep.getStringParam(1, null, true);
 
-      return true;
-   }
+    if (value == null) {
+      return false;
+    }
 
-   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-   {
-      //
-   }
+    if (value == null || !Pattern.matches(regex, value)) {
+      return false;
+    }
 
+    return true;
+  }
+
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    //
+  }
 }

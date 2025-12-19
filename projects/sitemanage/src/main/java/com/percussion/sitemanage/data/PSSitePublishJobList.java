@@ -20,17 +20,15 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SitePublishJob")
-@ArraySchema(schema=@Schema(implementation = PSSitePublishJob.class))
+@ArraySchema(schema = @Schema(implementation = PSSitePublishJob.class))
 @JsonRootName("SitePublishJob")
 public class PSSitePublishJobList extends ArrayList<PSSitePublishJob> {
-    public PSSitePublishJobList(Collection<? extends PSSitePublishJob> c) {
-        super(c);
-    }
+  public PSSitePublishJobList(Collection<? extends PSSitePublishJob> c) {
+    super(c);
+  }
 }

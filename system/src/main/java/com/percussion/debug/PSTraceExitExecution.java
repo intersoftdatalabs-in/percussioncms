@@ -17,42 +17,38 @@
 
 package com.percussion.debug;
 
-
 /**
- * Used to process Trace Messages for the Exit Execution trace message type (0x0800).  This allows Java extensions to generate trace statements.  Content and format is determined by the exit that initates the trace command.
+ * Used to process Trace Messages for the Exit Execution trace message type (0x0800). This allows
+ * Java extensions to generate trace statements. Content and format is determined by the exit that
+ * initates the trace command.
  */
-public class PSTraceExitExecution extends PSTraceMessage
-{
+public class PSTraceExitExecution extends PSTraceMessage {
 
-   /**
-    * Constructor for this class.
-    *
-    * @param typeFlag the type of trace message this object will generate
-    * @roseuid 39FDDB4A0138
-    */
-   public PSTraceExitExecution(int typeFlag)
-   {
-      super(typeFlag);
-   }
-   
-   // see parent class for javadoc
-   protected String getMessageHeader() 
-   {
-      return ms_bundle.getString("traceExitExec_dispname");
-   }
+  /**
+   * Constructor for this class.
+   *
+   * @param typeFlag the type of trace message this object will generate
+   * @roseuid 39FDDB4A0138
+   */
+  public PSTraceExitExecution(int typeFlag) {
+    super(typeFlag);
+  }
 
-   /**
-    * Formats the output for the body of the message, extracting the information
-    * required from the source object.
-    *
-    * @param source an object containing the information required for the trace
-    * message:
-    * String the message supplied by the exit
-    * @return the message body
-    * @roseuid 39FEE2F40167
-    */
-   protected String getMessageBody(java.lang.Object source)
-   {
-      return source.toString();
-   }
+  // see parent class for javadoc
+  protected String getMessageHeader() {
+    return ms_bundle.getString("traceExitExec_dispname");
+  }
+
+  /**
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
+   *
+   * @param source an object containing the information required for the trace message: String the
+   *     message supplied by the exit
+   * @return the message body
+   * @roseuid 39FEE2F40167
+   */
+  protected String getMessageBody(java.lang.Object source) {
+    return source.toString();
+  }
 }

@@ -16,41 +16,37 @@
  */
 package com.percussion.delivery.likes.data;
 
-/**
- * @author Administrator
- * 
- */
-public interface IPSLikes
-{
+/** @author Administrator */
+public interface IPSLikes {
 
-    /**
-     * @return the page path, the relative path to the page that this likes is
-     *         on, not including the site. Never <code>null</code> or empty.
-     */
-    public String getSite();
+  /**
+   * @return the page path, the relative path to the page that this likes is on, not including the
+   *     site. Never <code>null</code> or empty.
+   */
+  public String getSite();
 
-    public String getType();
+  public String getType();
 
-    public String getLikeId();
-    
-    public int getTotal();
-    
-    public String getId();
-    
-    public void setId(String id);
-    
-    public void setSite(String site);
+  public String getLikeId();
 
-    public void setType(String type);
+  public int getTotal();
 
-    public void setLikeId(String id);
-    
-    public void setTotal(int total);
+  public String getId();
 
-    /**
-     * Comment approval states.
-     */
-    public enum TYPE {
-        PAGE, COMMENT, IMAGE
-    }
+  public void setId(String id);
+
+  public void setSite(String site);
+
+  public void setType(String type);
+
+  public void setLikeId(String id);
+
+  public void setTotal(int total);
+
+  /** Comment approval states. */
+  public enum TYPE {
+    PAGE,
+    COMMENT,
+    IMAGE
+  }
 }

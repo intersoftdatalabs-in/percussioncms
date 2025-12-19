@@ -25,7 +25,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface Server {
-    String url() default "http://localhost";
-    String siteName() default "Site1";
-    String feedName() default "feeds1";
+  String url() default "http://localhost";
+
+  String siteName() default "Site1";
+
+  String feedName() default "feeds1";
 }

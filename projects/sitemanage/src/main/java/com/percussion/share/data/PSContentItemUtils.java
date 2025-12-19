@@ -16,17 +16,16 @@
  */
 package com.percussion.share.data;
 
+public class PSContentItemUtils {
 
-public class PSContentItemUtils
-{
-    
-    /**
-     * Copy content item from a to b.
-     * @param from summary
-     * @param to summary
-     */
-    public static void copyProperties(IPSContentItem from, IPSContentItem to) {
-        PSItemSummaryUtils.copyProperties(from, to);
-        to.setFields(from.getFields());
-    }
+  /**
+   * Copy content item from a to b.
+   *
+   * @param from summary
+   * @param to summary
+   */
+  public static void copyProperties(IPSContentItem from, IPSContentItem to) {
+    PSItemSummaryUtils.copyProperties(from, to);
+    to.setFields(from.getFields());
+  }
 }

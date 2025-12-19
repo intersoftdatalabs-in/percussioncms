@@ -26,8 +26,7 @@ public class ASTDirectSQLDataStatement extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

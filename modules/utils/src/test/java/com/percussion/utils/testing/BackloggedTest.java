@@ -17,10 +17,9 @@
 
 package com.percussion.utils.testing;
 
-/***
- * A Marker that can be used to backlog a test that should be running
- * but there is not time to refactor it at the moment.  Backlogged tests
- * are tests we intend to fix, not tests that we just ignore forever.
+/**
+ * * A Marker that can be used to backlog a test that should be running but there is not time to
+ * refactor it at the moment. Backlogged tests are tests we intend to fix, not tests that we just
+ * ignore forever.
  */
-public interface BackloggedTest {
-}
+public interface BackloggedTest {}

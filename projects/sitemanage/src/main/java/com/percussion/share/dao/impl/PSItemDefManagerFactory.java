@@ -21,26 +21,20 @@ import com.percussion.util.PSSiteManageBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Lazy;
 
-
 @PSSiteManageBean("itemDefManager")
 @Lazy
-public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager>
-{
-    @Override
-    public PSItemDefManager getObject() throws Exception
-    {
-        return PSItemDefManager.getInstance();
-    }
+public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager> {
+  @Override
+  public PSItemDefManager getObject() throws Exception {
+    return PSItemDefManager.getInstance();
+  }
 
-    @Override
-    public Class<?> getObjectType()
-    {
-        return PSItemDefManager.class;
-    }
+  @Override
+  public Class<?> getObjectType() {
+    return PSItemDefManager.class;
+  }
 
-    public boolean isSingleton()
-    {
-        return true;
-    }
-
+  public boolean isSingleton() {
+    return true;
+  }
 }

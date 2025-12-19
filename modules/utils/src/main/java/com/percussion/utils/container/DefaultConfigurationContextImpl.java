@@ -18,33 +18,31 @@
 package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
-public class DefaultConfigurationContextImpl extends ConfigurationContextAbstract<DefaultConfigurationContextImpl, BaseContainerUtils> implements ConfigurationCtx {
+public class DefaultConfigurationContextImpl
+    extends ConfigurationContextAbstract<DefaultConfigurationContextImpl, BaseContainerUtils>
+    implements ConfigurationCtx {
 
-    private Path rootDir;
-    private String encKey;
+  private Path rootDir;
+  private String encKey;
 
-    public DefaultConfigurationContextImpl(Path path, String key) {
-      this(path,key,BaseContainerUtils::new);
-    }
+  public DefaultConfigurationContextImpl(Path path, String key) {
+    this(path, key, BaseContainerUtils::new);
+  }
 
-    public DefaultConfigurationContextImpl(Path path, String key, Supplier<BaseContainerUtils> ctor) {
-        super(ctor);
-        this.rootDir=path;
-        this.encKey=key;
-    }
+  public DefaultConfigurationContextImpl(Path path, String key, Supplier<BaseContainerUtils> ctor) {
+    super(ctor);
+    this.rootDir = path;
+    this.encKey = key;
+  }
 
-    public Path getRootDir() {
-        return rootDir;
-    }
+  public Path getRootDir() {
+    return rootDir;
+  }
 
-    public String getEncKey() {
-        return encKey;
-    }
-
-
-
+  public String getEncKey() {
+    return encKey;
+  }
 }

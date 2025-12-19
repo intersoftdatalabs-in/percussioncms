@@ -19,18 +19,15 @@ package com.percussion.share.service;
 import com.percussion.share.data.IPSFolderPath;
 
 /**
- * A marker for items that are capable of having a link
- * generated for them.
- * 
- * See the page module for more info.
- * @author adamgent
+ * A marker for items that are capable of having a link generated for them.
  *
+ * <p>See the page module for more info.
+ *
+ * @author adamgent
  */
-public interface IPSLinkableItem extends IPSFolderPath
-{
-    
-    public String getId();
-    
-    public String getType();
+public interface IPSLinkableItem extends IPSFolderPath {
 
+  public String getId();
+
+  public String getType();
 }

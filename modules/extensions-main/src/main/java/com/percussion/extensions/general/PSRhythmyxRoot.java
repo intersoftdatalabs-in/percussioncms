@@ -22,31 +22,27 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 
 /**
- * UDF to get the rhythmyx request root. This can be used as base request url
- * to make XSL document calls to rhythmyx resources. 
+ * UDF to get the rhythmyx request root. This can be used as base request url to make XSL document
+ * calls to rhythmyx resources.
  */
-public class PSRhythmyxRoot extends PSSimpleJavaUdfExtension
-{
-   /**
-    * This UDF constructs the rhythmyx root url out of the supplied request
-    * and returns it as <code>String</code>.
-    * 
-    * @param params no parameters are used for this UDF, all values will be 
-    *    ignored.
-    * @param request the request from which the protocol, host and port will
-    *    be inherited.
-    * @return a rhythmyx request root as <code>String</code>, something like
-    *    <code>http://localhost:9992/Rhythmyx</code>.
-    * @throws PSConversionException is never thrown.
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      String protocol = request.getOriginalProtocol();
-      String host = request.getOriginalHost();
-      int port = request.getOriginalPort();
-      String root = PSServer.getRequestRoot();
-      
-      return protocol + "://" + host + ":" + port + root;
-   }
+public class PSRhythmyxRoot extends PSSimpleJavaUdfExtension {
+  /**
+   * This UDF constructs the rhythmyx root url out of the supplied request and returns it as <code>
+   * String</code>.
+   *
+   * @param params no parameters are used for this UDF, all values will be ignored.
+   * @param request the request from which the protocol, host and port will be inherited.
+   * @return a rhythmyx request root as <code>String</code>, something like <code>
+   *     http://localhost:9992/Rhythmyx</code>.
+   * @throws PSConversionException is never thrown.
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    String protocol = request.getOriginalProtocol();
+    String host = request.getOriginalHost();
+    int port = request.getOriginalPort();
+    String root = PSServer.getRequestRoot();
+
+    return protocol + "://" + host + ":" + port + root;
+  }
 }

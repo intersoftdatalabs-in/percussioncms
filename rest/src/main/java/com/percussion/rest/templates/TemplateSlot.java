@@ -19,5 +19,5 @@ package com.percussion.rest.templates;
 
 public class TemplateSlot {
 
-    public TemplateSlot(){}
+  public TemplateSlot() {}
 }

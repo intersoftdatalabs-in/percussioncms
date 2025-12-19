@@ -17,48 +17,46 @@
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author JaySeletz
- *
- */
+/** @author JaySeletz */
 @XmlRootElement(name = "GetAssginedFoldersJobStatus")
-public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject
-{
-    public List<PSFolderItem> getFolderItems()
-    {
-        return folderItems;
-    }
-    public void setFolderItems(List<PSFolderItem> folderItems)
-    {
-        this.folderItems = folderItems;
-    }
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-    public long getJobId()
-    {
-        return jobId;
-    }
-    public void setJobId(long jobId)
-    {
-        this.jobId = jobId;
-    }
-    private List<PSFolderItem> folderItems;
-    private String status;
-    private String message;
-    private long jobId;
+public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
+  public List<PSFolderItem> getFolderItems() {
+    return folderItems;
+  }
 
-    public String getMessage() {  return message; }
+  public void setFolderItems(List<PSFolderItem> folderItems) {
+    this.folderItems = folderItems;
+  }
 
-    public void setMessage(String message) {  this.message = message;}
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public long getJobId() {
+    return jobId;
+  }
+
+  public void setJobId(long jobId) {
+    this.jobId = jobId;
+  }
+
+  private List<PSFolderItem> folderItems;
+  private String status;
+  private String message;
+  private long jobId;
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

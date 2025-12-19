@@ -23,28 +23,26 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class PreferencesTestAdaptor implements IPreferenceAdaptor {
-    @Override
-    public UserPreferenceList getAllUserPreferences() {
-        return null;
-    }
+  @Override
+  public UserPreferenceList getAllUserPreferences() {
+    return null;
+  }
 
-    @Override
-    public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
-        return null;
-    }
+  @Override
+  public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
+    return null;
+  }
 
-    @Override
-    public UserPreference loadPreference(String preference) {
-        return null;
-    }
+  @Override
+  public UserPreference loadPreference(String preference) {
+    return null;
+  }
 
-    @Override
-    public UserPreference savePreference(UserPreference pref) {
-        return null;
-    }
+  @Override
+  public UserPreference savePreference(UserPreference pref) {
+    return null;
+  }
 
-    @Override
-    public void deletePreference(UserPreference pref) {
-
-    }
+  @Override
+  public void deletePreference(UserPreference pref) {}
 }

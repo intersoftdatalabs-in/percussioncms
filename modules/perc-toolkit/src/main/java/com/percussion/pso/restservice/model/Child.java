@@ -16,52 +16,52 @@
  */
 package com.percussion.pso.restservice.model;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
-/**
- */
+
+/** */
 @XmlRootElement(name = "Child")
 public class Child {
-	/**
-	 * Field name.
-	 */
-	private String name;
-	/**
-	 * Field rows.
-	 */
-	private List<ChildRow> rows;
-	
-	/**
-	 * Method setName.
-	 * @param name String
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * Method getName.
-	 * @return String
-	 */
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
+  /** Field name. */
+  private String name;
+  /** Field rows. */
+  private List<ChildRow> rows;
 
-	/**
-	 * Method setRows.
-	 * @param rows List<ChildRow>
-	 */
-	public void setRows(List<ChildRow> rows) {
-		this.rows = rows;
-	}
-	/**
-	 * Method getRows.
-	 * @return List<ChildRow>
-	 */
-	@XmlElement(name = "Row")
-	public List<ChildRow> getRows() {
-		return rows;
-	}
+  /**
+   * Method setName.
+   *
+   * @param name String
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+  /**
+   * Method getName.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Method setRows.
+   *
+   * @param rows List<ChildRow>
+   */
+  public void setRows(List<ChildRow> rows) {
+    this.rows = rows;
+  }
+  /**
+   * Method getRows.
+   *
+   * @return List<ChildRow>
+   */
+  @XmlElement(name = "Row")
+  public List<ChildRow> getRows() {
+    return rows;
+  }
 }

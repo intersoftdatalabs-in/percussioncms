@@ -18,33 +18,31 @@
 package com.percussion.share.validation;
 
 import java.io.StringWriter;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-
 import org.junit.Test;
 
 public class PSValidationErrorsTest {
 
-	  @Test
-	  public void testSerialization() throws JAXBException{
-		  PSValidationErrors ex = new PSValidationErrors();
-	
-			// Get a JAXB Context for the object we created above
-			JAXBContext context = JAXBContext.newInstance(ex.getClass());
-		    
-			  // To convert ex to XML, I need a JAXB Marshaller
-			Marshaller marshaller = context.createMarshaller();
-		
-			// Make the output pretty
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			StringWriter sw = new StringWriter();
-		
-			// marshall the object to XML
-			 marshaller.marshal(ex, sw);
-			
-			// print it out for this example
-			System.out.println(sw.toString());
-	  }
+  @Test
+  public void testSerialization() throws JAXBException {
+    PSValidationErrors ex = new PSValidationErrors();
+
+    // Get a JAXB Context for the object we created above
+    JAXBContext context = JAXBContext.newInstance(ex.getClass());
+
+    // To convert ex to XML, I need a JAXB Marshaller
+    Marshaller marshaller = context.createMarshaller();
+
+    // Make the output pretty
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    StringWriter sw = new StringWriter();
+
+    // marshall the object to XML
+    marshaller.marshal(ex, sw);
+
+    // print it out for this example
+    System.out.println(sw.toString());
+  }
 }

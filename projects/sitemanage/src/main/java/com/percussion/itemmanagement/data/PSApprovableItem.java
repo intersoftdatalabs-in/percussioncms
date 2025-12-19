@@ -17,60 +17,44 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSItemProperties;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * 
- * @author leonardohildt
- * 
- */
+/** @author leonardohildt */
 @XmlRootElement(name = "ApprovableItem")
-public class PSApprovableItem extends PSItemProperties
-{
+public class PSApprovableItem extends PSItemProperties {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private Boolean approve = false;
+  private Boolean approve = false;
 
-    private String approvalStatus;
+  private String approvalStatus;
 
-    private String approvalMessage;
+  private String approvalMessage;
 
-    public PSApprovableItem()
-    {
-    }
+  public PSApprovableItem() {}
 
-    public Boolean isApprove()
-    {
-        return approve;
-    }
+  public Boolean isApprove() {
+    return approve;
+  }
 
-    /**
-     * @param approve indicates whether the item should be approve or not.
-     */
-    public void setApprove(Boolean approve)
-    {
-        this.approve = approve;
-    }
+  /** @param approve indicates whether the item should be approve or not. */
+  public void setApprove(Boolean approve) {
+    this.approve = approve;
+  }
 
-    public String getApprovalStatus()
-    {
-        return approvalStatus;
-    }
+  public String getApprovalStatus() {
+    return approvalStatus;
+  }
 
-    public void setApprovalStatus(String approvalStatus)
-    {
-        this.approvalStatus = approvalStatus;
-    }
+  public void setApprovalStatus(String approvalStatus) {
+    this.approvalStatus = approvalStatus;
+  }
 
-    public String getApprovalMessage()
-    {
-        return approvalMessage;
-    }
+  public String getApprovalMessage() {
+    return approvalMessage;
+  }
 
-    public void setApprovalMessage(String approvalMessage)
-    {
-        this.approvalMessage = approvalMessage;
-    }
+  public void setApprovalMessage(String approvalMessage) {
+    this.approvalMessage = approvalMessage;
+  }
 }

@@ -25,8 +25,7 @@ import java.io.Serializable;
  */
 public class GenericValidator implements Serializable {
 
-    public static boolean isBlankOrNull(String value) {
-        return ((value == null) || (value.trim().length() == 0));
-    }
-
+  public static boolean isBlankOrNull(String value) {
+    return ((value == null) || (value.trim().length() == 0));
+  }
 }

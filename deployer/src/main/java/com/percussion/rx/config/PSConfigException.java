@@ -17,39 +17,37 @@
 package com.percussion.rx.config;
 
 /**
- * This is an unchecked (runtime) exception. It may be used in the Design Object 
- * configuration sub-system.
+ * This is an unchecked (runtime) exception. It may be used in the Design Object configuration
+ * sub-system.
  *
  * @author YuBingChen
  */
-public class PSConfigException extends RuntimeException
-{
-   /**
-    * Constructs an exception with the specified detail message.
-    * @param errorMsg the specified detail message.
-    */
-   public PSConfigException(String errorMsg)
-   {
-      super(errorMsg);
-   }
-   
-   /**
-    * Constructs an exception with the specified cause.
-    * @param e the cause of the exception.
-    */
-   public PSConfigException(Throwable e)
-   {
-      super(e);
-   }
+public class PSConfigException extends RuntimeException {
+  /**
+   * Constructs an exception with the specified detail message.
+   *
+   * @param errorMsg the specified detail message.
+   */
+  public PSConfigException(String errorMsg) {
+    super(errorMsg);
+  }
 
-   /**
-    * Constructs an exception with the specified detail message and the cause.
-    * @param errorMsg the specified detail message.
-    * @param e the cause of the exception.
-    */
-   public PSConfigException(String errorMsg, Throwable e)
-   {
-      super(errorMsg, e);
-   }
-   
+  /**
+   * Constructs an exception with the specified cause.
+   *
+   * @param e the cause of the exception.
+   */
+  public PSConfigException(Throwable e) {
+    super(e);
+  }
+
+  /**
+   * Constructs an exception with the specified detail message and the cause.
+   *
+   * @param errorMsg the specified detail message.
+   * @param e the cause of the exception.
+   */
+  public PSConfigException(String errorMsg, Throwable e) {
+    super(errorMsg, e);
+  }
 }

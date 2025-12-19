@@ -21,12 +21,11 @@ import java.util.List;
 
 public interface IMimeTypeAdaptor {
 
-    public MimeType getMimeType(String extension);
+  public MimeType getMimeType(String extension);
 
-    public List<MimeType>  listMimeTypes();
+  public List<MimeType> listMimeTypes();
 
-   public MimeType createOrUpdateMimeType(MimeType type);
+  public MimeType createOrUpdateMimeType(MimeType type);
 
-   public void deleteMimeType(MimeType type);
-
+  public void deleteMimeType(MimeType type);
 }

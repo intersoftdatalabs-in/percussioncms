@@ -18,46 +18,39 @@ package com.percussion.ui.service.impl;
 
 import com.percussion.ui.data.PSSimpleDisplayFormat;
 import com.percussion.ui.service.IPSUiService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-/**
- * @author erikserating
- *
- */
+/** @author erikserating */
 @Path("/uicomps")
 @Component("uiRestService")
 @Lazy
-public class PSUiRestService
-{
-    
-    private IPSUiService service;
-    @Autowired
-    public PSUiRestService(IPSUiService service)
-    {
-        this.service = service;
-    }
-    
-    @GET
-    @Path("/displayformat/id/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSSimpleDisplayFormat getDisplayFormat(@PathParam("id") int id)
-    {
-        return service.getDisplayFormat(id);
-    }
+public class PSUiRestService {
 
-    @GET
-    @Path("/displayformat/name/{name:.*}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSSimpleDisplayFormat getDisplayFormatByName(@PathParam("name") String name)
-    {
-        return service.getDisplayFormatByName(name);
-    }
+  private IPSUiService service;
+
+  @Autowired
+  public PSUiRestService(IPSUiService service) {
+    this.service = service;
+  }
+
+  @GET
+  @Path("/displayformat/id/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSSimpleDisplayFormat getDisplayFormat(@PathParam("id") int id) {
+    return service.getDisplayFormat(id);
+  }
+
+  @GET
+  @Path("/displayformat/name/{name:.*}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSSimpleDisplayFormat getDisplayFormatByName(@PathParam("name") String name) {
+    return service.getDisplayFormatByName(name);
+  }
 }

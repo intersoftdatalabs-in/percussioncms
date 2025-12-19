@@ -17,36 +17,34 @@
 package com.percussion.delivery.test;
 
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Performs some basic testing on the fake data generator
- * @author natechadwick
  *
+ * @author natechadwick
  */
 public class TestPSFakeDataGenerator {
 
-	@Test
-	public void getTenRegistrants(){
-		
-		List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(10);
-		
-		Assert.assertEquals(10, r.size());
-	}
-	
-	/***
-	 * Tests to make sure passing in 0 returns all. 
-	 * 
-	 * NOTE: This test will need changed if the data set size changes. 
-	 */
-	@Test
-	public void getAllRegistrants(){
-		List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(0);
-		
-	//	Assert.assertEquals(50000, r.size());
-		
-	}
-	
+  @Test
+  public void getTenRegistrants() {
+
+    List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(10);
+
+    Assert.assertEquals(10, r.size());
+  }
+
+  /**
+   * * Tests to make sure passing in 0 returns all.
+   *
+   * <p>NOTE: This test will need changed if the data set size changes.
+   */
+  @Test
+  public void getAllRegistrants() {
+    List<FakeRegistrant> r = PSFakeDataGenerator.getFakeRegistrations(0);
+
+    //	Assert.assertEquals(50000, r.size());
+
+  }
 }

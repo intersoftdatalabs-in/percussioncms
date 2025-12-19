@@ -18,25 +18,14 @@ package com.percussion.pso.imageedit.services;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- * 
- *
- * @author DavidBenua
- *
- */
-public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator
-{
-   /**
-    * Static methods only 
-    */
-   private ImageSizeDefinitionManagerLocator()
-   {
-   }
-   
-   public static ImageSizeDefinitionManager getImageSizeDefinitionManager()
-   {
-      return (ImageSizeDefinitionManager)getBean(IMAGE_SIZE_DEFINITION_MANAGER_BEAN);
-   }
-   
-   private static final String IMAGE_SIZE_DEFINITION_MANAGER_BEAN = "imedImageSizeDefinitionManager";
+/** @author DavidBenua */
+public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator {
+  /** Static methods only */
+  private ImageSizeDefinitionManagerLocator() {}
+
+  public static ImageSizeDefinitionManager getImageSizeDefinitionManager() {
+    return (ImageSizeDefinitionManager) getBean(IMAGE_SIZE_DEFINITION_MANAGER_BEAN);
+  }
+
+  private static final String IMAGE_SIZE_DEFINITION_MANAGER_BEAN = "imedImageSizeDefinitionManager";
 }

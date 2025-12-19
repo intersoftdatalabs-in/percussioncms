@@ -16,37 +16,30 @@
  */
 package com.percussion.rx.config;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
 /**
  * Locator for getting the config service.
- * @author bjoginipally
  *
+ * @author bjoginipally
  */
-public class PSConfigServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSConfigService csr = null;
-   /**
-    * Find and return the config service
-    * 
-    * @return config service, never <code>null</code>
-    * @throws PSMissingBeanConfigurationException if bean is missing
-    */
-   public static IPSConfigService getConfigService()
-         throws PSMissingBeanConfigurationException
-   {
-       if (csr==null)
-       {
-           synchronized (PSConfigServiceLocator.class)
-           {
-               if (csr==null)
-               {
-                   csr = (IPSConfigService) getBean("sys_configService");
-               }
-           }
-       }
-      return csr; 
-   }
-
+public class PSConfigServiceLocator extends PSBaseServiceLocator {
+  private static volatile IPSConfigService csr = null;
+  /**
+   * Find and return the config service
+   *
+   * @return config service, never <code>null</code>
+   * @throws PSMissingBeanConfigurationException if bean is missing
+   */
+  public static IPSConfigService getConfigService() throws PSMissingBeanConfigurationException {
+    if (csr == null) {
+      synchronized (PSConfigServiceLocator.class) {
+        if (csr == null) {
+          csr = (IPSConfigService) getBean("sys_configService");
+        }
+      }
+    }
+    return csr;
+  }
 }

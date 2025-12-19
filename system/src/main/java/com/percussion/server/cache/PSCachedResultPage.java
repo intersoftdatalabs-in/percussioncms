@@ -16,102 +16,86 @@
  */
 package com.percussion.server.cache;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
  * A cached result page represents a single result from a query app
- * 
+ *
  * @author dougrand
  */
-public class PSCachedResultPage implements Serializable
-{
-   /**
-    * Generated id for class
-    */
-   private static final long serialVersionUID = 7758292294312394154L;
-   
-   /**
-    * Holds the result data from the merging process
-    */
-   private byte[] m_resultData;
-   
-   /**
-    * Holds the calculated mime type from the merging process
-    */
-   private String m_mimeType;
-   
-   /**
-    * Ctor
-    * @param type the type, may be <code>null</code>
-    * @param data the data, may be <code>null</code>
-    */
-   public PSCachedResultPage(String type, byte[] data)
-   {
-      m_mimeType = type;
-      m_resultData = data;
-   }
+public class PSCachedResultPage implements Serializable {
+  /** Generated id for class */
+  private static final long serialVersionUID = 7758292294312394154L;
 
-   /**
-    * @return Returns the mimeType.
-    */
-   public String getMimeType()
-   {
-      return m_mimeType;
-   }
+  /** Holds the result data from the merging process */
+  private byte[] m_resultData;
 
-   /**
-    * @return Returns the resultData.
-    */
-   public byte[] getResultData()
-   {
-      return m_resultData;
-   }
+  /** Holds the calculated mime type from the merging process */
+  private String m_mimeType;
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSCachedResultPage)) return false;
-      PSCachedResultPage that = (PSCachedResultPage) o;
-      return Arrays.equals(m_resultData, that.m_resultData) && Objects.equals(m_mimeType, that.m_mimeType);
-   }
+  /**
+   * Ctor
+   *
+   * @param type the type, may be <code>null</code>
+   * @param data the data, may be <code>null</code>
+   */
+  public PSCachedResultPage(String type, byte[] data) {
+    m_mimeType = type;
+    m_resultData = data;
+  }
 
-   @Override
-   public int hashCode() {
-      int result = Objects.hash(m_mimeType);
-      result = 31 * result + Arrays.hashCode(m_resultData);
-      return result;
-   }
+  /** @return Returns the mimeType. */
+  public String getMimeType() {
+    return m_mimeType;
+  }
 
-   /** (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
-   @Override
-   public String toString()
-   {
-      StringBuilder b = new StringBuilder(80);
-      
-      b.append("<CacheItem mimeType:");
-      b.append(m_mimeType == null ? "none" : m_mimeType);
-      b.append(" data-length:");
-      b.append(m_resultData == null ? "none" : String.valueOf(m_resultData.length));
-      b.append(">");
-      
-      return b.toString();
-   }
+  /** @return Returns the resultData. */
+  public byte[] getResultData() {
+    return m_resultData;
+  }
 
-   /**
-    * Get the length of the enclosed data
-    * @return the length, or <code>0</code> if there is no data.
-    */
-   public int getLength()
-   {
-      return m_resultData == null ? 0 : m_resultData.length;
-   }
-   
-   
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSCachedResultPage)) return false;
+    PSCachedResultPage that = (PSCachedResultPage) o;
+    return Arrays.equals(m_resultData, that.m_resultData)
+        && Objects.equals(m_mimeType, that.m_mimeType);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(m_mimeType);
+    result = 31 * result + Arrays.hashCode(m_resultData);
+    return result;
+  }
+
+  /**
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder b = new StringBuilder(80);
+
+    b.append("<CacheItem mimeType:");
+    b.append(m_mimeType == null ? "none" : m_mimeType);
+    b.append(" data-length:");
+    b.append(m_resultData == null ? "none" : String.valueOf(m_resultData.length));
+    b.append(">");
+
+    return b.toString();
+  }
+
+  /**
+   * Get the length of the enclosed data
+   *
+   * @return the length, or <code>0</code> if there is no data.
+   */
+  public int getLength() {
+    return m_resultData == null ? 0 : m_resultData.length;
+  }
 }

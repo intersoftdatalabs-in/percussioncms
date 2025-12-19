@@ -22,6 +22,7 @@ import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.generickey.utils.services.impl.PSGenericKeyRestService;
 import com.percussion.membership.services.impl.PSMembershipRestService;
+import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -31,23 +32,20 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
-
-    @ApplicationPath("/")
-    public class PSMembershipApplication extends  ResourceConfig {
-        public PSMembershipApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSMembershipRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSGenericKeyRestService.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-        }
-
-    }
+@ApplicationPath("/")
+public class PSMembershipApplication extends ResourceConfig {
+  public PSMembershipApplication() {
+    register(RequestContextFilter.class);
+    register(SpringComponentProvider.class);
+    register(AutowiredInjectResolver.class);
+    register(SpringLifecycleListener.class);
+    register(SpringWebApplicationInitializer.class);
+    register(PSMembershipRestService.class);
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+    register(PSGenericKeyRestService.class);
+    register(PSJsonMappingErrorResponse.class);
+    register(PSUncaughtError.class);
+    register(JacksonJaxbJsonProvider.class);
+  }
+}

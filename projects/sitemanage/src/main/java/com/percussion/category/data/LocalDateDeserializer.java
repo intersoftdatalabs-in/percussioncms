@@ -21,37 +21,40 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.time.LocalDateTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalDateTime;
+public class LocalDateDeserializer extends JsonDeserializer<LocalDateTime> {
+  private static final Logger log = LogManager.getLogger(LocalDateDeserializer.class);
 
-public class LocalDateDeserializer extends JsonDeserializer<LocalDateTime>
-{
-    private static final Logger log = LogManager.getLogger(LocalDateDeserializer.class);
-    public LocalDateTime deserialize(JsonParser arg0, DeserializationContext arg1){
-        String dateInStringFormat= "";
-        try{
-            dateInStringFormat = arg0.getText();
-            StringBuilder date = new StringBuilder();
-            for(String doubledigit : dateInStringFormat.split("\\.")[0].split(":")){
-                if(doubledigit.length()==1){
-                    doubledigit = "0"+doubledigit;
-                }
-                date.append(doubledigit);
-                date.append(":");
-            }
-            dateInStringFormat= date.substring(0, date.length()-1).toString()+"."+dateInStringFormat.split("\\.")[1];
-            String time = dateInStringFormat.split("T")[1];
-            String hour = time.split(":")[0];
-            if(hour.length() == 1){
-                dateInStringFormat = dateInStringFormat.replace("T"+hour,"T0"+hour);
-            }
-            return LocalDateTime.parse(dateInStringFormat);
-        }catch (Exception e){
-            log.error("Exception occurred while parsing : "+ dateInStringFormat +" : ", new PSDataServiceException(e.getMessage()));
+  public LocalDateTime deserialize(JsonParser arg0, DeserializationContext arg1) {
+    String dateInStringFormat = "";
+    try {
+      dateInStringFormat = arg0.getText();
+      StringBuilder date = new StringBuilder();
+      for (String doubledigit : dateInStringFormat.split("\\.")[0].split(":")) {
+        if (doubledigit.length() == 1) {
+          doubledigit = "0" + doubledigit;
         }
-        return null;
+        date.append(doubledigit);
+        date.append(":");
+      }
+      dateInStringFormat =
+          date.substring(0, date.length() - 1).toString()
+              + "."
+              + dateInStringFormat.split("\\.")[1];
+      String time = dateInStringFormat.split("T")[1];
+      String hour = time.split(":")[0];
+      if (hour.length() == 1) {
+        dateInStringFormat = dateInStringFormat.replace("T" + hour, "T0" + hour);
+      }
+      return LocalDateTime.parse(dateInStringFormat);
+    } catch (Exception e) {
+      log.error(
+          "Exception occurred while parsing : " + dateInStringFormat + " : ",
+          new PSDataServiceException(e.getMessage()));
     }
+    return null;
+  }
 }
-

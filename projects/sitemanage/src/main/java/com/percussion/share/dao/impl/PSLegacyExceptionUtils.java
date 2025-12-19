@@ -19,20 +19,17 @@ package com.percussion.share.dao.impl;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 
-public class PSLegacyExceptionUtils
-{
-    
-    public static Exception convertException(Exception e) {
-        if (e instanceof PSErrorResultsException) {
-            return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
-        }
-        
-        if (e instanceof PSErrorsException) {
-            return new PSErrorsExceptionDecorator((PSErrorsException)e);
-        }
-        
-        return e; 
+public class PSLegacyExceptionUtils {
+
+  public static Exception convertException(Exception e) {
+    if (e instanceof PSErrorResultsException) {
+      return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
     }
 
-}
+    if (e instanceof PSErrorsException) {
+      return new PSErrorsExceptionDecorator((PSErrorsException) e);
+    }
 
+    return e;
+  }
+}

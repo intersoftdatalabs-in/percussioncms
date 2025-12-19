@@ -18,18 +18,16 @@
 package com.percussion.recent.service;
 
 import com.percussion.recent.data.PSRecent.RecentType;
-
 import java.util.List;
 
-public interface IPSRecentServiceBase
-{
-    List<String> findRecent(String user, String siteName, RecentType type);
+public interface IPSRecentServiceBase {
+  List<String> findRecent(String user, String siteName, RecentType type);
 
-    void addRecent(String user, String siteName, RecentType type, String value);
+  void addRecent(String user, String siteName, RecentType type, String value);
 
-    void deleteRecent(String user, String siteName, RecentType type);
+  void deleteRecent(String user, String siteName, RecentType type);
 
-    void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
+  void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
 
-    void renameSiteRecent(String oldSiteName, String newSiteName);
+  void renameSiteRecent(String oldSiteName, String newSiteName);
 }

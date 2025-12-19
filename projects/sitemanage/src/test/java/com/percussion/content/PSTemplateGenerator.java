@@ -23,83 +23,75 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.web.service.PSTemplateServiceClient;
 import com.percussion.sitemanage.service.PSSiteTemplates;
 import com.percussion.sitemanage.service.PSSiteTemplates.CreateTemplate;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient>
-{
-    private PSSiteTemplateRestClient siteTemplateClient;
+public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient> {
+  private PSSiteTemplateRestClient siteTemplateClient;
 
-    private PSWidgetGenerator widgetGen;
+  private PSWidgetGenerator widgetGen;
 
-    public PSTemplateGenerator(String baseUrl, String uid, String pw)
-    {
-        super(PSTemplateServiceClient.class, baseUrl, uid, pw);
-        siteTemplateClient = new PSSiteTemplateRestClient(baseUrl);
-        widgetGen = new PSWidgetGenerator(baseUrl, uid, pw);
-        siteTemplateClient.login(uid, pw);
+  public PSTemplateGenerator(String baseUrl, String uid, String pw) {
+    super(PSTemplateServiceClient.class, baseUrl, uid, pw);
+    siteTemplateClient = new PSSiteTemplateRestClient(baseUrl);
+    widgetGen = new PSWidgetGenerator(baseUrl, uid, pw);
+    siteTemplateClient.login(uid, pw);
+  }
+
+  public PSTemplateSummary findTemplateByName(String name) {
+    List<PSTemplateSummary> templateSums = getRestClient().findAll();
+    PSTemplateSummary templateSum = null;
+    for (PSTemplateSummary sum : templateSums) {
+      if (sum.getName().equalsIgnoreCase(name)) {
+        templateSum = sum;
+        break;
+      }
     }
+    return templateSum;
+  }
 
-    public PSTemplateSummary findTemplateByName(String name)
-    {
-        List<PSTemplateSummary> templateSums = getRestClient().findAll();
-        PSTemplateSummary templateSum = null;
-        for (PSTemplateSummary sum : templateSums)
-        {
-            if (sum.getName().equalsIgnoreCase(name))
-            {
-                templateSum = sum;
-                break;
-            }
-        }
-        return templateSum;
-    }
+  public PSTemplate createTemplate(TemplateDef def) {
+    log.info("Creating template " + def.getName() + " in site " + def.getSiteName());
+    String themeName = "percussion";
 
-    public PSTemplate createTemplate(TemplateDef def)
-    {
-        log.info("Creating template " + def.getName() + " in site " + def.getSiteName());
-        String themeName = "percussion";
+    // a blank template needs to be created first, then it is updated with
+    // all its data
+    PSSiteTemplates tpls = new PSSiteTemplates();
+    List<CreateTemplate> ctpls = new ArrayList<CreateTemplate>();
+    tpls.setCreateTemplates(ctpls);
+    CreateTemplate ct = new CreateTemplate();
+    ctpls.add(ct);
+    ct.setName(def.getName());
+    ct.setSiteIds(Collections.singletonList(def.getSiteName()));
+    PSTemplateSummary tsum = findTemplateByName(def.getBaseTemplateName());
+    ct.setSourceTemplateId(tsum.getId());
+    List<PSTemplateSummary> sums = siteTemplateClient.save(tpls);
 
-        // a blank template needs to be created first, then it is updated with
-        // all its data
-        PSSiteTemplates tpls = new PSSiteTemplates();
-        List<CreateTemplate> ctpls = new ArrayList<CreateTemplate>();
-        tpls.setCreateTemplates(ctpls);
-        CreateTemplate ct = new CreateTemplate();
-        ctpls.add(ct);
-        ct.setName(def.getName());
-        ct.setSiteIds(Collections.singletonList(def.getSiteName()));
-        PSTemplateSummary tsum = findTemplateByName(def.getBaseTemplateName());
-        ct.setSourceTemplateId(tsum.getId());
-        List<PSTemplateSummary> sums = siteTemplateClient.save(tpls);
+    PSTemplate template = new PSTemplate();
+    template.setAdditionalHeadContent(def.getAdditionalHeadContent());
+    template.setAfterBodyStartContent(def.getAfterBodyStart());
+    template.setBeforeBodyCloseContent(def.getBeforeBodyClose());
+    template.setName(def.getName());
+    template.setId(sums.get(0).getId()); // must use id, same name results
+    // in new template being created
+    template.setSourceTemplateName(tsum.getName());
+    template.setLabel(tsum.getLabel());
+    template.setTheme(themeName);
+    template.setReadOnly(false);
 
-        PSTemplate template = new PSTemplate();
-        template.setAdditionalHeadContent(def.getAdditionalHeadContent());
-        template.setAfterBodyStartContent(def.getAfterBodyStart());
-        template.setBeforeBodyCloseContent(def.getBeforeBodyClose());
-        template.setName(def.getName());
-        template.setId(sums.get(0).getId()); // must use id, same name results
-                                             // in new template being created
-        template.setSourceTemplateName(tsum.getName());
-        template.setLabel(tsum.getLabel());
-        template.setTheme(themeName);
-        template.setReadOnly(false);
+    List<Widget> widgets = def.getWidget();
+    Map<String, List<String>> regionToWidgets = widgetGen.parseRegionWidget(widgets);
 
-        List<Widget> widgets = def.getWidget();
-        Map<String, List<String>> regionToWidgets = widgetGen.parseRegionWidget(widgets);
+    PSTemplate resultWithRegion = getRestClient().save(template);
+    widgetGen.createAndAssignWidgets(regionToWidgets, resultWithRegion, null);
 
-        PSTemplate resultWithRegion = getRestClient().save(template);
-        widgetGen.createAndAssignWidgets(regionToWidgets, resultWithRegion, null);
+    PSTemplate result = getRestClient().save(resultWithRegion);
 
-        PSTemplate result = getRestClient().save(resultWithRegion);
+    widgetGen.linkContent(widgets, result, null);
 
-        widgetGen.linkContent(widgets, result, null);
-
-        log.info("Created template " + result.getId());
-        return result;
-    }
+    log.info("Created template " + result.getId());
+    return result;
+  }
 }
-

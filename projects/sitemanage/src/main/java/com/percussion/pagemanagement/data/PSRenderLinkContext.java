@@ -16,147 +16,125 @@
  */
 package com.percussion.pagemanagement.data;
 
+import com.percussion.sitemanage.data.PSSiteSummary;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import com.percussion.sitemanage.data.PSSiteSummary;
-
 /**
- * 
- * Holds all the information needed to create a link
- * other than the resource or page.
- * <p>
- * Although the page and or resource may have most of this
- * information there are some times that it may not.
- * The item will always take priority over the context when
- * generating links but if there is missing information in the item
- * the context can be used.
- * <p>
- * The context can potentially help generate relative links for assets
- * that are on a page that are in the same folder as the page.
- * <p>
- * Example: asset resources do not know what site they are in
- * thus the site information is from this object is used.
- * 
- * @author adamgent
+ * Holds all the information needed to create a link other than the resource or page.
  *
+ * <p>Although the page and or resource may have most of this information there are some times that
+ * it may not. The item will always take priority over the context when generating links but if
+ * there is missing information in the item the context can be used.
+ *
+ * <p>The context can potentially help generate relative links for assets that are on a page that
+ * are in the same folder as the page.
+ *
+ * <p>Example: asset resources do not know what site they are in thus the site information is from
+ * this object is used.
+ *
+ * @author adamgent
  */
-public abstract class PSRenderLinkContext
-{
-    
-    /**
-     * @see #getFolderPath()
-     */
-    private String folderPath;
-    
-    /**
-     * See {@link #isDeliveryContext}
-     */
-    private boolean isDeliveryContext = false;
+public abstract class PSRenderLinkContext {
 
-    /**
-     * The mode for generating links.
-     * <p>
-     * In the future there might be different types of preview
-     * or publish modes. Such as preview with finder decoration.
-     * 
-     * @author adamgent
-     *
-     */
-    public static enum Mode {
-        PUBLISH,PREVIEW;
-    }
-    
+  /** @see #getFolderPath() */
+  private String folderPath;
 
-    /**
-     * Represents the owner of the link context or the surrounding object type
-     * of the link. Basically where or how this link context was generated.
-     * <p>
-     * If its  standalone asset with an inline link the 
-     * owner of that context will be {@link #ASSET}.
-     * <p>
-     * If its a rendering of a page that has widget links
-     * the owner will be {@link #PAGE}.
-     * Ditto for {@link #TEMPLATE}.
-     * @author adamgent
-     *
-     */
-    public static enum OwnerType {
-        PAGE,TEMPLATE,ASSET;
-    }
-    
-    
-    
-    /**
-     * There are atleast two modes of generating links.
-     * {@link Mode#PREVIEW} mode and {@link Mode#PUBLISH} mode.
-     * @return the mode for generating links, never <code>null</code>.
-     */
-    @NotNull
-    public abstract Mode getMode();
-    
-    /**
-     * A site
-     * @return the site never <code>null</code> but maybe a the empty site for preview.
-     */
-    public abstract PSSiteSummary getSite();
-    
-    
-    /**
-     * The current cm system folder path.
-     * <p>
-     * <strong>This is not the published url or file path!</strong> 
-     * @return never <code>null</code>.
-     */
-    @NotBlank
-    @NotNull
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  /** See {@link #isDeliveryContext} */
+  private boolean isDeliveryContext = false;
 
-    /**
-     * Determines if the context is delivery context or assembly context.
-     * The delivery context is used to generate publishing locations.
-     * The assembly context is used to generate links within HTML pages.
-     */
-    public boolean isDeliveryContext()
-    {
-        return isDeliveryContext;
-    }
-    
-    public void setDeliveryContext(boolean context)
-    {
-        isDeliveryContext = context;
-    }
-    
-    @Override
-    public Object clone()
-    {
-        try
-        {
-            return super.clone();
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Cannot clone link legacyLinkContext", e);
-        }
-    }
+  /**
+   * The mode for generating links.
+   *
+   * <p>In the future there might be different types of preview or publish modes. Such as preview
+   * with finder decoration.
+   *
+   * @author adamgent
+   */
+  public static enum Mode {
+    PUBLISH,
+    PREVIEW;
+  }
 
+  /**
+   * Represents the owner of the link context or the surrounding object type of the link. Basically
+   * where or how this link context was generated.
+   *
+   * <p>If its standalone asset with an inline link the owner of that context will be {@link
+   * #ASSET}.
+   *
+   * <p>If its a rendering of a page that has widget links the owner will be {@link #PAGE}. Ditto
+   * for {@link #TEMPLATE}.
+   *
+   * @author adamgent
+   */
+  public static enum OwnerType {
+    PAGE,
+    TEMPLATE,
+    ASSET;
+  }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRenderLinkContext{");
-        sb.append("folderPath='").append(folderPath).append('\'');
-        sb.append(", isDeliveryContext=").append(isDeliveryContext);
-        sb.append('}');
-        return sb.toString();
+  /**
+   * There are atleast two modes of generating links. {@link Mode#PREVIEW} mode and {@link
+   * Mode#PUBLISH} mode.
+   *
+   * @return the mode for generating links, never <code>null</code>.
+   */
+  @NotNull
+  public abstract Mode getMode();
+
+  /**
+   * A site
+   *
+   * @return the site never <code>null</code> but maybe a the empty site for preview.
+   */
+  public abstract PSSiteSummary getSite();
+
+  /**
+   * The current cm system folder path.
+   *
+   * <p><strong>This is not the published url or file path!</strong>
+   *
+   * @return never <code>null</code>.
+   */
+  @NotBlank
+  @NotNull
+  public String getFolderPath() {
+    return folderPath;
+  }
+
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
+
+  /**
+   * Determines if the context is delivery context or assembly context. The delivery context is used
+   * to generate publishing locations. The assembly context is used to generate links within HTML
+   * pages.
+   */
+  public boolean isDeliveryContext() {
+    return isDeliveryContext;
+  }
+
+  public void setDeliveryContext(boolean context) {
+    isDeliveryContext = context;
+  }
+
+  @Override
+  public Object clone() {
+    try {
+      return super.clone();
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot clone link legacyLinkContext", e);
     }
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSRenderLinkContext{");
+    sb.append("folderPath='").append(folderPath).append('\'');
+    sb.append(", isDeliveryContext=").append(isDeliveryContext);
+    sb.append('}');
+    return sb.toString();
+  }
 }

@@ -16,39 +16,36 @@
  */
 package com.percussion.servlets.taglib;
 
+import java.io.IOException;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import java.io.IOException;
 
 /**
  * Create a cascade menu, either from the menubar or nested.
- * @author dougrand
  *
+ * @author dougrand
  */
-public class PSUICascadeMenu extends UIOutput
-{
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeBegin(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.startElement("li", this);
-      writer.writeText((String) getAttributes().get("label"), "label");
-      writer.startElement("ul", this);
-      writer.writeAttribute("class", "leftbutton", null);
-   }
+public class PSUICascadeMenu extends UIOutput {
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeBegin(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeBegin(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.startElement("li", this);
+    writer.writeText((String) getAttributes().get("label"), "label");
+    writer.startElement("ul", this);
+    writer.writeAttribute("class", "leftbutton", null);
+  }
 
-   /* (non-Javadoc)
-    * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
-    */
-   @Override
-   public void encodeEnd(FacesContext context) throws IOException
-   {
-      ResponseWriter writer = context.getResponseWriter();
-      writer.endElement("ul");
-      writer.endElement("li");
-   }
+  /* (non-Javadoc)
+   * @see javax.faces.component.UIComponentBase#encodeEnd(javax.faces.context.FacesContext)
+   */
+  @Override
+  public void encodeEnd(FacesContext context) throws IOException {
+    ResponseWriter writer = context.getResponseWriter();
+    writer.endElement("ul");
+    writer.endElement("li");
+  }
 }

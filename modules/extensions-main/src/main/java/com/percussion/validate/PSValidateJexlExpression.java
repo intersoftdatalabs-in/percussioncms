@@ -24,11 +24,11 @@ import com.percussion.extension.PSExtensionParams;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.utils.jexl.IPSScript;
 import com.percussion.utils.jexl.PSJexlEvaluator;
-
 import java.io.File;
 
 /**
  * Evaluate a JEXL expression for validity. The arguments are:
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -46,51 +46,47 @@ import java.io.File;
  * <td>The test expression, may use $value to represent the passed value</td>
  * </tr>
  * </table>
- * 
+ *
  * @author dougrand
  */
-public class PSValidateJexlExpression implements IPSFieldValidator
-{
+public class PSValidateJexlExpression implements IPSFieldValidator {
 
-   /** (non-Javadoc)
-    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
-    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
-   {
-      PSExtensionParams ep = new PSExtensionParams(params);
-      Object value = ep.getUncheckedParam(0);
-      String expression = ep.getStringParam(1, null, true);
+  /**
+   * (non-Javadoc)
+   *
+   * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext)
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    PSExtensionParams ep = new PSExtensionParams(params);
+    Object value = ep.getUncheckedParam(0);
+    String expression = ep.getStringParam(1, null, true);
 
-      PSJexlEvaluator eval = new PSJexlEvaluator();
-      eval.bind("$value", value);
-      try
-      {
-         IPSScript e = PSJexlEvaluator.createScript(expression);
-         Object result = eval.evaluate(e);
+    PSJexlEvaluator eval = new PSJexlEvaluator();
+    eval.bind("$value", value);
+    try {
+      IPSScript e = PSJexlEvaluator.createScript(expression);
+      Object result = eval.evaluate(e);
 
-         if (result == null || !(result instanceof Boolean))
-         {
-            throw new IllegalArgumentException(
-                  "Expression did not evaluate to a boolean " + expression);
-         }
-
-         return (Boolean) result;
+      if (result == null || !(result instanceof Boolean)) {
+        throw new IllegalArgumentException(
+            "Expression did not evaluate to a boolean " + expression);
       }
-      catch (Exception e1)
-      {
-         throw new IllegalArgumentException("Problem evaluating expression: "
-               + expression, e1);
-      }
-   }
 
-   /** (non-Javadoc)
-    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-    */
-   public void init(IPSExtensionDef def, File codeRoot)
-         throws PSExtensionException
-   {
-      //
-   }
+      return (Boolean) result;
+    } catch (Exception e1) {
+      throw new IllegalArgumentException("Problem evaluating expression: " + expression, e1);
+    }
+  }
 
+  /**
+   * (non-Javadoc)
+   *
+   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
+   *     java.io.File)
+   */
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    //
+  }
 }

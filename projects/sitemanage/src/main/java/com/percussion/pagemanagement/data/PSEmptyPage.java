@@ -16,30 +16,27 @@
  */
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents an empty page used
- * for template layout mode.
- * <p>
- * See Null Object pattern.
- * @author adamgent
+ * Represents an empty page used for template layout mode.
  *
+ * <p>See Null Object pattern.
+ *
+ * @author adamgent
  */
 @XmlRootElement
-public final class PSEmptyPage extends PSPage
-{
+public final class PSEmptyPage extends PSPage {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.pagemanagement.data.PSPage#getWidgets()
-     */
-    public List<PSWidgetItem> getWidgets()
-    {
-        return new ArrayList<>();
-    }
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.pagemanagement.data.PSPage#getWidgets()
+   */
+  public List<PSWidgetItem> getWidgets() {
+    return new ArrayList<>();
+  }
 }

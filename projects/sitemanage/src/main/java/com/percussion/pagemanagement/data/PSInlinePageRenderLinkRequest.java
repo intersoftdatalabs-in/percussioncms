@@ -16,10 +16,7 @@
  */
 package com.percussion.pagemanagement.data;
 
-public class PSInlinePageRenderLinkRequest extends PSInlineLinkRequest
-{
+public class PSInlinePageRenderLinkRequest extends PSInlineLinkRequest {
 
-    private static final long serialVersionUID = 1L;
-
+  private static final long serialVersionUID = 1L;
 }
-

@@ -17,7 +17,10 @@
 
 package com.percussion.deployer.objectstore;
 
+import static org.junit.Assert.assertTrue;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,66 +29,55 @@ import org.junit.rules.TemporaryFolder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.IOException;
+/** Unit test class for the <code>PSLogSummary</code> class. */
+public class PSLogSummaryTest {
 
-import static org.junit.Assert.assertTrue;
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private String rxdeploydir;
 
-/**
- * Unit test class for the <code>PSLogSummary</code> class.
- */
-public class PSLogSummaryTest{
+  @Before
+  public void setup() throws IOException {
 
-   @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-   private String rxdeploydir;
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
 
-   @Before
-   public void setup() throws IOException {
+  @After
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-   }
+  /** Construct this unit test */
+  public PSLogSummaryTest() {
+    super();
+  }
 
-   @After
-   public void teardown(){
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+  /**
+   * Test all features of PSLogSummary class
+   *
+   * @throws Exception If there are any errors.
+   */
+  @Test
+  public void testAll() throws Exception {
+    PSDeployableElement dep1 =
+        new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            "1",
+            "TestElem",
+            "Test Element",
+            "myTestElement",
+            true,
+            false,
+            false);
+    PSArchiveSummary archSummary1 = PSArchiveSummaryTest.getArchiveSummaryNoManifest();
+    PSLogSummary src = new PSLogSummary(dep1, archSummary1);
 
+    // object -> XML -> object
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element srcEl = src.toXml(doc);
+    PSLogSummary tgt = new PSLogSummary(srcEl);
 
-   /**
-    * Construct this unit test
-    *
-    */
-    public PSLogSummaryTest()
-   {
-      super();
-   }
-
-   /**
-    * Test all features of PSLogSummary class
-    *
-    * @throws Exception If there are any errors.
-    */
-   @Test
-   public void testAll() throws Exception
-   {
-      PSDeployableElement dep1 = new PSDeployableElement(
-         PSDependency.TYPE_SHARED, "1", "TestElem", "Test Element",
-         "myTestElement", true, false, false);
-      PSArchiveSummary archSummary1 =
-         PSArchiveSummaryTest.getArchiveSummaryNoManifest();
-      PSLogSummary src = new PSLogSummary(dep1, archSummary1);
-
-      // object -> XML -> object
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element srcEl = src.toXml(doc);
-      PSLogSummary tgt = new PSLogSummary(srcEl);
-
-      // source should be the same as the target object.
-      assertTrue( src.equals(tgt) );
-   }
-
-
-
+    // source should be the same as the target object.
+    assertTrue(src.equals(tgt));
+  }
 }

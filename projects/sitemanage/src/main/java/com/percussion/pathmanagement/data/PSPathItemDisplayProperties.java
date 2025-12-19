@@ -25,21 +25,17 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PSPathItemDisplayProperties", propOrder = {
-    "displayProperty"
-})
-public class PSPathItemDisplayProperties
-{
-    @XmlElement(name = "column", required = true)
-    protected List<PSPathItemDisplayProperty> displayProperty;
+@XmlType(
+    name = "PSPathItemDisplayProperties",
+    propOrder = {"displayProperty"})
+public class PSPathItemDisplayProperties {
+  @XmlElement(name = "column", required = true)
+  protected List<PSPathItemDisplayProperty> displayProperty;
 
-    public List<PSPathItemDisplayProperty> getDisplayProperty()
-    {
-        if (displayProperty == null)
-        {
-            displayProperty = new ArrayList<>();
-        }
-        return this.displayProperty;
+  public List<PSPathItemDisplayProperty> getDisplayProperty() {
+    if (displayProperty == null) {
+      displayProperty = new ArrayList<>();
     }
-
+    return this.displayProperty;
+  }
 }

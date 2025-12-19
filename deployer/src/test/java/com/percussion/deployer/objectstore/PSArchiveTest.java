@@ -14,9 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.deployer.objectstore;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -24,162 +33,121 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+/** Unit test for the <code>PSArchive</code> object. */
+public class PSArchiveTest {
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private String rxdeploydir;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+  @Before
+  public void setup() throws IOException {
 
-/**
- * Unit test for the <code>PSArchive</code> object.
- */
-public class PSArchiveTest
-{
-   @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-   private String rxdeploydir;
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
 
-   @Before
-   public void setup() throws IOException {
+  @After
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-   }
+  /** Construct this unit test */
+  public PSArchiveTest() {
+    super();
+  }
 
-   @After
-   public void teardown(){
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+  /**
+   * Test all archive functionality
+   *
+   * @throws Exception if there are any errors.
+   */
+  // TODO: Fix Me!
+  @Test
+  @Ignore
+  public void testArchive() throws Exception {
+    File archiveFile = File.createTempFile("ArchiveTest", ".pda");
+    archiveFile.deleteOnExit();
 
-   /**
-    * Construct this unit test
-    *
-    */
-   public PSArchiveTest()
-   {
-      super();
-   }
-   
-   /**
-    * Test all archive functionality
-    * 
-    * @throws Exception if there are any errors.
-    */
-   //TODO: Fix Me!
-   @Test
-   @Ignore
-   public void testArchive() throws Exception
-   {
-      File archiveFile = File.createTempFile("ArchiveTest", ".pda");
-      archiveFile.deleteOnExit();
+    // create a new archive
+    PSArchiveInfo info1 = PSArchiveInfoTest.getArchiveInfo(true);
+    String archiveRef = "ref1";
+    info1.setArchiveRef(archiveRef);
+    PSArchive archive = new PSArchive(archiveFile, info1);
 
-      // create a new archive
-      PSArchiveInfo info1 = PSArchiveInfoTest.getArchiveInfo(true);
-      String archiveRef = "ref1";
-      info1.setArchiveRef(archiveRef);
-      PSArchive archive = new PSArchive(archiveFile, info1);
-      
-      PSArchiveInfo info2 = archive.getArchiveInfo(true);
-      assertEquals(info1, info2);
-      PSArchiveManifest man = new PSArchiveManifest();
-      assertNull(archive.getArchiveManifest());
+    PSArchiveInfo info2 = archive.getArchiveInfo(true);
+    assertEquals(info1, info2);
+    PSArchiveManifest man = new PSArchiveManifest();
+    assertNull(archive.getArchiveManifest());
+    archive.storeArchiveManifest(man);
+    assertNotNull(archive.getArchiveManifest());
+
+    // be sure we can't read a file while opened for writing.
+    boolean caught;
+    caught = false;
+    try {
+      archive.getFile("testFile.xml");
+    } catch (IllegalStateException e) {
+      caught = true;
+    }
+    assertTrue(caught);
+
+    archive.close();
+
+    // be sure we can't write after closing.
+    caught = false;
+    try {
       archive.storeArchiveManifest(man);
-      assertNotNull(archive.getArchiveManifest());
+    } catch (IllegalStateException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      // be sure we can't read a file while opened for writing.      
-      boolean caught;
-      caught = false;
-      try 
-      {
-         archive.getFile("testFile.xml");
-      }
-      catch (IllegalStateException e) 
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-      
-      archive.close();
-      
-      // be sure we can't write after closing.      
-      caught = false;
-      try 
-      {
-         archive.storeArchiveManifest(man);
-      }
-      catch (IllegalStateException e) 
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-      
-      // should always be able to get the info object.
-      caught = false;
-      try 
-      {
-         archive.getArchiveInfo(false);
-      }
-      catch (IllegalStateException e) 
-      {
-         caught = true;
-      }
-      assertTrue(!caught);
-      
-      // now open for reading
-      archive = new PSArchive(archiveFile);
-      info2 = archive.getArchiveInfo(true);
-      
-      // archive open will clear the dbmsinfo since there were no external dbms 
-      // listed in the manifest
-      PSArchiveDetail detail1 = info1.getArchiveDetail();
-      Iterator pkgs = detail1.getPackages();
-      while (pkgs.hasNext())
-      {
-         detail1.setDbmsInfoList((PSDeployableElement) pkgs.next(), 
-            new ArrayList());
-      }
-      
-      // archive ref will now be filename
-      assertTrue(!info1.equals(info2));
-      String newArchiveRef = archiveFile.getName();
-      newArchiveRef = newArchiveRef.substring(0, 
-         newArchiveRef.lastIndexOf("."));
-      
-      info1.setArchiveRef(newArchiveRef);
-      assertEquals(info1, info2);  
-      assertNotNull(archive.getArchiveManifest());
-      
-      // be sure we can't write a file while opened for writing.      
-      caught = false;
-      try 
-      {
-         archive.storeArchiveManifest(man);
-      }
-      catch (IllegalStateException e) 
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-      archive.close();
-      
-      // be sure we can't read after closing.      
-      caught = false;
-      try 
-      {
-         archive.getFile("testFile.xml");
-      }
-      catch (IllegalStateException e) 
-      {
-         caught = true;
-      }
-      assertTrue(caught);
-      
-   }
+    // should always be able to get the info object.
+    caught = false;
+    try {
+      archive.getArchiveInfo(false);
+    } catch (IllegalStateException e) {
+      caught = true;
+    }
+    assertTrue(!caught);
 
-   
+    // now open for reading
+    archive = new PSArchive(archiveFile);
+    info2 = archive.getArchiveInfo(true);
+
+    // archive open will clear the dbmsinfo since there were no external dbms
+    // listed in the manifest
+    PSArchiveDetail detail1 = info1.getArchiveDetail();
+    Iterator pkgs = detail1.getPackages();
+    while (pkgs.hasNext()) {
+      detail1.setDbmsInfoList((PSDeployableElement) pkgs.next(), new ArrayList());
+    }
+
+    // archive ref will now be filename
+    assertTrue(!info1.equals(info2));
+    String newArchiveRef = archiveFile.getName();
+    newArchiveRef = newArchiveRef.substring(0, newArchiveRef.lastIndexOf("."));
+
+    info1.setArchiveRef(newArchiveRef);
+    assertEquals(info1, info2);
+    assertNotNull(archive.getArchiveManifest());
+
+    // be sure we can't write a file while opened for writing.
+    caught = false;
+    try {
+      archive.storeArchiveManifest(man);
+    } catch (IllegalStateException e) {
+      caught = true;
+    }
+    assertTrue(caught);
+    archive.close();
+
+    // be sure we can't read after closing.
+    caught = false;
+    try {
+      archive.getFile("testFile.xml");
+    } catch (IllegalStateException e) {
+      caught = true;
+    }
+    assertTrue(caught);
+  }
 }

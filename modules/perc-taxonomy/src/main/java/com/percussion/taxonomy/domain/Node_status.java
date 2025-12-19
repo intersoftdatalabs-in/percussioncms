@@ -17,58 +17,55 @@
 
 package com.percussion.taxonomy.domain;
 
-/**
- * Taxonomy Node_status class which represents its taxon's status such as active or disabled. 
- *  
- */
+/** Taxonomy Node_status class which represents its taxon's status such as active or disabled. */
 public class Node_status {
 
-    /**
-     * Constant to set active status of the node
-     */
-    public static int ACTIVE=1;
-    /**
-     * Constant to set disabled status of the node
-     */
-    public static int DISABLED=2;
-    
-    private int id;
-    private String name;
+  /** Constant to set active status of the node */
+  public static int ACTIVE = 1;
+  /** Constant to set disabled status of the node */
+  public static int DISABLED = 2;
 
-    /**
-     * Returns unique id of the node_status
-     * @return id - unique int value as node id
-     */
-    public int getId() {
-        return id;
-    }
+  private int id;
+  private String name;
 
-    /**
-     * Set unique node_status id 
-     * @param id - unique int node_status id
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
+  /**
+   * Returns unique id of the node_status
+   *
+   * @return id - unique int value as node id
+   */
+  public int getId() {
+    return id;
+  }
 
-    /**
-     * Return name of node_status 
-     * @return name - String name of node_status
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Set unique node_status id
+   *
+   * @param id - unique int node_status id
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    /**
-     * Set name of node_status
-     * @param name - String name of node_status
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    @Override
-    public String toString() {
-       return this.getName() + " is " + (this.getId() == DISABLED ? "DISABLED" : "ACTIVE");
-    }
+  /**
+   * Return name of node_status
+   *
+   * @return name - String name of node_status
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Set name of node_status
+   *
+   * @param name - String name of node_status
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String toString() {
+    return this.getName() + " is " + (this.getId() == DISABLED ? "DISABLED" : "ACTIVE");
+  }
 }

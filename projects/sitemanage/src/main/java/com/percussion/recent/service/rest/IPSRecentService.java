@@ -22,31 +22,42 @@ import com.percussion.pagemanagement.data.PSWidgetContentType;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.service.exception.PSDataServiceException;
-
 import java.util.List;
 
-public interface IPSRecentService
-{
-    List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems);
-    List<PSTemplateSummary> findRecentTemplate(String siteName);
-    List<PSPathItem> findRecentSiteFolder(String siteName);
-    List<PSPathItem> findRecentAssetFolder();
-    List<PSWidgetContentType> findRecentAssetType() throws PSDataServiceException;
+public interface IPSRecentService {
+  List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems);
 
-    void addRecentItem(String value);
-    void addRecentTemplate(String siteName, String value);
-    void addRecentSiteFolder(String value);
-    void addRecentAssetFolder(String value);
-    void addRecentAssetType(String value);
-    
-    void addRecentItemByUser(String userName, String value);
-    void addRecentTemplateByUser(String userName, String siteName, String value);
-    void addRecentSiteFolderByUser(String userName, String value);
-    void addRecentAssetFolderByUser(String userName, String value);
-    void addRecentAssetTypeByUser(String userName, String value);
- 
-    void deleteUserRecent(String user);
-    void deleteSiteRecent(String siteName);
+  List<PSTemplateSummary> findRecentTemplate(String siteName);
 
-    void updateSiteNameRecent(String oldSiteName, String newSiteName);
+  List<PSPathItem> findRecentSiteFolder(String siteName);
+
+  List<PSPathItem> findRecentAssetFolder();
+
+  List<PSWidgetContentType> findRecentAssetType() throws PSDataServiceException;
+
+  void addRecentItem(String value);
+
+  void addRecentTemplate(String siteName, String value);
+
+  void addRecentSiteFolder(String value);
+
+  void addRecentAssetFolder(String value);
+
+  void addRecentAssetType(String value);
+
+  void addRecentItemByUser(String userName, String value);
+
+  void addRecentTemplateByUser(String userName, String siteName, String value);
+
+  void addRecentSiteFolderByUser(String userName, String value);
+
+  void addRecentAssetFolderByUser(String userName, String value);
+
+  void addRecentAssetTypeByUser(String userName, String value);
+
+  void deleteUserRecent(String user);
+
+  void deleteSiteRecent(String siteName);
+
+  void updateSiteNameRecent(String oldSiteName, String newSiteName);
 }

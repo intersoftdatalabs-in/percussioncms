@@ -18,11 +18,9 @@
 package com.percussion.data;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
-
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * The PSStatementGroup class defines a grouping of PSStatementBlock objects.
@@ -144,273 +142,222 @@ import java.util.List;
  * @version    1.0
  * @since      1.0
  */
-public class PSStatementGroup implements IPSStatementBlock
-{
-   /**
-    * Construct a statement group for the specified blocks.
-    *
-    * @param   prefix            an optional prefix to prepend before the
-    *                                                                        groups text (if at least one part is
-    *                                                                        non-NULL)
-    *
-    * @param   leftBlock         the block to use on the left side of the
-    *                                                                        group
-    *
-    * @param   blockSeparator      an optional separator to use when both
-    *                                                                        parts are non-NULL
-    *
-    * @param   rightBlock         the block to use on the right side of the
-    *                                                                        group
-    */
-   public PSStatementGroup(
-      String prefix, IPSStatementBlock leftBlock, String blockSeparator,
-      IPSStatementBlock rightBlock)
-   {
-      super();
-      m_prefix = prefix;
-      m_leftBlock = leftBlock;
-      m_blockSeparator = blockSeparator;
-      m_rightBlock = rightBlock;
-   }
+public class PSStatementGroup implements IPSStatementBlock {
+  /**
+   * Construct a statement group for the specified blocks.
+   *
+   * @param prefix an optional prefix to prepend before the groups text (if at least one part is
+   *     non-NULL)
+   * @param leftBlock the block to use on the left side of the group
+   * @param blockSeparator an optional separator to use when both parts are non-NULL
+   * @param rightBlock the block to use on the right side of the group
+   */
+  public PSStatementGroup(
+      String prefix,
+      IPSStatementBlock leftBlock,
+      String blockSeparator,
+      IPSStatementBlock rightBlock) {
+    super();
+    m_prefix = prefix;
+    m_leftBlock = leftBlock;
+    m_blockSeparator = blockSeparator;
+    m_rightBlock = rightBlock;
+  }
 
-   /**
-    * Set the data for the bound column(s) associated with this block.
-    *
-    * @param   data        the execution data associated with this plan
-    *
-    * @param   stmt         the prepared statement
-    *
-    * @param   bindStart   the starting position (1-based) to bind columns
-    *                                                                  to
-    *
-    * @return               the next bind position (1-based)
-    *
-    * @exception   SQLException   if a SQL error occurs
-    */
-   public int setColumnData(
-      PSExecutionData data, PreparedStatement stmt, int bindStart)
-      throws java.sql.SQLException,
-         com.percussion.data.PSDataExtractionException
-   {
-      if (m_leftBlock != null)
-         bindStart = m_leftBlock.setColumnData(data, stmt, bindStart);
+  /**
+   * Set the data for the bound column(s) associated with this block.
+   *
+   * @param data the execution data associated with this plan
+   * @param stmt the prepared statement
+   * @param bindStart the starting position (1-based) to bind columns to
+   * @return the next bind position (1-based)
+   * @exception SQLException if a SQL error occurs
+   */
+  public int setColumnData(PSExecutionData data, PreparedStatement stmt, int bindStart)
+      throws java.sql.SQLException, com.percussion.data.PSDataExtractionException {
+    if (m_leftBlock != null) bindStart = m_leftBlock.setColumnData(data, stmt, bindStart);
 
-      if (m_rightBlock != null)
-         bindStart = m_rightBlock.setColumnData(data, stmt, bindStart);
+    if (m_rightBlock != null) bindStart = m_rightBlock.setColumnData(data, stmt, bindStart);
 
-      return bindStart;
-   }
+    return bindStart;
+  }
 
-   // see IPSStatementBlock.releaseColumnData()
-   public void releaseColumnData()
-   {
-      if (m_leftBlock != null)
-         m_leftBlock.releaseColumnData();
+  // see IPSStatementBlock.releaseColumnData()
+  public void releaseColumnData() {
+    if (m_leftBlock != null) m_leftBlock.releaseColumnData();
 
-      if (m_rightBlock != null)
-         m_rightBlock.releaseColumnData();
-   }
+    if (m_rightBlock != null) m_rightBlock.releaseColumnData();
+  }
 
-   /**
-    * Build the statement text which can be passed to the JDBC Connection
-    * object's prepareStatement method. Placeholders (?) will be used for
-    * each variable defined in the statement;
-    *
-    * @param   buf         the buffer to store the text in
-    *
-    * @param   data         the run-time context info for this request
-    */
-   public void buildStatement(
-      java.lang.StringBuilder buf, PSExecutionData data)
-      throws com.percussion.data.PSDataExtractionException
-   {
-      // get current size in case we need to remove the entire block
-      int initSize = buf.length();
+  /**
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
+   *
+   * @param buf the buffer to store the text in
+   * @param data the run-time context info for this request
+   */
+  public void buildStatement(java.lang.StringBuilder buf, PSExecutionData data)
+      throws com.percussion.data.PSDataExtractionException {
+    // get current size in case we need to remove the entire block
+    int initSize = buf.length();
 
-      // first we'll add the prefix
-      if (m_prefix != null)
-         buf.append(m_prefix);
+    // first we'll add the prefix
+    if (m_prefix != null) buf.append(m_prefix);
 
-      /* now let's see what the size is so we can determine if the block
-       * stored any data or considered itself NULL
-       */
-      int prefixSize = buf.length();
-      int leftSize = prefixSize;
-      int curSize = prefixSize;
+    /* now let's see what the size is so we can determine if the block
+     * stored any data or considered itself NULL
+     */
+    int prefixSize = buf.length();
+    int leftSize = prefixSize;
+    int curSize = prefixSize;
 
-      if (m_leftBlock != null) {
-         m_leftBlock.buildStatement(buf, data);
-         leftSize = buf.length();
-         curSize = leftSize;
-         if (prefixSize != leftSize) {
-            /* we can now tack on the separator (if it exists). If the right
-             * side doesn't exist, we'll truncate to prefixSize, which will
-             * get rid of it, as required
-             */
-            if (m_blockSeparator != null) {
-               buf.append(m_blockSeparator);
-               curSize = buf.length();   // set this to include separator length
-            }
-         }
+    if (m_leftBlock != null) {
+      m_leftBlock.buildStatement(buf, data);
+      leftSize = buf.length();
+      curSize = leftSize;
+      if (prefixSize != leftSize) {
+        /* we can now tack on the separator (if it exists). If the right
+         * side doesn't exist, we'll truncate to prefixSize, which will
+         * get rid of it, as required
+         */
+        if (m_blockSeparator != null) {
+          buf.append(m_blockSeparator);
+          curSize = buf.length(); // set this to include separator length
+        }
       }
+    }
 
-      if (m_rightBlock != null) {
-         m_rightBlock.buildStatement(buf, data);
-      }
+    if (m_rightBlock != null) {
+      m_rightBlock.buildStatement(buf, data);
+    }
 
-      /* we now need to see if we need to truncate the block in any way.
-       *
-       * 1. if the size is the same as the prefix size, we need
-       *    to completely clear it.
-       *
-       * 2. if the size is the same as curSize (leftSize + separator length)
-       *    we need to strip off the block separator
-       *
-       * 3. keep the whole thing
-       */
-      if (prefixSize == buf.length())
-         buf.setLength(initSize);
-      else if (curSize == buf.length())
-         buf.setLength(leftSize);
-   }
+    /* we now need to see if we need to truncate the block in any way.
+     *
+     * 1. if the size is the same as the prefix size, we need
+     *    to completely clear it.
+     *
+     * 2. if the size is the same as curSize (leftSize + separator length)
+     *    we need to strip off the block separator
+     *
+     * 3. keep the whole thing
+     */
+    if (prefixSize == buf.length()) buf.setLength(initSize);
+    else if (curSize == buf.length()) buf.setLength(leftSize);
+  }
 
-   /**
-    * Build the statement text which can be passed to the JDBC Connection
-    * object's prepareStatement method. Placeholders (?) will be used for
-    * each variable defined in the statement;
-    *
-    * @param   data         the run-time context info for this request
-    *
-    * @return               the statement text
-    */
-   public java.lang.String buildStatement(PSExecutionData data)
-      throws com.percussion.data.PSDataExtractionException
-   {
-      StringBuilder buf = new StringBuilder();
-      buildStatement(buf, data);
-      return buf.toString();
-   }
+  /**
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
+   *
+   * @param data the run-time context info for this request
+   * @return the statement text
+   */
+  public java.lang.String buildStatement(PSExecutionData data)
+      throws com.percussion.data.PSDataExtractionException {
+    StringBuilder buf = new StringBuilder();
+    buildStatement(buf, data);
+    return buf.toString();
+  }
 
-   /**
-    * Get the data extractors used to get the replacement values which will
-    * be used to execute the statement.
-    *
-    * @return            the list of replacement values
-    */
-   public java.util.List getReplacementValueExtractors()
-   {
-      java.util.ArrayList retList = new java.util.ArrayList();
+  /**
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
+   *
+   * @return the list of replacement values
+   */
+  public java.util.List getReplacementValueExtractors() {
+    java.util.ArrayList retList = new java.util.ArrayList();
 
-      if (m_leftBlock != null) {
-         java.util.List tempList = m_leftBlock.getReplacementValueExtractors();
-         retList.addAll(tempList);
-      }
+    if (m_leftBlock != null) {
+      java.util.List tempList = m_leftBlock.getReplacementValueExtractors();
+      retList.addAll(tempList);
+    }
 
-      if (m_rightBlock != null) {
-         java.util.List tempList = m_rightBlock.getReplacementValueExtractors();
-         retList.addAll(tempList);
-      }
+    if (m_rightBlock != null) {
+      java.util.List tempList = m_rightBlock.getReplacementValueExtractors();
+      retList.addAll(tempList);
+    }
 
-      return retList;
-   }
+    return retList;
+  }
 
-   /**
-    */
-   public List getLobStatementColumns()
-   {
-      ArrayList retList = new ArrayList();
+  /** */
+  public List getLobStatementColumns() {
+    ArrayList retList = new ArrayList();
 
-      if (m_leftBlock != null) {
-         List tempList = m_leftBlock.getLobStatementColumns();
-         retList.addAll(tempList);
-      }
+    if (m_leftBlock != null) {
+      List tempList = m_leftBlock.getLobStatementColumns();
+      retList.addAll(tempList);
+    }
 
-      if (m_rightBlock != null) {
-         List tempList = m_rightBlock.getLobStatementColumns();
-         retList.addAll(tempList);
-      }
+    if (m_rightBlock != null) {
+      List tempList = m_rightBlock.getLobStatementColumns();
+      retList.addAll(tempList);
+    }
 
-      return retList;
-   }
+    return retList;
+  }
 
-   /**
-    * Is this block static (not dependent upon run-time data)?
-    *
-    * @return         <code>true</code> if it is
-    */
-   public boolean isStaticBlock()
-   {
-      return ((m_leftBlock != null) && m_leftBlock.isStaticBlock()) &&
-         ((m_rightBlock != null) && m_rightBlock.isStaticBlock());
-   }
+  /**
+   * Is this block static (not dependent upon run-time data)?
+   *
+   * @return <code>true</code> if it is
+   */
+  public boolean isStaticBlock() {
+    return ((m_leftBlock != null) && m_leftBlock.isStaticBlock())
+        && ((m_rightBlock != null) && m_rightBlock.isStaticBlock());
+  }
 
-   /**
-    * See {@link IPSStatementBlock#hasStaticSql()} for details.
-    */
-   public boolean hasStaticSql()
-   {
-      return ((m_leftBlock != null) && m_leftBlock.hasStaticSql()) &&
-         ((m_rightBlock != null) && m_rightBlock.hasStaticSql());
-   }
+  /** See {@link IPSStatementBlock#hasStaticSql()} for details. */
+  public boolean hasStaticSql() {
+    return ((m_leftBlock != null) && m_leftBlock.hasStaticSql())
+        && ((m_rightBlock != null) && m_rightBlock.hasStaticSql());
+  }
 
-   /**
-    * See {@link IPSStatementBlock#addReplacementField(
-    * IPSReplacementValue, Object[])} for details.
-    *
-    * @throws UnsupportedOperationException cannot add replacement field to
-    * statement group
-    */
-   public void addReplacementField(IPSReplacementValue value, Object[] params)
-   {
-      throw new UnsupportedOperationException(
-         "Cannot add replacement field to statement group");
-   }
+  /**
+   * See {@link IPSStatementBlock#addReplacementField( IPSReplacementValue, Object[])} for details.
+   *
+   * @throws UnsupportedOperationException cannot add replacement field to statement group
+   */
+  public void addReplacementField(IPSReplacementValue value, Object[] params) {
+    throw new UnsupportedOperationException("Cannot add replacement field to statement group");
+  }
 
-   /**
-    * See {@link IPSStatementBlock#addText(String)} for details.
-    *
-    * @throws UnsupportedOperationException cannot add text to
-    * statement group
-    */
-   public void addText(String text)
-   {
-      throw new UnsupportedOperationException(
-         "Cannot add text to statement group");
-   }
+  /**
+   * See {@link IPSStatementBlock#addText(String)} for details.
+   *
+   * @throws UnsupportedOperationException cannot add text to statement group
+   */
+  public void addText(String text) {
+    throw new UnsupportedOperationException("Cannot add text to statement group");
+  }
 
-   void setLeftBlock(IPSStatementBlock block)
-   {
-      m_leftBlock = block;
-   }
+  void setLeftBlock(IPSStatementBlock block) {
+    m_leftBlock = block;
+  }
 
-   IPSStatementBlock getLeftBlock()
-   {
-      return m_leftBlock;
-   }
+  IPSStatementBlock getLeftBlock() {
+    return m_leftBlock;
+  }
 
-   void setRightBlock(IPSStatementBlock block)
-   {
-      m_rightBlock = block;
-   }
+  void setRightBlock(IPSStatementBlock block) {
+    m_rightBlock = block;
+  }
 
-   IPSStatementBlock getRightBlock()
-   {
-      return m_rightBlock;
-   }
+  IPSStatementBlock getRightBlock() {
+    return m_rightBlock;
+  }
 
-   void setBlockSeparator(String sep)
-   {
-      m_blockSeparator = sep;
-   }
+  void setBlockSeparator(String sep) {
+    m_blockSeparator = sep;
+  }
 
-   String getBlockSeparator()
-   {
-      return m_blockSeparator;
-   }
+  String getBlockSeparator() {
+    return m_blockSeparator;
+  }
 
-   protected String               m_prefix;
-   protected IPSStatementBlock   m_leftBlock;
-   protected String               m_blockSeparator;
-   protected IPSStatementBlock   m_rightBlock;
+  protected String m_prefix;
+  protected IPSStatementBlock m_leftBlock;
+  protected String m_blockSeparator;
+  protected IPSStatementBlock m_rightBlock;
 }
-

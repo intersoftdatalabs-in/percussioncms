@@ -17,27 +17,23 @@
 
 package com.percussion.rest.roles;
 
-import com.percussion.rest.MainTest;
+import static junit.framework.TestCase.assertNotNull;
 
+import com.percussion.rest.MainTest;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static junit.framework.TestCase.assertNotNull;
-
 @Category(IntegrationTest.class)
 public class RolesTest extends MainTest {
 
+  @Test
+  public void testneverNull() {
+    Role r = new Role();
 
-	@Test
-	public void testneverNull(){
-		Role r = new Role();
-	
-		assertNotNull("Should never be null", r.getDescription());
-		assertNotNull("Should never be null", r.getName());
-		assertNotNull("Should never be null", r.getDescription());
-		assertNotNull("Should never be null", r.getUsers());
-		
-	}
-
+    assertNotNull("Should never be null", r.getDescription());
+    assertNotNull("Should never be null", r.getName());
+    assertNotNull("Should never be null", r.getDescription());
+    assertNotNull("Should never be null", r.getUsers());
+  }
 }

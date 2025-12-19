@@ -16,22 +16,21 @@
  */
 package com.percussion.share.data;
 
-public class PSItemSummaryUtils
-{
-    
-    /**
-     * Copy Item summary properties from a to b.
-     * @param from summary
-     * @param to summary
-     */
-    public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
-        to.setName(from.getName());
-        to.setId(from.getId());
-        to.setIcon(from.getIcon());
-        to.setType(from.getType());
-        to.setFolderPaths(from.getFolderPaths());
-        to.setCategory(from.getCategory());
-        to.setRevisionable(from.isRevisionable());
-    }
+public class PSItemSummaryUtils {
 
+  /**
+   * Copy Item summary properties from a to b.
+   *
+   * @param from summary
+   * @param to summary
+   */
+  public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
+    to.setName(from.getName());
+    to.setId(from.getId());
+    to.setIcon(from.getIcon());
+    to.setType(from.getType());
+    to.setFolderPaths(from.getFolderPaths());
+    to.setCategory(from.getCategory());
+    to.setRevisionable(from.isRevisionable());
+  }
 }

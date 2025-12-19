@@ -19,20 +19,17 @@ package com.percussion.delivery.metadata.utils;
 
 /**
  * Pagepath-related utility methods.
- * 
- * @author miltonpividori
  *
+ * @author miltonpividori
  */
-public class PSPagepathUtils
-{
-    /**
-     * Normalizes a file path, replacing '\' character by '/'.
-     * 
-     * @param path A path to normalize. Should never be <code>null</code>.
-     * @return The normalized path. Never <code>null</code>.
-     */
-    public static String processPath(String path)
-    {
-        return path.replace("\\", "/");
-    }
+public class PSPagepathUtils {
+  /**
+   * Normalizes a file path, replacing '\' character by '/'.
+   *
+   * @param path A path to normalize. Should never be <code>null</code>.
+   * @return The normalized path. Never <code>null</code>.
+   */
+  public static String processPath(String path) {
+    return path.replace("\\", "/");
+  }
 }

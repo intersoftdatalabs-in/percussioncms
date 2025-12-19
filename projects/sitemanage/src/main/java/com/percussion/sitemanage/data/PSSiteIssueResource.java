@@ -18,41 +18,32 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "issue")
 @JsonRootName("issue")
-public class PSSiteIssueResource extends PSAbstractDataObject
-{
+public class PSSiteIssueResource extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    private String name;
+  private String name;
 
-    private String uri;
+  private String uri;
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getUri()
-    {
-        return uri;
-    }
+  public String getUri() {
+    return uri;
+  }
 
-    public void setUri(String uri)
-    {
-        this.uri = uri;
-    }
-
+  public void setUri(String uri) {
+    this.uri = uri;
+  }
 }

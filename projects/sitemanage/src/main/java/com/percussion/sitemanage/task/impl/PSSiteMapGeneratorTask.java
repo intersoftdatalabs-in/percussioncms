@@ -56,289 +56,294 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
+import java.io.File;
+import java.util.*;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.Value;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.Value;
-import java.io.File;
-import java.util.*;
-
-/**
- * Post Edition task for generating a sitemap when publishing is concluded.
- */
+/** Post Edition task for generating a sitemap when publishing is concluded. */
 public class PSSiteMapGeneratorTask implements IPSEditionTask {
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
-    public static final String EXTENSION_NAME="Java/global/percussion/task/perc_SitemapGeneratorTask";
+  private static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
+  public static final String EXTENSION_NAME =
+      "Java/global/percussion/task/perc_SitemapGeneratorTask";
 
-    @Autowired
-    IPSPublisherService publisherService;
+  @Autowired IPSPublisherService publisherService;
 
-    @Autowired
-    IPSPubServerService pubServerService;
+  @Autowired IPSPubServerService pubServerService;
 
-    /**
-     * Perform the task, either before or after the edition is run, depending on
-     * the registration.
-     * <h3>Implementation notes</h3>
-     * Note for each parameter whether the parameter is
-     * available given a usage.
-     * <p>
-     * Post edition tasks may also wish to retrieve
-     * status information from the service and change behavior according to
-     * whether a particular item published successfully or not.
-     *
-     * @param edition   the edition description, never <code>null</code>
-     * @param site      the site description, never <code>null</code>
-     * @param startTime the time when the edition started to run, this is the
-     *                  time at which the job was spawned, which is to say the initial
-     *                  time before the first task is called, never <code>null</code>.
-     * @param endTime   the time when the job completed, before the first post
-     *                  task is invoked. This time is only available to post tasks and
-     *                  will be <code>null</code> for pre edition tasks.
-     * @param jobId     the job id.
-     * @param duration  the length of time that the edition ran in seconds, from
-     *                  the first moment <i>after</i> the pre tasks completed to the
-     *                  moment just before the first post edition tasks started.
-     *                  Supplied as <code>0</code> to pre edition tasks.
-     * @param success   if <code>true</code> then the edition was successful,
-     *                  which means that all items published without error. If
-     *                  <code>false</code> then some or all items failed and the
-     *                  status callback or other service calls must be used to
-     *                  determine what failures existed. Undefined for pre edition
-     *                  tasks.
-     * @param params    registered parameters for the task, may be empty or
-     *                  <code>null</code> for tasks that don't require parameters.
-     * @param status    this is <code>null</code> for pre tasks, but post tasks
-     *                  can use this to obtain status information about the job.
-     * @throws Exception if the task fails for any reason an exception should
-     *                   be thrown that details the reason for the failure. The
-     *                   exception will be caught by the job code and recorded as part
-     *                   of the edition task.
-     */
-    @Override
-    public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, long duration, boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception {
+  /**
+   * Perform the task, either before or after the edition is run, depending on the registration.
+   *
+   * <h3>Implementation notes</h3>
+   *
+   * Note for each parameter whether the parameter is available given a usage.
+   *
+   * <p>Post edition tasks may also wish to retrieve status information from the service and change
+   * behavior according to whether a particular item published successfully or not.
+   *
+   * @param edition the edition description, never <code>null</code>
+   * @param site the site description, never <code>null</code>
+   * @param startTime the time when the edition started to run, this is the time at which the job
+   *     was spawned, which is to say the initial time before the first task is called, never <code>
+   *     null</code>.
+   * @param endTime the time when the job completed, before the first post task is invoked. This
+   *     time is only available to post tasks and will be <code>null</code> for pre edition tasks.
+   * @param jobId the job id.
+   * @param duration the length of time that the edition ran in seconds, from the first moment
+   *     <i>after</i> the pre tasks completed to the moment just before the first post edition tasks
+   *     started. Supplied as <code>0</code> to pre edition tasks.
+   * @param success if <code>true</code> then the edition was successful, which means that all items
+   *     published without error. If <code>false</code> then some or all items failed and the status
+   *     callback or other service calls must be used to determine what failures existed. Undefined
+   *     for pre edition tasks.
+   * @param params registered parameters for the task, may be empty or <code>null</code> for tasks
+   *     that don't require parameters.
+   * @param status this is <code>null</code> for pre tasks, but post tasks can use this to obtain
+   *     status information about the job.
+   * @throws Exception if the task fails for any reason an exception should be thrown that details
+   *     the reason for the failure. The exception will be caught by the job code and recorded as
+   *     part of the edition task.
+   */
+  @Override
+  public void perform(
+      IPSEdition edition,
+      IPSSite site,
+      Date startTime,
+      Date endTime,
+      long jobId,
+      long duration,
+      boolean success,
+      Map<String, String> params,
+      IPSEditionTaskStatusCallback status)
+      throws Exception {
 
-        if(site.isGenerateSitemap()) {
+    if (site.isGenerateSitemap()) {
 
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonString = site.getGenerateSiteMapOptions();
-            PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
-            try {
-                psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+      ObjectMapper mapper = new ObjectMapper();
+      String jsonString = site.getGenerateSiteMapOptions();
+      PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+      try {
+        psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
 
+      long count = 0;
+      List<IPSEditionContentList> contentLists =
+          publisherService.loadEditionContentLists(edition.getGUID());
 
-            long count = 0;
-            List<IPSEditionContentList> contentLists = publisherService.loadEditionContentLists(edition.getGUID());
+      // Detect if this is a "normal" edition - publish now, auto publish, and incremental should
+      // always be skipped.
+      if (contentLists != null && !contentLists.isEmpty()) {
+        for (IPSEditionContentList ecl : contentLists) {
+          IPSContentList cl = publisherService.loadContentList(ecl.getContentListId());
+          if (cl.getType() == IPSContentList.Type.INCREMENTAL) {
+            // If this is an incremental edition we want to skip generation
+            log.warn("Skipping sitemap generation for incremental edition. ");
+            return;
+          }
 
-            //Detect if this is a "normal" edition - publish now, auto publish, and incremental should always be skipped.
-            if (contentLists != null && !contentLists.isEmpty()) {
-                for (IPSEditionContentList ecl : contentLists) {
-                    IPSContentList cl = publisherService.loadContentList(ecl.getContentListId());
-                    if (cl.getType() == IPSContentList.Type.INCREMENTAL) {
-                        //If this is an incremental edition we want to skip generation
-                        log.warn("Skipping sitemap generation for incremental edition. ");
-                        return;
-                    }
-
-                    String generator = cl.getGenerator();
-                    if (generator != null && generator.equalsIgnoreCase("Java/global/percussion/system/sys_SelectedItemsGenerator")) {
-                        log.warn("Skipping sitemap generation for Publish Now edition.");
-                        return;
-                    }
-                }
-            }
-
-            File siteMapDir = new File(getSiteMapDirForJob(jobId));
-            siteMapDir.mkdirs();
-            WebSitemapGenerator wsg = WebSitemapGenerator.builder(site.getBaseUrl(),
-                    siteMapDir).build();
-
-            String excludeImage = null;
-            if (psGenerateSiteMapOptions !=null){
-                excludeImage=  psGenerateSiteMapOptions.getGenerateSitemapExcludeImage();
-            }
-
-            IPSContentMgr contentMgr = PSContentMgrLocator.getContentMgr();
-            IPSGuidManager ipsGuidManager = PSGuidManagerLocator.getGuidMgr();
-
-            for (IPSPubItemStatus s : status.getIterableJobStatus()) {
-                //bypassing assets bases on user preference (set in site navigation -> site preference)
-                if(s.getLocation().startsWith("/Assets")){
-                    if (excludeImage!=null && excludeImage.equals("true")  ) {
-                        continue;
-                    }
-                }
-                // If the "Hide page from Web search engine" option (mentioned below) is checked for a page then this page will not be added in sitemap.xml
-                // Option navigation path = page(for e.g career.html)->edit-> edit metadata
-                boolean hideFromSearch = false;
-                try {
-                    PSLocator psLocator = new PSLocator(s.getContentId());
-                    psLocator.setRevision(s.getRevisionId());
-
-                    IPSGuid ipsGuid = ipsGuidManager.makeGuid(psLocator);
-                    List<IPSGuid> idList = new ArrayList<>();
-                    idList.add(ipsGuid);
-
-                    PSContentMgrConfig config = new PSContentMgrConfig();
-                    config.removeOption(PSContentMgrOption.LOAD_MINIMAL);
-                    config.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
-                    List<Node> nodeList = contentMgr.findItemsByGUID(idList, config);
-
-                    if(!nodeList.isEmpty()) {
-                        Node currentItem = nodeList.get(0);
-                        Property currentItemProperty = currentItem.getProperty("rx:page_noindex");
-                        if(currentItemProperty !=null){
-                            Value value = currentItemProperty.getValue();
-                            if(value!=null && value.getString() !=null && value.getString().equals("true")){
-                                //"Hide page from Web search engine" is checked to true so bypassing this asset
-                                continue;
-                            }
-                        }
-                    }
-                }catch(Exception e){
-                    throw new RuntimeException(e);
-                }
-               if (s.getStatus().equals(IPSSiteItem.Status.SUCCESS) &&
-                        s.getOperation().equals(IPSSiteItem.Operation.PUBLISH)) {
-                    addToSiteMap(wsg, site, s);
-                    count++;
-                } else {
-                    if (isPriorVersionLiveV2(s) && s.getOperation().equals(IPSSiteItem.Operation.PUBLISH)) {
-                        //a previous version was live - so even tho this one failed we should include it in the sitemap
-                        addToSiteMap(wsg, site, s);
-                        count++;
-                    }
-                    log.debug("Not including failed item {} in sitemap", s.getLocation());
-                }
-            }
-
-            wsg.write();
-            wsg.writeSitemapsWithIndex();
-            log.info("Wrote {} entries to generated sitemap.", count);
+          String generator = cl.getGenerator();
+          if (generator != null
+              && generator.equalsIgnoreCase(
+                  "Java/global/percussion/system/sys_SelectedItemsGenerator")) {
+            log.warn("Skipping sitemap generation for Publish Now edition.");
+            return;
+          }
         }
-    }
+      }
 
-    public static String getSiteMapDirForJob(long jobId){
-        return PSServer.getRxDir() + File.separator + PSLocalDeliveryManager.DEFAULT_TMP_DIR + File.separator + jobId +
-                File.separator + "sitemaps";
-    }
-    protected static void addToSiteMap(WebSitemapGenerator wsg, IPSSite site, IPSPubItemStatus s){
-        String locURL =getCanonicalLocation(site, s.getLocation());
-        if (locURL.startsWith("/"))
-            locURL = locURL.substring(1);
-        wsg.addUrl(site.getBaseUrl() + locURL);
-    }
+      File siteMapDir = new File(getSiteMapDirForJob(jobId));
+      siteMapDir.mkdirs();
+      WebSitemapGenerator wsg = WebSitemapGenerator.builder(site.getBaseUrl(), siteMapDir).build();
 
-    protected static String getCanonicalLocation(IPSSite site, String location){
-        if(site.isCanonical() &&
-                site.getCanonicalDist().equalsIgnoreCase("sections") &&
-                location.endsWith(site.getDefaultDocument())) {
-                return location.substring(0, location.lastIndexOf(site.getDefaultDocument()));
+      String excludeImage = null;
+      if (psGenerateSiteMapOptions != null) {
+        excludeImage = psGenerateSiteMapOptions.getGenerateSitemapExcludeImage();
+      }
+
+      IPSContentMgr contentMgr = PSContentMgrLocator.getContentMgr();
+      IPSGuidManager ipsGuidManager = PSGuidManagerLocator.getGuidMgr();
+
+      for (IPSPubItemStatus s : status.getIterableJobStatus()) {
+        // bypassing assets bases on user preference (set in site navigation -> site preference)
+        if (s.getLocation().startsWith("/Assets")) {
+          if (excludeImage != null && excludeImage.equals("true")) {
+            continue;
+          }
         }
-        return location;
-    }
+        // If the "Hide page from Web search engine" option (mentioned below) is checked for a page
+        // then this page will not be added in sitemap.xml
+        // Option navigation path = page(for e.g career.html)->edit-> edit metadata
+        boolean hideFromSearch = false;
+        try {
+          PSLocator psLocator = new PSLocator(s.getContentId());
+          psLocator.setRevision(s.getRevisionId());
 
-    protected static boolean isPriorVersionLiveV2(IPSPubItemStatus status){
+          IPSGuid ipsGuid = ipsGuidManager.makeGuid(psLocator);
+          List<IPSGuid> idList = new ArrayList<>();
+          idList.add(ipsGuid);
 
-        IPSPublisherService pubSvc = PSPublisherServiceLocator.getPublisherService();
+          PSContentMgrConfig config = new PSContentMgrConfig();
+          config.removeOption(PSContentMgrOption.LOAD_MINIMAL);
+          config.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
+          List<Node> nodeList = contentMgr.findItemsByGUID(idList, config);
 
-        List<PSItemPublishingHistory> history = pubSvc.findItemPublishingHistory(new PSLegacyGuid(status.getContentId(), status.getRevisionId()));
-
-        if(history == null || history.isEmpty()) {
-            return false;
-        }
-        history.sort(Comparator.comparing(PSItemPublishingHistory::getPublishedDate).reversed());
-        for(PSItemPublishingHistory h : history){
-            if(h.getStatus().equalsIgnoreCase(IPSSiteItem.Status.SUCCESS.name())
-            && h.getLocation().equalsIgnoreCase(status.getLocation())
-            && h.getOperation().equalsIgnoreCase(IPSSiteItem.Operation.PUBLISH.name())){
-                return  true;
-            }else if(
-                    h.getStatus().equalsIgnoreCase(IPSSiteItem.Status.SUCCESS.name())
-                            && h.getLocation().equalsIgnoreCase(status.getLocation())
-                            && h.getOperation().equalsIgnoreCase(IPSSiteItem.Operation.UNPUBLISH.name())
-            ){
-                return false;
+          if (!nodeList.isEmpty()) {
+            Node currentItem = nodeList.get(0);
+            Property currentItemProperty = currentItem.getProperty("rx:page_noindex");
+            if (currentItemProperty != null) {
+              Value value = currentItemProperty.getValue();
+              if (value != null && value.getString() != null && value.getString().equals("true")) {
+                // "Hide page from Web search engine" is checked to true so bypassing this asset
+                continue;
+              }
             }
+          }
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
+        if (s.getStatus().equals(IPSSiteItem.Status.SUCCESS)
+            && s.getOperation().equals(IPSSiteItem.Operation.PUBLISH)) {
+          addToSiteMap(wsg, site, s);
+          count++;
+        } else {
+          if (isPriorVersionLiveV2(s) && s.getOperation().equals(IPSSiteItem.Operation.PUBLISH)) {
+            // a previous version was live - so even tho this one failed we should include it in the
+            // sitemap
+            addToSiteMap(wsg, site, s);
+            count++;
+          }
+          log.debug("Not including failed item {} in sitemap", s.getLocation());
+        }
+      }
+
+      wsg.write();
+      wsg.writeSitemapsWithIndex();
+      log.info("Wrote {} entries to generated sitemap.", count);
+    }
+  }
+
+  public static String getSiteMapDirForJob(long jobId) {
+    return PSServer.getRxDir()
+        + File.separator
+        + PSLocalDeliveryManager.DEFAULT_TMP_DIR
+        + File.separator
+        + jobId
+        + File.separator
+        + "sitemaps";
+  }
+
+  protected static void addToSiteMap(WebSitemapGenerator wsg, IPSSite site, IPSPubItemStatus s) {
+    String locURL = getCanonicalLocation(site, s.getLocation());
+    if (locURL.startsWith("/")) locURL = locURL.substring(1);
+    wsg.addUrl(site.getBaseUrl() + locURL);
+  }
+
+  protected static String getCanonicalLocation(IPSSite site, String location) {
+    if (site.isCanonical()
+        && site.getCanonicalDist().equalsIgnoreCase("sections")
+        && location.endsWith(site.getDefaultDocument())) {
+      return location.substring(0, location.lastIndexOf(site.getDefaultDocument()));
+    }
+    return location;
+  }
+
+  protected static boolean isPriorVersionLiveV2(IPSPubItemStatus status) {
+
+    IPSPublisherService pubSvc = PSPublisherServiceLocator.getPublisherService();
+
+    List<PSItemPublishingHistory> history =
+        pubSvc.findItemPublishingHistory(
+            new PSLegacyGuid(status.getContentId(), status.getRevisionId()));
+
+    if (history == null || history.isEmpty()) {
+      return false;
+    }
+    history.sort(Comparator.comparing(PSItemPublishingHistory::getPublishedDate).reversed());
+    for (PSItemPublishingHistory h : history) {
+      if (h.getStatus().equalsIgnoreCase(IPSSiteItem.Status.SUCCESS.name())
+          && h.getLocation().equalsIgnoreCase(status.getLocation())
+          && h.getOperation().equalsIgnoreCase(IPSSiteItem.Operation.PUBLISH.name())) {
         return true;
-    }
-
-
-    protected static boolean isPriorVersionLive(IPSPubItemStatus status){
-
-        IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
-        IPSContentWs ws = PSContentWsLocator.getContentWebservice();
-        List<PSRevisions> revs = ws.findRevisions(Collections.singletonList(new PSLegacyGuid(status.getContentId(), status.getRevisionId())));
-        if(revs != null && !revs.isEmpty()) {
-            PSRevisions r = revs.get(0);
-            List<PSContentStatusHistory> history = r.getRevisions();
-            if(history!=null && !history.isEmpty()) {
-                history.sort(Comparator.comparing(PSContentStatusHistory::getRevision).reversed());
-
-                for (PSContentStatusHistory csh : history) {
-
-                    IPSWorkflowService wfsvc = PSWorkflowServiceLocator.getWorkflowService();
-                    IPSGuid wfGuid = guidMgr.makeGuid(csh.getWorkflowId(), PSTypeEnum.WORKFLOW);
-                    IPSGuid stateGuid = guidMgr.makeGuid(csh.getStateId(), PSTypeEnum.WORKFLOW_STATE);
-
-                    PSState state = wfsvc.loadWorkflowState(stateGuid, wfGuid);
-                    //Archive state
-                    if(state.getContentValidValue().equalsIgnoreCase("u")){
-                        return false;
-                    }
-                    if(state.isPublishable() &&
-                        (state.getName().equalsIgnoreCase("live")
-                                ||
-                                state.getName().equalsIgnoreCase("public")
-                            ||
-                                state.getName().equalsIgnoreCase("publish"))){
-                        return true;
-                        }
-                    }
-            }
-        }
+      } else if (h.getStatus().equalsIgnoreCase(IPSSiteItem.Status.SUCCESS.name())
+          && h.getLocation().equalsIgnoreCase(status.getLocation())
+          && h.getOperation().equalsIgnoreCase(IPSSiteItem.Operation.UNPUBLISH.name())) {
         return false;
+      }
     }
-    /**
-     * Discover when the extension can be used.
-     *
-     * @return the type as specified in {@link TaskType}.
-     */
-    @Override
-    public TaskType getType() {
-        return TaskType.POSTEDITION;
-    }
+    return true;
+  }
 
-    /**
-     * Initializes this extension.
-     * <p>
-     * Note that the extension will have permission to read
-     * and write any files or directiors under <CODE>codeRoot</CODE>
-     * (recursively). The extension will not have permissions for
-     * any other files or directories.
-     *
-     * @param def      The extension def, which contains configuration
-     *                 info and initialization params.
-     * @param codeRoot The root directory where this extension
-     *                 should install and look for any files relating to itself. The
-     *                 subdirectory structure under codeRoot is left up to the
-     *                 extension implementation. Must not be <CODE>null</CODE>.
-     * @throws PSExtensionException     If the codeRoot does not exist,
-     *                                  or is not accessible. Also thrown for any other initialization
-     *                                  errors that will prohibit this extension from doing its job
-     *                                  correctly, such as invalid or missing properties.
-     * @throws IllegalArgumentException If any param is invalid.
-     */
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  protected static boolean isPriorVersionLive(IPSPubItemStatus status) {
+
+    IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
+    IPSContentWs ws = PSContentWsLocator.getContentWebservice();
+    List<PSRevisions> revs =
+        ws.findRevisions(
+            Collections.singletonList(
+                new PSLegacyGuid(status.getContentId(), status.getRevisionId())));
+    if (revs != null && !revs.isEmpty()) {
+      PSRevisions r = revs.get(0);
+      List<PSContentStatusHistory> history = r.getRevisions();
+      if (history != null && !history.isEmpty()) {
+        history.sort(Comparator.comparing(PSContentStatusHistory::getRevision).reversed());
+
+        for (PSContentStatusHistory csh : history) {
+
+          IPSWorkflowService wfsvc = PSWorkflowServiceLocator.getWorkflowService();
+          IPSGuid wfGuid = guidMgr.makeGuid(csh.getWorkflowId(), PSTypeEnum.WORKFLOW);
+          IPSGuid stateGuid = guidMgr.makeGuid(csh.getStateId(), PSTypeEnum.WORKFLOW_STATE);
+
+          PSState state = wfsvc.loadWorkflowState(stateGuid, wfGuid);
+          // Archive state
+          if (state.getContentValidValue().equalsIgnoreCase("u")) {
+            return false;
+          }
+          if (state.isPublishable()
+              && (state.getName().equalsIgnoreCase("live")
+                  || state.getName().equalsIgnoreCase("public")
+                  || state.getName().equalsIgnoreCase("publish"))) {
+            return true;
+          }
+        }
+      }
     }
+    return false;
+  }
+  /**
+   * Discover when the extension can be used.
+   *
+   * @return the type as specified in {@link TaskType}.
+   */
+  @Override
+  public TaskType getType() {
+    return TaskType.POSTEDITION;
+  }
+
+  /**
+   * Initializes this extension.
+   *
+   * <p>Note that the extension will have permission to read and write any files or directiors under
+   * <CODE>codeRoot</CODE> (recursively). The extension will not have permissions for any other
+   * files or directories.
+   *
+   * @param def The extension def, which contains configuration info and initialization params.
+   * @param codeRoot The root directory where this extension should install and look for any files
+   *     relating to itself. The subdirectory structure under codeRoot is left up to the extension
+   *     implementation. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If the codeRoot does not exist, or is not accessible. Also thrown
+   *     for any other initialization errors that will prohibit this extension from doing its job
+   *     correctly, such as invalid or missing properties.
+   * @throws IllegalArgumentException If any param is invalid.
+   */
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 }

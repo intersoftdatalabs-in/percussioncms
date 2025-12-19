@@ -19,31 +19,29 @@ package com.percussion.monitor.service;
 
 import static org.junit.Assert.*;
 
-import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
-
 import org.junit.Test;
 
 public class PSMonitorServiceRestTest extends PSRestTestCase<PSMonitorServiceRestClient> {
 
-	@Test
-	public void test() {
-		String monitor = getRestClient(super.baseUrl).getMonitor("fubar");
-		String monitor2 = getRestClient(super.baseUrl).getMonitor("barfu");
-		String listOfMonitors = getRestClient(super.baseUrl).getMonitorList();
-		assertTrue(listOfMonitors.toUpperCase().contains("PSMONITOR"));
-		assertTrue(listOfMonitors.contains("fubar"));
-		assertTrue(listOfMonitors.contains("barfu"));
-		String list = getRestClient(super.baseUrl).getMonitorList();
-		String all = getRestClient(super.baseUrl).getAllMonitors();
-		assertTrue(list.contains("fubar"));
-		assertTrue(list.contains("barfu"));
-		assertTrue(all.contains("fubar"));
-		assertTrue(all.contains("barfu"));
-	}
+  @Test
+  public void test() {
+    String monitor = getRestClient(super.baseUrl).getMonitor("fubar");
+    String monitor2 = getRestClient(super.baseUrl).getMonitor("barfu");
+    String listOfMonitors = getRestClient(super.baseUrl).getMonitorList();
+    assertTrue(listOfMonitors.toUpperCase().contains("PSMONITOR"));
+    assertTrue(listOfMonitors.contains("fubar"));
+    assertTrue(listOfMonitors.contains("barfu"));
+    String list = getRestClient(super.baseUrl).getMonitorList();
+    String all = getRestClient(super.baseUrl).getAllMonitors();
+    assertTrue(list.contains("fubar"));
+    assertTrue(list.contains("barfu"));
+    assertTrue(all.contains("fubar"));
+    assertTrue(all.contains("barfu"));
+  }
 
-	@Override
-	protected PSMonitorServiceRestClient getRestClient(String baseUrl) {
-		return new PSMonitorServiceRestClient(baseUrl);
-	}
+  @Override
+  protected PSMonitorServiceRestClient getRestClient(String baseUrl) {
+    return new PSMonitorServiceRestClient(baseUrl);
+  }
 }

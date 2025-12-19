@@ -19,26 +19,23 @@ package com.percussion.pagemanagement.parser;
 import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 
-public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-{
+public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
 
-    PSParsedRegionTree<REGION, CODE> parse(String text);
-    
-    
-    /**
-     * Implement to create different kinds of {@link PSAbstractRegion} with the parser.
-     * 
-     * @author adamgent
-     *
-     * @param <R> Region type.
-     * @param <C> Code type.
-     */
-    public static interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode>
-    {
-        C createRegionCode();
-        
-        R createRegion(String regionId);
+  PSParsedRegionTree<REGION, CODE> parse(String text);
 
-        R createRootRegion();
-    }
+  /**
+   * Implement to create different kinds of {@link PSAbstractRegion} with the parser.
+   *
+   * @author adamgent
+   * @param <R> Region type.
+   * @param <C> Code type.
+   */
+  public static interface IPSRegionParserRegionFactory<
+      R extends PSAbstractRegion, C extends PSRegionCode> {
+    C createRegionCode();
+
+    R createRegion(String regionId);
+
+    R createRootRegion();
+  }
 }

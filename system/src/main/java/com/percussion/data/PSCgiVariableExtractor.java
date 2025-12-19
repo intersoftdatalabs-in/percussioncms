@@ -19,67 +19,54 @@ package com.percussion.data;
 
 import com.percussion.server.PSRequest;
 
-
 /**
- * The PSCgiVariableExtractor class is used to extract data from the
- * CGI variables associated with the request.
- * 
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * The PSCgiVariableExtractor class is used to extract data from the CGI variables associated with
+ * the request.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSCgiVariableExtractor extends PSDataExtractor
-{
-   /**
-    * Construct an object from its object store counterpart.
-    *
-    * @param   source      the object defining the source of this value
-    */
-   public PSCgiVariableExtractor(
-      com.percussion.design.objectstore.PSCgiVariable source)
-   {
-      super(source);
-      m_source = source.getName();
-   }
+public class PSCgiVariableExtractor extends PSDataExtractor {
+  /**
+   * Construct an object from its object store counterpart.
+   *
+   * @param source the object defining the source of this value
+   */
+  public PSCgiVariableExtractor(com.percussion.design.objectstore.PSCgiVariable source) {
+    super(source);
+    m_source = source.getName();
+  }
 
-   /**
-    * Extract a data value using the run-time data.
-    *
-    * @param   execData    the execution data associated with this request.
-    *                      This includes all context data, result sets, etc.
-    *
-    * @return               the associated value; <code>null</code> if a
-    *                        value is not found
-    */
-   public Object extract(PSExecutionData data)
-   {
-      return extract(data, null);
-   }
+  /**
+   * Extract a data value using the run-time data.
+   *
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
+   */
+  public Object extract(PSExecutionData data) {
+    return extract(data, null);
+  }
 
-   /**
-    * Extract a data value using the run-time data.
-    *
-    * @param   execData    the execution data associated with this request.
-    *                      This includes all context data, result sets, etc.
-    *
-    * @param   defValue      the default value to use if a value is not found
-    *
-    * @return               the associated value; <code>defValue</code> if a
-    *                        value is not found
-    */
-   public Object extract(PSExecutionData data, Object defValue)
-   {
-      Object value = null;
+  /**
+   * Extract a data value using the run-time data.
+   *
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
+   */
+  public Object extract(PSExecutionData data, Object defValue) {
+    Object value = null;
 
-      if (data != null) {
-         PSRequest request = data.getRequest();
-         if (request != null)
-            value = request.getCgiVariable(m_source);
-      }
+    if (data != null) {
+      PSRequest request = data.getRequest();
+      if (request != null) value = request.getCgiVariable(m_source);
+    }
 
-      return (value == null) ? defValue : value;
-   }
+    return (value == null) ? defValue : value;
+  }
 
-   private String m_source;
+  private String m_source;
 }
-

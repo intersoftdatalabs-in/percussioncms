@@ -19,121 +19,91 @@ package com.percussion.workflow;
 import com.percussion.services.workflow.data.PSState;
 
 /**
- * Represents a workflow state in the system. This object is not cached at this
- * time as it may be updated via the XML applications.
+ * Represents a workflow state in the system. This object is not cached at this time as it may be
+ * updated via the XML applications.
  */
-public class PSStatesContext implements IPSStatesContext
-{
-   private PSStatesContextPK m_statePK = null;
-   private String m_sStateName = null;
-   private String m_nStateDesc = null;
-   private String m_contentValidValue = null;
-   
-   /**
-    * Default ctor
-    */
-   public PSStatesContext()
-   {
-      
-   }
+public class PSStatesContext implements IPSStatesContext {
+  private PSStatesContextPK m_statePK = null;
+  private String m_sStateName = null;
+  private String m_nStateDesc = null;
+  private String m_contentValidValue = null;
 
-   /**
-    * Construct a states context from a source state and a workflow ctx.
-    * 
-    * @param source The state, may not be <code>null</code>. 
-    */
-   public PSStatesContext(PSState source)
-   {
-      if (source == null)
-         throw new IllegalArgumentException("source may not be null");
-      
-      m_contentValidValue = source.getContentValidValue();
-      m_nStateDesc = source.getDescription();
-      m_sStateName = source.getName();
-      m_statePK = new PSStatesContextPK((int)source.getWorkflowId(), 
-         (int)source.getStateId());
-   }
+  /** Default ctor */
+  public PSStatesContext() {}
 
-   /**
-    * Get the primary key
-    * @return the primary key, never <code>null</code> on a persisted
-    * object
-    */
-   public PSStatesContextPK getStatePK()
-   {
-      return m_statePK;
-   }
-   
-   /**
-    * Set the primary key on a new object
-    * @param pk the primary key, never <code>null</code>
-    */
-   public void setStatePK(PSStatesContextPK pk)
-   {
-      if (pk == null)
-      {
-         throw new IllegalArgumentException("pk may not be null");
-      }
-      m_statePK = pk;
-   }
-   
-   public int getStateID()
-   {
-      if (m_statePK != null)
-         return m_statePK.getStateid();
-      else
-         return 0;
-   }
+  /**
+   * Construct a states context from a source state and a workflow ctx.
+   *
+   * @param source The state, may not be <code>null</code>.
+   */
+  public PSStatesContext(PSState source) {
+    if (source == null) throw new IllegalArgumentException("source may not be null");
 
-   public String getStateName()
-   {
-      return m_sStateName;
-   }
+    m_contentValidValue = source.getContentValidValue();
+    m_nStateDesc = source.getDescription();
+    m_sStateName = source.getName();
+    m_statePK = new PSStatesContextPK((int) source.getWorkflowId(), (int) source.getStateId());
+  }
 
-   public String getStateDescription()
-   {
-      return m_nStateDesc;
-   }
+  /**
+   * Get the primary key
+   *
+   * @return the primary key, never <code>null</code> on a persisted object
+   */
+  public PSStatesContextPK getStatePK() {
+    return m_statePK;
+  }
 
-   /**
-    * @return Returns the contentValidValue.
-    */
-   public String getContentValidValue()
-   {
-      return m_contentValidValue;
-   }
+  /**
+   * Set the primary key on a new object
+   *
+   * @param pk the primary key, never <code>null</code>
+   */
+  public void setStatePK(PSStatesContextPK pk) {
+    if (pk == null) {
+      throw new IllegalArgumentException("pk may not be null");
+    }
+    m_statePK = pk;
+  }
 
-   public boolean getIsValid()
-   {
-      return m_contentValidValue.trim().equalsIgnoreCase("Y");
-   }
-   
-   public boolean getIsUnpublish()
-   {
-      return m_contentValidValue.trim().equalsIgnoreCase("U");
-   }
+  public int getStateID() {
+    if (m_statePK != null) return m_statePK.getStateid();
+    else return 0;
+  }
 
-   /**
-    * @param stateDesc The nStateDesc to set.
-    */
-   public void setStateDescription(String stateDesc)
-   {
-      m_nStateDesc = stateDesc;
-   }
+  public String getStateName() {
+    return m_sStateName;
+  }
 
-   /**
-    * @param stateName The sStateName to set.
-    */
-   public void setStateName(String stateName)
-   {
-      m_sStateName = stateName;
-   }
+  public String getStateDescription() {
+    return m_nStateDesc;
+  }
 
-   /**
-    * @param contentValidValue The contentValidValue to set.
-    */
-   public void setContentValidValue(String contentValidValue)
-   {
-      m_contentValidValue = contentValidValue;
-   }
+  /** @return Returns the contentValidValue. */
+  public String getContentValidValue() {
+    return m_contentValidValue;
+  }
+
+  public boolean getIsValid() {
+    return m_contentValidValue.trim().equalsIgnoreCase("Y");
+  }
+
+  public boolean getIsUnpublish() {
+    return m_contentValidValue.trim().equalsIgnoreCase("U");
+  }
+
+  /** @param stateDesc The nStateDesc to set. */
+  public void setStateDescription(String stateDesc) {
+    m_nStateDesc = stateDesc;
+  }
+
+  /** @param stateName The sStateName to set. */
+  public void setStateName(String stateName) {
+    m_sStateName = stateName;
+  }
+
+  /** @param contentValidValue The contentValidValue to set. */
+  public void setContentValidValue(String contentValidValue) {
+    m_contentValidValue = contentValidValue;
+  }
 }

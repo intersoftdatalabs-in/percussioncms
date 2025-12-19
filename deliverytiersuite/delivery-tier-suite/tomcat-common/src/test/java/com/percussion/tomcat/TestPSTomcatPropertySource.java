@@ -17,5 +17,4 @@
 
 package com.percussion.tomcat;
 
-public class TestPSTomcatPropertySource {
-}
+public class TestPSTomcatPropertySource {}

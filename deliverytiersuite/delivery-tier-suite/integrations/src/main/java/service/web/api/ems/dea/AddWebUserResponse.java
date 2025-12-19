@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "addWebUserResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"addWebUserResult"})
 @XmlRootElement(name = "AddWebUserResponse")
 public class AddWebUserResponse {
 
-    @XmlElement(name = "AddWebUserResult")
-    protected String addWebUserResult;
+  @XmlElement(name = "AddWebUserResult")
+  protected String addWebUserResult;
 
-    /**
-     * Gets the value of the addWebUserResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddWebUserResult() {
-        return addWebUserResult;
-    }
+  /**
+   * Gets the value of the addWebUserResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddWebUserResult() {
+    return addWebUserResult;
+  }
 
-    /**
-     * Sets the value of the addWebUserResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddWebUserResult(String value) {
-        this.addWebUserResult = value;
-    }
-
+  /**
+   * Sets the value of the addWebUserResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddWebUserResult(String value) {
+    this.addWebUserResult = value;
+  }
 }

@@ -26,7 +26,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
@@ -202,10 +202,10 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
 
    /**
     * Remove acls created during the test
-    * @throws PSSecurityException
+    * @throws PSServiceSecurityException
     */
    @AfterClass
-   public void cleanAclEntries() throws PSSecurityException
+   public void cleanAclEntries() throws PSServiceSecurityException
    {
       IPSAclService acl = PSAclServiceLocator.getAclService();
       IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();

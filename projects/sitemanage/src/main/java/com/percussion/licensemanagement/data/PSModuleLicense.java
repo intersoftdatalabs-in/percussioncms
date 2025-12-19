@@ -20,51 +20,50 @@ package com.percussion.licensemanagement.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "moduleLicense")
-public class PSModuleLicense
-{
-    private String name;
-    private String key;
-    private String handshake;
-    private String apiProvider;
-    private String uiProvider;
-    public String getKey()
-    {
-        return key;
-    }
-    public void setKey(String key)
-    {
-        this.key = key;
-    }
-    public String getHandshake()
-    {
-        return handshake;
-    }
-    public void setHandshake(String handshake)
-    {
-        this.handshake = handshake;
-    }
-    public String getApiProvider()
-    {
-        return apiProvider;
-    }
-    public void setApiProvider(String apiProvider)
-    {
-        this.apiProvider = apiProvider;
-    }
-    public String getUiProvider()
-    {
-        return uiProvider;
-    }
-    public void setUiProvider(String uiProvider)
-    {
-        this.uiProvider = uiProvider;
-    }
-    public String getName()
-    {
-        return name;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+public class PSModuleLicense {
+  private String name;
+  private String key;
+  private String handshake;
+  private String apiProvider;
+  private String uiProvider;
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getHandshake() {
+    return handshake;
+  }
+
+  public void setHandshake(String handshake) {
+    this.handshake = handshake;
+  }
+
+  public String getApiProvider() {
+    return apiProvider;
+  }
+
+  public void setApiProvider(String apiProvider) {
+    this.apiProvider = apiProvider;
+  }
+
+  public String getUiProvider() {
+    return uiProvider;
+  }
+
+  public void setUiProvider(String uiProvider) {
+    this.uiProvider = uiProvider;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }

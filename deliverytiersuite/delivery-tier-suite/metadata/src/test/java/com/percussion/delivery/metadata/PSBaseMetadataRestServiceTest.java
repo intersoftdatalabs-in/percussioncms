@@ -19,6 +19,14 @@ package com.percussion.delivery.metadata;
 import com.percussion.delivery.metadata.impl.PSMetadataRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.delivery.utils.spring.PSConfigurableApplicationContext;
+import javax.servlet.http.HttpServlet;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
@@ -29,67 +37,47 @@ import org.junit.Test;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
 
-import javax.servlet.http.HttpServlet;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-/**
- * @author natechadwick
- *
- */
-
+/** @author natechadwick */
 public class PSBaseMetadataRestServiceTest extends JerseyTest {
 
-    /***
-     * Takes the context file as an arg and spins up grizzly to
-     * test rest methods.
-     *
-     */
-    @Override
-    protected Application configure() {
-        ResourceConfig resourceConfig =  new ResourceConfig(PSMetadataRestService.class);
-        resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
-        return resourceConfig;
-    }
+  /** * Takes the context file as an arg and spins up grizzly to test rest methods. */
+  @Override
+  protected Application configure() {
+    ResourceConfig resourceConfig = new ResourceConfig(PSMetadataRestService.class);
+    resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
+    return resourceConfig;
+  }
 
-    @Override
-    protected DeploymentContext configureDeployment(){
-        return ServletDeploymentContext
-                .forPackages("com.percussion.delivery.metadata.impl")
-                .servletClass(HttpServlet.class)
-                .contextPath("perc-metadata-services")
-                .addListener(ContextLoaderListener.class)
-                .addListener(RequestContextListener.class)
-                .addFilter(org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-                .build();
-    }
+  @Override
+  protected DeploymentContext configureDeployment() {
+    return ServletDeploymentContext.forPackages("com.percussion.delivery.metadata.impl")
+        .servletClass(HttpServlet.class)
+        .contextPath("perc-metadata-services")
+        .addListener(ContextLoaderListener.class)
+        .addListener(RequestContextListener.class)
+        .addFilter(
+            org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
+        .build();
+  }
 
-    @Ignore
-    @Test
- 	public void testGetRestVersion(){
+  @Ignore
+  @Test
+  public void testGetRestVersion() {
 
-        Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target("/membership/version");
-        Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
+    Client client = ClientBuilder.newClient();
+    WebTarget webTarget = client.target("/membership/version");
+    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+    Response response = invocationBuilder.get();
 
+    Assert.assertNotNull(response);
+    Assert.assertEquals(200, response.getStatus());
+    Assert.assertEquals(testGetVersion(), response.getEntity());
+  }
 
-         Assert.assertNotNull(response);
-         Assert.assertEquals(200,response.getStatus());
-         Assert.assertEquals(testGetVersion(), response.getEntity());
- 	}
-
-
- 	private String testGetVersion(){
- 		String version = PSVersionHelper.getVersion(this.getClass());
- 		Assert.assertNotNull(version);
- 		System.out.print(version);
- 		return version;
- 	}
-
+  private String testGetVersion() {
+    String version = PSVersionHelper.getVersion(this.getClass());
+    Assert.assertNotNull(version);
+    System.out.print(version);
+    return version;
+  }
 }

@@ -20,39 +20,31 @@ package com.ibm.cadf.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-
-import org.junit.Test;
-
 import com.ibm.cadf.Messages;
 import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import java.text.MessageFormat;
+import org.junit.Test;
 
-public class EndpointTest
-{
+public class EndpointTest {
 
-    @Test
-    public void testEndpointPositive() throws CADFException, IOException
-    {
-        EndPoint endPoint = new EndPoint("http://http://192.168.0.1");
-        endPoint.isValid();
-        assertEquals(true, endPoint.isValid());
+  @Test
+  public void testEndpointPositive() throws CADFException, IOException {
+    EndPoint endPoint = new EndPoint("http://http://192.168.0.1");
+    endPoint.isValid();
+    assertEquals(true, endPoint.isValid());
+  }
+
+  @Test
+  public void testEndpointNegative() throws CADFException, IOException {
+
+    try {
+      EndPoint endPoint = new EndPoint(null);
+      endPoint.isValid();
+      fail("Endpoint object creation should fail as mandatory field url is not passed");
+    } catch (CADFException ex) {
+      String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "url");
+      assertEquals(message, ex.getMessage());
     }
-
-    @Test
-    public void testEndpointNegative() throws CADFException, IOException
-    {
-
-        try
-        {
-            EndPoint endPoint = new EndPoint(null);
-            endPoint.isValid();
-            fail("Endpoint object creation should fail as mandatory field url is not passed");
-        }
-        catch (CADFException ex)
-        {
-            String message = MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "url");
-            assertEquals(message, ex.getMessage());
-        }
-    }
+  }
 }

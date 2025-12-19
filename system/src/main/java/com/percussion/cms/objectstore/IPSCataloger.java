@@ -19,29 +19,23 @@ package com.percussion.cms.objectstore;
 import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSSearchConfig;
 
-/**
- * Interface for cataloging various information from server server.
- */
-public interface IPSCataloger extends IPSFieldCataloger
-{
+/** Interface for cataloging various information from server server. */
+public interface IPSCataloger extends IPSFieldCataloger {
 
-   /**
-    * Get the current search configuration.
-    * 
-    * @return search configuration, never <code>null</code>.
-    * 
-    * @throws PSCmsException if an error occurs.
-    */
-   public PSSearchConfig getSearchConfig()  throws PSCmsException;
-   
-   /**
-    * Get the relationship configuration information from the server.
-    *
-    * @return A <code>PSRelationshipInfoSet</code> object, which contains
-    *    a list of relationship config info. Never <code>null</code>.
-    *
-    * @throws PSCmsException if an error occurs.
-    */
-   public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException;
+  /**
+   * Get the current search configuration.
+   *
+   * @return search configuration, never <code>null</code>.
+   * @throws PSCmsException if an error occurs.
+   */
+  public PSSearchConfig getSearchConfig() throws PSCmsException;
 
+  /**
+   * Get the relationship configuration information from the server.
+   *
+   * @return A <code>PSRelationshipInfoSet</code> object, which contains a list of relationship
+   *     config info. Never <code>null</code>.
+   * @throws PSCmsException if an error occurs.
+   */
+  public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException;
 }

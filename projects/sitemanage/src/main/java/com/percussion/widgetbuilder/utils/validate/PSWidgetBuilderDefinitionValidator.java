@@ -17,26 +17,19 @@
 package com.percussion.widgetbuilder.utils.validate;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderDefinitionData;
-import com.percussion.widgetbuilder.data.PSWidgetBuilderSummaryData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResult;
-import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResults;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSWidgetBuilderDefinitionValidator
-{
-    public static List<PSWidgetBuilderValidationResult> validate(PSWidgetBuilderDefinitionData definition, List<PSWidgetBuilderDefinitionData> existing)
-    {
-        List<PSWidgetBuilderValidationResult> results = new ArrayList<>();
-        
-        results.addAll(PSWidgetBuilderGeneralValidator.validate(definition, existing));
-        results.addAll(PSWidgetBuilderFieldsValidator.validate(definition.getFieldsList()));
-        
-        return results;
-    }
+/** @author JaySeletz */
+public class PSWidgetBuilderDefinitionValidator {
+  public static List<PSWidgetBuilderValidationResult> validate(
+      PSWidgetBuilderDefinitionData definition, List<PSWidgetBuilderDefinitionData> existing) {
+    List<PSWidgetBuilderValidationResult> results = new ArrayList<>();
+
+    results.addAll(PSWidgetBuilderGeneralValidator.validate(definition, existing));
+    results.addAll(PSWidgetBuilderFieldsValidator.validate(definition.getFieldsList()));
+
+    return results;
+  }
 }

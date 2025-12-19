@@ -17,46 +17,33 @@
 package com.percussion.cms.objectstore.server;
 
 import com.percussion.util.PSPurgableTempFile;
-
 import java.io.InputStream;
 
 /**
- * A binary value that is created from a temporary file in order to support
- * uploads of large files.
+ * A binary value that is created from a temporary file in order to support uploads of large files.
  */
-public class PSPurgableFileValue extends PSBinaryFileValue
-{
-   /**
-    * Stores the supplied file. Use
-    * {@link #getTempFile()} to get the purgable file.
-    * 
-    * @param file The file containing the binary data.
-    * See {@link #getTempFile()}.
-    */
-   public PSPurgableFileValue(PSPurgableTempFile file)
-   {
-      m_tempFile = file;
-   }
-   
-   @Override
-   public byte[] getData()
-   {
-      throw new UnsupportedOperationException("getData() is not"
-            + " implemented");
-   }
-   
-   @Override   
-   public void setData(byte[] content)
-   {
-      throw new UnsupportedOperationException("setData(byte[]) is not"
-            + " implemented");
-   }
+public class PSPurgableFileValue extends PSBinaryFileValue {
+  /**
+   * Stores the supplied file. Use {@link #getTempFile()} to get the purgable file.
+   *
+   * @param file The file containing the binary data. See {@link #getTempFile()}.
+   */
+  public PSPurgableFileValue(PSPurgableTempFile file) {
+    m_tempFile = file;
+  }
 
-   @Override
-   public void setData(InputStream content)
-   {
-      throw new UnsupportedOperationException("setData(InputStream)"
-            + " is not implemented");
-   }
+  @Override
+  public byte[] getData() {
+    throw new UnsupportedOperationException("getData() is not" + " implemented");
+  }
+
+  @Override
+  public void setData(byte[] content) {
+    throw new UnsupportedOperationException("setData(byte[]) is not" + " implemented");
+  }
+
+  @Override
+  public void setData(InputStream content) {
+    throw new UnsupportedOperationException("setData(InputStream)" + " is not implemented");
+  }
 }
-

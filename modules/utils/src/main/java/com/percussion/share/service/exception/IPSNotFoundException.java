@@ -16,13 +16,9 @@
  */
 package com.percussion.share.service.exception;
 
-
 /**
- * A marker for exceptions to signify the item being looked
- * up could not be found.
- * @author adamgent
+ * A marker for exceptions to signify the item being looked up could not be found.
  *
+ * @author adamgent
  */
-public interface IPSNotFoundException {
-
-}
+public interface IPSNotFoundException {}

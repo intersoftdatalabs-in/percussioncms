@@ -18,29 +18,23 @@ package com.percussion.widgetbuilder.utils;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 
-/**
- * @author JaySeletz
- *
- */
-public interface IPSBindingGenerator
-{
+/** @author JaySeletz */
+public interface IPSBindingGenerator {
 
-    /**
-     * Determine if this generator is valid for the supplied field
-     * 
-     * @param field The field to check, not <code>null</code>.
-     * 
-     * @return <code>true</code> if it is accepted, <code>false</code> if not.
-     */
-    boolean accept(PSWidgetBuilderFieldData field);
+  /**
+   * Determine if this generator is valid for the supplied field
+   *
+   * @param field The field to check, not <code>null</code>.
+   * @return <code>true</code> if it is accepted, <code>false</code> if not.
+   */
+  boolean accept(PSWidgetBuilderFieldData field);
 
-    /**
-     * Generate the binding for the supplied field.
-     * 
-     * @param field Not <code>null</code>, {@link #accept(PSWidgetBuilderFieldData)} must be <code>true</code>.
-     * 
-     * @return The binding, not <code>null</code>.
-     */
-    String generateBinding(PSWidgetBuilderFieldData field);
-
+  /**
+   * Generate the binding for the supplied field.
+   *
+   * @param field Not <code>null</code>, {@link #accept(PSWidgetBuilderFieldData)} must be <code>
+   *     true</code>.
+   * @return The binding, not <code>null</code>.
+   */
+  String generateBinding(PSWidgetBuilderFieldData field);
 }

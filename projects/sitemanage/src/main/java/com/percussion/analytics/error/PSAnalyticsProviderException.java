@@ -20,78 +20,66 @@ import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
  * Exception thrown by the analytics provider service and handlers.
- * @author erikserating
  *
+ * @author erikserating
  */
-public class PSAnalyticsProviderException extends PSDataServiceException
-{   
+public class PSAnalyticsProviderException extends PSDataServiceException {
 
-   public PSAnalyticsProviderException(String message, Throwable cause)
-   {
-      this(message, cause, null);
-   }
-  
-   public PSAnalyticsProviderException(String message, Throwable cause, CAUSETYPE type)
-   {
-     super(message, cause);
-     if(type == null)
-        type = CAUSETYPE.UNKNOWN;
-     causetype = type;
-   }
+  public PSAnalyticsProviderException(String message, Throwable cause) {
+    this(message, cause, null);
+  }
 
-   public PSAnalyticsProviderException(String message)
-   {
-      this(message, CAUSETYPE.UNKNOWN);
-   }
-   
-   public PSAnalyticsProviderException(String message, CAUSETYPE type)
-   {
-      super(message);
-      if(type == null)
-         type = CAUSETYPE.UNKNOWN;
-      causetype = type;
-   }
+  public PSAnalyticsProviderException(String message, Throwable cause, CAUSETYPE type) {
+    super(message, cause);
+    if (type == null) type = CAUSETYPE.UNKNOWN;
+    causetype = type;
+  }
 
-   public PSAnalyticsProviderException(Throwable cause)
-   {
-      this(cause, null);
-   }
-   
-   public PSAnalyticsProviderException(Throwable cause, CAUSETYPE type)
-   {
-      super(cause);
-      if(type == null)
-         type = CAUSETYPE.UNKNOWN;
-      causetype = type;
-      
-   }
-   
-   /**
-    * Get the cause type enum value. 
-    * @return the cause type enum value, never <code>null</code>. Defaults
-    * to <code>CAUSETYPE.UNKNOWN</code> if not set.
-    */
-   public CAUSETYPE getCauseType()
-   {
-      return causetype;
-   }  
-   
-   public enum CAUSETYPE
-   {
-       ACCOUNT_DELETED,
-       ACCOUNT_DISABLED,
-       ANALYTICS_NOT_CONFIG,
-       AUTHENTICATION_ERROR,
-       NO_PROFILE,
-       NO_ANALYTICS_ACCOUNT,
-       NOT_VERIFIED,
-       INVALID_CREDS,
-       INVALID_DATA,
-       SESSION_EXPIRED,
-       SERVICE_UNAVAILABLE,
-       TERMS_NOT_AGREED,
-       UNKNOWN
-   }
-   
-   private CAUSETYPE causetype = CAUSETYPE.UNKNOWN;
+  public PSAnalyticsProviderException(String message) {
+    this(message, CAUSETYPE.UNKNOWN);
+  }
+
+  public PSAnalyticsProviderException(String message, CAUSETYPE type) {
+    super(message);
+    if (type == null) type = CAUSETYPE.UNKNOWN;
+    causetype = type;
+  }
+
+  public PSAnalyticsProviderException(Throwable cause) {
+    this(cause, null);
+  }
+
+  public PSAnalyticsProviderException(Throwable cause, CAUSETYPE type) {
+    super(cause);
+    if (type == null) type = CAUSETYPE.UNKNOWN;
+    causetype = type;
+  }
+
+  /**
+   * Get the cause type enum value.
+   *
+   * @return the cause type enum value, never <code>null</code>. Defaults to <code>CAUSETYPE.UNKNOWN
+   *     </code> if not set.
+   */
+  public CAUSETYPE getCauseType() {
+    return causetype;
+  }
+
+  public enum CAUSETYPE {
+    ACCOUNT_DELETED,
+    ACCOUNT_DISABLED,
+    ANALYTICS_NOT_CONFIG,
+    AUTHENTICATION_ERROR,
+    NO_PROFILE,
+    NO_ANALYTICS_ACCOUNT,
+    NOT_VERIFIED,
+    INVALID_CREDS,
+    INVALID_DATA,
+    SESSION_EXPIRED,
+    SERVICE_UNAVAILABLE,
+    TERMS_NOT_AGREED,
+    UNKNOWN
+  }
+
+  private CAUSETYPE causetype = CAUSETYPE.UNKNOWN;
 }

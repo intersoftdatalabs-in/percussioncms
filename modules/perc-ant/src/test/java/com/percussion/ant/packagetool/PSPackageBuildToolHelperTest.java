@@ -17,26 +17,27 @@
 
 package com.percussion.ant.packagetool;
 
+import static org.junit.Assert.assertEquals;
+
 import com.percussion.utils.testing.UnitTest;
+import java.io.File;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-
 @Category(UnitTest.class)
-public class PSPackageBuildToolHelperTest  
-{
-   @Test
-   public void getDestinationDirectoryTest()
-   {
-       String rootDir = System.getProperty("java.io.tmpdir").concat(File.separator).concat("dest");
-       String zipFileWithPath = System.getProperty("java.io.tmpdir").concat(File.separator).concat("perc.gadget.activity8.ppkg");
-   
-       String expectedDestinationDir = rootDir.concat(File.separator).concat("perc.gadget.activity8");
-       String actualDestinationDir = PSPackageBuildToolHelper.getDestinationDirectoryPath(zipFileWithPath, rootDir);
-   
-       assertEquals(expectedDestinationDir, actualDestinationDir);
-    }   
+public class PSPackageBuildToolHelperTest {
+  @Test
+  public void getDestinationDirectoryTest() {
+    String rootDir = System.getProperty("java.io.tmpdir").concat(File.separator).concat("dest");
+    String zipFileWithPath =
+        System.getProperty("java.io.tmpdir")
+            .concat(File.separator)
+            .concat("perc.gadget.activity8.ppkg");
+
+    String expectedDestinationDir = rootDir.concat(File.separator).concat("perc.gadget.activity8");
+    String actualDestinationDir =
+        PSPackageBuildToolHelper.getDestinationDirectoryPath(zipFileWithPath, rootDir);
+
+    assertEquals(expectedDestinationDir, actualDestinationDir);
+  }
 }

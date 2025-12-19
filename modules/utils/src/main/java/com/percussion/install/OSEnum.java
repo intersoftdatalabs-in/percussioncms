@@ -18,8 +18,6 @@
 package com.percussion.install;
 
 public enum OSEnum {
-
-    Windows,
-    Linux
-
+  Windows,
+  Linux
 }

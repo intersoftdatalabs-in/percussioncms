@@ -22,6 +22,8 @@ import com.percussion.pso.imageedit.web.ImagePersistenceManager;
 import com.percussion.pso.imageedit.web.ImageUrlBuilder;
 import com.percussion.pso.utils.RxRequestUtils;
 import com.percussion.util.IPSHtmlParameters;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,85 +31,58 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-/**
- * 
- *
- * @author DavidBenua
- *
- */
+/** @author DavidBenua */
 public class ImageEditorTestPageController extends ParameterizableViewController
-      implements
-         Controller
-{
-   private static final Logger log = LogManager.getLogger(ImageEditorTestPageController.class);
-   
-   private ImagePersistenceManager imagePersistenceManager;
-   
-   private ImageUrlBuilder urlBuilder; 
-   /**
-    * Default constructor
-    */
-   public ImageEditorTestPageController()
-   {
-    
-   }
-   /**
-    * @see org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
-    */
-   @Override
-   protected ModelAndView handleRequestInternal(HttpServletRequest request,
-         HttpServletResponse response) throws Exception
-   {
-      //get the view name
-      ModelAndView mav = super.handleRequestInternal(request, response); 
-      String user = RxRequestUtils.getUserName(request);
-      log.debug("user is {}", user);
-      String session = RxRequestUtils.getSessionId(request); 
-      log.debug("session is {}", session);
-      String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID); 
-      if(StringUtils.isNotBlank(contentid))
-      {
-         OpenImageResult oir = imagePersistenceManager.OpenImage(contentid );
-         log.debug("ItemStatus is  " + oir.getItemStatus());
+    implements Controller {
+  private static final Logger log = LogManager.getLogger(ImageEditorTestPageController.class);
 
-         MasterImageMetaData masterImage  = oir.getMasterImage();
-         log.info("masterimage " + masterImage); 
-         mav.addObject("masterImage", masterImage);
-         mav.addObject("urlBuilder", urlBuilder);
-      }
-      
-      return mav; 
-   }
-   /**
-    * @return the imagePersistenceManager
-    */
-   public ImagePersistenceManager getImagePersistenceManager()
-   {
-      return imagePersistenceManager;
-   }
-   /**
-    * @param imagePersistenceManager the imagePersistenceManager to set
-    */
-   public void setImagePersistenceManager(
-         ImagePersistenceManager imagePersistenceManager)
-   {
-      this.imagePersistenceManager = imagePersistenceManager;
-   }
-   /**
-    * @return the urlBuilder
-    */
-   public ImageUrlBuilder getUrlBuilder()
-   {
-      return urlBuilder;
-   }
-   /**
-    * @param urlBuilder the urlBuilder to set
-    */
-   public void setUrlBuilder(ImageUrlBuilder urlBuilder)
-   {
-      this.urlBuilder = urlBuilder;
-   }
+  private ImagePersistenceManager imagePersistenceManager;
+
+  private ImageUrlBuilder urlBuilder;
+  /** Default constructor */
+  public ImageEditorTestPageController() {}
+
+  /**
+   * @see
+   *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
+   *     HttpServletResponse)
+   */
+  @Override
+  protected ModelAndView handleRequestInternal(
+      HttpServletRequest request, HttpServletResponse response) throws Exception {
+    // get the view name
+    ModelAndView mav = super.handleRequestInternal(request, response);
+    String user = RxRequestUtils.getUserName(request);
+    log.debug("user is {}", user);
+    String session = RxRequestUtils.getSessionId(request);
+    log.debug("session is {}", session);
+    String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isNotBlank(contentid)) {
+      OpenImageResult oir = imagePersistenceManager.OpenImage(contentid);
+      log.debug("ItemStatus is  " + oir.getItemStatus());
+
+      MasterImageMetaData masterImage = oir.getMasterImage();
+      log.info("masterimage " + masterImage);
+      mav.addObject("masterImage", masterImage);
+      mav.addObject("urlBuilder", urlBuilder);
+    }
+
+    return mav;
+  }
+  /** @return the imagePersistenceManager */
+  public ImagePersistenceManager getImagePersistenceManager() {
+    return imagePersistenceManager;
+  }
+  /** @param imagePersistenceManager the imagePersistenceManager to set */
+  public void setImagePersistenceManager(ImagePersistenceManager imagePersistenceManager) {
+    this.imagePersistenceManager = imagePersistenceManager;
+  }
+  /** @return the urlBuilder */
+  public ImageUrlBuilder getUrlBuilder() {
+    return urlBuilder;
+  }
+  /** @param urlBuilder the urlBuilder to set */
+  public void setUrlBuilder(ImageUrlBuilder urlBuilder) {
+    this.urlBuilder = urlBuilder;
+  }
 }

@@ -16,7 +16,7 @@
  */
 /*
  * test.percussion.pso.preview PreviewLocationTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
@@ -24,32 +24,29 @@ package test.percussion.pso.preview;
 
 import static org.junit.Assert.*;
 
+import com.percussion.pso.preview.PreviewLocation;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.percussion.pso.preview.PreviewLocation;
+public class PreviewLocationTest {
 
-public class PreviewLocationTest
-{
-   
-   PreviewLocation cut; 
-   
-   @Before
-   public void setUp() throws Exception
-   {
-      cut = new PreviewLocation();
-      cut.setPath("myPath");
-      cut.setSiteName("mySite"); 
-      cut.setUrl("//myUrl"); 
-   }
-   @Test
-   public final void testCompareTo()
-   {
-      PreviewLocation other = new PreviewLocation(); 
-      other.setPath("myPath"); 
-      other.setSiteName("mySite"); 
-      
-      int result = cut.compareTo(other); 
-      assertEquals(0, result); 
-   }
+  PreviewLocation cut;
+
+  @Before
+  public void setUp() throws Exception {
+    cut = new PreviewLocation();
+    cut.setPath("myPath");
+    cut.setSiteName("mySite");
+    cut.setUrl("//myUrl");
+  }
+
+  @Test
+  public final void testCompareTo() {
+    PreviewLocation other = new PreviewLocation();
+    other.setPath("myPath");
+    other.setSiteName("mySite");
+
+    int result = cut.compareTo(other);
+    assertEquals(0, result);
+  }
 }

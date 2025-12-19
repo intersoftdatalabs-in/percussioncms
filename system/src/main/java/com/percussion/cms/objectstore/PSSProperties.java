@@ -19,42 +19,27 @@ package com.percussion.cms.objectstore;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-/**
- * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
- * for details. 
- */
-public class PSSProperties extends PSDbComponentCollection
-{
-   /**
-    * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
-    * for description.
-    */
-   public PSSProperties()
-   {              
-      super(PSSearchMultiProperty.class);
-   }
-   
-   /**
-    * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
-    * for description.
-    */
-   public PSSProperties(Element source) throws PSUnknownNodeTypeException
-   {
-      super(source);
-   }
-   
-   /**
-    * Get the XML element name used for this class.
-    * 
-    * @return the XML element name, never <code>null</code> or empty.
-    */
-   public String getNodeName()
-   {
-      return XML_NODE_NAME;
-   }
+/** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for details. */
+public class PSSProperties extends PSDbComponentCollection {
+  /** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for description. */
+  public PSSProperties() {
+    super(PSSearchMultiProperty.class);
+  }
 
-   /**
-    * The XML node name for this class.
-    */
-   public static final String XML_NODE_NAME = "PSX_PROPERTIES";
+  /** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for description. */
+  public PSSProperties(Element source) throws PSUnknownNodeTypeException {
+    super(source);
+  }
+
+  /**
+   * Get the XML element name used for this class.
+   *
+   * @return the XML element name, never <code>null</code> or empty.
+   */
+  public String getNodeName() {
+    return XML_NODE_NAME;
+  }
+
+  /** The XML node name for this class. */
+  public static final String XML_NODE_NAME = "PSX_PROPERTIES";
 }

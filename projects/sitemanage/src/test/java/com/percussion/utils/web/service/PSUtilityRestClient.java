@@ -20,22 +20,18 @@ package com.percussion.utils.web.service;
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSObjectRestClient;
 
-public class PSUtilityRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/utils/utility/";
+public class PSUtilityRestClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/utils/utility/";
 
-    public PSUtilityRestClient(String baseUrl)
-    {
-        super(baseUrl);
-    }
+  public PSUtilityRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public PSMapWrapper encryptString(PSMapWrapper mapWrapper)
-    {
-        return postObjectToPath(concatPath(path, "encryptstring"), mapWrapper, PSMapWrapper.class);
-    }
+  public PSMapWrapper encryptString(PSMapWrapper mapWrapper) {
+    return postObjectToPath(concatPath(path, "encryptstring"), mapWrapper, PSMapWrapper.class);
+  }
 
-    public PSMapWrapper decryptString(PSMapWrapper mapWrapper)
-    {
-        return postObjectToPath(concatPath(path, "decryptstring"), mapWrapper, PSMapWrapper.class);
-    }
+  public PSMapWrapper decryptString(PSMapWrapper mapWrapper) {
+    return postObjectToPath(concatPath(path, "decryptstring"), mapWrapper, PSMapWrapper.class);
+  }
 }

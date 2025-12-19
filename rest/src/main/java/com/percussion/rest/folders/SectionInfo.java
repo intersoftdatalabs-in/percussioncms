@@ -21,104 +21,93 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SectionInfo")
 @JsonInclude(Include.NON_NULL)
-public class SectionInfo
-{
-    @Schema(name="type", description="Type of the section (leave blank for type section).", allowableValues = "sectionlink,externallink")
-    private String type;
+public class SectionInfo {
+  @Schema(
+      name = "type",
+      description = "Type of the section (leave blank for type section).",
+      allowableValues = "sectionlink,externallink")
+  private String type;
 
-    @Schema(name="displayTitle", description="The title that displays in the browser.")
-    private String displayTitle;
+  @Schema(name = "displayTitle", description = "The title that displays in the browser.")
+  private String displayTitle;
 
-    @Schema(name="targetWindow", description="Defines where the window will display.", allowableValues = "_self,_top,_blank")
-    private String targetWindow;
+  @Schema(
+      name = "targetWindow",
+      description = "Defines where the window will display.",
+      allowableValues = "_self,_top,_blank")
+  private String targetWindow;
 
-    @Schema(name="navClass",  description="Defines what navigation class for the section.")
-    private String navClass;
+  @Schema(name = "navClass", description = "Defines what navigation class for the section.")
+  private String navClass;
 
-    @Schema(name="templateName",  description="Name of template the section will use for its landing page.")
-    private String templateName;
+  @Schema(
+      name = "templateName",
+      description = "Name of template the section will use for its landing page.")
+  private String templateName;
 
-    @Schema(name="landingPage", description="Link to the landing page for this section.")
-    private LinkRef landingPage;
-    
-    @Schema(name="externalLinkUrl", description="Link to the external source.")
-    private String externalLinkUrl;
+  @Schema(name = "landingPage", description = "Link to the landing page for this section.")
+  private LinkRef landingPage;
 
-    public String getType()
-    {
-        return type;
-    }
+  @Schema(name = "externalLinkUrl", description = "Link to the external source.")
+  private String externalLinkUrl;
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-    
-    public String getDisplayTitle()
-    {
-        return displayTitle;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setDisplayTitle(String displayTitle)
-    {
-        this.displayTitle = displayTitle;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getTargetWindow()
-    {
-        return targetWindow;
-    }
+  public String getDisplayTitle() {
+    return displayTitle;
+  }
 
-    public void setTargetWindow(String targetWindow)
-    {
-        this.targetWindow = targetWindow;
-    }
+  public void setDisplayTitle(String displayTitle) {
+    this.displayTitle = displayTitle;
+  }
 
-    public String getNavClass()
-    {
-        return navClass;
-    }
+  public String getTargetWindow() {
+    return targetWindow;
+  }
 
-    public void setNavClass(String navClass)
-    {
-        this.navClass = navClass;
-    }
+  public void setTargetWindow(String targetWindow) {
+    this.targetWindow = targetWindow;
+  }
 
+  public String getNavClass() {
+    return navClass;
+  }
 
-    public String getTemplateName()
-    {
-        return templateName;
-    }
+  public void setNavClass(String navClass) {
+    this.navClass = navClass;
+  }
 
-    public void setTemplateName(String templateName)
-    {
-        this.templateName = templateName;
-    }
-    
-    public LinkRef getLandingPage()
-    {
-        return landingPage;
-    }
+  public String getTemplateName() {
+    return templateName;
+  }
 
-    public void setLandingPage(LinkRef landingPage)
-    {
-        this.landingPage = landingPage;
-    }
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
 
-    public String getExternalLinkUrl()
-    {
-        return externalLinkUrl;
-    }
+  public LinkRef getLandingPage() {
+    return landingPage;
+  }
 
-    public void setExternalLinkUrl(String externalLinkUrl)
-    {
-        this.externalLinkUrl = externalLinkUrl;
-    }
+  public void setLandingPage(LinkRef landingPage) {
+    this.landingPage = landingPage;
+  }
 
-   
+  public String getExternalLinkUrl() {
+    return externalLinkUrl;
+  }
+
+  public void setExternalLinkUrl(String externalLinkUrl) {
+    this.externalLinkUrl = externalLinkUrl;
+  }
 }

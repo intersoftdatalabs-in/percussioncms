@@ -17,19 +17,16 @@
 
 package com.percussion.delivery.spring;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 public class PSCsrfSecurityRequestMatcherTest {
 
-
-@Test
-public void testExclusions(){
+  @Test
+  public void testExclusions() {
 
     String ignorePaths = "/indexer/entry/";
     assertTrue("/indexer/entry/test/2/test4.html".toLowerCase().contains(ignorePaths));
-
-}
-
+  }
 }

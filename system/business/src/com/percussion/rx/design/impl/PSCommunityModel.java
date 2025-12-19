@@ -17,7 +17,7 @@
 package com.percussion.rx.design.impl;
 
 import com.percussion.services.security.IPSBackEndRoleMgr;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.utils.guid.IPSGuid;
 
@@ -38,7 +38,7 @@ public class PSCommunityModel extends PSLimitedDesignModel
       {
          return roleMgr.loadCommunity(guid);
       }
-      catch (PSSecurityException e)
+      catch (PSServiceSecurityException e)
       {
          String msg = "Failed to get the design object for guid {0}";
          Object[] args = { guid.toString() };

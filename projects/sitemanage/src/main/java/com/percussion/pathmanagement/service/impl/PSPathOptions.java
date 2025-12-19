@@ -20,55 +20,45 @@ import com.percussion.pathmanagement.data.PSPathItem;
 
 /**
  * Holds current options for path retrieval.
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSPathOptions
-{
-    
-    /**
-     * Track if current operation loading children should check what types of children they have
-     */
-    private static ThreadLocal<Boolean> checkChildTypes = new ThreadLocal<>();
-    
-    /**
-     * Track if current operation loading children should be restricted to folder children
-     */
-    private static ThreadLocal<Boolean> folderChildrenOnly = new ThreadLocal<>();
-    
-    /**
-     * Get Thread local setting for checking child types (section, folder, item) when loading path items.
-     * See {@link PSPathItem#hasFolderChildren()}, {@link PSPathItem#hasItemChildren()}, and 
-     * {@link PSPathItem#hasSectionChildren()}, which will be <code>false</code> if not checked.
-     * 
-     * @return <code>true</code> to check them, <code>false</code> to skip checking.  Defaults to <code>false</code>
-     * if not set.
-     */
-    public static boolean shouldCheckChildTypes()
-    {
-        Boolean check = checkChildTypes.get();
-        return check == null ? false : checkChildTypes.get();
-    }
+public class PSPathOptions {
 
-    /**
-     * Set if child types should be checked when loading path items.
-     * 
-     * @param shouldSkip <code>true</code> to check, <code>false</code> to skip checking. 
-     */
-    public static void setShouldCheckChildTypes(boolean shouldSkip)
-    {
-        checkChildTypes.set(shouldSkip);
-    }
-    
-    public static boolean folderChildrenOnly()
-    {
-        Boolean result = folderChildrenOnly.get();
-        return result == null ? false : result;
-    }
-    
-    public static void setFolderChildrenOnly(boolean foldersOnly)
-    {
-        folderChildrenOnly.set(foldersOnly);
-    }
+  /** Track if current operation loading children should check what types of children they have */
+  private static ThreadLocal<Boolean> checkChildTypes = new ThreadLocal<>();
+
+  /** Track if current operation loading children should be restricted to folder children */
+  private static ThreadLocal<Boolean> folderChildrenOnly = new ThreadLocal<>();
+
+  /**
+   * Get Thread local setting for checking child types (section, folder, item) when loading path
+   * items. See {@link PSPathItem#hasFolderChildren()}, {@link PSPathItem#hasItemChildren()}, and
+   * {@link PSPathItem#hasSectionChildren()}, which will be <code>false</code> if not checked.
+   *
+   * @return <code>true</code> to check them, <code>false</code> to skip checking. Defaults to
+   *     <code>false</code> if not set.
+   */
+  public static boolean shouldCheckChildTypes() {
+    Boolean check = checkChildTypes.get();
+    return check == null ? false : checkChildTypes.get();
+  }
+
+  /**
+   * Set if child types should be checked when loading path items.
+   *
+   * @param shouldSkip <code>true</code> to check, <code>false</code> to skip checking.
+   */
+  public static void setShouldCheckChildTypes(boolean shouldSkip) {
+    checkChildTypes.set(shouldSkip);
+  }
+
+  public static boolean folderChildrenOnly() {
+    Boolean result = folderChildrenOnly.get();
+    return result == null ? false : result;
+  }
+
+  public static void setFolderChildrenOnly(boolean foldersOnly) {
+    folderChildrenOnly.set(foldersOnly);
+  }
 }

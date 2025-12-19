@@ -18,53 +18,36 @@ package com.percussion.pagemanagement.data;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotNull;
 
 /**
- * 
- * Region code is everything but the defining
- * region HTML elements (usually a div with a special class attribute).
- * Thus the regions start tag and end tag are not included in 
- * {@link #getTemplateCode()}.
- * <p>
- * Region code can be a mixture of template language (velocity), 
- * HTML fragments or just plain text. 
- * 
- * @author adamgent
+ * Region code is everything but the defining region HTML elements (usually a div with a special
+ * class attribute). Thus the regions start tag and end tag are not included in {@link
+ * #getTemplateCode()}.
  *
+ * <p>Region code can be a mixture of template language (velocity), HTML fragments or just plain
+ * text.
+ *
+ * @author adamgent
  */
 @XmlRootElement
-public class PSRegionCode extends PSRegionNode
-{
+public class PSRegionCode extends PSRegionNode {
 
+  private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+  @NotNull private String templateCode;
 
-    @NotNull
-    private String templateCode;
-    
+  @Override
+  public void accept(IPSRegionNodeVisitor visitor) {
+    visitor.visit(this);
+  }
 
-    @Override
-    public void accept(IPSRegionNodeVisitor visitor)
-    {
-        visitor.visit(this);
-    }
+  @XmlElement
+  public String getTemplateCode() {
+    return templateCode;
+  }
 
-
-    @XmlElement
-    public String getTemplateCode()
-    {
-        return templateCode;
-    }
-
-    public void setTemplateCode(String code)
-    {
-        this.templateCode = code;
-    }
-    
-    
-    
-
-    
+  public void setTemplateCode(String code) {
+    this.templateCode = code;
+  }
 }

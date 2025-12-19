@@ -19,18 +19,17 @@ package com.percussion.recent.dao;
 
 import com.percussion.recent.data.PSRecent;
 import com.percussion.share.dao.IPSGenericDao;
-
 import java.util.List;
 
 public interface IPSRecentDao {
-    @SuppressWarnings("unchecked")
-    public List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
+  @SuppressWarnings("unchecked")
+  public List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
 
-    public void saveAll(List<PSRecent> recentList);
+  public void saveAll(List<PSRecent> recentList);
 
-    public void delete(PSRecent recent);
+  public void delete(PSRecent recent);
 
-    public void deleteAll(List<PSRecent> recentList);
+  public void deleteAll(List<PSRecent> recentList);
 
-    public void save(PSRecent recent) throws IPSGenericDao.SaveException;
+  public void save(PSRecent recent) throws IPSGenericDao.SaveException;
 }

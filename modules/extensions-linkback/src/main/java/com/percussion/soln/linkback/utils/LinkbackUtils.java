@@ -17,9 +17,7 @@
 
 package com.percussion.soln.linkback.utils;
 
-
 public class LinkbackUtils {
-    
-    public static String LINKBACK_PARAM_NAME = "perc_linkback";
 
+  public static String LINKBACK_PARAM_NAME = "perc_linkback";
 }

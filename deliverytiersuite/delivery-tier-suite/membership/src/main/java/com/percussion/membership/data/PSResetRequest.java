@@ -16,25 +16,23 @@
  */
 package com.percussion.membership.data;
 
-public class PSResetRequest
-{
-    private String email;
-    private String redirectPage;
+public class PSResetRequest {
+  private String email;
+  private String redirectPage;
 
-    public String getEmail()
-    {
-        return email;
-    }
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-    public String getRedirectPage()
-    {
-        return redirectPage;
-    }
-    public void setRedirectPage(String redirectPage)
-    {
-        this.redirectPage = redirectPage;
-    }
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getRedirectPage() {
+    return redirectPage;
+  }
+
+  public void setRedirectPage(String redirectPage) {
+    this.redirectPage = redirectPage;
+  }
 }

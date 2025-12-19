@@ -20,53 +20,46 @@ package com.percussion.share.service.exception;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 import org.springframework.validation.MapBindingResult;
 
-
 /**
- * 
- * Used to validate property objects like {@link Map}
- * and {@link Properties}.
- * 
- * @author adamgent
+ * Used to validate property objects like {@link Map} and {@link Properties}.
  *
+ * @author adamgent
  */
 public class PSPropertiesValidationException extends PSSpringValidationException {
 
+  private static final long serialVersionUID = 1L;
+  private Map<String, Object> properties = new HashMap<>();
 
-    private static final long serialVersionUID = 1L;
-    private Map<String, Object> properties = new HashMap<>();
-    
-    public PSPropertiesValidationException(Object target, String methodName) {
-        super(methodName);
-        init(target, methodName);
-        setProperties(getProperties());
-    }
-    
-    public PSPropertiesValidationException(Object target, String methodName, String message, Throwable cause) {
-        super(message, cause);
-        init(target, methodName);
-        setProperties(getProperties());
-    }
-    
-    protected void init(Object target, String objectName) {
-        init(getProperties(), objectName);
-    }
-    
-    protected void init(Map<String, Object> properties, String objectName) {
-        MapBindingResult mbr = new MapBindingResult(properties, objectName);
-        setSpringValidationErrors(mbr);    
-    }
-    
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
+  public PSPropertiesValidationException(Object target, String methodName) {
+    super(methodName);
+    init(target, methodName);
+    setProperties(getProperties());
+  }
 
-    
-    public void setProperties(Map<String, Object> parameters) {
-        this.properties = parameters;
-        init(parameters, getObjectName());
-    }
-    
+  public PSPropertiesValidationException(
+      Object target, String methodName, String message, Throwable cause) {
+    super(message, cause);
+    init(target, methodName);
+    setProperties(getProperties());
+  }
+
+  protected void init(Object target, String objectName) {
+    init(getProperties(), objectName);
+  }
+
+  protected void init(Map<String, Object> properties, String objectName) {
+    MapBindingResult mbr = new MapBindingResult(properties, objectName);
+    setSpringValidationErrors(mbr);
+  }
+
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
+
+  public void setProperties(Map<String, Object> parameters) {
+    this.properties = parameters;
+    init(parameters, getObjectName());
+  }
 }

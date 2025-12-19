@@ -25,19 +25,17 @@ import com.percussion.services.general.IPSRhythmyxInfo;
 import com.percussion.services.general.PSRhythmyxInfoLocator;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * Provides the def for each loadable request handler.  Utilizes a configuration
- * file with the following format:
+ * Provides the def for each loadable request handler. Utilizes a configuration file with the
+ * following format:
  *
  * <pre><code>
  *  &lt;!--
@@ -130,246 +128,199 @@ import java.util.Iterator;
  *
  *  --&gt;
  * </code></pre>
- *
  */
-public class PSRequestHandlerConfiguration
-{
-   /**
-    * Constructor, loads the config file and creates all handler defs.
-    *
-    * @throws PSServerException if there are any errors
-    */
-   public PSRequestHandlerConfiguration() throws PSServerException
-   {
-      try
-      {
-         // load the config file
-         m_handlerDefs = new ArrayList();
-         Document cfgDoc = getConfig();
+public class PSRequestHandlerConfiguration {
+  /**
+   * Constructor, loads the config file and creates all handler defs.
+   *
+   * @throws PSServerException if there are any errors
+   */
+  public PSRequestHandlerConfiguration() throws PSServerException {
+    try {
+      // load the config file
+      m_handlerDefs = new ArrayList();
+      Document cfgDoc = getConfig();
 
-         // if no config file, we're done
-         if (cfgDoc == null)
-            return;
+      // if no config file, we're done
+      if (cfgDoc == null) return;
 
-         // validate that it is the correct type
-         Element root = cfgDoc.getDocumentElement();
-         if (root == null)
-            throw new PSUnknownDocTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_NULL, CONFIG_ROOT);
+      // validate that it is the correct type
+      Element root = cfgDoc.getDocumentElement();
+      if (root == null)
+        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, CONFIG_ROOT);
 
-         //make sure we got the correct root node tag
-         if (false == CONFIG_ROOT.equals (root.getNodeName()))
-         {
-            Object[] args = { CONFIG_ROOT, root.getNodeName() };
-            throw new PSUnknownDocTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-         }
-
-
-         // walk it and load the handlers
-         PSXmlTreeWalker tree = new PSXmlTreeWalker(cfgDoc);
-
-         int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
-         int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
-         firstFlags |= PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-         nextFlags  |= PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-
-         String searchEl;
-         IPSRhythmyxInfo rxInfo = PSRhythmyxInfoLocator.getRhythmyxInfo();
-         String rxRootDir = (String) rxInfo
-               .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
-
-         File rhConfigDir = new File(rxRootDir + File.separator
-               + CONFIG_DIR, HANDLER_CONFIG_DIR);
-
-         // find each handler def
-         searchEl = "RequestHandlerDef";
-         Element defEl = tree.getNextElement(searchEl, firstFlags);
-         while (defEl != null)
-         {
-            // determine handler name
-            String handlerName = defEl.getAttribute("handlerName");
-            if (handlerName == null || handlerName.length() == 0)
-            {
-               Object[] args = {searchEl, "handlerName", handlerName};
-               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-            }
-
-            // determine class name
-            String className = defEl.getAttribute("className");
-            if (className == null || className.length() == 0)
-            {
-               Object[] args = {searchEl, "className", className};
-               throw new PSUnknownNodeTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-            }
-
-            // may not have a cfg file
-            File rhConfigFile = null;
-            String cfgFileName = defEl.getAttribute("configFile");
-            if (cfgFileName != null && cfgFileName.length() != 0)
-               rhConfigFile = new File(rhConfigDir, cfgFileName);
-               
-            // get the roots
-            HashMap roots = new HashMap();
-            String rootsElName = "RequestRoots";
-
-            Element rootsEl = tree.getNextElement(rootsElName, firstFlags);
-            if (rootsEl == null)
-               throw new PSUnknownDocTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_NULL, rootsElName);
-
-            String rootElName = "RequestRoot";
-            Element rootEl = tree.getNextElement(rootElName, firstFlags);
-
-            // must have at least one root
-            if (rootEl == null)
-               throw new PSUnknownDocTypeException(
-                  IPSObjectStoreErrors.XML_ELEMENT_NULL, rootElName);
-
-            while (rootEl != null)
-            {
-               String rootName = rootEl.getAttribute("baseName");
-               if (rootName == null)
-               {
-                  Object[] args = {rootElName, "baseName", rootName};
-                  throw new PSUnknownNodeTypeException(
-                     IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-               }
-
-               // strip off leading "/" if there
-               if (rootName.startsWith("/"))
-                  rootName = rootName.substring(1);
-
-               // get its methods
-               ArrayList methods = new ArrayList();
-               String typeElName = "RequestType";
-               Element typeEl = tree.getNextElement(typeElName, firstFlags);
-
-               // must have at least one
-               if (typeEl == null)
-                  throw new PSUnknownDocTypeException(
-                     IPSObjectStoreErrors.XML_ELEMENT_NULL, typeElName);
-
-               while (typeEl != null)
-               {
-                  methods.add(tree.getElementData(typeEl));
-
-                  typeEl = tree.getNextElement(typeElName, nextFlags);
-               }
-
-               // add to list of roots
-               roots.put(rootName, methods);
-
-               // find the next one
-               tree.setCurrent(rootEl);
-               rootEl = tree.getNextElement(rootElName, nextFlags);
-            }
-
-            // create the def
-            PSRequestHandlerDef def = new PSRequestHandlerDef(handlerName,
-               className, rhConfigFile, roots.keySet().iterator());
-
-            // add the methods
-            Iterator i = roots.keySet().iterator();
-            while (i.hasNext())
-            {
-               String rootName = (String)i.next();
-               def.addRequestMethods(rootName,
-                  ((ArrayList)roots.get(rootName)).iterator());
-            }
-
-            // add it to the list
-            m_handlerDefs.add(def);
-
-            // find the next one
-            tree.setCurrent(defEl);
-            defEl = tree.getNextElement(searchEl, nextFlags);
-         }
-
+      // make sure we got the correct root node tag
+      if (false == CONFIG_ROOT.equals(root.getNodeName())) {
+        Object[] args = {CONFIG_ROOT, root.getNodeName()};
+        throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      catch (Exception e)
-      {
-         if (!(e instanceof PSServerException))
-         {
-            // wrap it
-            e = new PSServerException(
-               IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
-         }
-         throw (PSServerException)e;
-      }
-   }
 
+      // walk it and load the handlers
+      PSXmlTreeWalker tree = new PSXmlTreeWalker(cfgDoc);
 
-   /**
-    * Returns an iterator over zero or more PSRequestHandlerDef objects.
-    */
-   public Iterator getHandlerDefs()
-   {
-      return m_handlerDefs.iterator();
-   }
+      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
+      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
+      firstFlags |= PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+      nextFlags |= PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-
-   /**
-    * Returns the Document object that contains the loadable request handler
-    * definitions.
-    * @return The document, may be <code>null</code> if there is no config file.
-    * @throws PSServerException if there are any errors.
-    */
-   private Document getConfig() throws PSServerException
-   {
-      Document doc = null;
-
+      String searchEl;
       IPSRhythmyxInfo rxInfo = PSRhythmyxInfoLocator.getRhythmyxInfo();
-      String rxRootDir = (String) rxInfo
-            .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
-      
-      try
-      {
-         // get the xml file from disk
-         File cfg = new File(rxRootDir + File.separator + CONFIG_DIR,
-               CONFIG_FILE_NAME);
-         if (cfg.exists())
-         {
-            try(FileInputStream fIn = new FileInputStream(cfg)) {
-               doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
-            }
-         }
+      String rxRootDir = (String) rxInfo.getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
+
+      File rhConfigDir = new File(rxRootDir + File.separator + CONFIG_DIR, HANDLER_CONFIG_DIR);
+
+      // find each handler def
+      searchEl = "RequestHandlerDef";
+      Element defEl = tree.getNextElement(searchEl, firstFlags);
+      while (defEl != null) {
+        // determine handler name
+        String handlerName = defEl.getAttribute("handlerName");
+        if (handlerName == null || handlerName.length() == 0) {
+          Object[] args = {searchEl, "handlerName", handlerName};
+          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        }
+
+        // determine class name
+        String className = defEl.getAttribute("className");
+        if (className == null || className.length() == 0) {
+          Object[] args = {searchEl, "className", className};
+          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+        }
+
+        // may not have a cfg file
+        File rhConfigFile = null;
+        String cfgFileName = defEl.getAttribute("configFile");
+        if (cfgFileName != null && cfgFileName.length() != 0)
+          rhConfigFile = new File(rhConfigDir, cfgFileName);
+
+        // get the roots
+        HashMap roots = new HashMap();
+        String rootsElName = "RequestRoots";
+
+        Element rootsEl = tree.getNextElement(rootsElName, firstFlags);
+        if (rootsEl == null)
+          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, rootsElName);
+
+        String rootElName = "RequestRoot";
+        Element rootEl = tree.getNextElement(rootElName, firstFlags);
+
+        // must have at least one root
+        if (rootEl == null)
+          throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, rootElName);
+
+        while (rootEl != null) {
+          String rootName = rootEl.getAttribute("baseName");
+          if (rootName == null) {
+            Object[] args = {rootElName, "baseName", rootName};
+            throw new PSUnknownNodeTypeException(
+                IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+          }
+
+          // strip off leading "/" if there
+          if (rootName.startsWith("/")) rootName = rootName.substring(1);
+
+          // get its methods
+          ArrayList methods = new ArrayList();
+          String typeElName = "RequestType";
+          Element typeEl = tree.getNextElement(typeElName, firstFlags);
+
+          // must have at least one
+          if (typeEl == null)
+            throw new PSUnknownDocTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, typeElName);
+
+          while (typeEl != null) {
+            methods.add(tree.getElementData(typeEl));
+
+            typeEl = tree.getNextElement(typeElName, nextFlags);
+          }
+
+          // add to list of roots
+          roots.put(rootName, methods);
+
+          // find the next one
+          tree.setCurrent(rootEl);
+          rootEl = tree.getNextElement(rootElName, nextFlags);
+        }
+
+        // create the def
+        PSRequestHandlerDef def =
+            new PSRequestHandlerDef(
+                handlerName, className, rhConfigFile, roots.keySet().iterator());
+
+        // add the methods
+        Iterator i = roots.keySet().iterator();
+        while (i.hasNext()) {
+          String rootName = (String) i.next();
+          def.addRequestMethods(rootName, ((ArrayList) roots.get(rootName)).iterator());
+        }
+
+        // add it to the list
+        m_handlerDefs.add(def);
+
+        // find the next one
+        tree.setCurrent(defEl);
+        defEl = tree.getNextElement(searchEl, nextFlags);
       }
-      catch (Exception e)
-      {
-         throw new PSServerException(
-            IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
+
+    } catch (Exception e) {
+      if (!(e instanceof PSServerException)) {
+        // wrap it
+        e = new PSServerException(IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
       }
+      throw (PSServerException) e;
+    }
+  }
 
-      return doc;
-   }
+  /** Returns an iterator over zero or more PSRequestHandlerDef objects. */
+  public Iterator getHandlerDefs() {
+    return m_handlerDefs.iterator();
+  }
 
-   /**
-    * List of request handler definitions.  Initialized in constructor,
-    * never <code>null</code> after that.
-    */
-   private ArrayList m_handlerDefs = null;
+  /**
+   * Returns the Document object that contains the loadable request handler definitions.
+   *
+   * @return The document, may be <code>null</code> if there is no config file.
+   * @throws PSServerException if there are any errors.
+   */
+  private Document getConfig() throws PSServerException {
+    Document doc = null;
 
-   /**
-    * Directory off the Rhythmyx root where the config file is located.
-    */
-   private static final String CONFIG_DIR = "rxconfig/Server";
+    IPSRhythmyxInfo rxInfo = PSRhythmyxInfoLocator.getRhythmyxInfo();
+    String rxRootDir = (String) rxInfo.getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
 
-   /**
-    * Name of the handler config file
-    */
-   private static final String CONFIG_FILE_NAME = "RequestHandlers.xml";
+    try {
+      // get the xml file from disk
+      File cfg = new File(rxRootDir + File.separator + CONFIG_DIR, CONFIG_FILE_NAME);
+      if (cfg.exists()) {
+        try (FileInputStream fIn = new FileInputStream(cfg)) {
+          doc = PSXmlDocumentBuilder.createXmlDocument(fIn, false);
+        }
+      }
+    } catch (Exception e) {
+      throw new PSServerException(IPSServerErrors.REQUEST_HANDLER_CONFIG_ERROR, e.toString());
+    }
 
-   /**
-    * Name of the subdirectory of the config directory where the config files
-    * for each request handler are located.
-    */
-   private static final String HANDLER_CONFIG_DIR = "requestHandlers";
+    return doc;
+  }
 
-   /**
-    * Constant for the request handler config doc root element.
-    */
-   private static final String CONFIG_ROOT = "RequestHandlerDefs"; 
+  /**
+   * List of request handler definitions. Initialized in constructor, never <code>null</code> after
+   * that.
+   */
+  private ArrayList m_handlerDefs = null;
+
+  /** Directory off the Rhythmyx root where the config file is located. */
+  private static final String CONFIG_DIR = "rxconfig/Server";
+
+  /** Name of the handler config file */
+  private static final String CONFIG_FILE_NAME = "RequestHandlers.xml";
+
+  /**
+   * Name of the subdirectory of the config directory where the config files for each request
+   * handler are located.
+   */
+  private static final String HANDLER_CONFIG_DIR = "requestHandlers";
+
+  /** Constant for the request handler config doc root element. */
+  private static final String CONFIG_ROOT = "RequestHandlerDefs";
 }

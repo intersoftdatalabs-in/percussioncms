@@ -20,7 +20,6 @@ package com.percussion.pagemanagement.service;
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-public interface IPSPageCategoryService 
-{
-    public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
+public interface IPSPageCategoryService {
+  public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
 }

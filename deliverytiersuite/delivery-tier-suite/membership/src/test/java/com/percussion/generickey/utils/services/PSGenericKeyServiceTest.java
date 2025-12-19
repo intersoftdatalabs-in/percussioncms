@@ -18,8 +18,10 @@ package com.percussion.generickey.utils.services;
 
 import com.percussion.generickey.services.IPSGenericKeyService;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Root;
 import junit.framework.TestCase;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -31,74 +33,56 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
-
-/**
- * @author leonardohildt
- * 
- */
+/** @author leonardohildt */
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSGenericKeyServiceTest extends TestCase
-{
-    @Autowired
-    private IPSGenericKeyService genericKeyService;
-    
-    @Autowired
-    private SessionFactory sessionFactory;
+public class PSGenericKeyServiceTest extends TestCase {
+  @Autowired private IPSGenericKeyService genericKeyService;
 
+  @Autowired private SessionFactory sessionFactory;
 
-    @Override
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSGenericKey> deleteQuery = builder.createCriteriaDelete(PSGenericKey.class);
-            Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-            //session.close();
-        }
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSGenericKey> deleteQuery = builder.createCriteriaDelete(PSGenericKey.class);
+      Root<PSGenericKey> root = deleteQuery.from(PSGenericKey.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      // session.close();
     }
+  }
 
-    private Session getSession(){
+  private Session getSession() {
 
-        return sessionFactory.getCurrentSession();
+    return sessionFactory.getCurrentSession();
+  }
 
-    }
-    @Override
-    @After
-    public void tearDown() {
-    }
+  @Override
+  @After
+  public void tearDown() {}
 
-    @Test
-    public void testCreateKey() throws Exception
-    {
-        String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
-        assertNotNull(generatedKey);
-        assertFalse(generatedKey.length() == 0);
-    }
-    
-    @Test
-    public void testValidKey() throws Exception
-    {
-        String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
-        assertNotNull(generatedKey);
-        assertFalse(generatedKey.length() == 0);
-        
-        boolean isValid = genericKeyService.isValidKey(generatedKey);
-        assertTrue(isValid);
-    }
-    
-    /**
-     * Constant to set the duration time one day into milliseconds
-     */
-    private static final long DAY_IN_MILLISECONDS = 86400000;
-   
+  @Test
+  public void testCreateKey() throws Exception {
+    String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
+    assertNotNull(generatedKey);
+    assertFalse(generatedKey.length() == 0);
+  }
+
+  @Test
+  public void testValidKey() throws Exception {
+    String generatedKey = genericKeyService.generateKey(DAY_IN_MILLISECONDS);
+    assertNotNull(generatedKey);
+    assertFalse(generatedKey.length() == 0);
+
+    boolean isValid = genericKeyService.isValidKey(generatedKey);
+    assertTrue(isValid);
+  }
+
+  /** Constant to set the duration time one day into milliseconds */
+  private static final long DAY_IN_MILLISECONDS = 86400000;
 }

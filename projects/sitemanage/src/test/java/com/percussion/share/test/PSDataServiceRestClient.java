@@ -14,91 +14,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+/** */
 package com.percussion.share.test;
 
 import static org.apache.commons.lang.Validate.*;
 
 import java.util.List;
 
-public class PSDataServiceRestClient<T> extends PSObjectRestClient
-{
-    
-    private Class<T> type;
+public class PSDataServiceRestClient<T> extends PSObjectRestClient {
 
-    private String path;
+  private Class<T> type;
 
-    public PSDataServiceRestClient(Class<T> type, String baseUrl, String path)
-    {
-        
-        super(baseUrl);
-        this.type = type;
-        this.path = path;
-    }
+  private String path;
 
-    public T save(T data)
-    {
-        notNull(data);
-        return postObjectToPath(getSavePath(), data, this.type);
-    }
+  public PSDataServiceRestClient(Class<T> type, String baseUrl, String path) {
 
-    public void delete(String id)
-    {
-        notNull(id);
-        DELETE(getDeletePath(id));
-    }
+    super(baseUrl);
+    this.type = type;
+    this.path = path;
+  }
 
-    public T get(String id)
-    {
-        notNull(id);
-        return getObjectFromPath(getGetPath(id));
-    }
+  public T save(T data) {
+    notNull(data);
+    return postObjectToPath(getSavePath(), data, this.type);
+  }
 
-    protected T getObjectFromPath(String path)
-    {
-        notNull(path);
-        return getObjectFromPath(path, this.type);
-    }
-    
-    public List<T> getAll()
-    {
-        return getObjectsFromPath(getAllPath());
-    }
-    
-    protected List<T> getObjectsFromPath(String path) {
-        return getObjectsFromPath(path, this.type);
-    }
+  public void delete(String id) {
+    notNull(id);
+    DELETE(getDeletePath(id));
+  }
 
-    protected String getDeletePath(String id)
-    {
-        return getPath() + id;
-    }
+  public T get(String id) {
+    notNull(id);
+    return getObjectFromPath(getGetPath(id));
+  }
 
-    protected String getGetPath(String id)
-    {
-        return getPath() + id;
-    }
+  protected T getObjectFromPath(String path) {
+    notNull(path);
+    return getObjectFromPath(path, this.type);
+  }
 
-    protected String getAllPath()
-    {
-        return getPath();
-    }
+  public List<T> getAll() {
+    return getObjectsFromPath(getAllPath());
+  }
 
-    protected String getSavePath()
-    {
-        return getPath();
-    }
+  protected List<T> getObjectsFromPath(String path) {
+    return getObjectsFromPath(path, this.type);
+  }
 
-    public String getPath()
-    {
-        return path;
-    }
+  protected String getDeletePath(String id) {
+    return getPath() + id;
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  protected String getGetPath(String id) {
+    return getPath() + id;
+  }
 
+  protected String getAllPath() {
+    return getPath();
+  }
+
+  protected String getSavePath() {
+    return getPath();
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

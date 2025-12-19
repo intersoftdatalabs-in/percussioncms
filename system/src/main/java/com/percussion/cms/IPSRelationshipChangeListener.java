@@ -16,16 +16,13 @@
  */
 package com.percussion.cms;
 
-/**
- * An interface that allows classes to listen for relationship changes. 
- */
-public interface IPSRelationshipChangeListener
-{
-   /**
-    * This method is called to notify registered listeners or add, remove and 
-    * modify relationship events.
-    * 
-    * @param event the event object, never <code>null</code>.
-    */
-   public void relationshipChanged(PSRelationshipChangeEvent event);
+/** An interface that allows classes to listen for relationship changes. */
+public interface IPSRelationshipChangeListener {
+  /**
+   * This method is called to notify registered listeners or add, remove and modify relationship
+   * events.
+   *
+   * @param event the event object, never <code>null</code>.
+   */
+  public void relationshipChanged(PSRelationshipChangeEvent event);
 }

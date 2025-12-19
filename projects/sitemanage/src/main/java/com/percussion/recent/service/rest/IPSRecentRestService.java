@@ -21,25 +21,32 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.data.PSWidgetContentType;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.share.data.PSItemProperties;
-
 import java.util.List;
 
+public interface IPSRecentRestService {
+  List<PSItemProperties> findRecentItem();
 
-public interface IPSRecentRestService
-{
-    List<PSItemProperties> findRecentItem();
-    List<PSItemProperties> findRecentNonArchivedItem();
-    List<PSTemplateSummary> findRecentTemplate(String siteName);
-    List<PSPathItem> findRecentSiteFolder(String siteName);
-    List<PSPathItem> findRecentAssetFolder();
-    List<PSWidgetContentType> findRecentAssetType();
+  List<PSItemProperties> findRecentNonArchivedItem();
 
-    void addRecentItem(String value);
-    void addRecentTemplate(String siteName, String value);
-    void addRecentSiteFolder(String value);
-    void addRecentAssetFolder(String value);
-    void addRecentAssetType(String value);
+  List<PSTemplateSummary> findRecentTemplate(String siteName);
 
-    void deleteUserRecent(String user);
-    void deleteSiteRecent(String siteName);
+  List<PSPathItem> findRecentSiteFolder(String siteName);
+
+  List<PSPathItem> findRecentAssetFolder();
+
+  List<PSWidgetContentType> findRecentAssetType();
+
+  void addRecentItem(String value);
+
+  void addRecentTemplate(String siteName, String value);
+
+  void addRecentSiteFolder(String value);
+
+  void addRecentAssetFolder(String value);
+
+  void addRecentAssetType(String value);
+
+  void deleteUserRecent(String user);
+
+  void deleteSiteRecent(String siteName);
 }

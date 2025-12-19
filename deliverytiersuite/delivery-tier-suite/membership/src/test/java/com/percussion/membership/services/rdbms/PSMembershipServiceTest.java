@@ -18,7 +18,9 @@ package com.percussion.membership.services.rdbms;
 
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.PSBaseMembershipServiceTest;
-import org.hibernate.HibernateException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -28,50 +30,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
-
-/**
- * @author erikserating
- *
- */
-
+/** @author erikserating */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
-{
-    @Autowired
-    private SessionFactory sessionFactory;
+public class PSMembershipServiceTest extends PSBaseMembershipServiceTest {
+  @Autowired private SessionFactory sessionFactory;
 
-
-
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
-            Root<PSMembership> root = deleteQuery.from(PSMembership.class);
-            deleteQuery.from(PSMembership.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-           // session.close();
-        }
-
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    Session session = getSession();
+    try {
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaDelete<PSMembership> deleteQuery = builder.createCriteriaDelete(PSMembership.class);
+      Root<PSMembership> root = deleteQuery.from(PSMembership.class);
+      deleteQuery.from(PSMembership.class);
+      session.createQuery(deleteQuery).executeUpdate();
+    } finally {
+      // session.close();
     }
+  }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
+  @After
+  public void tearDown() throws Exception {
+    super.tearDown();
+  }
 
-    private Session getSession(){
+  private Session getSession() {
 
-        return sessionFactory.getCurrentSession();
-
-    }
+    return sessionFactory.getCurrentSession();
+  }
 }

@@ -17,6 +17,10 @@
 package com.percussion.tablefactory;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -24,431 +28,437 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+/** Unit test for PSJdbcTableSchema. */
+public class PSJdbcTableSchemaTest extends TestCase {
+  public PSJdbcTableSchemaTest(String name) {
+    super(name);
+  }
 
-/**
- * Unit test for PSJdbcTableSchema.
- */
-public class PSJdbcTableSchemaTest extends TestCase
-{
-   public PSJdbcTableSchemaTest(String name)
-   {
-      super(name);
-   }
+  /** Test the def */
+  public void testDef() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MSSQL", "sqlserver", null);
 
-   /**
-    * Test the def
-    */
-   public void testDef() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap =  new PSJdbcDataTypeMap("MSSQL", "sqlserver",
-         null);
+    PSJdbcColumnDef col;
+    ArrayList coldefs = new ArrayList<>();
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col1",
+            PSJdbcTableComponent.ACTION_REPLACE,
+            Types.CHAR,
+            "10",
+            true,
+            null));
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap, "col2", PSJdbcTableComponent.ACTION_CREATE, Types.DATE, "15", true, null));
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col3",
+            PSJdbcTableComponent.ACTION_DELETE,
+            Types.INTEGER,
+            null,
+            true,
+            null));
 
-      PSJdbcColumnDef col;
-      ArrayList coldefs = new ArrayList<>();
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col1",
-         PSJdbcTableComponent.ACTION_REPLACE, Types.CHAR, "10", true, null));
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col2",
-         PSJdbcTableComponent.ACTION_CREATE, Types.DATE, "15", true, null));
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col3",
-         PSJdbcTableComponent.ACTION_DELETE, Types.INTEGER, null, true, null));
+    PSJdbcTableSchema tableSchema = new PSJdbcTableSchema("myTable", coldefs.iterator());
+    tableSchema.setCreate(false);
+    tableSchema.setAlter(true);
+    tableSchema.setDelOldData(true);
 
-      PSJdbcTableSchema tableSchema = new PSJdbcTableSchema("myTable", coldefs.iterator());
-      tableSchema.setCreate(false);
-      tableSchema.setAlter(true);
-      tableSchema.setDelOldData(true);
+    List pkcols = new ArrayList<>();
+    pkcols.add("col1");
+    pkcols.add("col2");
+    PSJdbcPrimaryKey pk =
+        new PSJdbcPrimaryKey(pkcols.iterator(), PSJdbcTableComponent.ACTION_REPLACE);
+    tableSchema.setPrimaryKey(pk);
 
-      List pkcols = new ArrayList<>();
-      pkcols.add("col1");
-      pkcols.add("col2");
-      PSJdbcPrimaryKey pk = new PSJdbcPrimaryKey(pkcols.iterator(),
-         PSJdbcTableComponent.ACTION_REPLACE);
-      tableSchema.setPrimaryKey(pk);
+    List ukcols = new ArrayList<>();
+    ukcols.add("col1");
+    PSJdbcUpdateKey uk = new PSJdbcUpdateKey(ukcols.iterator());
+    tableSchema.setUpdateKey(uk);
 
+    List fkCols = new ArrayList<>();
+    String[] fcol1 = {"col1", "etable", "ecol1"};
+    String[] fcol2 = {"col2", "etable", "ecol2"};
+    fkCols.add(fcol1);
+    fkCols.add(fcol2);
+    // TODO: Index on foreign key not being generated here.
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    List<PSJdbcForeignKey> fks = new ArrayList<>();
+    fks.add(fk);
+    tableSchema.setForeignKeys(fks, true);
 
-      List ukcols = new ArrayList<>();
-      ukcols.add("col1");
-      PSJdbcUpdateKey uk = new PSJdbcUpdateKey(ukcols.iterator());
-      tableSchema.setUpdateKey(uk);
+    List indexCols = new ArrayList<>();
+    indexCols.add("col2");
+    indexCols.add("col3");
+    PSJdbcIndex index1 =
+        new PSJdbcIndex("index1", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema.setIndex(index1);
+    List indexCols2 = new ArrayList<>();
+    indexCols2.add("col2");
+    PSJdbcIndex index2 =
+        new PSJdbcIndex("index2", indexCols2.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema.setIndex(index2);
 
-      List fkCols = new ArrayList<>();
-      String[] fcol1 = {"col1", "etable", "ecol1"};
-      String[] fcol2 = {"col2", "etable", "ecol2"};
-      fkCols.add(fcol1);
-      fkCols.add(fcol2);
-     //TODO: Index on foreign key not being generated here.
-      PSJdbcForeignKey fk = new PSJdbcForeignKey(fkCols.iterator(),
-         PSJdbcTableComponent.ACTION_CREATE);
-      List<PSJdbcForeignKey> fks = new ArrayList<>();
-      fks.add(fk);
-      tableSchema.setForeignKeys(fks,true);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema.toXml(doc);
 
-      List indexCols = new ArrayList<>();
-      indexCols.add("col2");
-      indexCols.add("col3");
-      PSJdbcIndex index1 = new PSJdbcIndex("index1", indexCols.iterator(),
-         PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema.setIndex(index1);
-      List indexCols2 = new ArrayList<>();
-      indexCols2.add("col2");
-      PSJdbcIndex index2 = new PSJdbcIndex("index2", indexCols2.iterator(),
-         PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema.setIndex(index2);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    assertTrue(tableSchema.equals(tableSchema2));
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema.toXml(doc);
+    List dataCols = new ArrayList<>();
+    dataCols.add(new PSJdbcColumnData("col1", "foo"));
+    dataCols.add(new PSJdbcColumnData("col3", "1"));
+    List dataRows = new ArrayList<>();
+    dataRows.add(new PSJdbcRowData(dataCols.iterator(), PSJdbcRowData.ACTION_INSERT));
+    PSJdbcTableData tableData = new PSJdbcTableData("myTable", dataRows.iterator());
+    tableSchema.setCreate(true);
+    tableSchema.setAlter(false);
+    tableSchema.setTableData(tableData);
+    Element defEl = tableSchema.toXml(doc);
+    Element dataEl = tableData.toXml(doc);
+    tableSchema2 = new PSJdbcTableSchema(defEl, dataTypeMap);
+    PSJdbcTableData tableData2 = new PSJdbcTableData(dataEl);
+    tableSchema2.setTableData(tableData2);
+    assertTrue(tableSchema.equals(tableSchema2));
+  }
 
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-      assertTrue(tableSchema.equals(tableSchema2));
+  /**
+   * Tests if the tableSchema has been altered and checks if a new index has been created. Since the
+   * foreign key name is absent, and so checks if the first column name has been used to construct
+   * the index name.Then, tests if createForeignKeyIndexes property has been set to "yes".
+   *
+   * @throws Exception
+   */
+  public void testAddingNewIndexWithoutIndex() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+    ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
+    PSJdbcTableSchema tableSchema = createTableSchema(coldefs);
+    setPrimaryKey(tableSchema);
+    PSJdbcForeignKey fk = createForeignKey(tableSchema);
 
-      List dataCols = new ArrayList<>();
-      dataCols.add(new PSJdbcColumnData("col1", "foo"));
-      dataCols.add(new PSJdbcColumnData("col3", "1"));
-      List dataRows = new ArrayList<>();
-      dataRows.add(new PSJdbcRowData(dataCols.iterator(),
-         PSJdbcRowData.ACTION_INSERT));
-      PSJdbcTableData tableData = new PSJdbcTableData("myTable",
-         dataRows.iterator());
-      tableSchema.setCreate(true);
-      tableSchema.setAlter(false);
-      tableSchema.setTableData(tableData);
-      Element defEl = tableSchema.toXml(doc);
-      Element dataEl = tableData.toXml(doc);
-      tableSchema2 = new PSJdbcTableSchema(defEl, dataTypeMap);
-      PSJdbcTableData tableData2 = new PSJdbcTableData(dataEl);
-      tableSchema2.setTableData(tableData2);
-      assertTrue(tableSchema.equals(tableSchema2));
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema.toXml(doc);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
 
-   }
+    Iterator<?> itIndex = tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE);
+    PSJdbcIndex index = (PSJdbcIndex) itIndex.next();
+    String IndexName = index.getName();
+    String fkcolname = fk.getForeignKeyColumnNames().get(0);
 
-    /**
-     * Tests if the tableSchema has been altered and checks if a new index has
-     * been created. Since the foreign key name is absent, and so checks if the
-     * first column name has been used to construct the index name.Then, tests
-     * if createForeignKeyIndexes property has been set to "yes".
-     * 
-     * @throws Exception
-     */
+    // Makes sure if the table schema has changed
+    assertFalse((tableSchema.equals(tableSchema2)));
 
-   public void testAddingNewIndexWithoutIndex() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
-      ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
-      PSJdbcTableSchema tableSchema = createTableSchema(coldefs);
-      setPrimaryKey(tableSchema);
-      PSJdbcForeignKey fk = createForeignKey(tableSchema);
+    // Makes sure if a new index definition of non unique have been added to
+    // table schema.
+    assertFalse((tableSchema.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+    assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema.toXml(doc);
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    // Makes sure if the index name has taken the first foreign key column name.
+    assertTrue((StringUtils.equalsIgnoreCase(IndexName, "IX_" + fkcolname)));
 
-      Iterator<?> itIndex = tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE);
-      PSJdbcIndex index = (PSJdbcIndex) itIndex.next();
-      String IndexName = index.getName();
-      String fkcolname = fk.getForeignKeyColumnNames().get(0);
+    // Makes sure if the createForeignkeyIndexes attribute for mysql.
+    assertTrue(dataTypeMap.isCreateForeignKeyIndexes());
+  }
 
-      // Makes sure if the table schema has changed
-      assertFalse((tableSchema.equals(tableSchema2)));
+  /**
+   * Tests if the tableSchema has been altered. Tests, If the columns of new index are same set as
+   * the columns of the foreign key. Lastly, checks if the index is unique.
+   *
+   * @throws Exception
+   */
+  public void testAddingNewIndex() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+    ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col3",
+            PSJdbcTableComponent.ACTION_DELETE,
+            Types.INTEGER,
+            null,
+            true,
+            null));
+    PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
+    setPrimaryKey(tableSchema1);
+    PSJdbcForeignKey fk = createForeignKey(tableSchema1);
 
-      // Makes sure if a new index definition of non unique have been added to
-      // table schema.
-      assertFalse((tableSchema.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
-      assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+    List<String> indexCols = new ArrayList<String>();
+    indexCols.add("col3");
+    PSJdbcIndex index1 =
+        new PSJdbcIndex("IX_col1", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema1.setIndex(index1);
 
-      // Makes sure if the index name has taken the first foreign key column name.
-      assertTrue((StringUtils.equalsIgnoreCase(IndexName, "IX_" + fkcolname)));
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema1.toXml(doc);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    PSJdbcIndex newIndex =
+        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
-      // Makes sure if the createForeignkeyIndexes attribute for mysql.
-      assertTrue(dataTypeMap.isCreateForeignKeyIndexes());
+    // Makes sure if the table schema has changed
+    assertFalse((tableSchema1.equals(tableSchema2)));
 
-   }
+    // Makes sure if a new index definition of non unique have been added to
+    // table schema.
+    assertFalse((tableSchema1.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+    assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
 
-   /**
-    * Tests if the tableSchema has been altered. Tests, If the columns of new
-    * index are same set as the columns of the foreign key. Lastly, checks if
-    * the index is unique.
-    * 
-    * @throws Exception
-    */
+    // Makes sure if the number of foreign key columns and eqal to that of
+    // index columns.
+    assertTrue(fk.getForeignKeyColumnNames().size() == newIndex.getIndexColumnNames().size());
 
-   public void testAddingNewIndex() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
-      ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col3", PSJdbcTableComponent.ACTION_DELETE, Types.INTEGER, null,
-              true, null));
-      PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
-      setPrimaryKey(tableSchema1);
-      PSJdbcForeignKey fk = createForeignKey(tableSchema1);
+    // Makes sure if the new index that got created has the same set of
+    // columns as foreign key.
+    assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
 
-      List<String> indexCols = new ArrayList<String>();
-      indexCols.add("col3");
-      PSJdbcIndex index1 = new PSJdbcIndex("IX_col1", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema1.setIndex(index1);
+    // Makes sure if the index name of newly created index has a unique name.
+    assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
+  }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema1.toXml(doc);
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-      PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
+  /**
+   * Tests if the table schema has been altered when list of foreign key columns has the same
+   * columns or is super set of columns of index. Tests, If the columns of new index are same set as
+   * the columns of the foreign key. Lastly, checks if the index is unique.
+   *
+   * @throws Exception
+   */
+  public void testAddingNewIndexWhenFKContainsIndexColumns() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+    ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col3",
+            PSJdbcTableComponent.ACTION_DELETE,
+            Types.INTEGER,
+            null,
+            true,
+            null));
+    PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
+    setPrimaryKey(tableSchema1);
 
-      // Makes sure if the table schema has changed
-      assertFalse((tableSchema1.equals(tableSchema2)));
+    List<String[]> fkCols = new ArrayList<String[]>();
+    String[] fcol1 = {"col1", "etable", "ecol1"};
+    fkCols.add(fcol1);
+    String[] fcol2 = {"col2", "etable", "ecol1"};
+    fkCols.add(fcol2);
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
+    List<PSJdbcForeignKey> fks = new ArrayList<>();
+    fks.add(fk);
+    tableSchema1.setForeignKeys(fks, true);
 
-      // Makes sure if a new index definition of non unique have been added to
-      // table schema.
-      assertFalse((tableSchema1.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
-      assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+    List<String> indexCols = new ArrayList<String>();
+    indexCols.add("col2");
+    PSJdbcIndex index1 =
+        new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema1.setIndex(index1);
 
-      // Makes sure if the number of foreign key columns and eqal to that of
-      // index columns.
-      assertTrue(fk.getForeignKeyColumnNames().size() == newIndex.getIndexColumnNames().size());
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema1.toXml(doc);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    PSJdbcIndex newIndex =
+        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
-      // Makes sure if the new index that got created has the same set of
-      // columns as foreign key.
-      assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
+    // Makes sure if the table schema has changed
+    assertFalse((tableSchema1.equals(tableSchema2)));
 
-      // Makes sure if the index name of newly created index has a unique name.
-      assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
+    // Makes sure if a new index definition of non unique have been added to
+    // table schema.
+    assertFalse((tableSchema1.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+    assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
 
-   }
+    // Makes sure if the new index that got created has the same set of
+    // columns as foreign key.
+    assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
 
-   /**
-    * Tests if the table schema has been altered when list of foreign key
-    * columns has the same columns or is super set of columns of index. Tests,
-    * If the columns of new index are same set as the columns of the foreign
-    * key. Lastly, checks if the index is unique.
-    * 
-    * @throws Exception
-    */
+    // Makes sure if the index name of newly created index has a unique name.
+    assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
+  }
 
-   public void testAddingNewIndexWhenFKContainsIndexColumns() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
-      ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col3", PSJdbcTableComponent.ACTION_DELETE, Types.INTEGER, null,
-              true, null));
-      PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
-      setPrimaryKey(tableSchema1);
+  /**
+   * Tests if the tableSchema has been altered.Lastly, checks if the index is unique when the index
+   * contains all foreign key columns.
+   *
+   * @throws Exception
+   */
+  public void testAddingNewIndexWhenIndexContainsFKColumns() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+    ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col3",
+            PSJdbcTableComponent.ACTION_DELETE,
+            Types.INTEGER,
+            null,
+            true,
+            null));
+    PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
+    setPrimaryKey(tableSchema1);
 
-      List<String[]> fkCols = new ArrayList<String[]>();
-      String[] fcol1 =
-      {"col1", "etable", "ecol1"};
-        fkCols.add(fcol1);
-      String[] fcol2 =
-      {"col2", "etable", "ecol1"};
-        fkCols.add(fcol2);
-      PSJdbcForeignKey fk = new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
-      List<PSJdbcForeignKey> fks = new ArrayList<>();
-      fks.add(fk);
-      tableSchema1.setForeignKeys(fks,true);
+    List<String[]> fkCols = new ArrayList<String[]>();
+    String[] fcol1 = {"col1", "etable", "ecol1"};
+    fkCols.add(fcol1);
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
+    List<PSJdbcForeignKey> fks = new ArrayList<>();
+    fks.add(fk);
+    tableSchema1.setForeignKeys(fks, true);
 
-      List<String> indexCols = new ArrayList<String>();
-      indexCols.add("col2");
-      PSJdbcIndex index1 = new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema1.setIndex(index1);
+    List<String> indexCols = new ArrayList<String>();
+    indexCols.add("col1");
+    indexCols.add("col2");
+    PSJdbcIndex index1 =
+        new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema1.setIndex(index1);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema1.toXml(doc);
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-      PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema1.toXml(doc);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes().next();
 
-      // Makes sure if the table schema has changed
-      assertFalse((tableSchema1.equals(tableSchema2)));
+    // Makes sure if the table schema has not changed
+    assertTrue((tableSchema1.equals(tableSchema2)));
+  }
 
-      // Makes sure if a new index definition of non unique have been added to
-      // table schema.
-      assertFalse((tableSchema1.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
-      assertTrue((tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE)).hasNext());
+  /**
+   * Tests if the tableSchema has been altered. Also, checks if the index is unique.
+   *
+   * @throws Exception
+   */
+  public void testAddingNewIndexWithFKName() throws Exception {
+    PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+    ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col3",
+            PSJdbcTableComponent.ACTION_DELETE,
+            Types.INTEGER,
+            null,
+            true,
+            null));
+    PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
+    setPrimaryKey(tableSchema1);
 
-      // Makes sure if the new index that got created has the same set of
-      // columns as foreign key.
-      assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
+    String foreignKeyName = "FK_Name";
+    List<String[]> fkCols = new ArrayList<String[]>();
+    String[] fcol1 = {"col1", "etable", "ecol1"};
+    fkCols.add(fcol1);
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey(foreignKeyName, fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
+    List<PSJdbcForeignKey> fks = new ArrayList<>();
+    fks.add(fk);
+    tableSchema1.setForeignKeys(fks, true);
 
-      // Makes sure if the index name of newly created index has a unique name.
-      assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
+    List<String> indexCols = new ArrayList<String>();
+    indexCols.add("col2");
+    PSJdbcIndex index1 =
+        new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+    tableSchema1.setIndex(index1);
 
-   }
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = tableSchema1.toXml(doc);
+    PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
+    PSJdbcIndex newIndex =
+        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
-   /**
-    * Tests if the tableSchema has been altered.Lastly, checks if the index is
-    * unique when the index contains all foreign key columns.
-    * 
-    * @throws Exception
-    */
+    // Makes sure if the table schema has changed.
+    assertFalse((tableSchema1.equals(tableSchema2)));
 
-   public void testAddingNewIndexWhenIndexContainsFKColumns() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
-      ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col3", PSJdbcTableComponent.ACTION_DELETE, Types.INTEGER, null,
-              true, null));
-      PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
-      setPrimaryKey(tableSchema1);
+    // Makes sure if the new index that got created has the same set of
+    // columns as foreign key.
+    assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
 
-      List<String[]> fkCols = new ArrayList<String[]>();
-      String[] fcol1 =
-      {"col1", "etable", "ecol1"};
-      fkCols.add(fcol1);
-      PSJdbcForeignKey fk = new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
-      List<PSJdbcForeignKey> fks = new ArrayList<>();
-      fks.add(fk);
-      tableSchema1.setForeignKeys(fks,true);
+    // Makes sure if the index name of newly created index has a unique name.
+    assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
+  }
 
-      List<String> indexCols = new ArrayList<String>();
-      indexCols.add("col1");
-      indexCols.add("col2");
-      PSJdbcIndex index1 = new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema1.setIndex(index1);
+  /**
+   * Sets a foreign key for a given table schema
+   *
+   * @param tableSchema table schema object
+   * @return fk Foreign Key definition
+   * @throws PSJdbcTableFactoryException if error occurs
+   */
+  private PSJdbcForeignKey createForeignKey(PSJdbcTableSchema tableSchema)
+      throws PSJdbcTableFactoryException {
+    List<String[]> fkCols = new ArrayList<String[]>();
+    String[] fcol1 = {"col1", "etable", "ecol1"};
+    fkCols.add(fcol1);
+    String[] fcol2 = {"col2", "etable", "ecol1"};
+    fkCols.add(fcol2);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema1.toXml(doc);
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-      PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes().next();
+    PSJdbcForeignKey fk =
+        new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
+    List<PSJdbcForeignKey> fks = new ArrayList<>();
+    fks.add(fk);
+    tableSchema.setForeignKeys(fks, true);
+    return fk;
+  }
 
-      // Makes sure if the table schema has not changed
-      assertTrue((tableSchema1.equals(tableSchema2)));
+  /**
+   * Sets a primary key for a given table schema
+   *
+   * @param tableSchema table schema object
+   * @throws PSJdbcTableFactoryException if error occurs
+   */
+  private void setPrimaryKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException {
+    List<String> pkcols = new ArrayList<String>();
+    pkcols.add("col1");
+    PSJdbcPrimaryKey pk =
+        new PSJdbcPrimaryKey(pkcols.iterator(), PSJdbcTableComponent.ACTION_REPLACE);
+    tableSchema.setPrimaryKey(pk);
+  }
 
-   }
+  /**
+   * Creates a table schema from column definitions
+   *
+   * @param colDefs columns definition object
+   * @return tableSchema Table schema object
+   * @throws PSJdbcTableFactoryException if error occurs
+   */
+  private PSJdbcTableSchema createTableSchema(ArrayList<PSJdbcColumnDef> colDefs)
+      throws PSJdbcTableFactoryException {
+    PSJdbcTableSchema tableSchema = new PSJdbcTableSchema("myTable", colDefs.iterator());
+    tableSchema.setCreate(false);
+    tableSchema.setAlter(true);
+    tableSchema.setDelOldData(true);
+    return tableSchema;
+  }
 
-   /**
-    * Tests if the tableSchema has been altered. Also, checks if the index is
-    * unique.
-    * 
-    * @throws Exception
-    */
+  /**
+   * Creates a column definition from a dataTypeMap
+   *
+   * @param dataTypeMap data type map object
+   * @returns coldefs Column definition object
+   */
+  private ArrayList<PSJdbcColumnDef> createColumnDef(PSJdbcDataTypeMap dataTypeMap) {
+    ArrayList<PSJdbcColumnDef> coldefs = new ArrayList<PSJdbcColumnDef>();
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap,
+            "col1",
+            PSJdbcTableComponent.ACTION_REPLACE,
+            Types.CHAR,
+            "10",
+            true,
+            null));
+    coldefs.add(
+        new PSJdbcColumnDef(
+            dataTypeMap, "col2", PSJdbcTableComponent.ACTION_CREATE, Types.DATE, "15", true, null));
+    return coldefs;
+  }
 
-   public void testAddingNewIndexWithFKName() throws Exception
-   {
-      PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
-      ArrayList<PSJdbcColumnDef> coldefs = createColumnDef(dataTypeMap);
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col3", PSJdbcTableComponent.ACTION_DELETE, Types.INTEGER, null,
-              true, null));
-      PSJdbcTableSchema tableSchema1 = createTableSchema(coldefs);
-      setPrimaryKey(tableSchema1);
+  // collect all tests into a TestSuite and return it
 
-      String foreignKeyName = "FK_Name";
-      List<String[]> fkCols = new ArrayList<String[]>();
-      String[] fcol1 =
-      {"col1", "etable", "ecol1"};
-      fkCols.add(fcol1);
-      PSJdbcForeignKey fk = new PSJdbcForeignKey(foreignKeyName, fkCols.iterator(),
-              PSJdbcTableComponent.ACTION_DELETE);
-      List<PSJdbcForeignKey> fks = new ArrayList<>();
-      fks.add(fk);
-      tableSchema1.setForeignKeys(fks,true);
-
-      List<String> indexCols = new ArrayList<String>();
-      indexCols.add("col2");
-      PSJdbcIndex index1 = new PSJdbcIndex("IX_Name", indexCols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
-      tableSchema1.setIndex(index1);
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = tableSchema1.toXml(doc);
-      PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-      PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
-
-      // Makes sure if the table schema has changed.
-      assertFalse((tableSchema1.equals(tableSchema2)));
-
-      // Makes sure if the new index that got created has the same set of
-      // columns as foreign key.
-      assertTrue(fk.getForeignKeyColumnNames().containsAll(newIndex.getIndexColumnNames()));
-
-      // Makes sure if the index name of newly created index has a unique name.
-      assertTrue(tableSchema1.doesIndexNameExists(newIndex.getName()));
-   }
-    
-    
-   /**
-    * Sets a foreign key for a given table schema
-    * 
-    * @param tableSchema table schema object
-    * 
-    * @return fk Foreign Key definition 
-    * 
-    * @throws PSJdbcTableFactoryException if error occurs
-    */
-    
-   private PSJdbcForeignKey createForeignKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException
-   {
-      List<String[]> fkCols = new ArrayList<String[]>();
-      String[] fcol1 =
-      {"col1", "etable", "ecol1"};
-      fkCols.add(fcol1);
-      String[] fcol2 =
-      {"col2", "etable", "ecol1"};
-      fkCols.add(fcol2);
-
-      PSJdbcForeignKey fk = new PSJdbcForeignKey(fkCols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
-       List<PSJdbcForeignKey> fks = new ArrayList<>();
-       fks.add(fk);
-      tableSchema.setForeignKeys(fks,true);
-      return fk;
-   }
-    
-   /**
-    * Sets a primary key for a given table schema
-    * 
-    * @param tableSchema table schema object
-    * 
-    * @throws PSJdbcTableFactoryException if error occurs
-    */
-
-   private void setPrimaryKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException
-   {
-      List<String> pkcols = new ArrayList<String>();
-      pkcols.add("col1");
-      PSJdbcPrimaryKey pk = new PSJdbcPrimaryKey(pkcols.iterator(), PSJdbcTableComponent.ACTION_REPLACE);
-      tableSchema.setPrimaryKey(pk);
-   }
-    
-   /**
-    * Creates a table schema from column definitions
-    * 
-    * @param colDefs columns definition object
-    * 
-    * @return tableSchema Table schema object
-    * 
-    * @throws PSJdbcTableFactoryException if error occurs
-    */
-
-   private PSJdbcTableSchema createTableSchema(ArrayList<PSJdbcColumnDef> colDefs) throws PSJdbcTableFactoryException
-   {
-      PSJdbcTableSchema tableSchema = new PSJdbcTableSchema("myTable", colDefs.iterator());
-      tableSchema.setCreate(false);
-      tableSchema.setAlter(true);
-      tableSchema.setDelOldData(true);
-      return tableSchema;
-   }
-    
-   /**
-    * Creates a column definition from a dataTypeMap
-    * 
-    * @param dataTypeMap data type map object
-    * 
-    * @returns coldefs Column definition object
-    */
-
-   private ArrayList<PSJdbcColumnDef> createColumnDef(PSJdbcDataTypeMap dataTypeMap)
-   {
-      ArrayList<PSJdbcColumnDef> coldefs = new ArrayList<PSJdbcColumnDef>();
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col1", PSJdbcTableComponent.ACTION_REPLACE, Types.CHAR, "10",
-              true, null));
-      coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col2", PSJdbcTableComponent.ACTION_CREATE, Types.DATE, "15",
-              true, null));
-      return coldefs;
-   }
-
-    // collect all tests into a TestSuite and return it
-    
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new PSJdbcTableSchemaTest("testDef"));
-        return suite;
-    }
-
+  public static Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTest(new PSJdbcTableSchemaTest("testDef"));
+    return suite;
+  }
 }

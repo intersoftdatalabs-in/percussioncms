@@ -19,23 +19,16 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author stephenbolton
- * 
- */
-public class FolderNotFoundException extends RestExceptionBase
-{
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -4398063672305185319L;
+/** @author stephenbolton */
+public class FolderNotFoundException extends RestExceptionBase {
+  /** */
+  private static final long serialVersionUID = -4398063672305185319L;
 
-	public FolderNotFoundException()
-    {
-        super(RestErrorCode.FOLDER_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
+  public FolderNotFoundException() {
+    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
 
-    public FolderNotFoundException(Throwable cause){
-	    super(cause);
-    }
+  public FolderNotFoundException(Throwable cause) {
+    super(cause);
+  }
 }

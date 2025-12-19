@@ -25,75 +25,66 @@ import com.percussion.share.service.exception.PSBeanValidationUtils;
 import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.user.data.PSLdapConfig.PSLdapServer;
 import com.percussion.user.data.PSLdapConfig.PSLdapServer.CatalogType;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.UnmarshalException;
-
 import org.junit.Test;
 
-public class PSUserDataObjectTests
-{
+public class PSUserDataObjectTests {
 
-    public static class PSLdapConfigTest extends PSDataObjectTestCase<PSLdapConfig> {
+  public static class PSLdapConfigTest extends PSDataObjectTestCase<PSLdapConfig> {
 
-        @Override
-        public PSLdapConfig getObject() throws Exception
-        {
-            PSLdapConfig c = new PSLdapConfig();
-            PSLdapServer s = new PSLdapServer();
-            
-            s.setHost("stuff.com");
-            s.setCatalogType(CatalogType.shallow);
-            s.setPort(3000);
-            Set<String> organizationalUnits = new HashSet<String>();
-            organizationalUnits.add("asdfasdf");
-            s.setOrganizationalUnits(organizationalUnits);
-            s.setPassword("hidden");
-            s.setUser("coolio");
-            
-            c.setServer(s);
-            
-            return c;
-        }
-        
-        @Test
-        public void testValidXml() throws Exception
-        {
-            PSLdapConfig config = loadXml("ValidLdapConfig.xml");
-            assertNotNull(config.getServer());
-            validate(config);
-        }
-        
-        @Test(expected=PSBeanValidationException.class)
-        public void testInValidXml() throws Exception
-        {
-            PSLdapConfig config = loadXml("InvalidLdapConfig.xml");
-            assertNotNull(config.getServer());
-            validate(config);
-        }
-        
-        @Test(expected=UnmarshalException.class)
-        public void testBadXml() throws Exception
-        {
-            loadXml("BadXmlLdapConfig.xml");
-        }
-        
-        @Test(expected=UnmarshalException.class)
-        public void testBadXmlMissingOrgUnits() throws Exception
-        {
-            loadXml("BadXmlOrgUnitsLdapConfig.xml");
-        }
-        
-        private PSSpringValidationException validate(PSLdapConfig c) throws PSSpringValidationException {
-            return PSBeanValidationUtils.validate(c.getServer()).throwIfInvalid();
-        }
-    
-        private PSLdapConfig loadXml(String name) throws Exception {
-            return PSSerializerUtils.unmarshalWithValidation(getClass().getResourceAsStream(name), PSLdapConfig.class);
-        }
+    @Override
+    public PSLdapConfig getObject() throws Exception {
+      PSLdapConfig c = new PSLdapConfig();
+      PSLdapServer s = new PSLdapServer();
+
+      s.setHost("stuff.com");
+      s.setCatalogType(CatalogType.shallow);
+      s.setPort(3000);
+      Set<String> organizationalUnits = new HashSet<String>();
+      organizationalUnits.add("asdfasdf");
+      s.setOrganizationalUnits(organizationalUnits);
+      s.setPassword("hidden");
+      s.setUser("coolio");
+
+      c.setServer(s);
+
+      return c;
     }
-    
-}
 
+    @Test
+    public void testValidXml() throws Exception {
+      PSLdapConfig config = loadXml("ValidLdapConfig.xml");
+      assertNotNull(config.getServer());
+      validate(config);
+    }
+
+    @Test(expected = PSBeanValidationException.class)
+    public void testInValidXml() throws Exception {
+      PSLdapConfig config = loadXml("InvalidLdapConfig.xml");
+      assertNotNull(config.getServer());
+      validate(config);
+    }
+
+    @Test(expected = UnmarshalException.class)
+    public void testBadXml() throws Exception {
+      loadXml("BadXmlLdapConfig.xml");
+    }
+
+    @Test(expected = UnmarshalException.class)
+    public void testBadXmlMissingOrgUnits() throws Exception {
+      loadXml("BadXmlOrgUnitsLdapConfig.xml");
+    }
+
+    private PSSpringValidationException validate(PSLdapConfig c)
+        throws PSSpringValidationException {
+      return PSBeanValidationUtils.validate(c.getServer()).throwIfInvalid();
+    }
+
+    private PSLdapConfig loadXml(String name) throws Exception {
+      return PSSerializerUtils.unmarshalWithValidation(
+          getClass().getResourceAsStream(name), PSLdapConfig.class);
+    }
+  }
+}

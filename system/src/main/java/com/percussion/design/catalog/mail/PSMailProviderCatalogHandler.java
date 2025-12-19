@@ -21,20 +21,20 @@ import com.percussion.design.catalog.IPSCatalogHandler;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
-
 /**
- * The PSMailProviderCatalogHandler class implements cataloging of
- * mail providers. This request type is used to locate the mail providers
- * available to the E2 server for sending e-mail messages.
- * <p>
- * Mail provider catalog requests are sent to the server using the
- * PSXMailProviderCatalog XML document. Its definition is as follows:
+ * The PSMailProviderCatalogHandler class implements cataloging of mail providers. This request type
+ * is used to locate the mail providers available to the E2 server for sending e-mail messages.
+ *
+ * <p>Mail provider catalog requests are sent to the server using the PSXMailProviderCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXMailProviderCatalog EMPTY&gt;
  * </pre>
  *
- * The PSXMailProviderCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXMailProviderCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXMailProviderCatalogResults (Provider*)&gt;
  *
@@ -74,58 +74,50 @@ import org.w3c.dom.Document;
  *    &lt;!ELEMENT description    (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSMailProviderCatalogHandler implements IPSCatalogHandler
-{
-   /**
-    * Constructs an instance of this handler.
-    */
-   public PSMailProviderCatalogHandler()
-   {
-      super();
-   }
+public class PSMailProviderCatalogHandler implements IPSCatalogHandler {
+  /** Constructs an instance of this handler. */
+  public PSMailProviderCatalogHandler() {
+    super();
+  }
 
-   /**
-    * Format the catalog request based upon the specified request
-    * information. The request information for this request type is:
-    * <table border="2">
-    *   <tr><th>Key</th>
-    *       <th>Value</th>
-    *       <th>Required</th></tr>
-    *   <tr><td>RequestCategory</td>
-    *       <td>mail</td>
-    *       <td>yes</td></tr>
-    *   <tr><td>RequestType</td>
-    *       <td>MailProvider</td>
-    *       <td>yes</td></tr>
-    * </table>
-    *
-    * @param      req         the request information
-    *
-    * @return                 an XML document containing the appropriate
-    *                         catalog request information
-    *
-    */
-   public Document formatRequest(java.util.Properties req)
-   {
-      String sTemp = (String)req.get("RequestCategory");
-      if ( (sTemp == null) || !"mail".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req category invalid");
-      }
+  /**
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
+   * <table border="2">
+   *   <tr><th>Key</th>
+   *       <th>Value</th>
+   *       <th>Required</th></tr>
+   *   <tr><td>RequestCategory</td>
+   *       <td>mail</td>
+   *       <td>yes</td></tr>
+   *   <tr><td>RequestType</td>
+   *       <td>MailProvider</td>
+   *       <td>yes</td></tr>
+   * </table>
+   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
+   */
+  public Document formatRequest(java.util.Properties req) {
+    String sTemp = (String) req.get("RequestCategory");
+    if ((sTemp == null) || !"mail".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req category invalid");
+    }
 
-      sTemp = (String)req.get("RequestType");
-      if ( (sTemp == null) || !"MailProvider".equalsIgnoreCase(sTemp) ) {
-         throw new IllegalArgumentException("req type invalid");
-      }
+    sTemp = (String) req.get("RequestType");
+    if ((sTemp == null) || !"MailProvider".equalsIgnoreCase(sTemp)) {
+      throw new IllegalArgumentException("req type invalid");
+    }
 
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
 
-      PSXmlDocumentBuilder.createRoot(reqDoc, "PSXMailProviderCatalog");
+    PSXmlDocumentBuilder.createRoot(reqDoc, "PSXMailProviderCatalog");
 
-      return reqDoc;
-   }
+    return reqDoc;
+  }
 }
-

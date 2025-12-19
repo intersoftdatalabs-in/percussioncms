@@ -22,38 +22,39 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *  <Data>
-    <Description>Meeting</Description>
-    <ID>1</ID>
-    <DisplayOnWeb>true</DisplayOnWeb>
-  </Data>
- * @author natechadwick
+ * <Data> <Description>Meeting</Description> <ID>1</ID> <DisplayOnWeb>true</DisplayOnWeb> </Data>
  *
+ * @author natechadwick
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EventType {
-	
-	private int id;
-	private String description;
-	private boolean displayOnWeb;
 
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public boolean isDisplayOnWeb() {
-		return displayOnWeb;
-	}
-	public void setDisplayOnWeb(boolean displayOnWeb) {
-		this.displayOnWeb = displayOnWeb;
-	}
+  private int id;
+  private String description;
+  private boolean displayOnWeb;
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public boolean isDisplayOnWeb() {
+    return displayOnWeb;
+  }
+
+  public void setDisplayOnWeb(boolean displayOnWeb) {
+    this.displayOnWeb = displayOnWeb;
+  }
 }

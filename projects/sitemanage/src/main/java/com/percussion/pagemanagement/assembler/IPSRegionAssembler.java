@@ -19,29 +19,23 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
-
 import java.util.List;
 
 /**
  * Assembles a region.
- * 
+ *
  * @author adamgent
  * @see IPSRegionsAssembler
- *
  */
-public interface IPSRegionAssembler
-{
-    
-    /**
-     * @param assemblyItem never <code>null</code>.
-     * @param context never <code>null</code>.
-     * @param mr never <code>null</code>.
-     * @return never <code>null</code> maybe empty.
-     */
-    public List<PSRegionResult> assembleRegion(
-            IPSAssemblyItem assemblyItem, 
-            PSPageAssemblyContext context,
-            PSMergedRegion mr) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
+public interface IPSRegionAssembler {
 
+  /**
+   * @param assemblyItem never <code>null</code>.
+   * @param context never <code>null</code>.
+   * @param mr never <code>null</code>.
+   * @return never <code>null</code> maybe empty.
+   */
+  public List<PSRegionResult> assembleRegion(
+      IPSAssemblyItem assemblyItem, PSPageAssemblyContext context, PSMergedRegion mr)
+      throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }
-

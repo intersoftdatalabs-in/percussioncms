@@ -19,27 +19,27 @@ package com.percussion.pagemanagement.assembler;
 
 public class PSLocaleLanguageCountry {
 
-    private String language;
+  private String language;
 
-    private String country;
+  private String country;
 
-    public PSLocaleLanguageCountry() {
-        super();
-    }
+  public PSLocaleLanguageCountry() {
+    super();
+  }
 
-    public String getLanguage() {
-        return language;
-    }
+  public String getLanguage() {
+    return language;
+  }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+  public void setLanguage(String language) {
+    this.language = language;
+  }
 
-    public String getCountry() {
-        return country;
-    }
+  public String getCountry() {
+    return country;
+  }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+  public void setCountry(String country) {
+    this.country = country;
+  }
 }

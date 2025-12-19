@@ -20,38 +20,25 @@ import com.percussion.utils.xml.PSInvalidXmlException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Simple test class implementing {@link IPSBeanConfig}
- */
-public class PSTestBeanConfig implements IPSBeanConfig
-{
+/** Simple test class implementing {@link IPSBeanConfig} */
+public class PSTestBeanConfig implements IPSBeanConfig {
 
-   /**
-    * default ctor
-    */
-   public PSTestBeanConfig()
-   {
+  /** default ctor */
+  public PSTestBeanConfig() {}
 
-   }
-   
-   public Element toXml(Document doc)
-   {
-      return PSSpringBeanUtils.createBeanRootElement(
-         this, doc);
-   }
+  public Element toXml(Document doc) {
+    return PSSpringBeanUtils.createBeanRootElement(this, doc);
+  }
 
-   public void fromXml(Element source) throws PSInvalidXmlException
-   {
-      if (null == source);
-   }
+  public void fromXml(Element source) throws PSInvalidXmlException {
+    if (null == source) ;
+  }
 
-   public String getBeanName()
-   {
-      return "myTestBean";
-   }
+  public String getBeanName() {
+    return "myTestBean";
+  }
 
-   public String getClassName()
-   {
-      return this.getClass().getName();
-   }
+  public String getClassName() {
+    return this.getClass().getName();
+  }
 }

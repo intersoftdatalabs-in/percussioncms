@@ -16,38 +16,30 @@
  */
 package com.percussion.rx.config;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
 /**
  * This class provides a way to locate the instance of {@link IPSBeanProperties}.
  *
  * @author YuBingChen
  */
-public class PSBeanPropertiesLocator extends PSBaseServiceLocator
-{
-    private static volatile IPSBeanProperties bpr=null;
-   /**
-    * Return the instance of {@link IPSBeanProperties}.
-    * 
-    * @return the instance of {@link IPSBeanProperties}, never <code>null</code>
-    * 
-    * @throws PSMissingBeanConfigurationException if bean is missing.
-    */
-   public static IPSBeanProperties getBeanProperties()
-         throws PSMissingBeanConfigurationException
-   {
-       if (bpr==null)
-       {
-           synchronized (PSBeanPropertiesLocator.class)
-           {
-               if (bpr==null)
-               {
-                   bpr = (IPSBeanProperties) getBean("sys_beanProperties");
-               }
-           }
-       }
-      return bpr;
-   }
-
+public class PSBeanPropertiesLocator extends PSBaseServiceLocator {
+  private static volatile IPSBeanProperties bpr = null;
+  /**
+   * Return the instance of {@link IPSBeanProperties}.
+   *
+   * @return the instance of {@link IPSBeanProperties}, never <code>null</code>
+   * @throws PSMissingBeanConfigurationException if bean is missing.
+   */
+  public static IPSBeanProperties getBeanProperties() throws PSMissingBeanConfigurationException {
+    if (bpr == null) {
+      synchronized (PSBeanPropertiesLocator.class) {
+        if (bpr == null) {
+          bpr = (IPSBeanProperties) getBean("sys_beanProperties");
+        }
+      }
+    }
+    return bpr;
+  }
 }

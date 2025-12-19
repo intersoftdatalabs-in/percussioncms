@@ -29,10 +29,9 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.jdbc.PSConnectionInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
+import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.util.Iterator;
 
 /**
  * This class implements cataloging of database functions installed on the
@@ -59,111 +58,87 @@ import java.util.Iterator;
  * See "sys_DatabaseFunctionDefs.dtd" for the DTD of the
  * "PSXDatabaseFunctionDef" element.
  */
+public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
+    implements IPSCatalogRequestHandler {
+  /**
+   * Get the XML document types supported by this handler.
+   *
+   * @return the supported request type(s), never <code>null</code> or empty
+   */
+  public String[] getSupportedRequestTypes() {
+    return new String[] {NODE_NAME};
+  }
 
-public class PSDatabaseFunctionCatalogHandler
-   extends PSCatalogRequestHandler
-   implements IPSCatalogRequestHandler
-{
-   /**
-    * Get the XML document types supported by this handler.
-    *
-    * @return the supported request type(s), never <code>null</code> or empty
-    */
-   public String[] getSupportedRequestTypes()
-   {
-      return new String[] { NODE_NAME };
-   }
+  /**
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * sent using <code>PSResponse</code> object in the supplied request object.
+   *
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is <code>null</code>.
+   */
+  public void processRequest(PSRequest request) {
+    if (request == null) throw new IllegalArgumentException("request may not be null");
 
+    Document doc = request.getInputDocument();
+    Element root = null;
+    if ((doc == null) || ((root = doc.getDocumentElement()) == null)) {
+      Object[] args = {REQ_CATEGORY_VALUE, REQ_TYPE_VALUE, NODE_NAME};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_MISSING, args));
+      return;
+    }
 
-   /**
-    * Process the catalog request. This uses the XML document sent as the
-    * input data. The results are sent using <code>PSResponse</code> object in
-    * the supplied request object.
-    *
-    * @param request the request object containing all context data associated
-    * with the request, may not be <code>null</code>
-    *
-    * @throws IllegalArgumentException if <code>dbFuncMgr</code> is
-    * <code>null</code>.
-    */
-   public void processRequest(PSRequest request)
-   {
-      if (request == null)
-         throw new IllegalArgumentException("request may not be null" );
+    // verify this is the appropriate request type
+    if (!NODE_NAME.equals(root.getTagName())) {
+      Object[] args = {NODE_NAME, root.getTagName()};
+      createErrorResponse(
+          request, new PSIllegalArgumentException(IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
+      return;
+    }
 
-      Document doc = request.getInputDocument();
-      Element root = null;
-      if ((doc == null) || ((root = doc.getDocumentElement()) == null))
-      {
-         Object[] args = { REQ_CATEGORY_VALUE, REQ_TYPE_VALUE, NODE_NAME };
-         createErrorResponse(
-            request, new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_MISSING, args));
-         return;
-      }
+    PSXmlTreeWalker walker = new PSXmlTreeWalker(doc);
+    int firstFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+    Element el = walker.getNextElement(EL_DATASOURCE, firstFlags);
+    String datasource = PSXmlTreeWalker.getElementData(el);
 
-      // verify this is the appropriate request type
-      if (!NODE_NAME.equals(root.getTagName()))
-      {
-         Object[] args = { NODE_NAME, root.getTagName() };
-         createErrorResponse(request,
-            new PSIllegalArgumentException(
-               IPSCatalogErrors.REQ_DOC_INVALID_TYPE, args));
-         return;
-      }
+    Document retDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element retRoot = PSXmlDocumentBuilder.createRoot(retDoc, (NODE_NAME + "Results"));
 
-      PSXmlTreeWalker walker = new PSXmlTreeWalker(doc);
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-      Element el = walker.getNextElement(EL_DATASOURCE, firstFlags);
-      String datasource = PSXmlTreeWalker.getElementData(el);
+    // get driver from the datasource
+    String driver;
+    IPSConnectionInfo connInfo = new PSConnectionInfo(datasource);
+    try {
+      driver = PSConnectionHelper.getConnectionDetail(connInfo).getDriver();
+    } catch (Exception e) {
+      createErrorResponse(request, e);
+      return;
+    }
 
-      Document   retDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element retRoot = PSXmlDocumentBuilder.createRoot(
-         retDoc, (NODE_NAME + "Results"));
+    PSDatabaseFunctionManager dbFuncMgr = PSDatabaseFunctionManager.getInstance();
+    Iterator it =
+        dbFuncMgr.getDatabaseFunctionsDef(
+            PSDatabaseFunctionManager.FUNCTION_TYPE_SYSTEM
+                | PSDatabaseFunctionManager.FUNCTION_TYPE_USER,
+            driver);
+    while (it.hasNext()) {
+      PSDatabaseFunctionDef dbFuncDef = (PSDatabaseFunctionDef) it.next();
+      retRoot.appendChild(dbFuncDef.toXml(retDoc));
+    }
 
-      // get driver from the datasource
-      String driver;
-      IPSConnectionInfo connInfo = new PSConnectionInfo(datasource);
-      try
-      {
-         driver = PSConnectionHelper.getConnectionDetail(connInfo).getDriver();
-      }
-      catch (Exception e)
-      {
-         createErrorResponse(request, e);
-         return;
-      }
-      
-      PSDatabaseFunctionManager dbFuncMgr =
-         PSDatabaseFunctionManager.getInstance();
-      Iterator it = dbFuncMgr.getDatabaseFunctionsDef(
-         PSDatabaseFunctionManager.FUNCTION_TYPE_SYSTEM |
-            PSDatabaseFunctionManager.FUNCTION_TYPE_USER,
-         driver);
-      while (it.hasNext())
-      {
-         PSDatabaseFunctionDef dbFuncDef = (PSDatabaseFunctionDef)it.next();
-         retRoot.appendChild(dbFuncDef.toXml(retDoc));
-      }
+    // and send the result to the caller
+    sendXmlData(request, retDoc);
+  }
 
-      // and send the result to the caller
-      sendXmlData(request, retDoc);
-   }
+  /** Shutdown the request handler, freeing any associated resources. */
+  public void shutdown() {
+    /* nothing to do here */
+  }
 
-   /**
-    * Shutdown the request handler, freeing any associated resources.
-    */
-   public void shutdown()
-   {
-      /* nothing to do here */
-   }
+  public static final String REQ_CATEGORY_VALUE = "function";
+  public static final String REQ_TYPE_VALUE = "DatabaseFunction";
 
-   public static final String REQ_CATEGORY_VALUE = "function";
-   public static final String REQ_TYPE_VALUE = "DatabaseFunction";
-
-   public static final String NODE_NAME = "PSXDatabaseFunctionCatalog";
-   public static final String EL_DATASOURCE = "datasource";
-
+  public static final String NODE_NAME = "PSXDatabaseFunctionCatalog";
+  public static final String EL_DATASOURCE = "datasource";
 }
-

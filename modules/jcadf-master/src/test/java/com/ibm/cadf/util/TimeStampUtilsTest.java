@@ -20,15 +20,12 @@ package com.ibm.cadf.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TimeStampUtilsTest
-{
+public class TimeStampUtilsTest {
 
-    @Test
-    public void GetCurrentTimeTest()
-    {
-        String currentTime = TimeStampUtils.getCurrentTime();
-        boolean b = currentTime.contains("T");
-        Assert.assertTrue("timestamp is not expected format", b);
-    }
-
+  @Test
+  public void GetCurrentTimeTest() {
+    String currentTime = TimeStampUtils.getCurrentTime();
+    boolean b = currentTime.contains("T");
+    Assert.assertTrue("timestamp is not expected format", b);
+  }
 }

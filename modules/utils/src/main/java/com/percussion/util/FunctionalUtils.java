@@ -17,22 +17,19 @@
 
 package com.percussion.util;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.commons.lang.StringUtils;
 
 public class FunctionalUtils {
 
-    public static Pattern COMMA_SPLIT = Pattern.compile(",");
+  public static Pattern COMMA_SPLIT = Pattern.compile(",");
 
-    public static Predicate<? super Object> IS_POSITIVE_NUMBER_OR_NOT_NULL = p -> p != null && (p instanceof Number) && (((Number)p).doubleValue() > 0);
+  public static Predicate<? super Object> IS_POSITIVE_NUMBER_OR_NOT_NULL =
+      p -> p != null && (p instanceof Number) && (((Number) p).doubleValue() > 0);
 
-    public static Stream<String> commaStringToStream(String string)
-    {
-        return COMMA_SPLIT.splitAsStream(string).filter(StringUtils::isNotBlank)
-                .map(StringUtils::trim);
-    }
-
+  public static Stream<String> commaStringToStream(String string) {
+    return COMMA_SPLIT.splitAsStream(string).filter(StringUtils::isNotBlank).map(StringUtils::trim);
+  }
 }

@@ -18,11 +18,7 @@ package com.percussion.security.dao;
 
 import java.util.List;
 
-/**
- * @author miltonpividori
- *
- */
-public interface IPSSecurityItemsDao
-{
-    List<String> getAvailablePrivateKeys();
+/** @author miltonpividori */
+public interface IPSSecurityItemsDao {
+  List<String> getAvailablePrivateKeys();
 }

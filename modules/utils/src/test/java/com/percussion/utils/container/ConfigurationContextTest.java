@@ -19,67 +19,58 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.adapters.JettyDatasourceConfigurationAdapter;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ConfigurationContextTest {
 
-    @Test
-    public void addConfigurationAdapters() {
-    }
+  @Test
+  public void addConfigurationAdapters() {}
 
-    @Test
-    public void getRootDir() {
-    }
+  @Test
+  public void getRootDir() {}
 
-    @Test
-    public void getEncKey() {
-    }
+  @Test
+  public void getEncKey() {}
 
-    @Test
-    public void load() {
-    }
+  @Test
+  public void load() {}
 
-    @Test
-    public void save() {
-    }
+  @Test
+  public void save() {}
 
-    @Test
-    public void load1() throws IOException {
+  @Test
+  public void load1() throws IOException {
 
-        String resourcePath = "/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties";
-        String dsxml = "/com/percussion/utils/container/jetty/base/etc/perc-ds.xml";
+    String resourcePath = "/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties";
+    String dsxml = "/com/percussion/utils/container/jetty/base/etc/perc-ds.xml";
 
-        InputStream is = getClass().getResourceAsStream(resourcePath);
-        InputStream dsxmlIs = getClass().getResourceAsStream(dsxml);
+    InputStream is = getClass().getResourceAsStream(resourcePath);
+    InputStream dsxmlIs = getClass().getResourceAsStream(dsxml);
 
-        Path root = Files.createTempDirectory("test");
-        root.toFile().deleteOnExit();
+    Path root = Files.createTempDirectory("test");
+    root.toFile().deleteOnExit();
 
-        Files.createDirectories(root.resolve("jetty/base/etc"));
+    Files.createDirectories(root.resolve("jetty/base/etc"));
 
-        Files.copy(is, root.resolve("jetty/base/etc/perc-ds.properties"));
-        Files.copy(dsxmlIs, root.resolve("jetty/base/etc/perc-ds.xml"));
+    Files.copy(is, root.resolve("jetty/base/etc/perc-ds.properties"));
+    Files.copy(dsxmlIs, root.resolve("jetty/base/etc/perc-ds.xml"));
 
-        DefaultConfigurationContextImpl ctx = new DefaultConfigurationContextImpl(root,"encKey");
+    DefaultConfigurationContextImpl ctx = new DefaultConfigurationContextImpl(root, "encKey");
 
-        ctx.addConfigurationAdapter(new JettyDatasourceConfigurationAdapter());
+    ctx.addConfigurationAdapter(new JettyDatasourceConfigurationAdapter());
 
-        ctx.load();
+    ctx.load();
 
+    BaseContainerUtils containerUtils = ctx.getConfig();
 
-        BaseContainerUtils containerUtils = ctx.getConfig();
+    Assert.assertEquals("jdbc/RhythmyxData", containerUtils.getDatasources().get(0).getName());
+  }
 
-        Assert.assertEquals("jdbc/RhythmyxData",containerUtils.getDatasources().get(0).getName());
-
-    }
-
-    @Test
-    public void save1() {
-    }
+  @Test
+  public void save1() {}
 }

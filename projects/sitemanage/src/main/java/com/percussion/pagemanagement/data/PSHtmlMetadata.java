@@ -17,158 +17,111 @@
 
 package com.percussion.pagemanagement.data;
 
+import com.percussion.share.data.PSAbstractDataObject;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.percussion.share.data.PSAbstractDataObject;
-
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
 /**
  * Metadata fields to be saved to template
- * 
+ *
  * @author Luis
  * @author adamgent
  */
-@XmlRootElement(name="HtmlMetadata")
-public class PSHtmlMetadata  extends PSAbstractDataObject implements IPSHtmlMetadata {
-    
+@XmlRootElement(name = "HtmlMetadata")
+public class PSHtmlMetadata extends PSAbstractDataObject implements IPSHtmlMetadata {
 
-    private static final long serialVersionUID = 1L;
-    @NotNull
-    @NotEmpty
-    private String id;
-    private String additionalHeadContent = "";
-    private String afterBodyStartContent = "";
-    private String beforeBodyCloseContent = "";
-    private String protectedRegion = "";
-    private String protectedRegionText = "";
-    private PSMetadataDocType docType;
-    private String description;
-    
-    
-    /**
-     * Id of the page or template.
-     * @return never <code>null</code> or empty.
-     */
-    @XmlElement
-    public String getId()
-    {
-        return id;
-    }
+  private static final long serialVersionUID = 1L;
+  @NotNull @NotEmpty private String id;
+  private String additionalHeadContent = "";
+  private String afterBodyStartContent = "";
+  private String beforeBodyCloseContent = "";
+  private String protectedRegion = "";
+  private String protectedRegionText = "";
+  private PSMetadataDocType docType;
+  private String description;
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  /**
+   * Id of the page or template.
+   *
+   * @return never <code>null</code> or empty.
+   */
+  @XmlElement
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getAdditionalHeadContent()
-    {
-        return additionalHeadContent;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setAdditionalHeadContent(String additionalHeadContent)
-    {
-        this.additionalHeadContent = additionalHeadContent;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getAfterBodyStartContent()
-    {
-        return afterBodyStartContent;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setAfterBodyStartContent(String afterBodyStartContent)
-    {
-        this.afterBodyStartContent = afterBodyStartContent;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getBeforeBodyCloseContent()
-    {
-        return beforeBodyCloseContent;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setBeforeBodyCloseContent(String beforeBodyCloseContent)
-    {
-        this.beforeBodyCloseContent = beforeBodyCloseContent;
-    }
+  /** {@inheritDoc} */
+  public String getAdditionalHeadContent() {
+    return additionalHeadContent;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getProtectedRegion()
-    {
-        return protectedRegion;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setProtectedRegion(String protectedRegion)
-    {
-        this.protectedRegion = protectedRegion;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    
-    public String getProtectedRegionText()
-    {
-        return protectedRegionText;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    
-    public void setProtectedRegionText(String protectedRegionText)
-    {
-        this.protectedRegionText = protectedRegionText;
-    }
+  /** {@inheritDoc} */
+  public void setAdditionalHeadContent(String additionalHeadContent) {
+    this.additionalHeadContent = additionalHeadContent;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public PSMetadataDocType getDocType()
-    {
-        return docType;
-    }
+  /** {@inheritDoc} */
+  public String getAfterBodyStartContent() {
+    return afterBodyStartContent;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setDocType(PSMetadataDocType docType)
-    {
-        this.docType = docType;
-    }
+  /** {@inheritDoc} */
+  public void setAfterBodyStartContent(String afterBodyStartContent) {
+    this.afterBodyStartContent = afterBodyStartContent;
+  }
 
-    @Override
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  /** {@inheritDoc} */
+  public String getBeforeBodyCloseContent() {
+    return beforeBodyCloseContent;
+  }
 
-    public String getDescription()
-    {
-        return description;
-    }
+  /** {@inheritDoc} */
+  public void setBeforeBodyCloseContent(String beforeBodyCloseContent) {
+    this.beforeBodyCloseContent = beforeBodyCloseContent;
+  }
+
+  /** {@inheritDoc} */
+  public String getProtectedRegion() {
+    return protectedRegion;
+  }
+
+  /** {@inheritDoc} */
+  public void setProtectedRegion(String protectedRegion) {
+    this.protectedRegion = protectedRegion;
+  }
+
+  /** {@inheritDoc} */
+  public String getProtectedRegionText() {
+    return protectedRegionText;
+  }
+
+  /** {@inheritDoc} */
+  public void setProtectedRegionText(String protectedRegionText) {
+    this.protectedRegionText = protectedRegionText;
+  }
+
+  /** {@inheritDoc} */
+  public PSMetadataDocType getDocType() {
+    return docType;
+  }
+
+  /** {@inheritDoc} */
+  public void setDocType(PSMetadataDocType docType) {
+    this.docType = docType;
+  }
+
+  @Override
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDescription() {
+    return description;
+  }
 }

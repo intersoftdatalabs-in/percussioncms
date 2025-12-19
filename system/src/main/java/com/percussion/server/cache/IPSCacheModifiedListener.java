@@ -18,30 +18,25 @@
 package com.percussion.server.cache;
 
 /**
- * Interface to allow classes to listen for cache events such as adding and 
- * removing cached items, or swapping items between memory and disk storage.
+ * Interface to allow classes to listen for cache events such as adding and removing cached items,
+ * or swapping items between memory and disk storage.
  */
-public interface IPSCacheModifiedListener
-{
-   /**
-    * Callback method that provides the listener with an instance of each cache
-    * it is listening to for events.  
-    * 
-    * @param cache The cache the listener is registered with.  Never 
-    * <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>cache</code> is 
-    * <code>null</code>.
-    */
-   public void setCache(PSMultiLevelCache cache);
+public interface IPSCacheModifiedListener {
+  /**
+   * Callback method that provides the listener with an instance of each cache it is listening to
+   * for events.
+   *
+   * @param cache The cache the listener is registered with. Never <code>null</code>.
+   * @throws IllegalArgumentException if <code>cache</code> is <code>null</code>.
+   */
+  public void setCache(PSMultiLevelCache cache);
 
-   /**
-    * Called to notify listeners when an item is added to the cache, removed
-    * from the cache, or moved between memory and disk.
-    * 
-    * @param e The event, never <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if <code>e</code> is  <code>null</code>.
-    */
-   public void cacheModified(PSCacheEvent e);
+  /**
+   * Called to notify listeners when an item is added to the cache, removed from the cache, or moved
+   * between memory and disk.
+   *
+   * @param e The event, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>e</code> is <code>null</code>.
+   */
+  public void cacheModified(PSCacheEvent e);
 }

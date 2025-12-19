@@ -15,48 +15,39 @@
  * limitations under the License.
  */
 
-
 package com.percussion.services.pkginfo;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.pkginfo.data.PSIdName;
 import com.percussion.utils.guid.IPSGuid;
 
-/**
- * Service for saving, loading, and deleting dependency element id-name
- * mappings.
- */
-public interface IPSIdNameService
-{
-   /**
-    * Delete all id-name mappings, used for unit testing only.
-    */
-   public void deleteAll();
+/** Service for saving, loading, and deleting dependency element id-name mappings. */
+public interface IPSIdNameService {
+  /** Delete all id-name mappings, used for unit testing only. */
+  public void deleteAll();
 
-   /**
-    * Save the supplied id-name mapping to the repository.
-    * 
-    * @param mapping The mapping to save, may not be <code>null</code>.
-    */
-   public void saveIdName(PSIdName mapping);
-   
-   /**
-    * Get an id for the given name (case-insensitive) and type.
-    * 
-    * @param name The dependency name, may not be <code>null</code> or empty.
-    * @param type The dependency system type, may not be <code>null</code>.
-    * 
-    * @return An <code>IPSGuid</code> object or <code>null</code> if not found.
-    */
-   public IPSGuid findId(String name, PSTypeEnum type);
-   
-   /**
-    * Get a name for the given <code>IPSGuid</code>.
-    * 
-    * @param guid The guid, may not be <code>null</code>.
-    * 
-    * @return The name of the dependency element which corresponds to the guid
-    * or <code>null</code> if not found.
-    */
-   public String findName(IPSGuid guid);
+  /**
+   * Save the supplied id-name mapping to the repository.
+   *
+   * @param mapping The mapping to save, may not be <code>null</code>.
+   */
+  public void saveIdName(PSIdName mapping);
+
+  /**
+   * Get an id for the given name (case-insensitive) and type.
+   *
+   * @param name The dependency name, may not be <code>null</code> or empty.
+   * @param type The dependency system type, may not be <code>null</code>.
+   * @return An <code>IPSGuid</code> object or <code>null</code> if not found.
+   */
+  public IPSGuid findId(String name, PSTypeEnum type);
+
+  /**
+   * Get a name for the given <code>IPSGuid</code>.
+   *
+   * @param guid The guid, may not be <code>null</code>.
+   * @return The name of the dependency element which corresponds to the guid or <code>null</code>
+   *     if not found.
+   */
+  public String findName(IPSGuid guid);
 }

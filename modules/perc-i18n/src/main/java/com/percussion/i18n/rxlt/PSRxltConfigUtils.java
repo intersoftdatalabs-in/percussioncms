@@ -17,33 +17,32 @@
 package com.percussion.i18n.rxlt;
 
 /**
- * This class is place holder for static constants used in the configuration XML
- * file for the Percussion Language Tool.
+ * This class is place holder for static constants used in the configuration XML file for the
+ * Percussion Language Tool.
  */
-public class PSRxltConfigUtils
-{
-   /*
-    * Names of the attributes used in the configuration file
-    */
-   static public final String ATTR_RXROOT = "rxroot";
-   static public final String ATTR_FILE_PATH = "filepath";
-   static public final String ATTR_SECTIONID = "sectionid";
-   static public final String ATTR_PROCESS = "process";
-   static public final String ATTR_NAME = "name";
-   static public final String ATTR_ACTIONID = "actionid";
-   static public final String ATTR_LANGUAGESTRING = "languagestring";
-   static public final String ATTR_DISPLAYNAME = "displayname";
-   static public final String ATTR_DESCRIPTION = "description";
-   static public final String ATTR_KEEPMISSINGONLY = "keepmissingkeysonly";
-   static public final String ATTR_OUTPUTFILE = "outputfile";
-   static public final String ATTR_MNEMONIC = "mnemonic";
-   static public final String ATTR_TOOLTIP = "tooltip";
+public class PSRxltConfigUtils {
+  /*
+   * Names of the attributes used in the configuration file
+   */
+  public static final String ATTR_RXROOT = "rxroot";
+  public static final String ATTR_FILE_PATH = "filepath";
+  public static final String ATTR_SECTIONID = "sectionid";
+  public static final String ATTR_PROCESS = "process";
+  public static final String ATTR_NAME = "name";
+  public static final String ATTR_ACTIONID = "actionid";
+  public static final String ATTR_LANGUAGESTRING = "languagestring";
+  public static final String ATTR_DISPLAYNAME = "displayname";
+  public static final String ATTR_DESCRIPTION = "description";
+  public static final String ATTR_KEEPMISSINGONLY = "keepmissingkeysonly";
+  public static final String ATTR_OUTPUTFILE = "outputfile";
+  public static final String ATTR_MNEMONIC = "mnemonic";
+  public static final String ATTR_TOOLTIP = "tooltip";
 
-   /*
-    * Names of the elements used in the configuration file
-    */
-   static public final String ELEM_SECTION = "section";
-   static public final String ELEM_SECTIONS = "sections";
-   static public final String ELEM_ACTION = "action";
-   static public final String ELEM_ACTIONS = "actions";
+  /*
+   * Names of the elements used in the configuration file
+   */
+  public static final String ELEM_SECTION = "section";
+  public static final String ELEM_SECTIONS = "sections";
+  public static final String ELEM_ACTION = "action";
+  public static final String ELEM_ACTIONS = "actions";
 }

@@ -19,78 +19,71 @@ package com.percussion.rest.pages;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "SeoInfo")
-@Schema(name="SeoInfo",description="Represents information about the seo.")
-public class SeoInfo
-{
-    @Schema(name="browserTitle", required=false,description="Title shown in the browser.")
-    private String browserTitle;
+@Schema(name = "SeoInfo", description = "Represents information about the seo.")
+public class SeoInfo {
+  @Schema(name = "browserTitle", required = false, description = "Title shown in the browser.")
+  private String browserTitle;
 
-    @Schema(name="metaDescription", required=false,description="Description of the Meta Data of the page.")
-    private String metaDescription;
+  @Schema(
+      name = "metaDescription",
+      required = false,
+      description = "Description of the Meta Data of the page.")
+  private String metaDescription;
 
-    @Schema(name="hideSearch", required=false,description="Flag to mark as searchable.")
-    private Boolean hideSearch;
+  @Schema(name = "hideSearch", required = false, description = "Flag to mark as searchable.")
+  private Boolean hideSearch;
 
-    @Schema(name="tags", required=false,description="List of tags marking the page.")
-    private List<String> tags;
+  @Schema(name = "tags", required = false, description = "List of tags marking the page.")
+  private List<String> tags;
 
-    @Schema(name="categories", required=false,description="List of categories within the page.")
-    private List<String> categories;
+  @Schema(
+      name = "categories",
+      required = false,
+      description = "List of categories within the page.")
+  private List<String> categories;
 
-    public String getBrowserTitle()
-    {
-        return browserTitle;
-    }
+  public String getBrowserTitle() {
+    return browserTitle;
+  }
 
-    public void setBrowserTitle(String browserTitl)
-    {
-        this.browserTitle = browserTitl;
-    }
+  public void setBrowserTitle(String browserTitl) {
+    this.browserTitle = browserTitl;
+  }
 
-    public String getMetaDescription()
-    {
-        return metaDescription;
-    }
+  public String getMetaDescription() {
+    return metaDescription;
+  }
 
-    public void setMetaDescription(String metaDescription)
-    {
-        this.metaDescription = metaDescription;
-    }
+  public void setMetaDescription(String metaDescription) {
+    this.metaDescription = metaDescription;
+  }
 
-    public Boolean getHideSearch()
-    {
-        return hideSearch;
-    }
+  public Boolean getHideSearch() {
+    return hideSearch;
+  }
 
-    public void setHideSearch(Boolean hideSearch)
-    {
-        this.hideSearch = hideSearch;
-    }
+  public void setHideSearch(Boolean hideSearch) {
+    this.hideSearch = hideSearch;
+  }
 
-    public List<String> getTags()
-    {
-        return tags;
-    }
+  public List<String> getTags() {
+    return tags;
+  }
 
-    public void setTags(List<String> tags)
-    {
-        this.tags = tags;
-    }
+  public void setTags(List<String> tags) {
+    this.tags = tags;
+  }
 
-    public List<String> getCategories()
-    {
-        return categories;
-    }
+  public List<String> getCategories() {
+    return categories;
+  }
 
-    public void setCategories(List<String> categories)
-    {
-        this.categories = categories;
-    }
-
+  public void setCategories(List<String> categories) {
+    this.categories = categories;
+  }
 }

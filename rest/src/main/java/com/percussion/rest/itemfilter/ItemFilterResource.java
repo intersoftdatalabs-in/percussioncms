@@ -21,13 +21,11 @@ import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PSSiteManageBean(value="restItemFilterResource")
-@Tag(name="Item Filters")
+@PSSiteManageBean(value = "restItemFilterResource")
+@Tag(name = "Item Filters")
 public class ItemFilterResource {
 
-    @Autowired
-    private IItemFilterAdaptor adaptor;
+  @Autowired private IItemFilterAdaptor adaptor;
 
-    public ItemFilterResource(){}
-
+  public ItemFilterResource() {}
 }

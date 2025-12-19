@@ -1,4 +1,5 @@
 # system
+
 This is the cms core project.This module contains support for following:
 
 * Code for gadgets and widgets.
@@ -9,5 +10,6 @@ This is the cms core project.This module contains support for following:
 * Backend support to integrate various other modules.
 
 ## Building
- mvn clean install 
+
+mvn clean install
 

@@ -18,31 +18,22 @@ package com.percussion.share.service;
 
 import java.util.Collection;
 
-/**
- * Custom utility methods for {@link Collection} objects.
- */
-public class PSCollectionUtils
-{
-    /**
-     * Like {@link Collection#contains(Object)} but ignoring string case.
-     * 
-     * @param strings never <code>null</code>.
-     * @param string the role name in question, assumed not blank.
-     * 
-     * @return <code>true</code> if the string is in the collection
-     */
-    public static boolean containsIgnoringCase(Collection<String> strings, String string)
-    {
-        if (string == null)
-            return false;
-        for (String s : strings)
-        {
-            if (s != null && s.equalsIgnoreCase(string))
-            {
-                return true;
-            }
-        }
-        return false;
+/** Custom utility methods for {@link Collection} objects. */
+public class PSCollectionUtils {
+  /**
+   * Like {@link Collection#contains(Object)} but ignoring string case.
+   *
+   * @param strings never <code>null</code>.
+   * @param string the role name in question, assumed not blank.
+   * @return <code>true</code> if the string is in the collection
+   */
+  public static boolean containsIgnoringCase(Collection<String> strings, String string) {
+    if (string == null) return false;
+    for (String s : strings) {
+      if (s != null && s.equalsIgnoreCase(string)) {
+        return true;
+      }
     }
-
+    return false;
+  }
 }

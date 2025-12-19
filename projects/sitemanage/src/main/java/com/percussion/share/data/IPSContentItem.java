@@ -19,29 +19,23 @@ package com.percussion.share.data;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 /**
- * A Generic Low level representation of an item in the system backed
- * by a Rhythmyx content item.
- * <p>
- * 
- * @author adamgent
+ * A Generic Low level representation of an item in the system backed by a Rhythmyx content item.
  *
+ * <p>
+ *
+ * @author adamgent
  */
-public interface IPSContentItem extends IPSItemSummary
-{
-    /**
-     * A {@link Map} of all the {@link String} fields.
-     * The {@link Entry#getKey()} of the {@link Map} is the name of the field.
-     * The {@link Entry#getValue()} of the {@link Map} is value of the field.
-     * @return never <code>null</code>.
-     */
-    public Map<String, Object> getFields();
-    
-    /**
-     * 
-     * @param fields never <code>null</code>.
-     */
-    public void setFields(Map<String, Object> fields);
+public interface IPSContentItem extends IPSItemSummary {
+  /**
+   * A {@link Map} of all the {@link String} fields. The {@link Entry#getKey()} of the {@link Map}
+   * is the name of the field. The {@link Entry#getValue()} of the {@link Map} is value of the
+   * field.
+   *
+   * @return never <code>null</code>.
+   */
+  public Map<String, Object> getFields();
 
+  /** @param fields never <code>null</code>. */
+  public void setFields(Map<String, Object> fields);
 }

@@ -16,9 +16,5 @@
  */
 package com.percussion.pso.restservice.model;
 
-
-/**
- */
-public class Copy extends Relationship {
-	
-}
+/** */
+public class Copy extends Relationship {}

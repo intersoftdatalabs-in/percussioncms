@@ -21,72 +21,59 @@ import java.sql.Driver;
 /**
  * A common abstract base class for all of our drivers.
  *
- * Adds some functionality for driver identification, but leaves
- * most of the responsibility for implementing the driver up to
- * the derived classes.
+ * <p>Adds some functionality for driver identification, but leaves most of the responsibility for
+ * implementing the driver up to the derived classes.
  */
-public abstract class PSJdbcDriver implements Driver
-{
-   
-   /** 
-    * @author   chadloder
-    * 
-    * Constructor, available to subclasses only.
-    * 
-    * @param   driverDisplayName The human-readable name of the driver,
-    * will be the value returned from getName.
-    * 
-    * @param   majorVer The more significant version number.
-    * 
-    * @param   minorVer The less significant version number.
-    * 
-    * @since 1.1 1999/5/7
-    *
-    */
-   protected PSJdbcDriver(String driverDisplayName, int majorVer, int minorVer)
-   {
-      m_driverDisplayName = driverDisplayName;
-      m_majorVersion = majorVer;
-      m_minorVersion = minorVer;
-   }
+public abstract class PSJdbcDriver implements Driver {
 
-   /**
-    * The driver's major version number.
-    *
-    * @return      the driver's major version number
-    */
-   public int getMajorVersion()
-   {
-      return m_majorVersion;
-   }
-   
-   /**
-    * The driver's minor version number.
-    *
-    * @return     the driver's minor version number
-    */
-   public int getMinorVersion()
-   {
-      return m_minorVersion;
-   }
+  /**
+   * @author chadloder
+   *     <p>Constructor, available to subclasses only.
+   * @param driverDisplayName The human-readable name of the driver, will be the value returned from
+   *     getName.
+   * @param majorVer The more significant version number.
+   * @param minorVer The less significant version number.
+   * @since 1.1 1999/5/7
+   */
+  protected PSJdbcDriver(String driverDisplayName, int majorVer, int minorVer) {
+    m_driverDisplayName = driverDisplayName;
+    m_majorVersion = majorVer;
+    m_minorVersion = minorVer;
+  }
 
-   /**
-    * Get the descriptive name of this driver.
-    *
-    * @return     the descriptive name of this driver
-    */
-   public String getName()
-   {
-      return m_driverDisplayName;
-   }
+  /**
+   * The driver's major version number.
+   *
+   * @return the driver's major version number
+   */
+  public int getMajorVersion() {
+    return m_majorVersion;
+  }
 
-   public String getVersionString()
-   {
-      return "" + m_majorVersion + "." + m_minorVersion;
-   }
+  /**
+   * The driver's minor version number.
+   *
+   * @return the driver's minor version number
+   */
+  public int getMinorVersion() {
+    return m_minorVersion;
+  }
 
-   // the human readable display name of the driver
-   private String m_driverDisplayName;
-   private int m_majorVersion;
-   private int m_minorVersion;
+  /**
+   * Get the descriptive name of this driver.
+   *
+   * @return the descriptive name of this driver
+   */
+  public String getName() {
+    return m_driverDisplayName;
+  }
+
+  public String getVersionString() {
+    return "" + m_majorVersion + "." + m_minorVersion;
+  }
+
+  // the human readable display name of the driver
+  private String m_driverDisplayName;
+  private int m_majorVersion;
+  private int m_minorVersion;
 }

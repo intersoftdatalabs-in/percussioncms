@@ -22,7 +22,7 @@ import com.percussion.utils.exceptions.PSBaseException;
  * Exception to indicate security exceptions, uses 
  * <code>PSSecurityErrorStringBundle.properties</code>
  */
-public class PSSecurityException extends PSBaseException
+public class PSServiceSecurityException extends PSBaseException
 {
    /**
     * Compiler generated serial version ID used for serialization.
@@ -32,7 +32,7 @@ public class PSSecurityException extends PSBaseException
    /**
     * @see PSBaseException#PSBaseException(int)
     */
-   public PSSecurityException(int msgCode)
+   public PSServiceSecurityException(int msgCode)
    {
       super(msgCode);
    }
@@ -40,7 +40,7 @@ public class PSSecurityException extends PSBaseException
    /**
     * @see PSBaseException#PSBaseException(int, Object...)
     */
-   public PSSecurityException(int msgCode, Object... arrayArgs)
+   public PSServiceSecurityException(int msgCode, Object... arrayArgs)
    {
       super(msgCode, arrayArgs);
    }
@@ -48,7 +48,7 @@ public class PSSecurityException extends PSBaseException
    /**
     * @see PSBaseException#PSBaseException(int, Throwable, Object...)
     */
-   public PSSecurityException(int msgCode, Throwable cause, Object... arrayArgs)
+   public PSServiceSecurityException(int msgCode, Throwable cause, Object... arrayArgs)
    {
       super(msgCode, cause, arrayArgs);
    }

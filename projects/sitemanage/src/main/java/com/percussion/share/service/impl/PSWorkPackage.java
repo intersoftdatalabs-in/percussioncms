@@ -23,108 +23,82 @@ import com.percussion.share.service.impl.PSThumbnailRunner.Function;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
 public class PSWorkPackage {
-	private Function function;
-	private String id;
-	private PSPage page;
-	private PSTemplateSummary template;
-	private String siteFolderPath;
-	private PSSiteSummary site;
-	private String fileSuffix;
+  private Function function;
+  private String id;
+  private PSPage page;
+  private PSTemplateSummary template;
+  private String siteFolderPath;
+  private PSSiteSummary site;
+  private String fileSuffix;
 
-	/**
-	 * @param function
-	 *            the function to set
-	 */
-	public void setFunction(Function function) {
-		this.function = function;
-	}
+  /** @param function the function to set */
+  public void setFunction(Function function) {
+    this.function = function;
+  }
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+  /** @param id the id to set */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * @return the template
-	 */
-	public PSTemplateSummary getTemplate() {
-		return template;
-	}
+  /** @return the template */
+  public PSTemplateSummary getTemplate() {
+    return template;
+  }
 
-	/**
-	 * @param template
-	 *            the template to set
-	 */
-	public void setTemplate(PSTemplateSummary template) {
-		this.template = template;
-	}
+  /** @param template the template to set */
+  public void setTemplate(PSTemplateSummary template) {
+    this.template = template;
+  }
 
-	/**
-	 * @return the page
-	 */
-	public PSPage getPage() {
-		return page;
-	}
+  /** @return the page */
+  public PSPage getPage() {
+    return page;
+  }
 
-	/**
-	 * @param page
-	 *            the page to set
-	 */
-	public void setPage(PSPage page) {
-		this.page = page;
-	}
+  /** @param page the page to set */
+  public void setPage(PSPage page) {
+    this.page = page;
+  }
 
-	/**
-	 * @return the siteFolderPath
-	 */
-	public String getSiteFolderPath() {
-		return siteFolderPath;
-	}
+  /** @return the siteFolderPath */
+  public String getSiteFolderPath() {
+    return siteFolderPath;
+  }
 
-	/**
-	 * @param siteFolderPath
-	 *            the siteFolderPath to set
-	 */
-	public void setSiteFolderPath(String siteFolderPath) {
-		this.siteFolderPath = siteFolderPath;
-	}
+  /** @param siteFolderPath the siteFolderPath to set */
+  public void setSiteFolderPath(String siteFolderPath) {
+    this.siteFolderPath = siteFolderPath;
+  }
 
-	/**
-	 * @return the site
-	 */
-	public PSSiteSummary getSite() {
-		return site;
-	}
+  /** @return the site */
+  public PSSiteSummary getSite() {
+    return site;
+  }
 
-	/**
-	 * @param site
-	 *            the site to set
-	 */
-	public void setSite(PSSiteSummary site) {
-		this.site = site;
-	}
+  /** @param site the site to set */
+  public void setSite(PSSiteSummary site) {
+    this.site = site;
+  }
 
-	public Function getFunction() {
-		return function;
-	}
+  public Function getFunction() {
+    return function;
+  }
 
-	public String getId() {
-		return id;
-	}
+  public String getId() {
+    return id;
+  }
 
-	public PSWorkPackage(String id, Function function) {
-		this.id = id;
-		this.function = function;
-	}
+  public PSWorkPackage(String id, Function function) {
+    this.id = id;
+    this.function = function;
+  }
 
-	public String getFileSuffix() {
-		return fileSuffix;
-	}
+  public String getFileSuffix() {
+    return fileSuffix;
+  }
 
-	public void setFileSuffix(String fileSuffix) {
-		this.fileSuffix = fileSuffix;
-	}
+  public void setFileSuffix(String fileSuffix) {
+    this.fileSuffix = fileSuffix;
+  }
 }

@@ -24,65 +24,48 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class clears a server lock.
- */
-public class PSConsoleCommandClearServerLock extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param cmdArgs the argument string to use when executing this command, 
-    *    may be <code>null</code>.
-    * 
-    * @throws IllegalArgumentException if the <code>cmdArgs</code> are invalid.
-    */
-   public PSConsoleCommandClearServerLock(String cmdArgs)
-   {
-      super(cmdArgs);
-      
-      try 
-      {
-         m_lockId = Integer.parseInt(cmdArgs);
-      }
-      catch (NumberFormatException e) 
-      {
-         throw new IllegalArgumentException("Invalid lock id");
-      }
-   }
+/** This class clears a server lock. */
+public class PSConsoleCommandClearServerLock extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     .
+   * @throws IllegalArgumentException if the <code>cmdArgs</code> are invalid.
+   */
+  public PSConsoleCommandClearServerLock(String cmdArgs) {
+    super(cmdArgs);
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   
-    * @see IPSConsoleCommand
-    */
-   public Document execute(PSRequest request) throws PSConsoleCommandException
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, 
-         "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + 
-         " " + m_cmdArgs);
-      
-      boolean cleared = PSServerLockManager.getInstance().releaseLock(m_lockId);
-      String msg = cleared ? "Cleared lock with id: " : 
-         "Lock not found.  Unable to clear lock with id: ";
-      PSXmlDocumentBuilder.addElement(doc, root, "resultCode", "0");
-      PSXmlDocumentBuilder.addElement(doc, root, "resultText", 
-         msg + m_lockId);
-      
-      return doc;
-   }
-   
-   /**
-    * The command entered in the server console to perform the action executed
-    * by this class.
-    */
-   final static String ms_cmdName = "clear server lock";
-   
-   /**
-    * The lock id supplied in the command args to the ctor.
-    */
-   private int m_lockId;
+    try {
+      m_lockId = Integer.parseInt(cmdArgs);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid lock id");
+    }
+  }
+
+  /**
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * @see IPSConsoleCommand
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(doc, root, "command", ms_cmdName + " " + m_cmdArgs);
+
+    boolean cleared = PSServerLockManager.getInstance().releaseLock(m_lockId);
+    String msg =
+        cleared ? "Cleared lock with id: " : "Lock not found.  Unable to clear lock with id: ";
+    PSXmlDocumentBuilder.addElement(doc, root, "resultCode", "0");
+    PSXmlDocumentBuilder.addElement(doc, root, "resultText", msg + m_lockId);
+
+    return doc;
+  }
+
+  /** The command entered in the server console to perform the action executed by this class. */
+  static final String ms_cmdName = "clear server lock";
+
+  /** The lock id supplied in the command args to the ctor. */
+  private int m_lockId;
 }

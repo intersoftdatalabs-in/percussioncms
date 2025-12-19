@@ -17,52 +17,49 @@
 
 package com.percussion.taxonomy.service;
 
-import org.hibernate.HibernateException;
-import java.util.Collection;
-import org.springframework.dao.DataAccessException;
-
 import com.percussion.taxonomy.domain.Relationship_type;
 import com.percussion.taxonomy.repository.Relationship_typeDAO;
 import com.percussion.taxonomy.repository.Relationship_typeServiceInf;
-import com.percussion.taxonomy.service.Relationship_typeService;
+import java.util.Collection;
+import org.hibernate.HibernateException;
 
 public class Relationship_typeService implements Relationship_typeServiceInf {
 
-    public Relationship_typeDAO relationship_typeDAO;
+  public Relationship_typeDAO relationship_typeDAO;
 
-    public Collection getAllRelationship_types() {
-        try {
-            return relationship_typeDAO.getAllRelationship_types();
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Collection getAllRelationship_types() {
+    try {
+      return relationship_typeDAO.getAllRelationship_types();
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public Relationship_type getRelationship_type(int id) {
-        try {
-            return relationship_typeDAO.getRelationship_type(id);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public Relationship_type getRelationship_type(int id) {
+    try {
+      return relationship_typeDAO.getRelationship_type(id);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void removeRelationship_type(Relationship_type relationship_type) {
-        try {
-            relationship_typeDAO.removeRelationship_type(relationship_type);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void removeRelationship_type(Relationship_type relationship_type) {
+    try {
+      relationship_typeDAO.removeRelationship_type(relationship_type);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void saveRelationship_type(Relationship_type relationship_type) {
-        try {
-            relationship_typeDAO.saveRelationship_type(relationship_type);
-        } catch (HibernateException e) {
-            throw new HibernateException(e);
-        }
+  public void saveRelationship_type(Relationship_type relationship_type) {
+    try {
+      relationship_typeDAO.saveRelationship_type(relationship_type);
+    } catch (HibernateException e) {
+      throw new HibernateException(e);
     }
+  }
 
-    public void setRelationship_typeDAO(Relationship_typeDAO relationship_typeDAO) {
-        this.relationship_typeDAO = relationship_typeDAO;
-    }
+  public void setRelationship_typeDAO(Relationship_typeDAO relationship_typeDAO) {
+    this.relationship_typeDAO = relationship_typeDAO;
+  }
 }

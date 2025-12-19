@@ -16,150 +16,121 @@
  */
 package com.percussion.assetmanagement.data;
 
+import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.InputStream;
+/** Base class for all service requests to create assets during bulk upload. */
+public abstract class PSAbstractAssetRequest {
+  /**
+   * Gets the type of asset this request will be used to create.
+   *
+   * @return the asset type, may be <code>null</code>.
+   */
+  public AssetType getType() {
+    return type;
+  }
 
-/**
- * Base class for all service requests to create assets during bulk upload.
- */
-public abstract class PSAbstractAssetRequest
-{
-   /**
-    * Gets the type of asset this request will be used to create.  
-    * 
-    * @return the asset type, may be <code>null</code>.
-    */
-   public AssetType getType()
-   {
-      return type;
-   }
-   
-   /**
-    * @param type the asset type to set.  May not be <code>null</code>.
-    */
-   protected void setType(AssetType type)
-   {
-       if (type == null)
-       {
-           throw new IllegalArgumentException("type may not be null");
-       }
-       
-       this.type = type;
-   }
+  /** @param type the asset type to set. May not be <code>null</code>. */
+  protected void setType(AssetType type) {
+    if (type == null) {
+      throw new IllegalArgumentException("type may not be null");
+    }
 
-   /**
-    * Gets the folder path (finder) under which the asset will be created.
-    * 
-    * @return the new asset folder path, may be <code>null</code>.
-    */
-   public String getFolderPath()
-   {
-       return folderPath;
-   }
+    this.type = type;
+  }
 
-   /**
-    * Sets the folder path (finder) under which the asset will be created.
-    * 
-    * @param folderPath the new asset folder path, may not be <code>null</code> or empty.
-    */
-   protected void setFolderPath(String folderPath)
-   {
-       if (StringUtils.isBlank(folderPath))
-       {
-           throw new IllegalArgumentException("folderPath may not be blank");
-       }
-       
-       this.folderPath = folderPath;
-   }
-   
-   /**
-    * Gets the name of the file for which the binary asset will be created.
-    * 
-    * @return the file name, may be <code>null</code>.
-    */
-   public String getFileName()
-   {
-       return fileName;
-   }
+  /**
+   * Gets the folder path (finder) under which the asset will be created.
+   *
+   * @return the new asset folder path, may be <code>null</code>.
+   */
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-   /**
-    * @param fileName may not be <code>null</code> or empty.
-    */
-   protected void setFileName(String fileName)
-   {
-       if (StringUtils.isBlank(fileName))
-       {
-           throw new IllegalArgumentException("fileName may not be blank");
-       }
+  /**
+   * Sets the folder path (finder) under which the asset will be created.
+   *
+   * @param folderPath the new asset folder path, may not be <code>null</code> or empty.
+   */
+  protected void setFolderPath(String folderPath) {
+    if (StringUtils.isBlank(folderPath)) {
+      throw new IllegalArgumentException("folderPath may not be blank");
+    }
 
-       this.fileName = fileName.replace("\\x20","-");
-   }
-   
-   /**
-    * Gets the contents of the file for which the binary asset will be created.
-    * 
-    * @return the file contents, may be <code>null</code>.
-    */
-   public InputStream getFileContents()
-   {
-       return fileContents;
-   }
+    this.folderPath = folderPath;
+  }
 
-   /**
-    * @param fileContents may not be <code>null</code>.
-    */
-   protected void setFileContents(InputStream fileContents)
-   {
-       this.fileContents = fileContents;
-   }
-   
-   /**
-    * Specifies the type of asset to be created by a request.
-    */
-   public enum AssetType
-   {
-       /**
-        * Binary assets
-        */
-       FILE,
-       
-       IMAGE,
-       
-       FLASH,
-       
-       /**
-        * Extracted assets
-        */
-       HTML,
-       
-       RICH_TEXT,
-       
-       SIMPLE_TEXT;
-   }
-   
-   /**
-    * @see #getFolderPath()
-    * @see #setFolderPath(String)
-    */
-   private String folderPath;
-   
-   /**
-    * @see #getType()
-    * @see #setType(AssetType) 
-    */
-   private AssetType type;
+  /**
+   * Gets the name of the file for which the binary asset will be created.
+   *
+   * @return the file name, may be <code>null</code>.
+   */
+  public String getFileName() {
+    return fileName;
+  }
 
-   /**
-    * @see #getFileName()
-    * @see #setFileName(String)
-    */
-   private String fileName;
-   
-   /**
-    * @see #getFileContents()
-    * @see #setFileContents(InputStream)
-    */
-   private InputStream fileContents;
-   
+  /** @param fileName may not be <code>null</code> or empty. */
+  protected void setFileName(String fileName) {
+    if (StringUtils.isBlank(fileName)) {
+      throw new IllegalArgumentException("fileName may not be blank");
+    }
+
+    this.fileName = fileName.replace("\\x20", "-");
+  }
+
+  /**
+   * Gets the contents of the file for which the binary asset will be created.
+   *
+   * @return the file contents, may be <code>null</code>.
+   */
+  public InputStream getFileContents() {
+    return fileContents;
+  }
+
+  /** @param fileContents may not be <code>null</code>. */
+  protected void setFileContents(InputStream fileContents) {
+    this.fileContents = fileContents;
+  }
+
+  /** Specifies the type of asset to be created by a request. */
+  public enum AssetType {
+    /** Binary assets */
+    FILE,
+
+    IMAGE,
+
+    FLASH,
+
+    /** Extracted assets */
+    HTML,
+
+    RICH_TEXT,
+
+    SIMPLE_TEXT;
+  }
+
+  /**
+   * @see #getFolderPath()
+   * @see #setFolderPath(String)
+   */
+  private String folderPath;
+
+  /**
+   * @see #getType()
+   * @see #setType(AssetType)
+   */
+  private AssetType type;
+
+  /**
+   * @see #getFileName()
+   * @see #setFileName(String)
+   */
+  private String fileName;
+
+  /**
+   * @see #getFileContents()
+   * @see #setFileContents(InputStream)
+   */
+  private InputStream fileContents;
 }

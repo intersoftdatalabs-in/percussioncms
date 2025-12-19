@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestEditionsAdaptor implements IEditionsAdaptor {
 
-    @Override
-    public PublishResponse publish(String id) {
-        return null;
-    }
+  @Override
+  public PublishResponse publish(String id) {
+    return null;
+  }
 }

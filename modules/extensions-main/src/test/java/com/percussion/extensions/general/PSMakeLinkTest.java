@@ -22,81 +22,75 @@ import com.percussion.testing.PSTestCompare;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PSMakeLinkTest
-{
+public class PSMakeLinkTest {
 
-   private PSMakeAbsLinkSecureEx m_ext;
-   private PSMakeAbsLink m_abs;
-   private PSMakeAbsLinkSecure m_secure;
+  private PSMakeAbsLinkSecureEx m_ext;
+  private PSMakeAbsLink m_abs;
+  private PSMakeAbsLinkSecure m_secure;
 
+  public PSMakeLinkTest() {}
 
-   public PSMakeLinkTest() {
-   }
+  @Before
+  public void setUp() throws Exception {
+    m_ext = new PSMakeAbsLinkSecureEx();
+    m_abs = new PSMakeAbsLink();
+    m_secure = new PSMakeAbsLinkSecure();
+  }
 
-   @Before
-   public void setUp() throws Exception
-   {
-      m_ext = new PSMakeAbsLinkSecureEx();
-      m_abs = new PSMakeAbsLink();
-      m_secure = new PSMakeAbsLinkSecure();
-   }
+  @Test
+  public void testAbsExProcessUdf() throws Exception {
+    IPSRequestContext ctx = new PSMockRequestContext();
+    Object[] params = new Object[24];
+    int j = 0;
+    params[0] = "yes";
+    params[1] = "foobar";
+    params[2] = "1012";
+    params[3] = "/foo";
+    for (int i = 4; i < params.length; i = i + 2) {
+      params[i] = "param" + j;
+      params[i + 1] = "value" + j;
+      j++;
+    }
 
-   @Test
-   public void testAbsExProcessUdf() throws Exception
-   {
-      IPSRequestContext ctx = new PSMockRequestContext();
-      Object[] params = new Object[24];
-      int j = 0;
-      params[0] = "yes";
-      params[1] = "foobar";
-      params[2] = "1012";
-      params[3] = "/foo";
-      for(int i = 4; i < params.length; i = i + 2)
-      {
-         params[i] = "param" + j;
-         params[i+1] = "value" + j;
-         j++;
-      }
-      
-      String result = m_ext.processUdf(params, ctx).toString();
-      PSTestCompare.assertEqualURLs("http://foobar:1012/foo?param5=value5&param4=value4&param3=value3&param2=value2&param1=value1&param0=value0&param9=value9&param8=value8&param7=value7&param6=value6",result);
-   }
+    String result = m_ext.processUdf(params, ctx).toString();
+    PSTestCompare.assertEqualURLs(
+        "http://foobar:1012/foo?param5=value5&param4=value4&param3=value3&param2=value2&param1=value1&param0=value0&param9=value9&param8=value8&param7=value7&param6=value6",
+        result);
+  }
 
-   @Test
-   public void testAbsSecureProcessUdf() throws Exception
-   {
-      IPSRequestContext ctx = new PSMockRequestContext();
-      Object[] params = new Object[12];
-      int j = 0;
-      params[0] = "yes";
-      params[1] = "http://foobar:1012/foo";
-      for(int i = 2; i < params.length; i = i + 2)
-      {
-         params[i] = "param" + j;
-         params[i+1] = "value" + j;
-         j++;
-      }
-      
-      String result = m_secure.processUdf(params, ctx).toString();
-      PSTestCompare.assertEqualURLs("http://foobar:1012/foo?param4=value4&param3=value3&param2=value2&param1=value1&param0=value0",result);
-   }   
+  @Test
+  public void testAbsSecureProcessUdf() throws Exception {
+    IPSRequestContext ctx = new PSMockRequestContext();
+    Object[] params = new Object[12];
+    int j = 0;
+    params[0] = "yes";
+    params[1] = "http://foobar:1012/foo";
+    for (int i = 2; i < params.length; i = i + 2) {
+      params[i] = "param" + j;
+      params[i + 1] = "value" + j;
+      j++;
+    }
 
+    String result = m_secure.processUdf(params, ctx).toString();
+    PSTestCompare.assertEqualURLs(
+        "http://foobar:1012/foo?param4=value4&param3=value3&param2=value2&param1=value1&param0=value0",
+        result);
+  }
 
-   @Test
-   public void testAbsProcessUdf() throws Exception
-   {
-      IPSRequestContext ctx = new PSMockRequestContext();
-      Object[] params = new Object[9];
-      int j = 0;
-      params[0] = "http://foobar:1021/Rhythmyx/sys_testing123/foo.xml";
-      for(int i = 1; i < params.length; i = i + 2)
-      {
-         params[i] = "param" + j;
-         params[i+1] = "value" + j;
-         j++;
-      }
-      String result = m_abs.processUdf(params, ctx).toString();
-      PSTestCompare.assertEqualURLs("http://foobar:1021/Rhythmyx/sys_testing123/foo.xml?param3=value3&param2=value2&param1=value1&param0=value0",result);
-      
-   }
+  @Test
+  public void testAbsProcessUdf() throws Exception {
+    IPSRequestContext ctx = new PSMockRequestContext();
+    Object[] params = new Object[9];
+    int j = 0;
+    params[0] = "http://foobar:1021/Rhythmyx/sys_testing123/foo.xml";
+    for (int i = 1; i < params.length; i = i + 2) {
+      params[i] = "param" + j;
+      params[i + 1] = "value" + j;
+      j++;
+    }
+    String result = m_abs.processUdf(params, ctx).toString();
+    PSTestCompare.assertEqualURLs(
+        "http://foobar:1021/Rhythmyx/sys_testing123/foo.xml?param3=value3&param2=value2&param1=value1&param0=value0",
+        result);
+  }
 }

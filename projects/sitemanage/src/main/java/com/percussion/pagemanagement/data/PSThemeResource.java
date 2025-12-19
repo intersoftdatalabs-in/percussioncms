@@ -20,35 +20,25 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDe
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
 import com.percussion.theme.data.PSThemeSummary;
 
-public class PSThemeResource extends PSResourceDefinition
-{
+public class PSThemeResource extends PSResourceDefinition {
 
-    private PSThemeSummary themeSummary;
-    
-    @Override
-    public void accept(IPSResourceDefinitionVisitor visitor)
-    {
-        visitor.visit(this);
-    }
+  private PSThemeSummary themeSummary;
 
-    @Override
-    public PSResourceDefinitionType getResourceType()
-    {
-        return PSResourceDefinitionType.THEME;
-    }
+  @Override
+  public void accept(IPSResourceDefinitionVisitor visitor) {
+    visitor.visit(this);
+  }
 
-    public PSThemeSummary getThemeSummary()
-    {
-        return themeSummary;
-    }
+  @Override
+  public PSResourceDefinitionType getResourceType() {
+    return PSResourceDefinitionType.THEME;
+  }
 
-    public void setThemeSummary(PSThemeSummary themeSummary)
-    {
-        this.themeSummary = themeSummary;
-    }
-    
-    
-    
-    
+  public PSThemeSummary getThemeSummary() {
+    return themeSummary;
+  }
 
+  public void setThemeSummary(PSThemeSummary themeSummary) {
+    this.themeSummary = themeSummary;
+  }
 }

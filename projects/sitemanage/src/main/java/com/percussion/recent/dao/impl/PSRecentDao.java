@@ -21,96 +21,72 @@ import com.percussion.recent.dao.IPSRecentDao;
 import com.percussion.recent.data.PSRecent;
 import com.percussion.recent.data.PSRecent.RecentType;
 import com.percussion.share.dao.IPSGenericDao.SaveException;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.util.LinkedList;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.LinkedList;
-import java.util.List;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository("recentDao")
 @Transactional
-public class PSRecentDao implements IPSRecentDao
-{
+public class PSRecentDao implements IPSRecentDao {
 
-  @PersistenceContext
-private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    private Session getSession(){
-        return entityManager.unwrap(Session.class);
+  private Session getSession() {
+    return entityManager.unwrap(Session.class);
+  }
+
+  PSRecentDao() {}
+
+  public List<PSRecent> find(String user, String siteName, RecentType type) {
+    Session session = getSession();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+
+    CriteriaQuery<PSRecent> criteria = builder.createQuery(PSRecent.class);
+    Root<PSRecent> recent = criteria.from(PSRecent.class);
+    List<Predicate> predList = new LinkedList<>();
+
+    if (user != null) {
+      predList.add(builder.equal(recent.get("user"), user));
     }
-
-    PSRecentDao()
-    {
-        
+    if (siteName != null) {
+      predList.add(builder.equal(recent.get("siteName"), siteName));
     }
-
-    public List<PSRecent> find(String user, String siteName, RecentType type)
-    {
-        Session session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-
-        CriteriaQuery<PSRecent> criteria = builder.createQuery(PSRecent.class);
-        Root<PSRecent> recent = criteria.from(PSRecent.class);
-        List<Predicate> predList = new LinkedList<>();
-
-        if (user!=null) {
-            predList.add(builder.equal(recent.get("user"), user));
-        }
-        if(siteName!=null) {
-            predList.add(builder.equal(recent.get("siteName"), siteName));
-        }
-        if(type!=null) {
-            predList.add( builder.equal(recent.get("type"), type));
-        }
-        Predicate[] preds = new Predicate[predList.size()];
-        preds = predList.toArray(preds);
-        criteria.where(preds);
-        criteria.orderBy(builder.asc(recent.get("order")));
-        return entityManager
-                .createQuery(criteria)
-                .getResultList();
+    if (type != null) {
+      predList.add(builder.equal(recent.get("type"), type));
     }
-    
+    Predicate[] preds = new Predicate[predList.size()];
+    preds = predList.toArray(preds);
+    criteria.where(preds);
+    criteria.orderBy(builder.asc(recent.get("order")));
+    return entityManager.createQuery(criteria).getResultList();
+  }
 
-    public void saveAll(List<PSRecent> recentList)
-    {
-     
-        for (PSRecent recent : recentList)
-        {
-            getSession().saveOrUpdate(recent);
-        }
-        
+  public void saveAll(List<PSRecent> recentList) {
+
+    for (PSRecent recent : recentList) {
+      getSession().saveOrUpdate(recent);
     }
+  }
 
+  public void delete(PSRecent recent) {
+    getSession().delete(recent);
+  }
 
-    public void delete(PSRecent recent) 
-    {
-        getSession().delete(recent);
+  public void deleteAll(List<PSRecent> recentList) {
+    for (PSRecent recent : recentList) {
+      getSession().delete(recent);
     }
-    
+  }
 
-    public void deleteAll(List<PSRecent> recentList)
-    {
-        for (PSRecent recent : recentList)
-        {
-            getSession().delete(recent);
-        }
-    }
-
-    
-
-    public void save(PSRecent recent) throws SaveException
-    {
-        getSession().saveOrUpdate(recent);
-    }
-
- 
+  public void save(PSRecent recent) throws SaveException {
+    getSession().saveOrUpdate(recent);
+  }
 }
-

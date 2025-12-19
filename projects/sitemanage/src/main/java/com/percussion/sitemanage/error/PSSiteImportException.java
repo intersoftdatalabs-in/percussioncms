@@ -18,26 +18,20 @@ package com.percussion.sitemanage.error;
 
 import com.percussion.error.PSException;
 
-/**
- * @author LucasPiccoli
- *
- */
-public class PSSiteImportException extends PSException
-{
+/** @author LucasPiccoli */
+public class PSSiteImportException extends PSException {
 
-    public PSSiteImportException(String message)
-    {
+  public PSSiteImportException(String message) {
 
-        super(-1, message);
-    }
+    super(-1, message);
+  }
 
-    public PSSiteImportException(String message, Throwable cause)
-    {
+  public PSSiteImportException(String message, Throwable cause) {
 
-        super(-1, new Object[]{message}, cause);
-    }
+    super(-1, new Object[] {message}, cause);
+  }
 
-    public PSSiteImportException(Throwable t){
-        super(t);
-    }
+  public PSSiteImportException(Throwable t) {
+    super(t);
+  }
 }

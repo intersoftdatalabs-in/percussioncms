@@ -19,72 +19,66 @@ package com.percussion.integrations.siteimprove.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Siteimprove credentials to access their api.
- */
+/** Siteimprove credentials to access their api. */
 @XmlRootElement(name = "SiteimproveCredentials")
 public class PSSiteImproveCredentials {
 
-	private String siteName;
-	private String token;
-	private String siteProtocol;
-	private String defaultDocument;
-	private String canonicalDist;
+  private String siteName;
+  private String token;
+  private String siteProtocol;
+  private String defaultDocument;
+  private String canonicalDist;
 
-	/**
-	 * Empty constructor for jax-rs to use.
-	 */
-	public PSSiteImproveCredentials() {
-	}
+  /** Empty constructor for jax-rs to use. */
+  public PSSiteImproveCredentials() {}
 
-	/**
-	 * @param siteName the name of the site to associate credentials with
-	 * @param token the token generated from the Siteimprove GET token endpoint for the site
-	 * the token should be persisted in the PSMetadata object.
-	 */
-	public PSSiteImproveCredentials(String token, String siteName) {
-		this.siteName = siteName;
-		this.token = token;
-	}
+  /**
+   * @param siteName the name of the site to associate credentials with
+   * @param token the token generated from the Siteimprove GET token endpoint for the site the token
+   *     should be persisted in the PSMetadata object.
+   */
+  public PSSiteImproveCredentials(String token, String siteName) {
+    this.siteName = siteName;
+    this.token = token;
+  }
 
-	public String getSiteName() {
-		return siteName;
-	}
+  public String getSiteName() {
+    return siteName;
+  }
 
-	public void setSiteName(String siteName) {
-		this.siteName = siteName;
-	}
-	
-	public void setToken(String token) {
-		this.token = token;
-	}
-	
-	public String getToken() {
-		return token;
-	}
-	
-	public String getSiteProtocol() {
-		return siteProtocol;
-	}
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-	public void setSiteProtocol(String protocol) {
-		this.siteProtocol = protocol;
-	}
+  public void setToken(String token) {
+    this.token = token;
+  }
 
-	public String getDefaultDocument() {
-		return defaultDocument;
-	}
+  public String getToken() {
+    return token;
+  }
 
-	public void setDefaultDocument(String defaultDocument) {
-		this.defaultDocument = defaultDocument;
-	}
+  public String getSiteProtocol() {
+    return siteProtocol;
+  }
 
-	public String getCanonicalDist() {
-		return canonicalDist;
-	}
+  public void setSiteProtocol(String protocol) {
+    this.siteProtocol = protocol;
+  }
 
-	public void setCanonicalDist(String canonicalDist) {
-		this.canonicalDist = canonicalDist;
-	}
+  public String getDefaultDocument() {
+    return defaultDocument;
+  }
 
+  public void setDefaultDocument(String defaultDocument) {
+    this.defaultDocument = defaultDocument;
+  }
+
+  public String getCanonicalDist() {
+    return canonicalDist;
+  }
+
+  public void setCanonicalDist(String canonicalDist) {
+    this.canonicalDist = canonicalDist;
+  }
 }

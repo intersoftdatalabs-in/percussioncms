@@ -98,7 +98,7 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
@@ -4638,7 +4638,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             community = roleMgr.loadCommunity(id);
             folder.setCommunityName(community.getName());
          }
-         catch (PSSecurityException e)
+         catch (PSServiceSecurityException e)
          {
             throw new PSErrorException(IPSWebserviceErrors.LOAD_FAILED,
                PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED, PSCommunity.class

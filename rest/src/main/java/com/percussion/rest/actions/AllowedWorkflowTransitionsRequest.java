@@ -22,6 +22,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class AllowedWorkflowTransitionsRequest {
 
-    int[] contentIds;
-    int[] assignmentTypeIds;
+  int[] contentIds;
+  int[] assignmentTypeIds;
 }

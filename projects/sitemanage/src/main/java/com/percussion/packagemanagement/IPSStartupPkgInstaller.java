@@ -18,11 +18,7 @@ package com.percussion.packagemanagement;
 
 /**
  * Manages installation of packages at server-startup
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public interface IPSStartupPkgInstaller
-{
-    
-}
+public interface IPSStartupPkgInstaller {}

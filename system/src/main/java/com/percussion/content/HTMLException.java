@@ -18,33 +18,28 @@ package com.percussion.content;
 
 import org.w3c.dom.DOMException;
 
-public class HTMLException extends DOMException
-{
-   public HTMLException(short code, String msg)
-   {
-      super(code, msg);
-   }
+public class HTMLException extends DOMException {
+  public HTMLException(short code, String msg) {
+    super(code, msg);
+  }
 
-   public void setLineNumber(int num)
-   {
-      m_lineNum = num;
-   }
+  public void setLineNumber(int num) {
+    m_lineNum = num;
+  }
 
-   public int getLineNumber()
-   {
-      return m_lineNum;
-   }
+  public int getLineNumber() {
+    return m_lineNum;
+  }
 
-   public String getMessage()
-   {
-      String msg = super.getMessage();
-      StringBuilder buf = new StringBuilder(msg.length() + 35);
-      buf.append("HTML parse error on line ");
-      buf.append(getLineNumber());
-      buf.append(": ");
-      buf.append(msg);
-      return buf.toString();
-   }
+  public String getMessage() {
+    String msg = super.getMessage();
+    StringBuilder buf = new StringBuilder(msg.length() + 35);
+    buf.append("HTML parse error on line ");
+    buf.append(getLineNumber());
+    buf.append(": ");
+    buf.append(msg);
+    return buf.toString();
+  }
 
-   private int m_lineNum = -1;
+  private int m_lineNum = -1;
 }

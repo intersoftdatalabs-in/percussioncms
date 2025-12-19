@@ -22,19 +22,17 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;
 
-/**
- * @author Steffen Gates May 6, 2011
- */
+/** @author Steffen Gates May 6, 2011 */
 public class HibernateDeleteQuery implements HibernateCallback {
-    private String query;
+  private String query;
 
-    public HibernateDeleteQuery(String query) {
-        this.query = query;
-    }
+  public HibernateDeleteQuery(String query) {
+    this.query = query;
+  }
 
-    public Object doInHibernate(Session session) throws HibernateException {
-        Query q = session.createQuery(query);
-        q.executeUpdate();
-        return null;
-    }
+  public Object doInHibernate(Session session) throws HibernateException {
+    Query q = session.createQuery(query);
+    q.executeUpdate();
+    return null;
+  }
 }

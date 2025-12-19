@@ -17,60 +17,58 @@
 
 package com.percussion.rest.actions;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ActionMenuModeUIContext")
 @Schema(description = "Represents a UI Context that can be used to scope a Menu")
 public class ActionMenuModeUIContext {
 
-    private String modeId;
-    private String modeName;
-    private String contextId;
-    private String contextName;
-    private String description;
+  private String modeId;
+  private String modeName;
+  private String contextId;
+  private String contextName;
+  private String description;
 
-    public ActionMenuModeUIContext(){}
+  public ActionMenuModeUIContext() {}
 
-    public String getModeId() {
-        return modeId;
-    }
+  public String getModeId() {
+    return modeId;
+  }
 
-    public void setModeId(String modeId) {
-        this.modeId = modeId;
-    }
+  public void setModeId(String modeId) {
+    this.modeId = modeId;
+  }
 
-    public String getModeName() {
-        return modeName;
-    }
+  public String getModeName() {
+    return modeName;
+  }
 
-    public void setModeName(String modeName) {
-        this.modeName = modeName;
-    }
+  public void setModeName(String modeName) {
+    this.modeName = modeName;
+  }
 
-    public String getContextId() {
-        return contextId;
-    }
+  public String getContextId() {
+    return contextId;
+  }
 
-    public void setContextId(String contextId) {
-        this.contextId = contextId;
-    }
+  public void setContextId(String contextId) {
+    this.contextId = contextId;
+  }
 
-    public String getContextName() {
-        return contextName;
-    }
+  public String getContextName() {
+    return contextName;
+  }
 
-    public void setContextName(String contextName) {
-        this.contextName = contextName;
-    }
+  public void setContextName(String contextName) {
+    this.contextName = contextName;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 }

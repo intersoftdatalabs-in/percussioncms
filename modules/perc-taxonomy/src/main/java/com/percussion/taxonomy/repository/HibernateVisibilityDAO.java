@@ -18,35 +18,34 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Visibility;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collection;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateVisibilityDAO extends HibernateDaoSupport implements VisibilityDAO {
 
-    public Visibility getVisibility(int id) {
-        return (Visibility) getHibernateTemplate().get(Visibility.class, new Integer(id));
-    }
+  public Visibility getVisibility(int id) {
+    return (Visibility) getHibernateTemplate().get(Visibility.class, new Integer(id));
+  }
 
-    public Collection getAllVisibilities() {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Visibility v");
-    }
+  public Collection getAllVisibilities() {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Visibility v");
+  }
 
-    public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Visibility v where v.taxonomy.id = " + taxonomy_id);
-    }   
-    
-    public void saveVisibility(Visibility Visibility) {
-        getHibernateTemplate().saveOrUpdate(Visibility);
-    }
+  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id) {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Visibility v where v.taxonomy.id = " + taxonomy_id);
+  }
 
-    public void removeVisibility(Visibility Visibility) {
-        getHibernateTemplate().delete(Visibility);
-    }
-    
-    public void removeVisibilities(Collection<Visibility> Visibilities) {
-        getHibernateTemplate().deleteAll(Visibilities);
-    }
+  public void saveVisibility(Visibility Visibility) {
+    getHibernateTemplate().saveOrUpdate(Visibility);
+  }
+
+  public void removeVisibility(Visibility Visibility) {
+    getHibernateTemplate().delete(Visibility);
+  }
+
+  public void removeVisibilities(Collection<Visibility> Visibilities) {
+    getHibernateTemplate().deleteAll(Visibilities);
+  }
 }

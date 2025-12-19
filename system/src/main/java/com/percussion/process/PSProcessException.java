@@ -16,19 +16,14 @@
  */
 package com.percussion.process;
 
-/**
- * Base exception for exception thrown from the process package.
- */
-public class PSProcessException extends Exception
-{
-   /**
-    * Constructs the exception from the specified message
-    *
-    * @param msg the message to wrap in the exception, may not be
-    * <code>null</code>
-    */
-   public PSProcessException(String msg)
-   {
-      super(msg);
-   }
+/** Base exception for exception thrown from the process package. */
+public class PSProcessException extends Exception {
+  /**
+   * Constructs the exception from the specified message
+   *
+   * @param msg the message to wrap in the exception, may not be <code>null</code>
+   */
+  public PSProcessException(String msg) {
+    super(msg);
+  }
 }

@@ -21,16 +21,14 @@ import org.junit.Test;
 
 public class TLSUtilsTest {
 
-    @Test
-    public void getEnabledCiphers() {
-        TLSUtils.getEnabledCiphers();
-    }
+  @Test
+  public void getEnabledCiphers() {
+    TLSUtils.getEnabledCiphers();
+  }
 
-    @Test
-    public void getSecureCiphers() {
-    }
+  @Test
+  public void getSecureCiphers() {}
 
-    @Test
-    public void getEnabledCiphers1() {
-    }
+  @Test
+  public void getEnabledCiphers1() {}
 }

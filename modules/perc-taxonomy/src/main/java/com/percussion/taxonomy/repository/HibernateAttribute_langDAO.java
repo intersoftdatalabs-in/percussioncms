@@ -18,26 +18,25 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Attribute_lang;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collection;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateAttribute_langDAO extends HibernateDaoSupport implements Attribute_langDAO {
 
-    public Attribute_lang getAttribute_lang(int id) {
-        return (Attribute_lang) getHibernateTemplate().get(Attribute_lang.class, new Integer(id));
-    }
+  public Attribute_lang getAttribute_lang(int id) {
+    return (Attribute_lang) getHibernateTemplate().get(Attribute_lang.class, new Integer(id));
+  }
 
-    public Collection getAllAttribute_langs() {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Attribute_lang att");
-    }
+  public Collection getAllAttribute_langs() {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Attribute_lang att");
+  }
 
-    public void saveAttribute_lang(Attribute_lang attribute_lang) {
-        getHibernateTemplate().saveOrUpdate(attribute_lang);
-    }
+  public void saveAttribute_lang(Attribute_lang attribute_lang) {
+    getHibernateTemplate().saveOrUpdate(attribute_lang);
+  }
 
-    public void removeAttribute_lang(Attribute_lang attribute_lang) {
-        getHibernateTemplate().delete(attribute_lang);
-    }
+  public void removeAttribute_lang(Attribute_lang attribute_lang) {
+    getHibernateTemplate().delete(attribute_lang);
+  }
 }

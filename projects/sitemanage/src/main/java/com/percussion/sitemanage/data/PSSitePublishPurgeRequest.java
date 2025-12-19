@@ -18,30 +18,20 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.List;
 
-/**
- * @author DavidBenua
- *
- */
+/** @author DavidBenua */
 @JsonRootName("SitePublishPurgeRequest")
 public class PSSitePublishPurgeRequest extends PSAbstractDataObject {
-    private List<Long> jobids;
+  private List<Long> jobids;
 
-	/**
-	 * @return the jobids
-	 */
-	public List<Long> getJobids() {
-		return jobids;
-	}
+  /** @return the jobids */
+  public List<Long> getJobids() {
+    return jobids;
+  }
 
-	/**
-	 * @param jobids the jobids to set
-	 */
-	public void setJobids(List<Long> jobids) {
-		this.jobids = jobids;
-	}
-    
-    
+  /** @param jobids the jobids to set */
+  public void setJobids(List<Long> jobids) {
+    this.jobids = jobids;
+  }
 }

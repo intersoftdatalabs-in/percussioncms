@@ -17,16 +17,13 @@
 package com.percussion.design.objectstore;
 
 /**
- * Enumeration representing the various application types
- * available.
+ * Enumeration representing the various application types available.
+ *
  * @author erikserating
  */
-public enum PSApplicationType 
-{
-   CONTENT_EDITOR,
-   SYSTEM, 
-   /**
-    * Applications should default to this value.
-    */
-   USER
+public enum PSApplicationType {
+  CONTENT_EDITOR,
+  SYSTEM,
+  /** Applications should default to this value. */
+  USER
 }

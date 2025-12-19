@@ -19,38 +19,34 @@ package com.percussion.server.config;
 import com.percussion.error.PSException;
 
 /**
- * Generic exception class to be used for server configurations errors. More 
- * specific server configuration errors should be derived from this class.
+ * Generic exception class to be used for server configurations errors. More specific server
+ * configuration errors should be derived from this class.
  */
-public class PSServerConfigException extends PSException
-{
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object)
-    */ 
-   public PSServerConfigException(int msgCode, Object singleArg)
-   {
-      super(msgCode, singleArg);
-   }
+public class PSServerConfigException extends PSException {
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object)
+   */
+  public PSServerConfigException(int msgCode, Object singleArg) {
+    super(msgCode, singleArg);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int,Object[])
-    */ 
-   public PSServerConfigException(int msgCode, Object[] arrayArgs)
-   {
-      super(msgCode, arrayArgs);
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int,Object[])
+   */
+  public PSServerConfigException(int msgCode, Object[] arrayArgs) {
+    super(msgCode, arrayArgs);
+  }
 
-   /**
-    * Pass-through constructor to super class.
-    * 
-    * @see PSException#PSException(int)
-    */ 
-   public PSServerConfigException(int msgCode)
-   {
-      super(msgCode);
-   }
+  /**
+   * Pass-through constructor to super class.
+   *
+   * @see PSException#PSException(int)
+   */
+  public PSServerConfigException(int msgCode) {
+    super(msgCode);
+  }
 }

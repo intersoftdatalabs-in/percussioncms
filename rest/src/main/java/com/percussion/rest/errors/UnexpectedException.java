@@ -19,15 +19,12 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class UnexpectedException  extends RestExceptionBase {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 588050760791418172L;
+public class UnexpectedException extends RestExceptionBase {
 
-	public UnexpectedException(){
-		 super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
-	}
+  /** */
+  private static final long serialVersionUID = 588050760791418172L;
 
+  public UnexpectedException() {
+    super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
+  }
 }

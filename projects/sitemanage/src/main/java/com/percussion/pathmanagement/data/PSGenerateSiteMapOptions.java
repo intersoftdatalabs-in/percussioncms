@@ -18,35 +18,28 @@ package com.percussion.pathmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
  * This class contains the permissions of a folder.
  *
  * @author yubingchen
  */
-public class PSGenerateSiteMapOptions extends PSAbstractDataObject
-{
-    private String generateSitemapExcludeImage;
-    private String generateSitemap;
+public class PSGenerateSiteMapOptions extends PSAbstractDataObject {
+  private String generateSitemapExcludeImage;
+  private String generateSitemap;
 
-    public String getGenerateSitemap() {
-        return generateSitemap;
-    }
+  public String getGenerateSitemap() {
+    return generateSitemap;
+  }
 
-    public void setGenerateSitemap(String generateSitemap) {
-        this.generateSitemap = generateSitemap;
-    }
+  public void setGenerateSitemap(String generateSitemap) {
+    this.generateSitemap = generateSitemap;
+  }
 
+  public String getGenerateSitemapExcludeImage() {
+    return generateSitemapExcludeImage;
+  }
 
-    public String getGenerateSitemapExcludeImage() {
-        return generateSitemapExcludeImage;
-    }
-
-    public void setGenerateSitemapExcludeImage(String generateSitemapExcludeImage) {
-        this.generateSitemapExcludeImage = generateSitemapExcludeImage;
-    }
-
-
+  public void setGenerateSitemapExcludeImage(String generateSitemapExcludeImage) {
+    this.generateSitemapExcludeImage = generateSitemapExcludeImage;
+  }
 }

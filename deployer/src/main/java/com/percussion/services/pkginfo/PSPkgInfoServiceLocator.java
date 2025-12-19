@@ -19,19 +19,14 @@ package com.percussion.services.pkginfo;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- * Locator for the {@link IPSPkgInfoService}
- */
-public class PSPkgInfoServiceLocator extends PSBaseServiceLocator
-{
-   /**
-    * Find and return the Package Info Service.
-    * 
-    * @return the service, never <code>null</code>.
-    */
-   public static IPSPkgInfoService getPkgInfoService()
-   {
-      return (IPSPkgInfoService) getCtx().getBean("sys_pkgInfoService");
-   }
-
+/** Locator for the {@link IPSPkgInfoService} */
+public class PSPkgInfoServiceLocator extends PSBaseServiceLocator {
+  /**
+   * Find and return the Package Info Service.
+   *
+   * @return the service, never <code>null</code>.
+   */
+  public static IPSPkgInfoService getPkgInfoService() {
+    return (IPSPkgInfoService) getCtx().getBean("sys_pkgInfoService");
+  }
 }

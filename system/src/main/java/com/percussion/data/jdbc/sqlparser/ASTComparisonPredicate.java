@@ -26,8 +26,7 @@ public class ASTComparisonPredicate extends SimpleNode {
     super(p, id);
   }
 
-
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
@@ -38,17 +37,14 @@ public class ASTComparisonPredicate extends SimpleNode {
   public static final int GT = 3;
   public static final int LTE = 4;
   public static final int GTE = 5;
-   
-  public void setOperator(int op)
-  {
-     m_op = op;
+
+  public void setOperator(int op) {
+    m_op = op;
   }
 
-  public int getOperator()
-  {
-     return m_op;
+  public int getOperator() {
+    return m_op;
   }
 
   private int m_op;
-  
 }
