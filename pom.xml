@@ -99,7 +99,7 @@
         <commons.rng.version>1.3</commons.rng.version>
         <commons.text.version>1.15.0</commons.text.version>
         <commons.validator.version>1.7</commons.validator.version>
-        <cxf.version>3.5.11</cxf.version>
+        <cxf.version>4.1.4</cxf.version>
         <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
