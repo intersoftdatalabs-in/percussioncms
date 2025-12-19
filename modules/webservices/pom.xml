@@ -20,6 +20,7 @@
             <version>1.4.2</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.xml</groupId>
@@ -152,6 +153,7 @@
                         <version>1.4.2</version>
                         <scope>system</scope>
                         <systemPath>${basedir}/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
+                        <optional>true</optional>
                     </dependency>
                     <dependency>
                         <groupId>javax.xml</groupId>

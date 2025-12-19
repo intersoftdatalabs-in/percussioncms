@@ -385,16 +385,19 @@
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>1.4.2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-saaj</artifactId>
             <version>1.4.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>1.4.1</version>
+            <optional>true</optional>
         </dependency>
         <!-- Ensure Jsoup is available at compile and test time -->
         <dependency>
@@ -991,6 +994,7 @@
             <version>1.0.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/jardiff/jardiff/1.0.0/jardiff-1.0.0.jar</systemPath>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>jnlp-servlet</groupId>
@@ -998,6 +1002,7 @@
             <version>1.0.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/jnlp-servlet/jnlp-servlet/1.0.0/jnlp-servlet-1.0.0.jar</systemPath>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.xml.rpc</groupId>
@@ -1307,6 +1312,33 @@
                         </goals>
                     </execution>
                                         -->
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <argLine>-Xmx2048m -Djava.awt.headless=true</argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unit-tests</id>
+                        <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

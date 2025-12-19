@@ -1163,6 +1163,7 @@
             <version>r3828</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/caja-r3828.jar</systemPath>
+            <optional>true</optional>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
         <dependency>

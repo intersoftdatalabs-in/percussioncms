@@ -1072,6 +1072,7 @@
                 <version>3.3.1-PATCHED</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/cglib/3.3.1-PATCHED/cglib-3.3.1-PATCHED.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -1227,6 +1228,7 @@
                 <version>${axiscore.version}</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/axis/axis/1.4.2/axis-1.4.2.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <!-- current is 1.4.1 -->
@@ -1235,6 +1237,7 @@
                 <version>${axis.version}</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/axis/axis-saaj/1.4.1/axis-saaj-1.4.1.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <!-- current is 1.4.1 -->
@@ -1243,6 +1246,7 @@
                 <version>${axis.version}</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/axis/axis-jaxrpc/1.4.1/axis-jaxrpc-1.4.1.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <!-- https://mvnrepository.com/artifact/javax.xml/jaxrpc-api 
                 for axis 1.1 -->
@@ -1446,6 +1450,7 @@
                 <version>1.6R7</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/org/mozilla/rhino/1.6R7/rhino-1.6R7.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.apache.derby</groupId>
@@ -1559,6 +1564,7 @@
                 <version>1.1</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/expectj/expectj/1.1/expectj-1.1.jar</systemPath>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
