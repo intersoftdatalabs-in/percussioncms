@@ -21,37 +21,44 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ClientIdentity {
-  
-    private String id;
-    
-    private String type;
-    
-    private PSLicenseStatus extended;
-    
-    public PSLicenseStatus getExtended() {
-        return extended;
-    }
-    public void setExtended(PSLicenseStatus extended) {
-        this.extended = extended;
-    }
-    private String signature;
-    
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type = type;
-    }
-    public String getSignature() {
-        return signature;
-    }
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
+
+  private String id;
+
+  private String type;
+
+  private PSLicenseStatus extended;
+
+  public PSLicenseStatus getExtended() {
+    return extended;
+  }
+
+  public void setExtended(PSLicenseStatus extended) {
+    this.extended = extended;
+  }
+
+  private String signature;
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getSignature() {
+    return signature;
+  }
+
+  public void setSignature(String signature) {
+    this.signature = signature;
+  }
 }

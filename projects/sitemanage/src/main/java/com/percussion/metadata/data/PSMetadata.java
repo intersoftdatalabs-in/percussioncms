@@ -18,88 +18,61 @@ package com.percussion.metadata.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * @author erikserating
- *
- */
+/** @author erikserating */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSMetadata")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSMetadata")
 @Table(name = "PSX_METADATA")
 @XmlRootElement(name = "metadata")
 @JsonRootName("metaData")
-public class PSMetadata extends PSAbstractDataObject
-{
-   private static final long serialVersionUID = 1L;
-   
-   @Id
-   @Column(name = "METAKEY")
-   private String key;
-   
-   @Basic
-   @Column(name = "DATA")
-   private String data;
+public class PSMetadata extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-   /**
-    * @param key
-    * @param data
-    */
-   public PSMetadata(String key, String data)
-   {
-      this.key = key;
-      this.data = data;
-   }
+  @Id
+  @Column(name = "METAKEY")
+  private String key;
 
-   /**
-    * 
-    */
-   public PSMetadata()
-   {
-      
-   }
+  @Basic
+  @Column(name = "DATA")
+  private String data;
 
-   /**
-    * @return the key
-    */
-   public String getKey()
-   {
-      return key;
-   }
+  /**
+   * @param key
+   * @param data
+   */
+  public PSMetadata(String key, String data) {
+    this.key = key;
+    this.data = data;
+  }
 
-   /**
-    * @param key the key to set
-    */
-   public void setKey(String key)
-   {
-      this.key = key;
-   }
+  /** */
+  public PSMetadata() {}
 
-   /**
-    * @return the data
-    */
-   public String getData()
-   {
-      return data;
-   }
+  /** @return the key */
+  public String getKey() {
+    return key;
+  }
 
-   /**
-    * @param data the data to set
-    */
-   public void setData(String data)
-   {
-      this.data = data;
-   }
-   
-   
-   
+  /** @param key the key to set */
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  /** @return the data */
+  public String getData() {
+    return data;
+  }
+
+  /** @param data the data to set */
+  public void setData(String data) {
+    this.data = data;
+  }
 }

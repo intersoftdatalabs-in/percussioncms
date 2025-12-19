@@ -16,81 +16,74 @@
  */
 package com.percussion.proxyconfig.service.impl;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
-
+import com.percussion.utils.testing.IntegrationTest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-/**
- * @author LucasPiccoli
- */
+/** @author LucasPiccoli */
 @Category(IntegrationTest.class)
-public class PSProxyConfigServiceTest
-{
+public class PSProxyConfigServiceTest {
 
-    @Ignore("Ignore until config file gets installed on the server.")
-    @Test
-    public void testFileAvailableOnServer()
-    {
-        // Reading default file from server
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService();
-        assertTrue(proxyConfigService.configFileExists());
-    }
+  @Ignore("Ignore until config file gets installed on the server.")
+  @Test
+  public void testFileAvailableOnServer() {
+    // Reading default file from server
+    IPSProxyConfigService proxyConfigService = new PSProxyConfigService();
+    assertTrue(proxyConfigService.configFileExists());
+  }
 
-    @Test
-    public void testFindAll() throws Exception
-    {
-        // Reading custom local file
-        File tempProxyConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_ValidMultipleConfigs.xml"));
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
-        List<PSProxyConfig> configurations = proxyConfigService.findAll();
-        assertNotNull(configurations);
-    }
+  @Test
+  public void testFindAll() throws Exception {
+    // Reading custom local file
+    File tempProxyConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("ProxyConfigTest_ValidMultipleConfigs.xml"));
+    IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
+    List<PSProxyConfig> configurations = proxyConfigService.findAll();
+    assertNotNull(configurations);
+  }
 
-    @Test
-    public void testFindByProtocol() throws Exception
-    {
-        // Reading custom local file
-        File tempProxyConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_ValidMultipleConfigs.xml"));
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
-        // Test finding an existing configuration value, case insensitive.
-        PSProxyConfig proxyConfig = proxyConfigService.findByProtocol("HTTP");
-        PSProxyConfig proxyConfig2 = proxyConfigService.findByProtocol("http");
-        assertNotNull(proxyConfig);
-        assertNotNull(proxyConfig2);
-        assertTrue(proxyConfig.equals(proxyConfig2));
-        // Test that for an inexistent protocol in the config file, no config is
-        // found.
-        PSProxyConfig proxyConfig3 = proxyConfigService.findByProtocol("another protocol");
-        assertNull(proxyConfig3);
-    }
+  @Test
+  public void testFindByProtocol() throws Exception {
+    // Reading custom local file
+    File tempProxyConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("ProxyConfigTest_ValidMultipleConfigs.xml"));
+    IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
+    // Test finding an existing configuration value, case insensitive.
+    PSProxyConfig proxyConfig = proxyConfigService.findByProtocol("HTTP");
+    PSProxyConfig proxyConfig2 = proxyConfigService.findByProtocol("http");
+    assertNotNull(proxyConfig);
+    assertNotNull(proxyConfig2);
+    assertTrue(proxyConfig.equals(proxyConfig2));
+    // Test that for an inexistent protocol in the config file, no config is
+    // found.
+    PSProxyConfig proxyConfig3 = proxyConfigService.findByProtocol("another protocol");
+    assertNull(proxyConfig3);
+  }
 
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
-    {
-        File tempConfigFile = File.createTempFile("proxyconfig", ".xml");
-        tempConfigFile.deleteOnExit();
+  private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
+    File tempConfigFile = File.createTempFile("proxyconfig", ".xml");
+    tempConfigFile.deleteOnExit();
 
-        OutputStream out = new FileOutputStream(tempConfigFile);
-        InputStream in = baseConfigFile;
+    OutputStream out = new FileOutputStream(tempConfigFile);
+    InputStream in = baseConfigFile;
 
-        IOUtils.copy(in, out);
+    IOUtils.copy(in, out);
 
-        return tempConfigFile;
-    }
+    return tempConfigFile;
+  }
 }

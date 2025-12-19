@@ -17,15 +17,12 @@
 
 package com.percussion.share.data;
 
-
-/***
- * Defines a simple generic tree  for handling tree like data structures. 
- * 
- * @author natechadwick
+/**
+ * * Defines a simple generic tree for handling tree like data structures.
  *
+ * @author natechadwick
  */
 public interface IPSTree<T> {
 
-	public IPSTreeNode<T> getRoot();
-	
+  public IPSTreeNode<T> getRoot();
 }

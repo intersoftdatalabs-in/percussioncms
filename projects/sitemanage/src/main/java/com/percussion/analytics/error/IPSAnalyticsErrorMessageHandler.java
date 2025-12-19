@@ -16,18 +16,13 @@
  */
 package com.percussion.analytics.error;
 
-
-/**
- * @author erikserating
- *
- */
-public interface IPSAnalyticsErrorMessageHandler
-{
-   /**
-    * Returns the proper business message for the analytics exception
-    * passed in.
-    * @param e the analytics provider exception that was thrown. Cannot be <code>null</code>
-    * @return the message, never <code>null</code>, may be empty.
-    */
-   public String getMessage(PSAnalyticsProviderException e);
+/** @author erikserating */
+public interface IPSAnalyticsErrorMessageHandler {
+  /**
+   * Returns the proper business message for the analytics exception passed in.
+   *
+   * @param e the analytics provider exception that was thrown. Cannot be <code>null</code>
+   * @return the message, never <code>null</code>, may be empty.
+   */
+  public String getMessage(PSAnalyticsProviderException e);
 }

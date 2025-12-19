@@ -17,14 +17,13 @@
 
 package com.percussion.assetmanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "AssetSummary")
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
-    public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
-        super(c);
-    }
+  public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
+    super(c);
+  }
 }

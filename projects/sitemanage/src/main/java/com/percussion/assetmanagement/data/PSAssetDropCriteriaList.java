@@ -18,15 +18,16 @@
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @JsonRootName("AssetDropCriteria")
 public class PSAssetDropCriteriaList extends ArrayList<PSAssetDropCriteria> {
-    public PSAssetDropCriteriaList(Collection<? extends PSAssetDropCriteria> c) {
-        super(c);
-    }
-    public PSAssetDropCriteriaList(){ super();}
+  public PSAssetDropCriteriaList(Collection<? extends PSAssetDropCriteria> c) {
+    super(c);
+  }
+
+  public PSAssetDropCriteriaList() {
+    super();
+  }
 }

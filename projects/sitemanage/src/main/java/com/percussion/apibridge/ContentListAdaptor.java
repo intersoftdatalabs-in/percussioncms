@@ -21,81 +21,83 @@ import com.percussion.rest.contentlists.ContentList;
 import com.percussion.rest.contentlists.IContentListsAdaptor;
 import com.percussion.rest.extensions.Extension;
 import com.percussion.util.PSSiteManageBean;
-
 import java.util.Collections;
 import java.util.List;
 
 @PSSiteManageBean
 public class ContentListAdaptor implements IContentListsAdaptor {
 
+  public ContentListAdaptor() {}
 
-    public ContentListAdaptor() {
-    }
+  /**
+   * * Get a list of available ContentListGenerators on the system.
+   *
+   * @return A list of ContentListGenerators
+   */
+  @Override
+  public List<Extension> getContentListGenerators() {
+    return Collections.emptyList();
+  }
 
-    /***
-     * Get a list of available ContentListGenerators on the system.
-     * @return A list of ContentListGenerators
-     */
-    @Override
-    public List<Extension> getContentListGenerators() {
-        return Collections.emptyList();
-    }
+  /**
+   * * Get a list of available TemplateExpanders on the system.
+   *
+   * @return
+   */
+  @Override
+  public List<Extension> getTemplateExpanders() {
+    return Collections.emptyList();
+  }
 
-    /***
-     * Get a list of available TemplateExpanders on the system.
-     * @return
-     */
-    @Override
-    public List<Extension> getTemplateExpanders() {
-        return Collections.emptyList();
-    }
+  /**
+   * * Get a list of content lists for the specified edition.
+   *
+   * @param editionId
+   * @return
+   */
+  @Override
+  public List<ContentList> getContentListsByEditionId(long editionId) {
+    return Collections.emptyList();
+  }
 
-    /***
-     * Get  a list of content lists for the specified edition.
-     * @param editionId
-     * @return
-     */
-    @Override
-    public List<ContentList> getContentListsByEditionId(long editionId) {
-        return Collections.emptyList();
-    }
+  /**
+   * * Get a list of content lists that are currently unused.
+   *
+   * @return
+   * @param siteId
+   */
+  @Override
+  public List<ContentList> getUnusedContentLists(long siteId) {
+    return Collections.emptyList();
+  }
 
-    /***
-     * Get a list of content lists that are currently unused.
-     * @return
-     * @param siteId
-     */
-    @Override
-    public List<ContentList> getUnusedContentLists(long siteId) {
-        return Collections.emptyList();
-    }
+  /**
+   * * Create or update a ContentList
+   *
+   * @param cl
+   * @return The updated content list
+   */
+  @Override
+  public ContentList createOrUpdateContentList(ContentList cl) {
+    return null;
+  }
 
-    /***
-     * Create or update a ContentList
-     * @param cl
-     * @return The updated content list
-     */
-    @Override
-    public ContentList createOrUpdateContentList(ContentList cl) {
-        return null;
-    }
+  /**
+   * * Delete the specified content list.
+   *
+   * @param id
+   */
+  @Override
+  public void deleteContentList(long id) {}
 
-    /***
-     * Delete the specified content list.
-     * @param id
-     */
-    @Override
-    public void deleteContentList(long id) {
-
-    }
-
-    /***
-     * Gets a content list by id.
-     * @param id  Unique identifier for a content list.
-     * @return The content list
-     */
-    @Override
-    public ContentList getContentListById(long id) {
-        return null;
-    }
+  /**
+   * * Gets a content list by id.
+   *
+   * @param id Unique identifier for a content list.
+   * @return The content list
+   */
+  @Override
+  public ContentList getContentListById(long id) {
+    return null;
+  }
 }

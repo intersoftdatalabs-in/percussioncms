@@ -19,19 +19,13 @@ package com.percussion.webui;
 
 import com.percussion.share.test.PSDataServiceRestClient;
 
-/**
- * @author Leonardo Hildt
- * 
- */
-public class PSPageValidatorRestClient extends PSDataServiceRestClient<String>
-{
-    public PSPageValidatorRestClient(String url)
-    {
-        super(String.class, url, "/cm/app/");
-    }
-    
-    public String getPage(String viewName)
-    {
-        return GET(concatPath(getPath(), "?view=" + viewName));
-    }
+/** @author Leonardo Hildt */
+public class PSPageValidatorRestClient extends PSDataServiceRestClient<String> {
+  public PSPageValidatorRestClient(String url) {
+    super(String.class, url, "/cm/app/");
+  }
+
+  public String getPage(String viewName) {
+    return GET(concatPath(getPath(), "?view=" + viewName));
+  }
 }

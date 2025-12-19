@@ -20,19 +20,17 @@ import com.percussion.share.async.PSAsyncJobStatus;
 
 /**
  * Service to get status of async jobs handled by CMS.
- * 
+ *
  * @author federicoromanelli
  */
-public interface IPSAsyncJobStatusRestService
-{
-    /**
-     * Gets the status for the given job using the async job service.
-     * 
-     * @param jobId - the id of the job provided by IPSAsyncJobService.startJob(String, Object).
-     * Never <code>null</code>.
-     *  
-     * @return PSAsyncJobStatus -  The corresponding status for the given Job. Never <code>null</code>.
-     * Returns an empty PSAsyncJobStatus object if no status was found with the provided jobId.
-     */
-    public PSAsyncJobStatus getStatus(Long jobId);
+public interface IPSAsyncJobStatusRestService {
+  /**
+   * Gets the status for the given job using the async job service.
+   *
+   * @param jobId - the id of the job provided by IPSAsyncJobService.startJob(String, Object). Never
+   *     <code>null</code>.
+   * @return PSAsyncJobStatus - The corresponding status for the given Job. Never <code>null</code>.
+   *     Returns an empty PSAsyncJobStatus object if no status was found with the provided jobId.
+   */
+  public PSAsyncJobStatus getStatus(Long jobId);
 }

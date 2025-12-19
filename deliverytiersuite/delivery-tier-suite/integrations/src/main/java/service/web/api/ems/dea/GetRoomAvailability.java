@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -48,171 +46,132 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "roomID",
-    "bookingDate",
-    "startTime",
-    "endTime"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userName", "password", "roomID", "bookingDate", "startTime", "endTime"})
 @XmlRootElement(name = "GetRoomAvailability")
 public class GetRoomAvailability {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "RoomID")
-    protected int roomID;
-    @XmlElement(name = "BookingDate", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
-    @XmlElement(name = "StartTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startTime;
-    @XmlElement(name = "EndTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endTime;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "RoomID")
+  protected int roomID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "BookingDate", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar bookingDate;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "StartTime", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar startTime;
 
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
-    public int getRoomID() {
-        return roomID;
-    }
+  @XmlElement(name = "EndTime", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar endTime;
 
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Gets the value of the startTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartTime() {
-        return startTime;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Sets the value of the startTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setStartTime(XMLGregorianCalendar value) {
-        this.startTime = value;
-    }
+  /** Gets the value of the roomID property. */
+  public int getRoomID() {
+    return roomID;
+  }
 
-    /**
-     * Gets the value of the endTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndTime() {
-        return endTime;
-    }
+  /** Sets the value of the roomID property. */
+  public void setRoomID(int value) {
+    this.roomID = value;
+  }
 
-    /**
-     * Sets the value of the endTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setEndTime(XMLGregorianCalendar value) {
-        this.endTime = value;
-    }
+  /**
+   * Gets the value of the bookingDate property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getBookingDate() {
+    return bookingDate;
+  }
 
+  /**
+   * Sets the value of the bookingDate property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setBookingDate(XMLGregorianCalendar value) {
+    this.bookingDate = value;
+  }
+
+  /**
+   * Gets the value of the startTime property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Sets the value of the startTime property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setStartTime(XMLGregorianCalendar value) {
+    this.startTime = value;
+  }
+
+  /**
+   * Gets the value of the endTime property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getEndTime() {
+    return endTime;
+  }
+
+  /**
+   * Sets the value of the endTime property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setEndTime(XMLGregorianCalendar value) {
+    this.endTime = value;
+  }
 }

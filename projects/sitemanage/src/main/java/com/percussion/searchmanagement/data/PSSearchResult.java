@@ -17,98 +17,79 @@
 package com.percussion.searchmanagement.data;
 
 import java.util.Date;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * This object holds the result of a full text search.
- */
+/** This object holds the result of a full text search. */
 @XmlRootElement(name = "SearchResult")
-public class PSSearchResult
-{
-    
-    private String name;
+public class PSSearchResult {
 
-    private String type;
+  private String name;
 
-    private String status;
+  private String type;
 
-    private Date lastModified;
+  private String status;
 
-    private Date lastPublished;
+  private Date lastModified;
 
-    private Date created;
+  private Date lastPublished;
 
-    private String createdBy;
+  private Date created;
 
-    public String getName()
-    {
-        return name;
-    }
+  private String createdBy;
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getStatus()
-    {
-        return status;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public Date getLastModified()
-    {
-        return lastModified;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public void setLastModified(Date lastModified)
-    {
-        this.lastModified = lastModified;
-    }
+  public Date getLastModified() {
+    return lastModified;
+  }
 
-    public Date getLastPublished()
-    {
-        return lastPublished;
-    }
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified;
+  }
 
-    public void setLastPublished(Date lastPublished)
-    {
-        this.lastPublished = lastPublished;
-    }
+  public Date getLastPublished() {
+    return lastPublished;
+  }
 
-    public Date getCreated()
-    {
-        return created;
-    }
+  public void setLastPublished(Date lastPublished) {
+    this.lastPublished = lastPublished;
+  }
 
-    public void setCreated(Date created)
-    {
-        this.created = created;
-    }
+  public Date getCreated() {
+    return created;
+  }
 
-    public String getCreatedBy()
-    {
-        return createdBy;
-    }
+  public void setCreated(Date created) {
+    this.created = created;
+  }
 
-    public void setCreatedBy(String createdBy)
-    {
-        this.createdBy = createdBy;
-    }
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 }

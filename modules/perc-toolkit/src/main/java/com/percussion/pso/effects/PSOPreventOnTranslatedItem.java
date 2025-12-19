@@ -37,134 +37,118 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
+import java.io.File;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.util.List;
-
 /**
- * A Percussion CMS relationship effects that prevents operations on 
- * content items which are Translated.
- * <p>
- * It can be used with any relationship (you must add it to the relationship configuration), 
- * but it is intended to prevent creating a Translation of a Translation
- * or a Promotable Version of a Translation. 
- * </p> 
- * @author DavidBenua
+ * A Percussion CMS relationship effects that prevents operations on content items which are
+ * Translated.
  *
+ * <p>It can be used with any relationship (you must add it to the relationship configuration), but
+ * it is intended to prevent creating a Translation of a Translation or a Promotable Version of a
+ * Translation.
+ *
+ * @author DavidBenua
  */
-@PSHandlesEffectContext(optional=
-{PSEffectContext.PRE_CONSTRUCTION,PSEffectContext.PRE_DESTRUCTION,
-		PSEffectContext.PRE_UPDATE,PSEffectContext.PRE_CHECKIN,PSEffectContext.PRE_CLONE,
-		PSEffectContext.PRE_WORKFLOW})
-public class PSOPreventOnTranslatedItem implements IPSEffect
-{
+@PSHandlesEffectContext(
+    optional = {
+      PSEffectContext.PRE_CONSTRUCTION,
+      PSEffectContext.PRE_DESTRUCTION,
+      PSEffectContext.PRE_UPDATE,
+      PSEffectContext.PRE_CHECKIN,
+      PSEffectContext.PRE_CLONE,
+      PSEffectContext.PRE_WORKFLOW
+    })
+public class PSOPreventOnTranslatedItem implements IPSEffect {
 
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
+  /** Logger for this class */
+  private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
 
-	protected static IPSContentWs cws = null; 
-	protected static IPSSystemWs sws = null; 
-	protected static IPSGuidManager gmgr = null; 
-	
+  protected static IPSContentWs cws = null;
+  protected static IPSSystemWs sws = null;
+  protected static IPSGuidManager gmgr = null;
 
-	/**
-	 * Initialize service pointers. 
-	 */
-	protected static void initServices()
-	{
-		if(cws == null)
-		{
-			cws = PSContentWsLocator.getContentWebservice();
-			sws = PSSystemWsLocator.getSystemWebservice();
-			gmgr = PSGuidManagerLocator.getGuidMgr();
-			
-		}
-	}
+  /** Initialize service pointers. */
+  protected static void initServices() {
+    if (cws == null) {
+      cws = PSContentWsLocator.getContentWebservice();
+      sws = PSSystemWsLocator.getSystemWebservice();
+      gmgr = PSGuidManagerLocator.getGuidMgr();
+    }
+  }
 
+  /** Tests if this relationship owner is a translation of some other item. */
+  public void test(
+      Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+    initServices();
 
-	/**
-	 * Tests if this relationship owner is a translation of some
-	 * other item. 
-	 */
-	public void test(Object[] params, IPSRequestContext req,
-			IPSExecutionContext exCtx, PSEffectResult result)
-	throws PSExtensionProcessingException, PSParameterMismatchException
-	{
-		initServices();
-	
-		if(!exCtx.isConstruction() && !exCtx.isDestruction())
-		{         
-			return; 
-		}
-		try
-		{
+    if (!exCtx.isConstruction() && !exCtx.isDestruction()) {
+      return;
+    }
+    try {
 
-			int owner = exCtx.getCurrentRelationship().getOwner().getId();
+      int owner = exCtx.getCurrentRelationship().getOwner().getId();
 
-			int transownerId = findTranslationOwner(owner);
+      int transownerId = findTranslationOwner(owner);
 
-			if (transownerId > 1) {
-				log.debug("Item is a translation of {} preventing relationship",transownerId);
-				result.setError(MSG_TRANSLATED_ITEM); 
-				return;
-			}
+      if (transownerId > 1) {
+        log.debug("Item is a translation of {} preventing relationship", transownerId);
+        result.setError(MSG_TRANSLATED_ITEM);
+        return;
+      }
 
-		} catch (Exception e)
-		{
-			log.error("unexpected exception, Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-			throw new PSExtensionProcessingException(this.getClass().getName(), e); 
-		} 
+    } catch (Exception e) {
+      log.error("unexpected exception, Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSExtensionProcessingException(this.getClass().getName(), e);
+    }
 
-		result.setSuccess();
-	}
+    result.setSuccess();
+  }
 
-	private static final String MSG_TRANSLATED_ITEM = 
-		"This operation is not valid on translated items";
+  private static final String MSG_TRANSLATED_ITEM =
+      "This operation is not valid on translated items";
 
-	public void attempt(Object[] params, IPSRequestContext request,
-			IPSExecutionContext context, PSEffectResult result)
-	throws PSExtensionProcessingException, PSParameterMismatchException {
-		result.setSuccess();
-	}
+  public void attempt(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+    result.setSuccess();
+  }
 
+  public void recover(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSExtensionProcessingException e,
+      PSEffectResult result)
+      throws PSExtensionProcessingException {
+    result.setSuccess();
+  }
 
-	public void recover(Object[] params, IPSRequestContext request,
-			IPSExecutionContext context, PSExtensionProcessingException e,
-			PSEffectResult result) throws PSExtensionProcessingException {
-		result.setSuccess();
-	}
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
+  public int findTranslationOwner(int id) throws PSErrorException {
 
-	public void init(IPSExtensionDef def, File codeRoot)
-	throws PSExtensionException {
-		
-	} 
+    PSRelationshipFilter filter = new PSRelationshipFilter();
+    filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION);
+    PSLocator dependent = new PSLocator(id, -1);
+    IPSGuid guid = gmgr.makeGuid(dependent);
+    filter.limitToEditOrCurrentOwnerRevision(true);
+    List<IPSGuid> parents = sws.findOwners(guid, filter);
 
-	public int findTranslationOwner(int id) throws PSErrorException {
-		
-		
-		PSRelationshipFilter filter = new PSRelationshipFilter();
-		filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION);
-		PSLocator dependent= new PSLocator(id,-1); 
-		IPSGuid guid = gmgr.makeGuid(dependent);
-		filter.limitToEditOrCurrentOwnerRevision(true);
-		List<IPSGuid> parents = sws.findOwners(guid, filter);
-		
-
-		if (parents.size()>1) {
-			log.error("Item {} has more than one translation parent",id);
-			return -1;
-		} else if(parents.size()==1){
-			return parents.get(0).getUUID();
-		} else {
-			return -1;
-		}
-
-	}
+    if (parents.size() > 1) {
+      log.error("Item {} has more than one translation parent", id);
+      return -1;
+    } else if (parents.size() == 1) {
+      return parents.get(0).getUUID();
+    } else {
+      return -1;
+    }
+  }
 }

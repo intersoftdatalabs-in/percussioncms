@@ -16,11 +16,8 @@
  */
 package com.percussion.delivery.utils;
 
-public class PSEmailServiceNotInitializedException extends Exception
-{
-    public PSEmailServiceNotInitializedException()
-    {
-        super("Email service is not initialized.");
-    }
-
+public class PSEmailServiceNotInitializedException extends Exception {
+  public PSEmailServiceNotInitializedException() {
+    super("Email service is not initialized.");
+  }
 }

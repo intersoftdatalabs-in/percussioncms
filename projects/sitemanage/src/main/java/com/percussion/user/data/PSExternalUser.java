@@ -18,29 +18,25 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
  * An external user usually returned from a directory service.
- * 
+ *
  * @author adamgent
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@XmlRootElement(name="ExternalUser")
+@XmlRootElement(name = "ExternalUser")
 @JsonRootName("ExternalUser")
-public class PSExternalUser extends PSAbstractUser
-{
-    private static final long serialVersionUID = 1L;
-    
-    public PSExternalUser(){
-    	super();
-    }
-    
-    public PSExternalUser(String userName){
-    	super();
-    	setName(userName);
-    }
-}
+public class PSExternalUser extends PSAbstractUser {
+  private static final long serialVersionUID = 1L;
 
+  public PSExternalUser() {
+    super();
+  }
+
+  public PSExternalUser(String userName) {
+    super();
+    setName(userName);
+  }
+}

@@ -18,22 +18,19 @@ package com.percussion.share.service;
 
 import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
-
 import java.util.List;
 
+public interface IPSDataItemSummaryService extends IPSItemSummaryService<PSDataItemSummary> {
 
-public interface IPSDataItemSummaryService extends IPSItemSummaryService<PSDataItemSummary>
-{
+  /**
+   * Returns the folders that are children to the given id. The id should be an item that is a
+   * folder.
+   *
+   * @param id never <code>null</code> or empty.
+   * @return never <code>null</code>, maybe empty.
+   * @throws DataServiceLoadException if the item is not valid to have children or does not exist.
+   */
+  List<PSDataItemSummary> findChildFolders(String id) throws DataServiceLoadException;
 
-    /**
-     * Returns the folders that are children to the given id.
-     * The id should be an item that is a folder.
-     * @param id never <code>null</code> or empty.
-     * @return never <code>null</code>, maybe empty.
-     * @throws DataServiceLoadException if the item is not valid to have children or does not exist.
-     */
-    List<PSDataItemSummary> findChildFolders(String id) throws DataServiceLoadException;
-
-    PSDataItemSummary find(String id, String relationshipTypeName) throws DataServiceLoadException;
-
+  PSDataItemSummary find(String id, String relationshipTypeName) throws DataServiceLoadException;
 }

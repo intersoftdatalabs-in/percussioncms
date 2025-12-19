@@ -16,143 +16,105 @@
  */
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.percussion.share.data.PSAbstractPersistantObject;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "WidgetSummary")
 public class PSWidgetSummary extends PSAbstractPersistantObject {
 
-    private String id;
-    private String name;
-    private String label;
-    private String icon;
-    private boolean hasUserPrefs;
-    private boolean hasCssPrefs; 
-    private String type;
-    private String category;
-    private String description;
-    private boolean isResponsive;
-    
-    @Override
-    public String getId() {
-        return id;
-    }
+  private String id;
+  private String name;
+  private String label;
+  private String icon;
+  private boolean hasUserPrefs;
+  private boolean hasCssPrefs;
+  private String type;
+  private String category;
+  private String description;
+  private boolean isResponsive;
 
-    
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-    
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    
-    public String getLabel() {
-        return label;
-    }
+  public String getLabel() {
+    return label;
+  }
 
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
+  public String getIcon() {
+    return icon;
+  }
 
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public String getIcon() {
-        return icon;
-    }
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
 
+  public boolean getHasCssPrefs() {
+    return hasCssPrefs;
+  }
 
-    
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
+  public void setHasCssPrefs(boolean hasCssPrefs) {
+    this.hasCssPrefs = hasCssPrefs;
+  }
 
-    public boolean getHasCssPrefs()
-    {
-       return hasCssPrefs;
-    }
+  public boolean getHasUserPrefs() {
+    return hasUserPrefs;
+  }
 
+  public void setHasUserPrefs(boolean hasUserPrefs) {
+    this.hasUserPrefs = hasUserPrefs;
+  }
 
-    public void setHasCssPrefs(boolean hasCssPrefs)
-    {
-       this.hasCssPrefs = hasCssPrefs;
-    }
+  public String getCategory() {
+    return category;
+  }
 
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public boolean getHasUserPrefs()
-    {
-       return hasUserPrefs;
-    }
+  public String getDescription() {
+    return description;
+  }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setHasUserPrefs(boolean hasUserPrefs)
-    {
-       this.hasUserPrefs = hasUserPrefs;
-    }
+  public boolean isResponsive() {
+    return isResponsive;
+  }
 
-    public String getCategory() {
-        return category;
-    }
+  public void setResponsive(boolean isResponsive) {
+    this.isResponsive = isResponsive;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-
-
-    public boolean isResponsive()
-    {
-        return isResponsive;
-    }
-
-
-    public void setResponsive(boolean isResponsive)
-    {
-        this.isResponsive = isResponsive;
-    }
-
-
-
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 8874560179085984761L;
-
-
+  /** Safe to serialize */
+  private static final long serialVersionUID = 8874560179085984761L;
 }

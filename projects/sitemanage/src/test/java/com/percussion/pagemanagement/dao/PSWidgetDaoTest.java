@@ -16,75 +16,56 @@
  */
 package com.percussion.pagemanagement.dao;
 
+import static org.junit.Assert.assertEquals;
+
 import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
+public class PSWidgetDaoTest {
 
-import static org.junit.Assert.assertEquals;
+  PSWidgetDao widgetDao;
 
-public class PSWidgetDaoTest
-{
-    
-    PSWidgetDao widgetDao;
-    
+  @Before
+  public void setup() throws Exception {
+    widgetDao = new PSWidgetDao();
+    widgetDao.setRepositoryDirectory("src/test/resources/widgets");
+  }
 
-    
-    @Before
-    public void setup() throws Exception
-    {
-        widgetDao = new PSWidgetDao();
-        widgetDao.setRepositoryDirectory("src/test/resources/widgets");
-        
-    }
-    
-    
-    @Test
-    public void shouldFindWidget() throws Exception
-    {
-        PSWidgetDefinition widget = widgetDao.find("RawHtmlWidget");
-        assertRawHtmlWidget(widget);
-        
-    }
+  @Test
+  public void shouldFindWidget() throws Exception {
+    PSWidgetDefinition widget = widgetDao.find("RawHtmlWidget");
+    assertRawHtmlWidget(widget);
+  }
 
+  @Test
+  public void shouldFindAllWidgets() throws Exception {
+    List<PSWidgetDefinition> widgets = widgetDao.findAll();
+    assertEquals(3, widgets.size());
+  }
 
-    @Test
-    public void shouldFindAllWidgets() throws Exception
-    {
-        List<PSWidgetDefinition> widgets = widgetDao.findAll();
-        assertEquals(3, widgets.size());
-    }
-    
-    @Test
-    public void shouldPoll() throws Exception {
-        widgetDao.poll();
-        widgetDao.poll();
-    }
-    
-    
-    @Test(expected=UnsupportedOperationException.class)
-    public void shouldNotSupportDelete() throws Exception
-    {
-        widgetDao.delete("fail");    
-    }
-    
-    @Test(expected=UnsupportedOperationException.class)
-    public void shouldNotSupportSave() throws Exception
-    {
-        PSWidgetDefinition widget = new PSWidgetDefinition();
-        widgetDao.save(widget);
-        
-    }
-    
+  @Test
+  public void shouldPoll() throws Exception {
+    widgetDao.poll();
+    widgetDao.poll();
+  }
 
-    private void assertRawHtmlWidget(PSWidgetDefinition widget)
-    {
-        assertEquals("Raw Html Widget", widget.getWidgetPrefs().getTitle());
-        assertEquals("PSXRawHtmlWidget", widget.getWidgetPrefs().getContenttypeName());
-        assertEquals("my_css", widget.getCssPref().get(0).getName());
-    }
-    
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldNotSupportDelete() throws Exception {
+    widgetDao.delete("fail");
+  }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldNotSupportSave() throws Exception {
+    PSWidgetDefinition widget = new PSWidgetDefinition();
+    widgetDao.save(widget);
+  }
+
+  private void assertRawHtmlWidget(PSWidgetDefinition widget) {
+    assertEquals("Raw Html Widget", widget.getWidgetPrefs().getTitle());
+    assertEquals("PSXRawHtmlWidget", widget.getWidgetPrefs().getContenttypeName());
+    assertEquals("my_css", widget.getCssPref().get(0).getName());
+  }
 }

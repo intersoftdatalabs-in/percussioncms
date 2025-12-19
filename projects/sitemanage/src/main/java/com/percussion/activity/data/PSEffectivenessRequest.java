@@ -20,55 +20,35 @@ package com.percussion.activity.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * A request object used for getting the effectiveness data from the rest service.  Extends the content activity
- * request by adding additional fields for usage and threshold. 
+ * A request object used for getting the effectiveness data from the rest service. Extends the
+ * content activity request by adding additional fields for usage and threshold.
  */
 @JsonRootName(value = "EffectivenessRequest")
-public class PSEffectivenessRequest extends PSContentActivityRequest
-{
-    /**
-     * @return the usage metric to use when calculating effectiveness.  This will be
-     */
-    public PSUsageEnum getUsage()
-    {
-        return usage;
-    }
+public class PSEffectivenessRequest extends PSContentActivityRequest {
+  /** @return the usage metric to use when calculating effectiveness. This will be */
+  public PSUsageEnum getUsage() {
+    return usage;
+  }
 
-    /**
-     * @param usage the usage to set.
-     */
-    public void setUsage(PSUsageEnum usage)
-    {
-        this.usage = usage;
-    }
+  /** @param usage the usage to set. */
+  public void setUsage(PSUsageEnum usage) {
+    this.usage = usage;
+  }
 
-    /**
-     * @return the acceptable threshold (views/changes) to use when calculating effectiveness.
-     */
-    public int getThreshold()
-    {
-        return threshold;
-    }
+  /** @return the acceptable threshold (views/changes) to use when calculating effectiveness. */
+  public int getThreshold() {
+    return threshold;
+  }
 
-    /**
-     * @param threshold the threshold to set.
-     */
-    public void setThreshold(int threshold)
-    {
-        this.threshold = threshold;
-    }	
+  /** @param threshold the threshold to set. */
+  public void setThreshold(int threshold) {
+    this.threshold = threshold;
+  }
 
-    /**
-     * See {@link #getUsage()}.
-     */
-	private PSUsageEnum usage;
-	
-	/**
-	 * See {@link #getThreshold()}.
-	 */
-	private int threshold;
-   
+  /** See {@link #getUsage()}. */
+  private PSUsageEnum usage;
+
+  /** See {@link #getThreshold()}. */
+  private int threshold;
 }

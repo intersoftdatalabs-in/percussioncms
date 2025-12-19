@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "addReservation4Result"
-})
+@XmlType(
+    name = "",
+    propOrder = {"addReservation4Result"})
 @XmlRootElement(name = "AddReservation4Response")
 public class AddReservation4Response {
 
-    @XmlElement(name = "AddReservation4Result")
-    protected String addReservation4Result;
+  @XmlElement(name = "AddReservation4Result")
+  protected String addReservation4Result;
 
-    /**
-     * Gets the value of the addReservation4Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddReservation4Result() {
-        return addReservation4Result;
-    }
+  /**
+   * Gets the value of the addReservation4Result property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddReservation4Result() {
+    return addReservation4Result;
+  }
 
-    /**
-     * Sets the value of the addReservation4Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddReservation4Result(String value) {
-        this.addReservation4Result = value;
-    }
-
+  /**
+   * Sets the value of the addReservation4Result property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddReservation4Result(String value) {
+    this.addReservation4Result = value;
+  }
 }

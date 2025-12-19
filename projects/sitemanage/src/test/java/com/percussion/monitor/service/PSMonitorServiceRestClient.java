@@ -17,31 +17,25 @@
 
 package com.percussion.monitor.service;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import com.percussion.share.test.PSObjectRestClient;
 
-
 public class PSMonitorServiceRestClient extends PSObjectRestClient {
-	  public PSMonitorServiceRestClient(String baseUrl) {
-	        super(baseUrl);
-		}
+  public PSMonitorServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-	    public String getMonitorList()
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/list");
-	    }
-	    
-	    public String getMonitor(String monitorDesignator)
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
-	    }
-	    
-	    public String getAllMonitors()
-	    {
-	    	this.login("Admin", "demo");
-	        return this.GET("/Rhythmyx/services/sitemanage/monitor/all");
-	    }
+  public String getMonitorList() {
+    this.login("Admin", "demo");
+    return this.GET("/Rhythmyx/services/sitemanage/monitor/list");
+  }
+
+  public String getMonitor(String monitorDesignator) {
+    this.login("Admin", "demo");
+    return this.GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
+  }
+
+  public String getAllMonitors() {
+    this.login("Admin", "demo");
+    return this.GET("/Rhythmyx/services/sitemanage/monitor/all");
+  }
 }

@@ -19,38 +19,33 @@ package com.percussion.sitemanage.service;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "PageToTemplatePair")
-public class PSPageToTemplatePair extends PSAbstractDataObject implements Serializable, Comparable
-{
-    private static final long serialVersionUID = 1L;
-    
-    private String siteId;
-    private String pageId;
-    
-    public String getSiteId()
-    {
-        return siteId;
-    }
-    public void setSiteId(String siteId)
-    {
-        this.siteId = siteId;
-    }
-    public String getPageId()
-    {
-        return pageId;
-    }
-    public void setPageId(String pageId)
-    {
-        this.pageId = pageId;
-    }
-    @Override
-    public int compareTo(Object o)
-    {
-        return 1;
-    }
-    
-   
+public class PSPageToTemplatePair extends PSAbstractDataObject implements Serializable, Comparable {
+  private static final long serialVersionUID = 1L;
+
+  private String siteId;
+  private String pageId;
+
+  public String getSiteId() {
+    return siteId;
+  }
+
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
+
+  public String getPageId() {
+    return pageId;
+  }
+
+  public void setPageId(String pageId) {
+    this.pageId = pageId;
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    return 1;
+  }
 }

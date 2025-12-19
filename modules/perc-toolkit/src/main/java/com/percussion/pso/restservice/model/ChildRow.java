@@ -16,33 +16,32 @@
  */
 package com.percussion.pso.restservice.model;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.List;
 
-/**
- */
+/** */
 public class ChildRow {
-	/**
-	 * Field fields.
-	 */
-	private List<Field> fields = null;
+  /** Field fields. */
+  private List<Field> fields = null;
 
-	/**
-	 * Method setFields.
-	 * @param fields List<Field>
-	 */
-	public void setFields(List<Field> fields) {
-		this.fields = fields;
-	}
-	
-	/**
-	 * Method getFields.
-	 * @return List<Field>
-	 */
-	@XmlElement(name = "Field")
-	   @XmlElementWrapper(name="Fields")
-	public List<Field> getFields() {
-		return fields;
-	}
+  /**
+   * Method setFields.
+   *
+   * @param fields List<Field>
+   */
+  public void setFields(List<Field> fields) {
+    this.fields = fields;
+  }
+
+  /**
+   * Method getFields.
+   *
+   * @return List<Field>
+   */
+  @XmlElement(name = "Field")
+  @XmlElementWrapper(name = "Fields")
+  public List<Field> getFields() {
+    return fields;
+  }
 }

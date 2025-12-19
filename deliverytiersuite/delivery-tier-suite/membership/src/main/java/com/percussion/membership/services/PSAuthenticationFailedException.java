@@ -16,12 +16,9 @@
  */
 package com.percussion.membership.services;
 
-public class PSAuthenticationFailedException extends Exception
-{
+public class PSAuthenticationFailedException extends Exception {
 
-    public PSAuthenticationFailedException(String string)
-    {
-        super(string);
-    }
-
+  public PSAuthenticationFailedException(String string) {
+    super(string);
+  }
 }

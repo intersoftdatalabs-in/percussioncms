@@ -24,13 +24,11 @@ import com.percussion.util.PSSiteManageBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean("dashboardDataService")
-public class PSDashboardDataService extends 
-	PSAbstractSimpleDataService<PSDashboard, String> implements IPSDashboardDataService {
+public class PSDashboardDataService extends PSAbstractSimpleDataService<PSDashboard, String>
+    implements IPSDashboardDataService {
 
-	@Autowired
-	public PSDashboardDataService(IPSDashboardDao dao) {
-		super(dao);
-	}
-
-
+  @Autowired
+  public PSDashboardDataService(IPSDashboardDao dao) {
+    super(dao);
+  }
 }

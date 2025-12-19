@@ -16,32 +16,24 @@
  */
 package com.percussion.share.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-
 import static java.util.Arrays.asList;
 
+import java.util.ArrayList;
+import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement
-public abstract class PSDataItemSummarySingleFolderPath extends PSDataItemSummary
-{
-    private static final long serialVersionUID = 6742796878036917020L;
+public abstract class PSDataItemSummarySingleFolderPath extends PSDataItemSummary {
+  private static final long serialVersionUID = 6742796878036917020L;
 
-
-    public String getFolderPath()
-    {
-        if(getFolderPaths() != null 
-                && ! getFolderPaths().isEmpty()) {
-            return getFolderPaths().get(0);
-        }
-        return null;
+  public String getFolderPath() {
+    if (getFolderPaths() != null && !getFolderPaths().isEmpty()) {
+      return getFolderPaths().get(0);
     }
+    return null;
+  }
 
-
-    public void setFolderPath(String folderPath)
-    {
-        if (folderPath != null)
-            setFolderPaths(asList(folderPath));
-        else
-            setFolderPaths(new ArrayList<>());
-    }
+  public void setFolderPath(String folderPath) {
+    if (folderPath != null) setFolderPaths(asList(folderPath));
+    else setFolderPaths(new ArrayList<>());
+  }
 }

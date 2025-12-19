@@ -18,65 +18,52 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "issues")
 @JsonRootName("issues")
-public class PSSiteIssueSummary extends PSAbstractDataObject
-{
+public class PSSiteIssueSummary extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-    private String refUri;
+  private String refUri;
 
-    private String suggestion;
+  private String suggestion;
 
-    private String type;
+  private String type;
 
-    private PSSiteIssueResource resource;
+  private PSSiteIssueResource resource;
 
-    public String getRefUri()
-    {
-        return refUri;
-    }
+  public String getRefUri() {
+    return refUri;
+  }
 
-    public void setRefUri(String refUri)
-    {
-        this.refUri = refUri;
-    }
+  public void setRefUri(String refUri) {
+    this.refUri = refUri;
+  }
 
-    public String getSuggestion()
-    {
-        return suggestion;
-    }
+  public String getSuggestion() {
+    return suggestion;
+  }
 
-    public void setSuggestion(String suggestion)
-    {
-        this.suggestion = suggestion;
-    }
+  public void setSuggestion(String suggestion) {
+    this.suggestion = suggestion;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public PSSiteIssueResource getResource()
-    {
-        return resource;
-    }
+  public PSSiteIssueResource getResource() {
+    return resource;
+  }
 
-    public void setResource(PSSiteIssueResource resource)
-    {
-        this.resource = resource;
-    }
-
+  public void setResource(PSSiteIssueResource resource) {
+    this.resource = resource;
+  }
 }

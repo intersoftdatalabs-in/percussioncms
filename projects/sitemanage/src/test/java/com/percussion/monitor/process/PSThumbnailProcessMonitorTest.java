@@ -20,31 +20,25 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSThumbnailProcessMonitorTest
-{
+/** @author JaySeletz */
+public class PSThumbnailProcessMonitorTest {
 
-    @Test
-    public void test()
-    {
-        PSThumbnailProcessMonitor mon = new PSThumbnailProcessMonitor();
-        assertEquals(0, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount(5);
-        assertEquals(6, mon.getCurrentCount());
-        mon.decrementCount(4);
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount(2);
-        assertEquals(0, mon.getCurrentCount());
-        mon.decrementCount();
-    }
-
+  @Test
+  public void test() {
+    PSThumbnailProcessMonitor mon = new PSThumbnailProcessMonitor();
+    assertEquals(0, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount(5);
+    assertEquals(6, mon.getCurrentCount());
+    mon.decrementCount(4);
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount(2);
+    assertEquals(0, mon.getCurrentCount());
+    mon.decrementCount();
+  }
 }

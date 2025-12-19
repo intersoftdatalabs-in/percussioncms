@@ -18,41 +18,37 @@
 package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Rest data class for logging information on server.
- */
+/** Rest data class for logging information on server. */
 @XmlRootElement(name = "LogData")
 @JsonRootName("LogData")
-public class PSLogData
-{
-    String type;
-    String category;
-    String message;
-    public String getType()
-    {
-        return type;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-    public String getCategory()
-    {
-        return category;
-    }
-    public void setCategory(String category)
-    {
-        this.category = category;
-    }
-    public String getMessage()
-    {
-        return message;
-    }
-    public void setMessage(String message)
-    {
-        this.message = message;
-    }
+public class PSLogData {
+  String type;
+  String category;
+  String message;
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getCategory() {
+    return category;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

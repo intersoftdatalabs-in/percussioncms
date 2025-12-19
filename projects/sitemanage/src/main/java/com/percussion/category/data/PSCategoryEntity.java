@@ -23,58 +23,54 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- *
- * @author chriswright
- *
- */
+/** @author chriswright */
 @Entity
-@Table(name="CT_PAGE_PAGE_CATEGORIES_SET")
+@Table(name = "CT_PAGE_PAGE_CATEGORIES_SET")
 public class PSCategoryEntity {
 
-    @Id
-    @Column(name="CONTENTID")
-    private int id;
+  @Id
+  @Column(name = "CONTENTID")
+  private int id;
 
-    @Column(name="REVISIONID")
-    private int revisionId;
+  @Column(name = "REVISIONID")
+  private int revisionId;
 
-    @Column(name="SORTRANK")
-    private int sortRank;
+  @Column(name = "SORTRANK")
+  private int sortRank;
 
-    @Basic
-    @Column(name="PAGE_CATEGORIES_TREE")
-    private String pageCategoriesTree;
+  @Basic
+  @Column(name = "PAGE_CATEGORIES_TREE")
+  private String pageCategoriesTree;
 
-    public int getId() {
-        return id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public int getRevisionId() {
-        return revisionId;
-    }
+  public int getRevisionId() {
+    return revisionId;
+  }
 
-    public void setRevisionId(int revisionId) {
-        this.revisionId = revisionId;
-    }
+  public void setRevisionId(int revisionId) {
+    this.revisionId = revisionId;
+  }
 
-    public int getSortRank() {
-        return sortRank;
-    }
+  public int getSortRank() {
+    return sortRank;
+  }
 
-    public void setSortRank(int sortRank) {
-        this.sortRank = sortRank;
-    }
+  public void setSortRank(int sortRank) {
+    this.sortRank = sortRank;
+  }
 
-    public String getPageCategoriesTree() {
-        return pageCategoriesTree;
-    }
+  public String getPageCategoriesTree() {
+    return pageCategoriesTree;
+  }
 
-    public void setPageCategoriesTree(String pageCategoriesTree) {
-        this.pageCategoriesTree = pageCategoriesTree;
-    }
+  public void setPageCategoriesTree(String pageCategoriesTree) {
+    this.pageCategoriesTree = pageCategoriesTree;
+  }
 }

@@ -20,29 +20,26 @@ import com.percussion.feeds.data.PSFeedInfo;
 import com.percussion.feeds.error.PSFeedInfoServiceException;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
-
 import java.util.Collection;
 
-/**
- * @author erikserating
- *
- */
-public interface IPSFeedsInfoService
-{
-    /**
-     * Retrieve all feed information objects for the specified site.
-     * @param siteid , uuid must be specified.
-     * @return list of feed info objects, never <code>null</code>, may be empty.
-     * @throws <code>PSFeedInfoServiceException</code> if any error occurs.
-     */
-    public Collection<PSFeedInfo> getFeeds(long serverid) throws PSFeedInfoServiceException;
-    
-    /**
-     * Retrieves all feed information objects for the specified site, creates the feeds descriptors
-     * then pushes the descriptors onto the feeds info queue. The queue will then push the descriptors to the
-     * feeds service on the delivery tier.
-     * @param site the site object, cannot be <code>null</code>.
-     * @throws <code>PSFeedInfoServiceException</code> if any error occurs.
-     */
-    public void pushFeeds(IPSSite site, PSPubServer server) throws PSFeedInfoServiceException;
+/** @author erikserating */
+public interface IPSFeedsInfoService {
+  /**
+   * Retrieve all feed information objects for the specified site.
+   *
+   * @param siteid , uuid must be specified.
+   * @return list of feed info objects, never <code>null</code>, may be empty.
+   * @throws <code>PSFeedInfoServiceException</code> if any error occurs.
+   */
+  public Collection<PSFeedInfo> getFeeds(long serverid) throws PSFeedInfoServiceException;
+
+  /**
+   * Retrieves all feed information objects for the specified site, creates the feeds descriptors
+   * then pushes the descriptors onto the feeds info queue. The queue will then push the descriptors
+   * to the feeds service on the delivery tier.
+   *
+   * @param site the site object, cannot be <code>null</code>.
+   * @throws <code>PSFeedInfoServiceException</code> if any error occurs.
+   */
+  public void pushFeeds(IPSSite site, PSPubServer server) throws PSFeedInfoServiceException;
 }

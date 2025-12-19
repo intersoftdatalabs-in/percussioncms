@@ -17,37 +17,39 @@
 
 package com.percussion.share.data;
 
-/***
- * Lightweight representation of an item on the file system.
- * 
- * @author natechadwick
+/**
+ * * Lightweight representation of an item on the file system.
  *
+ * @author natechadwick
  */
 public class PSFileSystemItem {
 
-	public enum PSFileSystemItemType{
-		FILE,
-		DIRECTORY
-	}
-	
-	private String absolutePath;
-	private PSFileSystemItemType type;
-	public String getAbsolutePath() {
-		return absolutePath;
-	}
-	
-	public void setAbsolutePath(String absolutePath) {
-		this.absolutePath = absolutePath;
-	}
-	public PSFileSystemItemType getType() {
-		return type;
-	}
-	public void setType(PSFileSystemItemType type) {
-		this.type = type;
-	}
-	
-	public PSFileSystemItem(String path, PSFileSystemItemType type){
-		this.absolutePath = path;
-		this.type = type;
-	}
+  public enum PSFileSystemItemType {
+    FILE,
+    DIRECTORY
+  }
+
+  private String absolutePath;
+  private PSFileSystemItemType type;
+
+  public String getAbsolutePath() {
+    return absolutePath;
+  }
+
+  public void setAbsolutePath(String absolutePath) {
+    this.absolutePath = absolutePath;
+  }
+
+  public PSFileSystemItemType getType() {
+    return type;
+  }
+
+  public void setType(PSFileSystemItemType type) {
+    this.type = type;
+  }
+
+  public PSFileSystemItem(String path, PSFileSystemItemType type) {
+    this.absolutePath = path;
+    this.type = type;
+  }
 }

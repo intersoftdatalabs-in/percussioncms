@@ -17,41 +17,33 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Relationship_type;
+import java.util.Collection;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
-import java.util.Collection;
+public class HibernateRelationship_typeDAO extends HibernateDaoSupport
+    implements Relationship_typeDAO {
 
-public class HibernateRelationship_typeDAO extends HibernateDaoSupport implements Relationship_typeDAO
-{
+  public Relationship_type getRelationship_type(int id) {
+    return (Relationship_type) getHibernateTemplate().get(Relationship_type.class, new Integer(id));
+  }
 
-   public Relationship_type getRelationship_type(int id)
-   {
-      return (Relationship_type) getHibernateTemplate().get(Relationship_type.class, new Integer(id));
-   }
+  public Collection getAllRelationship_types() {
+    Session session = this.currentSession();
 
-   public Collection getAllRelationship_types()
-   {
-      Session session = this.currentSession();
+    // Optional: Add order by to query
+    return session.createQuery("from Relationship_type rel").list();
+  }
 
-      // Optional: Add order by to query
-      return session.createQuery("from Relationship_type rel").list();
-   }
+  public void saveRelationship_type(Relationship_type relationship_type) {
+    Session session = this.currentSession();
 
-   public void saveRelationship_type(Relationship_type relationship_type)
-   {
-      Session session = this.currentSession();
+    session.saveOrUpdate(relationship_type);
+  }
 
-         session.saveOrUpdate(relationship_type);
+  public void removeRelationship_type(Relationship_type relationship_type) {
+    Session session = this.currentSession();
 
-
-   }
-
-   public void removeRelationship_type(Relationship_type relationship_type)
-   {
-      Session session = this.currentSession();
-
-         session.delete(relationship_type);
-
-   }
+    session.delete(relationship_type);
+  }
 }

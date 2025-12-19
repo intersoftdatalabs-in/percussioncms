@@ -17,14 +17,14 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * Visitor pattern is used here mainly to avoid casting
- * and not to define the order of the visit.
- * 
- * The order of the visit will be defined by different iterators.
- * @author adamgent
+ * Visitor pattern is used here mainly to avoid casting and not to define the order of the visit.
  *
+ * <p>The order of the visit will be defined by different iterators.
+ *
+ * @author adamgent
  */
 public interface IPSRegionNodeVisitor {
-    void visit(PSRegionCode regionCode);
-    void visit(PSRegion region);
+  void visit(PSRegionCode regionCode);
+
+  void visit(PSRegion region);
 }

@@ -18,88 +18,84 @@ package com.percussion.taxonomy.jexl;
 
 import com.percussion.taxonomy.domain.Attribute;
 import com.percussion.taxonomy.domain.Attribute_lang;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Read only class for use in Jexl that represents a Taxonomy Attribute.
- * 
- * @author stephenbolton
  *
+ * @author stephenbolton
  */
-public class TaxAttribute
-{
-   private int id;
-   
-   private String name;
+public class TaxAttribute {
+  private int id;
 
-   private boolean isMultiple;
+  private String name;
 
-   private boolean isRequired;
+  private boolean isMultiple;
 
-   private List<String> langs;
+  private boolean isRequired;
 
-   /**
-    * Initialize the attribute from the Hibernate object
-    * @param attLang
-    */
-   public TaxAttribute(Attribute_lang attLang) 
-   {
-      Attribute att =attLang.getAttribute();
-      this.id=att.getId();
-      this.name=attLang.getName();
-      this.isMultiple=att.getIs_multiple();
-      this.isRequired=att.getIs_required();
-      this.langs=new ArrayList<String>();
-      for (Attribute_lang lang : att.getAttribute_langs()) {
-         this.langs.add(lang.getLanguage().getName());
-      }
-   }
-   
-   /**
-    * The attribute id
-    * @return the id
-    */
-   public int getId()
-   {
-      return id;
-   }
-   
-   /**
-    * The attribute name
-    * @return the name
-    */
-   public String getName()
-   {
-      return name;
-   }
+  private List<String> langs;
 
-   /**
-    * Is this a multi valued attribute
-    * @return is this a multi valued attribute
-    */
-   public boolean isMultiple()
-   {
-      return isMultiple;
-   }
+  /**
+   * Initialize the attribute from the Hibernate object
+   *
+   * @param attLang
+   */
+  public TaxAttribute(Attribute_lang attLang) {
+    Attribute att = attLang.getAttribute();
+    this.id = att.getId();
+    this.name = attLang.getName();
+    this.isMultiple = att.getIs_multiple();
+    this.isRequired = att.getIs_required();
+    this.langs = new ArrayList<String>();
+    for (Attribute_lang lang : att.getAttribute_langs()) {
+      this.langs.add(lang.getLanguage().getName());
+    }
+  }
 
-   /**
-    * Is this attribute defined as required.
-    * @return is this field required.
-    */
-   public boolean isRequired()
-   {
-      return isRequired;
-   }
+  /**
+   * The attribute id
+   *
+   * @return the id
+   */
+  public int getId() {
+    return id;
+  }
 
-   /**
-    * Return a list of languages available for this Attribute.  
-    * @return list of language codes
-    */
-   public List<String> getLangs()
-   {
-      return langs;
-   }
+  /**
+   * The attribute name
+   *
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
 
+  /**
+   * Is this a multi valued attribute
+   *
+   * @return is this a multi valued attribute
+   */
+  public boolean isMultiple() {
+    return isMultiple;
+  }
+
+  /**
+   * Is this attribute defined as required.
+   *
+   * @return is this field required.
+   */
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  /**
+   * Return a list of languages available for this Attribute.
+   *
+   * @return list of language codes
+   */
+  public List<String> getLangs() {
+    return langs;
+  }
 }

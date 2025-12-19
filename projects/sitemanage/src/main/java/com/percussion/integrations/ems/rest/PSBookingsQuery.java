@@ -17,65 +17,64 @@
 
 package com.percussion.integrations.ems.rest;
 
-
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/***
- * A model object to hold query parameters to pass to the
- * backend Bookings service. Duplicated in deliver tier,
- * couldn't be helped given current DTS limitations in Editor
- * and in Preview. 
- * 
- * @author natechadwick
+/**
+ * * A model object to hold query parameters to pass to the backend Bookings service. Duplicated in
+ * deliver tier, couldn't be helped given current DTS limitations in Editor and in Preview.
  *
+ * @author natechadwick
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSBookingsQuery {
-	
-	
-	private List<Integer> buildingIds;
-	private List<Integer> eventTypes;
-	private List<Integer> groupTypes;
-	private String startDate;
-	private String endDate;
-	
-	public List<Integer> getBuildingIds() {
-		return buildingIds;
-	}
-	public void setBuildingIds(List<Integer> buildingIds) {
-		this.buildingIds = buildingIds;
-	}
-	public List<Integer> getEventTypes() {
-		return eventTypes;
-	}
-	public void setEventTypes(List<Integer> eventTypes) {
-		this.eventTypes = eventTypes;
-	}
-	public List<Integer> getGroupTypes() {
-		return groupTypes;
-	}
-	public void setGroupTypes(List<Integer> groupTypes) {
-		this.groupTypes = groupTypes;
-	}
-	public String getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
-	public String getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
 
-	
+  private List<Integer> buildingIds;
+  private List<Integer> eventTypes;
+  private List<Integer> groupTypes;
+  private String startDate;
+  private String endDate;
+
+  public List<Integer> getBuildingIds() {
+    return buildingIds;
+  }
+
+  public void setBuildingIds(List<Integer> buildingIds) {
+    this.buildingIds = buildingIds;
+  }
+
+  public List<Integer> getEventTypes() {
+    return eventTypes;
+  }
+
+  public void setEventTypes(List<Integer> eventTypes) {
+    this.eventTypes = eventTypes;
+  }
+
+  public List<Integer> getGroupTypes() {
+    return groupTypes;
+  }
+
+  public void setGroupTypes(List<Integer> groupTypes) {
+    this.groupTypes = groupTypes;
+  }
+
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  public String getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 }

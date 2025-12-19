@@ -18,7 +18,11 @@ package com.percussion.share.service;
 
 import static org.junit.Assert.*;
 
-import org.jmock.Expectations;
+import com.percussion.fastforward.managednav.IPSManagedNavService;
+import com.percussion.share.dao.impl.PSItemSummaryService;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.IPSContentWs;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -26,109 +30,82 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.percussion.fastforward.managednav.IPSManagedNavService;
-import com.percussion.share.dao.impl.PSItemSummaryService;
-import com.percussion.utils.guid.IPSGuid;
-import com.percussion.webservices.content.IPSContentDesignWs;
-import com.percussion.webservices.content.IPSContentWs;
-
-
 /**
- * Scenario description: 
- * ItemSummaryService 
+ * Scenario description: ItemSummaryService
+ *
  * @author adamgent, Oct 2, 2009
  */
 @RunWith(JMock.class)
-public class PSItemSummaryServiceTest
-{
+public class PSItemSummaryServiceTest {
 
-    Mockery context = new JUnit4Mockery();
+  Mockery context = new JUnit4Mockery();
 
-    PSItemSummaryService sut;
+  PSItemSummaryService sut;
 
-    IPSContentWs collaborator;
-    IPSIdMapper idMapper;
-    IPSContentDesignWs contentDs;
-    IPSGuid guid;
-    TestIconPSItemSummaryService testIconService;
-    IPSManagedNavService navService;
+  IPSContentWs collaborator;
+  IPSIdMapper idMapper;
+  IPSContentDesignWs contentDs;
+  IPSGuid guid;
+  TestIconPSItemSummaryService testIconService;
+  IPSManagedNavService navService;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        collaborator = context.mock(IPSContentWs.class);
-        guid = context.mock(IPSGuid.class);
-        idMapper = context.mock(IPSIdMapper.class);
-        contentDs = context.mock(IPSContentDesignWs.class);
-        navService = context.mock(IPSManagedNavService.class);
-        sut = new PSItemSummaryService(collaborator,null,idMapper,navService);
-        testIconService = new TestIconPSItemSummaryService();
+  @Before
+  public void setUp() throws Exception {
+    collaborator = context.mock(IPSContentWs.class);
+    guid = context.mock(IPSGuid.class);
+    idMapper = context.mock(IPSIdMapper.class);
+    contentDs = context.mock(IPSContentDesignWs.class);
+    navService = context.mock(IPSManagedNavService.class);
+    sut = new PSItemSummaryService(collaborator, null, idMapper, navService);
+    testIconService = new TestIconPSItemSummaryService();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailForNullPath() throws Exception {
+
+    assertNotNull(sut.pathToId(null));
+  }
+
+  @Test
+  public void shouldFixIconPath() throws Exception {
+    testIconService.setExpectedIconPath("../rx_resources/stuff/image.png");
+    String id = "doesn'tmatter";
+    String path = testIconService.getIcon(id);
+    assertEquals("path should be corrected.", "/Rhythmyx/rx_resources/stuff/image.png", path);
+  }
+
+  @Test
+  public void shouldNotFixIconPathIfSystemPathIsNull() throws Exception {
+    testIconService.setExpectedIconPath(null);
+    String id = "doesn'tmatter";
+    String path = testIconService.getIcon(id);
+    assertEquals("path should not be corrected as it null.", null, path);
+  }
+
+  public class TestIconPSItemSummaryService extends PSItemSummaryService {
+
+    private String expectedIconPath;
+
+    public TestIconPSItemSummaryService() {
+      super(null, null, null, null);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void shouldFailForNullPath() throws Exception
-    {
-
-        assertNotNull(sut.pathToId(null));
-        
+    @Override
+    protected String getIcon(String id) {
+      return super.getIcon(id);
     }
-    
-    
-    @Test
-    public void shouldFixIconPath() throws Exception
-    {
-        testIconService.setExpectedIconPath("../rx_resources/stuff/image.png");
-        String id = "doesn'tmatter";
-        String path = testIconService.getIcon(id);
-        assertEquals("path should be corrected.", "/Rhythmyx/rx_resources/stuff/image.png", path);
+
+    @Override
+    protected String getIconFromSystem(String id) {
+      return getExpectedIconPath();
     }
-    
-    @Test
-    public void shouldNotFixIconPathIfSystemPathIsNull() throws Exception
-    {
-        testIconService.setExpectedIconPath(null);
-        String id = "doesn'tmatter";
-        String path = testIconService.getIcon(id);
-        assertEquals("path should not be corrected as it null.", null, path);
+
+    public String getExpectedIconPath() {
+      return expectedIconPath;
     }
-    
-    
-    
-    public class TestIconPSItemSummaryService extends PSItemSummaryService {
 
-        private String expectedIconPath;
-        
-        public TestIconPSItemSummaryService()
-        {
-            super(null, null, null, null);
-        }
-
-        
-        @Override
-        protected String getIcon(String id)
-        {
-            return super.getIcon(id);
-        }
-
-
-        @Override
-        protected String getIconFromSystem(String id)
-        {
-            return getExpectedIconPath();
-        }
-
-        public String getExpectedIconPath()
-        {
-            return expectedIconPath;
-        }
-
-        public void setExpectedIconPath(String expectedIconPath)
-        {
-            this.expectedIconPath = expectedIconPath;
-        }
-    
-    } 
-    
-    
-    
+    public void setExpectedIconPath(String expectedIconPath) {
+      this.expectedIconPath = expectedIconPath;
+    }
+  }
 }

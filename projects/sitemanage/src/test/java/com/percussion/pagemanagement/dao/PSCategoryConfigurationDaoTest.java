@@ -18,36 +18,25 @@ package com.percussion.pagemanagement.dao;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-
+import com.percussion.pagemanagement.dao.impl.PSCategoryConfigurationDao;
+import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.percussion.pagemanagement.dao.impl.PSCategoryConfigurationDao;
-import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
-import com.percussion.pagemanagement.data.PSCategoryConfiguration;
-import com.percussion.pagemanagement.data.PSWidgetDefinition;
+public class PSCategoryConfigurationDaoTest {
 
-public class PSCategoryConfigurationDaoTest
-{
-    
-    PSCategoryConfigurationDao categoryConfigurationDao;
-    
+  PSCategoryConfigurationDao categoryConfigurationDao;
 
-    @Before
-    public void setup() throws Exception
-    {
-        categoryConfigurationDao = new PSCategoryConfigurationDao();
-        categoryConfigurationDao.setRepositoryDirectory("src/test/resources/categories");
-    }
-    
-    @Test
-    public void testCategoryConfig() throws Exception
-    {
-        PSCategoryConfiguration config = categoryConfigurationDao.getData();
-        assertNotNull(config);
-        assertEquals("http://my-server/tree.xml", config.getTree().getUrl());
-    }
-    
+  @Before
+  public void setup() throws Exception {
+    categoryConfigurationDao = new PSCategoryConfigurationDao();
+    categoryConfigurationDao.setRepositoryDirectory("src/test/resources/categories");
+  }
 
+  @Test
+  public void testCategoryConfig() throws Exception {
+    PSCategoryConfiguration config = categoryConfigurationDao.getData();
+    assertNotNull(config);
+    assertEquals("http://my-server/tree.xml", config.getTree().getUrl());
+  }
 }

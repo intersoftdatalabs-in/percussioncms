@@ -19,47 +19,44 @@ package com.percussion.pso.restservice.model;
 import org.apache.commons.httpclient.Header;
 import org.dom4j.Document;
 
-/***
- * Represents a Response from an request for the DOM of a remote resource.
- * @author natechadwick
+/**
+ * * Represents a Response from an request for the DOM of a remote resource.
  *
+ * @author natechadwick
  */
-public class HttpDOMResponse extends BaseHttpResponse{
+public class HttpDOMResponse extends BaseHttpResponse {
 
-	
-	private Document document;
-	
-	/***
-	 * Sets the DOM Document for the content returned in this response.
-	 * @param document
-	 */
-	public void setDocument(Document document) {
-		this.document = document;
-	}
+  private Document document;
 
-	/***
-	 * Gets the DOM document for this response. 
-	 * @return
-	 */
-	public Document getDocument() {
-		return document;
-	}
-		
-	/***
-	 * Default constructor
-	 */
-	public HttpDOMResponse(){}
-	
+  /**
+   * * Sets the DOM Document for the content returned in this response.
+   *
+   * @param document
+   */
+  public void setDocument(Document document) {
+    this.document = document;
+  }
 
-	/***
-	 * Single Shot Constructor
-	 * @param doc
-	 * @param head
-	 */
-	public HttpDOMResponse(Document doc, Header[] head){
-		this.setHeaders(head);
-		this.document = doc;
-	}
+  /**
+   * * Gets the DOM document for this response.
+   *
+   * @return
+   */
+  public Document getDocument() {
+    return document;
+  }
 
+  /** * Default constructor */
+  public HttpDOMResponse() {}
 
+  /**
+   * * Single Shot Constructor
+   *
+   * @param doc
+   * @param head
+   */
+  public HttpDOMResponse(Document doc, Header[] head) {
+    this.setHeaders(head);
+    this.document = doc;
+  }
 }

@@ -18,42 +18,43 @@ package com.percussion.pso.syndication;
 
 import com.rometools.rome.feed.synd.SyndEnclosure;
 
-/***
- * Provides a Velocity friendly class for handling enclosures.
- * 
- * @author natechadwick
+/**
+ * * Provides a Velocity friendly class for handling enclosures.
  *
+ * @author natechadwick
  */
 public class PSSynFeedEnclosure {
-	
-	private SyndEnclosure enc;
 
-	/***
-	 * Returns the enclosure length.
-	 * @return
-	 */
-	 public long	getLength() {
-		 return enc.getLength();
-	 }
-     
-	 /***
-	  * Returns the enclosure type.
-	  * @return
-	  */
-	 public String getType() {
-		 return enc.getType();
-	 }
+  private SyndEnclosure enc;
 
-	 /***
-	  * Returns the enclosure URL.
-	  * @return
-	  */
-	 public String	getUrl() {
-		 return enc.getUrl();
-	 }
-	public PSSynFeedEnclosure(SyndEnclosure arg){
-		this.enc = arg;
-	}
-	
-	
+  /**
+   * * Returns the enclosure length.
+   *
+   * @return
+   */
+  public long getLength() {
+    return enc.getLength();
+  }
+
+  /**
+   * * Returns the enclosure type.
+   *
+   * @return
+   */
+  public String getType() {
+    return enc.getType();
+  }
+
+  /**
+   * * Returns the enclosure URL.
+   *
+   * @return
+   */
+  public String getUrl() {
+    return enc.getUrl();
+  }
+
+  public PSSynFeedEnclosure(SyndEnclosure arg) {
+    this.enc = arg;
+  }
 }

@@ -20,20 +20,18 @@ import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 
 /**
  * Provides additional processing for the {@link IPSListViewHelper}
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public interface IPSListViewProcessor
-{
-    public static final String TEMPLATE_NAME = "templateName";
-    
-    public static final String LINK_TEXT = "linkText";
-    
-    /**
-     * Process the items in the supplied criteria
-     * 
-     * @param criteria The criteria to process, not <code>null</code>.
-     */
-    void process(PSDisplayPropertiesCriteria criteria);
+public interface IPSListViewProcessor {
+  public static final String TEMPLATE_NAME = "templateName";
+
+  public static final String LINK_TEXT = "linkText";
+
+  /**
+   * Process the items in the supplied criteria
+   *
+   * @param criteria The criteria to process, not <code>null</code>.
+   */
+  void process(PSDisplayPropertiesCriteria criteria);
 }

@@ -27,68 +27,65 @@ import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 import com.percussion.utils.request.PSRequestInfo;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Component("thumbnailGenerationHelper")
 @Lazy
 public class PSThumbnailGenerationHelper extends PSImportHelper {
-	private static final String STATUS_MESSAGE = "generating thumbnails";
-	private IPSSiteTemplateService siteTemplateService;
-	private IPSTemplateService templateService;
-	private IPSPageService pageService;
+  private static final String STATUS_MESSAGE = "generating thumbnails";
+  private IPSSiteTemplateService siteTemplateService;
+  private IPSTemplateService templateService;
+  private IPSPageService pageService;
 
-	@Autowired
-	public PSThumbnailGenerationHelper(
-			IPSSiteTemplateService siteTemplateService,
-			IPSTemplateService templateService, IPSPageService pageService,
-			IPSNotificationService notificationService) {
-		super();
-		this.siteTemplateService = siteTemplateService;
-		this.templateService = templateService;
-		this.pageService = pageService;
+  @Autowired
+  public PSThumbnailGenerationHelper(
+      IPSSiteTemplateService siteTemplateService,
+      IPSTemplateService templateService,
+      IPSPageService pageService,
+      IPSNotificationService notificationService) {
+    super();
+    this.siteTemplateService = siteTemplateService;
+    this.templateService = templateService;
+    this.pageService = pageService;
+  }
 
-	}
+  @Override
+  public void process(PSPageContent pageContent, PSSiteImportCtx context)
+      throws PSSiteImportException {
+    // This thread is async... stuff is still happening
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
 
-	@Override
-	public void process(PSPageContent pageContent, PSSiteImportCtx context)
-			throws PSSiteImportException {
-		//This thread is async... stuff is still happening
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		
-		startTimer();
-		final Map<String, Object> requestInfoMap = PSRequestInfo
-				.copyRequestInfoMap();
-		PSRequest request = (PSRequest) requestInfoMap
-				.get(PSRequestInfo.KEY_PSREQUEST);
-		requestInfoMap.put(PSRequestInfo.KEY_PSREQUEST, request.cloneRequest());
+    startTimer();
+    final Map<String, Object> requestInfoMap = PSRequestInfo.copyRequestInfoMap();
+    PSRequest request = (PSRequest) requestInfoMap.get(PSRequestInfo.KEY_PSREQUEST);
+    requestInfoMap.put(PSRequestInfo.KEY_PSREQUEST, request.cloneRequest());
 
-		PSThumbnailRunner runner = new PSThumbnailRunner(siteTemplateService,
-				templateService, pageService, true, requestInfoMap);
-		runner.generateThumbnailNow(context.getTemplateId(), Function.GENERATE_TEMPLATE_THUMBNAIL);
-		endTimer();
-		/*
-		
-		*/
-		
-	}
+    PSThumbnailRunner runner =
+        new PSThumbnailRunner(
+            siteTemplateService, templateService, pageService, true, requestInfoMap);
+    runner.generateThumbnailNow(context.getTemplateId(), Function.GENERATE_TEMPLATE_THUMBNAIL);
+    endTimer();
+    /*
 
-	@Override
-	public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
-		// NOOP - this is an optional helper
+    */
 
-	}
+  }
 
-	@Override
-	public String getHelperMessage() {
-		return STATUS_MESSAGE;
-	}
+  @Override
+  public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
+    // NOOP - this is an optional helper
 
+  }
+
+  @Override
+  public String getHelperMessage() {
+    return STATUS_MESSAGE;
+  }
 }

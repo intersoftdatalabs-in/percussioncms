@@ -21,42 +21,43 @@ import com.percussion.share.service.exception.IPSNotFoundException;
 
 public interface IPSDashboardService {
 
-    PSDashboard load()throws PSDashboardNotFoundException, PSDashboardServiceException;
-    PSDashboard save(PSDashboard dashboard)throws PSDashboardNotFoundException, PSDashboardServiceException;
+  PSDashboard load() throws PSDashboardNotFoundException, PSDashboardServiceException;
 
-    public static class PSDashboardServiceException extends RuntimeException {
+  PSDashboard save(PSDashboard dashboard)
+      throws PSDashboardNotFoundException, PSDashboardServiceException;
 
-        private static final long serialVersionUID = 1L;
+  public static class PSDashboardServiceException extends RuntimeException {
 
-        public PSDashboardServiceException(String message) {
-            super(message);
-        }
+    private static final long serialVersionUID = 1L;
 
-        public PSDashboardServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardServiceException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-    public static class PSDashboardNotFoundException extends PSDashboardServiceException implements IPSNotFoundException {
-
-        private static final long serialVersionUID = 1L;
-
-        public PSDashboardNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSDashboardNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardNotFoundException(Throwable cause) {
-            super(cause);
-        }
-
+    public PSDashboardServiceException(String message) {
+      super(message);
     }
 
+    public PSDashboardServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  public static class PSDashboardNotFoundException extends PSDashboardServiceException
+      implements IPSNotFoundException {
+
+    private static final long serialVersionUID = 1L;
+
+    public PSDashboardNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSDashboardNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

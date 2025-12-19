@@ -16,57 +16,52 @@
  */
 package com.percussion.pagemanagement.parser;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegionFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * An Abstract Syntax Tree of Regions parsed from an unexpanded HTML template 
- * (not processed by velocity yet).
- * <p>
- * Groups top-level {@link PSAbstractRegion} objects by id. Also keeps track of all
- * child region within the tree.
- * 
+ * An Abstract Syntax Tree of Regions parsed from an unexpanded HTML template (not processed by
+ * velocity yet).
+ *
+ * <p>Groups top-level {@link PSAbstractRegion} objects by id. Also keeps track of all child region
+ * within the tree.
+ *
  * @param <REGION> Region type.
  * @param <CODE> Code type.
  */
-public class PSParsedRegionTree<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-{
-    private REGION rootNode;
+public class PSParsedRegionTree<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
+  private REGION rootNode;
 
-    private Map<String, REGION> regions = new HashMap<>();
+  private Map<String, REGION> regions = new HashMap<>();
 
-    private static final String ROOT_NODE_ID = "percRoot";
+  private static final String ROOT_NODE_ID = "percRoot";
 
-    private IPSRegionParserRegionFactory<REGION, CODE> regionFactory;
+  private IPSRegionParserRegionFactory<REGION, CODE> regionFactory;
 
-    public PSParsedRegionTree(IPSRegionParserRegionFactory<REGION, CODE> regionFactory)
-    {
-        this.regionFactory = regionFactory;
-        rootNode = this.regionFactory.createRootRegion();
-        rootNode.setRegionId(ROOT_NODE_ID);
-    }
+  public PSParsedRegionTree(IPSRegionParserRegionFactory<REGION, CODE> regionFactory) {
+    this.regionFactory = regionFactory;
+    rootNode = this.regionFactory.createRootRegion();
+    rootNode.setRegionId(ROOT_NODE_ID);
+  }
 
-    /**
-     * A parsed region tree should have a root node
-     * and it should be a region.
-     * 
-     * @return never <code>null</code>.
-     */
-    public REGION getRootNode()
-    {
-        return rootNode;
-    }
+  /**
+   * A parsed region tree should have a root node and it should be a region.
+   *
+   * @return never <code>null</code>.
+   */
+  public REGION getRootNode() {
+    return rootNode;
+  }
 
-    /**
-     * The region id to region map.
-     * @return never <code>null</code>.
-     */
-    public Map<String, REGION> getRegions()
-    {
-        return regions;
-    }
+  /**
+   * The region id to region map.
+   *
+   * @return never <code>null</code>.
+   */
+  public Map<String, REGION> getRegions() {
+    return regions;
+  }
 }

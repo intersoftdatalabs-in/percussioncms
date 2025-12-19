@@ -18,15 +18,12 @@
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @JsonRootName(value = "Effectiveness")
 public class PSEffectivenessList extends ArrayList<PSEffectiveness> {
-    public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
-        super(c);
-    }
+  public PSEffectivenessList(Collection<? extends PSEffectiveness> c) {
+    super(c);
+  }
 }

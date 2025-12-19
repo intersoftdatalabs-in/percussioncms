@@ -17,7 +17,6 @@
 package com.percussion.pagemanagement.assembler;
 
 import com.percussion.assetmanagement.data.PSAssetSummary;
-import com.percussion.pagemanagement.assembler.impl.PSAssemblyRenderLinkContext;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSRenderLinkContext;
 import com.percussion.services.assembly.IPSAssemblyItem;
@@ -28,52 +27,53 @@ import com.percussion.share.service.IPSLinkableItem;
 import com.percussion.share.service.exception.PSValidationException;
 
 /**
- * 
  * Creates a Link context from legacy assembly items and new {@link IPSLinkableItem}s.
- * <p>
- * Factory pattern.
- * <p>
- * <em>This interface is not public</em>
- * @author adamgent
  *
+ * <p>Factory pattern.
+ *
+ * <p><em>This interface is not public</em>
+ *
+ * @author adamgent
  */
-public interface IPSRenderLinkContextFactory
-{
+public interface IPSRenderLinkContextFactory {
 
-    /**
-     * Create a link content for a content list item
-     * this is used by the template expander during content list generation.
-     * 
-     * @param listItem never <code>null</code>.
-     * @param item never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    public PSRenderLinkContext create(PSContentListItem listItem, IPSLinkableItem item) throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException, PSValidationException;
-    /**
-     * 
-     * Creates a link context that has not been validated yet.
-     * 
-     * @param assemblyItem never <code>null</code>.
-     * @param item never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    public abstract PSRenderLinkContext create(IPSAssemblyItem assemblyItem, IPSLinkableItem item) throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException, PSFilterException, PSValidationException;
+  /**
+   * Create a link content for a content list item this is used by the template expander during
+   * content list generation.
+   *
+   * @param listItem never <code>null</code>.
+   * @param item never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  public PSRenderLinkContext create(PSContentListItem listItem, IPSLinkableItem item)
+      throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException,
+          PSValidationException;
+  /**
+   * Creates a link context that has not been validated yet.
+   *
+   * @param assemblyItem never <code>null</code>.
+   * @param item never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  public abstract PSRenderLinkContext create(IPSAssemblyItem assemblyItem, IPSLinkableItem item)
+      throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException,
+          PSFilterException, PSValidationException;
 
-    /**
-     * 
-     * Creates a link context that has not been validated yet.
-     * 
-     * @param page never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    public abstract PSRenderLinkContext createPreview(PSPage page) throws IPSDataService.DataServiceNotFoundException, PSValidationException;
-    
-    /**
-     * 
-     * Creates a link context for an image that has not been validated yet.
-     * @param folderPath never <code>null</code>.
-     * @param asset never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    public abstract PSRenderLinkContext createAssetPreview(String folderPath, PSAssetSummary asset);
+  /**
+   * Creates a link context that has not been validated yet.
+   *
+   * @param page never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  public abstract PSRenderLinkContext createPreview(PSPage page)
+      throws IPSDataService.DataServiceNotFoundException, PSValidationException;
+
+  /**
+   * Creates a link context for an image that has not been validated yet.
+   *
+   * @param folderPath never <code>null</code>.
+   * @param asset never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  public abstract PSRenderLinkContext createAssetPreview(String folderPath, PSAssetSummary asset);
 }

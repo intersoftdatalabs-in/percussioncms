@@ -17,40 +17,36 @@
 
 package com.percussion.share.web.service;
 
+import com.percussion.share.validation.PSErrors;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import com.percussion.share.validation.PSErrors;
-
 /**
- * Mapping of Exceptions to a  {@link PSErrors serializable error object}.
- * 
- * @author adamgent
+ * Mapping of Exceptions to a {@link PSErrors serializable error object}.
  *
+ * @author adamgent
  * @param <T> exception.
  */
 @Provider
 public abstract class PSAbstractExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
 
-    public Response toResponse(T e) {
-        Status status = getStatus(e);
-        PSErrors errors = createErrors(e);
-        return Response.status(status).entity(errors).build();
-    }
-    
-    protected Status getStatus(T exception) {
-        return Status.INTERNAL_SERVER_ERROR;
-    }
-    
-    /**
-     * 
-     * Create a serializable errors object from the given exception.
-     * 
-     * @param exception never <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    protected abstract PSErrors createErrors(T exception);
+  public Response toResponse(T e) {
+    Status status = getStatus(e);
+    PSErrors errors = createErrors(e);
+    return Response.status(status).entity(errors).build();
+  }
 
+  protected Status getStatus(T exception) {
+    return Status.INTERNAL_SERVER_ERROR;
+  }
+
+  /**
+   * Create a serializable errors object from the given exception.
+   *
+   * @param exception never <code>null</code>.
+   * @return never <code>null</code>.
+   */
+  protected abstract PSErrors createErrors(T exception);
 }

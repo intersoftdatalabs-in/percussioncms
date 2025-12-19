@@ -17,35 +17,26 @@
 package com.percussion.pagemanagement.service;
 
 import com.percussion.share.service.exception.PSDataServiceException;
-
 import java.util.List;
-
-import javax.jcr.RepositoryException;
 
 /**
  * Service to encapsulate operations acting on both pages and templates
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public interface IPSPageTemplateService
-{
-    
-    /**
-     * Name of the field on page content type to store the template id.
-     */
-    public static final String FIELD_NAME_TEMPLATE_ID = "templateid";
-    
-    //fixme: doc and remove from page servcie
-    public void changeTemplate(String pageId, String templateId) throws PSDataServiceException;
+public interface IPSPageTemplateService {
 
-    /**
-     * Find all the pages that use a certain template and return their ids
-     * 
-     * @param templateId The id of the template, not <code>null</code>.
-     * 
-     * @return The list of ids, not <code>null</code>, may be empty.
-     */
-    List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException;
-    
+  /** Name of the field on page content type to store the template id. */
+  public static final String FIELD_NAME_TEMPLATE_ID = "templateid";
+
+  // fixme: doc and remove from page servcie
+  public void changeTemplate(String pageId, String templateId) throws PSDataServiceException;
+
+  /**
+   * Find all the pages that use a certain template and return their ids
+   *
+   * @param templateId The id of the template, not <code>null</code>.
+   * @return The list of ids, not <code>null</code>, may be empty.
+   */
+  List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException;
 }

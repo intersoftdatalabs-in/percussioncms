@@ -17,14 +17,13 @@
 
 package com.percussion.comments.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "commentsSummary")
 public class PSCommentsSummaryList extends ArrayList<PSCommentsSummary> {
-    public PSCommentsSummaryList(Collection<? extends PSCommentsSummary> c) {
-        super(c);
-    }
+  public PSCommentsSummaryList(Collection<? extends PSCommentsSummary> c) {
+    super(c);
+  }
 }

@@ -20,168 +20,117 @@ import org.jdom2.CDATA;
 import org.jdom2.Element;
 import org.jsoup.nodes.Document;
 
-public class PSPageContent
-{
-    private String title;
+public class PSPageContent {
+  private String title;
 
-    private String path;
+  private String path;
 
-    private String beforeBodyClose;
+  private String beforeBodyClose;
 
-    private String afterBodyStart;
+  private String afterBodyStart;
 
-    private String headContent;
+  private String headContent;
 
-    private String bodyContent;
-    
-    private String description = "";
+  private String bodyContent;
 
-    private Document sourceDocument;
+  private String description = "";
 
-    /**
-     * @return the title
-     */
-    public String getTitle()
-    {
-        return title;
-    }
+  private Document sourceDocument;
 
-    /**
-     * @param title the title to set
-     */
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
+  /** @return the title */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * @return the path
-     */
-    public String getPath()
-    {
-        return path;
-    }
+  /** @param title the title to set */
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  /** @return the path */
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * @return the beforeBodyClose
-     */
-    public String getBeforeBodyClose()
-    {
-        return beforeBodyClose;
-    }
+  /** @param path the path to set */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * @param beforeBodyClose the beforeBodyClose to set
-     */
-    public void setBeforeBodyClose(String beforeBodyClose)
-    {
-        this.beforeBodyClose = beforeBodyClose;
-    }
+  /** @return the beforeBodyClose */
+  public String getBeforeBodyClose() {
+    return beforeBodyClose;
+  }
 
-    /**
-     * @return the afterBodyStart
-     */
-    public String getAfterBodyStart()
-    {
-        return afterBodyStart;
-    }
+  /** @param beforeBodyClose the beforeBodyClose to set */
+  public void setBeforeBodyClose(String beforeBodyClose) {
+    this.beforeBodyClose = beforeBodyClose;
+  }
 
-    /**
-     * @param afterBodyStart the afterBodyStart to set
-     */
-    public void setAfterBodyStart(String afterBodyStart)
-    {
-        this.afterBodyStart = afterBodyStart;
-    }
+  /** @return the afterBodyStart */
+  public String getAfterBodyStart() {
+    return afterBodyStart;
+  }
 
-    /**
-     * @return the headContent
-     */
-    public String getHeadContent()
-    {
-        return headContent;
-    }
+  /** @param afterBodyStart the afterBodyStart to set */
+  public void setAfterBodyStart(String afterBodyStart) {
+    this.afterBodyStart = afterBodyStart;
+  }
 
-    /**
-     * @param headContent the headContent to set
-     */
-    public void setHeadContent(String headContent)
-    {
-        this.headContent = headContent;
-    }
+  /** @return the headContent */
+  public String getHeadContent() {
+    return headContent;
+  }
 
-    /**
-     * @return the bodyContent
-     */
-    public String getBodyContent()
-    {
-        return bodyContent;
-    }
+  /** @param headContent the headContent to set */
+  public void setHeadContent(String headContent) {
+    this.headContent = headContent;
+  }
 
-    /**
-     * @param bodyContent the bodyContent to set
-     */
-    public void setBodyContent(String bodyContent)
-    {
-        this.bodyContent = bodyContent;
-    }
+  /** @return the bodyContent */
+  public String getBodyContent() {
+    return bodyContent;
+  }
 
-    /**
-     * @param sourceDocument the sourceDocument to set
-     */
-    public void setSourceDocument(Document sourceDocument)
-    {
-        this.sourceDocument = sourceDocument;
-    }
+  /** @param bodyContent the bodyContent to set */
+  public void setBodyContent(String bodyContent) {
+    this.bodyContent = bodyContent;
+  }
 
-    /**
-     * @return the sourceDocument
-     */
-    public Document getSourceDocument()
-    {
-        return sourceDocument;
-    }
+  /** @param sourceDocument the sourceDocument to set */
+  public void setSourceDocument(Document sourceDocument) {
+    this.sourceDocument = sourceDocument;
+  }
 
+  /** @return the sourceDocument */
+  public Document getSourceDocument() {
+    return sourceDocument;
+  }
 
-    public String getDescription()
-    {
-        return description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-    
-    public Element toXml()
-    {
-        Element elem = new Element("SiteDetails");
-        elem.addContent(createElem("Path", path, false));
-        elem.addContent(createElem("Title", title, false));
-        elem.addContent(createElem("HeadContent", headContent, false));
-        elem.addContent(createElem("AfterBodyStart", afterBodyStart, false));
-        elem.addContent(createElem("BeforeBodyClose", beforeBodyClose, false));
-        elem.addContent(createElem("BodyContent", bodyContent, false));
-        elem.addContent(createElem("Description", description, false));
-        return elem;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    private Element createElem(String name, String value, boolean encloseCdata)
-    {
-        Element elem = new Element(name);
-        if (encloseCdata)
-            elem.addContent(new CDATA(value));
-        else
-            elem.setText(value);
-        return elem;
-    }
+  public Element toXml() {
+    Element elem = new Element("SiteDetails");
+    elem.addContent(createElem("Path", path, false));
+    elem.addContent(createElem("Title", title, false));
+    elem.addContent(createElem("HeadContent", headContent, false));
+    elem.addContent(createElem("AfterBodyStart", afterBodyStart, false));
+    elem.addContent(createElem("BeforeBodyClose", beforeBodyClose, false));
+    elem.addContent(createElem("BodyContent", bodyContent, false));
+    elem.addContent(createElem("Description", description, false));
+    return elem;
+  }
 
+  private Element createElem(String name, String value, boolean encloseCdata) {
+    Element elem = new Element(name);
+    if (encloseCdata) elem.addContent(new CDATA(value));
+    else elem.setText(value);
+    return elem;
+  }
 }

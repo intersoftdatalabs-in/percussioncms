@@ -17,61 +17,47 @@
 package com.percussion.sitemanage.importer.utils;
 
 import com.percussion.sitemanage.importer.IPSConnectivity;
-
 import java.io.IOException;
-
 import org.apache.commons.lang.Validate;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSHtmlRetriever
-{
-   
-    /**
-     * String for JSoup unhandled content type exception text 
-     */
-    private static final String UNHANDLED_CONTENT_TYPE = "Unhandled content type";
-    
-    private IPSConnectivity conn;
-    
-    public PSHtmlRetriever(IPSConnectivity conn)
-    {
-        Validate.notNull(conn);
-        
-        this.conn = conn;
+/** @author JaySeletz */
+public class PSHtmlRetriever {
+
+  /** String for JSoup unhandled content type exception text */
+  private static final String UNHANDLED_CONTENT_TYPE = "Unhandled content type";
+
+  private IPSConnectivity conn;
+
+  public PSHtmlRetriever(IPSConnectivity conn) {
+    Validate.notNull(conn);
+
+    this.conn = conn;
+  }
+
+  public Document getHtmlDocument() throws IOException {
+    Document doc = null;
+    try {
+      doc = conn.get();
+    } catch (IOException e) {
+      // if not an html doc, allow to return null
+      if (!isUnhandledContentTypeException(e)) throw e;
     }
-    
-    public Document getHtmlDocument() throws IOException
-    {
-        Document doc = null;
-        try
-        {
-            doc = conn.get();
-        }
-        catch (IOException e)
-        {
-            // if not an html doc, allow to return null
-            if (!isUnhandledContentTypeException(e))
-                throw e;
-        }
-        
-        return doc;
-    }
-    
-    /**
-     * Determine if the supplied exception indicates we requested a resource from JSoup as a page.  See {@link Connection#ignoreContentType(boolean)}
-     * for details (we leave this set to <code>true</code>).
-     * 
-     * @param e The exception to test, not <code>null</code>.
-     * 
-     * @return <code>true</code> if it's a JSoup unhandled content type exception, <code>false</code> if not.  
-     */
-    private boolean isUnhandledContentTypeException(IOException e)
-    {
-        return (e.getMessage() != null && e.getMessage().contains(UNHANDLED_CONTENT_TYPE));
-    }
+
+    return doc;
+  }
+
+  /**
+   * Determine if the supplied exception indicates we requested a resource from JSoup as a page. See
+   * {@link Connection#ignoreContentType(boolean)} for details (we leave this set to <code>true
+   * </code>).
+   *
+   * @param e The exception to test, not <code>null</code>.
+   * @return <code>true</code> if it's a JSoup unhandled content type exception, <code>false</code>
+   *     if not.
+   */
+  private boolean isUnhandledContentTypeException(IOException e) {
+    return (e.getMessage() != null && e.getMessage().contains(UNHANDLED_CONTENT_TYPE));
+  }
 }

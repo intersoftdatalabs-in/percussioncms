@@ -21,42 +21,40 @@ import com.percussion.error.PSException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
-public interface IPSDashboardDataService extends IPSDataService<PSDashboard,PSDashboard, String> {
+public interface IPSDashboardDataService extends IPSDataService<PSDashboard, PSDashboard, String> {
 
-    public static class PSDashboardUserServiceException extends PSException {
+  public static class PSDashboardUserServiceException extends PSException {
 
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-        public PSDashboardUserServiceException(String message) {
-            super(message);
-        }
-
-        public PSDashboardUserServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardUserServiceException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-    
-    public static class PSDashboardNotFoundException extends PSDashboardUserServiceException implements IPSNotFoundException {
-
-        private static final long serialVersionUID = 1L;
-
-        public PSDashboardNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSDashboardNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSDashboardNotFoundException(Throwable cause) {
-            super(cause);
-        }
-
+    public PSDashboardUserServiceException(String message) {
+      super(message);
     }
 
+    public PSDashboardUserServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardUserServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  public static class PSDashboardNotFoundException extends PSDashboardUserServiceException
+      implements IPSNotFoundException {
+
+    private static final long serialVersionUID = 1L;
+
+    public PSDashboardNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSDashboardNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSDashboardNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

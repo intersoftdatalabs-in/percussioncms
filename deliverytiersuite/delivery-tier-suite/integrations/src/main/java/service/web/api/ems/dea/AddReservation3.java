@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -55,312 +53,245 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "groupID",
-    "roomID",
-    "bookingDate",
-    "startTime",
-    "endTime",
-    "eventName",
-    "statusID",
-    "eventTypeID",
-    "webUserID",
-    "webTemplateID",
-    "reservationSourceID"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "groupID",
+      "roomID",
+      "bookingDate",
+      "startTime",
+      "endTime",
+      "eventName",
+      "statusID",
+      "eventTypeID",
+      "webUserID",
+      "webTemplateID",
+      "reservationSourceID"
+    })
 @XmlRootElement(name = "AddReservation3")
 public class AddReservation3 {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "GroupID")
-    protected int groupID;
-    @XmlElement(name = "RoomID")
-    protected int roomID;
-    @XmlElement(name = "BookingDate", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
-    @XmlElement(name = "StartTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startTime;
-    @XmlElement(name = "EndTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endTime;
-    @XmlElement(name = "EventName")
-    protected String eventName;
-    @XmlElement(name = "StatusID")
-    protected int statusID;
-    @XmlElement(name = "EventTypeID")
-    protected int eventTypeID;
-    @XmlElement(name = "WebUserID")
-    protected int webUserID;
-    @XmlElement(name = "WebTemplateID")
-    protected int webTemplateID;
-    @XmlElement(name = "ReservationSourceID")
-    protected int reservationSourceID;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "GroupID")
+  protected int groupID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "RoomID")
+  protected int roomID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "BookingDate", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar bookingDate;
 
-    /**
-     * Gets the value of the groupID property.
-     * 
-     */
-    public int getGroupID() {
-        return groupID;
-    }
+  @XmlElement(name = "StartTime", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar startTime;
 
-    /**
-     * Sets the value of the groupID property.
-     * 
-     */
-    public void setGroupID(int value) {
-        this.groupID = value;
-    }
+  @XmlElement(name = "EndTime", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar endTime;
 
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
-    public int getRoomID() {
-        return roomID;
-    }
+  @XmlElement(name = "EventName")
+  protected String eventName;
 
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
+  @XmlElement(name = "StatusID")
+  protected int statusID;
 
-    /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
-    }
+  @XmlElement(name = "EventTypeID")
+  protected int eventTypeID;
 
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
+  @XmlElement(name = "WebUserID")
+  protected int webUserID;
 
-    /**
-     * Gets the value of the startTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartTime() {
-        return startTime;
-    }
+  @XmlElement(name = "WebTemplateID")
+  protected int webTemplateID;
 
-    /**
-     * Sets the value of the startTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setStartTime(XMLGregorianCalendar value) {
-        this.startTime = value;
-    }
+  @XmlElement(name = "ReservationSourceID")
+  protected int reservationSourceID;
 
-    /**
-     * Gets the value of the endTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndTime() {
-        return endTime;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Sets the value of the endTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setEndTime(XMLGregorianCalendar value) {
-        this.endTime = value;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Gets the value of the eventName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEventName() {
-        return eventName;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the value of the eventName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEventName(String value) {
-        this.eventName = value;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Gets the value of the statusID property.
-     * 
-     */
-    public int getStatusID() {
-        return statusID;
-    }
+  /** Gets the value of the groupID property. */
+  public int getGroupID() {
+    return groupID;
+  }
 
-    /**
-     * Sets the value of the statusID property.
-     * 
-     */
-    public void setStatusID(int value) {
-        this.statusID = value;
-    }
+  /** Sets the value of the groupID property. */
+  public void setGroupID(int value) {
+    this.groupID = value;
+  }
 
-    /**
-     * Gets the value of the eventTypeID property.
-     * 
-     */
-    public int getEventTypeID() {
-        return eventTypeID;
-    }
+  /** Gets the value of the roomID property. */
+  public int getRoomID() {
+    return roomID;
+  }
 
-    /**
-     * Sets the value of the eventTypeID property.
-     * 
-     */
-    public void setEventTypeID(int value) {
-        this.eventTypeID = value;
-    }
+  /** Sets the value of the roomID property. */
+  public void setRoomID(int value) {
+    this.roomID = value;
+  }
 
-    /**
-     * Gets the value of the webUserID property.
-     * 
-     */
-    public int getWebUserID() {
-        return webUserID;
-    }
+  /**
+   * Gets the value of the bookingDate property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getBookingDate() {
+    return bookingDate;
+  }
 
-    /**
-     * Sets the value of the webUserID property.
-     * 
-     */
-    public void setWebUserID(int value) {
-        this.webUserID = value;
-    }
+  /**
+   * Sets the value of the bookingDate property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setBookingDate(XMLGregorianCalendar value) {
+    this.bookingDate = value;
+  }
 
-    /**
-     * Gets the value of the webTemplateID property.
-     * 
-     */
-    public int getWebTemplateID() {
-        return webTemplateID;
-    }
+  /**
+   * Gets the value of the startTime property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getStartTime() {
+    return startTime;
+  }
 
-    /**
-     * Sets the value of the webTemplateID property.
-     * 
-     */
-    public void setWebTemplateID(int value) {
-        this.webTemplateID = value;
-    }
+  /**
+   * Sets the value of the startTime property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setStartTime(XMLGregorianCalendar value) {
+    this.startTime = value;
+  }
 
-    /**
-     * Gets the value of the reservationSourceID property.
-     * 
-     */
-    public int getReservationSourceID() {
-        return reservationSourceID;
-    }
+  /**
+   * Gets the value of the endTime property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getEndTime() {
+    return endTime;
+  }
 
-    /**
-     * Sets the value of the reservationSourceID property.
-     * 
-     */
-    public void setReservationSourceID(int value) {
-        this.reservationSourceID = value;
-    }
+  /**
+   * Sets the value of the endTime property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setEndTime(XMLGregorianCalendar value) {
+    this.endTime = value;
+  }
 
+  /**
+   * Gets the value of the eventName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getEventName() {
+    return eventName;
+  }
+
+  /**
+   * Sets the value of the eventName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setEventName(String value) {
+    this.eventName = value;
+  }
+
+  /** Gets the value of the statusID property. */
+  public int getStatusID() {
+    return statusID;
+  }
+
+  /** Sets the value of the statusID property. */
+  public void setStatusID(int value) {
+    this.statusID = value;
+  }
+
+  /** Gets the value of the eventTypeID property. */
+  public int getEventTypeID() {
+    return eventTypeID;
+  }
+
+  /** Sets the value of the eventTypeID property. */
+  public void setEventTypeID(int value) {
+    this.eventTypeID = value;
+  }
+
+  /** Gets the value of the webUserID property. */
+  public int getWebUserID() {
+    return webUserID;
+  }
+
+  /** Sets the value of the webUserID property. */
+  public void setWebUserID(int value) {
+    this.webUserID = value;
+  }
+
+  /** Gets the value of the webTemplateID property. */
+  public int getWebTemplateID() {
+    return webTemplateID;
+  }
+
+  /** Sets the value of the webTemplateID property. */
+  public void setWebTemplateID(int value) {
+    this.webTemplateID = value;
+  }
+
+  /** Gets the value of the reservationSourceID property. */
+  public int getReservationSourceID() {
+    return reservationSourceID;
+  }
+
+  /** Sets the value of the reservationSourceID property. */
+  public void setReservationSourceID(int value) {
+    this.reservationSourceID = value;
+  }
 }

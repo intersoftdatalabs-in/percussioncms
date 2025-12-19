@@ -17,22 +17,17 @@
 package com.percussion.pagemanagement.dao.impl;
 
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.springframework.core.task.TaskExecutor;
 
-public abstract class PSDirectoryFileDataUpdater<T>
-{
-    AtomicReference<T> atom;
-    TaskExecutor taskExector;
-    
-    public T get() {
-        return atom.get();
-    }
-    
-    protected void update(T data) {
-        atom.set(data);
-    }
-    
-    
+public abstract class PSDirectoryFileDataUpdater<T> {
+  AtomicReference<T> atom;
+  TaskExecutor taskExector;
 
+  public T get() {
+    return atom.get();
+  }
+
+  protected void update(T data) {
+    atom.set(data);
+  }
 }

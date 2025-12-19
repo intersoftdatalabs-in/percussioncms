@@ -16,29 +16,24 @@
  */
 package com.percussion.licensemanagement.error;
 
-/**
- * @author Lucas Piccoli
- *
- */
-public class PSLicenseServiceException extends RuntimeException
-{
+/** @author Lucas Piccoli */
+public class PSLicenseServiceException extends RuntimeException {
 
-    public PSLicenseServiceException()
-    {
-        super();
-    }
+  public PSLicenseServiceException() {
+    super();
+  }
 
-    public PSLicenseServiceException(String message)
-    {
-        super(message);
-    }
+  public PSLicenseServiceException(String message) {
+    super(message);
+  }
 
-    public PSLicenseServiceException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
-    
-    public static final String ERROR_SAVING_LICENSES = "Error occurred while saving the module licenses. Please see log for more details.";
-    public static final String ERROR_FINDING_LICENSE = "Error occurred while fetching the license for the supplied module '{0}'. Please see log for more details.";
-    public static final String LICENSE_NOT_FOUND = "License for the supplied module '{0}' not found.";
+  public PSLicenseServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public static final String ERROR_SAVING_LICENSES =
+      "Error occurred while saving the module licenses. Please see log for more details.";
+  public static final String ERROR_FINDING_LICENSE =
+      "Error occurred while fetching the license for the supplied module '{0}'. Please see log for more details.";
+  public static final String LICENSE_NOT_FOUND = "License for the supplied module '{0}' not found.";
 }

@@ -17,17 +17,18 @@
 
 package com.percussion.delivery.jaxrs;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import javax.ws.rs.ext.Provider;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+@Provider
+public class PSJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider {
+  // We Need to override org.codehaus.jackson.jaxrs.JsonMappingExceptionMapper and
+  // org.codehaus.jackson.jaxrs.JsonParseExceptionMapper
+  // These are included in the package we scan from com.sun.jersey.config.property.packages in
+  // web.xml
+  // We still want the JacksonJaxbJsonProvider so we just extend it and find it here.  we have some
+  // more options when we upgrade
+  // Jax-rs from 1.1 to 2.0
+  // See discussion here https://github.com/fasterxml/jackson-jaxrs-providers/issues/22
 
-@Provider  
-public class PSJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider
-{
-    // We Need to override org.codehaus.jackson.jaxrs.JsonMappingExceptionMapper and org.codehaus.jackson.jaxrs.JsonParseExceptionMapper
-    // These are included in the package we scan from com.sun.jersey.config.property.packages in web.xml
-    // We still want the JacksonJaxbJsonProvider so we just extend it and find it here.  we have some more options when we upgrade
-    // Jax-rs from 1.1 to 2.0
-    // See discussion here https://github.com/fasterxml/jackson-jaxrs-providers/issues/22
-    
 }

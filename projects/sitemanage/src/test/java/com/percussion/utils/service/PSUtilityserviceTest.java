@@ -19,53 +19,47 @@ package com.percussion.utils.service;
 
 import static org.junit.Assert.assertEquals;
 
-import com.percussion.security.PSEncryptor;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
+import com.percussion.security.PSEncryptor;
 import com.percussion.utils.service.impl.PSUtilityService;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class PSUtilityserviceTest
-{
+public class PSUtilityserviceTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private String rxdeploydir;
+  private String rxdeploydir;
 
-    @Before
-    public void setup(){
-        this.rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
-    }
+  @Before
+  public void setup() {
+    this.rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
 
-    @After
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  @After
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
+  @Test
+  public void encryptDecryptStringTest() {
+    String defaultKey =
+        PSLegacyEncrypter.getInstance(
+                temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+            .DEFAULT_KEY();
 
-    @Test
-    public void encryptDecryptStringTest()
-    {
-        String defaultKey = PSLegacyEncrypter.getInstance(
-                temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
-        ).DEFAULT_KEY();
+    String stringTobeEncrypted = "http://www.yahoo.com";
 
-        String stringTobeEncrypted = "http://www.yahoo.com";
+    PSUtilityService service = new PSUtilityService();
 
-        PSUtilityService service = new PSUtilityService();
+    String encryptedString = service.encryptString(stringTobeEncrypted, defaultKey);
 
-        String encryptedString = service.encryptString(stringTobeEncrypted, defaultKey);
-
-        String decryptedString = service.decryptString(encryptedString, defaultKey);
-        assertEquals(stringTobeEncrypted, decryptedString);
-
-    }
+    String decryptedString = service.decryptString(encryptedString, defaultKey);
+    assertEquals(stringTobeEncrypted, decryptedString);
+  }
 }

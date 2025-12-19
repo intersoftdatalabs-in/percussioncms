@@ -22,31 +22,29 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-/**
- * @author Steffen Gates May 9, 2011
- */
+/** @author Steffen Gates May 9, 2011 */
 public class Attr {
-    
-    @Attribute(required = true)
-    public String name;
-    
-    @Attribute(required = true)
-    public int langID;
-    
-    @ElementList(inline = true)
-    public List<Value> values;
-    
-    public Attr() {}
-    
-    public Attr(String name, int langID){
-        this.name = name;
-        this.langID = langID;
+
+  @Attribute(required = true)
+  public String name;
+
+  @Attribute(required = true)
+  public int langID;
+
+  @ElementList(inline = true)
+  public List<Value> values;
+
+  public Attr() {}
+
+  public Attr(String name, int langID) {
+    this.name = name;
+    this.langID = langID;
+  }
+
+  public void addValue(Value val) {
+    if (values == null) {
+      values = new ArrayList<Value>();
     }
-    
-    public void addValue(Value val){
-        if(values == null){
-            values = new ArrayList<Value>();
-        }
-        values.add(val);
-    }
+    values.add(val);
+  }
 }

@@ -21,43 +21,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-class PerformanceStats
-{
-    public String identifier;
+class PerformanceStats {
+  public String identifier;
 
-    public String className;
+  public String className;
 
-    public long count;
+  public long count;
 
-    public long totalTime;
+  public long totalTime;
 
-    public long lastTotalTime;
+  public long lastTotalTime;
 
-    public long maxTime;
+  public long maxTime;
 
-    public PerformanceStats(String identifier)
-    {
-        this.identifier = identifier;
-    }
+  public PerformanceStats(String identifier) {
+    this.identifier = identifier;
+  }
 }
 
+public class PSHelperPerformanceMonitor {
 
-public class PSHelperPerformanceMonitor
-{
+  public static final String SEPARATOR = "::";
 
-    public static final String SEPARATOR = "::";
+  private static long statLogFrequency = 100;
 
-    private static long statLogFrequency = 100;
+  private static long methodWarningThreshold = 3000;
 
-    private static long methodWarningThreshold = 3000;
+  private static ConcurrentHashMap<String, PerformanceStats> performanceStats =
+      new ConcurrentHashMap<>();
 
-    private static ConcurrentHashMap<String, PerformanceStats> performanceStats = new ConcurrentHashMap<>();
+  private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
 
-    private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
-
-    public static void updateStats(String identifier, long elapsedTime)
-    {
-    	/*
+  public static void updateStats(String identifier, long elapsedTime) {
+    /*
         PerformanceStats stats = performanceStats.get(identifier);
         if (stats == null)
         {
@@ -85,14 +81,11 @@ public class PSHelperPerformanceMonitor
         if (stats.count % statLogFrequency == 0)
         {
             long avgTime = stats.totalTime / stats.count;
-            log.info("Performance Statistics for: " + identifier + " at execution count " + stats.count + 
+            log.info("Performance Statistics for: " + identifier + " at execution count " + stats.count +
                     ", average Time = " + avgTime + ", maximum time = " + stats.maxTime);
             // reset the last total time
             stats.lastTotalTime = stats.totalTime;
         }
     */
-    }
-
-   
-
+  }
 }

@@ -15,182 +15,128 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
+/** */
 package com.percussion.pagemanagement.assembler;
 
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @author Administrator
- * 
- */
-public class PSMetadataEntry
-{
-    private String pagepath;
+/** @author Administrator */
+public class PSMetadataEntry {
+  private String pagepath;
 
-    private String name;
+  private String name;
 
-    private String folder;
+  private String folder;
 
-    private String linktext;
+  private String linktext;
 
-    private String type;
+  private String type;
 
-    private String site;
+  private String site;
 
-    private Set<PSMetadataProperty> properties = new HashSet<>();
+  private Set<PSMetadataProperty> properties = new HashSet<>();
 
-    public PSMetadataEntry()
-    {
+  public PSMetadataEntry() {}
 
-    }
+  /**
+   * Ctor
+   *
+   * @param name the file name, cannot be <code>null</code> or empty.
+   * @param folder the folder path of the containing folder without the site folder. Cannot be
+   *     <code>null</code> or empty.
+   * @param pagepath the path of the file including sitefolder. This is used as a unique key for the
+   *     entry. Cannot be <code>null</code> or empty.
+   * @param type
+   */
+  public PSMetadataEntry(String name, String folder, String pagepath, String type, String site) {
+    if (name == null || name.length() == 0)
+      throw new IllegalArgumentException("name cannot be null or empty");
+    if (folder == null || folder.length() == 0)
+      throw new IllegalArgumentException("folder cannot be null or empty");
+    if (pagepath == null || pagepath.length() == 0)
+      throw new IllegalArgumentException("pagepath cannot be null or empty");
+    if (site == null || site.length() == 0)
+      throw new IllegalArgumentException("site cannot be null or empty");
+    this.name = name;
+    this.folder = folder;
+    this.type = type;
+    this.pagepath = pagepath;
+    this.site = site;
+  }
 
-    /**
-     * Ctor
-     * 
-     * @param name the file name, cannot be <code>null</code> or empty.
-     * @param folder the folder path of the containing folder without the site
-     *            folder. Cannot be <code>null</code> or empty.
-     * @param pagepath the path of the file including sitefolder. This is used
-     *            as a unique key for the entry. Cannot be <code>null</code> or
-     *            empty.
-     * @param type
-     */
-    public PSMetadataEntry(String name, String folder, String pagepath, String type, String site)
-    {
-        if (name == null || name.length() == 0)
-            throw new IllegalArgumentException("name cannot be null or empty");
-        if (folder == null || folder.length() == 0)
-            throw new IllegalArgumentException("folder cannot be null or empty");
-        if (pagepath == null || pagepath.length() == 0)
-            throw new IllegalArgumentException("pagepath cannot be null or empty");
-        if (site == null || site.length() == 0)
-            throw new IllegalArgumentException("site cannot be null or empty");
-        this.name = name;
-        this.folder = folder;
-        this.type = type;
-        this.pagepath = pagepath;
-        this.site = site;
-    }
+  /** @return the name */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+  /** @param name the name to set */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  /** @return the folder */
+  public String getFolder() {
+    return folder;
+  }
 
-    /**
-     * @return the folder
-     */
-    public String getFolder()
-    {
-        return folder;
-    }
+  /** @param folder the folder to set */
+  public void setFolder(String folder) {
+    this.folder = folder;
+  }
 
-    /**
-     * @param folder the folder to set
-     */
-    public void setFolder(String folder)
-    {
-        this.folder = folder;
-    }
+  /** @return the page path */
+  public String getPagepath() {
+    return pagepath;
+  }
 
-    /**
-     * @return the page path
-     */
-    public String getPagepath()
-    {
-        return pagepath;
-    }
+  /** @param path the pagepath to set */
+  public void setPagepath(String path) {
+    this.pagepath = path;
+  }
 
-    /**
-     * @param path the pagepath to set
-     */
-    public void setPagepath(String path)
-    {
-        this.pagepath = path;
-    }
+  /** @return the linktext */
+  public String getLinktext() {
+    return linktext;
+  }
 
-    /**
-     * @return the linktext
-     */
-    public String getLinktext()
-    {
-        return linktext;
-    }
+  /** @param linktext the linktext to set */
+  public void setLinktext(String linktext) {
+    this.linktext = linktext;
+  }
 
-    /**
-     * @param linktext the linktext to set
-     */
-    public void setLinktext(String linktext)
-    {
-        this.linktext = linktext;
-    }
+  /** @return the type */
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
-        return type;
-    }
+  /** @param type the type to set */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+  /** @return the site */
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * @return the site
-     */
-    public String getSite()
-    {
-        return site;
-    }
+  /** @param site the site to set */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site)
-    {
-        this.site = site;
-    }
+  /** @return the properties */
+  public Set<PSMetadataProperty> getProperties() {
+    return properties;
+  }
 
-    /**
-     * @return the properties
-     */
-    public Set<PSMetadataProperty> getProperties()
-    {
-        return properties;
-    }
+  /** @param properties the properties to set */
+  public void setProperties(Set<PSMetadataProperty> properties) {
+    this.properties = properties;
+  }
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(Set<PSMetadataProperty> properties)
-    {
-        this.properties = properties;
-    }
-
-    public void addProperty(PSMetadataProperty prop)
-    {
-        prop.setMetadataEntry(this);
-        this.properties.add(prop);
-    }
+  public void addProperty(PSMetadataProperty prop) {
+    prop.setMetadataEntry(this);
+    this.properties.add(prop);
+  }
 }

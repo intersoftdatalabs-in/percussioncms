@@ -16,11 +16,15 @@
  */
 /*
  * test.percussion.pso.preview ActionActiveAssemblyControllerTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package test.percussion.pso.preview;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.error.PSException;
@@ -34,6 +38,10 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsContentSummaries;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
@@ -43,104 +51,101 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+public class ActionActiveAssemblyControllerTest {
+  private static final Logger log = LogManager.getLogger(ActionActiveAssemblyControllerTest.class);
+  TestableActiveAssemblyController cut;
+  Mockery context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+  IPSAssemblyService asm;
+  IPSCmsContentSummaries sumsvc;
+  PSOObjectFinder finder;
 
-public class ActionActiveAssemblyControllerTest
-{
-   private static final Logger log = LogManager.getLogger(ActionActiveAssemblyControllerTest.class);
-   TestableActiveAssemblyController cut; 
-   Mockery context; 
-   
-   IPSAssemblyService asm; 
-   IPSCmsContentSummaries sumsvc;
-   PSOObjectFinder finder;
-   
-   @Before
-   public void setUp() throws Exception
-   {
-      context = new Mockery() {{setImposteriser(ClassImposteriser.INSTANCE);}};
-      
-      cut = new TestableActiveAssemblyController(); 
-      asm = context.mock(IPSAssemblyService.class);
-      sumsvc = context.mock(IPSCmsContentSummaries.class); 
-      finder = context.mock(PSOObjectFinder.class);
-      
-      AbstractMenuController.setAsm(asm);
-      AbstractMenuController.setObjectFinder(finder); 
-      
-      
-      
-      cut.setTestCommunityVisibility(false); 
-      
-   }
-   @SuppressWarnings("serial")
-@Test
-   @Ignore("Test us failing") //TODO: Fix me
-   public final void testFindVisibleTemplates()
-   {
-      final IPSSite site = context.mock(IPSSite.class);
-      final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class);
-      final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class); 
-      
-      final PSComponentSummary summ = context.mock(PSComponentSummary.class);
-      final List<IPSAssemblyTemplate> templates = new ArrayList<IPSAssemblyTemplate>()
-       {{add(t1);add(t2);}}; 
-      
-      final IPSGuid ctype = new PSLegacyGuid(123L);
-       
-      try
-      {
-         context.checking(new Expectations(){{
-            one(asm).findTemplatesByContentType(with(any(IPSGuid.class)));
-            will(returnValue(templates)); 
-            one(finder).getComponentSummaryById("2"); 
-            will(returnValue(summ)); 
-            one(summ).getContentTypeGUID(); 
-            will(returnValue(ctype));
-            allowing(site).getAssociatedTemplates();
-            will(returnValue(Collections.singleton(t2)));
-            allowing(site).getName();will(returnValue("mySite"));
-            allowing(t1).getName();will(returnValue("t1")); 
-            allowing(t1).getOutputFormat(); will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-            allowing(t2).getName();will(returnValue("t2"));
-            allowing(t2).getOutputFormat(); will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-            allowing(t2).getActiveAssemblyType(); will(returnValue(IPSAssemblyTemplate.AAType.Normal)); 
-         }});
-         
-         List<IPSAssemblyTemplate> results = cut.findVisibleTemplates("2", Collections.<IPSSite>singleton(site));
-         assertNotNull(results); 
-         assertEquals(1, results.size()); 
-         
-         context.assertIsSatisfied(); 
-        
-      } catch (Exception ex)
-      {
-         log.error("Unexpected Exception " + ex,ex);
-         fail("Exception"); 
-      } 
-   }
-   
-   private class TestableActiveAssemblyController extends ActionActiveAssemblyController
-   {
-         
-      
-      /**
-       * @see ActionActiveAssemblyController#findVisibleTemplates(String, Set)
-       */
-      @Override
-      public List<IPSAssemblyTemplate> findVisibleTemplates(
-            String contentid, Set<IPSSite> sites) throws PSException,
-            PSAssemblyException
-      {
-         return super.findVisibleTemplates(contentid, sites);
-      }
-      
-   }
+  @Before
+  public void setUp() throws Exception {
+    context =
+        new Mockery() {
+          {
+            setImposteriser(ClassImposteriser.INSTANCE);
+          }
+        };
+
+    cut = new TestableActiveAssemblyController();
+    asm = context.mock(IPSAssemblyService.class);
+    sumsvc = context.mock(IPSCmsContentSummaries.class);
+    finder = context.mock(PSOObjectFinder.class);
+
+    AbstractMenuController.setAsm(asm);
+    AbstractMenuController.setObjectFinder(finder);
+
+    cut.setTestCommunityVisibility(false);
+  }
+
+  @SuppressWarnings("serial")
+  @Test
+  @Ignore("Test us failing") // TODO: Fix me
+  public final void testFindVisibleTemplates() {
+    final IPSSite site = context.mock(IPSSite.class);
+    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class);
+    final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class);
+
+    final PSComponentSummary summ = context.mock(PSComponentSummary.class);
+    final List<IPSAssemblyTemplate> templates =
+        new ArrayList<IPSAssemblyTemplate>() {
+          {
+            add(t1);
+            add(t2);
+          }
+        };
+
+    final IPSGuid ctype = new PSLegacyGuid(123L);
+
+    try {
+      context.checking(
+          new Expectations() {
+            {
+              one(asm).findTemplatesByContentType(with(any(IPSGuid.class)));
+              will(returnValue(templates));
+              one(finder).getComponentSummaryById("2");
+              will(returnValue(summ));
+              one(summ).getContentTypeGUID();
+              will(returnValue(ctype));
+              allowing(site).getAssociatedTemplates();
+              will(returnValue(Collections.singleton(t2)));
+              allowing(site).getName();
+              will(returnValue("mySite"));
+              allowing(t1).getName();
+              will(returnValue("t1"));
+              allowing(t1).getOutputFormat();
+              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
+              allowing(t2).getName();
+              will(returnValue("t2"));
+              allowing(t2).getOutputFormat();
+              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
+              allowing(t2).getActiveAssemblyType();
+              will(returnValue(IPSAssemblyTemplate.AAType.Normal));
+            }
+          });
+
+      List<IPSAssemblyTemplate> results =
+          cut.findVisibleTemplates("2", Collections.<IPSSite>singleton(site));
+      assertNotNull(results);
+      assertEquals(1, results.size());
+
+      context.assertIsSatisfied();
+
+    } catch (Exception ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("Exception");
+    }
+  }
+
+  private class TestableActiveAssemblyController extends ActionActiveAssemblyController {
+
+    /** @see ActionActiveAssemblyController#findVisibleTemplates(String, Set) */
+    @Override
+    public List<IPSAssemblyTemplate> findVisibleTemplates(String contentid, Set<IPSSite> sites)
+        throws PSException, PSAssemblyException {
+      return super.findVisibleTemplates(contentid, sites);
+    }
+  }
 }

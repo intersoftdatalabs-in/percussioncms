@@ -17,80 +17,74 @@
 
 package com.percussion.recent.web.service;
 
+import static org.junit.Assert.assertTrue;
+
 import com.percussion.share.test.fixtures.PSRestFixtures;
 import com.percussion.test.PSRestClientTestCase;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.assertTrue;
-
-//TODO: Implement Me
+// TODO: Implement Me
 @Category(IntegrationTest.class)
-public class PSRecentRestServiceTest extends PSRestClientTestCase
-{
+public class PSRecentRestServiceTest extends PSRestClientTestCase {
 
-    PSRestFixtures fixtures;
-    /*   
-    public PSRecentRestServiceTest(String testName)
-    {
-        super(testName);
-        
-    }
-*/
-    @Override
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        //  need to update jackson/to get json unwrap working
-        // fixtures = new PSRestFixtures(c,r);
-        //fixtures.createSite();
-    }
+  PSRestFixtures fixtures;
+  /*
+      public PSRecentRestServiceTest(String testName)
+      {
+          super(testName);
 
-    @Test
-    public void _testMyResource()
-    {
-        assertTrue(true);
-        /*
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-        formData.add("value", "16777215-101-708");
-        
-        WebResource wr = r.path("services/recentmanagement/recent/item")
-                .path("test1");
+      }
+  */
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    //  need to update jackson/to get json unwrap working
+    // fixtures = new PSRestFixtures(c,r);
+    // fixtures.createSite();
+  }
 
-        ClientResponse response = getBuilder(wr)
-                .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .post(ClientResponse.class, formData);
-        
-        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        */
-    }
+  @Test
+  public void _testMyResource() {
+    assertTrue(true);
+    /*
+    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+    formData.add("value", "16777215-101-708");
 
-    @Test
-    public void _testMyResource2()
-    {
-        assertTrue(true);
-        /*
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-        formData.add("value", "16777215-101-708");
-        
-        
-        WebResource wr = r.path("services/recentmanagement/recent/item")
-                .path("16777215-101-708");
+    WebResource wr = r.path("services/recentmanagement/recent/item")
+            .path("test1");
 
-        ClientResponse response = getBuilder(wr)
-                .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .post(ClientResponse.class, formData);
-        
-        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+    ClientResponse response = getBuilder(wr)
+            .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+            .post(ClientResponse.class, formData);
 
-        */
-    }
-    
-    @Test
-    public void testToBeCompleted()
-    {
-        assertTrue(true);
-    }
-    
+    assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+    */
+  }
+
+  @Test
+  public void _testMyResource2() {
+    assertTrue(true);
+    /*
+    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+    formData.add("value", "16777215-101-708");
+
+
+    WebResource wr = r.path("services/recentmanagement/recent/item")
+            .path("16777215-101-708");
+
+    ClientResponse response = getBuilder(wr)
+            .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+            .post(ClientResponse.class, formData);
+
+    assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+    */
+  }
+
+  @Test
+  public void testToBeCompleted() {
+    assertTrue(true);
+  }
 }

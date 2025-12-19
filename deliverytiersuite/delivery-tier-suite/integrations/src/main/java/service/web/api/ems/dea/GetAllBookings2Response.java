@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getAllBookings2Result"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getAllBookings2Result"})
 @XmlRootElement(name = "GetAllBookings2Response")
 public class GetAllBookings2Response {
 
-    @XmlElement(name = "GetAllBookings2Result")
-    protected String getAllBookings2Result;
+  @XmlElement(name = "GetAllBookings2Result")
+  protected String getAllBookings2Result;
 
-    /**
-     * Gets the value of the getAllBookings2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetAllBookings2Result() {
-        return getAllBookings2Result;
-    }
+  /**
+   * Gets the value of the getAllBookings2Result property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetAllBookings2Result() {
+    return getAllBookings2Result;
+  }
 
-    /**
-     * Sets the value of the getAllBookings2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetAllBookings2Result(String value) {
-        this.getAllBookings2Result = value;
-    }
-
+  /**
+   * Sets the value of the getAllBookings2Result property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetAllBookings2Result(String value) {
+    this.getAllBookings2Result = value;
+  }
 }

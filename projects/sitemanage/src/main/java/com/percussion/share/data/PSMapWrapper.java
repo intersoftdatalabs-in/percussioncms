@@ -17,52 +17,41 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A simple wrapper around a map class to allow it to be serialized by CXF.
- * @author erikserating
  *
+ * @author erikserating
  */
-
 @JsonRootName(value = "psmap")
+public class PSMapWrapper {
 
-public class PSMapWrapper{
-   
-      
-   public Map<String, String> getEntries()
-   {
-      return entries;
-   }
-   
-   public void setEntries(Map<String, String> map)
-   {
-      this.entries = map;
-   }
-   
-   
-    @Override
-    public int hashCode()
-    {
-        return entries.hashCode();
+  public Map<String, String> getEntries() {
+    return entries;
+  }
+
+  public void setEntries(Map<String, String> map) {
+    this.entries = map;
+  }
+
+  @Override
+  public int hashCode() {
+    return entries.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    boolean isEqual = false;
+    if (obj instanceof PSMapWrapper) {
+      isEqual = entries.equals(((PSMapWrapper) obj).getEntries());
     }
 
-    @Override
-    public boolean equals(Object obj)
-    {
-        boolean isEqual = false;
-        if (obj instanceof PSMapWrapper)
-        {
-            isEqual = entries.equals(((PSMapWrapper)obj).getEntries());
-        }
-        
-        return isEqual;
-    }
-    
+    return isEqual;
+  }
 
-private Map<String, String> entries = new HashMap<>();
-   
-   private static final long serialVersionUID = 8252999104256582955L;
+  private Map<String, String> entries = new HashMap<>();
+
+  private static final long serialVersionUID = 8252999104256582955L;
 }

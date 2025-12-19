@@ -18,19 +18,13 @@ package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
 
+/** @author natechadwick */
+public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest {
 
-/**
- * @author natechadwick
- *
- */
-public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest{
+  /** @param wad */
+  //	public PSTenantSecurityFilterTest(WebAppDescriptor wad) {
+  //		super(wad);
+  //		// TODO Auto-generated constructor stub
+  //	}
 
-	/**
-	 * @param wad
-	 */
-//	public PSTenantSecurityFilterTest(WebAppDescriptor wad) {
-//		super(wad);
-//		// TODO Auto-generated constructor stub
-//	}
-	
 }

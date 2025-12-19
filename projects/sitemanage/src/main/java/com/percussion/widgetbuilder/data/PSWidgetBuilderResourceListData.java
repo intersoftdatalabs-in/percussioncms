@@ -19,73 +19,65 @@ package com.percussion.widgetbuilder.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Container object for a list of resource files
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-@XmlRootElement(name="WidgetBuilderResourceListData")
+@XmlRootElement(name = "WidgetBuilderResourceListData")
 @JsonRootName("WidgetBuilderResourceListData")
-public class PSWidgetBuilderResourceListData extends PSAbstractDataObject
-{
-    private List<String> resourceList = new ArrayList<>();
+public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
+  private List<String> resourceList = new ArrayList<>();
 
-    public static PSWidgetBuilderResourceListData fromXml(String resourceXml)
-    {
-        return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
-    }
-    
-    public String toXml()
-    {
-        return PSSerializerUtils.marshal(this);
-    }
-    
-    /**
-     * Get the list of resources in this list.
-     * 
-     * @return The list, not <code>null</code>, may be empty.
-     */
-    public List<String> getResourceList()
-    {
-        return resourceList;
-    }
+  public static PSWidgetBuilderResourceListData fromXml(String resourceXml) {
+    return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
+  }
 
-    /**
-     * Set the list of resources
-     * 
-     * @param resourceList The list, not <code>null</code>, may be empty.
-     */
-    public void setResourceList(List<String> resourceList)
-    {
-        this.resourceList = resourceList;
-    }
+  public String toXml() {
+    return PSSerializerUtils.marshal(this);
+  }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSWidgetBuilderResourceListData{");
-        sb.append("resourceList=").append(resourceList);
-        sb.append('}');
-        return sb.toString();
-    }
+  /**
+   * Get the list of resources in this list.
+   *
+   * @return The list, not <code>null</code>, may be empty.
+   */
+  public List<String> getResourceList() {
+    return resourceList;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
-        PSWidgetBuilderResourceListData that = (PSWidgetBuilderResourceListData) o;
-        return Objects.equals(getResourceList(), that.getResourceList());
-    }
+  /**
+   * Set the list of resources
+   *
+   * @param resourceList The list, not <code>null</code>, may be empty.
+   */
+  public void setResourceList(List<String> resourceList) {
+    this.resourceList = resourceList;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getResourceList());
-    }
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSWidgetBuilderResourceListData{");
+    sb.append("resourceList=").append(resourceList);
+    sb.append('}');
+    return sb.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
+    PSWidgetBuilderResourceListData that = (PSWidgetBuilderResourceListData) o;
+    return Objects.equals(getResourceList(), that.getResourceList());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getResourceList());
+  }
 }

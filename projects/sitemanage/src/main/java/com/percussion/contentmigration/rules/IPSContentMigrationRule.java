@@ -19,19 +19,20 @@ package com.percussion.contentmigration.rules;
 
 import org.jsoup.nodes.Document;
 
-public interface IPSContentMigrationRule
-{
-    /**
-     * Finds the matching content based on the rule implementation and returns it, if the content is not found returns <code>null</code>, so that
-     * other rules can be applied to match the content.
-     * @param widgetId must not be <code>null</code>.
-     * @param sourceDoc must not be <code>null</code>, either a rendered page document or rendered template document if the page doesn't exist.
-     * @param targetDoc must not be <code>null</code>, the target page document.
-     * @return String matched content or <code>null</code> if not found.
-     */
-    String findMatchingContent(String widgetId, Document sourceDoc, Document targetDoc);
-    
-    static String ATTR_WIDGET_ID = "widgetid";
-    static String CLASS_PERC_REGION = "perc-region";
-    static String PERC_CLASS_PREFIX = "perc-";
+public interface IPSContentMigrationRule {
+  /**
+   * Finds the matching content based on the rule implementation and returns it, if the content is
+   * not found returns <code>null</code>, so that other rules can be applied to match the content.
+   *
+   * @param widgetId must not be <code>null</code>.
+   * @param sourceDoc must not be <code>null</code>, either a rendered page document or rendered
+   *     template document if the page doesn't exist.
+   * @param targetDoc must not be <code>null</code>, the target page document.
+   * @return String matched content or <code>null</code> if not found.
+   */
+  String findMatchingContent(String widgetId, Document sourceDoc, Document targetDoc);
+
+  static String ATTR_WIDGET_ID = "widgetid";
+  static String CLASS_PERC_REGION = "perc-region";
+  static String PERC_CLASS_PREFIX = "perc-";
 }

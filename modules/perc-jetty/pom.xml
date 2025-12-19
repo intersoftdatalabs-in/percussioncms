@@ -1,218 +1,279 @@
-
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.percussion</groupId>
-    <artifactId>core</artifactId>
-    <version>8.1.6-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <artifactId>perc-jetty</artifactId>
-  <name>perc-jetty</name>
-   <packaging>pom</packaging>
-
-  <properties>
-    <assembly-directory>${basedir}/target/distribution</assembly-directory>
-    <jetty-directory>${basedir}/target/jetty</jetty-directory>
-      <extensions-directory>${assembly-directory}/defaults/modules/extensions</extensions-directory>
-  </properties>
-
-
-  <build>
-
-       <plugins>
-           <plugin>
-           <groupId>com.github.spotbugs</groupId>
-           <artifactId>spotbugs-maven-plugin</artifactId>
-               <configuration>
-                   <skip>true</skip>
-               </configuration>
-           </plugin>
-      <!--
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
+        <version>8.1.6-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>perc-jetty</artifactId>
+    <packaging>pom</packaging>
+    <name>perc-jetty</name>
+    <properties>
+        <assembly-directory>${basedir}/target/distribution</assembly-directory>
+        <extensions-directory>${assembly-directory}/defaults/modules/extensions</extensions-directory>
+        <jetty-directory>${basedir}/target/jetty</jetty-directory>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.derby/derbyclient -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc8.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>sitemanage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-jetty-jars</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-jetty-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <!--
       Copies the additional distribution content over the unpacked jetty-home
       artifact contents, after the antrun execution that initially populates
       the jetty-distribution directory
       -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-base-assembly-tree</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <useBuildFilters>false</useBuildFilters>
-              <includeEmptyDirs>true</includeEmptyDirs>
-              <outputDirectory>${assembly-directory}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/src/main/resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-base-assembly-tree</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <useBuildFilters>false</useBuildFilters>
+                            <includeEmptyDirs>true</includeEmptyDirs>
+                            <outputDirectory>${assembly-directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <!--
           The jetty-home artifact is the starting point for the jetty-distribution
           and must happen early in the build process
           -->
-          <execution>
-            <id>unpack-jetty-distribution</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.eclipse.jetty</groupId>
-                  <artifactId>jetty-distribution</artifactId>
-                  <version>${jetty.version}</version>
-                  <type>zip</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${jetty-directory}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.percussion</groupId>
-                  <artifactId>perc-jetty-jars</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${assembly-directory}/defaults/lib/perc</outputDirectory>
-                </artifactItem>
-                  <artifactItem>
-                  <groupId>com.percussion</groupId>
-                  <artifactId>perc-jetty-logging</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${assembly-directory}/defaults/lib/perc-logging</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-             <excludes>META-INF/**</excludes>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>unpack-perc-war</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.percussion</groupId>
-                  <artifactId>perc-web-ui</artifactId>
-                  <version>${project.version}</version>
-                  <type>war</type>
-                  <overWrite>true</overWrite>
-                  <includes>**</includes>
-                  <outputDirectory>${assembly-directory}/base/webapps/Rhythmyx</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-
-            </configuration>
-          </execution>
-            <execution>
-                <id>copy</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>copy</goal>
-                </goals>
-                <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>org.apache.derby</groupId>
-                            <artifactId>derbynet</artifactId>
-                            <version>${derby.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.apache.derby</groupId>
-                            <artifactId>derby</artifactId>
-                            <version>${derby.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.apache.derby</groupId>
-                            <artifactId>derbyclient</artifactId>
-                            <version>${derby.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>net.sourceforge.jtds</groupId>
-                            <artifactId>jtds</artifactId>
-                            <version>${jtds.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>com.microsoft.sqlserver</groupId>
-                            <artifactId>mssql-jdbc</artifactId>
-                            <version>${mssql.version}</version>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                        <artifactItem>
-                          <groupId>com.oracle.ojdbc</groupId>
-                          <artifactId>ojdbc8</artifactId>
-                          <version>${ojdbc8.version}</version>
-                          <type>jar</type>
-                          <overWrite>true</overWrite>
-                          <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
-                        </artifactItem>
-                    </artifactItems>
-                </configuration>
-            </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>populate perc distribution from jetty</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <copy todir="${assembly-directory}/upstream">
-                  <fileset dir="${jetty-directory}/jetty-distribution-${jetty.version}/" />
-                </copy>
-                <!--Copying the Jetty jar having fix from jetty project for bug CMS-6724 -->
-                  <copy todir="${assembly-directory}/upstream/lib/">
-                      <fileset dir="${basedir}/../../system/Tools/jetty/upstream/lib/" />
-                  </copy>
-                 <copy todir="${assembly-directory}">
-                  <fileset dir="${basedir}/../../system/Tools/jetty">
-                      <exclude name="jetty-distribution-*" />
-                  </fileset>
-                </copy>
-              </target>
-            </configuration>
-          </execution>
-          <!--
+                    <execution>
+                        <id>unpack-jetty-distribution</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.jetty</groupId>
+                                    <artifactId>jetty-distribution</artifactId>
+                                    <version>${jetty.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${jetty-directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-jetty-jars</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/defaults/lib/perc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-jetty-logging</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/defaults/lib/perc-logging</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>META-INF/**</excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-perc-war</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-web-ui</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>war</type>
+                                    <overWrite>true</overWrite>
+                                    <includes>**</includes>
+                                    <outputDirectory>${assembly-directory}/base/webapps/Rhythmyx</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbynet</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derby</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.derby</groupId>
+                                    <artifactId>derbyclient</artifactId>
+                                    <version>${derby.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>net.sourceforge.jtds</groupId>
+                                    <artifactId>jtds</artifactId>
+                                    <version>${jtds.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.microsoft.sqlserver</groupId>
+                                    <artifactId>mssql-jdbc</artifactId>
+                                    <version>${mssql.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.oracle.ojdbc</groupId>
+                                    <artifactId>ojdbc8</artifactId>
+                                    <version>${ojdbc8.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.percussion</groupId>
+                        <artifactId>perc-system</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>populate perc distribution from jetty</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="${assembly-directory}/upstream">
+                                    <fileset dir="${jetty-directory}/jetty-distribution-${jetty.version}/"/>
+                                </copy>
+                                <!--Copying the Jetty jar having fix from jetty project for bug CMS-6724 -->
+                                <copy todir="${assembly-directory}/upstream/lib/">
+                                    <fileset dir="${basedir}/../../system/Tools/jetty/upstream/lib/"/>
+                                </copy>
+                                <copy todir="${assembly-directory}">
+                                    <fileset dir="${basedir}/../../system/Tools/jetty">
+                                        <exclude name="jetty-distribution-*"/>
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!--
           <execution>
             <id>set jetty.sh</id>
             <phase>process-resources</phase>
@@ -238,16 +299,9 @@
             </configuration>
           </execution>
         -->
-        </executions>
-          <dependencies>
-              <dependency>
-                  <groupId>com.percussion</groupId>
-                  <artifactId>perc-system</artifactId>
-                  <version>${project.version}</version>
-              </dependency>
-          </dependencies>
-      </plugin>
-      <!--  Add common license etc
+                </executions>
+            </plugin>
+            <!--  Add common license etc
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-remote-resources-plugin</artifactId>
@@ -267,15 +321,14 @@
         </executions>
       </plugin>
     -->
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <executions>
-          <!--
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <!--
           Setup the jetty distribution as a jetty.home/jetty.base combo using start.ini configuration mechanism
           -->
-          <!-- perc setup if required for defaults start.d
+                    <!-- perc setup if required for defaults start.d
           <execution>
             <id>setup home</id>
             <phase>process-classes</phase>
@@ -293,10 +346,10 @@
             </goals>
           </execution>
           -->
-          <!--
+                    <!--
           Setup the demo-base using the start.d configuration mechanism
           -->
-          <!--
+                    <!--
           <execution>
             <id>setup demo-base-startd</id>
             <phase>process-classes</phase>
@@ -313,93 +366,27 @@
             </goals>
           </execution>
         -->
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>src/main/assembly/jetty-assembly.xml</descriptor>
-          </descriptors>
-          <tarLongFileMode>posix</tarLongFileMode>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  <dependencies>
-      <dependency>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derbyclient</artifactId>
-          <version>${derby.version}</version>
-          <scope>provided</scope>
-      </dependency>
-      <!-- https://mvnrepository.com/artifact/org.apache.derby/derbyclient -->
-      <dependency>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derbynet</artifactId>
-          <version>${derby.version}</version>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derby</artifactId>
-          <version>${derby.version}</version>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>net.sourceforge.jtds</groupId>
-          <artifactId>jtds</artifactId>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>mssql-jdbc</artifactId>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>com.oracle.ojdbc</groupId>
-          <artifactId>ojdbc8</artifactId>
-          <version>${ojdbc8.version}</version>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>rest</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>sitemanage</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
- <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>perc-jetty-jars</artifactId>
-     <version>${project.version}</version>
-     <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>com.percussion</groupId>
-        <artifactId>perc-jetty-logging</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-    </dependency>
-      <dependency>
-          <groupId>org.apache.geronimo.components</groupId>
-          <artifactId>geronimo-jaspi</artifactId>
-      </dependency>
-  </dependencies>
-
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/jetty-assembly.xml</descriptor>
+                    </descriptors>
+                    <tarLongFileMode>posix</tarLongFileMode>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

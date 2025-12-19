@@ -23,44 +23,35 @@ import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.utils.date.PSDateRange;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-/**
- * @author erikserating
- *
- */
+/** @author erikserating */
 @PSSiteManageBean("analyticsProviderQueryService")
-public class PSAnalyticsProviderQueryService
-         implements
-            IPSAnalyticsProviderQueryService
-{
-    @Autowired
-   public PSAnalyticsProviderQueryService(IPSAnalyticsProviderQueryHandler handler)
-   {
-      this.handler = handler;
-   }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getPageViewsByPathPrefix(
-    *   java.lang.String, java.lang.String, com.percussion.utils.date.PSDateRange)
-    */
-   public List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
-            String sitename, String pathPrefix, PSDateRange range)
-           throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-      return handler.getPageViewsByPathPrefix(sitename, pathPrefix, range);
-   }
+public class PSAnalyticsProviderQueryService implements IPSAnalyticsProviderQueryService {
+  @Autowired
+  public PSAnalyticsProviderQueryService(IPSAnalyticsProviderQueryHandler handler) {
+    this.handler = handler;
+  }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getVisitsViewsBySite(
-    *   java.lang.String, com.percussion.utils.date.PSDateRange)
-    */
-   public List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String sitename,
-            PSDateRange range) throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-      return handler.getVisitsViewsBySite(sitename, range);
-   }
-   
-   IPSAnalyticsProviderQueryHandler handler;
+  /* (non-Javadoc)
+   * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getPageViewsByPathPrefix(
+   *   java.lang.String, java.lang.String, com.percussion.utils.date.PSDateRange)
+   */
+  public List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
+      String sitename, String pathPrefix, PSDateRange range)
+      throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+    return handler.getPageViewsByPathPrefix(sitename, pathPrefix, range);
+  }
 
+  /* (non-Javadoc)
+   * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getVisitsViewsBySite(
+   *   java.lang.String, com.percussion.utils.date.PSDateRange)
+   */
+  public List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String sitename, PSDateRange range)
+      throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+    return handler.getVisitsViewsBySite(sitename, range);
+  }
+
+  IPSAnalyticsProviderQueryHandler handler;
 }

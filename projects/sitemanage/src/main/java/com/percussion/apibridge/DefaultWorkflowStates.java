@@ -17,12 +17,11 @@
 
 package com.percussion.apibridge;
 
-public class DefaultWorkflowStates
-{
-	public final static String live = "Live";
-	public final static String quickEdit = "Quick Edit";
-	public final static String draft = "Draft";
-	public final static String archive = "Archive";
-	public final static String review = "Review";
-	public final static String pending = "Pending";
+public class DefaultWorkflowStates {
+  public static final String live = "Live";
+  public static final String quickEdit = "Quick Edit";
+  public static final String draft = "Draft";
+  public static final String archive = "Archive";
+  public static final String review = "Review";
+  public static final String pending = "Pending";
 }

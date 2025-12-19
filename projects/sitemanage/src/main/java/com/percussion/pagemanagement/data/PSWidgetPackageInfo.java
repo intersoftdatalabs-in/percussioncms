@@ -17,73 +17,59 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 /**
- * Additional information about a widget from the package that installed it.
- * The Id is the widget name.
- * 
- * @author JaySeletz
+ * Additional information about a widget from the package that installed it. The Id is the widget
+ * name.
  *
+ * @author JaySeletz
  */
 @XmlRootElement(name = "WidgetPackageInfo")
-public class PSWidgetPackageInfo extends PSAbstractPersistantObject
-{
-    private String id;
-    private String widgetName;
-    private String providerUrl;
-    private String version;
+public class PSWidgetPackageInfo extends PSAbstractPersistantObject {
+  private String id;
+  private String widgetName;
+  private String providerUrl;
+  private String version;
 
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id)
-    {
-        Validate.notEmpty(id);
-        this.id = id;
-    }
-    
-        public String getWidgetName()
-    {
-        return widgetName;
-    }
+  @Override
+  public void setId(String id) {
+    Validate.notEmpty(id);
+    this.id = id;
+  }
 
-    public void setWidgetName(String widgetName)
-    {
-        this.widgetName = widgetName;
-    }
+  public String getWidgetName() {
+    return widgetName;
+  }
 
-    /**
-     * Get the provider url from the package.
-     * 
-     * @return The url, may be <code>null<code/> or empty.
-     */
-    public String getProviderUrl()
-    {
-        return providerUrl;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public void setProviderUrl(String providerUrl)
-    {
-        this.providerUrl = providerUrl;
-    }
+  /**
+   * Get the provider url from the package.
+   *
+   * @return The url, may be <code>null<code/> or empty.
+   */
+  public String getProviderUrl() {
+    return providerUrl;
+  }
 
-    public String getVersion()
-    {
-        return version;
-    }
+  public void setProviderUrl(String providerUrl) {
+    this.providerUrl = providerUrl;
+  }
 
-    public void setVersion(String version)
-    {
-        this.version = version;
-    }
-    
-    
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 }

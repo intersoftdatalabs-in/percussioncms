@@ -20,36 +20,30 @@ package com.percussion.cloudservice.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "CloudServiceInfo")
-public class PSCloudServiceInfo
-{
-    protected String clientIdentity;
-    protected String uiProvider;
-    
-    public PSCloudServiceInfo() { }
-    
-    public PSCloudServiceInfo(String clientIdentity, String uiProvider)
-    {
-        this.clientIdentity = clientIdentity;
-        this.uiProvider = uiProvider;
-    }
-    
-    public String getClientIdentity()
-    {
-        return clientIdentity;
-    }
-    
-    public void setClientIdentity(String clientIdentity)
-    {
-        this.clientIdentity = clientIdentity;
-    }
-    
-    public String getUiProvider()
-    {
-        return uiProvider;
-    }
-    
-    public void setUiProvider(String uiProvider)
-    {
-        this.uiProvider = uiProvider;
-    }
+public class PSCloudServiceInfo {
+  protected String clientIdentity;
+  protected String uiProvider;
+
+  public PSCloudServiceInfo() {}
+
+  public PSCloudServiceInfo(String clientIdentity, String uiProvider) {
+    this.clientIdentity = clientIdentity;
+    this.uiProvider = uiProvider;
+  }
+
+  public String getClientIdentity() {
+    return clientIdentity;
+  }
+
+  public void setClientIdentity(String clientIdentity) {
+    this.clientIdentity = clientIdentity;
+  }
+
+  public String getUiProvider() {
+    return uiProvider;
+  }
+
+  public void setUiProvider(String uiProvider) {
+    this.uiProvider = uiProvider;
+  }
 }

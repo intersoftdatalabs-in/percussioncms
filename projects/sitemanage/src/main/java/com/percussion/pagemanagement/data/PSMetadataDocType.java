@@ -18,82 +18,65 @@ package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This class contains the structure of the doc type information for templates. The object is
- * composed of a selected doc type, and a list of
- * {@link PSMetadataDocTypeOptions}.
- * 
+ * composed of a selected doc type, and a list of {@link PSMetadataDocTypeOptions}.
+ *
  * @author leonardohildt
- * 
  */
 @XmlRootElement(name = "DocType")
 @JsonRootName("DocType")
-public class PSMetadataDocType extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = 1L;
+public class PSMetadataDocType extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
-    private String selected = "";
+  private String selected = "";
 
-    private List<PSMetadataDocTypeOptions> options = new ArrayList<>();
+  private List<PSMetadataDocTypeOptions> options = new ArrayList<>();
 
-    /**
-     * Constructor for new doc type. The default doc type set is html5.
-     * Used when a new template is added into the system.
-     */
-    public PSMetadataDocType()
-    {
-        super();
-    }
+  /**
+   * Constructor for new doc type. The default doc type set is html5. Used when a new template is
+   * added into the system.
+   */
+  public PSMetadataDocType() {
+    super();
+  }
 
-    /**
-     * @param selected the selected to set
-     */
-    public void setSelected(String selected)
-    {
-        this.selected = selected;
-    }
+  /** @param selected the selected to set */
+  public void setSelected(String selected) {
+    this.selected = selected;
+  }
 
-    /**
-     * @return the selected type
-     */
-    public String getSelected()
-    {
-        return selected;
-    }
+  /** @return the selected type */
+  public String getSelected() {
+    return selected;
+  }
 
-    /**
-     * @return the doc type options, may be empty but never <code>null</code>
-     */
-    public List<PSMetadataDocTypeOptions> getOptions()
-    {
-        return this.options;
-    }
+  /** @return the doc type options, may be empty but never <code>null</code> */
+  public List<PSMetadataDocTypeOptions> getOptions() {
+    return this.options;
+  }
 
-    /**
-     * @param options the doc type options to set, may be empty but never <code>null</code>
-     */
-    public void setOptions(List<PSMetadataDocTypeOptions> options)
-    {
-        this.options = options;
-    }
+  /** @param options the doc type options to set, may be empty but never <code>null</code> */
+  public void setOptions(List<PSMetadataDocTypeOptions> options) {
+    this.options = options;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSMetadataDocType)) return false;
-        PSMetadataDocType that = (PSMetadataDocType) o;
-        return Objects.equals(getSelected(), that.getSelected()) && Objects.equals(getOptions(), that.getOptions());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSMetadataDocType)) return false;
+    PSMetadataDocType that = (PSMetadataDocType) o;
+    return Objects.equals(getSelected(), that.getSelected())
+        && Objects.equals(getOptions(), that.getOptions());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSelected(), getOptions());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getSelected(), getOptions());
+  }
 }

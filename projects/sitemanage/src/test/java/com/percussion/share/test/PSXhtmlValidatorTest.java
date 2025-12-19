@@ -16,40 +16,33 @@
  */
 package com.percussion.share.test;
 
+import static com.percussion.share.test.PSMatchers.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
-import static com.percussion.share.test.PSMatchers.*;
+
 import org.junit.Test;
 
 /**
  * This is a Unit test of unit test code :)
- * @author adamgent
  *
+ * @author adamgent
  */
-public class PSXhtmlValidatorTest
-{
-    
-    @Test
-    public void testValidXhtmlMatcher() throws Exception
-    {
-        String xhtml = getHtml("test-xhtml-valid.html");
-        assertThat(xhtml, is(validXhtml()));
-    }
-    
-    
-    @Test
-    public void testInValidXhtmlMatcher() throws Exception
-    {
-        String xhtml = getHtml("test-xhtml-invalid.html");
-        assertThat(xhtml, is(not(validXhtml())));
-    }
-    
-    
-    private String getHtml(String name) {
-        return  PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
-    }
+public class PSXhtmlValidatorTest {
 
+  @Test
+  public void testValidXhtmlMatcher() throws Exception {
+    String xhtml = getHtml("test-xhtml-valid.html");
+    assertThat(xhtml, is(validXhtml()));
+  }
 
+  @Test
+  public void testInValidXhtmlMatcher() throws Exception {
+    String xhtml = getHtml("test-xhtml-invalid.html");
+    assertThat(xhtml, is(not(validXhtml())));
+  }
+
+  private String getHtml(String name) {
+    return PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
+  }
 }
-

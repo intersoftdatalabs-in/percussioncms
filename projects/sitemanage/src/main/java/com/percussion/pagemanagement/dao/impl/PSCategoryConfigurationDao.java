@@ -20,40 +20,34 @@ package com.percussion.pagemanagement.dao.impl;
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.share.dao.PSFileDataRepository;
 import com.percussion.share.dao.PSXmlFileDataRepository;
+import java.io.IOException;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Set;
-
 @Component("categoryConfigurationDao")
 @Lazy
-public class PSCategoryConfigurationDao extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration>
-{
-    public PSCategoryConfigurationDao()
-    {
-        super(PSCategoryConfiguration.class);
-    }
+public class PSCategoryConfigurationDao
+    extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration> {
+  public PSCategoryConfigurationDao() {
+    super(PSCategoryConfiguration.class);
+  }
 
-    @Override
-    protected PSCategoryConfiguration update(Set<PSFileDataRepository.PSFileEntry> files)
-            throws IOException, PSXmlFileDataRepositoryException {
-        if (files.isEmpty()) {
-            return new PSCategoryConfiguration();
-        }
-        PSFileEntry fe = files.iterator().next();
-        return fileToObject(fe);
+  @Override
+  protected PSCategoryConfiguration update(Set<PSFileDataRepository.PSFileEntry> files)
+      throws IOException, PSXmlFileDataRepositoryException {
+    if (files.isEmpty()) {
+      return new PSCategoryConfiguration();
     }
+    PSFileEntry fe = files.iterator().next();
+    return fileToObject(fe);
+  }
 
-    @Override
-    @Value("${rxdeploydir}/rxconfig/Categories")
-    public void setRepositoryDirectory(String widgetsRepositoryDirectory)
-    {
-        // TODO Auto-generated method stub
-        super.setRepositoryDirectory(widgetsRepositoryDirectory);
-    }
-    
-    
-
+  @Override
+  @Value("${rxdeploydir}/rxconfig/Categories")
+  public void setRepositoryDirectory(String widgetsRepositoryDirectory) {
+    // TODO Auto-generated method stub
+    super.setRepositoryDirectory(widgetsRepositoryDirectory);
+  }
 }

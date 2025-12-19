@@ -19,43 +19,35 @@ package com.percussion.maintenance.web.service;
 import static org.junit.Assert.assertFalse;
 
 import com.percussion.share.test.PSRestTestCase;
-
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSMaintenanceManagerRestServiceTest extends PSRestTestCase<PSMaintenanceManagerRestClient>
-{
-    
-    @Test
-    public void test()
-    {
-        assertFalse(restClient.isWorkInProgress());
-        assertFalse(restClient.hasFailures(false));
-        assertFalse(restClient.hasFailures(true));
-    }
-    
-    @Before
-    public void setupClient() throws Exception 
-    {
-        restClient = getRestClient(baseUrl);
-        setupClient(restClient, "Admin", 10);
-    }
+/** @author JaySeletz */
+public class PSMaintenanceManagerRestServiceTest
+    extends PSRestTestCase<PSMaintenanceManagerRestClient> {
 
-    /* (non-Javadoc)
-     * @see com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
-     */
-    @Override
-    protected PSMaintenanceManagerRestClient getRestClient(String baseUrl)
-    {
-        return new PSMaintenanceManagerRestClient(baseUrl);
-    }
+  @Test
+  public void test() {
+    assertFalse(restClient.isWorkInProgress());
+    assertFalse(restClient.hasFailures(false));
+    assertFalse(restClient.hasFailures(true));
+  }
 
-    public PSMaintenanceManagerRestClient getRestClient()
-    {
-        return restClient;
-    }
+  @Before
+  public void setupClient() throws Exception {
+    restClient = getRestClient(baseUrl);
+    setupClient(restClient, "Admin", 10);
+  }
+
+  /* (non-Javadoc)
+   * @see com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
+   */
+  @Override
+  protected PSMaintenanceManagerRestClient getRestClient(String baseUrl) {
+    return new PSMaintenanceManagerRestClient(baseUrl);
+  }
+
+  public PSMaintenanceManagerRestClient getRestClient() {
+    return restClient;
+  }
 }

@@ -18,22 +18,18 @@ package com.percussion.membership.data;
 
 /**
  * Represents the result of a call to create an account
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSAccountCreateResult extends PSMembershipResult
-{
-    private String sessionId;
-    
-    public PSAccountCreateResult(STATUS status, String message, String sessionId)
-    {
-        super(status, message);
-        this.sessionId = sessionId;
-    }
-    
-    public String getSessionId()
-    {
-        return sessionId;
-    }
+public class PSAccountCreateResult extends PSMembershipResult {
+  private String sessionId;
+
+  public PSAccountCreateResult(STATUS status, String message, String sessionId) {
+    super(status, message);
+    this.sessionId = sessionId;
+  }
+
+  public String getSessionId() {
+    return sessionId;
+  }
 }
