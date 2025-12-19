@@ -21,7 +21,10 @@ updates:
           - ">=6.0.0"
       - dependency-name: "org.apache.tika:*"
         versions:
-          - ">=3.0.0"          
+          - ">=3.0.0"
+      - dependency-name: "org.junit.jupiter:*"
+        versions:
+          - ">=6.0.0"  
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
