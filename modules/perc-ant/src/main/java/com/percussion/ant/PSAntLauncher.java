@@ -17,21 +17,19 @@
 
 package com.percussion.ant;
 
-import org.apache.tools.ant.launch.Launcher;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.tools.ant.launch.Launcher;
 
 public class PSAntLauncher {
 
-    public static void main(String[] args){
+  public static void main(String[] args) {
 
-        List<String> origArgs = new ArrayList<>(Arrays.asList(args));
-        //origArgs.add("--noclasspath");
-        //rigArgs.add("--nouserlib");
-        //System.setProperty("ant.library.dir","antlib");
-        Launcher.main(origArgs.toArray(new String[origArgs.size()]));
-    }
-
+    List<String> origArgs = new ArrayList<>(Arrays.asList(args));
+    // origArgs.add("--noclasspath");
+    // rigArgs.add("--nouserlib");
+    // System.setProperty("ant.library.dir","antlib");
+    Launcher.main(origArgs.toArray(new String[origArgs.size()]));
+  }
 }

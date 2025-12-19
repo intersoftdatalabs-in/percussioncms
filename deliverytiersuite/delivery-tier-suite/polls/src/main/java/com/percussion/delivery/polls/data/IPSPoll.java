@@ -17,18 +17,22 @@
 
 package com.percussion.delivery.polls.data;
 
-
 import java.util.Set;
 
-public interface IPSPoll 
-{
-	public String getId();
-	public void setId(String id);
-	public String getPollName();
-	public void setPollName(String pollName);
-	public String getPollQuestion();
-	public void setPollQuestion(String pollQuestion);
-	public Set<IPSPollAnswer> getPollAnswers();
-	public void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
+public interface IPSPoll {
+  public String getId();
 
+  public void setId(String id);
+
+  public String getPollName();
+
+  public void setPollName(String pollName);
+
+  public String getPollQuestion();
+
+  public void setPollQuestion(String pollQuestion);
+
+  public Set<IPSPollAnswer> getPollAnswers();
+
+  public void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
 }

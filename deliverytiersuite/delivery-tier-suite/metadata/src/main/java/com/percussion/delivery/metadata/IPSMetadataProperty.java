@@ -19,49 +19,42 @@ package com.percussion.delivery.metadata;
 
 import java.util.Date;
 
-
 public interface IPSMetadataProperty {
 
-	/**
-	 * @return the name
-	 */
-	public String getName();
+  /** @return the name */
+  public String getName();
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name);
+  /** @param name the name to set */
+  public void setName(String name);
 
-	/**
-	 * @return the valuetype
-	 */
-	public VALUETYPE getValuetype();
+  /** @return the valuetype */
+  public VALUETYPE getValuetype();
 
-	/**
-	 * Returns the untyped value.
-	 * 
-	 * @return May be <code>null</code>.
-	 */
-	public Object getValue();
-	
-	public Date getDatevalue();
-	
-	public Double getNumbervalue();
-	
-	public String getStringvalue();
-	
-    public void setDatevalue(Date val);
-    
-    public void setNumbervalue(Double val);
-    
-    public void setStringvalue(String val);
-    
-    public void setTextvalue(String val);
+  /**
+   * Returns the untyped value.
+   *
+   * @return May be <code>null</code>.
+   */
+  public Object getValue();
 
-	
-	
-	public enum VALUETYPE {
-        DATE, NUMBER, STRING, TEXT
-    }
+  public Date getDatevalue();
 
+  public Double getNumbervalue();
+
+  public String getStringvalue();
+
+  public void setDatevalue(Date val);
+
+  public void setNumbervalue(Double val);
+
+  public void setStringvalue(String val);
+
+  public void setTextvalue(String val);
+
+  public enum VALUETYPE {
+    DATE,
+    NUMBER,
+    STRING,
+    TEXT
+  }
 }
