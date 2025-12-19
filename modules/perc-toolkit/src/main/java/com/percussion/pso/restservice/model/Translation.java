@@ -18,57 +18,54 @@ package com.percussion.pso.restservice.model;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-/**
- */
+/** */
 public class Translation extends Relationship {
-	/**
-	 * Field locale.
-	 */
-	private String locale;
+  /** Field locale. */
+  private String locale;
 
+  /**
+   * Method setLocale.
+   *
+   * @param locale String
+   */
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
+  /**
+   * Method getLocale.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getLocale() {
+    return locale;
+  }
 
-	/**
-	 * Method setLocale.
-	 * @param locale String
-	 */
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
-	/**
-	 * Method getLocale.
-	 * @return String
-	 */
-	@XmlAttribute
-	public String getLocale() {
-		return locale;
-	}
-	
-	
-	
-	 /**
-	  * Method equals.
-	  * @param otherO Object
-	  * @return boolean
-	  */
-	 public boolean equals(Object otherO) {
-		  if ( this == otherO ) return true;
-		    if ( !(otherO instanceof Translation) ) return false;
-		    Translation other = (Translation)otherO;
-		   
-		    if (this.getContentId()!= other.getContentId()) return false; 
-		    if (this.getRevision()!= other.getRevision()) return false; 
-		    if ( ! (this.getLocale() == null ? other.getLocale() == null : this.getLocale().equals(other.getLocale()))) return false;  
-		    return true;
-	    }
+  /**
+   * Method equals.
+   *
+   * @param otherO Object
+   * @return boolean
+   */
+  public boolean equals(Object otherO) {
+    if (this == otherO) return true;
+    if (!(otherO instanceof Translation)) return false;
+    Translation other = (Translation) otherO;
 
-	    /**
-	     * Method hashCode.
-	     * @return int
-	     */
-	    public int hashCode() {
-	        return 59878489;
-	    }
+    if (this.getContentId() != other.getContentId()) return false;
+    if (this.getRevision() != other.getRevision()) return false;
+    if (!(this.getLocale() == null
+        ? other.getLocale() == null
+        : this.getLocale().equals(other.getLocale()))) return false;
+    return true;
+  }
 
-	}
-
-
+  /**
+   * Method hashCode.
+   *
+   * @return int
+   */
+  public int hashCode() {
+    return 59878489;
+  }
+}

@@ -20,18 +20,24 @@ package com.percussion.rest.communities;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
 import com.percussion.webservices.PSErrorResultsException;
-
 import java.rmi.RemoteException;
 import java.util.List;
 
 public interface ICommunityAdaptor {
 
-    public CommunityList createCommunities(List<String> names);
-    public CommunityList findCommunities(String name);
-    public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock) throws PSErrorResultsException;
-    public void saveCommunities(CommunityList communities, boolean release);
-    public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
-    public CommunityVisibilityList getVisibilityByCommunity(
-            GuidList ids, ObjectTypeEnum type) throws PSErrorResultsException, RemoteException;
-    public void switchCommunity(String name);
+  public CommunityList createCommunities(List<String> names);
+
+  public CommunityList findCommunities(String name);
+
+  public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
+      throws PSErrorResultsException;
+
+  public void saveCommunities(CommunityList communities, boolean release);
+
+  public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
+
+  public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type)
+      throws PSErrorResultsException, RemoteException;
+
+  public void switchCommunity(String name);
 }

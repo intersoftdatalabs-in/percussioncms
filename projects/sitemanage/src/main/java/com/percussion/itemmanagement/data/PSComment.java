@@ -18,80 +18,68 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.Date;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotEmpty;
 
 /**
- * Encapsulates revision information for a page or asset including revision id, last time it was modified,
- * who modified it last, and its current state
+ * Encapsulates revision information for a page or asset including revision id, last time it was
+ * modified, who modified it last, and its current state
  */
-@XmlRootElement(name="Comment")
-public class PSComment extends PSAbstractDataObject
-{
-    String comment;
-    @NotEmpty
-    String commenter;
-    @NotEmpty
-    String commentType;
-    @NotEmpty
-    Date commentDate;
+@XmlRootElement(name = "Comment")
+public class PSComment extends PSAbstractDataObject {
+  String comment;
+  @NotEmpty String commenter;
+  @NotEmpty String commentType;
+  @NotEmpty Date commentDate;
 
-    /**
-     * Default constructor. For serializers.
-     */
-    public PSComment()
-    {
-    }
-    
-    /**
-     * Constructs an instance of the class.
-     * 
-     * @param comment actual comment may be blank
-     * @param commenter the user who commented, never blank
-     * @param commentType the operation on which user commented, never blank
-     * @param commentDate date of comment, never blank
-     */
-    public PSComment(String comment, String commenter, String commentType, Date commentDate)
-    {
-    	setComment(comment);
-    	setCommenter(commenter);
-    	setCommentType(commentType);
-    	setCommentDate(commentDate);
-    }
+  /** Default constructor. For serializers. */
+  public PSComment() {}
 
-	public String getComment() {
-		return comment;
-	}
+  /**
+   * Constructs an instance of the class.
+   *
+   * @param comment actual comment may be blank
+   * @param commenter the user who commented, never blank
+   * @param commentType the operation on which user commented, never blank
+   * @param commentDate date of comment, never blank
+   */
+  public PSComment(String comment, String commenter, String commentType, Date commentDate) {
+    setComment(comment);
+    setCommenter(commenter);
+    setCommentType(commentType);
+    setCommentDate(commentDate);
+  }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+  public String getComment() {
+    return comment;
+  }
 
-	public String getCommenter() {
-		return commenter;
-	}
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 
-	public void setCommenter(String commenter) {
-		this.commenter = commenter;
-	}
+  public String getCommenter() {
+    return commenter;
+  }
 
-	public String getCommentType() {
-		return commentType;
-	}
+  public void setCommenter(String commenter) {
+    this.commenter = commenter;
+  }
 
-	public void setCommentType(String commentType) {
-		this.commentType = commentType;
-	}
+  public String getCommentType() {
+    return commentType;
+  }
 
-	public Date getCommentDate() {
-		return commentDate;
-	}
+  public void setCommentType(String commentType) {
+    this.commentType = commentType;
+  }
 
-	public void setCommentDate(Date commentDate) {
-		this.commentDate = commentDate;
-	}
+  public Date getCommentDate() {
+    return commentDate;
+  }
+
+  public void setCommentDate(Date commentDate) {
+    this.commentDate = commentDate;
+  }
 }

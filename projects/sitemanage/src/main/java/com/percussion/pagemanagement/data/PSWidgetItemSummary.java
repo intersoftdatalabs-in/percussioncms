@@ -17,16 +17,11 @@
 
 package com.percussion.pagemanagement.data;
 
+import com.percussion.share.data.PSDataItemSummary;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.percussion.share.data.PSDataItemSummary;
-
-/**
- * Created as a place holder to continue with widget assembler work.
- *
- */
+/** Created as a place holder to continue with widget assembler work. */
 @XmlRootElement(name = "WidgetItemSummary")
-public class PSWidgetItemSummary extends PSDataItemSummary
-{    
-    private static final long serialVersionUID = -5343860081656411549L;
+public class PSWidgetItemSummary extends PSDataItemSummary {
+  private static final long serialVersionUID = -5343860081656411549L;
 }

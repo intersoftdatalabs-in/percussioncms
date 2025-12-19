@@ -20,71 +20,61 @@ package com.ibm.cadf.model;
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.util.TimeStampUtils;
 
-public class Reporterstep extends CADFType
-{
+public class Reporterstep extends CADFType {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String role;
+  private String role;
 
-    private Resource reporter;
+  private Resource reporter;
 
-    private String reporterId;
+  private String reporterId;
 
-    private String reporterTime;
+  private String reporterTime;
 
-    public Reporterstep(String role, Resource reporter, String reporterId, String reporterTime) throws CADFException
-    {
-        super();
-        this.role = role;
-        this.reporter = reporter;
-        this.reporterId = reporterId;
-        this.reporterTime = reporterTime;
-    }
+  public Reporterstep(String role, Resource reporter, String reporterId, String reporterTime)
+      throws CADFException {
+    super();
+    this.role = role;
+    this.reporter = reporter;
+    this.reporterId = reporterId;
+    this.reporterTime = reporterTime;
+  }
 
-    public String getRole()
-    {
-        return role;
-    }
+  public String getRole() {
+    return role;
+  }
 
-    public void setRole(String role)
-    {
-        this.role = role;
-    }
+  public void setRole(String role) {
+    this.role = role;
+  }
 
-    public Resource getReporter()
-    {
-        return reporter;
-    }
+  public Resource getReporter() {
+    return reporter;
+  }
 
-    public void setReporter(Resource reporter)
-    {
-        this.reporter = reporter;
-    }
+  public void setReporter(Resource reporter) {
+    this.reporter = reporter;
+  }
 
-    public String getReporterId()
-    {
-        return reporterId;
-    }
+  public String getReporterId() {
+    return reporterId;
+  }
 
-    public void setReporterId(String reporterId)
-    {
-        this.reporterId = reporterId;
-    }
+  public void setReporterId(String reporterId) {
+    this.reporterId = reporterId;
+  }
 
-    public String getReporterTime()
-    {
-        return reporterTime;
-    }
+  public String getReporterTime() {
+    return reporterTime;
+  }
 
-    public void setReporterTime(String reporterTime)
-    {
-        this.reporterTime = reporterTime;
-    }
+  public void setReporterTime(String reporterTime) {
+    this.reporterTime = reporterTime;
+  }
 
-    @Override
-    public boolean isValid()
-    {
-        return isValidReporterRoles(role) && TimeStampUtils.isValid(reporterTime);
-    }
+  @Override
+  public boolean isValid() {
+    return isValidReporterRoles(role) && TimeStampUtils.isValid(reporterTime);
+  }
 }

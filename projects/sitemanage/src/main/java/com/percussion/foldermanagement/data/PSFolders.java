@@ -17,53 +17,42 @@
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Due to some limitations in Apache CXF, this class is used to wrap a {@link List}
- * of {@link PSFolderItem} objects.
- * 
- * @author miltonpividori
+ * Due to some limitations in Apache CXF, this class is used to wrap a {@link List} of {@link
+ * PSFolderItem} objects.
  *
+ * @author miltonpividori
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PSFolders extends PSAbstractDataObject
-{
-    @XmlElement(name = "child")
-    private List<PSFolderItem> children;
-    
-    public PSFolders()
-    {
-        super();
+public class PSFolders extends PSAbstractDataObject {
+  @XmlElement(name = "child")
+  private List<PSFolderItem> children;
+
+  public PSFolders() {
+    super();
+  }
+
+  /** @param children */
+  public PSFolders(List<PSFolderItem> children) {
+    super();
+    this.children = children;
+  }
+
+  public List<PSFolderItem> getChildren() {
+    if (children == null) {
+      return new ArrayList<>();
     }
 
-    /**
-     * @param children
-     */
-    public PSFolders(List<PSFolderItem> children)
-    {
-        super();
-        this.children = children;
-    }
+    return children;
+  }
 
-    public List<PSFolderItem> getChildren()
-    {
-        if(children == null)
-        {
-            return new ArrayList<>();
-        }
-        
-        return children;
-    }
-
-    public void setChildren(List<PSFolderItem> children)
-    {
-        this.children = children;
-    }
+  public void setChildren(List<PSFolderItem> children) {
+    this.children = children;
+  }
 }

@@ -21,83 +21,75 @@ import com.percussion.services.siteimportsummary.IPSSiteImportSummaryDao;
 import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
+import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Component("siteImportSummaryService")
 @Transactional()
-public class PSSiteImportSummaryService implements IPSSiteImportSummaryService
-{
-    private IPSSiteImportSummaryDao summaryDao;
-    
-    @Autowired
-    PSSiteImportSummaryService(IPSSiteImportSummaryDao summaryDao)
-    {
-        this.summaryDao = summaryDao;
+public class PSSiteImportSummaryService implements IPSSiteImportSummaryService {
+  private IPSSiteImportSummaryDao summaryDao;
+
+  @Autowired
+  PSSiteImportSummaryService(IPSSiteImportSummaryDao summaryDao) {
+    this.summaryDao = summaryDao;
+  }
+
+  @Override
+  public PSSiteImportSummary find(int siteId) {
+    return summaryDao.findBySiteId(siteId);
+  }
+
+  @Override
+  public PSSiteImportSummary create(int siteId) throws IPSGenericDao.SaveException {
+    PSSiteImportSummary summary = new PSSiteImportSummary();
+    summary.setSiteId(siteId);
+    summaryDao.save(summary);
+    return find(siteId);
+  }
+
+  @Override
+  public void deleteBySiteId(int siteId) {
+    PSSiteImportSummary summary = find(siteId);
+    if (summary != null) {
+      summaryDao.delete(summary);
     }
-    @Override
-    public PSSiteImportSummary find(int siteId)
-    {
-        return summaryDao.findBySiteId(siteId);
+  }
+
+  @Override
+  public PSSiteImportSummary update(int siteId, Map<SiteImportSummaryTypeEnum, Integer> fields)
+      throws IPSGenericDao.SaveException {
+    Validate.notNull(fields);
+    PSSiteImportSummary summary = find(siteId);
+    if (summary == null) {
+      summary = create(siteId);
     }
 
-    @Override
-    public PSSiteImportSummary create(int siteId) throws IPSGenericDao.SaveException {
-        PSSiteImportSummary summary = new PSSiteImportSummary();
-        summary.setSiteId(siteId);
-        summaryDao.save(summary);
-        return find(siteId);
+    if (fields.get(SiteImportSummaryTypeEnum.FILES) != null) {
+      int files = summary.getFiles() + fields.get(SiteImportSummaryTypeEnum.FILES);
+      summary.setFiles(files);
     }
-
-    @Override
-    public void deleteBySiteId(int siteId)
-    {
-        PSSiteImportSummary summary = find(siteId);
-        if(summary != null) {
-            summaryDao.delete(summary);
-        }
+    if (fields.get(SiteImportSummaryTypeEnum.PAGES) != null) {
+      int pages = summary.getPages() + fields.get(SiteImportSummaryTypeEnum.PAGES);
+      summary.setPages(pages);
     }
-
-    @Override
-    public PSSiteImportSummary update(int siteId, Map<SiteImportSummaryTypeEnum, Integer> fields) throws IPSGenericDao.SaveException {
-        Validate.notNull(fields);
-        PSSiteImportSummary summary = find(siteId);
-        if(summary == null)
-        {
-            summary = create(siteId);
-        }
-        
-        if(fields.get(SiteImportSummaryTypeEnum.FILES)!=null)
-        {
-            int files = summary.getFiles() + fields.get(SiteImportSummaryTypeEnum.FILES);
-            summary.setFiles(files);
-        }
-        if(fields.get(SiteImportSummaryTypeEnum.PAGES)!=null)
-        {
-            int pages = summary.getPages() + fields.get(SiteImportSummaryTypeEnum.PAGES);
-            summary.setPages(pages);
-        }
-        if(fields.get(SiteImportSummaryTypeEnum.STYLESHEETS)!=null)
-        {
-            int styleSheets = summary.getStylesheets() + fields.get(SiteImportSummaryTypeEnum.STYLESHEETS);
-            summary.setStylesheets(styleSheets);
-        }
-        if(fields.get(SiteImportSummaryTypeEnum.TEMPLATES)!=null)
-        {
-            int templates = summary.getTemplates() + fields.get(SiteImportSummaryTypeEnum.TEMPLATES);
-            summary.setTemplates(templates);
-        }
-        if(fields.get(SiteImportSummaryTypeEnum.INTERNALLINKS)!=null)
-        {
-            int internallinks = summary.getInternallinks() + fields.get(SiteImportSummaryTypeEnum.INTERNALLINKS);
-            summary.setInternallinks(internallinks);
-        }
-        summaryDao.save(summary);
-        return summary;
+    if (fields.get(SiteImportSummaryTypeEnum.STYLESHEETS) != null) {
+      int styleSheets =
+          summary.getStylesheets() + fields.get(SiteImportSummaryTypeEnum.STYLESHEETS);
+      summary.setStylesheets(styleSheets);
     }
-
+    if (fields.get(SiteImportSummaryTypeEnum.TEMPLATES) != null) {
+      int templates = summary.getTemplates() + fields.get(SiteImportSummaryTypeEnum.TEMPLATES);
+      summary.setTemplates(templates);
+    }
+    if (fields.get(SiteImportSummaryTypeEnum.INTERNALLINKS) != null) {
+      int internallinks =
+          summary.getInternallinks() + fields.get(SiteImportSummaryTypeEnum.INTERNALLINKS);
+      summary.setInternallinks(internallinks);
+    }
+    summaryDao.save(summary);
+    return summary;
+  }
 }

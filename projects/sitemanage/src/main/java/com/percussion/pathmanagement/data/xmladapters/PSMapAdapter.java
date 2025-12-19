@@ -19,54 +19,43 @@ package com.percussion.pathmanagement.data.xmladapters;
 
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperties;
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperty;
-import com.percussion.pathmanagement.data.xmladapters.PSMapAdapter;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Custom XmlAdapter which takes a PSPathItem object (it has
- * a map of String objects) and maps it into a PSPathItemDisplayProperties
- * object.
- * 
- * @author federicoromanelli
+ * Custom XmlAdapter which takes a PSPathItem object (it has a map of String objects) and maps it
+ * into a PSPathItemDisplayProperties object.
  *
+ * @author federicoromanelli
  */
-public class PSMapAdapter extends XmlAdapter<PSPathItemDisplayProperties, Map<String, String>>
-{
+public class PSMapAdapter extends XmlAdapter<PSPathItemDisplayProperties, Map<String, String>> {
 
-    @Override
-    public Map<String, String> unmarshal(PSPathItemDisplayProperties v) throws Exception
-    {
-        HashMap<String, String> hashMap = new HashMap<>();
-        
-        for (PSPathItemDisplayProperty displayProp : v.getDisplayProperty())
-            hashMap.put(displayProp.getName(), displayProp.getValue());
-        
-        return hashMap;
+  @Override
+  public Map<String, String> unmarshal(PSPathItemDisplayProperties v) throws Exception {
+    HashMap<String, String> hashMap = new HashMap<>();
+
+    for (PSPathItemDisplayProperty displayProp : v.getDisplayProperty())
+      hashMap.put(displayProp.getName(), displayProp.getValue());
+
+    return hashMap;
+  }
+
+  @Override
+  public PSPathItemDisplayProperties marshal(Map<String, String> v) throws Exception {
+    PSPathItemDisplayProperties displayProperties = new PSPathItemDisplayProperties();
+    try {
+
+      for (String propName : v.keySet()) {
+        PSPathItemDisplayProperty prop = new PSPathItemDisplayProperty();
+        prop.setName(propName);
+        prop.setValue(v.get(propName));
+
+        displayProperties.getDisplayProperty().add(prop);
+      }
+    } catch (Exception e) {
     }
 
-    @Override
-    public PSPathItemDisplayProperties marshal(Map<String, String> v) throws Exception
-    {
-        PSPathItemDisplayProperties displayProperties = new PSPathItemDisplayProperties();
-        try
-        {
-        
-            for (String propName : v.keySet())
-            {
-                PSPathItemDisplayProperty prop = new PSPathItemDisplayProperty();
-                prop.setName(propName);
-                prop.setValue(v.get(propName));
-                
-                displayProperties.getDisplayProperty().add(prop);
-            }
-        }
-        catch (Exception e){}
-        
-        return displayProperties;
-    }
-
+    return displayProperties;
+  }
 }

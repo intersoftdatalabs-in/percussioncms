@@ -20,67 +20,63 @@ package com.percussion.rest.acls;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
+import java.util.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @Lazy
 public class AclTestAdaptor implements IAclAdaptor {
-    @Override
-    public UserAccessLevel getUserAccessLevel(Guid objectGuid) {
-        return null;
-    }
+  @Override
+  public UserAccessLevel getUserAccessLevel(Guid objectGuid) {
+    return null;
+  }
 
-    @Override
-    public UserAccessLevel calculateUserAccessLevel(String aclGuid) {
-        return null;
-    }
+  @Override
+  public UserAccessLevel calculateUserAccessLevel(String aclGuid) {
+    return null;
+  }
 
-    @Override
-    public Acl createAcl(Guid objGuid, TypedPrincipal owner) {
-        return null;
-    }
+  @Override
+  public Acl createAcl(Guid objGuid, TypedPrincipal owner) {
+    return null;
+  }
 
-    @Override
-    public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
-        return null;
-    }
+  @Override
+  public AclList loadAcls(GuidList aclGuids) throws PSServiceSecurityException {
+    return null;
+  }
 
-    @Override
-    public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
-        return null;
-    }
+  @Override
+  public Acl loadAcl(Guid aclGuid) throws PSServiceSecurityException {
+    return null;
+  }
 
-    @Override
-    public AclList loadAclsForObjects(GuidList objectGuids) {
-        return null;
-    }
+  @Override
+  public AclList loadAclsForObjects(GuidList objectGuids) {
+    return null;
+  }
 
-    @Override
-    public Acl loadAclForObject(Guid objectGuid) {
-        return null;
-    }
+  @Override
+  public Acl loadAclForObject(Guid objectGuid) {
+    return null;
+  }
 
-    @Override
-    public void saveAcls(AclList aclList) throws PSSecurityException {
+  @Override
+  public void saveAcls(AclList aclList) throws PSServiceSecurityException {}
 
-    }
+  @Override
+  public void deleteAcl(Guid aclGuid) throws PSServiceSecurityException {}
 
-    @Override
-    public void deleteAcl(Guid aclGuid) throws PSSecurityException {
+  @Override
+  public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
+    return null;
+  }
 
-    }
-
-    @Override
-    public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
-        return null;
-    }
-
-    @Override
-    public GuidList findObjectsVisibleToCommunities(List<String> communityNames, ObjectTypeEnum objectType) {
-        return null;
-    }
+  @Override
+  public GuidList findObjectsVisibleToCommunities(
+      List<String> communityNames, ObjectTypeEnum objectType) {
+    return null;
+  }
 }

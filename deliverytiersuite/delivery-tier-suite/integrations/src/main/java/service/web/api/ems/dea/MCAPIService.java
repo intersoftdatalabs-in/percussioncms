@@ -18,16 +18,16 @@
 /**
  * MCAPIService.java
  *
- * This file was auto-generated from WSDL
- * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
+ * <p>This file was auto-generated from WSDL by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT)
+ * WSDL2Java emitter.
  */
-
 package service.web.api.ems.dea;
 
 public interface MCAPIService extends javax.xml.rpc.Service {
-    public java.lang.String getMCAPIServiceSoapAddress();
+  public java.lang.String getMCAPIServiceSoapAddress();
 
-    public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
+  public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
 
-    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
+  public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress)
+      throws javax.xml.rpc.ServiceException;
 }

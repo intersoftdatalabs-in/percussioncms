@@ -17,7 +17,6 @@
 
 package com.percussion.apibridge;
 
-
 import com.percussion.cms.IPSConstants;
 import com.percussion.rest.sites.ISiteAdaptor;
 import com.percussion.rest.sites.Site;
@@ -27,91 +26,84 @@ import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.webservices.publishing.IPSPublishingWs;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import java.util.List;
-
 @PSSiteManageBean
 @Lazy
 public class SitesAdaptor implements ISiteAdaptor {
-    private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
+  private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
+  @Autowired IPSPublishingWs publishingWs;
 
-    @Autowired
-    IPSPublishingWs publishingWs;
+  @Autowired IPSSiteDataService siteDataService;
 
-    @Autowired
-    IPSSiteDataService siteDataService;
+  @Autowired IPSSiteSectionService siteSectionService;
 
-    @Autowired
-    IPSSiteSectionService siteSectionService;
+  /** * ctor */
+  public SitesAdaptor() {}
 
+  /**
+   * * Find all sites.
+   *
+   * @return SiteList
+   */
+  @Override
+  public SiteList findAllSites() {
 
-    /***
-     * ctor
-     */
-    public SitesAdaptor(){}
+    List<PSSiteSummary> sites = siteDataService.findAll();
 
-    /***
-     * Find all sites.
-     * @return SiteList
-     */
-    @Override
-    public SiteList findAllSites() {
+    return ApiUtils.convertSiteSummaryList(sites);
+  }
 
-        List<PSSiteSummary> sites = siteDataService.findAll();
+  /**
+   * * Save a site
+   *
+   * @param site
+   */
+  @Override
+  public void saveSite(Site site) {}
 
-        return ApiUtils.convertSiteSummaryList(sites);
-    }
+  /**
+   * *
+   *
+   * @param name
+   * @return
+   */
+  @Override
+  public Site findByName(String name) {
+    return null;
+  }
 
-    /***
-     * Save a site
-     * @param site
-     */
-    @Override
-    public void saveSite(Site site) {
+  /**
+   * * find By Guid
+   *
+   * @param guid
+   * @return
+   */
+  @Override
+  public Site findByGuid(String guid) {
+    return null;
+  }
 
-    }
+  /**
+   * * Delete the site
+   *
+   * @param site
+   */
+  @Override
+  public void deleteSite(Site site) {}
 
-    /***
-     *
-     * @param name
-     * @return
-     */
-    @Override
-    public Site findByName(String name) {
-        return null;
-    }
-
-    /***
-     * find By Guid
-     * @param guid
-     * @return
-     */
-    @Override
-    public Site findByGuid(String guid) {
-        return null;
-    }
-
-    /***
-     * Delete the site
-     * @param site
-     */
-    @Override
-    public void deleteSite(Site site) {
-
-    }
-
-    /***
-     * Create a new Site
-     * @return
-     */
-    @Override
-    public Site createSite() {
-        return null;
-    }
-
+  /**
+   * * Create a new Site
+   *
+   * @return
+   */
+  @Override
+  public Site createSite() {
+    return null;
+  }
 }

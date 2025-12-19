@@ -18,21 +18,20 @@
 package com.percussion.rest.acls;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema(description = "Principal")
 public class Principal {
 
-    @Schema(description = "name")
-    private String name;
+  @Schema(description = "name")
+  private String name;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 }

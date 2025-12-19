@@ -18,47 +18,41 @@ package com.percussion.extension;
 
 import java.util.EventListener;
 
-/**
- * An extension listener can receive notifications of events that relate
- * to an extension.
- */
-public interface IPSExtensionListener extends EventListener
-{
-   /**
-    * Notification that the given extension has been updated in the given
-    * manager.
-    *
-    * @param ref The extension name and handler name. Never <CODE>null</CODE>.
-    * @param mgr The extension manager. Never <CODE>null</CODE>.
-    */
-   public void extensionUpdated(PSExtensionRef ref, IPSExtensionManager mgr);
+/** An extension listener can receive notifications of events that relate to an extension. */
+public interface IPSExtensionListener extends EventListener {
+  /**
+   * Notification that the given extension has been updated in the given manager.
+   *
+   * @param ref The extension name and handler name. Never <CODE>null</CODE>.
+   * @param mgr The extension manager. Never <CODE>null</CODE>.
+   */
+  public void extensionUpdated(PSExtensionRef ref, IPSExtensionManager mgr);
 
-   /**
-    * Notification that the given extension has been removed from the
-    * given manager.
-    *
-    * @param ref The extension name and handler name. Never <CODE>null</CODE>.
-    * @param mgr The extension manager. Never <CODE>null</CODE>.
-    */
-   public void extensionRemoved(PSExtensionRef ref, IPSExtensionManager mgr);
+  /**
+   * Notification that the given extension has been removed from the given manager.
+   *
+   * @param ref The extension name and handler name. Never <CODE>null</CODE>.
+   * @param mgr The extension manager. Never <CODE>null</CODE>.
+   */
+  public void extensionRemoved(PSExtensionRef ref, IPSExtensionManager mgr);
 
-   /**
-    * Notification that the given extension has been disabled somehow,
-    * without being removed. Depending on the implementation, this event
-    * map imply that the extension will not function correctly.
-    *
-    * @param ref The extension name and handler name. Never <CODE>null</CODE>.
-    * @param mgr The extension manager. Never <CODE>null</CODE>.
-    */
-   public void extensionShutdown(PSExtensionRef ref, IPSExtensionManager mgr);
+  /**
+   * Notification that the given extension has been disabled somehow, without being removed.
+   * Depending on the implementation, this event map imply that the extension will not function
+   * correctly.
+   *
+   * @param ref The extension name and handler name. Never <CODE>null</CODE>.
+   * @param mgr The extension manager. Never <CODE>null</CODE>.
+   */
+  public void extensionShutdown(PSExtensionRef ref, IPSExtensionManager mgr);
 
-   /**
-    * Notification that an extension has been added to the extension manager.
-    * This only needs to be implemented for global listeners, others can create
-    * an empty method. Will only be called if registered as a global listener.
-    * 
-    * @param ref The extension name and handler name. Never <CODE>null</CODE>.
-    * @param mgr The extension manager. Never <CODE>null</CODE>.
-    */
-   public void extensionAdded(PSExtensionRef ref, PSExtensionManager manager);
+  /**
+   * Notification that an extension has been added to the extension manager. This only needs to be
+   * implemented for global listeners, others can create an empty method. Will only be called if
+   * registered as a global listener.
+   *
+   * @param ref The extension name and handler name. Never <CODE>null</CODE>.
+   * @param mgr The extension manager. Never <CODE>null</CODE>.
+   */
+  public void extensionAdded(PSExtensionRef ref, PSExtensionManager manager);
 }

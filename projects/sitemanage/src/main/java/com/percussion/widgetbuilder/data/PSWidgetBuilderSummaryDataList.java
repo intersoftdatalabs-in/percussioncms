@@ -19,16 +19,14 @@ package com.percussion.widgetbuilder.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "WidgetBuilderSummaryData")
-@ArraySchema(schema=@Schema(implementation = PSWidgetBuilderSummaryData.class))
+@ArraySchema(schema = @Schema(implementation = PSWidgetBuilderSummaryData.class))
 public class PSWidgetBuilderSummaryDataList extends ArrayList<PSWidgetBuilderSummaryData> {
-    public PSWidgetBuilderSummaryDataList(Collection<? extends PSWidgetBuilderSummaryData> c) {
-        super(c);
-    }
+  public PSWidgetBuilderSummaryDataList(Collection<? extends PSWidgetBuilderSummaryData> c) {
+    super(c);
+  }
 }

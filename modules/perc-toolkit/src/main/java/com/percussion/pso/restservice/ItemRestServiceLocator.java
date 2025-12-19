@@ -18,22 +18,18 @@ package com.percussion.pso.restservice;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- */
+/** */
 public class ItemRestServiceLocator extends PSBaseServiceLocator {
-	  
-	   /**
-	    * Method getItemServiceBase.
-	    * @return IItemRestService
-	    */
-	   public static IItemRestService getItemServiceBase()
-	   {
-	      return (IItemRestService) PSBaseServiceLocator.getBean(IMPORT_BASE_SERVICE_BEAN); 
-	   }
-	   
-	   /**
-	    * Field IMPORT_BASE_SERVICE_BEAN.
-	    * (value is ""restItemClient"")
-	    */
-	   public static final String IMPORT_BASE_SERVICE_BEAN = "restItemClient";
+
+  /**
+   * Method getItemServiceBase.
+   *
+   * @return IItemRestService
+   */
+  public static IItemRestService getItemServiceBase() {
+    return (IItemRestService) PSBaseServiceLocator.getBean(IMPORT_BASE_SERVICE_BEAN);
+  }
+
+  /** Field IMPORT_BASE_SERVICE_BEAN. (value is ""restItemClient"") */
+  public static final String IMPORT_BASE_SERVICE_BEAN = "restItemClient";
 }

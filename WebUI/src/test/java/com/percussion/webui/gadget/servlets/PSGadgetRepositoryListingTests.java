@@ -17,26 +17,22 @@
 
 package com.percussion.webui.gadget.servlets;
 
-import org.junit.Test;
-
-import java.util.Map;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+import org.junit.Test;
+
 public class PSGadgetRepositoryListingTests {
 
-
-@Test
-public void testGetRegistry(){
+  @Test
+  public void testGetRegistry() {
 
     GadgetRepositoryListingServlet servlet = new GadgetRepositoryListingServlet();
 
     Map<String, String> typeMap = servlet.loadGadgetTypeMap();
 
     assertNotNull(typeMap);
-    assertTrue(typeMap.size()>0);
-
-}
-
+    assertTrue(typeMap.size() > 0);
+  }
 }

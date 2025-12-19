@@ -19,12 +19,11 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.share.dao.IPSGenericDao;
 
-public interface IPSWidgetDao extends IPSGenericDao<PSWidgetDefinition, String>
-{
-    /**
-     * Return the relative path of the directory containing widget configs.
-     * 
-     * @return The path, not <code>null<code/> or empty.
-     */
-    String getBaseConfigDir();
+public interface IPSWidgetDao extends IPSGenericDao<PSWidgetDefinition, String> {
+  /**
+   * Return the relative path of the directory containing widget configs.
+   *
+   * @return The path, not <code>null<code/> or empty.
+   */
+  String getBaseConfigDir();
 }

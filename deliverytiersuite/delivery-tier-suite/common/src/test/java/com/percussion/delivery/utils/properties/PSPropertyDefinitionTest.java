@@ -16,21 +16,16 @@
  */
 package com.percussion.delivery.utils.properties;
 
-/**
- * @author natechadwick
- *
- */
+/** @author natechadwick */
 public class PSPropertyDefinitionTest {
-	
-	public void testInstance(){
-		PSPropertyDefinition p = new PSPropertyDefinition();
-		
-		p.setDatatype("string");
-		p.setDefaultValue("Enter String");
-		p.setDisplayName("Test Prop");
-		p.setName("test");
-		p.setRequired("true");
-	
-	}
 
+  public void testInstance() {
+    PSPropertyDefinition p = new PSPropertyDefinition();
+
+    p.setDatatype("string");
+    p.setDefaultValue("Enter String");
+    p.setDisplayName("Test Prop");
+    p.setName("test");
+    p.setRequired("true");
+  }
 }

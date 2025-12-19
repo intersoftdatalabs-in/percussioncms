@@ -16,84 +16,67 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.RangeIterator;
 import java.util.Collection;
 import java.util.Iterator;
+import javax.jcr.RangeIterator;
 
 /**
- * A concrete implementation of the JSR-170 range iterator using an abstract
- * collection of T
+ * A concrete implementation of the JSR-170 range iterator using an abstract collection of T
+ *
  * @param <T> the class of the data in the collection
  * @author dougrand
  */
-public class PSCollectionRangeIterator<T> implements RangeIterator
-{
-   /**
-    * The collection to iterate over
-    */
-   private Collection<T> m_collection;
-   
-   /**
-    * The internal iterator for the collection, never <code>null</code>
-    */
-   private Iterator<T> m_iter;
-   
-   /**
-    * The current position in the collection
-    */
-   private long m_position = 0;
+public class PSCollectionRangeIterator<T> implements RangeIterator {
+  /** The collection to iterate over */
+  private Collection<T> m_collection;
 
-   /**
-    * Ctor
-    * @param collection the collection to iterate over, never <code>null</code>
-    */
-   public PSCollectionRangeIterator(Collection<T> collection)
-   {
-      if (collection == null)
-      {
-         throw new IllegalArgumentException("collection may not be null");
-      }
-      m_collection = collection;
-      m_iter = m_collection.iterator();
-   }
-   
-   public boolean hasNext()
-   {
-      return m_iter.hasNext();
-   }
+  /** The internal iterator for the collection, never <code>null</code> */
+  private Iterator<T> m_iter;
 
-   public T next()
-   {
-      m_position++;
-      return m_iter.next();
-   }
+  /** The current position in the collection */
+  private long m_position = 0;
 
-   public void remove()
-   {
-      m_iter.remove();
-   }
+  /**
+   * Ctor
+   *
+   * @param collection the collection to iterate over, never <code>null</code>
+   */
+  public PSCollectionRangeIterator(Collection<T> collection) {
+    if (collection == null) {
+      throw new IllegalArgumentException("collection may not be null");
+    }
+    m_collection = collection;
+    m_iter = m_collection.iterator();
+  }
 
-   public void skip(long count)
-   {
-      if (count < 0)
-      {
-         throw new IllegalArgumentException("Count must not be negative");
-      }
-      while(count > 0)
-      {
-         next();
-         count--;
-      }
-   }
+  public boolean hasNext() {
+    return m_iter.hasNext();
+  }
 
-   public long getSize()
-   {
-      return m_collection.size();
-   }
+  public T next() {
+    m_position++;
+    return m_iter.next();
+  }
 
-   public long getPosition()
-   {
-      return m_position;
-   }
+  public void remove() {
+    m_iter.remove();
+  }
 
+  public void skip(long count) {
+    if (count < 0) {
+      throw new IllegalArgumentException("Count must not be negative");
+    }
+    while (count > 0) {
+      next();
+      count--;
+    }
+  }
+
+  public long getSize() {
+    return m_collection.size();
+  }
+
+  public long getPosition() {
+    return m_position;
+  }
 }

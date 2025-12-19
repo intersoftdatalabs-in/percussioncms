@@ -18,60 +18,59 @@ package com.percussion.delivery.email.data;
 
 public class PSEmailRequest implements IPSEmailRequest {
 
-	private String toList;
-	private String ccList;
-	private String bodycontent;
-	private String subject;
-	private String bccList;
+  private String toList;
+  private String ccList;
+  private String bodycontent;
+  private String subject;
+  private String bccList;
 
-	@Override
-	public void setToList(String toList) {
-		this.toList = toList;
-	}
+  @Override
+  public void setToList(String toList) {
+    this.toList = toList;
+  }
 
-	@Override
-	public void setCCList(String ccList) {
-		this.ccList = ccList;
-	}
+  @Override
+  public void setCCList(String ccList) {
+    this.ccList = ccList;
+  }
 
-	@Override
-	public void setBody(String bodycontent) {
-		this.bodycontent = bodycontent;
-	}
+  @Override
+  public void setBody(String bodycontent) {
+    this.bodycontent = bodycontent;
+  }
 
-	@Override
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+  @Override
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
 
-	@Override
-	public String getToList() {
-		return this.toList;
-	}
+  @Override
+  public String getToList() {
+    return this.toList;
+  }
 
-	@Override
-	public String getCCList() {
-		return this.ccList;
-	}
+  @Override
+  public String getCCList() {
+    return this.ccList;
+  }
 
-	@Override
-	public String getBody() {
-		return this.bodycontent;
-	}
+  @Override
+  public String getBody() {
+    return this.bodycontent;
+  }
 
-	@Override
-	public String getSubject() {
-		return this.subject;
-	}
+  @Override
+  public String getSubject() {
+    return this.subject;
+  }
 
-	@Override
-	public void setBCCList(String bccList) {
-		this.bccList = bccList;
-	}
+  @Override
+  public void setBCCList(String bccList) {
+    this.bccList = bccList;
+  }
 
-	@Override
-	public String getBCCList() {
-		return this.bccList;
-	}
-
+  @Override
+  public String getBCCList() {
+    return this.bccList;
+  }
 }

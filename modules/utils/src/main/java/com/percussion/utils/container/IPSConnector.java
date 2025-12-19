@@ -17,7 +17,6 @@
 
 package com.percussion.utils.container;
 
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -25,70 +24,71 @@ import java.util.Set;
 
 public interface IPSConnector {
 
-    String SCHEME_HTTPS = "https";
-    String SCHEME_HTTP = "http";
-    String PROTOCOL_HTTP = "HTTP/1.1";
-    String PROTOCOL_AJP = "AJP/1.3";
+  String SCHEME_HTTPS = "https";
+  String SCHEME_HTTP = "http";
+  String PROTOCOL_HTTP = "HTTP/1.1";
+  String PROTOCOL_AJP = "AJP/1.3";
 
+  String getScheme();
 
-    String getScheme();
+  void setScheme(String scheme);
 
-    void setScheme(String scheme);
+  String getHostAddress();
 
-    String getHostAddress();
+  void setHostAddress(String getHostAddress);
 
-    void setHostAddress(String getHostAddress);
+  int getPort();
 
-    int getPort();
+  void setPort(int port);
 
-    void setPort(int port);
+  Path getKeystoreFile();
 
-    Path getKeystoreFile();
+  void setKeystoreFile(Path keystoreFile);
 
-    void setKeystoreFile(Path keystoreFile);
+  String getKeystorePass();
 
-    String getKeystorePass();
+  void setKeystorePass(String keystorePass);
 
-    void setKeystorePass(String keystorePass);
+  Path getTruststoreFile();
 
-    Path getTruststoreFile();
+  void setTruststoreFile(Path truststoreFile);
 
-    void setTruststoreFile(Path truststoreFile);
+  String getTruststorePass();
 
-    String getTruststorePass();
+  void setTruststorePass(String truststorePass);
 
-    void setTruststorePass(String truststorePass);
+  Set<String> getCiphers();
 
-    Set<String> getCiphers();
+  void setCiphers(Set<String> ciphers);
 
-    void setCiphers(Set<String> ciphers);
+  Set<String> getSslProtocols();
 
-    Set<String> getSslProtocols();
+  void setSslProtocols(Set<String> protocols);
 
-    void setSslProtocols(Set<String> protocols);
-    
-    String getProtocol();
-    void setProtocol(String protocol);
+  String getProtocol();
 
+  void setProtocol(String protocol);
 
-    void copyFrom(IPSConnector c);
+  void copyFrom(IPSConnector c);
 
-    default boolean isHttps() {
-        return this.getScheme()!=null && this.getScheme().equals(SCHEME_HTTPS);
-    }
+  default boolean isHttps() {
+    return this.getScheme() != null && this.getScheme().equals(SCHEME_HTTPS);
+  }
 
-    default boolean isHttp() {
-        return (this.getProtocol()!=null && this.getProtocol().equals(PROTOCOL_HTTP)) && Optional.ofNullable(this.getScheme()).orElse(SCHEME_HTTP).equals(SCHEME_HTTP);
-    }
+  default boolean isHttp() {
+    return (this.getProtocol() != null && this.getProtocol().equals(PROTOCOL_HTTP))
+        && Optional.ofNullable(this.getScheme()).orElse(SCHEME_HTTP).equals(SCHEME_HTTP);
+  }
 
-    default  boolean isAJP(){
-        return (this.getProtocol()!=null && this.getProtocol().equals(PROTOCOL_AJP));
-    }
-    default String getCallbackHost() {
-        return (this.getHostAddress()==null || this.getHostAddress().equals("0.0.0.0")) ? "127.0.0.1" : this.getHostAddress();
-    }
+  default boolean isAJP() {
+    return (this.getProtocol() != null && this.getProtocol().equals(PROTOCOL_AJP));
+  }
 
+  default String getCallbackHost() {
+    return (this.getHostAddress() == null || this.getHostAddress().equals("0.0.0.0"))
+        ? "127.0.0.1"
+        : this.getHostAddress();
+  }
 
-    Map<String,String> getProperties();
-
+  Map<String, String> getProperties();
 }

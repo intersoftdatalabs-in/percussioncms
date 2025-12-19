@@ -17,43 +17,37 @@
 
 package com.percussion.publisher.runner;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
-/***
- * Provides a handler for basic authentication in the cxf client.
- */
+/** * Provides a handler for basic authentication in the cxf client. */
 @Provider
 public class PSBasicAuthenticator implements ClientRequestFilter {
 
-        private final String user;
-        private final String password;
+  private final String user;
+  private final String password;
 
-        public PSBasicAuthenticator(String user, String password) {
-            this.user = user;
-            this.password = password;
-        }
+  public PSBasicAuthenticator(String user, String password) {
+    this.user = user;
+    this.password = password;
+  }
 
-        @Override
-        public void filter(ClientRequestContext requestContext) throws IOException {
-            requestContext.getHeaders().add(
-                    "RX_USEBASICAUTH", true);
+  @Override
+  public void filter(ClientRequestContext requestContext) throws IOException {
+    requestContext.getHeaders().add("RX_USEBASICAUTH", true);
 
-            requestContext.getHeaders().add(
-                    HttpHeaders.AUTHORIZATION, getBasicAuthentication());
+    requestContext.getHeaders().add(HttpHeaders.AUTHORIZATION, getBasicAuthentication());
+  }
 
-        }
-
-        private String getBasicAuthentication() {
-            byte[] userAndPasswordBytes;
-            String userAndPassword = this.user + ":" + this.password;
-            userAndPasswordBytes = userAndPassword.getBytes(StandardCharsets.UTF_8);
-            return "Basic " + Base64.getEncoder().encodeToString(userAndPasswordBytes);
-        }
+  private String getBasicAuthentication() {
+    byte[] userAndPasswordBytes;
+    String userAndPassword = this.user + ":" + this.password;
+    userAndPasswordBytes = userAndPassword.getBytes(StandardCharsets.UTF_8);
+    return "Basic " + Base64.getEncoder().encodeToString(userAndPasswordBytes);
+  }
 }
-

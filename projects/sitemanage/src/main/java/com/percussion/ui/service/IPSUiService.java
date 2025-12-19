@@ -20,26 +20,24 @@ import com.percussion.ui.data.PSSimpleDisplayFormat;
 
 /**
  * Service to interact with the servers ui components.
- * @author erikserating
  *
+ * @author erikserating
  */
-public interface IPSUiService
-{
-   /**
-    * Retrieve a display format by its internal name.
-    * @param name the internal name of the display format to be found. May
-    * be <code>null</code> or empty, in which case it will return the default
-    * CMS display format.
-    * @return the display format or <code>null</code> if not found.
-    */
-   public PSSimpleDisplayFormat getDisplayFormatByName(String name);
-   
-   /**
-    * Retrieve the display format by its passed in id.
-    * @param id the the display format id. 
-    * @return the display format or <code>null</code> if not found.
-    */
-   public PSSimpleDisplayFormat getDisplayFormat(int id);
-   
-   
+public interface IPSUiService {
+  /**
+   * Retrieve a display format by its internal name.
+   *
+   * @param name the internal name of the display format to be found. May be <code>null</code> or
+   *     empty, in which case it will return the default CMS display format.
+   * @return the display format or <code>null</code> if not found.
+   */
+  public PSSimpleDisplayFormat getDisplayFormatByName(String name);
+
+  /**
+   * Retrieve the display format by its passed in id.
+   *
+   * @param id the the display format id.
+   * @return the display format or <code>null</code> if not found.
+   */
+  public PSSimpleDisplayFormat getDisplayFormat(int id);
 }

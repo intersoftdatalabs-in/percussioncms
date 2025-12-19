@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
+        <artifactId>delivery-tier-suite</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>perc-form-processor</artifactId>
     <packaging>war</packaging>
     <dependencies>
@@ -76,15 +74,12 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxb.api.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
@@ -98,12 +93,14 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>${xml.apis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
         </dependency>
         <!-- Logging -->
         <dependency>
@@ -193,8 +190,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-         </dependencies>
+    </dependencies>
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -229,17 +236,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            
         </plugins>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-        <finalName>${project.artifactId}</finalName>
     </build>
 </project>

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getAllRoomBookingsResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getAllRoomBookingsResult"})
 @XmlRootElement(name = "GetAllRoomBookingsResponse")
 public class GetAllRoomBookingsResponse {
 
-    @XmlElement(name = "GetAllRoomBookingsResult")
-    protected String getAllRoomBookingsResult;
+  @XmlElement(name = "GetAllRoomBookingsResult")
+  protected String getAllRoomBookingsResult;
 
-    /**
-     * Gets the value of the getAllRoomBookingsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetAllRoomBookingsResult() {
-        return getAllRoomBookingsResult;
-    }
+  /**
+   * Gets the value of the getAllRoomBookingsResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetAllRoomBookingsResult() {
+    return getAllRoomBookingsResult;
+  }
 
-    /**
-     * Sets the value of the getAllRoomBookingsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetAllRoomBookingsResult(String value) {
-        this.getAllRoomBookingsResult = value;
-    }
-
+  /**
+   * Sets the value of the getAllRoomBookingsResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetAllRoomBookingsResult(String value) {
+    this.getAllRoomBookingsResult = value;
+  }
 }

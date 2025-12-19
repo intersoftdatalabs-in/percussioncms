@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -46,160 +44,128 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "webUserID",
-    "webProcessTemplateID",
-    "optionName",
-    "optionValue"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "webUserID",
+      "webProcessTemplateID",
+      "optionName",
+      "optionValue"
+    })
 @XmlRootElement(name = "UpdateWebUserOptions")
 public class UpdateWebUserOptions {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "WebUserID")
-    protected int webUserID;
-    @XmlElement(name = "WebProcessTemplateID")
-    protected int webProcessTemplateID;
-    @XmlElement(name = "OptionName")
-    protected String optionName;
-    @XmlElement(name = "OptionValue")
-    protected String optionValue;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "WebUserID")
+  protected int webUserID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "WebProcessTemplateID")
+  protected int webProcessTemplateID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "OptionName")
+  protected String optionName;
 
-    /**
-     * Gets the value of the webUserID property.
-     * 
-     */
-    public int getWebUserID() {
-        return webUserID;
-    }
+  @XmlElement(name = "OptionValue")
+  protected String optionValue;
 
-    /**
-     * Sets the value of the webUserID property.
-     * 
-     */
-    public void setWebUserID(int value) {
-        this.webUserID = value;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Gets the value of the webProcessTemplateID property.
-     * 
-     */
-    public int getWebProcessTemplateID() {
-        return webProcessTemplateID;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Sets the value of the webProcessTemplateID property.
-     * 
-     */
-    public void setWebProcessTemplateID(int value) {
-        this.webProcessTemplateID = value;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Gets the value of the optionName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOptionName() {
-        return optionName;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Sets the value of the optionName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOptionName(String value) {
-        this.optionName = value;
-    }
+  /** Gets the value of the webUserID property. */
+  public int getWebUserID() {
+    return webUserID;
+  }
 
-    /**
-     * Gets the value of the optionValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOptionValue() {
-        return optionValue;
-    }
+  /** Sets the value of the webUserID property. */
+  public void setWebUserID(int value) {
+    this.webUserID = value;
+  }
 
-    /**
-     * Sets the value of the optionValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOptionValue(String value) {
-        this.optionValue = value;
-    }
+  /** Gets the value of the webProcessTemplateID property. */
+  public int getWebProcessTemplateID() {
+    return webProcessTemplateID;
+  }
 
+  /** Sets the value of the webProcessTemplateID property. */
+  public void setWebProcessTemplateID(int value) {
+    this.webProcessTemplateID = value;
+  }
+
+  /**
+   * Gets the value of the optionName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getOptionName() {
+    return optionName;
+  }
+
+  /**
+   * Sets the value of the optionName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setOptionName(String value) {
+    this.optionName = value;
+  }
+
+  /**
+   * Gets the value of the optionValue property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getOptionValue() {
+    return optionValue;
+  }
+
+  /**
+   * Sets the value of the optionValue property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setOptionValue(String value) {
+    this.optionValue = value;
+  }
 }

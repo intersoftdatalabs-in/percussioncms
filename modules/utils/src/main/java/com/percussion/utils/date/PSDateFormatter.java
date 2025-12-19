@@ -17,21 +17,20 @@
 
 package com.percussion.utils.date;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public class PSDateFormatter {
 
-    public static String formatDateForHttp(Date d){
-       return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'",
-                TimeZone.getTimeZone("GMT")).format(d);
-    }
+  public static String formatDateForHttp(Date d) {
+    return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'", TimeZone.getTimeZone("GMT"))
+        .format(d);
+  }
 
-    public static Date parseDateFromHttp(String d) throws ParseException {
-            return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'",
-                    TimeZone.getTimeZone("GMT")).parse(d);
-    }
+  public static Date parseDateFromHttp(String d) throws ParseException {
+    return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'", TimeZone.getTimeZone("GMT"))
+        .parse(d);
+  }
 }

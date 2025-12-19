@@ -22,68 +22,55 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Creates a stream that allows the user to read data from a block of shared
- * memory. Marking and resetting are supported.
-**/
-public class PSSharedMemoryInputStream extends InputStream 
-{
-   /**
-    * Creates a stream to read data from a shared memory block.
-   **/
-   public PSSharedMemoryInputStream( PSSharedMemory shMem )
-   {
-      m_shMem = shMem;
-      m_sharedMemView = mapSharedMemoryView( shMem.getMemoryId());
-      m_bOpen = true;
-   }
-   
-   public void close() throws IOException 
-   {
-      if ( 0 != m_sharedMemView )
-      {
-         unmapSharedMemoryView( m_sharedMemView );
-         m_sharedMemView = 0;
-      }
-      m_bOpen = false;
-//      try
-      {
-         m_shMem.dispose();   
-      }
-//      catch ( PSIpcOSException e )
-      {
-         // nothing we can do, so ignore it (log it?)
-      }
-      
-   }
-   
-   public int read() 
-      throws IOException 
-   {
-      if ( !m_bOpen )
-         throw new IOException();
+ * Creates a stream that allows the user to read data from a block of shared memory. Marking and
+ * resetting are supported.
+ */
+public class PSSharedMemoryInputStream extends InputStream {
+  /** Creates a stream to read data from a shared memory block. */
+  public PSSharedMemoryInputStream(PSSharedMemory shMem) {
+    m_shMem = shMem;
+    m_sharedMemView = mapSharedMemoryView(shMem.getMemoryId());
+    m_bOpen = true;
+  }
 
-      if ( 0 == available())
-         throw new EOFException();
+  public void close() throws IOException {
+    if (0 != m_sharedMemView) {
+      unmapSharedMemoryView(m_sharedMemView);
+      m_sharedMemView = 0;
+    }
+    m_bOpen = false;
+    //      try
+    {
+      m_shMem.dispose();
+    }
+    //      catch ( PSIpcOSException e )
+    {
+      // nothing we can do, so ignore it (log it?)
+    }
+  }
 
-      byte [] buf = readBytes( m_sharedMemView, m_offset++, 1 );
+  public int read() throws IOException {
+    if (!m_bOpen) throw new IOException();
 
-      return (buf[0] & 0xff);
-   }   
-   
-   public int available()
-         throws IOException 
-   {
-      return ( m_shMem.getSize() - m_offset );
-      
-   }
-   
-   
-   private native int mapSharedMemoryView( int shMemHandle );
-   private native void unmapSharedMemoryView( int shMemView );
-   private native byte [] readBytes( int shMemView, int offset, int bytes );
-   
-   private boolean m_bOpen = false;
-   private int m_offset = 0;
-   private PSSharedMemory m_shMem;
-   private int m_sharedMemView;
+    if (0 == available()) throw new EOFException();
+
+    byte[] buf = readBytes(m_sharedMemView, m_offset++, 1);
+
+    return (buf[0] & 0xff);
+  }
+
+  public int available() throws IOException {
+    return (m_shMem.getSize() - m_offset);
+  }
+
+  private native int mapSharedMemoryView(int shMemHandle);
+
+  private native void unmapSharedMemoryView(int shMemView);
+
+  private native byte[] readBytes(int shMemView, int offset, int bytes);
+
+  private boolean m_bOpen = false;
+  private int m_offset = 0;
+  private PSSharedMemory m_shMem;
+  private int m_sharedMemView;
 }

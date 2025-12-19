@@ -18,9 +18,7 @@ package com.percussion.share.dao;
 
 import java.util.List;
 
-public interface IPSRelationshipCataloger
-{
-    
-    public List<String> findOwners(String id, String name, String contentType, String slotName);
+public interface IPSRelationshipCataloger {
 
+  public List<String> findOwners(String id, String name, String contentType, String slotName);
 }

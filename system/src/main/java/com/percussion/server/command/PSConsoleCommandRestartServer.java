@@ -24,89 +24,73 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
- * The PSConsoleCommandRestartServer class implements processing of the
- * "restart server" console command.
+ * The PSConsoleCommandRestartServer class implements processing of the "restart server" console
+ * command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSConsoleCommandRestartServer extends PSConsoleCommand
-{
-   /**
-    * The constructor for this class.
-    *
-    * @param      cmdArgs      the argument string to use when executing
-    *                           this command
-    *
-    */
-   public PSConsoleCommandRestartServer(String cmdArgs)
-      throws PSIllegalArgumentException
-   {
-      super(cmdArgs);
+public class PSConsoleCommandRestartServer extends PSConsoleCommand {
+  /**
+   * The constructor for this class.
+   *
+   * @param cmdArgs the argument string to use when executing this command
+   */
+  public PSConsoleCommandRestartServer(String cmdArgs) throws PSIllegalArgumentException {
+    super(cmdArgs);
 
-      // there should be no other args for this command
-      if ((cmdArgs != null) && (cmdArgs.length() > 0)) {
-         Object[] args = { ms_cmdName, cmdArgs };
-         throw new PSIllegalArgumentException(
-            IPSServerErrors.RCONSOLE_UNEXPECTED_ARGS, args);
-      }
-   }
+    // there should be no other args for this command
+    if ((cmdArgs != null) && (cmdArgs.length() > 0)) {
+      Object[] args = {ms_cmdName, cmdArgs};
+      throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_UNEXPECTED_ARGS, args);
+    }
+  }
 
-   /**
-    * Execute the command specified by this object. The results are returned
-    * as an XML document of the appropriate structure for the command.
-    *   <P>
-    * The execution of this command results in the following XML document
-    * structure:
-    * <PRE><CODE>
-    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
-    *
-    *      &lt;--
-    *         the command that was executed
-    *      --&gt;
-    *      &lt;ELEMENT command                     (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the result code for the command execution
-    *      --&gt;
-    *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
-    *
-    *      &lt;--
-    *         the message text associated with the result code
-    *      --&gt;
-    *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
-    * </CODE></PRE>
-    *   
-    * @param      request                     the requestor object
-    *
-    * @return                                 the result document
-    *
-    * @exception   PSConsoleCommandException   if an error occurs during
-    *                                          execution
-    */
-   public Document execute(PSRequest request)
-      throws PSConsoleCommandException
-   {
-      Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(
-         respDoc, "PSXConsoleCommandResults");
-      PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName);
-      PSXmlDocumentBuilder.addElement(respDoc, root, "resultCode", "0");
-      PSXmlDocumentBuilder.addElement(respDoc, root, "resultText", "just kidding, this doesn't work yet :-)");
+  /**
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
+   * <PRE><CODE>
+   *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
+   *
+   *      &lt;--
+   *         the command that was executed
+   *      --&gt;
+   *      &lt;ELEMENT command                     (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the result code for the command execution
+   *      --&gt;
+   *      &lt;ELEMENT resultCode                  (#PCDATA)&gt;
+   *
+   *      &lt;--
+   *         the message text associated with the result code
+   *      --&gt;
+   *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
+   * </CODE></PRE>
+   *
+   * @param request the requestor object
+   * @return the result document
+   * @exception PSConsoleCommandException if an error occurs during execution
+   */
+  public Document execute(PSRequest request) throws PSConsoleCommandException {
+    Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(respDoc, "PSXConsoleCommandResults");
+    PSXmlDocumentBuilder.addElement(respDoc, root, "command", ms_cmdName);
+    PSXmlDocumentBuilder.addElement(respDoc, root, "resultCode", "0");
+    PSXmlDocumentBuilder.addElement(
+        respDoc, root, "resultText", "just kidding, this doesn't work yet :-)");
 
-      /* *TODO* do the logic for this handler */
+    /* *TODO* do the logic for this handler */
 
-      return respDoc;
-   }
+    return respDoc;
+  }
 
-   /**
-    * allow package members to see our command name
-    */
-   final static String   ms_cmdName = "restart server";
+  /** allow package members to see our command name */
+  static final String ms_cmdName = "restart server";
 }
-

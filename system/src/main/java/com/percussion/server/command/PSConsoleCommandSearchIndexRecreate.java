@@ -30,62 +30,46 @@ import com.percussion.server.PSRequest;
  *
  * @author paulhoward
  */
-public class PSConsoleCommandSearchIndexRecreate
-   extends PSConsoleCommandSearchIndex
-{
-   /**
-    * Ctor required by framework.
-    * 
-    * @param args See class description for reqs.
-    * 
-    * @throws PSIllegalArgumentException Never. The optional arg is not
-    * validated until the command is executed.
-    * <p>Note: we use PSIllegal... here because that's what the framework uses.
-    */
-   public PSConsoleCommandSearchIndexRecreate(String cmdArgs)
-      throws PSIllegalArgumentException
-   {
-      super(cmdArgs);
-   }
-   
-   //see base class   
-   public PSKey[] doExecute(PSRequest request, PSKey[] ctypeIds) 
-      throws PSSearchException
-   {
-      PSSearchAdmin sa = null;
-      PSSearchEngine eng = PSSearchEngine.getInstance();
-      try
-      {
-         sa = eng.getSearchAdmin(true);
-         return sa.rebuildIndexes(ctypeIds);
-      }
-      catch (PSAdminLockedException e)
-      {
-         throw new PSSearchException(e.getErrorCode(), e.getErrorArguments());
-      }
-      catch (IllegalStateException ise)
-      {
-         throw new PSSearchException(IPSServerErrors.RCONSOLE_COMMAND_CANT_RUN, 
-               ise.getLocalizedMessage());
-      }
-      finally
-      {
-         if (null != sa)
-            eng.releaseSearchAdmin(sa);    
-      }
-   }
-   
-   // see base class
-   protected String getCommandName()
-   {
-      return COMMAND_NAME;
-   }
-   
-   /**
-    * The full command that launched this handler. 
-    * <p>Note: this should be passed in rather than having it in two places,
-    * but the whole framework needs reworking so I'm not going to take that on
-    * now. 
-    */
-   private final static String COMMAND_NAME = "search index recreate";
+public class PSConsoleCommandSearchIndexRecreate extends PSConsoleCommandSearchIndex {
+  /**
+   * Ctor required by framework.
+   *
+   * @param args See class description for reqs.
+   * @throws PSIllegalArgumentException Never. The optional arg is not validated until the command
+   *     is executed.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
+   */
+  public PSConsoleCommandSearchIndexRecreate(String cmdArgs) throws PSIllegalArgumentException {
+    super(cmdArgs);
+  }
+
+  // see base class
+  public PSKey[] doExecute(PSRequest request, PSKey[] ctypeIds) throws PSSearchException {
+    PSSearchAdmin sa = null;
+    PSSearchEngine eng = PSSearchEngine.getInstance();
+    try {
+      sa = eng.getSearchAdmin(true);
+      return sa.rebuildIndexes(ctypeIds);
+    } catch (PSAdminLockedException e) {
+      throw new PSSearchException(e.getErrorCode(), e.getErrorArguments());
+    } catch (IllegalStateException ise) {
+      throw new PSSearchException(
+          IPSServerErrors.RCONSOLE_COMMAND_CANT_RUN, ise.getLocalizedMessage());
+    } finally {
+      if (null != sa) eng.releaseSearchAdmin(sa);
+    }
+  }
+
+  // see base class
+  protected String getCommandName() {
+    return COMMAND_NAME;
+  }
+
+  /**
+   * The full command that launched this handler.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
+   */
+  private static final String COMMAND_NAME = "search index recreate";
 }

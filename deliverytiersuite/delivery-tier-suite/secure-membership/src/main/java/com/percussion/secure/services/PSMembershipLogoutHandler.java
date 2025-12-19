@@ -17,10 +17,7 @@
 package com.percussion.secure.services;
 
 import com.percussion.secure.data.PSMembershipConfiguration;
-import org.json.JSONObject;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -31,97 +28,89 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
+import org.json.JSONObject;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
-//import org.eclipse.update.internal.ui.security.Authentication;
+// import org.eclipse.update.internal.ui.security.Authentication;
 
 /**
  * Handle logging out of membership
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-public class PSMembershipLogoutHandler extends SimpleUrlLogoutSuccessHandler
-{
-    
-    private static Client ms_client = ClientBuilder.newClient();
-    PSMembershipConfiguration membershipConfig;
-    
+public class PSMembershipLogoutHandler extends SimpleUrlLogoutSuccessHandler {
 
-    public void setMembershipConfig(PSMembershipConfiguration membershipConfig)
-    {
-        this.membershipConfig = membershipConfig;
-    }
-    
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException
-    {
-        try
-        {
-            // first log out of membership
-            String sessionId = getSessionId(request);
-            if (sessionId != null && !sessionId.isEmpty())
-            {
+  private static Client ms_client = ClientBuilder.newClient();
+  PSMembershipConfiguration membershipConfig;
 
-                WebTarget webTarget = ms_client.target(membershipConfig.getBaseUrl() +
-                        "/perc-membership-services/membership/logout/" + sessionId);
+  public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
+    this.membershipConfig = membershipConfig;
+  }
 
-                Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
-                Response resp = invocationBuilder.get();
-                String queryRespose = resp.readEntity(String.class);
+  public void onLogoutSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException, ServletException {
+    try {
+      // first log out of membership
+      String sessionId = getSessionId(request);
+      if (sessionId != null && !sessionId.isEmpty()) {
 
+        WebTarget webTarget =
+            ms_client.target(
+                membershipConfig.getBaseUrl()
+                    + "/perc-membership-services/membership/logout/"
+                    + sessionId);
 
-                if (resp.getStatus() != 200)
-                {
-                    logger.error("Logout call to membership service failed : " + resp.getStatus());
-                }
-                else
-                {
-                    String jsonString = (String)resp.getEntity();
-                    JSONObject resultObj = new JSONObject(jsonString);
-                    String status = resultObj.getString("status");
-                    String message = resultObj.getString("message");
+        Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+        Response resp = invocationBuilder.get();
+        String queryRespose = resp.readEntity(String.class);
 
-                    if (!"SUCCESS".equals(status))
-                    {
-                        logger.error("Error logging out of membership service, status: " + status + ", message: " + message);
-                    }
-                }
+        if (resp.getStatus() != 200) {
+          logger.error("Logout call to membership service failed : " + resp.getStatus());
+        } else {
+          String jsonString = (String) resp.getEntity();
+          JSONObject resultObj = new JSONObject(jsonString);
+          String status = resultObj.getString("status");
+          String message = resultObj.getString("message");
+
+          if (!"SUCCESS".equals(status)) {
+            logger.error(
+                "Error logging out of membership service, status: "
+                    + status
+                    + ", message: "
+                    + message);
           }
-
         }
-        catch (Exception e)
-        {
-            logger.error("Error logging out of membership service {}", e);
-            logger.debug(e.getMessage(), e);
-        }
+      }
 
-        // now let superclass handle the redirect
-        super.handle(request, response, authentication);
+    } catch (Exception e) {
+      logger.error("Error logging out of membership service {}", e);
+      logger.debug(e.getMessage(), e);
     }
 
-    /**
-     * Get the current session id from the cookie in the request
-     * 
-     * @param request Assumed not <code>null</code>
-     * 
-     * @return The id, <code>null</code> if not found.
-     */
-    private String getSessionId(HttpServletRequest request)
-    {
-        String sessionId = null;
-        String sessionCookieName = membershipConfig.getMembershipSessionCookieName();
-        
-        Cookie[] cookies = request.getCookies();
-        for (int i = 0; i < cookies.length; i++)
-        {
-            Cookie cookie = cookies[i];
-            if (sessionCookieName.equals(cookie.getName()))
-            {
-                sessionId = cookie.getValue();
-                break;
-            }
-        }
-        return sessionId;
+    // now let superclass handle the redirect
+    super.handle(request, response, authentication);
+  }
+
+  /**
+   * Get the current session id from the cookie in the request
+   *
+   * @param request Assumed not <code>null</code>
+   * @return The id, <code>null</code> if not found.
+   */
+  private String getSessionId(HttpServletRequest request) {
+    String sessionId = null;
+    String sessionCookieName = membershipConfig.getMembershipSessionCookieName();
+
+    Cookie[] cookies = request.getCookies();
+    for (int i = 0; i < cookies.length; i++) {
+      Cookie cookie = cookies[i];
+      if (sessionCookieName.equals(cookie.getName())) {
+        sessionId = cookie.getValue();
+        break;
+      }
     }
+    return sessionId;
+  }
 }

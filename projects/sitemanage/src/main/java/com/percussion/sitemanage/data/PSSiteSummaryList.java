@@ -19,20 +19,19 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.DEFAULT)
-//TODO: Fix this to be a List..  SiteSummary is the object type in the list.  All the JavaScript seems look for SiteSummary
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.DEFAULT)
+// TODO: Fix this to be a List..  SiteSummary is the object type in the list.  All the JavaScript
+// seems look for SiteSummary
 @JsonRootName("SiteSummary")
 public class PSSiteSummaryList extends ArrayList<PSSiteSummary> {
-    public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
-        super(c);
-    }
+  public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
+    super(c);
+  }
 
-    public PSSiteSummaryList(){
-        super();
-    }
+  public PSSiteSummaryList() {
+    super();
+  }
 }
-

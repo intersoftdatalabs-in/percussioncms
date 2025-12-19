@@ -17,78 +17,86 @@
 
 package com.percussion.taxonomy.domain;
 
-
 /**
- * Taxonomy Related_node class to represent information about how taxons are related to one another in a given taxonomy.  
+ * Taxonomy Related_node class to represent information about how taxons are related to one another
+ * in a given taxonomy.
  */
 public class Related_node {
 
-    private int id;
-    private Node node;
-    private Node related_node;
-    private Relationship_type relationship;
+  private int id;
+  private Node node;
+  private Node related_node;
+  private Relationship_type relationship;
 
-    /**
-     * Return unique id of related node
-     * @return id - unique int related node id
-     */
-    public int getId() {
-        return id;
-    }
+  /**
+   * Return unique id of related node
+   *
+   * @return id - unique int related node id
+   */
+  public int getId() {
+    return id;
+  }
 
-    /**
-     * Set unique id of related node
-     * @param id - unique int value 
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
+  /**
+   * Set unique id of related node
+   *
+   * @param id - unique int value
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    /**
-     * Returns node object
-     * @return node
-     */
-    public Node getNode() {
-        return node;
-    }
+  /**
+   * Returns node object
+   *
+   * @return node
+   */
+  public Node getNode() {
+    return node;
+  }
 
-    /**
-     * Set node object
-     * @param node
-     */
-    public void setNode(Node node) {
-        this.node = node;
-    }
+  /**
+   * Set node object
+   *
+   * @param node
+   */
+  public void setNode(Node node) {
+    this.node = node;
+  }
 
-    /**
-     * Returns related node object
-     * @return node
-     */
-    public Node getRelated_node() {
-        return related_node;
-    }
+  /**
+   * Returns related node object
+   *
+   * @return node
+   */
+  public Node getRelated_node() {
+    return related_node;
+  }
 
-    /**
-     * Set related node object
-     * @param node
-     */
-    public void setRelated_node(Node related_node) {
-        this.related_node = related_node;
-    }
+  /**
+   * Set related node object
+   *
+   * @param node
+   */
+  public void setRelated_node(Node related_node) {
+    this.related_node = related_node;
+  }
 
-    /**
-     * Returns relation type of related node
-     * @return relationship
-     */
-    public Relationship_type getRelationship() {
-        return relationship;
-    }
+  /**
+   * Returns relation type of related node
+   *
+   * @return relationship
+   */
+  public Relationship_type getRelationship() {
+    return relationship;
+  }
 
-    /**
-     * Set relationship type of related node
-     * @param relationship
-     */
-    public void setRelationship(Relationship_type relationship) {
-        this.relationship = relationship;
-    }
+  /**
+   * Set relationship type of related node
+   *
+   * @param relationship
+   */
+  public void setRelationship(Relationship_type relationship) {
+    this.relationship = relationship;
+  }
 }

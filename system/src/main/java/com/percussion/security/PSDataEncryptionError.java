@@ -19,60 +19,47 @@ package com.percussion.security;
 import com.percussion.error.PSErrorManager;
 import com.percussion.log.PSLogError;
 import com.percussion.log.PSLogSubMessage;
-
 import java.util.Locale;
 
 /**
  * The PSDataEncryptionError class is used to report an encryption error.
- * 
  *
- * @author      Chad Loder
- * @version      1.0
- * @since      1.0
+ * @author Chad Loder
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataEncryptionError extends PSLogError {
-   
-   /**
-    * Report a data encryption exception
-    *
-    * @param      errorCode   the specific error code returned
-    * @param   args the error arguments
-    */
-   public PSDataEncryptionError(   int errorCode, Object[] args )
-   {
-      super(0);
-      m_errorCode = errorCode;
-      m_errorArgs = args;
-   }
 
-   /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
-    */
-   protected PSLogSubMessage[] buildSubMessages(Locale loc)
-   {
-      PSLogSubMessage[] msgs = new PSLogSubMessage[2];
+  /**
+   * Report a data encryption exception
+   *
+   * @param errorCode the specific error code returned
+   * @param args the error arguments
+   */
+  public PSDataEncryptionError(int errorCode, Object[] args) {
+    super(0);
+    m_errorCode = errorCode;
+    m_errorArgs = args;
+  }
 
-      /* the generic submessage first */
-      msgs[0]   = new PSLogSubMessage(
-                              IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG,
-                              PSErrorManager.getErrorText(
-                                    IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG,
-                                    false,
-                                    loc));
+  /** sublcasses must override this to build the messages in the specified locale */
+  protected PSLogSubMessage[] buildSubMessages(Locale loc) {
+    PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 
-      /* use the errorCode/errorParams to format the second submessage */
-      msgs[1]   = new PSLogSubMessage(
-                              m_errorCode,
-                              PSErrorManager.createMessage(   m_errorCode,
-                                                            m_errorArgs,
-                                                            loc));
+    /* the generic submessage first */
+    msgs[0] =
+        new PSLogSubMessage(
+            IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG,
+            PSErrorManager.getErrorText(IPSSecurityErrors.DATA_ENCRYPTION_ERROR_MSG, false, loc));
 
-      return msgs;
-   }
+    /* use the errorCode/errorParams to format the second submessage */
+    msgs[1] =
+        new PSLogSubMessage(
+            m_errorCode, PSErrorManager.createMessage(m_errorCode, m_errorArgs, loc));
 
+    return msgs;
+  }
 
-   private int         m_errorCode;
-   private Object[]   m_errorArgs;
+  private int m_errorCode;
+  private Object[] m_errorArgs;
 }
-

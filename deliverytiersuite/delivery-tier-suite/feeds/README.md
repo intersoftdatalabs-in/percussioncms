@@ -1,5 +1,6 @@
 # feeds
-This modules contains all the backend support required by DTS for 
+
+This modules contains all the backend support required by DTS for
 Feeds.
 
 ## Building
@@ -7,3 +8,4 @@ Feeds.
 ```
 mvn clean install
 ```
+

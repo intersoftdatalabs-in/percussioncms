@@ -17,12 +17,16 @@
 
 package com.percussion.delivery.polls.services;
 
-public interface IPSPollAnswer 
-{
-	public long getId();
-	public void setId(long id);
-	public String getAnswer();
-	public void setAnswer(String answer);
-	public int getCount();
-	public void setCount(int count);
+public interface IPSPollAnswer {
+  public long getId();
+
+  public void setId(long id);
+
+  public String getAnswer();
+
+  public void setAnswer(String answer);
+
+  public int getCount();
+
+  public void setCount(int count);
 }

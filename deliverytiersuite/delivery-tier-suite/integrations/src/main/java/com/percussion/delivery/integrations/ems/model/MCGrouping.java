@@ -19,29 +19,28 @@ package com.percussion.delivery.integrations.ems.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MCGrouping {
-	
-	private String name;
-	private int groupingId;
-	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public Integer getGroupingId() {
-		return groupingId;
-	}
-	public void setGroupingId(Integer groupingId) {
-		this.groupingId = groupingId;
-	}
 
-	
+  private String name;
+  private int groupingId;
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Integer getGroupingId() {
+    return groupingId;
+  }
+
+  public void setGroupingId(Integer groupingId) {
+    this.groupingId = groupingId;
+  }
 }

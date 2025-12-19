@@ -16,7 +16,7 @@ The latest release is always available from [the "latest" tag](https://raw.githu
 
 It can also be installed using [volo](https://github.com/volojs/volo):
 
-    volo add requirejs/text
+        volo add requirejs/text
 
 ## Usage
 
@@ -104,7 +104,7 @@ The [requirejs optimizer](http://requirejs.org/docs/optimization.html) will
 generate these '.js' versions of the text resources if you set this in the
 build profile:
 
-    optimizeAllPluginResources: true
+        optimizeAllPluginResources: true
 
 In some cases, you may want the text plugin to not try the .js resource, maybe
 because you have configured CORS on the other server, and you know that only

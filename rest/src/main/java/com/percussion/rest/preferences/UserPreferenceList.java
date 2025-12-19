@@ -17,23 +17,20 @@
 
 package com.percussion.rest.preferences;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="UserPreferenceList")
+@XmlRootElement(name = "UserPreferenceList")
 @ArraySchema(schema = @Schema(implementation = UserPreference.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPreferenceList extends ArrayList<UserPreference> {
-    public UserPreferenceList(Collection<? extends UserPreference> c) {
-        super(c);
-    }
+  public UserPreferenceList(Collection<? extends UserPreference> c) {
+    super(c);
+  }
 
-    public UserPreferenceList() {
-    }
+  public UserPreferenceList() {}
 }

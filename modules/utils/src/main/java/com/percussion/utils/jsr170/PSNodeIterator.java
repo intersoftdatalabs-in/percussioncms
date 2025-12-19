@@ -16,34 +16,27 @@
  */
 package com.percussion.utils.jsr170;
 
-
-import org.apache.commons.collections4.MultiValuedMap;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import java.util.Map;
+import org.apache.commons.collections4.MultiValuedMap;
 
 /**
  * Implementation of node iterator
- * 
+ *
  * @author dougrand
  */
-public class PSNodeIterator  extends PSItemIterator<Node>
-   implements NodeIterator
-{
-   /**
-    * Ctor for node iterator
-    * @param children child map, may not be <code>null</code>
-    * @param filter filter, may be <code>null</code> if no filter is needed
-    */
-   public PSNodeIterator(MultiValuedMap children, String filter) {
-      super(children.asMap(), filter);
-   }
+public class PSNodeIterator extends PSItemIterator<Node> implements NodeIterator {
+  /**
+   * Ctor for node iterator
+   *
+   * @param children child map, may not be <code>null</code>
+   * @param filter filter, may be <code>null</code> if no filter is needed
+   */
+  public PSNodeIterator(MultiValuedMap children, String filter) {
+    super(children.asMap(), filter);
+  }
 
-   public Node nextNode()
-   {
-      return next();
-   }
-
-
+  public Node nextNode() {
+    return next();
+  }
 }

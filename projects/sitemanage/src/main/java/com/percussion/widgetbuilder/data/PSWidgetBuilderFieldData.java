@@ -17,101 +17,83 @@
 package com.percussion.widgetbuilder.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a single widget field definition
- * 
- * @author JaySeletz
  *
+ * @author JaySeletz
  */
-@XmlRootElement(name="WidgetBuilderFieldData")
-public class PSWidgetBuilderFieldData extends PSAbstractDataObject
-{
+@XmlRootElement(name = "WidgetBuilderFieldData")
+public class PSWidgetBuilderFieldData extends PSAbstractDataObject {
 
-    String name;
-    String label;
-    String type;
-    
-    
-    public PSWidgetBuilderFieldData()
-    {
-    }
-    
-    
-    public String getName()
-    {
-        return name;
-    }
+  String name;
+  String label;
+  String type;
 
+  public PSWidgetBuilderFieldData() {}
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getLabel()
-    {
-        return label;
-    }
+  public String getLabel() {
+    return label;
+  }
 
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
+  public String getType() {
+    return type;
+  }
 
+  public void setType(String type) {
+    FieldType.valueOf(type);
+    this.type = type;
+  }
 
-    public String getType()
-    {
-        return type;
-    }
+  public enum FieldType {
+    TEXT,
+    TEXT_AREA,
+    DATE,
+    RICH_TEXT,
+    FILE,
+    FILE_LINK,
+    IMAGE,
+    IMAGE_LINK,
+    PAGE,
+    PAGE_LINK;
+  }
 
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("PSWidgetBuilderFieldData{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", label='").append(label).append('\'');
+    sb.append(", type='").append(type).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 
-    public void setType(String type)
-    {
-        FieldType.valueOf(type);
-        this.type = type;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderFieldData)) return false;
+    PSWidgetBuilderFieldData that = (PSWidgetBuilderFieldData) o;
+    return Objects.equals(getName(), that.getName())
+        && Objects.equals(getLabel(), that.getLabel())
+        && Objects.equals(getType(), that.getType());
+  }
 
-
-    public enum FieldType
-    {
-        TEXT,
-        TEXT_AREA,
-        DATE,
-        RICH_TEXT,
-        FILE,
-        FILE_LINK,
-        IMAGE,
-        IMAGE_LINK,
-        PAGE,
-        PAGE_LINK;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("PSWidgetBuilderFieldData{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", label='").append(label).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderFieldData)) return false;
-        PSWidgetBuilderFieldData that = (PSWidgetBuilderFieldData) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getLabel(), that.getLabel()) && Objects.equals(getType(), that.getType());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getLabel(), getType());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getLabel(), getType());
+  }
 }

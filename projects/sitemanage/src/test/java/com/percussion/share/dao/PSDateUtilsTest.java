@@ -22,40 +22,34 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.Date;
-
 import org.junit.Test;
 
-public class PSDateUtilsTest
-{
-    /**
-     * Tests {@link PSDateUtils#getDateToString(java.util.Date)} and {@link PSDateUtils#getDateFromString(String)}.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetDateToFromString() throws Exception
-    {
-        Date now = new Date();
-        String date = PSDateUtils.getDateToString(now);
-        
-        Date d = PSDateUtils.getDateFromString(date);
-        String dStr = PSDateUtils.getDateToString(d);
-        assertEquals(date, dStr);
-        assertEquals(d, PSDateUtils.getDateFromString(dStr));
-        
-        assertEquals("", PSDateUtils.getDateToString(null));
-        assertNull(PSDateUtils.getDateFromString(null));
-        assertNull(PSDateUtils.getDateFromString(""));
-        
-        try
-        {
-            PSDateUtils.getDateFromString("This is not a date!");
-            fail("Invalid date string was accepted");
-        }
-        catch (ParseException e)
-        {
-            // expected
-        }
+public class PSDateUtilsTest {
+  /**
+   * Tests {@link PSDateUtils#getDateToString(java.util.Date)} and {@link
+   * PSDateUtils#getDateFromString(String)}.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testGetDateToFromString() throws Exception {
+    Date now = new Date();
+    String date = PSDateUtils.getDateToString(now);
+
+    Date d = PSDateUtils.getDateFromString(date);
+    String dStr = PSDateUtils.getDateToString(d);
+    assertEquals(date, dStr);
+    assertEquals(d, PSDateUtils.getDateFromString(dStr));
+
+    assertEquals("", PSDateUtils.getDateToString(null));
+    assertNull(PSDateUtils.getDateFromString(null));
+    assertNull(PSDateUtils.getDateFromString(""));
+
+    try {
+      PSDateUtils.getDateFromString("This is not a date!");
+      fail("Invalid date string was accepted");
+    } catch (ParseException e) {
+      // expected
     }
-        
+  }
 }

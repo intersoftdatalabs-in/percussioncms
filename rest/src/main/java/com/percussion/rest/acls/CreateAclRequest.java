@@ -19,36 +19,33 @@ package com.percussion.rest.acls;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="CreateAclRequest")
-@Schema(description="A request to create an acl")
+@XmlRootElement(name = "CreateAclRequest")
+@Schema(description = "A request to create an acl")
 public class CreateAclRequest {
 
-    @Schema(required = true, description="A valid object guid.")
-    private Guid objectGuid;
+  @Schema(required = true, description = "A valid object guid.")
+  private Guid objectGuid;
 
-    @Schema(required = true, description="A valid Typed Principal")
-    private TypedPrincipal owner;
+  @Schema(required = true, description = "A valid Typed Principal")
+  private TypedPrincipal owner;
 
-    public CreateAclRequest() {
-    }
+  public CreateAclRequest() {}
 
+  public TypedPrincipal getOwner() {
+    return owner;
+  }
 
-    public TypedPrincipal getOwner() {
-        return owner;
-    }
+  public void setPrincipal(TypedPrincipal principal) {
+    this.owner = principal;
+  }
 
-    public void setPrincipal(TypedPrincipal principal) {
-        this.owner = principal;
-    }
+  public Guid getObjectGuid() {
+    return objectGuid;
+  }
 
-    public Guid getObjectGuid() {
-        return objectGuid;
-    }
-
-    public void setObjectGuid(Guid objectGuid) {
-        this.objectGuid = objectGuid;
-    }
+  public void setObjectGuid(Guid objectGuid) {
+    this.objectGuid = objectGuid;
+  }
 }

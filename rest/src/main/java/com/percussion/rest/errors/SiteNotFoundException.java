@@ -19,14 +19,9 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author stephenbolton
- * 
- */
-public class SiteNotFoundException extends RestExceptionBase
-{
-    public SiteNotFoundException()
-    {
-        super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
+/** @author stephenbolton */
+public class SiteNotFoundException extends RestExceptionBase {
+  public SiteNotFoundException() {
+    super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
 }

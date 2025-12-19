@@ -19,22 +19,22 @@ package com.percussion.delivery.feeds.data;
 
 public class PSFeedDTO {
 
-    private String feedsUrl;
-    private String hostName;
+  private String feedsUrl;
+  private String hostName;
 
-    public String getFeedsUrl() {
-        return feedsUrl;
-    }
+  public String getFeedsUrl() {
+    return feedsUrl;
+  }
 
-    public void setFeedsUrl(String feedsUrl) {
-        this.feedsUrl = feedsUrl;
-    }
+  public void setFeedsUrl(String feedsUrl) {
+    this.feedsUrl = feedsUrl;
+  }
 
-    public String getHostName() {
-        return hostName;
-    }
+  public String getHostName() {
+    return hostName;
+  }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
+  public void setHostName(String hostName) {
+    this.hostName = hostName;
+  }
 }

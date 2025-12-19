@@ -19,6 +19,5 @@ package com.percussion.rest.publishingserver;
 
 public class PublishingServer {
 
-    public PublishingServer(){}
-
+  public PublishingServer() {}
 }

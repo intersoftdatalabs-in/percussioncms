@@ -17,26 +17,23 @@
 
 package com.percussion.rest.actions;
 
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema
 public class AllowedContentTypeMenusRequest {
 
-    @ArraySchema
-    private int[] contentIds;
+  @ArraySchema private int[] contentIds;
 
-    public int[] getContentIds() {
-        return contentIds;
-    }
+  public int[] getContentIds() {
+    return contentIds;
+  }
 
-    public void setContentIds(int[] contentIds) {
-        this.contentIds = contentIds;
-    }
+  public void setContentIds(int[] contentIds) {
+    this.contentIds = contentIds;
+  }
 
-    public AllowedContentTypeMenusRequest(){}
+  public AllowedContentTypeMenusRequest() {}
 }

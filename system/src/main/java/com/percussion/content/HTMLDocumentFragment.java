@@ -19,19 +19,14 @@ package com.percussion.content;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
-public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment
-{
-   public short getNodeType()
-   {
-      return Node.DOCUMENT_FRAGMENT_NODE;
-   }
+public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment {
+  public short getNodeType() {
+    return Node.DOCUMENT_FRAGMENT_NODE;
+  }
 
-   /**
-    * Method introduced later in DOM level 2. Not implemented.
-    */
-    public String getLocalName()
-    {
-      // TODO: implement
-      throw new RuntimeException("Method getLocalName not supported");
-    }
+  /** Method introduced later in DOM level 2. Not implemented. */
+  public String getLocalName() {
+    // TODO: implement
+    throw new RuntimeException("Method getLocalName not supported");
+  }
 }

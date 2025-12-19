@@ -16,8 +16,6 @@
  */
 package com.percussion.share.dao;
 
-
-public interface IPSExtensionFinder
-{
-    public <T> T findExtension(String extensionId, Class<T> klass);
+public interface IPSExtensionFinder {
+  public <T> T findExtension(String extensionId, Class<T> klass);
 }

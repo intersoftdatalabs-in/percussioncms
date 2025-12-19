@@ -20,93 +20,70 @@ package com.percussion.membership.data;
 import static com.percussion.share.dao.PSDateUtils.getDateFromString;
 import static com.percussion.share.dao.PSDateUtils.getDateToString;
 
+import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import java.text.ParseException;
 import java.util.Date;
-
 import org.apache.commons.lang.Validate;
-
-import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 
 /**
  * Object to hold summary data about a registered user.
- * 
+ *
  * @author JaySeletz
  */
-public class PSUserSummary
-{
-    private String email;
-    private Date createdDate;
-    private String status;
-    private String groups;
-    
-    /**
-     * Default ctor required by jax-b
-     */
-    public PSUserSummary()
-    {
-        
-    }
+public class PSUserSummary {
+  private String email;
+  private Date createdDate;
+  private String status;
+  private String groups;
 
-    public String getEmail()
-    {
-        return email;
-    }
+  /** Default ctor required by jax-b */
+  public PSUserSummary() {}
 
-    public String getCreatedDate()
-    {
-        return getDateToString(this.createdDate);
-    }
-    
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
-        this.email = email;
-    }
-    
-    public void setCreatedDate(String createdDate) throws DataServiceLoadException {
-        Validate.notNull(createdDate);
-        Date formattedDate;
-        try {
-            formattedDate = getDateFromString(createdDate);
-        } catch (ParseException e) {
-            throw new DataServiceLoadException("Error parsing date in setCreatedDate(String createdDate)"
-                    + "in com.percussion.membership.data.PSUserSummary", e);
-        }
-        this.createdDate = formattedDate;
-    }
-    
-    /**
-     * 
-     * @return the status of the account, never empty or <code>null</code>.
-     */
-    public String getStatus()
-    {
-        return status;
-    }
-    
-    /**
-     * 
-     * @param status set the status of the account, never empty or <code>null</code>.
-     */
-    public void setStatus(String status)
-    {
-        Validate.notEmpty(status);
-        this.status = status;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    /**
-     * @param groups the groups to set, may be empty or <code>null</code>.
-     */
-    public void setGroups(String groups)
-    {
-        this.groups = groups;
-    }
+  public String getCreatedDate() {
+    return getDateToString(this.createdDate);
+  }
 
-    /**
-     * @return the groups, may be empty or <code>null</code>.
-     */
-    public String getGroups()
-    {
-        return groups;
+  public void setEmail(String email) {
+    Validate.notEmpty(email);
+    this.email = email;
+  }
+
+  public void setCreatedDate(String createdDate) throws DataServiceLoadException {
+    Validate.notNull(createdDate);
+    Date formattedDate;
+    try {
+      formattedDate = getDateFromString(createdDate);
+    } catch (ParseException e) {
+      throw new DataServiceLoadException(
+          "Error parsing date in setCreatedDate(String createdDate)"
+              + "in com.percussion.membership.data.PSUserSummary",
+          e);
     }
+    this.createdDate = formattedDate;
+  }
+
+  /** @return the status of the account, never empty or <code>null</code>. */
+  public String getStatus() {
+    return status;
+  }
+
+  /** @param status set the status of the account, never empty or <code>null</code>. */
+  public void setStatus(String status) {
+    Validate.notEmpty(status);
+    this.status = status;
+  }
+
+  /** @param groups the groups to set, may be empty or <code>null</code>. */
+  public void setGroups(String groups) {
+    this.groups = groups;
+  }
+
+  /** @return the groups, may be empty or <code>null</code>. */
+  public String getGroups() {
+    return groups;
+  }
 }

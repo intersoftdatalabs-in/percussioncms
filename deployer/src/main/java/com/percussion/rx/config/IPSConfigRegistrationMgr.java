@@ -17,31 +17,28 @@
 package com.percussion.rx.config;
 
 /**
- * Config registration manager is used for registering and unregistering the
- * configurations. Local config file of registered configuration is monitored
- * for changes and on file change config service is called to apply
- * configuration of updated properties.
- * 
+ * Config registration manager is used for registering and unregistering the configurations. Local
+ * config file of registered configuration is monitored for changes and on file change config
+ * service is called to apply configuration of updated properties.
+ *
  * @author bjoginipally
- * 
  */
-public interface IPSConfigRegistrationMgr
-{
-   /**
-    * Registers the configuration, gets the local configuration file from
-    * config service and monitors it for file changes. On file change calls the
-    * config service to apply the updated configuration.
-    * 
-    * @param configName name of the configuration to register, must not be
-    * <code>null</code> or empty.
-    */
-   public void register(String configName);
-   
-   /**
-    * Unregisters a previously registered configuration.
-    * 
-    * @param configName name of the configuration to unregister, must not be
-    * <code>null</code> or empty.
-    */
-   public void unregister(String configName);
+public interface IPSConfigRegistrationMgr {
+  /**
+   * Registers the configuration, gets the local configuration file from config service and monitors
+   * it for file changes. On file change calls the config service to apply the updated
+   * configuration.
+   *
+   * @param configName name of the configuration to register, must not be <code>null</code> or
+   *     empty.
+   */
+  public void register(String configName);
+
+  /**
+   * Unregisters a previously registered configuration.
+   *
+   * @param configName name of the configuration to unregister, must not be <code>null</code> or
+   *     empty.
+   */
+  public void unregister(String configName);
 }

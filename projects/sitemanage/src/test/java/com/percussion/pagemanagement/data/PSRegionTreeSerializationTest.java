@@ -19,78 +19,68 @@ package com.percussion.pagemanagement.data;
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
+import com.percussion.share.dao.PSSerializerUtils;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.percussion.share.dao.PSSerializerUtils;
+public class PSRegionTreeSerializationTest {
+  @Before
+  public void setup() {}
 
-public class PSRegionTreeSerializationTest
-{
-    @Before
-    public void setup()
-    {
-    }
+  @Test
+  public void testRegionTreeSerializeation() throws Exception {
 
-    @Test
-    public void testRegionTreeSerializeation() throws Exception
-    {
+    PSRegionTree tree = new PSRegionTree();
 
-        PSRegionTree tree = new PSRegionTree();
-        
-        PSRegion region = new PSRegion();
-        PSRegion child = new PSRegion();
-        
-        PSRegionCode code = new PSRegionCode();
-        code.setTemplateCode("#blah()");
-        
-        child.setRegionId("child");
-        
-        region.getChildren().add(code);
-        region.getChildren().add(child);
-        PSRegionCode c2 = new PSRegionCode();
-        c2.setTemplateCode("crap");
-        region.getChildren().add(c2);
-        
-        region.setRegionId("Adam");
-        PSWidgetItem wi = new PSWidgetItem();
-        wi.setName("Blah");
-        wi.setId("1");
-        
-        PSWidgetItem wi2 = new PSWidgetItem();
-        
-        wi2.setName("Foo");
-        wi2.setDescription("Foo description.");
-        wi2.setId("2");
-        
-        PSWidgetItem wi3 = new PSWidgetItem();
-        wi3.setId("3");
-        
-        PSRegionWidgets wr = new PSRegionWidgets();
-        wr.setRegionId("Adam");
-        wr.setWidgetItems(asList(wi,wi2,wi3));
-        Set<PSRegionWidgets> sets = new HashSet<PSRegionWidgets>();
-        sets.add(wr);
-        tree.setRegionWidgetAssociations(sets);
-        tree.setRootRegion(region);
-        String s = PSSerializerUtils.marshal(tree);
-        assertNotNull(s);
-        log.debug(s);
-        
-        PSRegionTree unmarshal = PSSerializerUtils.unmarshal(s, PSRegionTree.class);
-        assertNotNull(unmarshal);
-        assertNotNull(unmarshal.getRegionWidgetAssociations());
-        assertFalse(unmarshal.getRegionWidgetAssociations().isEmpty());
-    }
-    
+    PSRegion region = new PSRegion();
+    PSRegion child = new PSRegion();
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSRegionTreeSerializationTest.class);
+    PSRegionCode code = new PSRegionCode();
+    code.setTemplateCode("#blah()");
 
+    child.setRegionId("child");
+
+    region.getChildren().add(code);
+    region.getChildren().add(child);
+    PSRegionCode c2 = new PSRegionCode();
+    c2.setTemplateCode("crap");
+    region.getChildren().add(c2);
+
+    region.setRegionId("Adam");
+    PSWidgetItem wi = new PSWidgetItem();
+    wi.setName("Blah");
+    wi.setId("1");
+
+    PSWidgetItem wi2 = new PSWidgetItem();
+
+    wi2.setName("Foo");
+    wi2.setDescription("Foo description.");
+    wi2.setId("2");
+
+    PSWidgetItem wi3 = new PSWidgetItem();
+    wi3.setId("3");
+
+    PSRegionWidgets wr = new PSRegionWidgets();
+    wr.setRegionId("Adam");
+    wr.setWidgetItems(asList(wi, wi2, wi3));
+    Set<PSRegionWidgets> sets = new HashSet<PSRegionWidgets>();
+    sets.add(wr);
+    tree.setRegionWidgetAssociations(sets);
+    tree.setRootRegion(region);
+    String s = PSSerializerUtils.marshal(tree);
+    assertNotNull(s);
+    log.debug(s);
+
+    PSRegionTree unmarshal = PSSerializerUtils.unmarshal(s, PSRegionTree.class);
+    assertNotNull(unmarshal);
+    assertNotNull(unmarshal.getRegionWidgetAssociations());
+    assertFalse(unmarshal.getRegionWidgetAssociations().isEmpty());
+  }
+
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSRegionTreeSerializationTest.class);
 }

@@ -20,17 +20,15 @@ package com.percussion.user.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ImportedUser")
-@ArraySchema(schema=@Schema(implementation =PSImportedUser.class))
+@ArraySchema(schema = @Schema(implementation = PSImportedUser.class))
 @JsonRootName("ImportedUser")
 public class PSImportedUserList extends ArrayList<PSImportedUser> {
-    public PSImportedUserList(Collection<? extends PSImportedUser> c) {
-        super(c);
-    }
+  public PSImportedUserList(Collection<? extends PSImportedUser> c) {
+    super(c);
+  }
 }

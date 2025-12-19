@@ -18,15 +18,12 @@
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @JsonRootName(value = "ContentActivity")
 public class PSContentActivityList extends ArrayList<PSContentActivity> {
-    public PSContentActivityList(Collection<? extends PSContentActivity> c) {
-        super(c);
-
-    }
+  public PSContentActivityList(Collection<? extends PSContentActivity> c) {
+    super(c);
+  }
 }

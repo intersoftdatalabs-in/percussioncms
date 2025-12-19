@@ -1,12 +1,13 @@
 ## Overview
 
-The perc-toolkit module contains a set of extensions and utilities that have been contributed by professional services team members, customers, and implementors of Percussion that are usefull in implementations. 
+The perc-toolkit module contains a set of extensions and utilities that have been contributed by professional services team members, customers, and implementors of Percussion that are usefull in implementations.
 
 The toolkit was historically called the PSO Toolkit in Percussion implementations.
 
 This package is where experimental extensions / features can and should be implemented / contributed.
 
 ## Upgrade
+
 On upgrade, the core CMS will remove all legacy toolkit filenames that it finds.  They will be replaced by the perc-toolkit-[version].jar package.
 
 ## Contributions Java Package
@@ -29,13 +30,16 @@ There is an experimental folder under the packages folder.  Any packages that yo
 https://www.github.com/percussion/PSOToolkit -> https://www.github.com/percussion/percussioncms/modules/perc-toolkit
 
 ## API Changes
+
 - PSServerFolderProcessor
--- This is now a singleton  PSServerFolderProcessor.getInstance() should be used 
-  
+  -- This is now a singleton  PSServerFolderProcessor.getInstance() should be used
+
 ## Editor Custom Controls
+
 Editor custom controls are XSL stylesheets that provide a control for editing specific field types in the Content Editor.
 
 ### Image Cropping Control
+
 The image cropping control stores based x,y,width,height (as well as resize width / height) in a serialized JSON string in a field value.
 
 To utilize the control, name a field based on the name of the image you will be cropping.  Example,

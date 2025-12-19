@@ -20,28 +20,29 @@ import com.percussion.analytics.error.PSAnalyticsProviderException;
 import com.percussion.share.service.exception.PSValidationException;
 import java.util.Map;
 
-/**
- * Handles connections and data transfer for a specific analytics provider.
- */
-public interface IPSAnalyticsProviderHandler
-{
-   
-   /**
-    * Retrieves a list of "profiles" from the provider. Profiles are basically id's used to
-    * get access to a particular data set from the provider.
-    * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
-    * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
-    * @return a map of strings, with the key being the profile value and the value being the
-    * profile display value. Never <code>null</code>, may be empty.
-    * @throws <code>PSAnalyticsProviderException</code>, upon any error.
-    */
-   public Map<String, String> getProfiles(String uid, String password) throws PSAnalyticsProviderException, PSValidationException;
-   
-   /**
-    * Tests a connection to the provider using the specified credentials.
-    * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
-    * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
-    * @throws PSAnalyticsProviderException if failed to connect.
-    */
-   public void testConnection(String uid, String password) throws PSAnalyticsProviderException, PSValidationException;
+/** Handles connections and data transfer for a specific analytics provider. */
+public interface IPSAnalyticsProviderHandler {
+
+  /**
+   * Retrieves a list of "profiles" from the provider. Profiles are basically id's used to get
+   * access to a particular data set from the provider.
+   *
+   * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
+   * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
+   * @return a map of strings, with the key being the profile value and the value being the profile
+   *     display value. Never <code>null</code>, may be empty.
+   * @throws <code>PSAnalyticsProviderException</code>, upon any error.
+   */
+  public Map<String, String> getProfiles(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
+
+  /**
+   * Tests a connection to the provider using the specified credentials.
+   *
+   * @param uid the user id for access to the provider. Cannot be <code>null</code> or empty.
+   * @param password the password for access to the provider. Cannot be <code>null</code> or empty.
+   * @throws PSAnalyticsProviderException if failed to connect.
+   */
+  public void testConnection(String uid, String password)
+      throws PSAnalyticsProviderException, PSValidationException;
 }

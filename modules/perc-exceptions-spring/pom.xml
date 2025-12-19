@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <version>8.1.6-SNAPSHOT</version>
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
@@ -8,15 +8,9 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-exceptions-spring</artifactId>
+    <version>8.1.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>Spring related exceptions</description>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -54,4 +48,11 @@
             <artifactId>oval</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

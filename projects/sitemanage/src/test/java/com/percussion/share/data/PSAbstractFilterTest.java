@@ -21,23 +21,19 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class PSAbstractFilterTest
-{
+public class PSAbstractFilterTest {
 
-    private PSAbstractFilter<Integer> myFilter = new PSAbstractFilter<Integer>() {
+  private PSAbstractFilter<Integer> myFilter =
+      new PSAbstractFilter<Integer>() {
 
         @Override
-        public boolean shouldKeep(Integer resource)
-        {
-            return resource.intValue() > 2;            
+        public boolean shouldKeep(Integer resource) {
+          return resource.intValue() > 2;
         }
-    
-    };
-    
-    @Test
-    public void testFilter() throws Exception
-    {
-        assertEquals(asList(3,4,5),myFilter.filter(asList(1,2,3,4,5)));
-    }
-}
+      };
 
+  @Test
+  public void testFilter() throws Exception {
+    assertEquals(asList(3, 4, 5), myFilter.filter(asList(1, 2, 3, 4, 5)));
+  }
+}

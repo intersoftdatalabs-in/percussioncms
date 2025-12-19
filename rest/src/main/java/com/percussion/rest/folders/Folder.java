@@ -19,262 +19,255 @@ package com.percussion.rest.folders;
 
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.ws.rs.core.UriBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.ws.rs.core.UriBuilder;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Folder")
-@Schema(description="Represents a folder or section based on a folder")
-public class Folder
-{
-    public static final String ACCESS_LEVEL_ADMIN = "ADMIN";
-    public static final String ACCESS_LEVEL_READ = "READ";
-    public static final String ACCESS_LEVEL_WRITE = "WRITE";
-    public static final String ACCESS_LEVEL_VIEW = "VIEW";
+@Schema(description = "Represents a folder or section based on a folder")
+public class Folder {
+  public static final String ACCESS_LEVEL_ADMIN = "ADMIN";
+  public static final String ACCESS_LEVEL_READ = "READ";
+  public static final String ACCESS_LEVEL_WRITE = "WRITE";
+  public static final String ACCESS_LEVEL_VIEW = "VIEW";
 
-    @Schema(name="id", description="id must match the id of the item for the same server path, usually best not to send id to server.")
-    private String id;
-    
-    @Schema(name="name",description="Name of the folder.")
-    private String name;
+  @Schema(
+      name = "id",
+      description =
+          "id must match the id of the item for the same server path, usually best not to send id to server.")
+  private String id;
 
-    @Schema(name="siteName", description="Name of the site the folder lies under.")
-    private String siteName;
-    
-    @Schema(name="path",description="String of the path from the site to the folder.")
-    private String path;
+  @Schema(name = "name", description = "Name of the folder.")
+  private String name;
 
-    @Schema(name="workflow", description="Workflow state (Generally not needed for folder).")
-    private String workflow;
+  @Schema(name = "siteName", description = "Name of the site the folder lies under.")
+  private String siteName;
 
-    @Schema(name="accessLevel", description="Access level of site or folder defining access to users", allowableValues = "ADMIN,READ,WRITE,VIEW")
-    private String accessLevel; 
-    
-    @Schema(name="editUsers", description="List of users that can edit this folder.")
-    private List<String> editUsers;
-    
-    private SectionInfo sectionInfo;
+  @Schema(name = "path", description = "String of the path from the site to the folder.")
+  private String path;
 
-   @Schema(name="pages",description="Pages within the folder.")
-    private List<LinkRef> pages;
-   
-    @Schema(name="assets", description="Assets within the folder.")
-    private List<LinkRef> assets;
+  @Schema(name = "workflow", description = "Workflow state (Generally not needed for folder).")
+  private String workflow;
 
-	@Schema(name="subfolders", description="Links to sub-folders.")
-    private List<LinkRef> subfolders;
+  @Schema(
+      name = "accessLevel",
+      description = "Access level of site or folder defining access to users",
+      allowableValues = "ADMIN,READ,WRITE,VIEW")
+  private String accessLevel;
 
-    @Schema(name="subsections", description="Links to sub-sections (This folder must also be a section to link to sub-sections).")
-    private List<SectionLinkRef> subsections;
-    
-    @Schema(name="recentUsers", description="A list of users that have recently acessed the folder.")
-    private List<String> recentUsers;
+  @Schema(name = "editUsers", description = "List of users that can edit this folder.")
+  private List<String> editUsers;
 
-    @Schema(name="communityId", description = "The default community id to use for this folder")
-    private int communityId;
+  private SectionInfo sectionInfo;
 
-    @Schema(name="communityName", description = "The default community name to use for this folder")
-    private String communityName;
+  @Schema(name = "pages", description = "Pages within the folder.")
+  private List<LinkRef> pages;
 
-    @Schema(name="defaultDisplayFormatName",  description = "The default Display Format to use when rendering the contents of this folder")
-    private String defaultDisplayFormatName;
+  @Schema(name = "assets", description = "Assets within the folder.")
+  private List<LinkRef> assets;
 
-    @Schema(name="locale", description = "The default Locale to use for this folder")
-    private String locale;
+  @Schema(name = "subfolders", description = "Links to sub-folders.")
+  private List<LinkRef> subfolders;
 
-    public int getCommunityId() {
-        return communityId;
-    }
+  @Schema(
+      name = "subsections",
+      description =
+          "Links to sub-sections (This folder must also be a section to link to sub-sections).")
+  private List<SectionLinkRef> subsections;
 
-    public void setCommunityId(int communityId) {
-        this.communityId = communityId;
-    }
+  @Schema(
+      name = "recentUsers",
+      description = "A list of users that have recently acessed the folder.")
+  private List<String> recentUsers;
 
-    public String getCommunityName() {
-        return communityName;
-    }
+  @Schema(name = "communityId", description = "The default community id to use for this folder")
+  private int communityId;
 
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
-    }
+  @Schema(name = "communityName", description = "The default community name to use for this folder")
+  private String communityName;
 
-    public String getDefaultDisplayFormatName() {
-        return defaultDisplayFormatName;
-    }
+  @Schema(
+      name = "defaultDisplayFormatName",
+      description = "The default Display Format to use when rendering the contents of this folder")
+  private String defaultDisplayFormatName;
 
-    public void setDefaultDisplayFormatName(String defaultDisplayFormatName) {
-        this.defaultDisplayFormatName = defaultDisplayFormatName;
-    }
+  @Schema(name = "locale", description = "The default Locale to use for this folder")
+  private String locale;
 
-    public String getLocale() {
-        return locale;
-    }
+  public int getCommunityId() {
+    return communityId;
+  }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
+  public void setCommunityId(int communityId) {
+    this.communityId = communityId;
+  }
 
-    public List<String> getRecentUsers() {
-    	if(recentUsers == null)
-    		recentUsers = new ArrayList<>();
-    	
-		return recentUsers;
-	}
+  public String getCommunityName() {
+    return communityName;
+  }
 
-	public void setRecentUsers(List<String> recentUsers) {
-		this.recentUsers = recentUsers;
-	}
+  public void setCommunityName(String communityName) {
+    this.communityName = communityName;
+  }
 
-	public String getId()
-    {
-        return id;
-    }
+  public String getDefaultDisplayFormatName() {
+    return defaultDisplayFormatName;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public void setDefaultDisplayFormatName(String defaultDisplayFormatName) {
+    this.defaultDisplayFormatName = defaultDisplayFormatName;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getLocale() {
+    return locale;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
 
-    public String getSiteName()
-    {
-        return siteName;
-    }
+  public List<String> getRecentUsers() {
+    if (recentUsers == null) recentUsers = new ArrayList<>();
 
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
-    }
+    return recentUsers;
+  }
 
-    public String getPath()
-    {
-        return path;
-    }
+  public void setRecentUsers(List<String> recentUsers) {
+    this.recentUsers = recentUsers;
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getWorkflow()
-    {
-        return workflow;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setWorkflow(String workflow)
-    {
-        this.workflow = workflow;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public SectionInfo getSectionInfo()
-    {
-        return sectionInfo;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setSectionInfo(SectionInfo sectionInfo)
-    {
-        this.sectionInfo = sectionInfo;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public List<LinkRef> getPages()
-    {
-        return pages;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public void setPages(List<LinkRef> pages)
-    {
-        this.pages = pages;
-    }
+  public String getPath() {
+    return path;
+  }
 
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    public List<LinkRef> getAssets() {
-		return assets;
-	}
+  public String getWorkflow() {
+    return workflow;
+  }
 
-	public void setAssets(List<LinkRef> assets) {
-		this.assets = assets;
-	}
-	
-    public List<LinkRef> getSubfolders()
-    {
-        return subfolders;
-    }
+  public void setWorkflow(String workflow) {
+    this.workflow = workflow;
+  }
 
-    public void setSubfolders(List<LinkRef> subfolders)
-    {
-        this.subfolders = subfolders;
-    }
+  public SectionInfo getSectionInfo() {
+    return sectionInfo;
+  }
 
-    public List<SectionLinkRef> getSubsections()
-    {
-        return subsections;
-    }
+  public void setSectionInfo(SectionInfo sectionInfo) {
+    this.sectionInfo = sectionInfo;
+  }
 
-    public void setSubsections(List<SectionLinkRef> subsections)
-    {
-        this.subsections = subsections;
-    }
-    
-    public String getAccessLevel()
-    {
-        return accessLevel;
-    }
+  public List<LinkRef> getPages() {
+    return pages;
+  }
 
-    public void setAccessLevel(String accessLevel)
-    {
-        this.accessLevel = accessLevel;
-    }
-    
-    public List<String> getEditUsers()
-    {
-        return editUsers;
-    }
+  public void setPages(List<LinkRef> pages) {
+    this.pages = pages;
+  }
 
-    public void setEditUsers(List<String> editUsers)
-    {
-        this.editUsers = editUsers;
-    }
-    
-    
+  public List<LinkRef> getAssets() {
+    return assets;
+  }
 
+  public void setAssets(List<LinkRef> assets) {
+    this.assets = assets;
+  }
 
-    @Override
-    public String toString()
-    {
-        return "Folder [id=" + id + ", name=" + name + ", siteName=" + siteName + ", path=" + path + ", workflow="
-                + workflow + ", sectionInfo=" + sectionInfo + ", pages=" + pages + ", subfolders=" + subfolders
-                + ", subsections=" + subsections + "]";
-    }
+  public List<LinkRef> getSubfolders() {
+    return subfolders;
+  }
 
-    public URI getFolderURI(URI baseURI)
-    {
-        return getFolderURI(baseURI, siteName, path, name);
-    }
+  public void setSubfolders(List<LinkRef> subfolders) {
+    this.subfolders = subfolders;
+  }
 
-    public static URI getFolderURI(URI baseURI, String site, String path, String name)
-    {
-        UriBuilder info = UriBuilder.fromUri(baseURI).path(FoldersResource.class).path("by-path").path(site);
+  public List<SectionLinkRef> getSubsections() {
+    return subsections;
+  }
 
-        if (path != null && path.length() > 0)
-            info = info.path(path);
-        if (name != null && name.length() > 0)
-            info = info.path(name);
+  public void setSubsections(List<SectionLinkRef> subsections) {
+    this.subsections = subsections;
+  }
 
-        return info.build();
-    }
+  public String getAccessLevel() {
+    return accessLevel;
+  }
 
-  
+  public void setAccessLevel(String accessLevel) {
+    this.accessLevel = accessLevel;
+  }
+
+  public List<String> getEditUsers() {
+    return editUsers;
+  }
+
+  public void setEditUsers(List<String> editUsers) {
+    this.editUsers = editUsers;
+  }
+
+  @Override
+  public String toString() {
+    return "Folder [id="
+        + id
+        + ", name="
+        + name
+        + ", siteName="
+        + siteName
+        + ", path="
+        + path
+        + ", workflow="
+        + workflow
+        + ", sectionInfo="
+        + sectionInfo
+        + ", pages="
+        + pages
+        + ", subfolders="
+        + subfolders
+        + ", subsections="
+        + subsections
+        + "]";
+  }
+
+  public URI getFolderURI(URI baseURI) {
+    return getFolderURI(baseURI, siteName, path, name);
+  }
+
+  public static URI getFolderURI(URI baseURI, String site, String path, String name) {
+    UriBuilder info =
+        UriBuilder.fromUri(baseURI).path(FoldersResource.class).path("by-path").path(site);
+
+    if (path != null && path.length() > 0) info = info.path(path);
+    if (name != null && name.length() > 0) info = info.path(name);
+
+    return info.build();
+  }
 }

@@ -17,32 +17,27 @@
 package com.percussion.cms.objectstore;
 
 /**
- * Provides access interface to the implementing object.  Used by the
- * <code>PSItemDefExtractor</code>.  An implementing class may accept an
- * <code>IPSVisitor</code> object and act upon that object.  This was
- * implemented so that data from the definitions
- * (ie <code>PSContentEditor</code> etc) may be added to objects
- * not in the same package as the extractor and without adding public mutators,
+ * Provides access interface to the implementing object. Used by the <code>PSItemDefExtractor</code>
+ * . An implementing class may accept an <code>IPSVisitor</code> object and act upon that object.
+ * This was implemented so that data from the definitions (ie <code>PSContentEditor</code> etc) may
+ * be added to objects not in the same package as the extractor and without adding public mutators,
  * that apply to the definition data, to those objects.
  */
-public interface IPSItemAccessor
-{
+public interface IPSItemAccessor {
 
-   /**
-    * Accepts a vistor object.
-    *
-    * @param visitor the object to accept.
-    */
-   void accept(IPSVisitor visitor);
+  /**
+   * Accepts a vistor object.
+   *
+   * @param visitor the object to accept.
+   */
+  void accept(IPSVisitor visitor);
 
-   /**
-    * Returns a <code>PSItemField</code> by name.  The requested field
-    * may not be available, in that case this returns <code>null</code>.
-    *
-    * @param fieldName - the field name to retrieve, must not be
-    * <code>null</code> or empty.
-    * @return - the <code>PSItemField</code> may be <code>null</code>.
-    */
-   public PSItemField getFieldByName(String fieldName);
-
+  /**
+   * Returns a <code>PSItemField</code> by name. The requested field may not be available, in that
+   * case this returns <code>null</code>.
+   *
+   * @param fieldName - the field name to retrieve, must not be <code>null</code> or empty.
+   * @return - the <code>PSItemField</code> may be <code>null</code>.
+   */
+  public PSItemField getFieldByName(String fieldName);
 }

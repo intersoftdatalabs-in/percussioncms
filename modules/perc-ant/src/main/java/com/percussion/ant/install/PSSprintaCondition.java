@@ -23,53 +23,44 @@ import com.percussion.util.IPSBrandCodeConstants;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSSprintaCondition will resolve to <code>true</code> if sprinta is
- * allowed to be installed.
- * 
- * <br>
- * Example Usage:
- * <br>
+ * PSSprintaCondition will resolve to <code>true</code> if sprinta is allowed to be installed. <br>
+ * Example Usage: <br>
+ *
  * <pre>
- * 
+ *
  * First set the typedef:
- * 
- *  <code>  
+ *
+ *  <code>
  *  &lt;typedef name="sprintaCondition"
  *              class="com.percussion.ant.install.PSSprintaCondition"
  *              classpathref="INSTALL.CLASSPATH"/&gt;
  *  </code>
- * 
+ *
  * Now use the task to determine if sprinta is allowed to be installed.
- * 
+ *
  *  <code>
  *  &lt;condition property="ALLOW_SPRINTA"&gt;
  *     &lt;sprintaCondition/&gt;
  *  &lt;/condition&gt;
  *  </code>
- * 
+ *
  * </pre>
- * 
  */
-public class PSSprintaCondition extends PSAction implements Condition
-{
-   /* (non-Javadoc)
-    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
-    */
-   public boolean eval()
-   {
-      Code code = InstallUtil.fetchBrandCode(getRootDir());
-      if (code == null)
-      {
-         return false;
-      }
-      if (code.isAnEval())
-      {
-         return true;
-      }
-      if (code.isComponentLicensed(IPSBrandCodeConstants.SPRINTA))
-      {
-         return true;
-      }
+public class PSSprintaCondition extends PSAction implements Condition {
+  /* (non-Javadoc)
+   * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
+   */
+  public boolean eval() {
+    Code code = InstallUtil.fetchBrandCode(getRootDir());
+    if (code == null) {
       return false;
-   }
+    }
+    if (code.isAnEval()) {
+      return true;
+    }
+    if (code.isComponentLicensed(IPSBrandCodeConstants.SPRINTA)) {
+      return true;
+    }
+    return false;
+  }
 }

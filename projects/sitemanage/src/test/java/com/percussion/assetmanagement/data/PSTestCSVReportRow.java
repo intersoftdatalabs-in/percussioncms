@@ -19,27 +19,33 @@ package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSAbstractBaseCSVReportRow;
 
-/***
- * Used to test the CSV row base class
- * @author natechadwick
+/**
+ * * Used to test the CSV row base class
  *
+ * @author natechadwick
  */
 public class PSTestCSVReportRow extends PSAbstractBaseCSVReportRow {
 
-	public String col1;
-	public String col2;
-	public String col3multiline;
-	public String col4empty;
-	
-	@Override
-	public String toCSVRow() {
-		return this.delimitValue(col1) + "," + this.delimitValue(col2)+ "," + this.delimitValue(col3multiline)+","+this.delimitValue(col4empty)+this.endRow();
-	}
+  public String col1;
+  public String col2;
+  public String col3multiline;
+  public String col4empty;
 
-	@Override
-	public String getHeaderRow() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public String toCSVRow() {
+    return this.delimitValue(col1)
+        + ","
+        + this.delimitValue(col2)
+        + ","
+        + this.delimitValue(col3multiline)
+        + ","
+        + this.delimitValue(col4empty)
+        + this.endRow();
+  }
 
+  @Override
+  public String getHeaderRow() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

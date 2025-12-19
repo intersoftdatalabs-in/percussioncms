@@ -19,21 +19,16 @@ package com.percussion.extensions.general;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
-
-public class PSSuperConcat extends PSSimpleJavaUdfExtension
-{
-   public Object processUdf(Object[] params, IPSRequestContext request)
-   {
-      StringBuilder result = new StringBuilder(100);
-      int parmCount = params.length;
-      for(int i = 0; i < parmCount; i++)
-      {
-         if(null != params[i] && params[i].toString().trim().length() > 0)
-         {
-            result.append(params[i].toString());
-         }
+public class PSSuperConcat extends PSSimpleJavaUdfExtension {
+  public Object processUdf(Object[] params, IPSRequestContext request) {
+    StringBuilder result = new StringBuilder(100);
+    int parmCount = params.length;
+    for (int i = 0; i < parmCount; i++) {
+      if (null != params[i] && params[i].toString().trim().length() > 0) {
+        result.append(params[i].toString());
       }
+    }
 
-      return result.toString();
-   }
+    return result.toString();
+  }
 }

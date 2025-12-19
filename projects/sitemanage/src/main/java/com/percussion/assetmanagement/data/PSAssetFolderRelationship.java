@@ -16,55 +16,43 @@
  */
 package com.percussion.assetmanagement.data;
 
+import com.percussion.share.data.IPSFolderPath;
+import com.percussion.share.data.PSAbstractDataObject;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.MatchPattern;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import com.percussion.share.data.IPSFolderPath;
-import com.percussion.share.data.PSAbstractDataObject;
-
 /**
- * 
  * Represents an associated between an asset and a folder.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
 @XmlRootElement(name = "AssetFolderRelationship")
-public class PSAssetFolderRelationship extends PSAbstractDataObject implements IPSFolderPath
-{
+public class PSAssetFolderRelationship extends PSAbstractDataObject implements IPSFolderPath {
 
-    
-    private static final long serialVersionUID = 1L;
-    private String assetId;
-    private String folderPath;
-    
-    @NotBlank
-    @NotNull
-    public String getAssetId()
-    {
-        return assetId;
-    }
+  private static final long serialVersionUID = 1L;
+  private String assetId;
+  private String folderPath;
 
-    public void setAssetId(String assetId)
-    {
-        this.assetId = assetId;
-    }
+  @NotBlank
+  @NotNull
+  public String getAssetId() {
+    return assetId;
+  }
 
-    @NotBlank
-    @NotNull
-    @MatchPattern(pattern = {"^/.*$"})
-    public String getFolderPath()
-    {
-        return folderPath;
-    }
+  public void setAssetId(String assetId) {
+    this.assetId = assetId;
+  }
 
-    public void setFolderPath(String folderPath)
-    {
-        this.folderPath = folderPath;
-    }
+  @NotBlank
+  @NotNull
+  @MatchPattern(pattern = {"^/.*$"})
+  public String getFolderPath() {
+    return folderPath;
+  }
 
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 }
-

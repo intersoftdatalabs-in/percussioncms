@@ -16,10 +16,8 @@
  */
 package com.percussion.install;
 
-public class CodeException extends Exception
-{
-   public CodeException(String message)
-   {
-      super(message);
-   }
+public class CodeException extends Exception {
+  public CodeException(String message) {
+    super(message);
+  }
 }

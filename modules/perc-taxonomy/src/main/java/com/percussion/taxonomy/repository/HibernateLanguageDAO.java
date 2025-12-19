@@ -18,26 +18,25 @@
 package com.percussion.taxonomy.repository;
 
 import com.percussion.taxonomy.domain.Language;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import java.util.Collection;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class HibernateLanguageDAO extends HibernateDaoSupport implements LanguageDAO {
 
-    public Language getLanguage(int id) {
-        return (Language) getHibernateTemplate().get(Language.class, new Integer(id));
-    }
+  public Language getLanguage(int id) {
+    return (Language) getHibernateTemplate().get(Language.class, new Integer(id));
+  }
 
-    public Collection getAllLanguages() {
-        //Optional: Add order by to query
-        return getHibernateTemplate().find("from Language lan");
-    }
+  public Collection getAllLanguages() {
+    // Optional: Add order by to query
+    return getHibernateTemplate().find("from Language lan");
+  }
 
-    public void saveLanguage(Language language) {
-        getHibernateTemplate().saveOrUpdate(language);
-    }
+  public void saveLanguage(Language language) {
+    getHibernateTemplate().saveOrUpdate(language);
+  }
 
-    public void removeLanguage(Language language) {
-        getHibernateTemplate().delete(language);
-    }
+  public void removeLanguage(Language language) {
+    getHibernateTemplate().delete(language);
+  }
 }

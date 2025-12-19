@@ -17,5 +17,4 @@
 
 package com.percussion.rest.publishingserver;
 
-public interface IPublishingServerAdaptor {
-}
+public interface IPublishingServerAdaptor {}

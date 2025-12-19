@@ -18,56 +18,44 @@ package com.percussion.delivery.comments.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when 
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
- * @author erikserating
  *
+ * @author erikserating
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "comments"
-})
+@XmlType(
+    name = "",
+    propOrder = {"comments"})
 @XmlRootElement(name = "comments")
-public class PSComments
-{
-   private List<IPSComment> comments;
-   
-   public PSComments()
-   {
-       comments = new ArrayList<>();
-   }
-   
-   /**
-    * Constructor for the {@link PSComments} object.
-    * 
-    * @param comments. Never <code>null</code>. 
-    */
-   public PSComments(List<IPSComment> comments)
-   {
-       if(comments == null)
-       {
-           this.comments = new ArrayList<>();
-       }
-       else
-       {
-           this.comments = comments;
-       }
-   }
-   
-   /**
-    * 
-    * @return the list of comments. Never <code>null</code>. 
-    */
-   public List<IPSComment> getComments()
-   {
-      return comments;
-   }
+public class PSComments {
+  private List<IPSComment> comments;
+
+  public PSComments() {
+    comments = new ArrayList<>();
+  }
+
+  /**
+   * Constructor for the {@link PSComments} object.
+   *
+   * @param comments. Never <code>null</code>.
+   */
+  public PSComments(List<IPSComment> comments) {
+    if (comments == null) {
+      this.comments = new ArrayList<>();
+    } else {
+      this.comments = comments;
+    }
+  }
+
+  /** @return the list of comments. Never <code>null</code>. */
+  public List<IPSComment> getComments() {
+    return comments;
+  }
 }

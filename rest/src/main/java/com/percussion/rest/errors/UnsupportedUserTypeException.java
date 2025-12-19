@@ -21,12 +21,10 @@ import javax.ws.rs.core.Response;
 
 public class UnsupportedUserTypeException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2512343705403720594L;
+  /** */
+  private static final long serialVersionUID = 2512343705403720594L;
 
-	public UnsupportedUserTypeException(){
-		super(RestErrorCode.USER_UNSUPPORTED_USERTYPE, null, null, Response.Status.BAD_REQUEST);
-	}
+  public UnsupportedUserTypeException() {
+    super(RestErrorCode.USER_UNSUPPORTED_USERTYPE, null, null, Response.Status.BAD_REQUEST);
+  }
 }

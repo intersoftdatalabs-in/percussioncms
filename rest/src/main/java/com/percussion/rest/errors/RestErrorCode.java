@@ -17,36 +17,32 @@
 
 package com.percussion.rest.errors;
 
-public enum RestErrorCode
-{
-	NOT_AUTHORIZED(1)
-	, UNKNOWN_USER(2)
-	, LOCATION_MISMATCH(3)
-	, FOLDER_NOT_FOUND(4)
-	, SITE_NOT_FOUND(5)
-	, PAGE_NOT_FOUND(6)
-	, ASSET_NOT_FOUND(7)
-	, INVALID_ASSET_TYPE(8)
-	, ASSET_ALREADY_EXISTS(9)
-	, TEMPLATE_NOT_FOUND(10)
-	, CONTENT_MIGRATION_ERROR(11)
-	, USER_DIRECTORYIMPORT_INVALIDNAME(12)
-	, USER_DIRECTORYIMPORT_ERROR(14)
-	, UNEXPECTED_EXCEPTION(13) //It's just unlucky...
-	, USER_UNSUPPORTED_USERTYPE(15)
-	, OTHER(99)
-	;
-	
-	private int value;
-	
-	RestErrorCode(int val)
-	{
-		this.value = val;
-	}
-	
-	public int getNumVal()
-	{
-		return this.value;
-	}
-	
+public enum RestErrorCode {
+  NOT_AUTHORIZED(1),
+  UNKNOWN_USER(2),
+  LOCATION_MISMATCH(3),
+  FOLDER_NOT_FOUND(4),
+  SITE_NOT_FOUND(5),
+  PAGE_NOT_FOUND(6),
+  ASSET_NOT_FOUND(7),
+  INVALID_ASSET_TYPE(8),
+  ASSET_ALREADY_EXISTS(9),
+  TEMPLATE_NOT_FOUND(10),
+  CONTENT_MIGRATION_ERROR(11),
+  USER_DIRECTORYIMPORT_INVALIDNAME(12),
+  USER_DIRECTORYIMPORT_ERROR(14),
+  UNEXPECTED_EXCEPTION(13) // It's just unlucky...
+  ,
+  USER_UNSUPPORTED_USERTYPE(15),
+  OTHER(99);
+
+  private int value;
+
+  RestErrorCode(int val) {
+    this.value = val;
+  }
+
+  public int getNumVal() {
+    return this.value;
+  }
 }

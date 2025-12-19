@@ -20,83 +20,66 @@ import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
-
 import java.util.Date;
 
 /**
  * This UDF converts a a given date object to given format and locale.
  *
- * The first parameter is the date to format. This can be a java.util.Date
- * object or a date string. If it is <code>null</code> or <code>empty</code>,
- * current date is assumed.
+ * <p>The first parameter is the date to format. This can be a java.util.Date object or a date
+ * string. If it is <code>null</code> or <code>empty</code>, current date is assumed.
  *
- * Second parameter is the required output date pattern.
+ * <p>Second parameter is the required output date pattern.
  *
- * Third parameter is the output locale. If <code>null</code> or <code>empty</code>,
- * locale is taken from the user context information.
+ * <p>Third parameter is the output locale. If <code>null</code> or <code>empty</code>, locale is
+ * taken from the user context information.
  *
- * The return value is the formatted date string. Never <code>null</code>.
+ * <p>The return value is the formatted date string. Never <code>null</code>.
  *
  * @see com.percussion.i18n.PSI18nUtils#formatDate
  * @see com.percussion.i18n.PSI18nUtils#getLocaleFromString
  * @see java.util.Date
  */
+public class PSLocalizeDate extends PSSimpleJavaUdfExtension {
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws com.percussion.data.PSConversionException {
+    Object date = params[0];
+    if (date == null || date.toString().length() < 1) {
+      date = new Date();
+    }
+    String pattern = "";
+    String lang = "";
 
-public class PSLocalizeDate
-   extends PSSimpleJavaUdfExtension
-{
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws com.percussion.data.PSConversionException
-   {
-      Object date = params[0];
-      if(date == null || date.toString().length() < 1)
-      {
-         date = new Date();
-      }
-      String pattern = "";
-      String lang = "";
+    Object obj = null;
+    if (params.length > 1) {
+      obj = params[1];
+      if (obj != null) pattern = obj.toString();
+    }
 
-      Object obj = null;
-      if(params.length > 1)
-      {
-         obj = params[1];
-         if(obj != null)
-            pattern = obj.toString();
-      }
+    if (params.length > 2) {
+      obj = params[2];
+      if (obj != null) lang = obj.toString();
+    }
 
-      if(params.length > 2)
-      {
-         obj = params[2];
-         if(obj != null)
-            lang = obj.toString();
+    String result = null;
+    try {
+      if (lang == null || lang.trim().length() < 1) {
+        lang =
+            request
+                .getUserContextInformation(
+                    PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG, PSI18nUtils.DEFAULT_LANG)
+                .toString();
       }
-
-      String result = null;
-      try
-      {
-         if(lang == null || lang.trim().length() < 1)
-         {
-            lang = request.getUserContextInformation(
-               PSI18nUtils.USER_CONTEXT_VAR_SYS_LANG,
-               PSI18nUtils.DEFAULT_LANG).toString();
-         }
-         if(date instanceof java.util.Date)
-         {
-            result = PSI18nUtils.formatDate(
-               (Date)date, pattern, PSI18nUtils.getLocaleFromString(lang));
-         }
-         else
-         {
-            result = PSI18nUtils.formatDate(
-               date.toString(), null, null, pattern, lang);
-         }
+      if (date instanceof java.util.Date) {
+        result =
+            PSI18nUtils.formatDate((Date) date, pattern, PSI18nUtils.getLocaleFromString(lang));
+      } else {
+        result = PSI18nUtils.formatDate(date.toString(), null, null, pattern, lang);
       }
-      catch(Exception e)
-      {
-         int errCode = 0;
-         Object[] args = { e.toString(), "PSLocalizeDate/processUdf" };
-         throw new PSConversionException(errCode, args);
-      }
-      return result;
-   }
+    } catch (Exception e) {
+      int errCode = 0;
+      Object[] args = {e.toString(), "PSLocalizeDate/processUdf"};
+      throw new PSConversionException(errCode, args);
+    }
+    return result;
+  }
 }

@@ -1,62 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>core</artifactId>
         <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>perc-i18n</artifactId>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce</id>
-                        <configuration>
-                            <rules>
-                                <requirePluginVersions>
-                                    <message>Best Practice is to always define plugin versions!</message>
-                                </requirePluginVersions>
-                                <requireJavaVersion>
-                                    <version>${java.version}</version>
-                                </requireJavaVersion>
-                                <requireMavenVersion>
-                                    <version>${maven.version}</version>
-                                </requireMavenVersion>
-                                <requireUpperBoundDeps>
-                                    <excludes />
-                                </requireUpperBoundDeps>
-                                <dependencyConvergence />
-                                <banDuplicatePomDependencyVersions />
-                            </rules>
-                            <fail>false</fail>
-                        </configuration>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <meminitial>1024m</meminitial>
-                    <maxmem>2024m</maxmem>
-
-                </configuration>
-            </plugin>
-        </plugins>
-
-    </build>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -86,7 +37,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Log4j 2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -154,4 +104,51 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requirePluginVersions>
+                                    <message>Best Practice is to always define plugin versions!</message>
+                                </requirePluginVersions>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>${maven.version}</version>
+                                </requireMavenVersion>
+                                <requireUpperBoundDeps>
+                                    <excludes/>
+                                </requireUpperBoundDeps>
+                                <dependencyConvergence/>
+                                <banDuplicatePomDependencyVersions/>
+                            </rules>
+                            <fail>false</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <fork>true</fork>
+                    <meminitial>1024m</meminitial>
+                    <maxmem>2024m</maxmem>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

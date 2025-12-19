@@ -22,6 +22,7 @@ import com.percussion.delivery.comments.services.PSCommentsRestService;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.likes.services.PSLikesRestService;
+import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -31,25 +32,20 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
-
-    @ApplicationPath("/")
-    public class PSCommentsApplication extends  ResourceConfig {
-        public PSCommentsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSLikesRestService.class);
-            register(PSCommentsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-
-        }
-
-
-    }
+@ApplicationPath("/")
+public class PSCommentsApplication extends ResourceConfig {
+  public PSCommentsApplication() {
+    register(RequestContextFilter.class);
+    register(SpringComponentProvider.class);
+    register(AutowiredInjectResolver.class);
+    register(SpringLifecycleListener.class);
+    register(SpringWebApplicationInitializer.class);
+    register(PSLikesRestService.class);
+    register(PSCommentsRestService.class);
+    register(LoggingFeature.class);
+    register(RolesAllowedDynamicFeature.class);
+    register(PSJsonMappingErrorResponse.class);
+    register(PSUncaughtError.class);
+    register(JacksonJaxbJsonProvider.class);
+  }
+}

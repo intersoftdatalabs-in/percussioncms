@@ -17,23 +17,19 @@
 
 package com.percussion.install;
 
-public class Cm1InstallUtilHarness
-{
+public class Cm1InstallUtilHarness {
 
-   /**
-    * @param args
-    */
-   public static void main(String[] args)
-   {
-      String cm1Dir = args[0];  
-      boolean isDerbyUp = InstallUtil.isDerbyRunning(cm1Dir);
-      System.out.print("Derby Running: " + Boolean.toString(isDerbyUp)  + "\n");
-      boolean isCM1Up = InstallUtil.isServerRunning(cm1Dir);
-      System.out.print("CM1 Running: " + Boolean.toString(isCM1Up) + "\n");
-      if (args[1] != null){
-         String dtsDir = args[1];
-         boolean isDtsUp = InstallUtil.checkTomcatServerRunning(dtsDir);
-         System.out.print("DTS Running: " + Boolean.toString(isDtsUp));
-      }
-   }
+  /** @param args */
+  public static void main(String[] args) {
+    String cm1Dir = args[0];
+    boolean isDerbyUp = InstallUtil.isDerbyRunning(cm1Dir);
+    System.out.print("Derby Running: " + Boolean.toString(isDerbyUp) + "\n");
+    boolean isCM1Up = InstallUtil.isServerRunning(cm1Dir);
+    System.out.print("CM1 Running: " + Boolean.toString(isCM1Up) + "\n");
+    if (args[1] != null) {
+      String dtsDir = args[1];
+      boolean isDtsUp = InstallUtil.checkTomcatServerRunning(dtsDir);
+      System.out.print("DTS Running: " + Boolean.toString(isDtsUp));
+    }
+  }
 }

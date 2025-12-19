@@ -19,37 +19,34 @@ package com.ibm.cadf.model;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
-import org.junit.Test;
-
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.util.TimeStampUtils;
+import java.io.IOException;
+import org.junit.Test;
 
-public class ReporterstepTest
-{
+public class ReporterstepTest {
 
-    @Test
-    public void testReporterstepPositive() throws CADFException, IOException
-    {
+  @Test
+  public void testReporterstepPositive() throws CADFException, IOException {
 
-        Resource reporter = new Resource(Identifier.generateUniqueId());
-        reporter.setTypeURI("storage");
-        reporter.setName("storageadmin");
-        Reporterstep reporterstep = new Reporterstep("modifier", reporter, Identifier.generateUniqueId(),
-                        TimeStampUtils.getCurrentTime());
-        assertEquals(true, reporterstep.isValid());
-    }
+    Resource reporter = new Resource(Identifier.generateUniqueId());
+    reporter.setTypeURI("storage");
+    reporter.setName("storageadmin");
+    Reporterstep reporterstep =
+        new Reporterstep(
+            "modifier", reporter, Identifier.generateUniqueId(), TimeStampUtils.getCurrentTime());
+    assertEquals(true, reporterstep.isValid());
+  }
 
-    @Test
-    public void testReporterstepNegative() throws CADFException, IOException
-    {
-        Resource reporter = new Resource(Identifier.generateUniqueId());
-        reporter.setTypeURI("storage");
-        reporter.setName("storageadmin");
-        Reporterstep reporterstep = new Reporterstep("role1", reporter, Identifier.generateUniqueId(),
-                        TimeStampUtils.getCurrentTime());
-        // passed invalid role while creating reporterstep object, validation should fail
-        assertEquals(false, reporterstep.isValid());
-    }
+  @Test
+  public void testReporterstepNegative() throws CADFException, IOException {
+    Resource reporter = new Resource(Identifier.generateUniqueId());
+    reporter.setTypeURI("storage");
+    reporter.setName("storageadmin");
+    Reporterstep reporterstep =
+        new Reporterstep(
+            "role1", reporter, Identifier.generateUniqueId(), TimeStampUtils.getCurrentTime());
+    // passed invalid role while creating reporterstep object, validation should fail
+    assertEquals(false, reporterstep.isValid());
+  }
 }

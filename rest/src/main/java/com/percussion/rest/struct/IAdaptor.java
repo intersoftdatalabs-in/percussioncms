@@ -17,7 +17,4 @@
 
 package com.percussion.rest.struct;
 
-public interface IAdaptor
-{
-
-}
+public interface IAdaptor {}

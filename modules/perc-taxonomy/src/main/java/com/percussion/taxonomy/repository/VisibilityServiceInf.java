@@ -17,21 +17,20 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.Visibility;
+import java.util.Collection;
 
 public interface VisibilityServiceInf {
 
-	public Collection getAllVisibilities();
+  public Collection getAllVisibilities();
 
-	public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id); 
-	
-    public Visibility getVisibility(int id);
+  public Collection getAllVisibilitiesForTaxonomyId(int taxonomy_id);
 
-    public void removeVisibility(Visibility Visibility);
+  public Visibility getVisibility(int id);
 
-    public void removeVisibilities(Collection<Visibility> Visibilities);
-    
-    public void saveVisibility(Visibility Visibility);
+  public void removeVisibility(Visibility Visibility);
+
+  public void removeVisibilities(Collection<Visibility> Visibilities);
+
+  public void saveVisibility(Visibility Visibility);
 }

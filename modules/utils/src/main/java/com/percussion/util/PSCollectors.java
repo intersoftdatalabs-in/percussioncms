@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class PSCollectors {
 
-    public static Collector<CharSequence, ?, String> commaSeparatedString() {
-        return Collectors.joining(",");
-    }
+  public static Collector<CharSequence, ?, String> commaSeparatedString() {
+    return Collectors.joining(",");
+  }
 }

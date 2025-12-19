@@ -18,59 +18,52 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "WorkflowInfo")
-@Schema(name="WorkflowInfo",description="Represents information on the workflow.")
-public class WorkflowInfo
-{
-    @Schema(name="name", description="Name of the workflow.")
-    private String name;
-    @Schema(name="state", description="State within the workflow.")
-    private String state;
-    @Schema(name="checkedOut", description="Flag if the item is checked out.")
-    private Boolean checkedOut;
-    @Schema(name="checkedOutUser", description="User that has the item checked out.")
-    private String checkedOutUser;
+@Schema(name = "WorkflowInfo", description = "Represents information on the workflow.")
+public class WorkflowInfo {
+  @Schema(name = "name", description = "Name of the workflow.")
+  private String name;
 
-    public String getName()
-    {
-        return name;
-    }
+  @Schema(name = "state", description = "State within the workflow.")
+  private String state;
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-    
-    public String getState()
-    {
-        return state;
-    }
+  @Schema(name = "checkedOut", description = "Flag if the item is checked out.")
+  private Boolean checkedOut;
 
-    public void setState(String state)
-    {
-        this.state = state;
-    }
+  @Schema(name = "checkedOutUser", description = "User that has the item checked out.")
+  private String checkedOutUser;
 
-    public Boolean getCheckedOut()
-    {
-        return checkedOut;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setCheckedOut(Boolean checkedOut)
-    {
-        this.checkedOut = checkedOut;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getCheckedOutUser()
-    {
-        return checkedOutUser;
-    }
+  public String getState() {
+    return state;
+  }
 
-    public void setCheckedOutUser(String checkedOutUser)
-    {
-        this.checkedOutUser = checkedOutUser;
-    }
+  public void setState(String state) {
+    this.state = state;
+  }
+
+  public Boolean getCheckedOut() {
+    return checkedOut;
+  }
+
+  public void setCheckedOut(Boolean checkedOut) {
+    this.checkedOut = checkedOut;
+  }
+
+  public String getCheckedOutUser() {
+    return checkedOutUser;
+  }
+
+  public void setCheckedOutUser(String checkedOutUser) {
+    this.checkedOutUser = checkedOutUser;
+  }
 }

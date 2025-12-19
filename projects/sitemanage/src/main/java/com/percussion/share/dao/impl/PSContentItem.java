@@ -18,49 +18,32 @@ package com.percussion.share.dao.impl;
 
 import static org.apache.commons.lang.Validate.*;
 
+import com.percussion.share.data.IPSContentItem;
+import com.percussion.share.data.PSDataItemSummary;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.percussion.share.data.IPSContentItem;
-import com.percussion.share.data.PSDataItemSummary;
-
 /**
- * A Generic Low level representation of an item in the system backed
- * by a Rhythmyx content item.
- * @author adamgent
+ * A Generic Low level representation of an item in the system backed by a Rhythmyx content item.
  *
+ * @author adamgent
  */
-public class PSContentItem extends PSDataItemSummary implements IPSContentItem
-{
+public class PSContentItem extends PSDataItemSummary implements IPSContentItem {
 
-    /**
-     * never <code>null</code>.
-     */
-    private Map<String, Object> fields = new HashMap<>();
-    
+  /** never <code>null</code>. */
+  private Map<String, Object> fields = new HashMap<>();
 
-    /**
-     * @{inheritDoc}
-     */
-    public Map<String, Object> getFields()
-    {
-        return fields;
-    }
+  /** @{inheritDoc} */
+  public Map<String, Object> getFields() {
+    return fields;
+  }
 
-    /**
-     * @{inheritDoc}
-     */
-    public void setFields(Map<String, Object> fields)
-    {
-        notNull(fields, "fields");
-        this.fields = fields;
-    }
-    
-    
+  /** @{inheritDoc} */
+  public void setFields(Map<String, Object> fields) {
+    notNull(fields, "fields");
+    this.fields = fields;
+  }
 
-    /**
-     * Well not really safe to serialize
-     */
-    private static final long serialVersionUID = -3451673795623212592L;
-
+  /** Well not really safe to serialize */
+  private static final long serialVersionUID = -3451673795623212592L;
 }

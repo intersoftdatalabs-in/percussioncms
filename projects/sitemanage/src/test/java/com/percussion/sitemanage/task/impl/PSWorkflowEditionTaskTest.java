@@ -36,11 +36,9 @@ import com.percussion.services.publisher.IPSSiteItem.Operation;
 import com.percussion.services.publisher.IPSSiteItem.Status;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.system.IPSSystemWs;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -50,224 +48,197 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Scenario description: Test the workflow edition task
- * by testing its workflow worker inline class.
- * 
+ * Scenario description: Test the workflow edition task by testing its workflow worker inline class.
+ *
  * @author adamgent, Feb 2, 2010
  */
 @RunWith(JMock.class)
-public class PSWorkflowEditionTaskTest
-{
+public class PSWorkflowEditionTaskTest {
 
-    Mockery context = new JUnit4Mockery();
+  Mockery context = new JUnit4Mockery();
 
-    TestWorkflowEditionTask sut;
+  TestWorkflowEditionTask sut;
 
-    IPSSystemWs systemWs;
-    IPSWorkflowHelper workflowHelper;
-    IPSGuidManager guidManager;
-    IPSContentChangeService changeService;
-    
-    PSAbstractWorkflowExtension.WorkflowItemWorker worker;
-    PSAbstractWorkflowExtension.WorkflowItem currentWorkflowItem;
-    IPSGuid pageItemId;
-    IPSGuid localItemId;
-    IPSGuid sharedItemId;
-    HashMap<String, String> params = new HashMap<String, String>();
-    IPSPubItemStatus item;
-    MockComponentSummary itemSummary = new MockComponentSummary();
-    
-    
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        sut = new TestWorkflowEditionTask();
-        currentWorkflowItem = new PSWorkflowEditionTask.WorkflowItem();
-        pageItemId = context.mock(IPSGuid.class, "pageItemId");
-        localItemId = context.mock(IPSGuid.class, "localItemId");
-        sharedItemId = context.mock(IPSGuid.class, "sharedItemId");
-        workflowHelper = context.mock(IPSWorkflowHelper.class);
-        changeService = context.mock(IPSContentChangeService.class);
-        
-        currentWorkflowItem.assetType = AssetType.PAGE;
-        currentWorkflowItem.guid = pageItemId;
-        currentWorkflowItem.itemSummary = itemSummary;
-        currentWorkflowItem.itemSummary.setCurrentLocator(new PSLocator(1,1));
-        
-        params.put("state","Pending");
-        params.put("trigger","forcetolive");
-        worker = sut.getWorker(params);
-        systemWs = context.mock(IPSSystemWs.class);
-        guidManager = context.mock(IPSGuidManager.class);
+  IPSSystemWs systemWs;
+  IPSWorkflowHelper workflowHelper;
+  IPSGuidManager guidManager;
+  IPSContentChangeService changeService;
 
-        sut.setGuidManager(guidManager);
-        sut.setSystemWs(systemWs);
-        sut.setWorkflowHelper(workflowHelper);
-        sut.setContentChangeService(changeService);
-        
-    }
-    
-    public class TestWorkflowEditionTask extends PSWorkflowEditionTask {
+  PSAbstractWorkflowExtension.WorkflowItemWorker worker;
+  PSAbstractWorkflowExtension.WorkflowItem currentWorkflowItem;
+  IPSGuid pageItemId;
+  IPSGuid localItemId;
+  IPSGuid sharedItemId;
+  HashMap<String, String> params = new HashMap<String, String>();
+  IPSPubItemStatus item;
+  MockComponentSummary itemSummary = new MockComponentSummary();
+
+  @Before
+  public void setUp() throws Exception {
+    sut = new TestWorkflowEditionTask();
+    currentWorkflowItem = new PSWorkflowEditionTask.WorkflowItem();
+    pageItemId = context.mock(IPSGuid.class, "pageItemId");
+    localItemId = context.mock(IPSGuid.class, "localItemId");
+    sharedItemId = context.mock(IPSGuid.class, "sharedItemId");
+    workflowHelper = context.mock(IPSWorkflowHelper.class);
+    changeService = context.mock(IPSContentChangeService.class);
+
+    currentWorkflowItem.assetType = AssetType.PAGE;
+    currentWorkflowItem.guid = pageItemId;
+    currentWorkflowItem.itemSummary = itemSummary;
+    currentWorkflowItem.itemSummary.setCurrentLocator(new PSLocator(1, 1));
+
+    params.put("state", "Pending");
+    params.put("trigger", "forcetolive");
+    worker = sut.getWorker(params);
+    systemWs = context.mock(IPSSystemWs.class);
+    guidManager = context.mock(IPSGuidManager.class);
+
+    sut.setGuidManager(guidManager);
+    sut.setSystemWs(systemWs);
+    sut.setWorkflowHelper(workflowHelper);
+    sut.setContentChangeService(changeService);
+  }
+
+  public class TestWorkflowEditionTask extends PSWorkflowEditionTask {
+
+    @Override
+    public WorkflowItemWorker getWorker(Map<String, String> p) {
+      return new PSWorkflowEditionTask.WorkflowItemWorker(p) {
 
         @Override
-        public WorkflowItemWorker getWorker(Map<String, String> p)
-        {
-            return new PSWorkflowEditionTask.WorkflowItemWorker(p) {
-
-                @Override
-                protected WorkflowItem getWorkflowItem(@SuppressWarnings("unused") IPSPubItemStatus it)
-                {
-                    return currentWorkflowItem;
-                }
-
-                @Override
-                protected List<WorkflowItem> getLocalAssetWorkflowItems(@SuppressWarnings("unused") WorkflowItem page)
-                {
-                    return emptyList();
-                }
-
-                @Override
-                protected List<WorkflowItem> getSharedAssetWorkflowItems(@SuppressWarnings("unused") WorkflowItem page)
-                {
-                    return emptyList();
-                }
-            
-            };
+        protected WorkflowItem getWorkflowItem(@SuppressWarnings("unused") IPSPubItemStatus it) {
+          return currentWorkflowItem;
         }
-        
+
+        @Override
+        protected List<WorkflowItem> getLocalAssetWorkflowItems(
+            @SuppressWarnings("unused") WorkflowItem page) {
+          return emptyList();
+        }
+
+        @Override
+        protected List<WorkflowItem> getSharedAssetWorkflowItems(
+            @SuppressWarnings("unused") WorkflowItem page) {
+          return emptyList();
+        }
+      };
     }
-    
-    @Test
-    public void shouldProcessValidItem()
-    {
+  }
 
-        item = new DefaultPubItemStatus();
-        currentWorkflowItem.checkedOutUserName = "";
-        currentWorkflowItem.state = "Pending";
-        
+  @Test
+  public void shouldProcessValidItem() {
 
-        expectTransition();
+    item = new DefaultPubItemStatus();
+    currentWorkflowItem.checkedOutUserName = "";
+    currentWorkflowItem.state = "Pending";
 
-        worker.processItem(item);
-        assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
-        assertNull(currentWorkflowItem.error);
-    }
-    
-    @Test
-    public void shouldProcessValidResource()
-    {
+    expectTransition();
 
-        item = new DefaultPubItemStatus();
-        currentWorkflowItem.checkedOutUserName = "";
-        currentWorkflowItem.state = "Pending";
-        currentWorkflowItem.assetType = AssetType.RESOURCE;
+    worker.processItem(item);
+    assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
+    assertNull(currentWorkflowItem.error);
+  }
 
-        expectTransition();
+  @Test
+  public void shouldProcessValidResource() {
 
-        worker.processItem(item);
-        assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
-        assertNull(currentWorkflowItem.error);
-    }
+    item = new DefaultPubItemStatus();
+    currentWorkflowItem.checkedOutUserName = "";
+    currentWorkflowItem.state = "Pending";
+    currentWorkflowItem.assetType = AssetType.RESOURCE;
 
-    private void expectTransition()
-    {
-        context.checking(new Expectations()
-        {
-            {
-                one(systemWs).transitionItems(asList(pageItemId), "forcetolive");
-                one(workflowHelper).transitionRelatedNavigationItem(with(any(IPSGuid.class)), with(not((String)null)));
-            }
+    expectTransition();
+
+    worker.processItem(item);
+    assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
+    assertNull(currentWorkflowItem.error);
+  }
+
+  private void expectTransition() {
+    context.checking(
+        new Expectations() {
+          {
+            one(systemWs).transitionItems(asList(pageItemId), "forcetolive");
+            one(workflowHelper)
+                .transitionRelatedNavigationItem(
+                    with(any(IPSGuid.class)), with(not((String) null)));
+          }
         });
-    }
-    
-    @Test
-    public void shouldNotProcessItemIfCheckedOut()
-    {
+  }
 
-        item = new DefaultPubItemStatus();
-        currentWorkflowItem.checkedOutUserName = "CheckedOutByJoe";
-        currentWorkflowItem.state = "Pending";
+  @Test
+  public void shouldNotProcessItemIfCheckedOut() {
 
-        //no expectations
+    item = new DefaultPubItemStatus();
+    currentWorkflowItem.checkedOutUserName = "CheckedOutByJoe";
+    currentWorkflowItem.state = "Pending";
 
-        worker.processItem(item);
-        assertThat(currentWorkflowItem.status, equalTo(ItemStatus.FAILED));
-    }
-    
-    @Test
-    public void shouldNotProcessItemIfAlreadyWorkflowed()
-    {
+    // no expectations
 
-        item = new DefaultPubItemStatus();
-        currentWorkflowItem.checkedOutUserName = "";
-        currentWorkflowItem.state = "Pending";
-        expectTransition();
+    worker.processItem(item);
+    assertThat(currentWorkflowItem.status, equalTo(ItemStatus.FAILED));
+  }
 
-        //no expectations
+  @Test
+  public void shouldNotProcessItemIfAlreadyWorkflowed() {
 
-        worker.processItem(item);
-        assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
-        //Try processing again.
-        worker.processItem(item);
-        assertThat(currentWorkflowItem.status, equalTo(ItemStatus.IGNORED));
-        
-    }
+    item = new DefaultPubItemStatus();
+    currentWorkflowItem.checkedOutUserName = "";
+    currentWorkflowItem.state = "Pending";
+    expectTransition();
 
-    @Test
-    public void shouldNotProcessItemIfInWrongState()
-    {
+    // no expectations
 
-        item = new DefaultPubItemStatus();
-        currentWorkflowItem.checkedOutUserName = null;
-        //Bad state
-        currentWorkflowItem.state = "Blah";
+    worker.processItem(item);
+    assertThat(currentWorkflowItem.status, equalTo(ItemStatus.PROCESSED));
+    // Try processing again.
+    worker.processItem(item);
+    assertThat(currentWorkflowItem.status, equalTo(ItemStatus.IGNORED));
+  }
 
-        //no expectations
+  @Test
+  public void shouldNotProcessItemIfInWrongState() {
 
-        worker.processItem(item);
-    }
-    
-    
-    public static class DefaultPubItemStatus extends MockPubItemStatus {
+    item = new DefaultPubItemStatus();
+    currentWorkflowItem.checkedOutUserName = null;
+    // Bad state
+    currentWorkflowItem.state = "Blah";
 
-        @Override
-        public Status getStatus()
-        {
-            return Status.SUCCESS;
-        }
+    // no expectations
 
-        @Override
-        public Operation getOperation()
-        {
-            return Operation.PUBLISH;
-        }
+    worker.processItem(item);
+  }
 
-        @Override
-        public int getContentId()
-        {
-            return 1;
-        }
+  public static class DefaultPubItemStatus extends MockPubItemStatus {
 
-        @Override
-        public int getRevisionId()
-        {
-            return 1;
-        }
-    
-    }
-    
-    @SuppressWarnings("serial")
-    public static class MockComponentSummary extends PSComponentSummary {
-
-        @Override
-        public int getContentStateId()
-        {
-            return 1;
-        }
-    
-        
+    @Override
+    public Status getStatus() {
+      return Status.SUCCESS;
     }
 
-  
+    @Override
+    public Operation getOperation() {
+      return Operation.PUBLISH;
+    }
+
+    @Override
+    public int getContentId() {
+      return 1;
+    }
+
+    @Override
+    public int getRevisionId() {
+      return 1;
+    }
+  }
+
+  @SuppressWarnings("serial")
+  public static class MockComponentSummary extends PSComponentSummary {
+
+    @Override
+    public int getContentStateId() {
+      return 1;
+    }
+  }
 }

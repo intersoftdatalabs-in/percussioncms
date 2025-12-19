@@ -16,50 +16,50 @@
  */
 package com.percussion.share.test;
 
+import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
 import java.util.Properties;
-
-import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
-    public static String baseUrl;
-    protected REST_CLIENT restClient;
-    
-    @BeforeClass
-    public static void loadProperties() throws Exception {
-        if (baseUrl == null) {
-            Properties cactusProps = new Properties();
-            InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties");
-            if (stream == null) throw new RuntimeException("Cannot find cactus.properties");
-            cactusProps.load(stream);
-            baseUrl = cactusProps.getProperty("cactus.contextURL");
-        }
+  public static String baseUrl;
+  protected REST_CLIENT restClient;
+
+  @BeforeClass
+  public static void loadProperties() throws Exception {
+    if (baseUrl == null) {
+      Properties cactusProps = new Properties();
+      InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties");
+      if (stream == null) throw new RuntimeException("Cannot find cactus.properties");
+      cactusProps.load(stream);
+      baseUrl = cactusProps.getProperty("cactus.contextURL");
     }
-    
-    protected abstract REST_CLIENT getRestClient(String baseUrl);
-    
-    @Before
-    public void setupClient() throws Exception {
-        restClient = getRestClient(baseUrl);
-        setupClient(restClient);
-    }
-    
-    public static void setupClient(PSObjectRestClient restClient) throws Exception {        
-        setupClient(restClient, "admin1", EI_ADMIN_COMMUNITYID);
-    }
-    
-    public static void setupClient(PSObjectRestClient restClient, String userName, int communityId) throws Exception {
-        loadProperties();
-        restClient.setUrl(baseUrl);
-        restClient.getRequestHeaders().put("Accept", "text/xml");
-        restClient.login(userName, "demo");
-        restClient.switchCommunity(communityId);
-    }
-    
-    public static int EI_ADMIN_COMMUNITYID = 1001;
-    public static int EI_COMMUNITYID = 1002;
+  }
+
+  protected abstract REST_CLIENT getRestClient(String baseUrl);
+
+  @Before
+  public void setupClient() throws Exception {
+    restClient = getRestClient(baseUrl);
+    setupClient(restClient);
+  }
+
+  public static void setupClient(PSObjectRestClient restClient) throws Exception {
+    setupClient(restClient, "admin1", EI_ADMIN_COMMUNITYID);
+  }
+
+  public static void setupClient(PSObjectRestClient restClient, String userName, int communityId)
+      throws Exception {
+    loadProperties();
+    restClient.setUrl(baseUrl);
+    restClient.getRequestHeaders().put("Accept", "text/xml");
+    restClient.login(userName, "demo");
+    restClient.switchCommunity(communityId);
+  }
+
+  public static int EI_ADMIN_COMMUNITYID = 1001;
+  public static int EI_COMMUNITYID = 1002;
 }

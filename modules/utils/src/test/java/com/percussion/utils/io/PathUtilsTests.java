@@ -17,6 +17,13 @@
 
 package com.percussion.utils.io;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -24,89 +31,68 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.junit.Assert.assertEquals;
-
 public class PathUtilsTests {
 
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private String rxdeploydir;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private String rxdeploydir;
+  @Before
+  public void setup() throws IOException {
 
-    @Before
-    public void setup() throws IOException {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
 
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-    }
+  @After
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-    @After
-    public void teardown(){
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
+  public PathUtilsTests() {}
 
-    public PathUtilsTests(){}
+  // TODO: Finish adding various test cases.
+  @Test
+  @Ignore
+  public void testAutodetect() throws IOException {
+    System.setProperty("rxdeploydir", "");
+    System.setProperty("user.dir", System.getProperty("user.home"));
+    PathUtils.clearRxDir();
 
-    //TODO: Finish adding various test cases.
-    @Test
-    @Ignore
-    public void testAutodetect() throws IOException {
-        System.setProperty("rxdeploydir","");
-        System.setProperty("user.dir", System.getProperty("user.home"));
-        PathUtils.clearRxDir();
+    Path p = Paths.get(System.getProperty("user.home"), PathUtils.USER_FOLDER_CHECK_ITEM);
+    if (!Files.exists(p)) Files.createDirectory(p);
 
-        Path p = Paths.get(
-                System.getProperty("user.home"), PathUtils.USER_FOLDER_CHECK_ITEM);
-        if(!Files.exists(p))
-            Files.createDirectory(p);
+    assertEquals(
+        String.format("%s%s%s", System.getProperty("user.home"), File.separator, ".perc_config"),
+        PathUtils.getRxDir(null).getAbsolutePath());
 
-        assertEquals(String.format("%s%s%s", System.getProperty("user.home"),
-                File.separator, ".perc_config"), PathUtils.getRxDir(null).getAbsolutePath());
+    File dtsBase = temporaryFolder.newFolder("Deployment", "Server");
+    File rxconfig = temporaryFolder.newFolder("rxconfig");
+    PathUtils.clearRxDir();
 
+    assertEquals(
+        temporaryFolder.getRoot().getAbsolutePath(),
+        PathUtils.getRxDir(rxconfig.getAbsolutePath()).getAbsolutePath());
 
-        File dtsBase = temporaryFolder.newFolder("Deployment","Server");
-        File rxconfig = temporaryFolder.newFolder("rxconfig");
-        PathUtils.clearRxDir();
+    System.setProperty("rxdeploydir", "");
+    System.setProperty("user.dir", dtsBase.getAbsolutePath());
+    PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(),
-                PathUtils.getRxDir(rxconfig.getAbsolutePath()).getAbsolutePath());
+    assertEquals(
+        temporaryFolder.getRoot().getAbsolutePath(),
+        PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
 
+    File jettyBase = temporaryFolder.newFolder("jetty", "base");
+    System.setProperty("user.dir", jettyBase.getAbsolutePath());
+    PathUtils.clearRxDir();
 
-        System.setProperty("rxdeploydir","");
-        System.setProperty("user.dir", dtsBase.getAbsolutePath());
-        PathUtils.clearRxDir();
+    assertEquals(
+        temporaryFolder.getRoot().getAbsolutePath(),
+        PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
+  }
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(), PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
+  public void testNoObjectStore() throws IOException {}
 
-        File jettyBase = temporaryFolder.newFolder("jetty","base");
-        System.setProperty("user.dir", jettyBase.getAbsolutePath());
-        PathUtils.clearRxDir();
+  public void testObjectStore() {}
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(), PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
-
-
-
-    }
-
-
-    public void testNoObjectStore() throws IOException {
-
-
-    }
-
-    public void testObjectStore(){
-
-    }
-
-    public void testNoObjectStoreNoRxConfig(){
-
-    }
-
+  public void testNoObjectStoreNoRxConfig() {}
 }

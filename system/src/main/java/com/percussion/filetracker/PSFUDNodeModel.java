@@ -17,114 +17,85 @@
 
 package com.percussion.filetracker;
 
-
 /**
- * PSFUDNodeModel is a PSFUDTreeTableModel representing a Rhythmyx FUD Manager
- * Application. Nodes in the PSFUDNodeModel are PSFUDNodes. Note that these
- * nodes are NOT derived from DOM Node and only encapsulate the DOM element.
+ * PSFUDNodeModel is a PSFUDTreeTableModel representing a Rhythmyx FUD Manager Application. Nodes in
+ * the PSFUDNodeModel are PSFUDNodes. Note that these nodes are NOT derived from DOM Node and only
+ * encapsulate the DOM element.
  */
+public class PSFUDNodeModel extends AbstractTreeTableModel {
+  public PSFUDNodeModel(Object obj) {
+    super(obj);
+  }
 
-public class PSFUDNodeModel
-   extends AbstractTreeTableModel
-{
-   public PSFUDNodeModel(Object obj)
-   {
-      super(obj);
-   }
+  //
+  // The TreeModel interface
+  //
+  public int getChildCount(Object node) {
+    if (!(node instanceof IPSFUDNode)) return 0;
 
-   //
-   // The TreeModel interface
-   //
-   public int getChildCount(Object node)
-   {
-      if(!(node instanceof IPSFUDNode))
-         return 0;
+    Object[] children = ((IPSFUDNode) node).getChildren();
+    return (children == null) ? 0 : children.length;
+  }
 
-      Object[] children = ((IPSFUDNode)node).getChildren();
-      return (children == null) ? 0 : children.length;
-   }
+  public Object getChild(Object node, int i) {
+    if (!(node instanceof IPSFUDNode)) return null;
 
-   public Object getChild(Object node, int i)
-   {
-      if(!(node instanceof IPSFUDNode))
-         return null;
+    return ((IPSFUDNode) node).getChildren()[i];
+  }
 
-      return ((IPSFUDNode)node).getChildren()[i];
-   }
+  public boolean isLeaf(Object node) {
+    if (node instanceof PSFUDFileNode) return true;
 
-   public boolean isLeaf(Object node)
-   {
-      if(node instanceof PSFUDFileNode)
-         return true;
+    return false;
+  }
 
-      return false;
-   }
+  //
+  //  The TreeTableNode interface.
+  //
 
-   //
-   //  The TreeTableNode interface.
-   //
+  public int getColumnCount() {
+    return ms_cNames.length;
+  }
 
-   public int getColumnCount()
-   {
-      return ms_cNames.length;
-   }
+  public String getColumnName(int column) {
+    return ms_cNames[column];
+  }
 
-   public String getColumnName(int column)
-   {
-      return ms_cNames[column];
-   }
+  public Class getColumnClass(int column) {
+    return ms_cTypes[column];
+  }
 
-   public Class getColumnClass(int column)
-   {
-      return ms_cTypes[column];
-   }
+  public Object getValueAt(Object node, int column) {
+    IPSFUDNode fudNode = (IPSFUDNode) node;
+    switch (column) {
+      case 0:
+        return fudNode.toString();
+      case 1: // Size
+        if (fudNode instanceof PSFUDFileNode) {
+          PSFUDFileNode fileNode = (PSFUDFileNode) fudNode;
+          try {
+            return Long.valueOf(fileNode.getSize());
+          } catch (Exception e) {
+            return new Long(0L);
+          }
+        } else return null;
 
-   public Object getValueAt(Object node, int column)
-   {
-      IPSFUDNode fudNode = (IPSFUDNode)node;
-      switch(column)
-      {
-         case 0:
-               return fudNode.toString();
-         case 1: //Size
-            if(fudNode instanceof PSFUDFileNode)
-            {
-               PSFUDFileNode fileNode = (PSFUDFileNode)fudNode;
-               try
-               {
-                  return Long.valueOf(fileNode.getSize());
-               }
-               catch(Exception e)
-               {
-                  return new Long(0L);
-               }
-            }
-            else
-               return null;
+      case 2: // Modified Date
+        if (fudNode instanceof PSFUDFileNode) {
+          PSFUDFileNode fileNode = (PSFUDFileNode) fudNode;
+          return fileNode.getModified();
+        } else return null;
+    }
 
-         case 2: //Modified Date
-            if(fudNode instanceof PSFUDFileNode)
-            {
-               PSFUDFileNode fileNode = (PSFUDFileNode)fudNode;
-               return fileNode.getModified();
-            }
-            else
-               return null;
-      }
+    return null;
+  }
 
-      return null;
-   }
+  // Names of the columns.
+  protected static String[] ms_cNames = {"Name", "Size", "Modified"};
 
-   // Names of the columns.
-   static protected String[]  ms_cNames = {"Name", "Size", "Modified"};
+  // Types of the columns.
+  protected static Class[] ms_cTypes = {PSFUDTreeTableModel.class, Integer.class, String.class};
 
-   // Types of the columns.
-   static protected Class[]  ms_cTypes = {PSFUDTreeTableModel.class,
-                                                Integer.class, String.class};
-
-   // The the returned file length for directories.
-   public static final Integer ZERO = new Integer(0);
-
+  // The the returned file length for directories.
+  public static final Integer ZERO = new Integer(0);
 }
-
-

@@ -17,84 +17,62 @@
 
 package com.percussion.install;
 
-//java
+// java
 
 import com.percussion.util.PSProperties;
+import java.io.IOException;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
+/** RxApplicatonManager is a class that manages the installation and conversion of applications. */
+public class RxApplicationManager {
+  /** Constructs an RxApplicationManager */
+  public RxApplicationManager() {}
 
-
-/**
-   * RxApplicatonManager is a class that manages the installation and 
-  * conversion of applications.
-  */
-public class RxApplicationManager
-{
-   /**
-   * Constructs an RxApplicationManager
-   */
-   public RxApplicationManager()
-  {
-  }
-  
   /**
-  * Apply repository and port information to the application files.
-  * 
-  * @param rootDir - The absolute path name of the root directory.
-  *      Must not be <CODE>null</CODE>
-  *
-  * @param strAppFileRoot - The location of the appFileName.
-  *      Must not be <CODE>null</CODE>
-  * 
-  * @param appFileName - The name of the application file.
-  *      Must not be <CODE>null</CODE>
-  *
-  * @param bUpdateNativeStatemnet - <code>true</code> if the native
-  *       statement should be updated.
-  *
-   * @throws IOException - if file is invalid or inaccessible
+   * Apply repository and port information to the application files.
    *
-   * @throws SAXException - if the application file is not parseable XML
-   * document
-  *
+   * @param rootDir - The absolute path name of the root directory. Must not be <CODE>null</CODE>
+   * @param strAppFileRoot - The location of the appFileName. Must not be <CODE>null</CODE>
+   * @param appFileName - The name of the application file. Must not be <CODE>null</CODE>
+   * @param bUpdateNativeStatemnet - <code>true</code> if the native statement should be updated.
+   * @throws IOException - if file is invalid or inaccessible
+   * @throws SAXException - if the application file is not parseable XML document
    * @throws IllegalArgumentException if strRootDir or strAppName are <CODE>
-  * null</CODE>.
-  *
-  * @return <CODE>true</CODE> for success, <CODE>false</CODE> for failure.
-  */
-  static public void applyLocalSettings(String strRootDir,
-                                        String strAppFileRoot, 
-                                        String strAppFileName,
-                                        boolean bUpdateNativeStatement)
-     throws IOException, SAXException
-  {
-      //validate the parameters
-      if (strRootDir == null || strAppFileName == null || strAppFileRoot == null)
-         throw new IllegalArgumentException();
+   * null</CODE>.
+   * @return <CODE>true</CODE> for success, <CODE>false</CODE> for failure.
+   */
+  public static void applyLocalSettings(
+      String strRootDir,
+      String strAppFileRoot,
+      String strAppFileName,
+      boolean bUpdateNativeStatement)
+      throws IOException, SAXException {
+    // validate the parameters
+    if (strRootDir == null || strAppFileName == null || strAppFileRoot == null)
+      throw new IllegalArgumentException();
 
-      //convert file name to appname
-      int dotIndex = strAppFileName.indexOf(".");
-      String strAppName = strAppFileName.substring(0, dotIndex);
-      
-      RxFileManager fileManager = new RxFileManager(strRootDir);
-      
-      //server property file 
-      PSProperties serverProps = new PSProperties(fileManager.getServerPropertiesFile());
-      //port number
-      String strPort = (String)serverProps.get("bindPort");
-      
-      //repository property file
-      PSProperties repositoryProps = new PSProperties(fileManager.getRepositoryFile());
-      
-      //run utility conversion
-      RxAppConverter.updateRxApp(   repositoryProps, 
-                           strAppFileRoot, 
-                                  strAppName,
-                              true, //modify credential
-                                  strPort,
-                                  false, //enable
-                                  bUpdateNativeStatement);
+    // convert file name to appname
+    int dotIndex = strAppFileName.indexOf(".");
+    String strAppName = strAppFileName.substring(0, dotIndex);
+
+    RxFileManager fileManager = new RxFileManager(strRootDir);
+
+    // server property file
+    PSProperties serverProps = new PSProperties(fileManager.getServerPropertiesFile());
+    // port number
+    String strPort = (String) serverProps.get("bindPort");
+
+    // repository property file
+    PSProperties repositoryProps = new PSProperties(fileManager.getRepositoryFile());
+
+    // run utility conversion
+    RxAppConverter.updateRxApp(
+        repositoryProps,
+        strAppFileRoot,
+        strAppName,
+        true, // modify credential
+        strPort,
+        false, // enable
+        bUpdateNativeStatement);
   }
-  
 }

@@ -21,19 +21,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "AclEntryList")
-@XmlSeeAlso({UserAccessLevel.class,Permissions.class})
-@ArraySchema(schema=@Schema(implementation = UserAccessLevel.class))
+@XmlSeeAlso({UserAccessLevel.class, Permissions.class})
+@ArraySchema(schema = @Schema(implementation = UserAccessLevel.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAccessLevelList extends ArrayList<UserAccessLevel> {
-    public UserAccessLevelList(Collection<? extends UserAccessLevel> c) {
-        super(c);
-    }
-    public UserAccessLevelList(){}
+  public UserAccessLevelList(Collection<? extends UserAccessLevel> c) {
+    super(c);
+  }
+
+  public UserAccessLevelList() {}
 }

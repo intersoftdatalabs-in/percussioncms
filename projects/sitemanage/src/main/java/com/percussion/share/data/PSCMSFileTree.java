@@ -19,18 +19,13 @@ package com.percussion.share.data;
 
 import com.percussion.pathmanagement.data.PSPathItem;
 
-public class PSCMSFileTree implements IPSTree<PSPathItem>{
+public class PSCMSFileTree implements IPSTree<PSPathItem> {
 
-	@Override
-	public IPSTreeNode<PSPathItem> getRoot() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public PSCMSFileTree(PSPathItem pi){
-		
-	}
+  @Override
+  public IPSTreeNode<PSPathItem> getRoot() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	
-
+  public PSCMSFileTree(PSPathItem pi) {}
 }

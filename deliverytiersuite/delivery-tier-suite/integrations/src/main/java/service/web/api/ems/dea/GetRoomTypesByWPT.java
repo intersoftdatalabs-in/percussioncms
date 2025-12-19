@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -44,122 +42,95 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "webProcessTemplates",
-    "buildings"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userName", "password", "webProcessTemplates", "buildings"})
 @XmlRootElement(name = "GetRoomTypesByWPT")
 public class GetRoomTypesByWPT {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "WebProcessTemplates")
-    protected ArrayOfInt webProcessTemplates;
-    @XmlElement(name = "Buildings")
-    protected ArrayOfInt buildings;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "WebProcessTemplates")
+  protected ArrayOfInt webProcessTemplates;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "Buildings")
+  protected ArrayOfInt buildings;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Gets the value of the webProcessTemplates property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getWebProcessTemplates() {
-        return webProcessTemplates;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Sets the value of the webProcessTemplates property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setWebProcessTemplates(ArrayOfInt value) {
-        this.webProcessTemplates = value;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Gets the value of the buildings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getBuildings() {
-        return buildings;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Sets the value of the buildings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setBuildings(ArrayOfInt value) {
-        this.buildings = value;
-    }
+  /**
+   * Gets the value of the webProcessTemplates property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getWebProcessTemplates() {
+    return webProcessTemplates;
+  }
 
+  /**
+   * Sets the value of the webProcessTemplates property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setWebProcessTemplates(ArrayOfInt value) {
+    this.webProcessTemplates = value;
+  }
+
+  /**
+   * Gets the value of the buildings property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getBuildings() {
+    return buildings;
+  }
+
+  /**
+   * Sets the value of the buildings property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setBuildings(ArrayOfInt value) {
+    this.buildings = value;
+  }
 }

@@ -24,78 +24,69 @@ import com.percussion.design.objectstore.PSDataMapper;
 import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSystemValidationException;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/** Plan builder for performing sequence reordering of complex child content items. */
+public class PSSequenceUpdatePlanBuilder extends PSModifyPlanBuilder {
+  // see superclass
+  public PSSequenceUpdatePlanBuilder(
+      PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
+    super(ceh, ce, app);
+  }
 
-/**
- * Plan builder for performing sequence reordering of complex child content
- * items.
- */
-public class PSSequenceUpdatePlanBuilder extends PSModifyPlanBuilder
-{
-   // see superclass
-   public PSSequenceUpdatePlanBuilder(PSContentEditorHandler ceh,
-      PSContentEditor ce, PSApplication app)
-   {
-      super(ceh, ce, app);
-   }
+  /**
+   * Creates a plan that will perform a resequencing of rows in a child content table. See {@link
+   * PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet) super.createModifyPlan()} for
+   * additional details.
+   *
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_COMPLEX_CHILD}
+   *     or if sequencing is not supported.
+   */
+  public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
+      throws PSSystemValidationException, SQLException {
+    if (mapper == null || fieldSet == null)
+      throw new IllegalArgumentException("one or more params is null");
 
-   /**
-    * Creates a plan that will perform a resequencing of rows in a child content
-    * table.   See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper,
-    * PSFieldSet) super.createModifyPlan()} for additional details.
-    *
-    * @throws IllegalArgumentException if fieldSet type is not
-    * {@link PSFieldSet#TYPE_COMPLEX_CHILD} or if sequencing is not supported.
-    */
-   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper,
-      PSFieldSet fieldSet) throws PSSystemValidationException, SQLException
-   {
-      if (mapper == null || fieldSet == null)
-         throw new IllegalArgumentException("one or more params is null");
+    if (fieldSet.getType() != PSFieldSet.TYPE_COMPLEX_CHILD)
+      throw new IllegalArgumentException("fieldSet type must be TYPE_COMPLEX_CHILD");
 
-      if (fieldSet.getType() != PSFieldSet.TYPE_COMPLEX_CHILD)
-         throw new IllegalArgumentException(
-            "fieldSet type must be TYPE_COMPLEX_CHILD");
+    if (!fieldSet.isSequencingSupported())
+      throw new IllegalArgumentException("fieldSet does not support sequencing");
 
-      if (!fieldSet.isSequencingSupported())
-         throw new IllegalArgumentException(
-            "fieldSet does not support sequencing");
+    String seqUpdateReqName = "SeqUpdate" + mapper.getId();
+    ArrayList seqUpdateMappings = new ArrayList(3);
 
-      String seqUpdateReqName = "SeqUpdate" + mapper.getId();
-      ArrayList seqUpdateMappings = new ArrayList(3);
+    PSDataMapper seqUpdateMapper =
+        PSApplicationBuilder.createSystemMappings(
+            addTableKeys(seqUpdateMappings, mapper, fieldSet, true).iterator());
 
-      PSDataMapper seqUpdateMapper =
-         PSApplicationBuilder.createSystemMappings(addTableKeys(
-            seqUpdateMappings, mapper, fieldSet, true).iterator());
+    PSApplicationBuilder.createUpdateDataset(
+        m_internalApp, seqUpdateReqName, m_ce, null, null, seqUpdateMapper, false);
 
-      PSApplicationBuilder.createUpdateDataset(m_internalApp,
-         seqUpdateReqName, m_ce, null, null, seqUpdateMapper, false);
+    PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_UPDATE_SEQUENCE);
+    plan.addModifyStep(createRevisionValidationStep());
 
-      PSModifyPlan plan = new PSModifyPlan(
-         PSModifyPlan.TYPE_UPDATE_SEQUENCE);
-      plan.addModifyStep(createRevisionValidationStep());
+    plan.addModifyStep(
+        new PSUpdateStep(
+            seqUpdateReqName,
+            m_internalApp.getRequestTypeHtmlParamName(),
+            m_internalApp.getRequestTypeValueUpdate(),
+            true));
 
-      plan.addModifyStep(new PSUpdateStep(seqUpdateReqName,
-         m_internalApp.getRequestTypeHtmlParamName(),
-         m_internalApp.getRequestTypeValueUpdate(), true));
+    // also add the system table update step to this plan
+    String sysReqName = seqUpdateReqName + "SysUpdate";
+    PSDataMapper systemMapper = getSystemUpdateMapper(mapper, fieldSet);
 
+    PSApplicationBuilder.createUpdateDataset(
+        m_internalApp, sysReqName, m_ce, null, null, systemMapper, false);
 
-      // also add the system table update step to this plan
-      String sysReqName = seqUpdateReqName + "SysUpdate";
-      PSDataMapper systemMapper = getSystemUpdateMapper(mapper,
-         fieldSet);
+    plan.addModifyStep(
+        new PSUpdateStep(
+            sysReqName,
+            m_internalApp.getRequestTypeHtmlParamName(),
+            m_internalApp.getRequestTypeValueUpdate()));
 
-      PSApplicationBuilder.createUpdateDataset(m_internalApp, sysReqName,
-         m_ce, null, null, systemMapper, false);
-
-      plan.addModifyStep(new PSUpdateStep(sysReqName,
-         m_internalApp.getRequestTypeHtmlParamName(),
-         m_internalApp.getRequestTypeValueUpdate()));
-
-      return plan;
-   }
-
+    return plan;
+  }
 }

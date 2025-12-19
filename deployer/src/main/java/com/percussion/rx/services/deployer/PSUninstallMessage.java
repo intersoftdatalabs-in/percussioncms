@@ -21,66 +21,50 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class represents a message.
- * @author bjoginipally
  *
+ * @author bjoginipally
  */
 @XmlRootElement(name = "Message")
-public class PSUninstallMessage
-{
-   public PSUninstallMessage()
-   {
-      
-   }
-   public PSUninstallMessage(String packageName,String type,String body)
-   {
-      setPackageName(packageName);
-      setType(type);
-      setBody(body);
-   }
-   /**
-    * @return the packages
-    */
-   @XmlElement(name = "body")
-   public String getBody()
-   {
-      return body;
-   }
-   public void setBody(String body)
-   {
-      this.body = body;
-   }
-   
-   /**
-    * @return the package
-    */
-   @XmlElement(name = "package")
-   public String getPackageName()
-   {
-      return packageName;
-   }
-   public void setPackageName(String packageName)
-   {
-      if (packageName == null)
-         throw new IllegalArgumentException("packageName must not be null");
-      this.packageName = packageName;
-   }
-   
-   /**
-    * @return the type
-    */
-   @XmlElement(name = "type")
-   public String getType()
-   {
-      return type;
-   }
-   public void setType(String type)
-   {
-      this.type = type;
-   }
-   
+public class PSUninstallMessage {
+  public PSUninstallMessage() {}
 
-   private String type;
-   private String body = "";
-   private String packageName = "";
-   
+  public PSUninstallMessage(String packageName, String type, String body) {
+    setPackageName(packageName);
+    setType(type);
+    setBody(body);
+  }
+  /** @return the packages */
+  @XmlElement(name = "body")
+  public String getBody() {
+    return body;
+  }
+
+  public void setBody(String body) {
+    this.body = body;
+  }
+
+  /** @return the package */
+  @XmlElement(name = "package")
+  public String getPackageName() {
+    return packageName;
+  }
+
+  public void setPackageName(String packageName) {
+    if (packageName == null) throw new IllegalArgumentException("packageName must not be null");
+    this.packageName = packageName;
+  }
+
+  /** @return the type */
+  @XmlElement(name = "type")
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  private String type;
+  private String body = "";
+  private String packageName = "";
 }

@@ -23,46 +23,38 @@ import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
 import com.percussion.utils.container.PSJettyConnectors;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-
 import java.nio.file.Path;
 import java.util.List;
 
-public class JettyInstallationPropertiesConfigurationAdapter implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+public class JettyInstallationPropertiesConfigurationAdapter
+    implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
+  @Override
+  public void load(DefaultConfigurationContextImpl configurationContext) {
+    Path rxDir = configurationContext.getRootDir();
+    BaseContainerUtils containerUtils = configurationContext.getConfig();
+    System.out.println("Loading installation properties ");
 
+    PSJettyConnectors connectors = new PSJettyConnectors(rxDir);
+    connectors.load();
+    List<IPSConnector> conItems = connectors.getConnectors();
+    if (conItems.size() == 0) {
+      List<IPSConnector> existingConnectors = containerUtils.getConnectorInfo().getConnectors();
+      if (existingConnectors.size() == 0) {
+        // add default port
+        conItems.add(PSAbstractConnector.getBuilder().setPort(9992).build());
+      }
+    } else containerUtils.getConnectorInfo().setConnectors(conItems);
+  }
 
-    @Override
-    public void load(DefaultConfigurationContextImpl configurationContext) {
-        Path rxDir = configurationContext.getRootDir();
-        BaseContainerUtils containerUtils = configurationContext.getConfig();
-        System.out.println("Loading installation properties ");
+  @Override
+  public void save(DefaultConfigurationContextImpl configurationContext) {
+    Path rxDir = configurationContext.getRootDir();
+    BaseContainerUtils containerUtils = configurationContext.getConfig();
+    System.out.println("Loading installation properties ");
 
-        PSJettyConnectors connectors = new PSJettyConnectors(rxDir);
-        connectors.load();
-        List<IPSConnector> conItems = connectors.getConnectors();
-        if (conItems.size()==0)
-        {
-            List<IPSConnector> existingConnectors = containerUtils.getConnectorInfo().getConnectors();
-            if (existingConnectors.size()==0)
-            {
-                // add default port
-                conItems.add(PSAbstractConnector.getBuilder().setPort(9992).build());
-            }
-        } else
-            containerUtils.getConnectorInfo().setConnectors(conItems);
-
-    }
-
-    @Override
-    public void save(DefaultConfigurationContextImpl configurationContext) {
-        Path rxDir = configurationContext.getRootDir();
-        BaseContainerUtils containerUtils = configurationContext.getConfig();
-        System.out.println("Loading installation properties ");
-
-        PSJettyConnectors connectors = new PSJettyConnectors(rxDir,configurationContext.getConfig().getConnectorInfo());
-        connectors.save();
-    }
-
-
+    PSJettyConnectors connectors =
+        new PSJettyConnectors(rxDir, configurationContext.getConfig().getConnectorInfo());
+    connectors.save();
+  }
 }
-

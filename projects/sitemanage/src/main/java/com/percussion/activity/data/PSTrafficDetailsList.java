@@ -18,15 +18,12 @@
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @JsonRootName(value = "TrafficDetails")
 public class PSTrafficDetailsList extends ArrayList<PSTrafficDetails> {
-    public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
-        super(c);
-    }
+  public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {
+    super(c);
+  }
 }

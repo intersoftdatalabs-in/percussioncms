@@ -20,19 +20,16 @@ package com.percussion.linkmanagement.service;
 import static org.junit.Assert.assertEquals;
 
 import com.percussion.services.assembly.impl.PSReplacementFilter;
-
 import org.junit.Test;
 
 public class PSManagedLinkServiceAnchorTest {
-	@Test
-	 public void testAnchorParse()
-	    {
-	    	String testBasicAnchor = "http://foo.com#FOO";
-	    	assertEquals(PSReplacementFilter.getAnchor(testBasicAnchor), "#FOO");
-	    	String testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
-	    	assertEquals(PSReplacementFilter.getAnchor(testBasicQueryStringAnchor), "#FOO");
-	    	String testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
-	    	assertEquals(PSReplacementFilter.getAnchor(testMalformedAnchor), "#FOO");
-	    }
-
+  @Test
+  public void testAnchorParse() {
+    String testBasicAnchor = "http://foo.com#FOO";
+    assertEquals(PSReplacementFilter.getAnchor(testBasicAnchor), "#FOO");
+    String testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
+    assertEquals(PSReplacementFilter.getAnchor(testBasicQueryStringAnchor), "#FOO");
+    String testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
+    assertEquals(PSReplacementFilter.getAnchor(testMalformedAnchor), "#FOO");
+  }
 }

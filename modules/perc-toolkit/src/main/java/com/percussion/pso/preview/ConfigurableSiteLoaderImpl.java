@@ -18,61 +18,46 @@ package com.percussion.pso.preview;
 
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.PSSiteManagerException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+/** @author DavidBenua */
+public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements SiteLoader {
 
-/**
- * @author DavidBenua
- *
- */
-public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl
-   implements SiteLoader 
-{
+  private static final Logger log = LogManager.getLogger(ConfigurableSiteLoaderImpl.class);
 
-	private static final Logger log = LogManager.getLogger(ConfigurableSiteLoaderImpl.class);
-	
-	private List<String> allowedSites; 
+  private List<String> allowedSites;
 
-	/**
-	 * 
-	 */
-	public ConfigurableSiteLoaderImpl() {
-		super(); 
-		allowedSites = new ArrayList<String>(); 
-	}
+  /** */
+  public ConfigurableSiteLoaderImpl() {
+    super();
+    allowedSites = new ArrayList<String>();
+  }
 
-	@Override
-	public synchronized List<IPSSite> loadAllSites() throws PSSiteManagerException {
-		List<IPSSite> allSites = super.loadAllSites();
-		List<IPSSite> mySites = new ArrayList<IPSSite>(); 
-		
-		for(IPSSite site : allSites)
-		{
-			if(allowedSites.contains(site.getName()))
-			{
-				log.debug("found allowed site {}", site.getName());
-				mySites.add(site); 
-			}
-			else
-			{
-				log.debug("ignoring site {}", site.getName());
-			}
-		}
-		
-		return mySites; 
-	}
+  @Override
+  public synchronized List<IPSSite> loadAllSites() throws PSSiteManagerException {
+    List<IPSSite> allSites = super.loadAllSites();
+    List<IPSSite> mySites = new ArrayList<IPSSite>();
 
-	public List<String> getAllowedSites() {
-		return allowedSites;
-	}
+    for (IPSSite site : allSites) {
+      if (allowedSites.contains(site.getName())) {
+        log.debug("found allowed site {}", site.getName());
+        mySites.add(site);
+      } else {
+        log.debug("ignoring site {}", site.getName());
+      }
+    }
 
-	public void setAllowedSites(List<String> allowedSites) {
-		this.allowedSites = allowedSites;
-	}
-	
-	
+    return mySites;
+  }
 
+  public List<String> getAllowedSites() {
+    return allowedSites;
+  }
+
+  public void setAllowedSites(List<String> allowedSites) {
+    this.allowedSites = allowedSites;
+  }
 }

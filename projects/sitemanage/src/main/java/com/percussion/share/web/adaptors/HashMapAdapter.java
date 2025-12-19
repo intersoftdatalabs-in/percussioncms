@@ -17,45 +17,42 @@
 
 package com.percussion.share.web.adaptors;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class HashMapAdapter extends XmlAdapter<HashMapAdapter.MapType, Map<String, String>> {
-    @Override
-    public MapType marshal(Map<String, String> map) {
-        MapType mapType = new MapType();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            MapEntry mapEntry = new MapEntry();
-            mapEntry.key = entry.getKey();
-            mapEntry.value = entry.getValue();
-            mapType.entryList.add(mapEntry);
-        }
-        return mapType;
+  @Override
+  public MapType marshal(Map<String, String> map) {
+    MapType mapType = new MapType();
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      MapEntry mapEntry = new MapEntry();
+      mapEntry.key = entry.getKey();
+      mapEntry.value = entry.getValue();
+      mapType.entryList.add(mapEntry);
     }
+    return mapType;
+  }
 
-    @Override
-    public Map<String, String> unmarshal(MapType type) throws Exception {
-        Map<String, String> map = new HashMap<>();
-        for (MapEntry entry : type.entryList) {
-            map.put(entry.key, entry.value);
-        }
-        return map;
+  @Override
+  public Map<String, String> unmarshal(MapType type) throws Exception {
+    Map<String, String> map = new HashMap<>();
+    for (MapEntry entry : type.entryList) {
+      map.put(entry.key, entry.value);
     }
+    return map;
+  }
 
+  public static class MapType {
+    @XmlElement(name = "entry")
+    public List<MapEntry> entryList = new ArrayList<>();
+  }
 
-    public static class MapType {
-        @XmlElement(name ="entry")
-        public List<MapEntry> entryList = new ArrayList<>();
-    }
-
-    public static class MapEntry {
-        @XmlElement
-        public String key;
-        @XmlElement
-        public String value;
-    }
+  public static class MapEntry {
+    @XmlElement public String key;
+    @XmlElement public String value;
+  }
 }

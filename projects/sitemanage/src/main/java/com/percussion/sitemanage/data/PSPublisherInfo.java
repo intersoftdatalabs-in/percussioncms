@@ -19,73 +19,64 @@ package com.percussion.sitemanage.data;
 
 import com.amazonaws.regions.Region;
 
-public class PSPublisherInfo
-{
-   private String bucketName;
+public class PSPublisherInfo {
+  private String bucketName;
 
-   private String accessKey;
+  private String accessKey;
 
-   private String secretKey;
+  private String secretKey;
 
-    private Region region;
+  private Region region;
 
-    private String useAssumeRole;
+  private String useAssumeRole;
 
-    private String arnRole;
+  private String arnRole;
 
-    public Region getRegion() {
-        return region;
-    }
+  public Region getRegion() {
+    return region;
+  }
 
-    public void setRegion(Region region) {
-        this.region = region;
-    }
+  public void setRegion(Region region) {
+    this.region = region;
+  }
 
-   public String getBucketName ()
-   {
-       return bucketName;
-   }
+  public String getBucketName() {
+    return bucketName;
+  }
 
-   public void setBucketName (String bucketName)
-   {
-       this.bucketName = bucketName;
-   }
+  public void setBucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
 
-   public String getAccessKey ()
-   {
-       return accessKey;
-   }
+  public String getAccessKey() {
+    return accessKey;
+  }
 
-   public void setAccessKey (String accessKey)
-   {
-       this.accessKey = accessKey;
-   }
+  public void setAccessKey(String accessKey) {
+    this.accessKey = accessKey;
+  }
 
-   public String getSecretKey ()
-   {
-       return secretKey;
-   }
+  public String getSecretKey() {
+    return secretKey;
+  }
 
-   public void setSecretKey (String secretKey)
-   {
-       this.secretKey = secretKey;
-   }
+  public void setSecretKey(String secretKey) {
+    this.secretKey = secretKey;
+  }
 
-    public String getUseAssumeRole() {
-        return useAssumeRole;
-    }
+  public String getUseAssumeRole() {
+    return useAssumeRole;
+  }
 
-    public void setUseAssumeRole(String useAssumeRole) {
-        this.useAssumeRole = useAssumeRole;
-    }
+  public void setUseAssumeRole(String useAssumeRole) {
+    this.useAssumeRole = useAssumeRole;
+  }
 
-    public String getArnRole() {
-        return arnRole;
-    }
+  public String getArnRole() {
+    return arnRole;
+  }
 
-    public void setArnRole(String arnRole) {
-        this.arnRole = arnRole;
-    }
+  public void setArnRole(String arnRole) {
+    this.arnRole = arnRole;
+  }
 }
-           
-           

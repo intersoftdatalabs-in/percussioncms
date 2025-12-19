@@ -19,18 +19,14 @@ package com.percussion.delivery.metadata.data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PSMetadataRestBlogList
-{
-    private List<PSMetadataBlogYear> years = new ArrayList<>();
+public class PSMetadataRestBlogList {
+  private List<PSMetadataBlogYear> years = new ArrayList<>();
 
-    public List<PSMetadataBlogYear> getYears()
-    {
-        return years;
-    }
+  public List<PSMetadataBlogYear> getYears() {
+    return years;
+  }
 
-    public void setYears(List<PSMetadataBlogYear> years)
-    {
-        this.years = years;
-    }
-    
+  public void setYears(List<PSMetadataBlogYear> years) {
+    this.years = years;
+  }
 }

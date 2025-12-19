@@ -17,24 +17,22 @@
 
 package com.percussion.thumbnail;
 
+import static org.junit.Assert.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class PSThumbnailImageUtilsTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
+  @Before
+  public void setUp() throws Exception {}
 
-    @After
-    public void tearDown() throws Exception {
-    }
+  @After
+  public void tearDown() throws Exception {}
 
-    @Test
-    public void resizeThumbnail() {
-        //TODO
-    }
+  @Test
+  public void resizeThumbnail() {
+    // TODO
+  }
 }

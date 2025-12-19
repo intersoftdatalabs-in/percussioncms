@@ -22,40 +22,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as
- * a spring bean.
- * 
- * @author adamgent
+ * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as a spring
+ * bean.
  *
+ * @author adamgent
  */
-public class PSFixedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory
-{
+public class PSFixedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory {
 
-    private int poolSize = 0;
-    
-    @Override
-    public ExecutorService getObject() throws Exception
-    {
-        int n = getPoolSize();
-        isTrue(n > 0, "pool size must be greater than 0");
-        if (getThreadFactory() != null)
-            return Executors.newFixedThreadPool(n, getThreadFactory());
-        return Executors.newFixedThreadPool(n);
-    }
+  private int poolSize = 0;
 
+  @Override
+  public ExecutorService getObject() throws Exception {
+    int n = getPoolSize();
+    isTrue(n > 0, "pool size must be greater than 0");
+    if (getThreadFactory() != null) return Executors.newFixedThreadPool(n, getThreadFactory());
+    return Executors.newFixedThreadPool(n);
+  }
 
+  public int getPoolSize() {
+    return poolSize;
+  }
 
-    public int getPoolSize()
-    {
-        return poolSize;
-    }
-
-    public void setPoolSize(int poolSize)
-    {
-        this.poolSize = poolSize;
-    }
-    
-    
-
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
+  }
 }
-

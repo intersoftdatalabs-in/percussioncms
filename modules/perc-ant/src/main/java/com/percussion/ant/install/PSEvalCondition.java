@@ -23,11 +23,9 @@ import com.percussion.install.PSLogger;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSEvalCondition will resolve to <code>true</code> if an eval is installed
+ * PSEvalCondition will resolve to <code>true</code> if an eval is installed <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -47,26 +45,21 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
-public class PSEvalCondition extends PSAction implements Condition
-{
-   /* (non-Javadoc)
-    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
-    */
-   public boolean eval()
-   {
-      Code code = InstallUtil.fetchBrandCode(getRootDir());
-      if (code == null)
-      {
-         PSLogger.logInfo("PSEvalCondition : Brand code is null");
-         return false;
-      }
-      if(code.isAnEval())
-      {
-         PSLogger.logInfo("PSEvalCondition : Brand code is eval");
-         return true;
-      }
+public class PSEvalCondition extends PSAction implements Condition {
+  /* (non-Javadoc)
+   * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
+   */
+  public boolean eval() {
+    Code code = InstallUtil.fetchBrandCode(getRootDir());
+    if (code == null) {
+      PSLogger.logInfo("PSEvalCondition : Brand code is null");
       return false;
-   }
+    }
+    if (code.isAnEval()) {
+      PSLogger.logInfo("PSEvalCondition : Brand code is eval");
+      return true;
+    }
+    return false;
+  }
 }

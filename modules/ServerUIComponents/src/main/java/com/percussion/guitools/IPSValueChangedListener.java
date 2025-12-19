@@ -16,14 +16,12 @@
  */
 package com.percussion.guitools;
 
-/**
- * Used by any AWT/Swing component to indicate the a value has changed.
- */
-public interface IPSValueChangedListener
-{
-   /**
-    * Called when a value is changed by the source component
-    * @param event never <code>null</code>.
-    */
-   public void valueChanged(PSValueChangedEvent event);
+/** Used by any AWT/Swing component to indicate the a value has changed. */
+public interface IPSValueChangedListener {
+  /**
+   * Called when a value is changed by the source component
+   *
+   * @param event never <code>null</code>.
+   */
+  public void valueChanged(PSValueChangedEvent event);
 }

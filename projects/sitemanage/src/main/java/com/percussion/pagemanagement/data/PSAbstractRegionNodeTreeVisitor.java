@@ -14,58 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+/** */
 package com.percussion.pagemanagement.data;
 
 public abstract class PSAbstractRegionNodeTreeVisitor implements IPSRegionNodeTreeVisitor {
 
-    private IPSRegionNodeVisitor startRegionNodeVisitor = new IPSRegionNodeVisitor() {
+  private IPSRegionNodeVisitor startRegionNodeVisitor =
+      new IPSRegionNodeVisitor() {
 
-        public void visit(PSRegionCode regionCode)
-        {
-            visitStart(regionCode);
+        public void visit(PSRegionCode regionCode) {
+          visitStart(regionCode);
         }
 
-        public void visit(PSRegion region)
-        {
-            visitStart(region);
+        public void visit(PSRegion region) {
+          visitStart(region);
         }
-    };
-    
-    private IPSRegionNodeVisitor endRegionNodeVisitor = new IPSRegionNodeVisitor() {
+      };
 
-        public void visit(PSRegionCode regionCode)
-        {
-            visitEnd(regionCode);
+  private IPSRegionNodeVisitor endRegionNodeVisitor =
+      new IPSRegionNodeVisitor() {
+
+        public void visit(PSRegionCode regionCode) {
+          visitEnd(regionCode);
         }
 
-        public void visit(PSRegion region)
-        {
-            visitEnd(region);
+        public void visit(PSRegion region) {
+          visitEnd(region);
         }
-    };
-    
-    
-    
-    public IPSRegionNodeVisitor getStartRegionNodeVisitor()
-    {
-        return startRegionNodeVisitor;
-    }
+      };
 
-    public IPSRegionNodeVisitor getEndRegionNodeVisitor()
-    {
-        return endRegionNodeVisitor;
-    }
+  public IPSRegionNodeVisitor getStartRegionNodeVisitor() {
+    return startRegionNodeVisitor;
+  }
 
-    protected abstract void visitEnd(PSRegionCode regionCode);
+  public IPSRegionNodeVisitor getEndRegionNodeVisitor() {
+    return endRegionNodeVisitor;
+  }
 
-    protected abstract void visitEnd(PSRegion region);
+  protected abstract void visitEnd(PSRegionCode regionCode);
 
-    protected abstract void visitStart(PSRegionCode regionCode);
+  protected abstract void visitEnd(PSRegion region);
 
-    protected abstract void visitStart(PSRegion region);
-    
+  protected abstract void visitStart(PSRegionCode regionCode);
 
+  protected abstract void visitStart(PSRegion region);
 }

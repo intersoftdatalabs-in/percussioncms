@@ -24,32 +24,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class PSMonitor implements IPSMonitor {
 
-	private static final String MESSAGE_DESIGNATOR = "message";
-	private static final String STATUS_DESIGNATOR = "status";
-	
-	@XmlElement
-	public PSMapWrapper stats = new PSMapWrapper();
-	
-	@Override
-	public PSMapWrapper getStats() {
-		return stats;
-	}
+  private static final String MESSAGE_DESIGNATOR = "message";
+  private static final String STATUS_DESIGNATOR = "status";
 
-	@Override
-	public void setStat(String designator, String stat) {
-		stats.getEntries().put(designator, stat);
-	}
+  @XmlElement public PSMapWrapper stats = new PSMapWrapper();
 
+  @Override
+  public PSMapWrapper getStats() {
+    return stats;
+  }
 
-	@Override
-	public void setMessage(String message) {
-		stats.getEntries().put(PSMonitor.MESSAGE_DESIGNATOR, message);
-	}
+  @Override
+  public void setStat(String designator, String stat) {
+    stats.getEntries().put(designator, stat);
+  }
 
-	@Override
-	public void setStatus(String status) {
-		stats.getEntries().put(PSMonitor.STATUS_DESIGNATOR, status);
-		
-	}
+  @Override
+  public void setMessage(String message) {
+    stats.getEntries().put(PSMonitor.MESSAGE_DESIGNATOR, message);
+  }
 
+  @Override
+  public void setStatus(String status) {
+    stats.getEntries().put(PSMonitor.STATUS_DESIGNATOR, status);
+  }
 }

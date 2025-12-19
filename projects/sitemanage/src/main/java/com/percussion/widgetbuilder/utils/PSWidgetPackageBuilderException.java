@@ -16,14 +16,9 @@
  */
 package com.percussion.widgetbuilder.utils;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSWidgetPackageBuilderException extends Exception
-{
-    public PSWidgetPackageBuilderException(String msg, Throwable cause)
-    {
-        super(msg, cause);
-    }
+/** @author JaySeletz */
+public class PSWidgetPackageBuilderException extends Exception {
+  public PSWidgetPackageBuilderException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

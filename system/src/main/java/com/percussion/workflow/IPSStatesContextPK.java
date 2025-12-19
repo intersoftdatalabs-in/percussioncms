@@ -20,13 +20,13 @@ package com.percussion.workflow;
 import javax.persistence.Column;
 
 public interface IPSStatesContextPK {
-    @Column(name = "STATEID")
-    int getStateid();
+  @Column(name = "STATEID")
+  int getStateid();
 
-    void setStateid(int stateid);
+  void setStateid(int stateid);
 
-    @Column(name = "WORKFLOWAPPID")
-    int getWorkflowAppId();
+  @Column(name = "WORKFLOWAPPID")
+  int getWorkflowAppId();
 
-    void setWorkflowAppId(int workflowid);
+  void setWorkflowAppId(int workflowid);
 }

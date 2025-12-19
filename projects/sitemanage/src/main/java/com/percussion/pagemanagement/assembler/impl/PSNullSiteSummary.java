@@ -18,40 +18,33 @@ package com.percussion.pagemanagement.assembler.impl;
 
 import com.percussion.pagemanagement.data.PSResourceInstance;
 import com.percussion.sitemanage.data.PSSiteSummary;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
- * A null site used for resource generation of assets during preview.
- * During preview of assets we do not have a site associated with them.
- * Instead of giving the assets a <code>null</code> value for sites
- * in the {@link PSResourceInstance resource instance} we use this object. 
- * <p>
- * This follows the Null Object pattern as we prefer to avoid null when we can.
- * 
- * @author adamgent
+ * A null site used for resource generation of assets during preview. During preview of assets we do
+ * not have a site associated with them. Instead of giving the assets a <code>null</code> value for
+ * sites in the {@link PSResourceInstance resource instance} we use this object.
  *
+ * <p>This follows the Null Object pattern as we prefer to avoid null when we can.
+ *
+ * @author adamgent
  */
 @XmlRootElement
-public class PSNullSiteSummary extends PSSiteSummary
-{
+public class PSNullSiteSummary extends PSSiteSummary {
 
-    private static final long serialVersionUID = 1L;
-    private static PSNullSiteSummary siteSummary = new PSNullSiteSummary();
-    static {
-        siteSummary.setBaseUrl("http://localhost/");
-        siteSummary.setFolderPath("//Sites/$NullSite$");
-        siteSummary.setName("NullSite");
-        siteSummary.setId(null);
-    }
-    
-    private PSNullSiteSummary() {
-    }
-    
-    public static PSNullSiteSummary getInstance() {
-        return siteSummary;
-    }
+  private static final long serialVersionUID = 1L;
+  private static PSNullSiteSummary siteSummary = new PSNullSiteSummary();
 
+  static {
+    siteSummary.setBaseUrl("http://localhost/");
+    siteSummary.setFolderPath("//Sites/$NullSite$");
+    siteSummary.setName("NullSite");
+    siteSummary.setId(null);
+  }
+
+  private PSNullSiteSummary() {}
+
+  public static PSNullSiteSummary getInstance() {
+    return siteSummary;
+  }
 }
-

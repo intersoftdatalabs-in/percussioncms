@@ -20,96 +20,78 @@ package com.percussion.rest.folders;
 import com.percussion.rest.errors.FolderNotFoundException;
 import com.percussion.rest.errors.SiteNotFoundException;
 import com.percussion.rest.util.Examples;
+import java.net.URI;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
 @Component
 @Lazy
-public class FolderTestAdaptor implements IFolderAdaptor
-{
-    private URI baseURI;
-    
-    @Override
-    public Folder getFolder(URI baseURI, String id)
-    {
-        Folder folder = Examples.SAMPLE_FOLDER;
-        folder.setId(id);
-        if (id.equals("invalidId"))
-        {
-            throw new FolderNotFoundException();
-        }
+public class FolderTestAdaptor implements IFolderAdaptor {
+  private URI baseURI;
 
-        return folder;
+  @Override
+  public Folder getFolder(URI baseURI, String id) {
+    Folder folder = Examples.SAMPLE_FOLDER;
+    folder.setId(id);
+    if (id.equals("invalidId")) {
+      throw new FolderNotFoundException();
     }
 
-    @Override
-    public Folder getFolder(URI baseURI, String site, String path, String folderName)
-    {
-        Folder folder = Examples.SAMPLE_FOLDER;
+    return folder;
+  }
 
-        folder.setName(folderName);
-        folder.setPath(path);
-        folder.setSiteName(site);
-    
-        if (site.equals("testNotFound"))
-            throw new SiteNotFoundException();
+  @Override
+  public Folder getFolder(URI baseURI, String site, String path, String folderName) {
+    Folder folder = Examples.SAMPLE_FOLDER;
 
-        if (path.contains("testNotFound"))
-            throw new FolderNotFoundException();
+    folder.setName(folderName);
+    folder.setPath(path);
+    folder.setSiteName(site);
 
-        if (folderName.equals("testNotFound"))
-            throw new FolderNotFoundException();
+    if (site.equals("testNotFound")) throw new SiteNotFoundException();
 
-        return folder;
-    }
+    if (path.contains("testNotFound")) throw new FolderNotFoundException();
 
-    @Override
-    public Folder updateFolder(URI baseURI, Folder folder)
-    {
-        return folder;
-    }
+    if (folderName.equals("testNotFound")) throw new FolderNotFoundException();
 
-    @Override
-    public void deleteFolder(URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders)
-    {
-        if (folderName.equals("testNotFound"))
-            throw new FolderNotFoundException();
-    }
+    return folder;
+  }
 
-	@Override
-	public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) {
-	}
+  @Override
+  public Folder updateFolder(URI baseURI, Folder folder) {
+    return folder;
+  }
 
-	@Override
-	public void moveFolder(URI baseURI, String folderPath, String targetFolderPath) {
-	
-	}
+  @Override
+  public void deleteFolder(
+      URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders) {
+    if (folderName.equals("testNotFound")) throw new FolderNotFoundException();
+  }
 
-	@Override
-	public Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName) {
-		Folder f = new Folder();
-		
-		f.setSiteName(site);
-		f.setPath(path);
-		f.setName(newName);
-		
-		return f;
-	}
+  @Override
+  public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) {}
 
-    @Override
-    public void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) {
+  @Override
+  public void moveFolder(URI baseURI, String folderPath, String targetFolderPath) {}
 
-    }
+  @Override
+  public Folder renameFolder(
+      URI baseURI, String site, String path, String folderName, String newName) {
+    Folder f = new Folder();
 
-    @Override
-    public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) {
+    f.setSiteName(site);
+    f.setPath(path);
+    f.setName(newName);
 
-    }
+    return f;
+  }
 
-    @Override
-    public void deleteFolderItem(URI baseURI, String itemPath) {
+  @Override
+  public void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) {}
 
-    }
+  @Override
+  public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) {}
 
+  @Override
+  public void deleteFolderItem(URI baseURI, String itemPath) {}
 }

@@ -16,75 +16,63 @@
  */
 package com.percussion.utils.request;
 
+import com.percussion.utils.testing.IntegrationTest;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runners.MethodSorters;
 
 /**
  * Test request info
- * 
+ *
  * @author dougrand
  */
 @Category(IntegrationTest.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PSRequestInfoTest extends TestCase
-{
+public class PSRequestInfoTest extends TestCase {
 
-   /**
-    * @param arg0
-    */
-   public PSRequestInfoTest(String arg0) {
-      super(arg0);
-      // TODO Auto-generated constructor stub
-   }
-   
-   @Test
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSRequestInfoTest.class);
-   }
-   
-   @Test
-   public void test10Basic()
-   {
-      try
-      {
-         PSRequestInfo.setRequestInfo("FOO", "BAR");
-         assertTrue("No exception where expected", false);
-      }
-      catch(Exception e)
-      {
-         // OK
-      }
-      
-      PSRequestInfo.initRequestInfo((Map<String,Object>) null);
-      String value = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertNull(value);
-      
-      PSRequestInfo.setRequestInfo("FOO", "YES");
-      value = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertEquals("YES", value);
-      
-      PSRequestInfo.resetRequestInfo();     
-   }
-   
-   @Test
-   public void test20Initial()
-   {
-      Map<String,Object> initial = new HashMap<String,Object>();
-      initial.put("FOO", "BAR");
-      
-      PSRequestInfo.initRequestInfo(initial);
-      String v = (String) PSRequestInfo.getRequestInfo("FOO");
-      assertEquals("BAR", v);      
-   }
+  /** @param arg0 */
+  public PSRequestInfoTest(String arg0) {
+    super(arg0);
+    // TODO Auto-generated constructor stub
+  }
 
+  @Test
+  public static TestSuite suite() {
+    return new TestSuite(PSRequestInfoTest.class);
+  }
+
+  @Test
+  public void test10Basic() {
+    try {
+      PSRequestInfo.setRequestInfo("FOO", "BAR");
+      assertTrue("No exception where expected", false);
+    } catch (Exception e) {
+      // OK
+    }
+
+    PSRequestInfo.initRequestInfo((Map<String, Object>) null);
+    String value = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertNull(value);
+
+    PSRequestInfo.setRequestInfo("FOO", "YES");
+    value = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertEquals("YES", value);
+
+    PSRequestInfo.resetRequestInfo();
+  }
+
+  @Test
+  public void test20Initial() {
+    Map<String, Object> initial = new HashMap<String, Object>();
+    initial.put("FOO", "BAR");
+
+    PSRequestInfo.initRequestInfo(initial);
+    String v = (String) PSRequestInfo.getRequestInfo("FOO");
+    assertEquals("BAR", v);
+  }
 }

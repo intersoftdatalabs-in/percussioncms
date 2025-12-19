@@ -27,41 +27,38 @@ import javax.ws.rs.core.Response;
 
 /**
  * Defines an interface that should be implemented by all public Rest services.
- * 
- * The interface defines common methods for things like retrieving the current version
- * of a service that are intended to be consistent between services. 
- * 
- * @author natechadwick
  *
+ * <p>The interface defines common methods for things like retrieving the current version of a
+ * service that are intended to be consistent between services.
+ *
+ * @author natechadwick
  */
 public interface IPSRestService {
-	
-	/***
-	 * Returns the currently deployed version of the service. 
-	 * 
-	 * @return
-	 */
-	@GET
-	@Path("/version")
-	public String getVersion();
 
-    /**
-     * The purpose of this method is to fix behavior in the DTS db
-     * after a site is renamed in CM1.  Starting this for the purpose
-     * of deleting old DTS database information after a site is renamed in CM1.
-     * Prior to fix all the old data after the rename is left behind.
-     *
-     * @param prevSiteName the old name for the site
-     * @param newSiteName the new name for the site
-     *
-     * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries IPSSiteRenameService
-     *
-     * @return <code>204</code> if the process was successful.  Return error code otherwise.
-     */
-    @DELETE
-    @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("deliverymanager")
-    public Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName);
+  /**
+   * * Returns the currently deployed version of the service.
+   *
+   * @return
+   */
+  @GET
+  @Path("/version")
+  public String getVersion();
 
+  /**
+   * The purpose of this method is to fix behavior in the DTS db after a site is renamed in CM1.
+   * Starting this for the purpose of deleting old DTS database information after a site is renamed
+   * in CM1. Prior to fix all the old data after the rename is left behind.
+   *
+   * @param prevSiteName the old name for the site
+   * @param newSiteName the new name for the site
+   * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries
+   *     IPSSiteRenameService
+   * @return <code>204</code> if the process was successful. Return error code otherwise.
+   */
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName);
 }

@@ -16,37 +16,28 @@
  */
 package com.percussion.extensions.general;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
+import org.apache.commons.lang.StringUtils;
 
-
-/**
- * Checks if a string is empty, null, or whitespace.
- */
-public class PSValidateString extends PSSimpleJavaUdfExtension
-{
+/** Checks if a string is empty, null, or whitespace. */
+public class PSValidateString extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Checks if the supplied string is empty, null, or whitespace. It
-   * does this by calling <code>toString()</code> on the supplied object first.
+   * Checks if the supplied string is empty, null, or whitespace. It does this by calling <code>
+   * toString()</code> on the supplied object first.
    *
-   * @param params A single parameter that will be converted to a String
-   *   with the toString method, then <code>trim()</code> is called on this string.
-   *
+   * @param params A single parameter that will be converted to a String with the toString method,
+   *     then <code>trim()</code> is called on this string.
    * @param request Not used.
-   *
-   * @return An Object of type Boolean which is <code>false</code> if the string 
-   * is invalid (empty, null, or whitespace), <code>true</code> otherwise.
-   *
-   * @throws  PSConversionException Never thrown.
+   * @return An Object of type Boolean which is <code>false</code> if the string is invalid (empty,
+   *     null, or whitespace), <code>true</code> otherwise.
+   * @throws PSConversionException Never thrown.
    */
-   public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException
-   {
-      return params[0] != null && StringUtils.isNotBlank(params[0].toString());
-   }
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    return params[0] != null && StringUtils.isNotBlank(params[0].toString());
+  }
 }

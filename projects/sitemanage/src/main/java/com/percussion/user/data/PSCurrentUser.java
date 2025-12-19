@@ -19,62 +19,50 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @XmlRootElement(name = "CurrentUser")
 @JsonRootName("CurrentUser")
-public class PSCurrentUser extends PSUser
-{
-    private boolean accessibilityUser = false;
-    private boolean adminUser = false;
-    private boolean designerUser = false;
-    
-    public PSCurrentUser()
-    {
-        super();
-    }
-    
-    public PSCurrentUser(PSUser user)
-    {
-        setName(user.getName());
-        setPassword(user.getPassword());
-        setEmail(user.getEmail());
-        setProviderType(user.getProviderType());
-        setRoles(user.getRoles());
-    }
-    
-    public boolean isAccessibilityUser()
-    {
-        return accessibilityUser;
-    }
-    
-    public void setAccessibilityUser(boolean isAccessibility)
-    {
-        accessibilityUser = isAccessibility;
-    }
-    
-    public boolean isAdminUser()
-    {
-        return adminUser;
-    }
-    
-    public void setAdminUser(boolean isAdmin)
-    {
-        adminUser = isAdmin;
-    }
+public class PSCurrentUser extends PSUser {
+  private boolean accessibilityUser = false;
+  private boolean adminUser = false;
+  private boolean designerUser = false;
 
-    /**
-     * @param isDesigner
-     */
-    public void setDesignerUser(boolean isDesigner)
-    {
-        designerUser = isDesigner;
-    }
-    
-    public boolean isDesignerUser()
-    {
-        return designerUser;
-    }
+  public PSCurrentUser() {
+    super();
+  }
+
+  public PSCurrentUser(PSUser user) {
+    setName(user.getName());
+    setPassword(user.getPassword());
+    setEmail(user.getEmail());
+    setProviderType(user.getProviderType());
+    setRoles(user.getRoles());
+  }
+
+  public boolean isAccessibilityUser() {
+    return accessibilityUser;
+  }
+
+  public void setAccessibilityUser(boolean isAccessibility) {
+    accessibilityUser = isAccessibility;
+  }
+
+  public boolean isAdminUser() {
+    return adminUser;
+  }
+
+  public void setAdminUser(boolean isAdmin) {
+    adminUser = isAdmin;
+  }
+
+  /** @param isDesigner */
+  public void setDesignerUser(boolean isDesigner) {
+    designerUser = isDesigner;
+  }
+
+  public boolean isDesignerUser() {
+    return designerUser;
+  }
 }

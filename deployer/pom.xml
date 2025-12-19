@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -8,14 +9,6 @@
     </parent>
     <artifactId>perc-deployer</artifactId>
     <packaging>jar</packaging>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -26,7 +19,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -35,14 +27,18 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>rxutils</artifactId>
+            <version>${project.parent.version}</version>
+            <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
-            <classifier>tests</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>org.aspectj</groupId>
@@ -66,9 +62,9 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-      </dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -135,12 +131,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>rxutils</artifactId>
-            <scope>compile</scope>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>compile</scope>
@@ -163,8 +153,8 @@
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
-            <scope>compile</scope>
             <version>${stax.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
@@ -181,4 +171,12 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

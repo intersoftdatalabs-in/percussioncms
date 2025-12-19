@@ -18,33 +18,33 @@
 package com.percussion.rest.itemfilter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ItemFilterRuleDefinitionParam")
 @Schema(description = "Represents an ItemFilter Rule Parameter")
 public class ItemFilterRuleDefinitionParam {
 
-    @Schema(name = "name", description = "Unique name for this parameter.")
-    String name;
-    @Schema(name = "value", description = "The parameter value")
-    String value;
+  @Schema(name = "name", description = "Unique name for this parameter.")
+  String name;
 
-    public ItemFilterRuleDefinitionParam(){}
+  @Schema(name = "value", description = "The parameter value")
+  String value;
 
-    public String getName() {
-        return name;
-    }
+  public ItemFilterRuleDefinitionParam() {}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

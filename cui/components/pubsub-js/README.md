@@ -175,11 +175,11 @@ PubSub.immediateExceptions = true;
 
 By default PubSubJS can be used in any browser or CommonJS environment, including [node](http://nodejs.org). Additionally, PubSubJS can be built specifically for jQuery using Rake.
 
-    $ rake jquery
+        $ rake jquery
 
 or using Grunt
 
-    $ grunt jquery
+        $ grunt jquery
 
 Produces jquery.pubsub.js
 
@@ -218,7 +218,6 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 * Better and more extensive usage examples
 
-
 ## More about Publish/Subscribe
 
 * [The Many Faces of Publish/Subscribe](http://www.cs.ru.nl/~pieter/oss/manyfaces.pdf) (PDF)
@@ -245,3 +244,4 @@ These are a few alternative projects that also implement topic based publish sub
 * http://amplifyjs.com/api/pubsub/
 * http://radio.uxder.com/ — oriented towards 'channels', free of dependencies
 * https://github.com/pmelander/Subtopic - supports vanilla, underscore, jQuery and is even available in NuGet
+

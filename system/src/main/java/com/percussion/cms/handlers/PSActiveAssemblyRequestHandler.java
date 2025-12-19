@@ -30,292 +30,211 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-/**
- * Redirects all requests to the <code>PSActiveAssemblyProcessor</code>.
- */
-public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
-{
-   /*
-    * Initializes the request methods, no configuration file is used.
-    * See {@link IPSLoadableRequestHandler} class for more info.
-    *
-    * @throws PSServerException is never thrown.
-    */
-   public void init(Collection requestRoots, InputStream config)
-      throws PSServerException
-   {
-      if (requestRoots == null || requestRoots.isEmpty())
-         throw new IllegalArgumentException(
-            "must provide at least one request root" );
+/** Redirects all requests to the <code>PSActiveAssemblyProcessor</code>. */
+public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler {
+  /*
+   * Initializes the request methods, no configuration file is used.
+   * See {@link IPSLoadableRequestHandler} class for more info.
+   *
+   * @throws PSServerException is never thrown.
+   */
+  public void init(Collection requestRoots, InputStream config) throws PSServerException {
+    if (requestRoots == null || requestRoots.isEmpty())
+      throw new IllegalArgumentException("must provide at least one request root");
 
+    PSConsole.printMsg(HANDLER, "Initializing Active Assembly Handler");
 
-      PSConsole.printMsg(HANDLER, "Initializing Active Assembly Handler");
+    m_requestRoots = requestRoots;
+  }
 
-      m_requestRoots = requestRoots;
-   }
+  // see IPSRootedHandler for documentation
+  public String getName() {
+    return HANDLER;
+  }
 
-   // see IPSRootedHandler for documentation
-   public String getName()
-   {
-      return HANDLER;
-   }
+  // see IPSRootedHandler for documentation
+  public Iterator getRequestRoots() {
+    return m_requestRoots.iterator();
+  }
 
-   // see IPSRootedHandler for documentation
-   public Iterator getRequestRoots()
-   {
-      return m_requestRoots.iterator();
-   }
+  /**
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>.
+   */
+  public void processRequest(PSRequest request) {
+    if (request == null) throw new IllegalArgumentException("request may not be null");
 
-   /**
-    *
-    * @param request the request object containing all context data associated
-    *    with the request, may not be <code>null</code>.
-    */
-   public void processRequest(PSRequest request)
-   {
-      if (request == null)
-         throw new IllegalArgumentException("request may not be null");
+    Document respDoc = null;
+    PSResponse resp = request.getResponse();
+    try {
+      String command = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
 
-      Document respDoc = null;
-      PSResponse resp = request.getResponse();
-      try
-      {
-         String command = request.getParameter(IPSHtmlParameters.SYS_COMMAND);
+      PSActiveAssemblerHandlerRequest requestDoc = null;
+      Document doc = request.getInputDocument();
+      if (doc != null) {
+        requestDoc = new PSActiveAssemblerHandlerRequest(doc.getDocumentElement());
+      } else {
+        String inputDoc = request.getParameter(INPUT_DOC);
+        if (inputDoc != null) {
+          ByteArrayInputStream is = new ByteArrayInputStream(inputDoc.getBytes());
+          doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
 
-         PSActiveAssemblerHandlerRequest requestDoc = null;
-         Document doc = request.getInputDocument();
-         if (doc != null)
-         {
-            requestDoc = new PSActiveAssemblerHandlerRequest(
-               doc.getDocumentElement());
-         }
-         else
-         {
-            String inputDoc = request.getParameter(INPUT_DOC);
-            if (inputDoc != null)
-            {
-               ByteArrayInputStream is =
-                  new ByteArrayInputStream(inputDoc.getBytes());
-               doc = PSXmlDocumentBuilder.createXmlDocument(is, false);
-
-               requestDoc = new PSActiveAssemblerHandlerRequest(
-                  doc.getDocumentElement());
-            }
-         }
-
-         if (command != null)
-         {
-            if(requestDoc != null)
-            {
-               PSActiveAssemblerProcessor processor = PSActiveAssemblerProcessor.getInstance();
-               if (command.equals(INSERT))
-               {
-                  processor.insert(requestDoc.getOwner(), requestDoc.getDependents(),
-                     requestDoc.getIndex());
-               }
-               else if (command.equals(UPDATE))
-               {
-                  processor.update(requestDoc.getOwner(), requestDoc.getDependents());
-               }
-               else if (command.equals(REORDER))
-               {
-                  processor.reorder(requestDoc.getOwner(), requestDoc.getDependents(),
-                     requestDoc.getIndex());
-               }
-               else if (command.equals(DELETE))
-               {
-                  processor.delete(requestDoc.getOwner(), requestDoc.getDependents());
-               }
-               else
-               {
-                  // unknown command
-                  throw new PSCmsException(
-                     IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
-               }
-            }
-            else
-            {
-               if (command.equals(AA_REL_LOOKUP))
-               {
-                  processAaRelationshipLookup(request);
-               }
-               else
-               {
-                  // unknown command
-                  throw new PSCmsException(
-                     IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
-               }
-            }
-         }
-         else
-         {
-            // missing command or input document parameter
-            String requiredParams = IPSHtmlParameters.SYS_COMMAND + ", " +
-               INPUT_DOC;
-            throw new PSCmsException(
-               IPSCmsErrors.MISSING_AA_PARAMETER, requiredParams);
-         }
-      }
-      catch (Exception e)
-      {
-         // create error response
-         PSRequestException exception = null;
-         if (e instanceof PSException)
-            exception = new PSRequestException((PSException) e);
-         else
-         {
-            exception = new PSRequestException(IPSCmsErrors.UNEXPECTED_ERROR,
-               e.getLocalizedMessage());
-         }
-
-         respDoc = PSXmlDocumentBuilder.createXmlDocument();
-         Element respEl = exception.toXml(respDoc);
-         PSXmlDocumentBuilder.replaceRoot(respDoc, respEl);
-         resp.setStatus(500);
+          requestDoc = new PSActiveAssemblerHandlerRequest(doc.getDocumentElement());
+        }
       }
 
-      if (respDoc != null)
-         resp.setContent(respDoc);
-   }
-
-   /**
-    * Processes the Active Assembly relationship lookup request. The response
-    * will be an XMl document with sys_Lookup dtd. Each entry is the
-    * relationship name and label for active assembly relationship.
-    * @param request request object assumed not <code>null</code>.
-    */
-   private void processAaRelationshipLookup(PSRequest request)
-   {
-      PSResponse resp = request.getResponse();
-      Document resDoc = PSXmlDocumentBuilder.createXmlDocument();
-      try
-      {
-         Element root = PSXmlDocumentBuilder.createRoot(resDoc, "sys_Lookup");
-         Iterator iter = PSRelationshipCommandHandler.getRelationshipConfigs(
-            PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
-         PSRelationshipConfig config = null;
-         while(iter.hasNext())
-         {
-            config = (PSRelationshipConfig)iter.next();
-            Element entry = PSXmlDocumentBuilder.addElement(resDoc, root, "PSXEntry", null);
-            PSXmlDocumentBuilder.addElement(resDoc, entry, "PSXDisplayText", config.getLabel());
-            PSXmlDocumentBuilder.addElement(resDoc, entry, "Value", config.getName());
-         }
-         resp.setContent(resDoc);
+      if (command != null) {
+        if (requestDoc != null) {
+          PSActiveAssemblerProcessor processor = PSActiveAssemblerProcessor.getInstance();
+          if (command.equals(INSERT)) {
+            processor.insert(
+                requestDoc.getOwner(), requestDoc.getDependents(), requestDoc.getIndex());
+          } else if (command.equals(UPDATE)) {
+            processor.update(requestDoc.getOwner(), requestDoc.getDependents());
+          } else if (command.equals(REORDER)) {
+            processor.reorder(
+                requestDoc.getOwner(), requestDoc.getDependents(), requestDoc.getIndex());
+          } else if (command.equals(DELETE)) {
+            processor.delete(requestDoc.getOwner(), requestDoc.getDependents());
+          } else {
+            // unknown command
+            throw new PSCmsException(IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
+          }
+        } else {
+          if (command.equals(AA_REL_LOOKUP)) {
+            processAaRelationshipLookup(request);
+          } else {
+            // unknown command
+            throw new PSCmsException(IPSCmsErrors.UNKNOWN_AA_COMMAND, command);
+          }
+        }
+      } else {
+        // missing command or input document parameter
+        String requiredParams = IPSHtmlParameters.SYS_COMMAND + ", " + INPUT_DOC;
+        throw new PSCmsException(IPSCmsErrors.MISSING_AA_PARAMETER, requiredParams);
       }
-      catch(Throwable t)
-      {
-         resDoc = PSXmlDocumentBuilder.createXmlDocument();
-         Element root = PSXmlDocumentBuilder.createRoot(resDoc, "Error");
-         Element msg = PSXmlDocumentBuilder.addElement(
-            resDoc, root, "Message", t.toString());
-         PSXmlDocumentBuilder.replaceRoot(resDoc, msg);
-         resp.setContent(resDoc);
-         resp.setStatus(500);
-      }
-   }
-
-   /**
-    * Shutdown the request handler.
-    */
-   public void shutdown()
-   {
-      PSConsole.printMsg(HANDLER, "Shutting down Active Assembly Handler");
-   }
-
-   /**
-    * A local exception used to format the error message.
-    */
-   private class PSRequestException extends PSStandaloneException
-   {
-      // see base class for description
-      public PSRequestException(int msgCode, Object singleArg)
-      {
-         super(msgCode, singleArg);
+    } catch (Exception e) {
+      // create error response
+      PSRequestException exception = null;
+      if (e instanceof PSException) exception = new PSRequestException((PSException) e);
+      else {
+        exception = new PSRequestException(IPSCmsErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
-      // see base class for description
-      public PSRequestException(int msgCode, Object[] arrayArgs)
-      {
-         super(msgCode, arrayArgs);
+      respDoc = PSXmlDocumentBuilder.createXmlDocument();
+      Element respEl = exception.toXml(respDoc);
+      PSXmlDocumentBuilder.replaceRoot(respDoc, respEl);
+      resp.setStatus(500);
+    }
+
+    if (respDoc != null) resp.setContent(respDoc);
+  }
+
+  /**
+   * Processes the Active Assembly relationship lookup request. The response will be an XMl document
+   * with sys_Lookup dtd. Each entry is the relationship name and label for active assembly
+   * relationship.
+   *
+   * @param request request object assumed not <code>null</code>.
+   */
+  private void processAaRelationshipLookup(PSRequest request) {
+    PSResponse resp = request.getResponse();
+    Document resDoc = PSXmlDocumentBuilder.createXmlDocument();
+    try {
+      Element root = PSXmlDocumentBuilder.createRoot(resDoc, "sys_Lookup");
+      Iterator iter =
+          PSRelationshipCommandHandler.getRelationshipConfigs(
+              PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+      PSRelationshipConfig config = null;
+      while (iter.hasNext()) {
+        config = (PSRelationshipConfig) iter.next();
+        Element entry = PSXmlDocumentBuilder.addElement(resDoc, root, "PSXEntry", null);
+        PSXmlDocumentBuilder.addElement(resDoc, entry, "PSXDisplayText", config.getLabel());
+        PSXmlDocumentBuilder.addElement(resDoc, entry, "Value", config.getName());
       }
+      resp.setContent(resDoc);
+    } catch (Throwable t) {
+      resDoc = PSXmlDocumentBuilder.createXmlDocument();
+      Element root = PSXmlDocumentBuilder.createRoot(resDoc, "Error");
+      Element msg = PSXmlDocumentBuilder.addElement(resDoc, root, "Message", t.toString());
+      PSXmlDocumentBuilder.replaceRoot(resDoc, msg);
+      resp.setContent(resDoc);
+      resp.setStatus(500);
+    }
+  }
 
-      // see base class for description
-      public PSRequestException(int msgCode)
-      {
-         super(msgCode);
-      }
+  /** Shutdown the request handler. */
+  public void shutdown() {
+    PSConsole.printMsg(HANDLER, "Shutting down Active Assembly Handler");
+  }
 
-      // see base class for description
-      public PSRequestException(PSException ex)
-      {
-         super(ex);
-      }
+  /** A local exception used to format the error message. */
+  private class PSRequestException extends PSStandaloneException {
+    // see base class for description
+    public PSRequestException(int msgCode, Object singleArg) {
+      super(msgCode, singleArg);
+    }
 
-      // see base class for description
-      protected String getResourceBundleBaseName()
-      {
-         return "com.percussion.error.PSErrorStringBundle";
-      }
+    // see base class for description
+    public PSRequestException(int msgCode, Object[] arrayArgs) {
+      super(msgCode, arrayArgs);
+    }
 
-      // see base class for description
-      protected String getXmlNodeName()
-      {
-         return "PSXRequestException";
-      }
-   }
+    // see base class for description
+    public PSRequestException(int msgCode) {
+      super(msgCode);
+    }
 
+    // see base class for description
+    public PSRequestException(PSException ex) {
+      super(ex);
+    }
 
+    // see base class for description
+    protected String getResourceBundleBaseName() {
+      return "com.percussion.error.PSErrorStringBundle";
+    }
 
-   /**
-    * Name of this handler.
-    */
-   public static final String HANDLER = "AAHandler";
+    // see base class for description
+    protected String getXmlNodeName() {
+      return "PSXRequestException";
+    }
+  }
 
-   /**
-    * The command parameter expected for inserts.
-    */
-   public static final String INSERT = "insert";
+  /** Name of this handler. */
+  public static final String HANDLER = "AAHandler";
 
-   /**
-    * The command parameter expected for updates.
-    */
-   public static final String UPDATE = "update";
+  /** The command parameter expected for inserts. */
+  public static final String INSERT = "insert";
 
-   /**
-    * The command parameter expected for reorders.
-    */
-   public static final String REORDER = "reorder";
+  /** The command parameter expected for updates. */
+  public static final String UPDATE = "update";
 
-   /**
-    * The command parameter expected for deletes.
-    */
-   public static final String DELETE = "delete";
+  /** The command parameter expected for reorders. */
+  public static final String REORDER = "reorder";
 
-   /**
-    * The HTML parameter that provides the input document. The document must
-    * confor to the PSXActiveAssemblerHandlerRequest.dtd.
-    */
-   public static final String INPUT_DOC = "inputdoc";
+  /** The command parameter expected for deletes. */
+  public static final String DELETE = "delete";
 
-   /**
-    * The command parameter for active assembly relationship type lookups.
-    */
-   public static final String AA_REL_LOOKUP = "aarellookup";
+  /**
+   * The HTML parameter that provides the input document. The document must confor to the
+   * PSXActiveAssemblerHandlerRequest.dtd.
+   */
+  public static final String INPUT_DOC = "inputdoc";
 
-   /**
-    * Storage for the request roots, initialized in <code>init()</code>, never
-    * <code>null</code>, empty or modified after that. A list of
-    * <code>String</code> objects.
-    */
-   private Collection m_requestRoots = null;
+  /** The command parameter for active assembly relationship type lookups. */
+  public static final String AA_REL_LOOKUP = "aarellookup";
 
+  /**
+   * Storage for the request roots, initialized in <code>init()</code>, never <code>null</code>,
+   * empty or modified after that. A list of <code>String</code> objects.
+   */
+  private Collection m_requestRoots = null;
 }

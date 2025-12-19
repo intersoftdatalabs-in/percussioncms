@@ -33,129 +33,107 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Interface to allow classes to listen for changes on the page, template or shared assets.
- */
+/** Interface to allow classes to listen for changes on the page, template or shared assets. */
 @PSSiteManageBean("assetChangeListener")
-public class PSAssetChangeListener implements IPSEditorChangeListener, IPSHandlerInitListener
-{
-    private static final Logger log = LogManager.getLogger(PSAssetChangeListener.class.getName());
+public class PSAssetChangeListener implements IPSEditorChangeListener, IPSHandlerInitListener {
+  private static final Logger log = LogManager.getLogger(PSAssetChangeListener.class.getName());
 
-    @Autowired
-    public PSAssetChangeListener(IPSWorkflowHelper workflowHelper, 
-            IPSWidgetAssetRelationshipService widgetAssetRelationshipService,IPSIdMapper idMapper,
-            IPSPageIndexService indexService)
-    {
-        this.workflowHelper = workflowHelper;
-        this.widgetAssetRelationshipService = widgetAssetRelationshipService;
-        this.idMapper = idMapper;
-        this.pageIndexService = indexService;
-        // Register a listener with PSServer
-        PSServer.addInitListener(this);
-    }
-    
-    /**
-     * Called to notify listeners when there is a change on a page, template or shared asset 
-     * @param changeEvent The change event object, never <code>null</code>.
-     */
-    public void editorChanged(PSEditorChangeEvent changeEvent) throws PSValidationException {
-        if (changeEvent.getActionType() == PSEditorChangeEvent.ACTION_DELETE)
-        {
-            return;
-        }
-        
-        int contentId = changeEvent.getContentId();
-        Set<Integer> pageContentIds = new HashSet<>();
-        
-        IPSGuid myGuid = PSGuidUtils.makeGuid(contentId, PSTypeEnum.LEGACY_CONTENT);
-        String myGuidStr =  idMapper.getString(myGuid);
-        
-        if(workflowHelper.isTemplate(myGuidStr))
-        {
-            pageContentIds.add(myGuid.getUUID());
-        }
-        
-        try
-        {
-            if(workflowHelper.isAsset(myGuidStr))
-            {
-                //Find owners of the asset
-                if(changeEvent.getActionType() == PSEditorChangeEvent.ACTION_INSERT || 
-                        changeEvent.getActionType() == PSEditorChangeEvent.ACTION_UPDATE)
-                    pageContentIds = getAssetOwners(myGuidStr);
-            }
-        }
-        catch (PSNotFoundException e)
-        {
-            log.error("Error notifying listeners for asset change with id: " + myGuidStr, e);
-        }
-        
-        if (!pageContentIds.isEmpty())
-        {
-            pageIndexService.index(pageContentIds);
-        }
-    }
-    
-    // see IPSHandlerInitListener interface
-    public void initHandler(IPSRequestHandler requestHandler)
-    {
-       if (requestHandler instanceof PSContentEditorHandler)
-       {
-          PSContentEditorHandler ceh = (PSContentEditorHandler)requestHandler;
-          ceh.addEditorChangeListener(this);
-       }
-    }
-    
-    @Override
-    public void shutdownHandler(IPSRequestHandler requestHandler)
-    {
-         
+  @Autowired
+  public PSAssetChangeListener(
+      IPSWorkflowHelper workflowHelper,
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+      IPSIdMapper idMapper,
+      IPSPageIndexService indexService) {
+    this.workflowHelper = workflowHelper;
+    this.widgetAssetRelationshipService = widgetAssetRelationshipService;
+    this.idMapper = idMapper;
+    this.pageIndexService = indexService;
+    // Register a listener with PSServer
+    PSServer.addInitListener(this);
+  }
+
+  /**
+   * Called to notify listeners when there is a change on a page, template or shared asset
+   *
+   * @param changeEvent The change event object, never <code>null</code>.
+   */
+  public void editorChanged(PSEditorChangeEvent changeEvent) throws PSValidationException {
+    if (changeEvent.getActionType() == PSEditorChangeEvent.ACTION_DELETE) {
+      return;
     }
 
-    /**
-     * Finds out owners of the provided assetId and returns set of content ids of the owners.
-     * 
-     * @param assetId
-     * @return set of content ids
-     */
-    private Set<Integer> getAssetOwners(String assetId)
-    {
-        Set<Integer> contentIds = new HashSet<>();
-        
-        Set<String> owners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
-        for (String owner : owners)
-        {
-            contentIds.add(new Integer(idMapper.getGuid(owner).getUUID()));
-        }
-        
-        return contentIds;
+    int contentId = changeEvent.getContentId();
+    Set<Integer> pageContentIds = new HashSet<>();
+
+    IPSGuid myGuid = PSGuidUtils.makeGuid(contentId, PSTypeEnum.LEGACY_CONTENT);
+    String myGuidStr = idMapper.getString(myGuid);
+
+    if (workflowHelper.isTemplate(myGuidStr)) {
+      pageContentIds.add(myGuid.getUUID());
     }
-    
-    /**
-     * The workflowHelper, initialized by constructor, never <code>null</code> after that.
-     */
-    private IPSWorkflowHelper workflowHelper;
-    
-    /**
-     * The widgetAssetRelationshipService, initialized by constructor, never <code>null</code> after that.
-     */
-    private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
-    
-    /**
-     * The idMapper, initialized by constructor, never <code>null</code> after that.
-     */
-    private IPSIdMapper idMapper;
-    
-    /**
-     * The page index service, intialized by constructor, never <code>null</code> after that.
-     */
-    private IPSPageIndexService pageIndexService;
+
+    try {
+      if (workflowHelper.isAsset(myGuidStr)) {
+        // Find owners of the asset
+        if (changeEvent.getActionType() == PSEditorChangeEvent.ACTION_INSERT
+            || changeEvent.getActionType() == PSEditorChangeEvent.ACTION_UPDATE)
+          pageContentIds = getAssetOwners(myGuidStr);
+      }
+    } catch (PSNotFoundException e) {
+      log.error("Error notifying listeners for asset change with id: " + myGuidStr, e);
+    }
+
+    if (!pageContentIds.isEmpty()) {
+      pageIndexService.index(pageContentIds);
+    }
+  }
+
+  // see IPSHandlerInitListener interface
+  public void initHandler(IPSRequestHandler requestHandler) {
+    if (requestHandler instanceof PSContentEditorHandler) {
+      PSContentEditorHandler ceh = (PSContentEditorHandler) requestHandler;
+      ceh.addEditorChangeListener(this);
+    }
+  }
+
+  @Override
+  public void shutdownHandler(IPSRequestHandler requestHandler) {}
+
+  /**
+   * Finds out owners of the provided assetId and returns set of content ids of the owners.
+   *
+   * @param assetId
+   * @return set of content ids
+   */
+  private Set<Integer> getAssetOwners(String assetId) {
+    Set<Integer> contentIds = new HashSet<>();
+
+    Set<String> owners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
+    for (String owner : owners) {
+      contentIds.add(new Integer(idMapper.getGuid(owner).getUUID()));
+    }
+
+    return contentIds;
+  }
+
+  /** The workflowHelper, initialized by constructor, never <code>null</code> after that. */
+  private IPSWorkflowHelper workflowHelper;
+
+  /**
+   * The widgetAssetRelationshipService, initialized by constructor, never <code>null</code> after
+   * that.
+   */
+  private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+
+  /** The idMapper, initialized by constructor, never <code>null</code> after that. */
+  private IPSIdMapper idMapper;
+
+  /** The page index service, intialized by constructor, never <code>null</code> after that. */
+  private IPSPageIndexService pageIndexService;
 }

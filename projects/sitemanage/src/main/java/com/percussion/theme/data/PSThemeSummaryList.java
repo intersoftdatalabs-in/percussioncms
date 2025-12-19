@@ -19,16 +19,14 @@ package com.percussion.theme.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ThemeSummary")
-@ArraySchema(schema=@Schema(implementation = PSThemeSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSThemeSummary.class))
 public class PSThemeSummaryList extends ArrayList<PSThemeSummary> {
-    public PSThemeSummaryList(Collection<? extends PSThemeSummary> c) {
-        super(c);
-    }
+  public PSThemeSummaryList(Collection<? extends PSThemeSummary> c) {
+    super(c);
+  }
 }

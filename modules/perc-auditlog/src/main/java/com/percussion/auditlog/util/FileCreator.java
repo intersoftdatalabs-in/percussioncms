@@ -17,33 +17,32 @@
 
 package com.percussion.auditlog.util;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.io.File;
 import java.util.Date;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public class FileCreator {
 
-    public static String generateFile(String filePath, String fileName, String filePattern, String extension) {
-        String finalFileName="";
-        try {
-    FastDateFormat simpleDateFormat = FastDateFormat.getInstance(filePattern);
+  public static String generateFile(
+      String filePath, String fileName, String filePattern, String extension) {
+    String finalFileName = "";
+    try {
+      FastDateFormat simpleDateFormat = FastDateFormat.getInstance(filePattern);
 
-    String formatted = simpleDateFormat.format(new Date());
-    finalFileName=filePath+File.separator+fileName+"_"+formatted+"."+extension;
-            File directory = new File(filePath);
-            if(!directory.exists()){
-                directory.mkdir();
-            }
-    File file = new File(finalFileName);
-    file.createNewFile();
-}catch (Exception e){
-            finalFileName="";
-           // throw new AuditException("Exception occurred in creating of File ",e);
+      String formatted = simpleDateFormat.format(new Date());
+      finalFileName = filePath + File.separator + fileName + "_" + formatted + "." + extension;
+      File directory = new File(filePath);
+      if (!directory.exists()) {
+        directory.mkdir();
+      }
+      File file = new File(finalFileName);
+      file.createNewFile();
+    } catch (Exception e) {
+      finalFileName = "";
+      // throw new AuditException("Exception occurred in creating of File ",e);
 
-}
-
-return finalFileName;
     }
 
+    return finalFileName;
+  }
 }

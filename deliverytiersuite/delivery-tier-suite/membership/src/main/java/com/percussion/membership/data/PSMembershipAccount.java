@@ -16,80 +16,49 @@
  */
 package com.percussion.membership.data;
 
+public class PSMembershipAccount {
+  /** The email for the account to create. Never <code>null</code> or empty. */
+  private String email;
 
-public class PSMembershipAccount
-{
-    /**
-     * The email for the account to create. Never <code>null</code> or empty.
-     */
-    private String email;
-    
-    /**
-     * The password for the account to create. Never <code>null</code> or empty.
-     */
-    private String password;
-    
-    /**
-     * Indicates if the confirmation is required. Never <code>null</code> or empty.
-     */
-    private Boolean confirmationRequired;
+  /** The password for the account to create. Never <code>null</code> or empty. */
+  private String password;
 
-    /**
-     * The confirmation page to redirect the user. Never <code>null</code> or empty.
-     */
-    private String confirmationPage;
-    
-    /**
-     * @return the email
-     */
-    public String getEmail()
-    {
-        return email;
-    }
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-    /**
-     * @return the password
-     */
-    public String getPassword()
-    {
-        return password;
-    }
-    /**
-     * @param password the activation password to set
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-    /**
-     * @return the confirmationRequired
-     */
-    public Boolean isConfirmationRequired()
-    {
-        return confirmationRequired == null ? Boolean.FALSE : confirmationRequired;
-    }
-    /**
-     * @param confirmationRequired the confirmation required to set
-     */
-    public void setConfirmationRequired(Boolean confirmationRequired)
-    {
-        this.confirmationRequired = confirmationRequired;
-    }
-    /**
-     * @return the confirmation page
-     */
-    public String getConfirmationPage()
-    {
-        return confirmationPage;
-    }
-    /**
-     * @param confirmationPage the confirmation page to set
-     */
-    public void setConfirmationPage(String confirmationPage)
-    {
-        this.confirmationPage = confirmationPage;
-    }
+  /** Indicates if the confirmation is required. Never <code>null</code> or empty. */
+  private Boolean confirmationRequired;
+
+  /** The confirmation page to redirect the user. Never <code>null</code> or empty. */
+  private String confirmationPage;
+
+  /** @return the email */
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+  /** @return the password */
+  public String getPassword() {
+    return password;
+  }
+  /** @param password the activation password to set */
+  public void setPassword(String password) {
+    this.password = password;
+  }
+  /** @return the confirmationRequired */
+  public Boolean isConfirmationRequired() {
+    return confirmationRequired == null ? Boolean.FALSE : confirmationRequired;
+  }
+  /** @param confirmationRequired the confirmation required to set */
+  public void setConfirmationRequired(Boolean confirmationRequired) {
+    this.confirmationRequired = confirmationRequired;
+  }
+  /** @return the confirmation page */
+  public String getConfirmationPage() {
+    return confirmationPage;
+  }
+  /** @param confirmationPage the confirmation page to set */
+  public void setConfirmationPage(String confirmationPage) {
+    this.confirmationPage = confirmationPage;
+  }
 }

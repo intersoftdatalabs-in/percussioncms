@@ -19,8 +19,7 @@ package com.percussion.rest.locationscheme;
 
 public interface ILocationSchemeAdaptor {
 
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
 
-    public void deletedLocationScheme(String guid);
-
+  public void deletedLocationScheme(String guid);
 }

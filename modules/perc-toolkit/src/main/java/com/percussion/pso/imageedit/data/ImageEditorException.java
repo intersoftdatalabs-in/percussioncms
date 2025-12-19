@@ -17,42 +17,28 @@
 package com.percussion.pso.imageedit.data;
 
 /**
- * Exception for image editor classes. This is an unchecked exception. 
+ * Exception for image editor classes. This is an unchecked exception.
  *
  * @author DavidBenua
- *
  */
-public class ImageEditorException extends RuntimeException
-{
-   /**
-    * 
-    */
-   public ImageEditorException()
-   {
-      // TODO Auto-generated constructor stub
-   }
-   /**
-    * @param message
-    */
-   public ImageEditorException(String message)
-   {
-      super(message);
-      
-   }
-   /**
-    * @param cause
-    */
-   public ImageEditorException(Throwable cause)
-   {
-      super(cause);
-      
-   }
-   /**
-    * @param message
-    * @param cause
-    */
-   public ImageEditorException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+public class ImageEditorException extends RuntimeException {
+  /** */
+  public ImageEditorException() {
+    // TODO Auto-generated constructor stub
+  }
+  /** @param message */
+  public ImageEditorException(String message) {
+    super(message);
+  }
+  /** @param cause */
+  public ImageEditorException(Throwable cause) {
+    super(cause);
+  }
+  /**
+   * @param message
+   * @param cause
+   */
+  public ImageEditorException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

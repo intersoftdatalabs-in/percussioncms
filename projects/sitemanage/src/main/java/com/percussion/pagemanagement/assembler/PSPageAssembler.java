@@ -26,108 +26,92 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.impl.plugin.PSVelocityAssembler;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.utils.jexl.PSJexlEvaluator;
+import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.StopWatch;
 
-import java.io.File;
-
 /**
- * The entry point for the assembly service to assemble pages
- * or templates. The assembler can determine if its rendering a page
- * or template safely.
- * 
+ * The entry point for the assembly service to assemble pages or templates. The assembler can
+ * determine if its rendering a page or template safely.
+ *
  * @see PSPageAssemblyContextFactory
  * @author adamgent
- *
  */
-public class PSPageAssembler extends PSVelocityAssembler
-{
+public class PSPageAssembler extends PSVelocityAssembler {
 
-    private PSPageAssemblyContextFactory pageAssemblyContextFactory;
-    private PSAssemblyItemBridge assemblyItemBridge;
+  private PSPageAssemblyContextFactory pageAssemblyContextFactory;
+  private PSAssemblyItemBridge assemblyItemBridge;
 
-    
+  @Override
+  public void init(IPSExtensionDef def, File file) throws PSExtensionException {
+    super.init(def, file);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    @Override
-    public void init(IPSExtensionDef def, File file) throws PSExtensionException
-    {
-        super.init(def, file);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  /**
+   * Gets the template source (or content) from the specified item.
+   *
+   * @param assemblyItem the item used to retrieve the template.
+   * @return the template source, not blank.
+   */
+  protected String getTemplateSource(IPSAssemblyItem assemblyItem) {
+    IPSAssemblyTemplate template = assemblyItem.getTemplate();
+    return template.getTemplate();
+  }
 
-    /**
-     * Gets the template source (or content) from the specified item.
-     * @param assemblyItem the item used to retrieve the template.
-     * @return the template source, not blank.
-     */
-    protected String getTemplateSource(IPSAssemblyItem assemblyItem)
-    {
-        IPSAssemblyTemplate template = assemblyItem.getTemplate();
-        return template.getTemplate();
-    }
-    
-    /**
-     * This calls {@link PSPageAssemblyContextFactory#createContext(IPSAssemblyItem, TemplateAndPage, boolean) PSPageAssemblyContextFactory.createContext(IPSAssemblyItem, TemplateAndPage, true)}
-     */
-    protected PSPageAssemblyContext createContext(IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage) throws Exception
-    {
-        return getPageAssemblyContextFactory().createContext(assemblyItem, templateAndPage, true);
-    }
+  /**
+   * This calls {@link PSPageAssemblyContextFactory#createContext(IPSAssemblyItem, TemplateAndPage,
+   * boolean) PSPageAssemblyContextFactory.createContext(IPSAssemblyItem, TemplateAndPage, true)}
+   */
+  protected PSPageAssemblyContext createContext(
+      IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage) throws Exception {
+    return getPageAssemblyContextFactory().createContext(assemblyItem, templateAndPage, true);
+  }
 
-    @Override
-    protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem assemblyItem) throws Exception
-    {
-        StopWatch sw = new StopWatch("#doAssemblySingle");
-        sw.start("templateAndPage");
-        TemplateAndPage tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
-        sw.stop();
-        sw.start("createContext");
-        PSPageAssemblyContext context = createContext(assemblyItem, tp);
-        sw.stop();
-        
-        PSJexlEvaluator eval =  PSJexlUtils.getBindings(assemblyItem);
-        eval.bind("$perc", context);
-        String templateSource = getTemplateSource(assemblyItem); 
-        eval.bind("$sys.template", templateSource);
-        
-        assemblyItem.setBindings(eval.getVars());
-        
-        sw.start("assemble");
-        IPSAssemblyResult result = super.doAssembleSingle(assemblyItem);
-        sw.stop();
-        
-        log.debug("{}",sw.prettyPrint());
-        
-        return result;
-    }
+  @Override
+  protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem assemblyItem) throws Exception {
+    StopWatch sw = new StopWatch("#doAssemblySingle");
+    sw.start("templateAndPage");
+    TemplateAndPage tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
+    sw.stop();
+    sw.start("createContext");
+    PSPageAssemblyContext context = createContext(assemblyItem, tp);
+    sw.stop();
 
-    public PSPageAssemblyContextFactory getPageAssemblyContextFactory()
-    {
-        return pageAssemblyContextFactory;
-    }
+    PSJexlEvaluator eval = PSJexlUtils.getBindings(assemblyItem);
+    eval.bind("$perc", context);
+    String templateSource = getTemplateSource(assemblyItem);
+    eval.bind("$sys.template", templateSource);
 
-    public void setPageAssemblyContextFactory(PSPageAssemblyContextFactory pageAssemblyContextFactory)
-    {
-        this.pageAssemblyContextFactory = pageAssemblyContextFactory;
-    }
-    
+    assemblyItem.setBindings(eval.getVars());
 
-    public PSAssemblyItemBridge getAssemblyItemBridge()
-    {
-        return assemblyItemBridge;
-    }
+    sw.start("assemble");
+    IPSAssemblyResult result = super.doAssembleSingle(assemblyItem);
+    sw.stop();
 
-    public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge)
-    {
-        this.assemblyItemBridge = assemblyItemBridge;
-    }
+    log.debug("{}", sw.prettyPrint());
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
+    return result;
+  }
 
-    private static final Logger log = LogManager.getLogger(PSPageAssembler.class);
-    
+  public PSPageAssemblyContextFactory getPageAssemblyContextFactory() {
+    return pageAssemblyContextFactory;
+  }
 
+  public void setPageAssemblyContextFactory(
+      PSPageAssemblyContextFactory pageAssemblyContextFactory) {
+    this.pageAssemblyContextFactory = pageAssemblyContextFactory;
+  }
+
+  public PSAssemblyItemBridge getAssemblyItemBridge() {
+    return assemblyItemBridge;
+  }
+
+  public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge) {
+    this.assemblyItemBridge = assemblyItemBridge;
+  }
+
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSPageAssembler.class);
 }

@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
+        <artifactId>delivery-tier-suite</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>perc-shared-app</artifactId>
     <packaging>jar</packaging>
-    <description>
-        Jar depends project, gets all shared dependencies for all projects.
-    </description>
+    <description>Jar depends project, gets all shared dependencies for all projects.</description>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -23,22 +19,18 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.data.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -187,8 +179,8 @@
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
             <classifier>sources</classifier>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
@@ -283,9 +275,9 @@
                     <artifactId>velocity</artifactId>
                 </exclusion>
                 <exclusion>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-            </exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -304,7 +296,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.rometools</groupId>
             <artifactId>rome</artifactId>
@@ -346,8 +337,6 @@
             <artifactId>jta</artifactId>
             <version>1.1</version>
         </dependency>
-        
-
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
@@ -363,7 +352,6 @@
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-spring5</artifactId>
@@ -412,7 +400,6 @@
             <version>${jersey.version}</version>
             <scope>provided</scope>
         </dependency>
-        
         <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -425,19 +412,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
             <version>${hibernate.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>geronimo-jta_1.1_spec</artifactId>
                     <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.1_spec</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -451,16 +437,16 @@
                     <artifactId>javassist</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>commons-collections</artifactId>
                     <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>xml-apis</artifactId>
                     <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -470,16 +456,16 @@
             <version>${hibernate.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>commons-collections</artifactId>
                     <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -531,12 +517,11 @@
             <version>${log4j2.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
@@ -559,7 +544,6 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
@@ -612,8 +596,8 @@
             <version>${hikaricp.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -623,8 +607,8 @@
             <version>2.4.2</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -633,22 +617,21 @@
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
         </dependency>
-		 <dependency>
-		    <groupId>commons-httpclient</groupId>
-		    <artifactId>commons-httpclient</artifactId>
-		    <version>3.1</version>
-             <exclusions>
-                 <exclusion>
-                     <groupId>commons-codec</groupId>
-                     <artifactId>commons-codec</artifactId>
-                 </exclusion>
-                 <exclusion>
-                     <groupId>commons-logging</groupId>
-                     <artifactId>commons-logging</artifactId>
-                 </exclusion>
-             </exclusions>
-		</dependency>
-
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
@@ -663,7 +646,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -674,6 +656,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-    </plugins>
+        </plugins>
     </build>
 </project>

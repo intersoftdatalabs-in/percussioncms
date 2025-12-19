@@ -23,13 +23,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
 @Component
-public class PSSpringWebApplicationContextSetter implements ApplicationContextAware
-{
-    private static ApplicationContext context;
+public class PSSpringWebApplicationContextSetter implements ApplicationContextAware {
+  private static ApplicationContext context;
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
-    {
-        PSSpringWebApplicationContextUtils.setWebApplicationContext((WebApplicationContext)applicationContext);
-    }
-
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    PSSpringWebApplicationContextUtils.setWebApplicationContext(
+        (WebApplicationContext) applicationContext);
+  }
 }

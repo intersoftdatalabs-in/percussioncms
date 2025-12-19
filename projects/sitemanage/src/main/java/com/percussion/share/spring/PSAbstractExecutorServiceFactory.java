@@ -19,48 +19,39 @@ package com.percussion.share.spring;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Springify Java Concurrency {@link ExecutorService} so that you can
- * use the default {@link ExecutorService}s provided {@link Executors} as
- * spring beans.
- * <p> 
- * For more information on FactoryBeans read springs documentation.
- * @author adamgent
+ * Springify Java Concurrency {@link ExecutorService} so that you can use the default {@link
+ * ExecutorService}s provided {@link Executors} as spring beans.
  *
+ * <p>For more information on FactoryBeans read springs documentation.
+ *
+ * @author adamgent
  */
-public abstract class PSAbstractExecutorServiceFactory implements FactoryBean
-{
+public abstract class PSAbstractExecutorServiceFactory implements FactoryBean {
 
-    private ThreadFactory threadFactory;
-    
-    @Override
-    public abstract ExecutorService getObject() throws Exception;
+  private ThreadFactory threadFactory;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class getObjectType()
-    {
-        return ExecutorService.class;
-    }
+  @Override
+  public abstract ExecutorService getObject() throws Exception;
 
-    @Override
-    public boolean isSingleton()
-    {
-        return true;
-    }
+  @SuppressWarnings("unchecked")
+  @Override
+  public Class getObjectType() {
+    return ExecutorService.class;
+  }
 
-    public ThreadFactory getThreadFactory()
-    {
-        return threadFactory;
-    }
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 
-    public void setThreadFactory(ThreadFactory threadFactory)
-    {
-        this.threadFactory = threadFactory;
-    }
+  public ThreadFactory getThreadFactory() {
+    return threadFactory;
+  }
 
+  public void setThreadFactory(ThreadFactory threadFactory) {
+    this.threadFactory = threadFactory;
+  }
 }
-

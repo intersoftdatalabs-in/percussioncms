@@ -17,32 +17,31 @@
 
 package com.percussion.test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class HTTPBasicAuthFilter implements ClientRequestFilter {
 
-        private final String user;
-        private final String password;
+  private final String user;
+  private final String password;
 
-        public HTTPBasicAuthFilter(String user, String password) {
-            this.user = user;
-            this.password = password;
-        }
+  public HTTPBasicAuthFilter(String user, String password) {
+    this.user = user;
+    this.password = password;
+  }
 
-        public void filter(ClientRequestContext requestContext) throws IOException {
-            MultivaluedMap<String, Object> headers = requestContext.getHeaders();
-            final String basicAuthentication = getBasicAuthentication();
-            headers.add("Authorization", basicAuthentication);
+  public void filter(ClientRequestContext requestContext) throws IOException {
+    MultivaluedMap<String, Object> headers = requestContext.getHeaders();
+    final String basicAuthentication = getBasicAuthentication();
+    headers.add("Authorization", basicAuthentication);
+  }
 
-        }
-
-        private String getBasicAuthentication() {
-            String token = this.user + ":" + this.password;
-                return "BASIC " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
-        }
-    }
+  private String getBasicAuthentication() {
+    String token = this.user + ":" + this.password;
+    return "BASIC " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
+  }
+}

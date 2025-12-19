@@ -28,50 +28,39 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.util.IPSHtmlParameters;
-
 import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 
-/**
- * @author JaySeletz
- *
- */
-public class PSManagedItemPathPreProcessor extends PSDefaultExtension implements IPSItemInputTransformer
-{
-    private IPSManagedLinkService service;
-    
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-    {
-        super.init(def, codeRoot);
-        //This is for wiring the services
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+/** @author JaySeletz */
+public class PSManagedItemPathPreProcessor extends PSDefaultExtension
+    implements IPSItemInputTransformer {
+  private IPSManagedLinkService service;
 
-    }    
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    // This is for wiring the services
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-
-    @SuppressWarnings("unused")
-    @Override
-    public void preProcessRequest(Object[] params, IPSRequestContext request) throws PSAuthorizationException,
-            PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException
-    {
-        String cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if(StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid))
-        {
-            service.initNewItemLinks();
-            request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
-        }
+  @SuppressWarnings("unused")
+  @Override
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+          PSExtensionProcessingException {
+    String cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
+      service.initNewItemLinks();
+      request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
     }
-    
-    /**
-     * Setter for dependency injection
-     * 
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service)
-    {
-        this.service = service;
-    }    
+  }
 
+  /**
+   * Setter for dependency injection
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

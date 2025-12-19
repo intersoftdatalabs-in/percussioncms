@@ -16,7 +16,6 @@
  */
 package com.percussion.deployer.server.dependencies;
 
-
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.server.PSArchiveHandler;
@@ -31,7 +30,6 @@ import com.percussion.tablefactory.PSJdbcRowData;
 import com.percussion.tablefactory.PSJdbcSelectFilter;
 import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.utils.collections.PSIteratorUtils;
-
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,394 +38,327 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Class to handle discovery of state dependencies.  
- * The <code>PSWorkflowDefDependencyHandler</code> class handles the packaging
- * and installation of a state.
+ * Class to handle discovery of state dependencies. The <code>PSWorkflowDefDependencyHandler</code>
+ * class handles the packaging and installation of a state.
  */
-public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler
-{
+public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
 
-   /**
-    * Construct a dependency handler.
-    *
-    * @param def The def for the type supported by this handler.  May not be
-    * <code>null</code> and must be of the type supported by this class.  See
-    * {@link #getType()} for more info.
-    * @param dependencyMap The full dependency map.  May not be
-    * <code>null</code>.
-    *
-    * @throws IllegalArgumentException if any param is invalid.
-    */
-   public PSStateDefDependencyHandler(PSDependencyDef def,
-      PSDependencyMap dependencyMap)
-   {
-      super(def, dependencyMap);
-   }
+  /**
+   * Construct a dependency handler.
+   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  public PSStateDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
+    super(def, dependencyMap);
+  }
 
-   // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+  // see base class
+  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
 
-      Set childDeps = new HashSet();
-         
-      // get transitions as LOCAL child dependencies
-      Iterator childIDs = getChildIdsForStateDep(dep);
-      while (childIDs.hasNext())
-      {
-         String childId = (String)childIDs.next();
-         PSDependencyHandler handler = getDependencyHandler(
-            PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
-         PSDependency childDep = handler.getDependency(tok, childId, 
-            PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, 
-            dep.getParentId());
-         if (childDep != null)
-         {
-            childDep.setDependencyType(PSDependency.TYPE_LOCAL);
-            childDeps.add(childDep);
-         }
+    Set childDeps = new HashSet();
+
+    // get transitions as LOCAL child dependencies
+    Iterator childIDs = getChildIdsForStateDep(dep);
+    while (childIDs.hasNext()) {
+      String childId = (String) childIDs.next();
+      PSDependencyHandler handler =
+          getDependencyHandler(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
+      PSDependency childDep =
+          handler.getDependency(
+              tok, childId, PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, dep.getParentId());
+      if (childDep != null) {
+        childDep.setDependencyType(PSDependency.TYPE_LOCAL);
+        childDeps.add(childDep);
       }
-      
-      return childDeps.iterator();
     }
 
-    /**
-     * Get a list of ids of child transition dependencies for a given state 
-     * deployable object.
-     *
-     * @param dep The state deployable object, assume not <code>null</code>.
-     *
-     * @return An iterator over zero or more ids of child dependencies as
-     * <code>String</code>. It will never be <code>null</code>, but may be
-     * empty.
-     *
-     * @throws PSDeployException if any error occurs.
-     */
-    private Iterator getChildIdsForStateDep(PSDependency dep)
-      throws PSDeployException
-    {
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      String[] columns = {TRANSITION_ID};
-      PSJdbcSelectFilter fltTransFromStateId;
-      PSJdbcSelectFilter fltWorkflowId;
+    return childDeps.iterator();
+  }
 
-      String stateId = dep.getDependencyId();
-      String workflowId = dep.getParentId();
+  /**
+   * Get a list of ids of child transition dependencies for a given state deployable object.
+   *
+   * @param dep The state deployable object, assume not <code>null</code>.
+   * @return An iterator over zero or more ids of child dependencies as <code>String</code>. It will
+   *     never be <code>null</code>, but may be empty.
+   * @throws PSDeployException if any error occurs.
+   */
+  private Iterator getChildIdsForStateDep(PSDependency dep) throws PSDeployException {
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+    String[] columns = {TRANSITION_ID};
+    PSJdbcSelectFilter fltTransFromStateId;
+    PSJdbcSelectFilter fltWorkflowId;
 
-      // create filters:
-      // WHERE (WORKFLOW_ID = workflowId) AND
-      //       (TRANSITION_FROM_STATEID = stateId)
-      //
-      // Only check the TRANSITION_FROM_STATEID, don't need to check 
-      // TRANSITION_TO_STATEID, the transition only needs to be a child of 
-      // the source state
-      
-      fltTransFromStateId = new PSJdbcSelectFilter(TRANSITION_FROM_STATEID,
-         PSJdbcSelectFilter.EQUALS, stateId, Types.INTEGER);
-      fltWorkflowId = new PSJdbcSelectFilter(WORKFLOW_ID,
-         PSJdbcSelectFilter.EQUALS, workflowId, Types.INTEGER);
+    String stateId = dep.getDependencyId();
+    String workflowId = dep.getParentId();
 
-      PSJdbcFilterContainer fltWhere = new PSJdbcFilterContainer();
-      fltWhere.doAND(fltTransFromStateId);
-      fltWhere.doAND(fltWorkflowId);
+    // create filters:
+    // WHERE (WORKFLOW_ID = workflowId) AND
+    //       (TRANSITION_FROM_STATEID = stateId)
+    //
+    // Only check the TRANSITION_FROM_STATEID, don't need to check
+    // TRANSITION_TO_STATEID, the transition only needs to be a child of
+    // the source state
 
-      PSJdbcTableData data = dbmsHelper.catalogTableData(
-         TRANSITIONS_TABLE, columns, fltWhere);
+    fltTransFromStateId =
+        new PSJdbcSelectFilter(
+            TRANSITION_FROM_STATEID, PSJdbcSelectFilter.EQUALS, stateId, Types.INTEGER);
+    fltWorkflowId =
+        new PSJdbcSelectFilter(WORKFLOW_ID, PSJdbcSelectFilter.EQUALS, workflowId, Types.INTEGER);
 
-      // use "Set" to make sure it is a distinct list
-      Set ids = new HashSet();
+    PSJdbcFilterContainer fltWhere = new PSJdbcFilterContainer();
+    fltWhere.doAND(fltTransFromStateId);
+    fltWhere.doAND(fltWorkflowId);
 
-      if (data != null && data.getRows().hasNext())
-      {
-         Iterator rows = data.getRows();
-         String id;
-         PSJdbcRowData row;
-         while (rows.hasNext())
-         {
-            row = (PSJdbcRowData)rows.next();
-            
-            // this is a nullable column
-            id = getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row);
-            if (id != null && id.trim().length() != 0)
-               ids.add(id);
-         }
+    PSJdbcTableData data = dbmsHelper.catalogTableData(TRANSITIONS_TABLE, columns, fltWhere);
+
+    // use "Set" to make sure it is a distinct list
+    Set ids = new HashSet();
+
+    if (data != null && data.getRows().hasNext()) {
+      Iterator rows = data.getRows();
+      String id;
+      PSJdbcRowData row;
+      while (rows.hasNext()) {
+        row = (PSJdbcRowData) rows.next();
+
+        // this is a nullable column
+        id = getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row);
+        if (id != null && id.trim().length() != 0) ids.add(id);
       }
-      
-      return ids.iterator();
     }
 
-   // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      
-      List deps = new ArrayList();
-      Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, 
-         WORKFLOW_ID, null);
-      while (ids.hasNext())
-      {
-         String id = (String)ids.next();
-         PSPairDependencyId pairId = new PSPairDependencyId(id);
-         PSDependency dep = getDependency(tok, pairId.getChildId(), 
-            PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, 
-            pairId.getParentId());
-         if (dep != null)
-            deps.add(dep);
-      }
-      
-      return deps.iterator();
-   }
-   
-   // see base class
-   public Iterator getDependencies(PSSecurityToken tok, String parentType, 
-      String parentId) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    return ids.iterator();
+  }
 
-      if (parentType == null || parentType.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "parentType may not be null or empty");
-            
-      if (parentId == null || parentId.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "parentId may not be null or empty");
+  // see base class
+  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      List deps = new ArrayList();
-      Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, 
-         WORKFLOW_ID, parentId);
-      while (ids.hasNext())
-      {
-         String id = (String)ids.next();
-         PSPairDependencyId pairId = new PSPairDependencyId(id);
-         PSDependency dep = getDependency(tok, pairId.getChildId(), 
-            PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, 
-            pairId.getParentId());
-         if (dep != null)
-            deps.add(dep);
-      }
-      
-      return deps.iterator();
-      
-   }
-   
-   // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id, 
-      String parentType, String parentId)
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    List deps = new ArrayList();
+    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, null);
+    while (ids.hasNext()) {
+      String id = (String) ids.next();
+      PSPairDependencyId pairId = new PSPairDependencyId(id);
+      PSDependency dep =
+          getDependency(
+              tok,
+              pairId.getChildId(),
+              PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE,
+              pairId.getParentId());
+      if (dep != null) deps.add(dep);
+    }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-      
-      if (parentType == null || parentType.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "parentType may not be null or empty");
-            
-      if (parentId == null || parentId.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "parentId may not be null or empty");
+    return deps.iterator();
+  }
 
-      if (!parentType.equals(PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("parentType wrong type");
-            
-      PSDependency stateDep = null;
-      
-      // create the filter from the id of the state dependency
-      PSJdbcSelectFilter fltStateId = new PSJdbcSelectFilter(STATE_ID,
-         PSJdbcSelectFilter.EQUALS, id, Types.INTEGER);
-      PSJdbcSelectFilter fltWorklowId = new PSJdbcSelectFilter(WORKFLOW_ID,
-         PSJdbcSelectFilter.EQUALS, parentId, 
-         Types.INTEGER);
+  // see base class
+  public Iterator getDependencies(PSSecurityToken tok, String parentType, String parentId)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-      PSJdbcFilterContainer fltFinal = new PSJdbcFilterContainer();
-      fltFinal.doAND(fltStateId);
-      fltFinal.doAND(fltWorklowId);
-      
-      // get the result set from the database
-      String[] columns = {STATE_NAME};  
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance(); 
-      
-      PSJdbcTableData data = dbmsHelper.catalogTableData(
-         STATES_TABLE, columns, fltFinal);
+    if (parentType == null || parentType.trim().length() == 0)
+      throw new IllegalArgumentException("parentType may not be null or empty");
 
-      // should only get back one, take the first if found
-      if (data != null && data.getRows().hasNext())
-      {
-         Iterator rows = data.getRows();
-         PSJdbcRowData row = (PSJdbcRowData) rows.next();
-         String stateName = dbmsHelper.getColumnString(STATES_TABLE, STATE_NAME,
-            row);
-         stateDep = createDependency(m_def, id, stateName);
-         stateDep.setParent(parentId, parentType);
-      }
+    if (parentId == null || parentId.trim().length() == 0)
+      throw new IllegalArgumentException("parentId may not be null or empty");
 
-      return stateDep;
-   }
-    
+    List deps = new ArrayList();
+    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, parentId);
+    while (ids.hasNext()) {
+      String id = (String) ids.next();
+      PSPairDependencyId pairId = new PSPairDependencyId(id);
+      PSDependency dep =
+          getDependency(
+              tok,
+              pairId.getChildId(),
+              PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE,
+              pairId.getParentId());
+      if (dep != null) deps.add(dep);
+    }
 
-   // see base class
-   public boolean doesDependencyExist(PSSecurityToken tok, String id, 
-      String parentId) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    return deps.iterator();
+  }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-      
-      if (parentId == null || parentId.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "parentId may not be null or empty");
-      
-      return getDependency(tok, id, 
-         PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, parentId) != null;
-   }
+  // see base class
+  public PSDependency getDependency(
+      PSSecurityToken tok, String id, String parentType, String parentId) throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-   
-   /**
-    * Provides the list of child dependency types this class can discover.
-    * The child types supported by this handler are:
-    * <ol>
-    * <li>TransitionDef</li>
-    * </ol>
-    *
-    * @return An iterator over one or more types as <code>String</code>
-    * objects, never <code>null</code>, does not contain <code>null</code> or
-    * empty entries.
-    */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
-   }
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
 
-   // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
-   }
+    if (parentType == null || parentType.trim().length() == 0)
+      throw new IllegalArgumentException("parentType may not be null or empty");
 
-   // see base class
-   public String getParentType()
-   {
-      return PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE;
-   }
-   
-   // see base class
-   public void reserveNewId(PSDependency dep, PSIdMap idMap)
-      throws PSDeployException
-   {
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+    if (parentId == null || parentId.trim().length() == 0)
+      throw new IllegalArgumentException("parentId may not be null or empty");
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+    if (!parentType.equals(PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("parentType wrong type");
 
-      if (idMap == null)
-         throw new IllegalArgumentException("idMap may not be null");
+    PSDependency stateDep = null;
 
-      reserveNewId(dep, idMap, STATES_TABLE, DEPENDENCY_TYPE);
-   }
+    // create the filter from the id of the state dependency
+    PSJdbcSelectFilter fltStateId =
+        new PSJdbcSelectFilter(STATE_ID, PSJdbcSelectFilter.EQUALS, id, Types.INTEGER);
+    PSJdbcSelectFilter fltWorklowId =
+        new PSJdbcSelectFilter(WORKFLOW_ID, PSJdbcSelectFilter.EQUALS, parentId, Types.INTEGER);
 
-   /**
-    * Override the method from super class, but this is to get the next id 
-    * specifically for <code>STATE_ID</code> in <code>STATES_TABLE</code>.
-    */
-   protected String getNextId(String table, PSDependency dep, 
-      String tgtParentId) throws PSDeployException
-   {
-      if (table == null || table.trim().length() == 0)
-         throw new IllegalArgumentException("table may not be null or empty");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+    PSJdbcFilterContainer fltFinal = new PSJdbcFilterContainer();
+    fltFinal.doAND(fltStateId);
+    fltFinal.doAND(fltWorklowId);
 
-      if (tgtParentId == null || tgtParentId.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "tgtParentId may not be null or empty");
-      
-      String newId = null;
-      
-      // Check to see if there are already any states in this workflow.  If not,
-      // reuse the source state ids so intial state will keep its id
-      Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, 
-         WORKFLOW_ID, tgtParentId);
-      if (!ids.hasNext())
-         newId = dep.getDependencyId();
-      else
-      {
-         // already have states, so get the next available id
-         int id = PSDbmsHelper.getInstance().getNextIdInMemory(STATES_TABLE, 
-            STATE_ID, WORKFLOW_ID, tgtParentId);
-            
-         newId = String.valueOf(id);
-      }
-      
-      return newId;
-   }
-   
-   // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+    // get the result set from the database
+    String[] columns = {STATE_NAME};
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+    PSJdbcTableData data = dbmsHelper.catalogTableData(STATES_TABLE, columns, fltFinal);
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+    // should only get back one, take the first if found
+    if (data != null && data.getRows().hasNext()) {
+      Iterator rows = data.getRows();
+      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      String stateName = dbmsHelper.getColumnString(STATES_TABLE, STATE_NAME, row);
+      stateDep = createDependency(m_def, id, stateName);
+      stateDep.setParent(parentId, parentType);
+    }
 
-      // nothing to deploy, assume it has been handled for workflow handler
-      return PSIteratorUtils.emptyIterator();
-   }
+    return stateDep;
+  }
 
-   // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
-         throws PSDeployException
-   {
-      // nothing to install, assume it has been handled for workflow handler
-   }
-   
-   /**
-    * Constant for this handler's supported type
-    */
-   final static String DEPENDENCY_TYPE = "StateDef";
+  // see base class
+  public boolean doesDependencyExist(PSSecurityToken tok, String id, String parentId)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-   // private table and column names
-   private static final String STATES_TABLE = "STATES";
-   private static final String STATE_ID = "STATEID";
-   private static final String STATE_NAME = "STATENAME";
+    if (id == null || id.trim().length() == 0)
+      throw new IllegalArgumentException("id may not be null or empty");
 
-   private static final String TRANSITIONS_TABLE = "TRANSITIONS";
-   private static final String TRANSITION_FROM_STATEID =
-      "TRANSITIONFROMSTATEID";
-   private static final String TRANSITION_ID = "TRANSITIONID";
-   private static final String WORKFLOW_ID = "WORKFLOWAPPID";
+    if (parentId == null || parentId.trim().length() == 0)
+      throw new IllegalArgumentException("parentId may not be null or empty");
 
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List ms_childTypes = new ArrayList();
+    return getDependency(tok, id, PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, parentId) != null;
+  }
 
-   static
-   {
-      ms_childTypes.add(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+  /**
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
+   * <ol>
+   *   <li>TransitionDef
+   * </ol>
+   *
+   * @return An iterator over one or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
+   */
+  public Iterator getChildTypes() {
+    return ms_childTypes.iterator();
+  }
 
+  // see base class
+  public String getType() {
+    return DEPENDENCY_TYPE;
+  }
+
+  // see base class
+  public String getParentType() {
+    return PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE;
+  }
+
+  // see base class
+  public void reserveNewId(PSDependency dep, PSIdMap idMap) throws PSDeployException {
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
+
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
+
+    if (idMap == null) throw new IllegalArgumentException("idMap may not be null");
+
+    reserveNewId(dep, idMap, STATES_TABLE, DEPENDENCY_TYPE);
+  }
+
+  /**
+   * Override the method from super class, but this is to get the next id specifically for <code>
+   * STATE_ID</code> in <code>STATES_TABLE</code>.
+   */
+  protected String getNextId(String table, PSDependency dep, String tgtParentId)
+      throws PSDeployException {
+    if (table == null || table.trim().length() == 0)
+      throw new IllegalArgumentException("table may not be null or empty");
+
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
+
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
+
+    if (tgtParentId == null || tgtParentId.trim().length() == 0)
+      throw new IllegalArgumentException("tgtParentId may not be null or empty");
+
+    String newId = null;
+
+    // Check to see if there are already any states in this workflow.  If not,
+    // reuse the source state ids so intial state will keep its id
+    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, tgtParentId);
+    if (!ids.hasNext()) newId = dep.getDependencyId();
+    else {
+      // already have states, so get the next available id
+      int id =
+          PSDbmsHelper.getInstance()
+              .getNextIdInMemory(STATES_TABLE, STATE_ID, WORKFLOW_ID, tgtParentId);
+
+      newId = String.valueOf(id);
+    }
+
+    return newId;
+  }
+
+  // see base class
+  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+      throws PSDeployException {
+    if (tok == null) throw new IllegalArgumentException("tok may not be null");
+
+    if (dep == null) throw new IllegalArgumentException("dep may not be null");
+
+    if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
+      throw new IllegalArgumentException("dep wrong type");
+
+    // nothing to deploy, assume it has been handled for workflow handler
+    return PSIteratorUtils.emptyIterator();
+  }
+
+  // see base class
+  public void installDependencyFiles(
+      PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+      throws PSDeployException {
+    // nothing to install, assume it has been handled for workflow handler
+  }
+
+  /** Constant for this handler's supported type */
+  static final String DEPENDENCY_TYPE = "StateDef";
+
+  // private table and column names
+  private static final String STATES_TABLE = "STATES";
+  private static final String STATE_ID = "STATEID";
+  private static final String STATE_NAME = "STATENAME";
+
+  private static final String TRANSITIONS_TABLE = "TRANSITIONS";
+  private static final String TRANSITION_FROM_STATEID = "TRANSITIONFROMSTATEID";
+  private static final String TRANSITION_ID = "TRANSITIONID";
+  private static final String WORKFLOW_ID = "WORKFLOWAPPID";
+
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
+  private static List ms_childTypes = new ArrayList();
+
+  static {
+    ms_childTypes.add(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
+  }
 }

@@ -18,84 +18,55 @@ package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 
-/**
- * @author miltonpividori
- *
- */
-public class PSWidgetDialogGenerationInfo
-{
-    private PSWidgetDefinition widgetDefinition;
-    
-    private boolean layoutDialogGenerated = false;
-    private boolean contentDialogGenerated = false;
-    private boolean styleDialogGenerated = false;
-    
-    public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition)
-    {
-        this.widgetDefinition = widgetDefinition;
-    }
+/** @author miltonpividori */
+public class PSWidgetDialogGenerationInfo {
+  private PSWidgetDefinition widgetDefinition;
 
-    /**
-     * @return the widgetDefinition
-     */
-    public PSWidgetDefinition getWidgetDefinition()
-    {
-        return widgetDefinition;
-    }
+  private boolean layoutDialogGenerated = false;
+  private boolean contentDialogGenerated = false;
+  private boolean styleDialogGenerated = false;
 
-    /**
-     * @param widgetDefinition the widgetDefinition to set
-     */
-    public void setWidgetDefinition(PSWidgetDefinition widgetDefinition)
-    {
-        this.widgetDefinition = widgetDefinition;
-    }
+  public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition) {
+    this.widgetDefinition = widgetDefinition;
+  }
 
-    /**
-     * @return the layoutDialogGenerated
-     */
-    public boolean isLayoutDialogGenerated()
-    {
-        return layoutDialogGenerated;
-    }
+  /** @return the widgetDefinition */
+  public PSWidgetDefinition getWidgetDefinition() {
+    return widgetDefinition;
+  }
 
-    /**
-     * @param layoutDialogGenerated the layoutDialogGenerated to set
-     */
-    public void setLayoutDialogGenerated(boolean layoutDialogGenerated)
-    {
-        this.layoutDialogGenerated = layoutDialogGenerated;
-    }
+  /** @param widgetDefinition the widgetDefinition to set */
+  public void setWidgetDefinition(PSWidgetDefinition widgetDefinition) {
+    this.widgetDefinition = widgetDefinition;
+  }
 
-    /**
-     * @return the contentDialogGenerated
-     */
-    public boolean isContentDialogGenerated()
-    {
-        return contentDialogGenerated;
-    }
+  /** @return the layoutDialogGenerated */
+  public boolean isLayoutDialogGenerated() {
+    return layoutDialogGenerated;
+  }
 
-    /**
-     * @param contentDialogGenerated the contentDialogGenerated to set
-     */
-    public void setContentDialogGenerated(boolean contentDialogGenerated)
-    {
-        this.contentDialogGenerated = contentDialogGenerated;
-    }
+  /** @param layoutDialogGenerated the layoutDialogGenerated to set */
+  public void setLayoutDialogGenerated(boolean layoutDialogGenerated) {
+    this.layoutDialogGenerated = layoutDialogGenerated;
+  }
 
-    /**
-     * @return the styleDialogGenerated
-     */
-    public boolean isStyleDialogGenerated()
-    {
-        return styleDialogGenerated;
-    }
+  /** @return the contentDialogGenerated */
+  public boolean isContentDialogGenerated() {
+    return contentDialogGenerated;
+  }
 
-    /**
-     * @param styleDialogGenerated the styleDialogGenerated to set
-     */
-    public void setStyleDialogGenerated(boolean styleDialogGenerated)
-    {
-        this.styleDialogGenerated = styleDialogGenerated;
-    }
+  /** @param contentDialogGenerated the contentDialogGenerated to set */
+  public void setContentDialogGenerated(boolean contentDialogGenerated) {
+    this.contentDialogGenerated = contentDialogGenerated;
+  }
+
+  /** @return the styleDialogGenerated */
+  public boolean isStyleDialogGenerated() {
+    return styleDialogGenerated;
+  }
+
+  /** @param styleDialogGenerated the styleDialogGenerated to set */
+  public void setStyleDialogGenerated(boolean styleDialogGenerated) {
+    this.styleDialogGenerated = styleDialogGenerated;
+  }
 }

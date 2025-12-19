@@ -17,19 +17,20 @@
 
 package com.percussion.delivery.integrations.ems;
 
+import java.text.ParseException;
 import junit.framework.TestCase;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.Test;
 
-import java.text.ParseException;
+public class TestDateParsing extends TestCase {
 
-public class TestDateParsing extends TestCase{
+  @Test
+  public void testDateFormat() throws ParseException {
 
-	@Test
-	public void testDateFormat() throws ParseException{
-		
-		// and format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
-	
-		System.out.println(FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").parse("2018-05-21T10:42:00".replace("T"," ")));
-	}
+    // and format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+
+    System.out.println(
+        FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss")
+            .parse("2018-05-21T10:42:00".replace("T", " ")));
+  }
 }

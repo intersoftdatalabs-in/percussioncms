@@ -17,8 +17,5 @@
 
 package com.percussion.utils.testing;
 
-/***
- * Marker for tests that use the spring context for testing against the container
- */
-public interface SpringContextTest {
-}
+/** * Marker for tests that use the spring context for testing against the container */
+public interface SpringContextTest {}

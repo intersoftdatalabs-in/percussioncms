@@ -19,24 +19,16 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author stephenbolton
- * 
- */
-public class PageNotFoundException extends RestExceptionBase
-{
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -1872052295971136814L;
+/** @author stephenbolton */
+public class PageNotFoundException extends RestExceptionBase {
+  /** */
+  private static final long serialVersionUID = -1872052295971136814L;
 
-	public PageNotFoundException()
-    {
-        super(RestErrorCode.PAGE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
-    
-    public PageNotFoundException(String detailMessage){
-    	super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
-    }
-    
+  public PageNotFoundException() {
+    super(RestErrorCode.PAGE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+  }
+
+  public PageNotFoundException(String detailMessage) {
+    super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
+  }
 }

@@ -17,13 +17,11 @@
 package com.percussion.server;
 
 /**
- * Control interface for startup processes, should call {@link #addStartupProcess(IPSStartupProcess)}
- * to add self to processor list
- * 
- * @author JaySeletz
+ * Control interface for startup processes, should call {@link
+ * #addStartupProcess(IPSStartupProcess)} to add self to processor list
  *
+ * @author JaySeletz
  */
-public interface IPSStartupProcessManager
-{
-   void addStartupProcess(IPSStartupProcess startupProc);
+public interface IPSStartupProcessManager {
+  void addStartupProcess(IPSStartupProcess startupProc);
 }

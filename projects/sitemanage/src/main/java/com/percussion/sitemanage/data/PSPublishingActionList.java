@@ -22,11 +22,11 @@ import java.util.Collection;
 
 public class PSPublishingActionList extends ArrayList<PSPublishingAction> {
 
-    public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
-        super(c);
-    }
+  public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
+    super(c);
+  }
 
-    public PSPublishingActionList(){
-        super();
-    }
+  public PSPublishingActionList() {
+    super();
+  }
 }

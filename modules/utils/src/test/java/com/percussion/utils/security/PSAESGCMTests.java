@@ -17,70 +17,65 @@
 
 package com.percussion.utils.security;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.percussion.security.IPSDecryptor;
 import com.percussion.security.IPSEncryptor;
 import com.percussion.security.IPSKey;
 import com.percussion.security.IPSSecretKey;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptionKeyFactory;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import javax.crypto.SecretKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-
-//@todo: Fix it...
+// @todo: Fix it...
 @Ignore
 public class PSAESGCMTests {
 
+  public PSAESGCMTests() {}
 
-    public PSAESGCMTests(){}
+  @Before
+  public void setup() {}
 
-    @Before
-    public void setup(){
+  @After
+  public void teardown() {}
 
-    }
+  @Test
+  public void testEncryptDecryptBasic() throws PSEncryptionException {
 
-    @After
-    public void teardown(){
+    IPSKey key = PSEncryptionKeyFactory.getKeyGenerator(PSEncryptionKeyFactory.AES_GCM_ALGORIYTHM);
+    key.setSecret(((IPSSecretKey) key).generateKey().getEncoded());
 
-    }
+    IPSEncryptor encryptor = key.getEncryptor();
 
-    @Test
-    public void testEncryptDecryptBasic() throws PSEncryptionException {
+    byte[] data = encryptor.encrypt("This is a test");
 
-        IPSKey key = PSEncryptionKeyFactory.getKeyGenerator(PSEncryptionKeyFactory.AES_GCM_ALGORIYTHM);
-        key.setSecret(((IPSSecretKey)key).generateKey().getEncoded());
+    assertNotNull(data);
+    assertNotEquals(data, "This is a test".getBytes(StandardCharsets.UTF_8));
+    IPSDecryptor decryptor = key.getDecryptor();
 
-        IPSEncryptor encryptor = key.getEncryptor();
+    String decrypted = decryptor.decrypt(data);
 
-        byte[] data = encryptor.encrypt("This is a test");
+    assertEquals("This is a test", decrypted);
+  }
 
-        assertNotNull(data);
-        assertNotEquals(data,"This is a test".getBytes(StandardCharsets.UTF_8));
-        IPSDecryptor decryptor = key.getDecryptor();
+  @Test
+  public void testGenerateKey() {
+    SecretKey key =
+        PSEncryptionKeyFactory.getKeyGenerator(PSEncryptionKeyFactory.AES_GCM_ALGORIYTHM)
+            .generateKey();
 
-        String decrypted = decryptor.decrypt(data);
+    assertNotNull(key);
 
-        assertEquals("This is a test",decrypted);
-    }
-
-    @Test
-    public void testGenerateKey(){
-        SecretKey key = PSEncryptionKeyFactory.getKeyGenerator(PSEncryptionKeyFactory.AES_GCM_ALGORIYTHM).generateKey();
-
-        assertNotNull(key);
-
-        System.out.println("Algorithm: " + key.getAlgorithm());
-        System.out.println("Format:" + key.getFormat());
-        System.out.println("Key:" + Base64.getEncoder().encodeToString(key.getEncoded()));
-    }
-
+    System.out.println("Algorithm: " + key.getAlgorithm());
+    System.out.println("Format:" + key.getFormat());
+    System.out.println("Key:" + Base64.getEncoder().encodeToString(key.getEncoded()));
+  }
 }

@@ -18,24 +18,18 @@ package com.percussion.sitemanage.dao;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.user.data.PSUserLogin;
-
 import java.util.List;
 
-/**
- * @author DavidBenua
- *
- */
-public interface IPSUserLoginDao extends IPSGenericDao<PSUserLogin, String>
-{
-    public PSUserLogin create(PSUserLogin login) throws IPSGenericDao.SaveException;  
+/** @author DavidBenua */
+public interface IPSUserLoginDao extends IPSGenericDao<PSUserLogin, String> {
+  public PSUserLogin create(PSUserLogin login) throws IPSGenericDao.SaveException;
 
-    /**
-     * Gets all user login entries for the specified name, case-insensitive.
-     * 
-     * @param name the user name, may not be blank.
-     * @return list of entries which match the name, never <code>null</code>, may be empty.
-     * 
-     * @throws IPSGenericDao.LoadException if an error occurs.
-     */
-    public List<PSUserLogin> findByName(String name) throws IPSGenericDao.LoadException;
+  /**
+   * Gets all user login entries for the specified name, case-insensitive.
+   *
+   * @param name the user name, may not be blank.
+   * @return list of entries which match the name, never <code>null</code>, may be empty.
+   * @throws IPSGenericDao.LoadException if an error occurs.
+   */
+  public List<PSUserLogin> findByName(String name) throws IPSGenericDao.LoadException;
 }

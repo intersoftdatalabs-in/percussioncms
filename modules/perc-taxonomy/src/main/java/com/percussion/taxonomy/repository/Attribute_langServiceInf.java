@@ -17,17 +17,16 @@
 
 package com.percussion.taxonomy.repository;
 
-import java.util.Collection;
-
 import com.percussion.taxonomy.domain.*;
+import java.util.Collection;
 
 public interface Attribute_langServiceInf {
 
-    public Collection getAllAttribute_langs();
+  public Collection getAllAttribute_langs();
 
-    public Attribute_lang getAttribute_lang(int id);
+  public Attribute_lang getAttribute_lang(int id);
 
-    public void removeAttribute_lang(Attribute_lang attribute_lang);
+  public void removeAttribute_lang(Attribute_lang attribute_lang);
 
-    public void saveAttribute_lang(Attribute_lang attribute_lang);
+  public void saveAttribute_lang(Attribute_lang attribute_lang);
 }

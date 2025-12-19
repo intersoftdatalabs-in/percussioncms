@@ -17,18 +17,17 @@
 
 package com.percussion.log;
 
+import java.util.Date;
+import javax.naming.NamingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.naming.NamingException;
-import java.util.Date;
-
 /**
  * The PSBackEndLogWriter class implements logging to a back-end data store.
- * <p>
- * The log will be stored in the same back-end data store as the object
- * store. Log records are broken up into two tables. The main table,
- * pslog, has the following format:
+ *
+ * <p>The log will be stored in the same back-end data store as the object store. Log records are
+ * broken up into two tables. The main table, pslog, has the following format:
+ *
  * <table border="1">
  *   <tr><th>Column</th><th>Data Type</th><th>Description</th></tr>
  *   <tr><td>log_id_high</td>
@@ -56,7 +55,9 @@ import java.util.Date;
  *         <td>The application id of the application which generated this
  *               log entry.</td></tr>
  * </table>
- * The secondary table, pslogdat, has the following   format:
+ *
+ * The secondary table, pslogdat, has the following format:
+ *
  * <table border="1">
  *   <tr><td>log_id_high</td>
  *         <td>INT (PRIMARY KEY, FOREIGN KEY)</td>
@@ -115,79 +116,60 @@ import java.util.Date;
  *         <td>VARCHAR(255)</td>
  *         <td>The text associated with this log entry.</td></tr>
  * </table>
- * The following indexes have been defined on the tables for faster access
- * to the data:
+ *
+ * The following indexes have been defined on the tables for faster access to the data:
+ *
  * <ul>
- *   <li>pslog(log_time) - orders log entries by time, allowing for
- *         chronological searches</li>
- *   <li>pslog(log_type) - orders log entries by type, allowing for
- *         searches by a particular type</li>
- *   <li>pslog(log_appl, log_time) - orders log entries by application and
- *         time. This allows for searches by application ordered
- *         chronologically.</li>
- *   <li>pslogdat(log_id, log_subt, log_seq) - orders log entries by log id
- *         sub-type, and sequence number. This allows searching by log id and
- *         ordering by sub-type and sequence number within the log id.</li>
+ *   <li>pslog(log_time) - orders log entries by time, allowing for chronological searches
+ *   <li>pslog(log_type) - orders log entries by type, allowing for searches by a particular type
+ *   <li>pslog(log_appl, log_time) - orders log entries by application and time. This allows for
+ *       searches by application ordered chronologically.
+ *   <li>pslogdat(log_id, log_subt, log_seq) - orders log entries by log id sub-type, and sequence
+ *       number. This allows searching by log id and ordering by sub-type and sequence number within
+ *       the log id.
  * </ul>
  *
- * @author       Tas Giakouminakis
- * @version   1.0
- * @since        1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
-public class PSBackEndLogWriter implements IPSLogWriter
-{
-   /**
-    *  Construct a back-end log writer. This is given package access with the
-    *  intent that only the PSLogManager object will instantiate it.
-    *  <p>
-    *
-    *  @throws ClassNotFoundException if the class specified byt he
-    * <code>loggerClassname</code> property cannot be loaded
-    *  @throws NamingException If the default datasource details cannot be
-    * obtained.
-    */
-   PSBackEndLogWriter()
-      
-   {
-      
-   }  
+public class PSBackEndLogWriter implements IPSLogWriter {
+  /**
+   * Construct a back-end log writer. This is given package access with the intent that only the
+   * PSLogManager object will instantiate it.
+   *
+   * <p>
+   *
+   * @throws ClassNotFoundException if the class specified byt he <code>loggerClassname</code>
+   *     property cannot be loaded
+   * @throws NamingException If the default datasource details cannot be obtained.
+   */
+  PSBackEndLogWriter() {}
 
-   public boolean isOpen()
-   {      
-      return true;
-   }
+  public boolean isOpen() {
+    return true;
+  }
 
-   public void close()
-   {
-            
-   }
+  public void close() {}
 
-   public void write(PSLogInformation msg) throws IllegalStateException
-   {
-      if (!ms_log.isDebugEnabled())
-         return;
-      
-      {
-         PSLogSubMessage[] subMessages = msg.getSubMessages();
-         for (int sequence = 0; sequence < subMessages.length; sequence++)
-         {
-            PSLogSubMessage subMessage = subMessages[sequence];
-            String msgText = subMessage.getText();
-            ms_log.debug(msgText);
-         }
+  public void write(PSLogInformation msg) throws IllegalStateException {
+    if (!ms_log.isDebugEnabled()) return;
+
+    {
+      PSLogSubMessage[] subMessages = msg.getSubMessages();
+      for (int sequence = 0; sequence < subMessages.length; sequence++) {
+        PSLogSubMessage subMessage = subMessages[sequence];
+        String msgText = subMessage.getText();
+        ms_log.debug(msgText);
       }
-   }
+    }
+  }
 
-   public boolean open()
-   {
-      return true;
-   }
+  public boolean open() {
+    return true;
+  }
 
-   public void truncateLog(Date allBefore)
-   {
-            
-   }
-   
-   private static final Logger ms_log = LogManager.getLogger(PSBackEndLogWriter.class);
-   
+  public void truncateLog(Date allBefore) {}
+
+  private static final Logger ms_log = LogManager.getLogger(PSBackEndLogWriter.class);
 }

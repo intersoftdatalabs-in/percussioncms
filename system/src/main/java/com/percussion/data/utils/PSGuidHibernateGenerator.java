@@ -19,6 +19,8 @@ package com.percussion.data.utils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
+import java.io.Serializable;
+import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -27,48 +29,43 @@ import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 
-import java.io.Serializable;
-import java.util.Properties;
 /**
- * Hibernate ID Generator that uses the Percussion Next Number table to get Id
- * Key is based upon table name.
- * 
+ * Hibernate ID Generator that uses the Percussion Next Number table to get Id Key is based upon
+ * table name.
+ *
  * @author Stephen Bolton
  */
-public class PSGuidHibernateGenerator implements IdentifierGenerator, Configurable
-{
-   public static final String GUID_TYPE = "guidType";
-   
-   private PSTypeEnum guidType = PSTypeEnum.INTERNAL;
-   private IPSGuidManager gmgr = null;
-   private String entityName;
+public class PSGuidHibernateGenerator implements IdentifierGenerator, Configurable {
+  public static final String GUID_TYPE = "guidType";
 
-   /**
-    * Generate a new identifier.
-    *
-    * @param session The session from which the request originates
-    * @param obj  the entity or collection (idbag) for which the id is being generated
-    * @return a new identifier
-    * @throws HibernateException Indicates trouble generating the identifier
-    */
-   @Override
-   public Serializable generate(SharedSessionContractImplementor session, Object obj) throws HibernateException
-   {
-         if (gmgr==null)
-            gmgr = PSGuidManagerLocator.getGuidMgr();
+  private PSTypeEnum guidType = PSTypeEnum.INTERNAL;
+  private IPSGuidManager gmgr = null;
+  private String entityName;
 
-         return  gmgr.createGuid(guidType).longValue();
-   }
+  /**
+   * Generate a new identifier.
+   *
+   * @param session The session from which the request originates
+   * @param obj the entity or collection (idbag) for which the id is being generated
+   * @return a new identifier
+   * @throws HibernateException Indicates trouble generating the identifier
+   */
+  @Override
+  public Serializable generate(SharedSessionContractImplementor session, Object obj)
+      throws HibernateException {
+    if (gmgr == null) gmgr = PSGuidManagerLocator.getGuidMgr();
 
-   @Override
-   public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {
-      entityName = properties.getProperty(ENTITY_NAME);
+    return gmgr.createGuid(guidType).longValue();
+  }
 
-      String param = properties.getProperty(GUID_TYPE);
-      if (param!=null)
-      {
-         guidType = PSTypeEnum.valueOf(param);
-      }
-   }
+  @Override
+  public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry)
+      throws MappingException {
+    entityName = properties.getProperty(ENTITY_NAME);
 
+    String param = properties.getProperty(GUID_TYPE);
+    if (param != null) {
+      guidType = PSTypeEnum.valueOf(param);
+    }
+  }
 }

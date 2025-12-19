@@ -21,62 +21,58 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class PSCollectionUtils
-{
-    public static interface ToMap<KEY, VALUE, OBJECT> {
-        KEY getKey(OBJECT value);
-        VALUE getValue(OBJECT object);
-    }
-    
-    public static abstract class Mapper<KEY,VALUE,OBJECT> implements ToMap<KEY,VALUE,OBJECT>{
-        public Map<KEY,VALUE> toMap(Iterator<OBJECT> objects) {
-            return PSCollectionUtils.toMap(objects, this);
-        }
-        public Map<KEY,VALUE> toMap(Collection<OBJECT> objects) {
-            Iterator<OBJECT> obs;
-            if ( objects == null ) {
-                obs = null;
-            }
-            else {
-                obs = objects.iterator();
-            }
-            return PSCollectionUtils.toMap(obs, this);
-        }
-    }
-    
-    public static abstract class MapperValueAdapter<KEY,VALUE> extends Mapper<KEY,VALUE,VALUE> {
-        @Override
-        public Map<KEY,VALUE> toMap(Iterator<VALUE> objects) 
-        {
-            return PSCollectionUtils.toMap(objects, this);
-        }
-        
-        public VALUE getValue(VALUE object)
-        {
-            return object;
-        }
-    }
-    
-    public static abstract class ToMapKeyAdapter<KEY, VALUE> implements ToMap<KEY, VALUE, VALUE> {
+public class PSCollectionUtils {
+  public static interface ToMap<KEY, VALUE, OBJECT> {
+    KEY getKey(OBJECT value);
 
-        public VALUE getValue(VALUE object)
-        {
-            return object;
-        }
-        
-    }
-    
-    public static <KEY,VALUE, OBJECT> Map<KEY,VALUE> toMap(Iterator<OBJECT> objects, ToMap<KEY,VALUE, OBJECT> toMap) {
-        Map<KEY, VALUE> map = new HashMap<>();
-        if (objects != null) {
-            while(objects.hasNext()) {
-                OBJECT o = objects.next();
-                KEY key = toMap.getKey(o);
-                VALUE value = toMap.getValue(o);
-                map.put(key, value);
-            }
-        }
-        return map;
+    VALUE getValue(OBJECT object);
+  }
+
+  public abstract static class Mapper<KEY, VALUE, OBJECT> implements ToMap<KEY, VALUE, OBJECT> {
+    public Map<KEY, VALUE> toMap(Iterator<OBJECT> objects) {
+      return PSCollectionUtils.toMap(objects, this);
     }
 
+    public Map<KEY, VALUE> toMap(Collection<OBJECT> objects) {
+      Iterator<OBJECT> obs;
+      if (objects == null) {
+        obs = null;
+      } else {
+        obs = objects.iterator();
+      }
+      return PSCollectionUtils.toMap(obs, this);
+    }
+  }
+
+  public abstract static class MapperValueAdapter<KEY, VALUE> extends Mapper<KEY, VALUE, VALUE> {
+    @Override
+    public Map<KEY, VALUE> toMap(Iterator<VALUE> objects) {
+      return PSCollectionUtils.toMap(objects, this);
+    }
+
+    public VALUE getValue(VALUE object) {
+      return object;
+    }
+  }
+
+  public abstract static class ToMapKeyAdapter<KEY, VALUE> implements ToMap<KEY, VALUE, VALUE> {
+
+    public VALUE getValue(VALUE object) {
+      return object;
+    }
+  }
+
+  public static <KEY, VALUE, OBJECT> Map<KEY, VALUE> toMap(
+      Iterator<OBJECT> objects, ToMap<KEY, VALUE, OBJECT> toMap) {
+    Map<KEY, VALUE> map = new HashMap<>();
+    if (objects != null) {
+      while (objects.hasNext()) {
+        OBJECT o = objects.next();
+        KEY key = toMap.getKey(o);
+        VALUE value = toMap.getValue(o);
+        map.put(key, value);
+      }
+    }
+    return map;
+  }
 }

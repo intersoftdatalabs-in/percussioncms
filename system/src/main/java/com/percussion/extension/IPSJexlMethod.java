@@ -23,16 +23,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation interface that allows the extension manager to obtain a per 
- * method description and parameter descriptions via reflection
- * 
+ * Annotation interface that allows the extension manager to obtain a per method description and
+ * parameter descriptions via reflection
+ *
  * @author dougrand
  */
-@Documented 
-@Retention(RetentionPolicy.RUNTIME) 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface IPSJexlMethod {
-   String   description();
-   IPSJexlParam[] params();
-   String   returns() default "";
+  String description();
+
+  IPSJexlParam[] params();
+
+  String returns() default "";
 }

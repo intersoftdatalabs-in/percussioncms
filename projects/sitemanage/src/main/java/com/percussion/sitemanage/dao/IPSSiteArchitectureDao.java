@@ -19,26 +19,23 @@ package com.percussion.sitemanage.dao;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 import com.percussion.sitemanage.data.PSSiteSection;
-
 import java.util.List;
 
 /**
- * Interface for the site architecture Dao. It extends IPSGenericDao and the get
- * method returns the site architecture. The architecture includes the site
- * details and section under it expanded to first level. To get the sub sections
- * of any section, callers should use getSiteSubSections method.
- * 
+ * Interface for the site architecture Dao. It extends IPSGenericDao and the get method returns the
+ * site architecture. The architecture includes the site details and section under it expanded to
+ * first level. To get the sub sections of any section, callers should use getSiteSubSections
+ * method.
+ *
  * @author bjoginipally
- * 
  */
-public interface IPSSiteArchitectureDao extends
-      IPSGenericDao<PSSiteArchitecture, String>
-{
-   /**
-    * Returns the subsections of the given item.
-    * @param id Must be a valid guid of the navigation type item.
-    * @return The sub sections of the given item. 
-    * @throws LoadException
-    */
-   public List<PSSiteSection> getSections(String id) throws LoadException;
+public interface IPSSiteArchitectureDao extends IPSGenericDao<PSSiteArchitecture, String> {
+  /**
+   * Returns the subsections of the given item.
+   *
+   * @param id Must be a valid guid of the navigation type item.
+   * @return The sub sections of the given item.
+   * @throws LoadException
+   */
+  public List<PSSiteSection> getSections(String id) throws LoadException;
 }

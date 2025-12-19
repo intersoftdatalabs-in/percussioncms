@@ -17,16 +17,9 @@
 package com.percussion.delivery.service.impl;
 
 import com.percussion.util.PSSiteManageBean;
-
 import javax.ws.rs.Path;
 
-/**
- * @author peterfrontiero
- *
- */
+/** @author peterfrontiero */
 @Path("/delivery")
 @PSSiteManageBean("deliveryRestService")
-public class PSDeliveryRestService
-{
-    
-}
+public class PSDeliveryRestService {}

@@ -17,66 +17,55 @@
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * Encapsulates a request for the access level, see {@link PSAccessLevel}, of the current user for a given content type
- * or workflow.
+ * Encapsulates a request for the access level, see {@link PSAccessLevel}, of the current user for a
+ * given content type or workflow.
  */
 @XmlRootElement(name = "AccessLevelRequest")
 @JsonRootName("AccessLevelRequest")
-public class PSAccessLevelRequest
-{
-    private static final long serialVersionUID = 1L;
+public class PSAccessLevelRequest {
+  private static final long serialVersionUID = 1L;
 
-    @NotEmpty
-    private String type;
+  @NotEmpty private String type;
 
-    private int workflowId;
-    
-    private String itemId;
-    
-    private String parentFolderPath;
-    
-    public String getType()
-    {
-        return type;
-    }
+  private int workflowId;
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-    
-    public int getWorkflowId()
-    {
-        return workflowId;
-    }
+  private String itemId;
 
-    public void setWorkflowId(int workflowId)
-    {
-        this.workflowId = workflowId;
-    }
-    
-    public String getItemId()
-    {
-        return itemId;
-    }
+  private String parentFolderPath;
 
-    public void setItemId(String itemId)
-    {
-        this.itemId = itemId;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public String getParentFolderPath()
-    {
-        return parentFolderPath;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setParentFolderPath(String parentFolderPath)
-    {
-        this.parentFolderPath = parentFolderPath;
-    }
+  public int getWorkflowId() {
+    return workflowId;
+  }
+
+  public void setWorkflowId(int workflowId) {
+    this.workflowId = workflowId;
+  }
+
+  public String getItemId() {
+    return itemId;
+  }
+
+  public void setItemId(String itemId) {
+    this.itemId = itemId;
+  }
+
+  public String getParentFolderPath() {
+    return parentFolderPath;
+  }
+
+  public void setParentFolderPath(String parentFolderPath) {
+    this.parentFolderPath = parentFolderPath;
+  }
 }

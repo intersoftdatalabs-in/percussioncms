@@ -17,60 +17,50 @@
 
 package com.percussion.activity.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSItemProperties;
 
-
-
-/**
- * This object holds traffic details of the items under named site by date.
- */
+/** This object holds traffic details of the items under named site by date. */
 @JsonRootName(value = "TrafficDetails")
-public class PSTrafficDetails extends PSItemProperties
-{
-	public PSTrafficDetails()
-	{
-		
-	}
-	
-	/**
-	 * Total number of visits for this page.
-	 * @return visits
-	 */
-    public int getVisits()
-    {
-        return visits;
-    }
+public class PSTrafficDetails extends PSItemProperties {
+  public PSTrafficDetails() {}
 
-    /**
-     * Delta of visits for this item.
-     * @return visitsDelta
-     */
-    public int getVisitsDelta()
-    {
-        return visitsDelta;
-    }
+  /**
+   * Total number of visits for this page.
+   *
+   * @return visits
+   */
+  public int getVisits() {
+    return visits;
+  }
 
-    /**
-     * Sets Delta of visits for this item.
-     * @param visitsDelta
-     */
-    public void setVisitsDelta(int visitsDelta)
-    {
-        this.visitsDelta = visitsDelta;
-    }
-    
-    /**
-     * Sets total number of visits for this page.
-     * @param visits
-     */
-    public void setVisits(int visits)
-    {
-        this.visits = visits;
-    }	
-	
-	private int visits;
-	private int visitsDelta;
+  /**
+   * Delta of visits for this item.
+   *
+   * @return visitsDelta
+   */
+  public int getVisitsDelta() {
+    return visitsDelta;
+  }
+
+  /**
+   * Sets Delta of visits for this item.
+   *
+   * @param visitsDelta
+   */
+  public void setVisitsDelta(int visitsDelta) {
+    this.visitsDelta = visitsDelta;
+  }
+
+  /**
+   * Sets total number of visits for this page.
+   *
+   * @param visits
+   */
+  public void setVisits(int visits) {
+    this.visits = visits;
+  }
+
+  private int visits;
+  private int visitsDelta;
 }

@@ -16,66 +16,52 @@
  */
 package com.percussion.xml.serialization.junit;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import java.util.Objects;
 
 /**
- * A sample Name class used in unit test of the
- * {@link com.percussion.xml.serialization.PSObjectSerializer} class. As can be
- * seen it is a simple java bean with a default ctor (required) and setXxx() and
- * getXxx() methods.
+ * A sample Name class used in unit test of the {@link
+ * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
+ * bean with a default ctor (required) and setXxx() and getXxx() methods.
  */
-public class Name
-{
-   String first;
+public class Name {
+  String first;
 
-   String last;
+  String last;
 
-   /**
-    * Default ctor. Required by serializer.
-    */
-   public Name()
-   {
-   }
+  /** Default ctor. Required by serializer. */
+  public Name() {}
 
-   public Name(String first, String last)
-   {
-      this.first = first;
-      this.last = last;
-   }
+  public Name(String first, String last) {
+    this.first = first;
+    this.last = last;
+  }
 
-   public String getFirst()
-   {
-      return first;
-   }
+  public String getFirst() {
+    return first;
+  }
 
-   public void setFirst(String first)
-   {
-      this.first = first;
-   }
+  public void setFirst(String first) {
+    this.first = first;
+  }
 
-   public String getLast()
-   {
-      return last;
-   }
+  public String getLast() {
+    return last;
+  }
 
-   public void setLast(String last)
-   {
-      this.last = last;
-   }
+  public void setLast(String last) {
+    this.last = last;
+  }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Name)) return false;
-      Name name = (Name) o;
-      return Objects.equals(getFirst(), name.getFirst()) && Objects.equals(getLast(), name.getLast());
-   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Name)) return false;
+    Name name = (Name) o;
+    return Objects.equals(getFirst(), name.getFirst()) && Objects.equals(getLast(), name.getLast());
+  }
 
-   @Override
-   public int hashCode() {
-      return Objects.hash(getFirst(), getLast());
-   }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getFirst(), getLast());
+  }
 }

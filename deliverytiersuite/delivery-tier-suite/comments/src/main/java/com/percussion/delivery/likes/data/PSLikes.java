@@ -18,42 +18,33 @@ package com.percussion.delivery.likes.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add a root element name for Jersey to
- * spit out when serializing to JSON.
- * 
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
+ * serializing to JSON.
+ *
  * @author davidpardini
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder =
-{"likes"})
+@XmlType(
+    name = "",
+    propOrder = {"likes"})
 @XmlRootElement(name = "likes")
-public class PSLikes
-{
-    private List<IPSLikes> likes;
+public class PSLikes {
+  private List<IPSLikes> likes;
 
-    public PSLikes()
-    {
+  public PSLikes() {}
 
-    }
+  public PSLikes(List<IPSLikes> likes) {
+    this.likes = likes;
+  }
 
-    public PSLikes(List<IPSLikes> likes)
-    {
-        this.likes = likes;
-    }
-
-    public List<IPSLikes> getLikes()
-    {
-        if (likes == null)
-            likes = new ArrayList<>();
-        return likes;
-    }
-
+  public List<IPSLikes> getLikes() {
+    if (likes == null) likes = new ArrayList<>();
+    return likes;
+  }
 }

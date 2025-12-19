@@ -24,37 +24,37 @@ import com.percussion.redirect.data.PSRedirectValidationData;
 import com.percussion.redirect.data.PSRedirectValidationResponse;
 
 @Deprecated
-public interface IPSRedirectService
-{
-	public static String REDIRECT_TYPE_DEFAULT = "CM1";
-	public static String REDIRECT_CATEGORY_AUTOGEN = "AUTOGEN";
-	
-	/***
-	 * Check the status of Redirect Management on this installation.
-	 * @return
-	 */
-	public PSRedirectStatus status();
-	
-	/***
-	 * Validate a Redirect Request
-	 * @param data
-	 * @return
-	 */
-    public PSRedirectValidationResponse validate(PSRedirectValidationData data);
-   
-    /***
-     * Create a new redirect with the redirect service.
-     * @param request
-     * @return
-     */
-    public PSRedirectStatus createRedirect(PSCreateRedirectRequest request);
-    
-    /***
-     * Get the current license.
-     * @return  The current license or null if unlicensed. 
-     */
-    public PSModuleLicense getLicense();
+public interface IPSRedirectService {
+  public static String REDIRECT_TYPE_DEFAULT = "CM1";
+  public static String REDIRECT_CATEGORY_AUTOGEN = "AUTOGEN";
 
+  /**
+   * * Check the status of Redirect Management on this installation.
+   *
+   * @return
+   */
+  public PSRedirectStatus status();
 
+  /**
+   * * Validate a Redirect Request
+   *
+   * @param data
+   * @return
+   */
+  public PSRedirectValidationResponse validate(PSRedirectValidationData data);
 
+  /**
+   * * Create a new redirect with the redirect service.
+   *
+   * @param request
+   * @return
+   */
+  public PSRedirectStatus createRedirect(PSCreateRedirectRequest request);
+
+  /**
+   * * Get the current license.
+   *
+   * @return The current license or null if unlicensed.
+   */
+  public PSModuleLicense getLicense();
 }

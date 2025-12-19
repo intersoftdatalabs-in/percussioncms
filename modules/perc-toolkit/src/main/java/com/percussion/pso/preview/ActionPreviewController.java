@@ -22,16 +22,6 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,195 +30,184 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-/**
- * 
- * 
- * @author DavidBenua
- * 
- */
-public class ActionPreviewController extends AbstractMenuController implements
-		Controller {
+/** @author DavidBenua */
+public class ActionPreviewController extends AbstractMenuController implements Controller {
 
-	private static final Logger log = LogManager.getLogger(ActionPreviewController.class);
+  private static final Logger log = LogManager.getLogger(ActionPreviewController.class);
 
-	private String snippetTargetStyle = null;
+  private String snippetTargetStyle = null;
 
-	private UrlBuilder urlBuilder = null;
+  private UrlBuilder urlBuilder = null;
 
-	/**
-	 * Default constructor
-	 */
-	public ActionPreviewController() {
-		super();
-	}
+  /** Default constructor */
+  public ActionPreviewController() {
+    super();
+  }
 
-	/**
-	 * @see org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
-	 *      HttpServletResponse)
-	 */
-	@Override
-	protected ModelAndView handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-		PSStopwatch timer = new PSStopwatch();
+  /**
+   * @see
+   *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
+   *     HttpServletResponse)
+   */
+  @Override
+  protected ModelAndView handleRequestInternal(
+      HttpServletRequest request, HttpServletResponse response) throws Exception {
+    PSStopwatch timer = new PSStopwatch();
 
-		timer.start();
-		List<PSOAction> actions = new ArrayList<PSOAction>();
-		Map<String, Object> urlParams = new HashMap<String, Object>();
-		ModelAndView mav = super.handleRequestInternal(request, response);
-		boolean useMultipleSites = false;
-		Locale locale = request.getLocale();
-		String contentid = StringUtils.defaultString(request
-				.getParameter(IPSHtmlParameters.SYS_CONTENTID));
-		String revision = StringUtils.defaultString(request
-				.getParameter(IPSHtmlParameters.SYS_REVISION));
-		String folderid = StringUtils.defaultString(request
-				.getParameter(IPSHtmlParameters.SYS_FOLDERID));
-		String siteid = StringUtils.defaultString(request
-				.getParameter(IPSHtmlParameters.SYS_SITEID));
+    timer.start();
+    List<PSOAction> actions = new ArrayList<PSOAction>();
+    Map<String, Object> urlParams = new HashMap<String, Object>();
+    ModelAndView mav = super.handleRequestInternal(request, response);
+    boolean useMultipleSites = false;
+    Locale locale = request.getLocale();
+    String contentid =
+        StringUtils.defaultString(request.getParameter(IPSHtmlParameters.SYS_CONTENTID));
+    String revision =
+        StringUtils.defaultString(request.getParameter(IPSHtmlParameters.SYS_REVISION));
+    String folderid =
+        StringUtils.defaultString(request.getParameter(IPSHtmlParameters.SYS_FOLDERID));
+    String siteid = StringUtils.defaultString(request.getParameter(IPSHtmlParameters.SYS_SITEID));
 
-		if (StringUtils.isBlank(contentid)) {
-			String emsg = "content id cannot be blank, check configuration";
-			log.error(emsg);
-			RuntimeException exp = new RuntimeException(emsg);
-			Document errResult = PSXmlDocumentBuilder.createErrorDocument(exp,
-					request.getLocale());
-			mav.addObject("result", errResult);
-			timer.stop();
-			log.debug("elapsed time is {}", timer.elapsed());
-			return mav;
-		}
+    if (StringUtils.isBlank(contentid)) {
+      String emsg = "content id cannot be blank, check configuration";
+      log.error(emsg);
+      RuntimeException exp = new RuntimeException(emsg);
+      Document errResult = PSXmlDocumentBuilder.createErrorDocument(exp, request.getLocale());
+      mav.addObject("result", errResult);
+      timer.stop();
+      log.debug("elapsed time is {}", timer.elapsed());
+      return mav;
+    }
 
-		String refreshHint = request.getParameter("refreshHint");
-		String target = request.getParameter("target");
-		String targetStyle = request.getParameter("targetStyle");
-		String launchesWindow = request.getParameter("launchesWindow");
-		Properties properties = new Properties();
-		if (StringUtils.isNotBlank(refreshHint)) {
-			properties.setProperty("refreshHint", refreshHint);
-		}
-		if (StringUtils.isNotBlank(target)) {
-			properties.setProperty("target", target);
-		}
-		if (StringUtils.isNotBlank(targetStyle)) {
-			properties.setProperty("targetStyle", targetStyle);
-		}
-		if (StringUtils.isNotBlank(launchesWindow)) {
-			properties.setProperty("launchesWindow", launchesWindow);
-		}
+    String refreshHint = request.getParameter("refreshHint");
+    String target = request.getParameter("target");
+    String targetStyle = request.getParameter("targetStyle");
+    String launchesWindow = request.getParameter("launchesWindow");
+    Properties properties = new Properties();
+    if (StringUtils.isNotBlank(refreshHint)) {
+      properties.setProperty("refreshHint", refreshHint);
+    }
+    if (StringUtils.isNotBlank(target)) {
+      properties.setProperty("target", target);
+    }
+    if (StringUtils.isNotBlank(targetStyle)) {
+      properties.setProperty("targetStyle", targetStyle);
+    }
+    if (StringUtils.isNotBlank(launchesWindow)) {
+      properties.setProperty("launchesWindow", launchesWindow);
+    }
 
-		urlParams.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
-		urlParams.put(IPSHtmlParameters.SYS_REVISION, revision);
-		urlParams.put(IPSHtmlParameters.SYS_LANG, locale.toString());
+    urlParams.put(IPSHtmlParameters.SYS_CONTENTID, contentid);
+    urlParams.put(IPSHtmlParameters.SYS_REVISION, revision);
+    urlParams.put(IPSHtmlParameters.SYS_LANG, locale.toString());
 
-		PSStopwatch tm = new PSStopwatch();
-		tm.start();
-		List<SiteFolderLocation> locations = this.siteFolderFinder
-				.findSiteFolderLocations(contentid, folderid, siteid);
-		tm.stop();
-		log.debug("Time to fetch locations {}", tm.elapsed());
-		SiteFolderLocation loc;
-		log.debug("there are {} locations",locations.size());
-		if (locations.size() == 1) {
-			loc = locations.get(0);
-		} else if (locations.size() > 1) {
-			loc = null;
-			useMultipleSites = true;
-		} else {
-			loc = null;
-		}
+    PSStopwatch tm = new PSStopwatch();
+    tm.start();
+    List<SiteFolderLocation> locations =
+        this.siteFolderFinder.findSiteFolderLocations(contentid, folderid, siteid);
+    tm.stop();
+    log.debug("Time to fetch locations {}", tm.elapsed());
+    SiteFolderLocation loc;
+    log.debug("there are {} locations", locations.size());
+    if (locations.size() == 1) {
+      loc = locations.get(0);
+    } else if (locations.size() > 1) {
+      loc = null;
+      useMultipleSites = true;
+    } else {
+      loc = null;
+    }
 
-		Set<IPSSite> sites = findSitesFromLocations(locations);
-		List<IPSAssemblyTemplate> templates = findVisibleTemplates(contentid,
-				sites);
-		log.debug("found {} visible templates",templates.size());
-		actions = makeActionsFromTemplates(actions, templates, properties,
-				urlParams, loc, useMultipleSites);
-		Collections.sort(actions);
-		Document result = buildActionListXml(actions);
-		mav.addObject("result", result);
+    Set<IPSSite> sites = findSitesFromLocations(locations);
+    List<IPSAssemblyTemplate> templates = findVisibleTemplates(contentid, sites);
+    log.debug("found {} visible templates", templates.size());
+    actions =
+        makeActionsFromTemplates(actions, templates, properties, urlParams, loc, useMultipleSites);
+    Collections.sort(actions);
+    Document result = buildActionListXml(actions);
+    mav.addObject("result", result);
 
-		timer.stop();
-		log.debug("Elapsed time is {}", timer.elapsed());
+    timer.stop();
+    log.debug("Elapsed time is {}", timer.elapsed());
 
-		return mav;
-	}
+    return mav;
+  }
 
-	protected List<PSOAction> makeActionsFromTemplates(List<PSOAction> actions,
-			List<IPSAssemblyTemplate> templates, Properties properties,
-			Map<String, Object> urlParams, SiteFolderLocation location,
-			boolean useMulti) throws Exception {
-		initServices();
-		PSOAction action;
-		for (IPSAssemblyTemplate template : templates) {
+  protected List<PSOAction> makeActionsFromTemplates(
+      List<PSOAction> actions,
+      List<IPSAssemblyTemplate> templates,
+      Properties properties,
+      Map<String, Object> urlParams,
+      SiteFolderLocation location,
+      boolean useMulti)
+      throws Exception {
+    initServices();
+    PSOAction action;
+    for (IPSAssemblyTemplate template : templates) {
 
-			log.debug("processing template {}", template.getName());
+      log.debug("processing template {}", template.getName());
 
-			action = new PSOAction();
-			action.setHandler(PSAction.HANDLER_SERVER);
-			action.setType(PSAction.TYPE_MENUITEM);
-			action.setName(template.getName());
-			action.setLabel(template.getLabel());
-			action.setUrl(urlBuilder.buildUrl(template, urlParams, location,
-					useMulti));
+      action = new PSOAction();
+      action.setHandler(PSAction.HANDLER_SERVER);
+      action.setType(PSAction.TYPE_MENUITEM);
+      action.setName(template.getName());
+      action.setLabel(template.getLabel());
+      action.setUrl(urlBuilder.buildUrl(template, urlParams, location, useMulti));
 
-			// make a copy
-			Properties newProperties = new Properties(properties);
-			if (template.getOutputFormat() == IPSAssemblyTemplate.OutputFormat.Snippet
-					&& StringUtils.isNotBlank(this.snippetTargetStyle)) {
-				log.debug("adding targetStyle");
-				newProperties.setProperty("targetStyle",
-						this.snippetTargetStyle);
-			} else {
-				log.debug("adding targetStyle - CM 7.x requires targetStyle");
-				newProperties.setProperty("targetStyle",
-						this.snippetTargetStyle);
-			}
-			action.setProperties(newProperties);
-			actions.add(action);
-		}
+      // make a copy
+      Properties newProperties = new Properties(properties);
+      if (template.getOutputFormat() == IPSAssemblyTemplate.OutputFormat.Snippet
+          && StringUtils.isNotBlank(this.snippetTargetStyle)) {
+        log.debug("adding targetStyle");
+        newProperties.setProperty("targetStyle", this.snippetTargetStyle);
+      } else {
+        log.debug("adding targetStyle - CM 7.x requires targetStyle");
+        newProperties.setProperty("targetStyle", this.snippetTargetStyle);
+      }
+      action.setProperties(newProperties);
+      actions.add(action);
+    }
 
-		return actions;
-	}
+    return actions;
+  }
 
-	protected Document buildActionListXml(List<PSOAction> actions) {
-		Document output = PSXmlDocumentBuilder.createXmlDocument();
-		Element root = PSXmlDocumentBuilder.createRoot(output, "ActionList");
-		for (PSOAction action : actions) {
-			Element el = action.toXml(output);
-			root.appendChild(el);
-		}
-		return output;
-	}
+  protected Document buildActionListXml(List<PSOAction> actions) {
+    Document output = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(output, "ActionList");
+    for (PSOAction action : actions) {
+      Element el = action.toXml(output);
+      root.appendChild(el);
+    }
+    return output;
+  }
 
-	/**
-	 * @return the snippetTargetStyle
-	 */
-	public String getSnippetTargetStyle() {
-		return snippetTargetStyle;
-	}
+  /** @return the snippetTargetStyle */
+  public String getSnippetTargetStyle() {
+    return snippetTargetStyle;
+  }
 
-	/**
-	 * @param snippetTargetStyle
-	 *            the snippetTargetStyle to set
-	 */
-	public void setSnippetTargetStyle(String snippetTargetStyle) {
-		this.snippetTargetStyle = snippetTargetStyle;
-	}
+  /** @param snippetTargetStyle the snippetTargetStyle to set */
+  public void setSnippetTargetStyle(String snippetTargetStyle) {
+    this.snippetTargetStyle = snippetTargetStyle;
+  }
 
-	/**
-	 * @return the urlBuilder
-	 */
-	public UrlBuilder getUrlBuilder() {
-		return urlBuilder;
-	}
+  /** @return the urlBuilder */
+  public UrlBuilder getUrlBuilder() {
+    return urlBuilder;
+  }
 
-	/**
-	 * @param urlBuilder
-	 *            the urlBuilder to set
-	 */
-	public void setUrlBuilder(UrlBuilder urlBuilder) {
-		this.urlBuilder = urlBuilder;
-	}
-
+  /** @param urlBuilder the urlBuilder to set */
+  public void setUrlBuilder(UrlBuilder urlBuilder) {
+    this.urlBuilder = urlBuilder;
+  }
 }

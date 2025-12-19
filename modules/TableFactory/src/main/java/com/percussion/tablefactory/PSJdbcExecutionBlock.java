@@ -23,63 +23,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A step that is actually a list of steps.  When the block is executed, it
- * executes each step sequentially.
+ * A step that is actually a list of steps. When the block is executed, it executes each step
+ * sequentially.
  */
-public class PSJdbcExecutionBlock extends PSJdbcExecutionStep
-{
-   /**
-    * Adds the step to this block.
-    *
-    * @param step The step to execute, may not be <code>null</code>.
-    *
-    * @throws IllegalArgumentException if step is <code>null</code>.
-    */
-   public void addStep(PSJdbcExecutionStep step)
-   {
-      if (step == null)
-         throw new IllegalArgumentException("step may not be null");
+public class PSJdbcExecutionBlock extends PSJdbcExecutionStep {
+  /**
+   * Adds the step to this block.
+   *
+   * @param step The step to execute, may not be <code>null</code>.
+   * @throws IllegalArgumentException if step is <code>null</code>.
+   */
+  public void addStep(PSJdbcExecutionStep step) {
+    if (step == null) throw new IllegalArgumentException("step may not be null");
 
-      m_steps.add(step);
-   }
+    m_steps.add(step);
+  }
 
-   /**
-    * Executes each step in the block sequentially.
-    *
-    * @param conn A valid connection to use, may not be <code>null</code>.
-    *
-    * @return always returns <code>0</code>
-    *
-    * @throws IllegalArgumentException if conn is <code>null</code>.
-    * @throws SQLException if any errors occur.
-    */
-   public int execute(Connection conn) throws SQLException
-   {
-      if (conn == null)
-         throw new IllegalArgumentException("conn may not be null");
+  /**
+   * Executes each step in the block sequentially.
+   *
+   * @param conn A valid connection to use, may not be <code>null</code>.
+   * @return always returns <code>0</code>
+   * @throws IllegalArgumentException if conn is <code>null</code>.
+   * @throws SQLException if any errors occur.
+   */
+  public int execute(Connection conn) throws SQLException {
+    if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
-      for (PSJdbcExecutionStep step : m_steps) {
-         try {
-            step.execute(conn);
-         } catch (SQLException e) {
-            /* if there is an error step, log the error we got and execute the
-             * error step.
-             */
-            String errMsg = PSJdbcTableFactoryException.formatSqlException(e);
-            // log the error and execute the error step
-            PSJdbcTableFactory.logMessage("step failed: " + errMsg);
-            PSJdbcTableFactory.logMessage("executing error step");
-            if (step.stopOnError())
-               throw e;
-         }
+    for (PSJdbcExecutionStep step : m_steps) {
+      try {
+        step.execute(conn);
+      } catch (SQLException e) {
+        /* if there is an error step, log the error we got and execute the
+         * error step.
+         */
+        String errMsg = PSJdbcTableFactoryException.formatSqlException(e);
+        // log the error and execute the error step
+        PSJdbcTableFactory.logMessage("step failed: " + errMsg);
+        PSJdbcTableFactory.logMessage("executing error step");
+        if (step.stopOnError()) throw e;
       }
-      return 0;
-   }
+    }
+    return 0;
+  }
 
-   /**
-    * List of steps, never <code>null</code>, may be empty.
-    */
-   private List<PSJdbcExecutionStep> m_steps = new ArrayList<>();
-
+  /** List of steps, never <code>null</code>, may be empty. */
+  private List<PSJdbcExecutionStep> m_steps = new ArrayList<>();
 }
-

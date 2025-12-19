@@ -19,7 +19,5 @@ package com.percussion.rest.displayformat;
 
 public class AllowedCommunityList {
 
-    public AllowedCommunityList(){}
-
-
+  public AllowedCommunityList() {}
 }

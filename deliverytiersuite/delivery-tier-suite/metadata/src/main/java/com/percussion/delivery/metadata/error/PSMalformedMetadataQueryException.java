@@ -16,44 +16,29 @@
  */
 package com.percussion.delivery.metadata.error;
 
-/**
- * @author erikserating
- *
- */
-public class PSMalformedMetadataQueryException extends Exception
-{
+/** @author erikserating */
+public class PSMalformedMetadataQueryException extends Exception {
 
-   /**
-    * 
-    */
-   public PSMalformedMetadataQueryException()
-   {
-      super();
-   }
+  /** */
+  public PSMalformedMetadataQueryException() {
+    super();
+  }
 
-   /**
-    * @param message
-    * @param cause
-    */
-   public PSMalformedMetadataQueryException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+  /**
+   * @param message
+   * @param cause
+   */
+  public PSMalformedMetadataQueryException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-   /**
-    * @param message
-    */
-   public PSMalformedMetadataQueryException(String message)
-   {
-      super(message);
-   }
+  /** @param message */
+  public PSMalformedMetadataQueryException(String message) {
+    super(message);
+  }
 
-   /**
-    * @param cause
-    */
-   public PSMalformedMetadataQueryException(Throwable cause)
-   {
-      super(cause);
-   }
-   
+  /** @param cause */
+  public PSMalformedMetadataQueryException(Throwable cause) {
+    super(cause);
+  }
 }

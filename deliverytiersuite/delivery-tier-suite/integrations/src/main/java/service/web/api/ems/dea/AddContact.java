@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -55,411 +53,334 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "groupID",
-    "contactName",
-    "title",
-    "address1",
-    "address2",
-    "city",
-    "state",
-    "zipCode",
-    "country",
-    "phone",
-    "fax",
-    "emailAddress",
-    "externalReference"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "groupID",
+      "contactName",
+      "title",
+      "address1",
+      "address2",
+      "city",
+      "state",
+      "zipCode",
+      "country",
+      "phone",
+      "fax",
+      "emailAddress",
+      "externalReference"
+    })
 @XmlRootElement(name = "AddContact")
 public class AddContact {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "GroupID")
-    protected int groupID;
-    @XmlElement(name = "ContactName")
-    protected String contactName;
-    @XmlElement(name = "Title")
-    protected String title;
-    @XmlElement(name = "Address1")
-    protected String address1;
-    @XmlElement(name = "Address2")
-    protected String address2;
-    @XmlElement(name = "City")
-    protected String city;
-    @XmlElement(name = "State")
-    protected String state;
-    @XmlElement(name = "ZipCode")
-    protected String zipCode;
-    @XmlElement(name = "Country")
-    protected String country;
-    @XmlElement(name = "Phone")
-    protected String phone;
-    @XmlElement(name = "Fax")
-    protected String fax;
-    @XmlElement(name = "EmailAddress")
-    protected String emailAddress;
-    @XmlElement(name = "ExternalReference")
-    protected String externalReference;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "GroupID")
+  protected int groupID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "ContactName")
+  protected String contactName;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "Title")
+  protected String title;
 
-    /**
-     * Gets the value of the groupID property.
-     * 
-     */
-    public int getGroupID() {
-        return groupID;
-    }
+  @XmlElement(name = "Address1")
+  protected String address1;
 
-    /**
-     * Sets the value of the groupID property.
-     * 
-     */
-    public void setGroupID(int value) {
-        this.groupID = value;
-    }
+  @XmlElement(name = "Address2")
+  protected String address2;
 
-    /**
-     * Gets the value of the contactName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getContactName() {
-        return contactName;
-    }
+  @XmlElement(name = "City")
+  protected String city;
 
-    /**
-     * Sets the value of the contactName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setContactName(String value) {
-        this.contactName = value;
-    }
+  @XmlElement(name = "State")
+  protected String state;
 
-    /**
-     * Gets the value of the title property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTitle() {
-        return title;
-    }
+  @XmlElement(name = "ZipCode")
+  protected String zipCode;
 
-    /**
-     * Sets the value of the title property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTitle(String value) {
-        this.title = value;
-    }
+  @XmlElement(name = "Country")
+  protected String country;
 
-    /**
-     * Gets the value of the address1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddress1() {
-        return address1;
-    }
+  @XmlElement(name = "Phone")
+  protected String phone;
 
-    /**
-     * Sets the value of the address1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddress1(String value) {
-        this.address1 = value;
-    }
+  @XmlElement(name = "Fax")
+  protected String fax;
 
-    /**
-     * Gets the value of the address2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddress2() {
-        return address2;
-    }
+  @XmlElement(name = "EmailAddress")
+  protected String emailAddress;
 
-    /**
-     * Sets the value of the address2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddress2(String value) {
-        this.address2 = value;
-    }
+  @XmlElement(name = "ExternalReference")
+  protected String externalReference;
 
-    /**
-     * Gets the value of the city property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCity() {
-        return city;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Sets the value of the city property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCity(String value) {
-        this.city = value;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Gets the value of the state property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getState() {
-        return state;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the value of the state property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setState(String value) {
-        this.state = value;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Gets the value of the zipCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getZipCode() {
-        return zipCode;
-    }
+  /** Gets the value of the groupID property. */
+  public int getGroupID() {
+    return groupID;
+  }
 
-    /**
-     * Sets the value of the zipCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setZipCode(String value) {
-        this.zipCode = value;
-    }
+  /** Sets the value of the groupID property. */
+  public void setGroupID(int value) {
+    this.groupID = value;
+  }
 
-    /**
-     * Gets the value of the country property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCountry() {
-        return country;
-    }
+  /**
+   * Gets the value of the contactName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getContactName() {
+    return contactName;
+  }
 
-    /**
-     * Sets the value of the country property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCountry(String value) {
-        this.country = value;
-    }
+  /**
+   * Sets the value of the contactName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setContactName(String value) {
+    this.contactName = value;
+  }
 
-    /**
-     * Gets the value of the phone property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPhone() {
-        return phone;
-    }
+  /**
+   * Gets the value of the title property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * Sets the value of the phone property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPhone(String value) {
-        this.phone = value;
-    }
+  /**
+   * Sets the value of the title property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setTitle(String value) {
+    this.title = value;
+  }
 
-    /**
-     * Gets the value of the fax property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFax() {
-        return fax;
-    }
+  /**
+   * Gets the value of the address1 property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddress1() {
+    return address1;
+  }
 
-    /**
-     * Sets the value of the fax property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFax(String value) {
-        this.fax = value;
-    }
+  /**
+   * Sets the value of the address1 property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddress1(String value) {
+    this.address1 = value;
+  }
 
-    /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmailAddress() {
-        return emailAddress;
-    }
+  /**
+   * Gets the value of the address2 property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddress2() {
+    return address2;
+  }
 
-    /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEmailAddress(String value) {
-        this.emailAddress = value;
-    }
+  /**
+   * Sets the value of the address2 property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddress2(String value) {
+    this.address2 = value;
+  }
 
-    /**
-     * Gets the value of the externalReference property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExternalReference() {
-        return externalReference;
-    }
+  /**
+   * Gets the value of the city property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getCity() {
+    return city;
+  }
 
-    /**
-     * Sets the value of the externalReference property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExternalReference(String value) {
-        this.externalReference = value;
-    }
+  /**
+   * Sets the value of the city property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setCity(String value) {
+    this.city = value;
+  }
 
+  /**
+   * Gets the value of the state property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getState() {
+    return state;
+  }
+
+  /**
+   * Sets the value of the state property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setState(String value) {
+    this.state = value;
+  }
+
+  /**
+   * Gets the value of the zipCode property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getZipCode() {
+    return zipCode;
+  }
+
+  /**
+   * Sets the value of the zipCode property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setZipCode(String value) {
+    this.zipCode = value;
+  }
+
+  /**
+   * Gets the value of the country property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getCountry() {
+    return country;
+  }
+
+  /**
+   * Sets the value of the country property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setCountry(String value) {
+    this.country = value;
+  }
+
+  /**
+   * Gets the value of the phone property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPhone() {
+    return phone;
+  }
+
+  /**
+   * Sets the value of the phone property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPhone(String value) {
+    this.phone = value;
+  }
+
+  /**
+   * Gets the value of the fax property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getFax() {
+    return fax;
+  }
+
+  /**
+   * Sets the value of the fax property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setFax(String value) {
+    this.fax = value;
+  }
+
+  /**
+   * Gets the value of the emailAddress property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getEmailAddress() {
+    return emailAddress;
+  }
+
+  /**
+   * Sets the value of the emailAddress property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setEmailAddress(String value) {
+    this.emailAddress = value;
+  }
+
+  /**
+   * Gets the value of the externalReference property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getExternalReference() {
+    return externalReference;
+  }
+
+  /**
+   * Sets the value of the externalReference property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setExternalReference(String value) {
+    this.externalReference = value;
+  }
 }

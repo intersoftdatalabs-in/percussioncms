@@ -17,45 +17,44 @@
 package com.percussion.pso.restservice.model.results;
 
 import com.percussion.pso.restservice.model.ItemRef;
-
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
-@XmlRootElement(name="Results")
+@XmlRootElement(name = "Results")
 public class PagedResult {
-	
-	List<ItemRef> itemRefs;
-	String next;
-	Integer nextId;
-	
-	@XmlAttribute
-	public Integer getNextId() {
-		return nextId;
-	}
 
-	public void setNextId(Integer nextId) {
-		this.nextId = nextId;
-	}
+  List<ItemRef> itemRefs;
+  String next;
+  Integer nextId;
 
-	@XmlElement
-	public String getNext() {
-		return next;
-	}
+  @XmlAttribute
+  public Integer getNextId() {
+    return nextId;
+  }
 
-	public void setNext(String next) {
-		this.next = next;
-	}
+  public void setNextId(Integer nextId) {
+    this.nextId = nextId;
+  }
 
-	@XmlElement(name = "Item")
-	@XmlElementWrapper(name="Items")
-	public List<ItemRef> getItemRefs() {
-		return itemRefs;
-	}
+  @XmlElement
+  public String getNext() {
+    return next;
+  }
 
-	public void setItemRefs(List<ItemRef> itemRefs) {
-		this.itemRefs = itemRefs;
-	}
+  public void setNext(String next) {
+    this.next = next;
+  }
+
+  @XmlElement(name = "Item")
+  @XmlElementWrapper(name = "Items")
+  public List<ItemRef> getItemRefs() {
+    return itemRefs;
+  }
+
+  public void setItemRefs(List<ItemRef> itemRefs) {
+    this.itemRefs = itemRefs;
+  }
 }

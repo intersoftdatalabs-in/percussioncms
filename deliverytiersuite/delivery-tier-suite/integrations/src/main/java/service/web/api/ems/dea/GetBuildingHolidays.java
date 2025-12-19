@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -46,123 +44,96 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "buildings",
-    "holidayDate"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userName", "password", "buildings", "holidayDate"})
 @XmlRootElement(name = "GetBuildingHolidays")
 public class GetBuildingHolidays {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "Buildings")
-    protected ArrayOfInt buildings;
-    @XmlElement(name = "HolidayDate", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar holidayDate;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "Buildings")
+  protected ArrayOfInt buildings;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "HolidayDate", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar holidayDate;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Gets the value of the buildings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getBuildings() {
-        return buildings;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Sets the value of the buildings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setBuildings(ArrayOfInt value) {
-        this.buildings = value;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Gets the value of the holidayDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getHolidayDate() {
-        return holidayDate;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Sets the value of the holidayDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setHolidayDate(XMLGregorianCalendar value) {
-        this.holidayDate = value;
-    }
+  /**
+   * Gets the value of the buildings property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getBuildings() {
+    return buildings;
+  }
 
+  /**
+   * Sets the value of the buildings property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setBuildings(ArrayOfInt value) {
+    this.buildings = value;
+  }
+
+  /**
+   * Gets the value of the holidayDate property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getHolidayDate() {
+    return holidayDate;
+  }
+
+  /**
+   * Sets the value of the holidayDate property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setHolidayDate(XMLGregorianCalendar value) {
+    this.holidayDate = value;
+  }
 }

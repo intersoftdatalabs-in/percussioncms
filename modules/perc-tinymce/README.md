@@ -1,4 +1,5 @@
 # perc-tinymce
+
 This module contains the support for tinymce editor plugin.
 
 * Configuration files (json files : default, customer overridden etc.) for configuring the tinymce editor.
@@ -7,4 +8,5 @@ This module contains the support for tinymce editor plugin.
 * Plugins and supporting resource files (js, css etc.) for the tinymce editor.
 
 ## Building
-  mvn clean install
+
+mvn clean install

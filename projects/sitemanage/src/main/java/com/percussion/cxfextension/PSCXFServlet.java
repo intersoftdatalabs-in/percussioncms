@@ -16,27 +16,21 @@
  */
 package com.percussion.cxfextension;
 
-import javax.servlet.ServletConfig;
-
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.apache.cxf.transport.servlet.ServletController;
 
-public class PSCXFServlet extends CXFServlet
-{
+public class PSCXFServlet extends CXFServlet {
 
-   /**
-    * 
-    */
-   private static final long serialVersionUID = 1L;
-   /*
-   @Override
-   public ServletController createServletController(ServletConfig servletConfig)
-   {
-      // FIXME Auto-generated method stub
-      ServletController ctrl =  super.createServletController(servletConfig);
-      ctrl.setServiceListRelativePath("/perc-rest-services");
-      return ctrl;
-   }
-   */
-   
+  /** */
+  private static final long serialVersionUID = 1L;
+  /*
+  @Override
+  public ServletController createServletController(ServletConfig servletConfig)
+  {
+     // FIXME Auto-generated method stub
+     ServletController ctrl =  super.createServletController(servletConfig);
+     ctrl.setServiceListRelativePath("/perc-rest-services");
+     return ctrl;
+  }
+  */
+
 }

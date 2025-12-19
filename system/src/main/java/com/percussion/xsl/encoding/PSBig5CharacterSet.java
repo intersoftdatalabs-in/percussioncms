@@ -18,20 +18,16 @@ package com.percussion.xsl.encoding;
 
 import java.io.IOException;
 
-/**
- * Defines the Big5 character encoding for the Saxon XSLT processor.
- */
-public class PSBig5CharacterSet extends PSGenericCharacterSet
-{
-   /**
-    * Initializes a newly created <code>PSBig5CharacterSet</code> object by
-    * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-    * String) <code>super("Big5", "java-Big5.xml")</code>}
-    * 
-    * @throws IOException if there are problems reading the resource file.
-    */
-   public PSBig5CharacterSet() throws IOException
-   {
-      super("Big5", "java-Big5.xml");
-   }
+/** Defines the Big5 character encoding for the Saxon XSLT processor. */
+public class PSBig5CharacterSet extends PSGenericCharacterSet {
+  /**
+   * Initializes a newly created <code>PSBig5CharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("Big5",
+   * "java-Big5.xml")</code>}
+   *
+   * @throws IOException if there are problems reading the resource file.
+   */
+  public PSBig5CharacterSet() throws IOException {
+    super("Big5", "java-Big5.xml");
+  }
 }

@@ -20,35 +20,32 @@ package com.percussion.process;
 import java.util.Map;
 
 /**
- * Interface to be implemented by process parameter resolvers. The framework
- * uses classes implementing this interface in the following way:
+ * Interface to be implemented by process parameter resolvers. The framework uses classes
+ * implementing this interface in the following way:
+ *
  * <p>While parsing the xml:
+ *
  * <ol>
- *    <li>Instantiate the class defined as the resolver.</li>
- *    <li>Call {@link #setName(String) setName} with the name supplied in
- * the def.</li>
- *    <li>Call {@link #setValue(String) setValue} with the value supplied in
- * the def. If no value is present, "" is set.</li>
+ *   <li>Instantiate the class defined as the resolver.
+ *   <li>Call {@link #setName(String) setName} with the name supplied in the def.
+ *   <li>Call {@link #setValue(String) setValue} with the value supplied in the def. If no value is
+ *       present, "" is set.
  * </ol>
- * During process instantiation, the {@link #getName()} and {@link 
- * #getValue(Map) getValue} methods are called and their results are passed to
- * the process or process container.
+ *
+ * During process instantiation, the {@link #getName()} and {@link #getValue(Map) getValue} methods
+ * are called and their results are passed to the process or process container.
  */
-public interface IPSVariableResolver
-{
-   /**
-    * Returns the resolved value using the supplied context.
-    *
-    * @param value the string to resolve, may be <code>null</code> or empty
-    * @param ctx a {@link Map map} that contains data for executing the
-    * process, may not be <code>null</code>. Each entry has a <code>String
-    * </code> key and a <code>String</code> value. The supplied parameters
-    * are dependent upon the context in which the process is executed.
-    *
-    * @return the resolved string, may be empty, never <code>null</code>
-    *
-    * @throws PSResolveException if any error occurs resolving the specified
-    * string
-    */
-   public String getValue(String value, Map ctx) throws PSResolveException;
+public interface IPSVariableResolver {
+  /**
+   * Returns the resolved value using the supplied context.
+   *
+   * @param value the string to resolve, may be <code>null</code> or empty
+   * @param ctx a {@link Map map} that contains data for executing the process, may not be <code>
+   *     null</code>. Each entry has a <code>String
+   * </code> key and a <code>String</code> value. The supplied parameters are dependent upon the
+   *     context in which the process is executed.
+   * @return the resolved string, may be empty, never <code>null</code>
+   * @throws PSResolveException if any error occurs resolving the specified string
+   */
+  public String getValue(String value, Map ctx) throws PSResolveException;
 }

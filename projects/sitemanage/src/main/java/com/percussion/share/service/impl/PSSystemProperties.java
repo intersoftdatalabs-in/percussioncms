@@ -18,26 +18,18 @@ package com.percussion.share.service.impl;
 
 import com.percussion.server.PSServer;
 import com.percussion.share.service.IPSSystemProperties;
-
 import com.percussion.util.PSSiteManageBean;
+import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang.Validate;
 
-import javax.ws.rs.ext.Provider;
-
-/**
- * @author JaySeletz
- *
- */
+/** @author JaySeletz */
 @Provider
 @PSSiteManageBean("psSystemProperties")
-public class PSSystemProperties implements IPSSystemProperties
-{
+public class PSSystemProperties implements IPSSystemProperties {
 
-    @Override
-    public String getProperty(String name)
-    {
-        Validate.notEmpty(name);
-        return PSServer.getServerProps().getProperty(name);
-    }
-
+  @Override
+  public String getProperty(String name) {
+    Validate.notEmpty(name);
+    return PSServer.getServerProps().getProperty(name);
+  }
 }

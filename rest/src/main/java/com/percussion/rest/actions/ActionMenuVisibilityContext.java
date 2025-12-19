@@ -18,50 +18,48 @@
 package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ActionMenuVisibilityContext")
 @Schema(description = "Represents a Visibility Context for an Action Menu")
 public class ActionMenuVisibilityContext {
 
-    private String name;
-    private String description;
-    private String values;
-    private UIContext uiContext;
+  private String name;
+  private String description;
+  private String values;
+  private UIContext uiContext;
 
+  public ActionMenuVisibilityContext() {}
 
-    public ActionMenuVisibilityContext(){}
+  public UIContext getUiContext() {
+    return uiContext;
+  }
 
-    public UIContext getUiContext() {
-        return uiContext;
-    }
+  public void setUiContext(UIContext uiContext) {
+    this.uiContext = uiContext;
+  }
 
-    public void setUiContext(UIContext uiContext) {
-        this.uiContext = uiContext;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public String getValue() {
+    return values;
+  }
 
-    public String getValue() {
-        return values;
-    }
-
-    public void setValue(String values) {
-        this.values = values;
-    }
+  public void setValue(String values) {
+    this.values = values;
+  }
 }

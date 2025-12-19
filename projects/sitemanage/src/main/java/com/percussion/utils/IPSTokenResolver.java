@@ -16,11 +16,7 @@
  */
 package com.percussion.utils;
 
-/**
- * @author JaySeletz
- *
- */
-public interface IPSTokenResolver
-{
-    public String resolveToken(String tokenName);
+/** @author JaySeletz */
+public interface IPSTokenResolver {
+  public String resolveToken(String tokenName);
 }

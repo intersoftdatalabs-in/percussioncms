@@ -17,48 +17,40 @@
 
 package com.percussion.sitemanage.importer.utils;
 
-public class PSFileDownloadJob
-{
-    String file;
+public class PSFileDownloadJob {
+  String file;
 
-    String url;
+  String url;
 
-    Boolean createAsset;
+  Boolean createAsset;
 
-    protected PSFileDownloadJob(String file, String url, Boolean createAsset)
-    {
-        this.file = file;
-        this.url = url;
-        this.createAsset = createAsset;
-    }
+  protected PSFileDownloadJob(String file, String url, Boolean createAsset) {
+    this.file = file;
+    this.url = url;
+    this.createAsset = createAsset;
+  }
 
-    public String getFile()
-    {
-        return file;
-    }
+  public String getFile() {
+    return file;
+  }
 
-    public void setFile(String file)
-    {
-        this.file = file;
-    }
+  public void setFile(String file) {
+    this.file = file;
+  }
 
-    public String getUrl()
-    {
-        return url;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public void setUrl(String url)
-    {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public Boolean getCreateAsset()
-    {
-        return createAsset;
-    }
+  public Boolean getCreateAsset() {
+    return createAsset;
+  }
 
-    public void setCreateAsset(Boolean createAsset)
-    {
-        this.createAsset = createAsset;
-    }
+  public void setCreateAsset(Boolean createAsset) {
+    this.createAsset = createAsset;
+  }
 }

@@ -18,25 +18,21 @@
 package com.percussion.conn;
 
 /**
- * PSInvalidPortException is thrown to indicate that an object is locked.
- * This usually occurs when a request is made to lock an object which is
- * already locked by someone else.
+ * PSInvalidPortException is thrown to indicate that an object is locked. This usually occurs when a
+ * request is made to lock an object which is already locked by someone else.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSInvalidPortException extends IllegalArgumentException {
 
-   /**
-    * Construct an invalid port exception when a string based port cannot
-    * be converted to a number.
-    *
-    * @param port          the string representation of the port
-    */
-   public PSInvalidPortException(String port)
-   {
-      super("port number invalid" + port);
-   }
+  /**
+   * Construct an invalid port exception when a string based port cannot be converted to a number.
+   *
+   * @param port the string representation of the port
+   */
+  public PSInvalidPortException(String port) {
+    super("port number invalid" + port);
+  }
 }
-
