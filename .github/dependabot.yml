@@ -24,7 +24,10 @@ updates:
           - ">=3.0.0"
       - dependency-name: "org.junit.jupiter:*"
         versions:
-          - ">=6.0.0"  
+          - ">=6.0.0"
+      - dependency-name: "org.apache.activemq:*"
+        versions:
+          - ">=5.17.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
