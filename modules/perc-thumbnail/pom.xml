@@ -10,7 +10,7 @@
     <artifactId>perc-thumbnail</artifactId>
     <version>8.1.6-SNAPSHOT</version>
     <properties>
-        <version.arquillian>1.1.11.Final</version.arquillian>
+        <version.arquillian>1.10.0.Final</version.arquillian>
         <version.shrinkwrap>1.0.0-cr-3</version.shrinkwrap>
     </properties>
     <dependencies>
