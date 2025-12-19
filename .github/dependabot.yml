@@ -13,6 +13,9 @@ updates:
       - dependency-name: "org.basepom.maven:duplicate-finder-maven-plugin"
         versions:
           - ">=2.0.0"
+      - dependency-name: "org.quartz-scheduler:quartz"
+        versions:
+          - ">=2.5.0"          
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
