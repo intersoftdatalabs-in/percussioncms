@@ -133,7 +133,7 @@
         <json.version>20240303</json.version>
         <jsoup.version>1.15.4</jsoup.version>
         <jtds.version>1.3.1</jtds.version>
-        <junit.jupiter.version>5.13.4</junit.jupiter.version>
+        <junit.jupiter.version>6.0.1</junit.jupiter.version>
         <junit.version>4.13.2</junit.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <log4j2.version>2.25.3</log4j2.version>
