@@ -29,7 +29,7 @@
         <build.profile.id>dev</build.profile.id>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
-        <disruptor.version>3.4.2</disruptor.version>
+        <disruptor.version>4.0.0</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.10.8</ehcache-core.version>
         <!-- Overrides Parent-->
