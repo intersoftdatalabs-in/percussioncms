@@ -67,7 +67,7 @@ public class PSFeedGeneratorTest extends TestCase {
 
     String feed = generator.makeFeedContent(desc, "www.google.com", items);
 
-    log.info(f"feed: {}",feed);
+    log.info("feed: {}", feed);
   }
 
   class TestDescriptor implements IPSFeedDescriptor {
