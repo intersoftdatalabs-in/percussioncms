@@ -21,7 +21,16 @@ updates:
           - ">=6.0.0"
       - dependency-name: "org.apache.tika:*"
         versions:
-          - ">=3.0.0"          
+          - ">=3.0.0"
+      - dependency-name: "org.junit.jupiter:*"
+        versions:
+          - ">=6.0.0"
+      - dependency-name: "org.apache.activemq:*"
+        versions:
+          - ">=5.17.0"
+      - dependency-name: "org.jboss.logging:jboss-logging"
+        versions:
+          - ">=3.5.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:

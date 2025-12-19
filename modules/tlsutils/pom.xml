@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.14.1</version>
                 <configuration>
                     <source>${java.source.version}</source>
                     <target>${java.version}</target>
@@ -65,7 +65,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.5.4</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED

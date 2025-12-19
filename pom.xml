@@ -106,7 +106,7 @@
         <ehcache.version>2.10.6</ehcache.version>
         <esapi.encoder.version>1.3.1</esapi.encoder.version>
         <esapi.version>2.7.0.0</esapi.version>
-        <fop.version>2.2</fop.version>
+        <fop.version>2.11</fop.version>
         <glassfish.jakarta.el.version>3.0.4</glassfish.jakarta.el.version>
         <google.java.format.version>1.28.0</google.java.format.version>
         <gson.version>2.8.9</gson.version>
@@ -114,7 +114,7 @@
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
         <hibernate.version>6.6.24.Final</hibernate.version>
-        <hikaricp.version>7.0.1</hikaricp.version>
+        <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
@@ -133,7 +133,7 @@
         <jakarta.transaction.api.version>2.0.1</jakarta.transaction.api.version>
         <jakarta.validation.api.version>3.1.1</jakarta.validation.api.version>
         <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
-        <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
+        <jakarta.xml.bind.version>4.0.4</jakarta.xml.bind.version>
         <jasypt.version>1.9.3</jasypt.version>
         <java.source.version>17</java.source.version>
         <java.version>17</java.version>
@@ -154,7 +154,7 @@
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>4.17.0</liquibase.maven.plugin.version>
         <liquibase.version>4.17.0</liquibase.version>
-        <log4j2.version>2.25.1</log4j2.version>
+        <log4j2.version>2.25.3</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
         <maven.antrun.plugin.version>3.1.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
@@ -163,7 +163,7 @@
         <maven.bundle.plugin.version>4.2.1</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
-        <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.dependency.plugin.version>3.8.1</maven.dependency.plugin.version>
@@ -181,10 +181,10 @@
         <maven.release.plugin.version>3.1.1</maven.release.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.scm.plugin.version>2.1.0</maven.scm.plugin.version>
-        <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
+        <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
         <maven.site.plugin.version>3.8.2</maven.site.plugin.version>
-        <maven.source.jar.plugin.version>3.2.0</maven.source.jar.plugin.version>
-        <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
+        <maven.source.jar.plugin.version>3.4.0</maven.source.jar.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <maven.toolchains.plugin.version>3.2.0</maven.toolchains.plugin.version>
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.4.0</maven.war.plugin.version>
@@ -195,7 +195,7 @@
         <opencsv.version>5.11.2</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
-        <owl.version>5.1.10</owl.version>
+        <owl.version>5.5.1</owl.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.4.0</poi.version>
@@ -205,7 +205,7 @@
         <rome.version>1.15.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>4.0.1</servlet.spec>
-        <shindig.version>1.1-BETA5-incubating</shindig.version>
+        <shindig.version>3.0.0-beta4</shindig.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
@@ -217,11 +217,11 @@
         <spotless.plugin.version>2.46.1</spotless.plugin.version>
         <!-- 5.17.x and up require Java 11 -->
         <spring.version>7.0.2</spring.version>
-        <sqlite.version>3.41.2.2</sqlite.version>
+        <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
-        <swagger.ui.version>4.1.3</swagger.ui.version>
+        <swagger.ui.version>5.31.0</swagger.ui.version>
         <swagger.version>2.1.10</swagger.version>
-        <tika.version>3.2.2</tika.version>
+        <tika.version>3.2.3</tika.version>
         <tinymce.version>5.10.9</tinymce.version>
         <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
@@ -614,7 +614,7 @@
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>6.2.0.Final</version>
+                <version>9.1.0.Final</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.el</groupId>
@@ -703,7 +703,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.5.4</version>
+                <version>1.9.25.1</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -957,7 +957,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.9.0</version>
+                <version>3.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
