@@ -1265,7 +1265,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-imaging</artifactId>
-                <version>1.0-alpha2</version>
+                <version>1.0.0-alpha6</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/soap/soap -->
             <dependency>
