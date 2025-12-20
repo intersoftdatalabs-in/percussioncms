@@ -55,7 +55,7 @@
         <sqlserver.version>12.4.1.jre8</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>10.1.47</tomcat.version>
+        <tomcat.version>11.0.15</tomcat.version>
         <xml.apis.version>1.4.01</xml.apis.version>
     </properties>
     <dependencyManagement>
