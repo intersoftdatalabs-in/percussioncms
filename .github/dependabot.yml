@@ -34,6 +34,9 @@ updates:
       - dependency-name: "org.apache.derby:*"
         versions:
           - ">=10.15.0.0"
+      - dependency-name: "org.aspectj:*"
+        versions:
+          - ">=1.9.8"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
