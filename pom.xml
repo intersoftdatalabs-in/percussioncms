@@ -204,7 +204,7 @@
         <quartz.version>2.3.2</quartz.version>
         <rome.version>1.15.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
-        <servlet.spec>4.0.1</servlet.spec>
+        <servlet.spec>6.1.0</servlet.spec>
         <shindig.version>3.0.0-beta4</shindig.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
