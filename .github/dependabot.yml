@@ -28,6 +28,12 @@ updates:
       - dependency-name: "org.apache.activemq:*"
         versions:
           - ">=5.17.0"
+      - dependency-name: "org.jboss.logging:jboss-logging"
+        versions:
+          - ">=3.5.0"
+      - dependency-name: "org.apache.derby:*"
+        versions:
+          - ">=10.15.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
