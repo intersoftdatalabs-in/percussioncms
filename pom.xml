@@ -99,7 +99,7 @@
         <commons.rng.version>1.3</commons.rng.version>
         <commons.text.version>1.15.0</commons.text.version>
         <commons.validator.version>1.7</commons.validator.version>
-        <cxf.version>3.5.11</cxf.version>
+        <cxf.version>4.1.4</cxf.version>
         <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
@@ -110,7 +110,7 @@
         <glassfish.jakarta.el.version>3.0.4</glassfish.jakarta.el.version>
         <google.java.format.version>1.28.0</google.java.format.version>
         <gson.version>2.8.9</gson.version>
-        <guava.version>32.0.1-jre</guava.version>
+        <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
         <hibernate.version>6.6.24.Final</hibernate.version>
@@ -180,9 +180,9 @@
         <maven.pmd.plugin.version>3.27.0</maven.pmd.plugin.version>
         <maven.release.plugin.version>3.1.1</maven.release.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
-        <maven.scm.plugin.version>2.1.0</maven.scm.plugin.version>
+        <maven.scm.plugin.version>2.2.1</maven.scm.plugin.version>
         <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
-        <maven.site.plugin.version>3.8.2</maven.site.plugin.version>
+        <maven.site.plugin.version>3.21.0</maven.site.plugin.version>
         <maven.source.jar.plugin.version>3.4.0</maven.source.jar.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <maven.toolchains.plugin.version>3.2.0</maven.toolchains.plugin.version>
@@ -192,7 +192,7 @@
         <mssql.version>12.4.1.jre8</mssql.version>
         <myfaces.version>1.1.8</myfaces.version>
         <nettyall.version>4.1.45.Final</nettyall.version>
-        <opencsv.version>5.11.2</opencsv.version>
+        <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
         <owl.version>5.5.1</owl.version>
@@ -204,7 +204,7 @@
         <quartz.version>2.3.2</quartz.version>
         <rome.version>1.15.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
-        <servlet.spec>4.0.1</servlet.spec>
+        <servlet.spec>6.1.0</servlet.spec>
         <shindig.version>3.0.0-beta4</shindig.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
@@ -226,7 +226,7 @@
         <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
-        <velocity.version>2.3</velocity.version>
+        <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
         <versions.maven.plugin.version>2.18.0</versions.maven.plugin.version>
         <xerces.version>2.12.2</xerces.version>
@@ -708,7 +708,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.5.4</version>
+                <version>1.9.25.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -897,7 +897,7 @@
             <dependency>
                 <groupId>com.github.jsonld-java</groupId>
                 <artifactId>jsonld-java</artifactId>
-                <version>0.12.5</version>
+                <version>0.13.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.any23</groupId>
