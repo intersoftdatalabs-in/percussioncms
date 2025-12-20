@@ -1,29 +1,27 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.widgets.image.web.impl;
 
 import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.bytesource.ByteSource;
-import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
+import org.apache.commons.imaging.bytesource.ByteSource;
 import org.apache.commons.imaging.formats.jpeg.JpegImageParser;
-import org.apache.commons.imaging.formats.jpeg.segments.Segment;
+import org.apache.commons.imaging.formats.jpeg.segments.AbstractSegment;
 import org.apache.commons.imaging.formats.jpeg.segments.UnknownSegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,27 +43,23 @@ import java.util.List;
  *
  */
 @Deprecated
-public final class ImageReader
-{
+public final class ImageReader {
    private static final Logger LOG = LogManager.getLogger(ImageReader.class);
 
-   public static final class ImageReaderException extends Exception
-   {
+   public static final class ImageReaderException extends Exception {
       /**
        * Empty Constructor
        */
-      protected ImageReaderException()
-      {
+      protected ImageReaderException() {
          super();
       }
    }
-   
+
    /**
     * Apply private construction: This is a static utility class
     */
-   private ImageReader()
-   {
-      
+   private ImageReader() {
+
    }
 
    /**
@@ -75,15 +69,10 @@ public final class ImageReader
     * @return Sanselan ImageInfo for byte array
     * @throws ImageReaderException
     */
-   public static ImageInfo getImageInfo(final byte[] imageByteArray)
-         throws ImageReaderException
-   {
-      try
-      {
+   public static ImageInfo getImageInfo(final byte[] imageByteArray) throws ImageReaderException {
+      try {
          return Imaging.getImageInfo(imageByteArray);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          logException(e);
          throw getException();
       }
@@ -96,50 +85,41 @@ public final class ImageReader
     * @return A BufferedImage, parsed from the stream.
     * @throws Exception
     */
-   public static BufferedImage read(final byte[] imageByteArray) throws ImageReaderException
-   {
+   public static BufferedImage read(final byte[] imageByteArray) throws ImageReaderException {
       BufferedImage image = null;
-      try
-      {
+      try {
          image = ImageIO.read(new ByteArrayInputStream(imageByteArray));
 
-         if (image == null)
-         {
+         if (image == null) {
             image = Imaging.getBufferedImage(imageByteArray);
          }
 
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          logException(e);
          throw getException();
       }
 
       return image;
    }
-   
+
 
    /**
     * Checks a Jpeg byte array for the Adobe marker
     * 
     * @param imageBytes A byte array containing a Jpeg
     * @throws IOException
-    * @throws ImageReadException
+    * @throws ImagingException
     */
-   public static boolean hasAdobeMarker(byte[] imageBytes) throws IOException,
-         ImageReadException
-   {
+   public static boolean hasAdobeMarker(byte[] imageBytes) throws IOException, ImagingException {
       boolean hasAdobeMarker = false;
       @SuppressWarnings("rawtypes")
-      List<Segment> segments;
+      List<AbstractSegment> segments;
       segments = getSegments(imageBytes);
-      if (segments != null && segments.size() >= 1)
-      {
+      if (segments != null && segments.size() >= 1) {
          UnknownSegment app14Segment = (UnknownSegment) segments.get(0);
          byte[] data = app14Segment.getSegmentData();
-         if (data.length >= 12 && data[0] == 'A' && data[1] == 'd'
-               && data[2] == 'o' && data[3] == 'b' && data[4] == 'e')
-         {
+         if (data.length >= 12 && data[0] == 'A' && data[1] == 'd' && data[2] == 'o'
+               && data[3] == 'b' && data[4] == 'e') {
             hasAdobeMarker = true;
          }
       }
@@ -151,20 +131,16 @@ public final class ImageReader
     * 
     * @param imageBytes A byte array containing a Jpeg
     * @throws IOException
-    * @throws ImageReadException
+    * @throws ImagingException
     */
-   public static boolean isYcck(byte[] imageBytes) throws IOException,
-         ImageReadException
-   {
+   public static boolean isYcck(byte[] imageBytes) throws IOException, ImagingException {
       boolean isYcck = false;
-      List<Segment> segments = getSegments(imageBytes);
-      if (segments != null && segments.size() >= 1)
-      {
+      List<AbstractSegment> segments = getSegments(imageBytes);
+      if (segments != null && segments.size() >= 1) {
          UnknownSegment app14Segment = (UnknownSegment) segments.get(0);
          byte[] data = app14Segment.getSegmentData();
-         if (data.length >= 12 && data[0] == 'A' && data[1] == 'd'
-               && data[2] == 'o' && data[3] == 'b' && data[4] == 'e')
-         {
+         if (data.length >= 12 && data[0] == 'A' && data[1] == 'd' && data[2] == 'o'
+               && data[3] == 'b' && data[4] == 'e') {
             int transform = app14Segment.getSegmentData()[11] & 0xff;
             if (transform == 2)
                isYcck = true;
@@ -178,18 +154,15 @@ public final class ImageReader
     * 
     * @param imageBytes A byte array containing a Jpeg
     * @return a list of segments
-    * @throws ImageReadException
+    * @throws ImagingException
     * @throws IOException
     */
-   private static List<Segment> getSegments(byte[] imageBytes)
-         throws ImageReadException, IOException
-   {
+   private static List<AbstractSegment> getSegments(byte[] imageBytes)
+         throws ImagingException, IOException {
       JpegImageParser parser = new JpegImageParser();
-      ByteSource byteSource = new ByteSourceInputStream(
-            new ByteArrayInputStream(imageBytes), "");
+      ByteSource byteSource = ByteSource.array(imageBytes, "");
 
-      return parser.readSegments(byteSource, new int[]
-      {0xffee}, true);
+      return parser.readSegments(byteSource, new int[] {0xffee}, true);
    }
 
    /**
@@ -197,14 +170,12 @@ public final class ImageReader
     * 
     * @param raster A writable raster
     */
-   public static void convertInvertedColors(WritableRaster raster)
-   {
+   public static void convertInvertedColors(WritableRaster raster) {
       int height = raster.getHeight();
       int width = raster.getWidth();
       int stride = width * 4;
       int[] pixelRow = new int[stride];
-      for (int h = 0; h < height; h++)
-      {
+      for (int h = 0; h < height; h++) {
          raster.getPixels(0, h, width, 1, pixelRow);
          for (int x = 0; x < stride; x++)
             pixelRow[x] = 255 - pixelRow[x];
@@ -217,18 +188,15 @@ public final class ImageReader
     * 
     * @param raster A writable raster
     */
-   public static void handleYcckToCmyk(WritableRaster raster)
-   {
+   public static void handleYcckToCmyk(WritableRaster raster) {
       int height = raster.getHeight();
       int width = raster.getWidth();
       int stride = width * 4;
       int[] pixelRow = new int[stride];
-      for (int h = 0; h < height; h++)
-      {
+      for (int h = 0; h < height; h++) {
          raster.getPixels(0, h, width, 1, pixelRow);
 
-         for (int x = 0; x < stride; x += 4)
-         {
+         for (int x = 0; x < stride; x += 4) {
             int y = pixelRow[x];
             int cb = pixelRow[x + 1];
             int cr = pixelRow[x + 2];
@@ -268,35 +236,27 @@ public final class ImageReader
     * @throws IOException
     * @throws ImageReaderException
     */
-   public static BufferedImage convertCmykToRgb(Raster cmykRaster,
-         ICC_Profile cmykProfile) throws ImageReaderException
-   {
-      try
-      {
-         if (cmykProfile == null)
-         {
+   public static BufferedImage convertCmykToRgb(Raster cmykRaster, ICC_Profile cmykProfile)
+         throws ImageReaderException {
+      try {
+         if (cmykProfile == null) {
 
             LOG.info("Attempting to convert a CMYK image without an embedded profile");
             ImageReader nonStaticReader = new ImageReader();
             cmykProfile = ICC_Profile
-                  .getInstance(nonStaticReader
-                        .getClass()
-                        .getClassLoader()
-                        .getResourceAsStream(
-                              "com/percussion/widgets/image/services/impl/ISOcoated_v2_300_eci.icc"));
+                  .getInstance(nonStaticReader.getClass().getClassLoader().getResourceAsStream(
+                        "com/percussion/widgets/image/services/impl/ISOcoated_v2_300_eci.icc"));
          }
          ICC_ColorSpace cmykCS = new ICC_ColorSpace(cmykProfile);
-         BufferedImage rgbImage = new BufferedImage(cmykRaster.getWidth(),
-               cmykRaster.getHeight(), BufferedImage.TYPE_INT_RGB);
+         BufferedImage rgbImage = new BufferedImage(cmykRaster.getWidth(), cmykRaster.getHeight(),
+               BufferedImage.TYPE_INT_RGB);
 
          WritableRaster rgbRaster = rgbImage.getRaster();
          ColorSpace rgbCS = rgbImage.getColorModel().getColorSpace();
          ColorConvertOp cmykToRgb = new ColorConvertOp(cmykCS, rgbCS, null);
          cmykToRgb.filter(cmykRaster, rgbRaster);
          return rgbImage;
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          logException(e);
          throw getException();
       }
@@ -307,25 +267,20 @@ public final class ImageReader
     * 
     * @return A new ImageReaderException
     */
-   private static ImageReaderException getException()
-   {
+   private static ImageReaderException getException() {
       return new ImageReaderException();
    }
 
    /**
-    * Logs exceptions for this class. Sources known exception types, always logs
-    * a general Log.error(exception)
+    * Logs exceptions for this class. Sources known exception types, always logs a general
+    * Log.error(exception)
     * 
     * @param exception the exception to log
     */
-   private static void logException(final Exception exception)
-   {
-      if (exception instanceof ImageReaderException)
-      {
+   private static void logException(final Exception exception) {
+      if (exception instanceof ImageReaderException) {
          LOG.error("Unable to read image format: ImageReadException");
-      }
-      else if (exception instanceof IOException)
-      {
+      } else if (exception instanceof IOException) {
          LOG.error("Uable to read image source: IOException");
       }
       LOG.error(exception);
