@@ -43,7 +43,7 @@
         <liquibase-core.version>4.33.0</liquibase-core.version>
         <macker.version>1.0.2</macker.version>
         <mariadb.version>3.5.7</mariadb.version>
-        <micrometer-observation.version>1.14.10</micrometer-observation.version>
+        <micrometer-observation.version>1.16.1</micrometer-observation.version>
         <morphia.version>0.104</morphia.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
