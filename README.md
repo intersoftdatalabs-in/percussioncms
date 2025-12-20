@@ -1,5 +1,7 @@
 # Percussion CMS
 
+> **Note:** This branch (`development-8.1.x`) is the maintenance branch for Java 8 (JDK 1.8). All code must remain compatible with Java 8.
+
 This is the main project for Percussion CMS - the next version of Percussion CM1 and Rhythmyx.
 
 [![Maven Build](https://github.com/intersoftdatalabs-in/percussioncms/actions/workflows/dependency-submission.yml/badge.svg?branch=development-8.1.x)](https://github.com/intersoftdatalabs-in/percussioncms/actions/workflows/dependency-submission.yml)
