@@ -984,7 +984,7 @@
             <artifactId>jardiff</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/jardiff/jardiff/1.0.0/jardiff-1.0.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/jardiff/jardiff/1.0.0/jardiff-1.0.0.jar</systemPath>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -992,7 +992,7 @@
             <artifactId>jnlp-servlet</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/jnlp-servlet/jnlp-servlet/1.0.0/jnlp-servlet-1.0.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/jnlp-servlet/jnlp-servlet/1.0.0/jnlp-servlet-1.0.0.jar</systemPath>
             <optional>true</optional>
         </dependency>
         <dependency>
