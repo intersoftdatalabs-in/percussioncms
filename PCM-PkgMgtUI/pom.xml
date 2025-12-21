@@ -9,6 +9,18 @@
     </parent>
     <artifactId>perc-package-manager</artifactId>
     <packaging>jar</packaging>
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>smartclient</id>
+            <url>https://www.smartclient.com/maven2</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>
