@@ -442,7 +442,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>1.5.1</version>
                     <configuration>
                         <printEqualFiles>false</printEqualFiles>
                         <failBuildInCaseOfDifferentContentConflict>false</failBuildInCaseOfDifferentContentConflict>
