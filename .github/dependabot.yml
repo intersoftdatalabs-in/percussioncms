@@ -73,6 +73,9 @@ updates:
       - dependency-name: "com.github.spotbugs:*"
         versions:
           - ">=5.0.0"
+      - dependency-name: "org.mozilla:rhino"
+        versions:
+          - ">=1.8.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
