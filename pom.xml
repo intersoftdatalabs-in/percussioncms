@@ -112,7 +112,7 @@
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
         <hikari.version>4.0.3</hikari.version>
-        <httpcomponents.version>4.5.13</httpcomponents.version>
+        <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
         <jackson.annotations.version>2.20</jackson.annotations.version>
         <jackson.version>2.20.1</jackson.version>
