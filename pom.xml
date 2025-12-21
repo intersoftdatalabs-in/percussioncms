@@ -169,7 +169,7 @@
         <maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
         <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
         <maven.version>[3.6.0,)</maven.version>
-        <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
+        <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mssql.version>13.3.0.jre8-preview</mssql.version>
         <myfaces.version>1.1.8</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
