@@ -144,7 +144,7 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.bundle.plugin.version>4.2.1</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
-        <maven.clean.plugin.version>3.2.0</maven.clean.plugin.version>
+        <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.9.0</maven.compiler.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
