@@ -49,6 +49,9 @@ updates:
       - dependency-name: "com.diffplug.spotless:spotless-maven-plugin"
         versions:
           - ">=2.31.0"
+      - dependency-name: "org.liquibase:liquibase-maven-plugin"
+        versions:
+          - ">=5.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
