@@ -1706,7 +1706,7 @@
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>2.1.5</version>
+                <version>4.0.0</version>
             </dependency>
             <!-- Extra dependencies for Ant build remove when converted -->
             <!-- https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor -->
