@@ -942,7 +942,7 @@
         <dependency>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler</artifactId>
-            <version>r1043</version>
+            <version>rr2079.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
