@@ -2698,36 +2698,6 @@
                         <version>${maven.surefire.plugin.version}</version>
                     </dependency>
                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the VM argument line used when integration tests are run. -->
-                            <!--suppress UnresolvedMavenProperty -->
-                            <argLine>${failsafeArgLine}</argLine>
-                            <systemPropertyVariables>
-                                <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                                <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                            </systemPropertyVariables>
-                            <systemProperties>
-                                <property>
-                                    <name>javax.xml.parsers.SAXParserFactory</name>
-                                    <value>com.percussion.xml.PSSaxParserFactoryImpl</value>
-                                </property>
-                            </systemProperties>
-                            <skipTests>${skip.unit.tests}</skipTests>
-                            <testFailureIgnore>false</testFailureIgnore>
-                            <groups>com.percussion.utils.testing.UnitTest</groups>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <!-- Used for integration tests -->
             <plugin>
