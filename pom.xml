@@ -1205,7 +1205,7 @@
                     maven package 2.3 last in this maven group -->
                 <groupId>net.htmlparser</groupId>
                 <artifactId>jericho-html</artifactId>
-                <version>1.5-dev1</version>
+                <version>2.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
