@@ -2504,7 +2504,7 @@
                         <dependency>
                             <groupId>com.mebigfatguy.fb-contrib</groupId>
                             <artifactId>fb-contrib</artifactId>
-                            <version>7.4.7</version>
+                            <version>7.7.2</version>
                         </dependency>
                     </dependencies>
                     <executions>
