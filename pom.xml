@@ -83,7 +83,7 @@
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
         <commons-cli.version>1.11.0</commons-cli.version>
-        <commons-email.version>1.5</commons-email.version>
+        <commons-email.version>1.6.0</commons-email.version>
         <commons-logging.version>1.3.5</commons-logging.version>
         <commons.beanutils.version>1.11.0</commons.beanutils.version>
         <commons.codec.version>1.19.0</commons.codec.version>
