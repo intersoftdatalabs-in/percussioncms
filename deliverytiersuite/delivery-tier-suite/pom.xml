@@ -49,7 +49,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <servlet.api.version>6.0.0</servlet.api.version>
         <servlet.spec>6.0.0</servlet.spec>
-        <spring.security.version>6.5.4</spring.security.version>
+        <spring.security.version>7.0.2</spring.security.version>
         <!-- Overrides Parent-->
         <spring.version>7.0.2</spring.version>
         <sqlserver.version>12.4.1.jre8</sqlserver.version>
