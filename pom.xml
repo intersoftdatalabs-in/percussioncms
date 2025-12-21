@@ -154,7 +154,7 @@
         <maven.execmaven.plugin.version>1.6.0</maven.execmaven.plugin.version>
         <maven.failsafe.plugin.version>2.22.2</maven.failsafe.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
-        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
+        <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
         <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
         <maven.jarsigner.plugin.version>3.1.0</maven.jarsigner.plugin.version>
         <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
