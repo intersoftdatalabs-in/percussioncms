@@ -36,7 +36,10 @@ updates:
           - ">=10.15.0.0"
       - dependency-name: "org.aspectj:*"
         versions:
-          - ">=1.9.8"
+          - ">=1.9.8"org.apache.myfaces.core
+      - dependency-name: "org.apache.myfaces.core:*"
+        versions:
+          - ">=4.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
