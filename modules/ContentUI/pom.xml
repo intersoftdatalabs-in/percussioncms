@@ -16,7 +16,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <!-- Test framework versions -->
-        <mockito.version>4.11.0</mockito.version>
+        <mockito.version>5.21.0</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
