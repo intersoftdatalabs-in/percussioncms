@@ -55,6 +55,9 @@ updates:
       - dependency-name: "org.apache.tomcat:*"
         versions:
           - ">=10.0.0"
+      - dependency-name: "org.eclipse.jetty:*"
+        versions:
+          - ">=10.0.0"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
