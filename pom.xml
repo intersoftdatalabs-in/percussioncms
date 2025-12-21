@@ -82,7 +82,7 @@
         <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
-        <commons-cli.version>1.4</commons-cli.version>
+        <commons-cli.version>1.11.0</commons-cli.version>
         <commons-email.version>1.5</commons-email.version>
         <commons-logging.version>1.3.5</commons-logging.version>
         <commons.beanutils.version>1.11.0</commons.beanutils.version>
