@@ -2566,7 +2566,11 @@
                 <artifactId>maven-toolchains-plugin</artifactId>
                 <version>${maven.toolchains.plugin.version}</version>
                 <configuration>
-                    <toolchains/>
+                    <toolchains>
+                        <jdk>
+                            <version>1.8</version>
+                        </jdk>
+                    </toolchains>
                 </configuration>
                 <executions>
                     <execution>
