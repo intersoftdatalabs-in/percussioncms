@@ -144,7 +144,7 @@
         <jdeps.fail.build>false</jdeps.fail.build>
         <jdk.version>17</jdk.version>
         <jenkins.buildNumber>2024</jenkins.buildNumber>
-        <jetty.maven.plugin.version>11.0.25</jetty.maven.plugin.version>
+        <jetty.maven.plugin.version>11.0.26</jetty.maven.plugin.version>
         <jetty.version>12.0.25</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20240303</json.version>
