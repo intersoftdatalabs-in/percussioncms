@@ -91,7 +91,7 @@
         <dependency>
             <groupId>com.phloc</groupId>
             <artifactId>phloc-css</artifactId>
-            <version>3.7.7</version>
+            <version>3.8.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.phloc</groupId>
