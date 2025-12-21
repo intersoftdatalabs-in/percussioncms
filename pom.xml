@@ -202,7 +202,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>
-        <rome.version>1.15.0</rome.version>
+        <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>6.1.0</servlet.spec>
         <shindig.version>3.0.0-beta4</shindig.version>
