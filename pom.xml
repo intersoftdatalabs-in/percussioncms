@@ -103,7 +103,7 @@
         <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
-        <ehcache.version>2.10.6</ehcache.version>
+        <ehcache.version>2.10.9.2</ehcache.version>
         <esapi.encoder.version>1.4.0</esapi.encoder.version>
         <esapi.version>2.7.0.0</esapi.version>
         <fop.version>2.11</fop.version>
