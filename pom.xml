@@ -1452,7 +1452,7 @@
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
-                <version>1.6R7</version>
+                <version>1.8.1</version>
                 <scope>system</scope>
                 <systemPath>${maven.multiModuleProjectDirectory}/system/lib/org/mozilla/rhino/1.6R7/rhino-1.6R7.jar</systemPath>
                 <optional>true</optional>
