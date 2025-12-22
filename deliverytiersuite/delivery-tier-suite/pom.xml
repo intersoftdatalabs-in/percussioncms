@@ -345,7 +345,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>3.6.3</version>
                 </plugin>
                 <!-- Reporting Plugins Can't define dependencies so
                     are listed here -->
