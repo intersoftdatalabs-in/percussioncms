@@ -93,6 +93,9 @@ updates:
       - dependency-name: "com.github.spotbugs:spotbugs-annotations"
         versions:
           - ">=4.9"
+      - dependency-name: "org.mockito:*"
+        versions:
+          - ">=5"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
