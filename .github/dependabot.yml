@@ -79,7 +79,8 @@ updates:
           - ">=4"
       - dependency-name: "org.jmock:*"
         versions:
-          - ">=2.9" 
+          - ">=2.9"
+      - dependency-name: "com.percussion:*"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
@@ -89,4 +90,5 @@ updates:
     ignore:
     - dependency-name: "jakarta.inject:jakarta.inject-api"
       versions:
-        - ">=2"
+        - ">=2"  
+    - dependency-name: "com.percussion:*"
