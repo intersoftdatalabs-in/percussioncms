@@ -63,7 +63,7 @@ updates:
           - ">=5.*"
       - dependency-name: "org.apache.maven.plugins:maven-deploy-plugin"
         versions:
-          - ">=4.*"
+          - ">=4.0.0-a"
       - dependency-name: "org.springframework.data:spring-data-jpa"
         versions:
           - ">=2.8.*"
