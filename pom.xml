@@ -77,7 +77,7 @@
         <awssdk.version>1.12.796</awssdk.version>
         <axis.version>1.4.1</axis.version>
         <axiscore.version>1.4.2</axiscore.version>
-        <batik.version>1.14</batik.version>
+        <batik.version>1.19</batik.version>
         <bc.version>1.83</bc.version>
         <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
