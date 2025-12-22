@@ -101,7 +101,10 @@ updates:
           - ">=9"
       - dependency-name: "org.codehaus.plexus:plexus-utils"
         versions:
-          - ">=3.6"          
+          - ">=3.6"
+      - dependency-name: "org.hibernate.validator:hibernate-validator"
+        versions:
+          - ">=7" 
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
