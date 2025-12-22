@@ -594,7 +594,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.5.4</version>
+                <version>1.9.7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
