@@ -108,6 +108,9 @@ updates:
       - dependency-name: "org.owasp:csrfguard"
         versions:
           - "4.5.0-jakarta"
+      - dependency-name: "org.xerial:sqlite-jdbc"
+        versions:
+          - ">=3.44"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
