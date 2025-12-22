@@ -9,76 +9,76 @@ updates:
     ignore:
       - dependency-name: "org.apache.cxf:*"
         versions:
-          - ">=3.6.0"
+          - ">=3.6.*"
       - dependency-name: "org.basepom.maven:duplicate-finder-maven-plugin"
         versions:
-          - ">=2.0.0"
+          - ">=2.*"
       - dependency-name: "org.quartz-scheduler:quartz"
         versions:
-          - ">=2.5.0"
+          - ">=2.5.*"
       - dependency-name: "org.springframework:*"
         versions:
-          - ">=6.0.0"
+          - ">=6.*"
       - dependency-name: "org.apache.tika:*"
         versions:
-          - ">=3.0.0"
+          - ">=3.*"
       - dependency-name: "org.junit.jupiter:*"
         versions:
-          - ">=6.0.0"
+          - ">=6.*"
       - dependency-name: "org.apache.activemq:*"
         versions:
-          - ">=5.17.0"
+          - ">=5.17.*"
       - dependency-name: "org.jboss.logging:jboss-logging"
         versions:
-          - ">=3.5.0"
+          - ">=3.5.*"
       - dependency-name: "org.apache.derby:*"
         versions:
-          - ">=10.15.0.0"
+          - ">=10.15.*"
       - dependency-name: "org.aspectj:*"
         versions:
           - ">=1.9.8"
       - dependency-name: "org.apache.myfaces.core:*"
         versions:
-          - ">=4.0.0"
+          - ">=4.*"
       - dependency-name: "org.apache.felix:maven-bundle-plugin"
         versions:
-          - ">=6.0.0"
+          - ">=6.*"
       - dependency-name: "org.apache.jackrabbit:jackrabbit-jcr-commons"
         versions:
           - ">=2.22.0"
       - dependency-name: "com.diffplug.spotless:spotless-maven-plugin"
         versions:
-          - ">=2.31.0"
+          - ">=2.31.*"
       - dependency-name: "org.liquibase:*"
         versions:
-          - ">=5.0.0" 
+          - ">=5.*" 
       - dependency-name: "org.apache.tomcat:*"
         versions:
-          - ">=10.0.0"
+          - ">=10.*"
       - dependency-name: "org.eclipse.jetty:*"
         versions:
-          - ">=10.0.0"
+          - ">=10.*"
       - dependency-name: "com.zaxxer:HikariCP"
         versions:
-          - ">=5.0.0"
+          - ">=5.*"
       - dependency-name: "org.apache.maven.plugins:maven-deploy-plugin"
         versions:
-          - ">=4.x"
+          - ">=4.*"
       - dependency-name: "org.springframework.data:spring-data-jpa"
         versions:
-          - ">=2.8.0"
+          - ">=2.8.*"
       - dependency-name: "org.springframework.security:*"
         versions:
-          - ">=5.9.0"
+          - ">=5.9.*"
       - dependency-name: "com.github.spotbugs:*"
         versions:
-          - ">=5.0.0"
+          - ">=5.*"
       - dependency-name: "org.mozilla:rhino"
         versions:
-          - ">=1.8.0"
+          - ">=1.8.*"
       - dependency-name: "com.lmax:disruptor"
         versions:
-          - ">=4.0.0" 
+          - ">=4.*" 
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
