@@ -224,7 +224,7 @@
         <tika.version>3.2.3</tika.version>
         <tinymce.version>8.2.2</tinymce.version>
         <trinidad.version>2.2.1</trinidad.version>
-        <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
+        <twelvemonkeys.version>3.13.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
