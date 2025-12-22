@@ -1706,7 +1706,7 @@
             <dependency>
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.4</version>
             </dependency>
             <!-- Extra dependencies for Ant build remove when converted -->
             <!-- https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor -->
