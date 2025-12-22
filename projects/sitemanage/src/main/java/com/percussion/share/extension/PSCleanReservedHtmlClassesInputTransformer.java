@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.share.extension;
 
@@ -73,9 +72,9 @@ public class PSCleanReservedHtmlClassesInputTransformer extends PSDefaultExtensi
   }
 
   /**
-   * Tries to parse the supplied content as HTML.  If fails, content is returned as is, otherwise
-   * cleans reserved class names from all elements and returns the modified content.
-   * Adds place holder text for iframe elements if they are empty.
+   * Tries to parse the supplied content as HTML. If fails, content is returned as is, otherwise
+   * cleans reserved class names from all elements and returns the modified content. Adds place
+   * holder text for iframe elements if they are empty.
    *
    * @param value The value to clean, assumed not <code>null<code/> or empty.
    *
@@ -94,10 +93,12 @@ public class PSCleanReservedHtmlClassesInputTransformer extends PSDefaultExtensi
           didChange = true;
         }
       }
-      if (elem.tagName().equalsIgnoreCase("iframe")
-          && (elem.childNodes().isEmpty() || StringUtils.isBlank(elem.text()))) {
-        elem.text(EMPTY_IFRAME_TEXT);
-        didChange = true;
+      if (elem.tagName().equalsIgnoreCase("iframe")) {
+        // jsoup may normalize iframe contents away; rely on inner HTML to decide emptiness
+        if (StringUtils.isBlank(elem.html())) {
+          elem.text(EMPTY_IFRAME_TEXT);
+          didChange = true;
+        }
       }
     }
 

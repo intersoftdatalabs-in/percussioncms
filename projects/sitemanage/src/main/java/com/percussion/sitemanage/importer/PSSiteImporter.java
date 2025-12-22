@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.sitemanage.importer;
 
@@ -191,12 +190,11 @@ public class PSSiteImporter {
    * @param doc {@link Document} to add the element to, assumed not <code>null</code>.
    */
   private static void addBodyToDocument(Document doc) {
-    // this should add the body if it does not exist
-    doc.normalise();
-
-    // check just in case the document could not be normalised
+    // In Jsoup 1.21.2+, body() automatically creates the body element if it doesn't exist
+    // so we just need to ensure html element exists
     if (doc.body() == null) {
-      Element html = doc.getElementsByTag(HTML).get(0);
+      Elements htmlElements = doc.getElementsByTag(HTML);
+      Element html = htmlElements.isEmpty() ? doc.appendElement(HTML) : htmlElements.get(0);
       html.appendElement("body");
     }
   }
@@ -303,8 +301,8 @@ public class PSSiteImporter {
    * @param objectId The object id to use, not empty
    * @param logger the logger to use, not <code>null</code>.
    * @param logDao log dao, not <code>null</code>.
-   * @param siteId The id of the site being imported into, if <code>null</code> empty, no additional error logging
-   * is performed.
+   * @param siteId The id of the site being imported into, if <code>null</code> empty, no additional
+   *        error logging is performed.
    * @param desc The description of the object being imported, not <code>null<code/> or empty.
    */
   public static void saveImportLog(

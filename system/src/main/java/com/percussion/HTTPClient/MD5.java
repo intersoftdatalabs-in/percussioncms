@@ -1,23 +1,21 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.HTTPClient;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -32,8 +30,7 @@ import java.security.NoSuchAlgorithmException;
 @Deprecated
 class MD5 {
   private static final char[] hex = {
-    '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
   };
 
   /**
@@ -57,7 +54,6 @@ class MD5 {
    * @param input the data to be digested.
    * @return the md5-digested input
    */
-  @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
   public static final byte[] digest(byte[] input) {
     try {
       MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -74,7 +70,6 @@ class MD5 {
    * @param input2 the second part of the data to be digested.
    * @return the md5-digested input
    */
-  @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
   @Deprecated
   public static final byte[] digest(byte[] input1, byte[] input2) {
     try {

@@ -33,7 +33,6 @@ import com.percussion.security.SecureStringUtils;
 import com.percussion.security.ToDoVulnerability;
 import com.percussion.utils.io.PathUtils;
 import com.rometools.rome.io.FeedException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -93,8 +92,6 @@ import org.springframework.stereotype.Component;
  *
  * @author erikserating
  */
-@SuppressFBWarnings(
-    "URLCONNECTION_SSRF_FD") // It is validated - only http and https urls are allowed.
 @Path("/rss")
 @Component
 @Scope("singleton")

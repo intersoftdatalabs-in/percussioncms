@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.percussion.security.PSEncryptor;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,14 +34,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /** @author erikserating */
-@SuppressFBWarnings({
-  "HARD_CODE_PASSWORD",
-  "HARD_CODE_PASSWORD",
-  "PATH_TRAVERSAL_IN",
-  "PATH_TRAVERSAL_IN",
-  "PATH_TRAVERSAL_IN",
-  "PATH_TRAVERSAL_IN"
-})
 public class PSSecurePropertyTest {
 
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();

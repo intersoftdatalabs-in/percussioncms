@@ -25,6 +25,24 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    # NEW STEP: Create the toolchains.xml file
+    - name: Create Maven Toolchains
+      run: |
+        mkdir -p ~/.m2
+        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <toolchains>
+          <toolchain>
+            <type>jdk</type>
+            <provides>
+              <version>1.8</version>
+              <vendor>temurin</vendor>
+            </provides>
+            <configuration>
+              <jdkHome>${{ env.JAVA_HOME }}</jdkHome>
+            </configuration>
+          </toolchain>
+        </toolchains>" > ~/.m2/toolchains.xml
+
     - name: Build project to install dependencies
       run: mvn clean install -DskipTests=true -pl !modules/perc-distribution-tree
       continue-on-error: true
@@ -33,4 +51,5 @@ jobs:
       uses: advanced-security/maven-dependency-submission-action@v4
       with:
         ignore-maven-wrapper: true
+        # The action will now pick up the toolchain from ~/.m2/toolchains.xml automatically
         maven-args: '-B -DskipTests -fn -pl !modules/perc-distribution-tree'

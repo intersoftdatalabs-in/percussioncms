@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.webservices.content.impl;
 
@@ -136,7 +135,7 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.PSUiWsLocator;
 import com.percussion.workflow.PSWorkFlowUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -168,17 +167,14 @@ import static org.apache.commons.lang.Validate.notNull;
  */
 @Component("sys_contentWs")
 @Transactional
-public class PSContentWs extends PSContentBaseWs implements IPSContentWs
-{
+public class PSContentWs extends PSContentBaseWs implements IPSContentWs {
    // @see IPSContentWs#loadContentTypes(String)
-   public List<PSContentTypeSummary> loadContentTypes(String name)
-   {
+   public List<PSContentTypeSummary> loadContentTypes(String name) {
       return PSContentTypeHelper.loadContentTypeSummaries(name);
    }
 
    // @see IPSContentWs#loadKeywords(String)
-   public List<PSKeyword> loadKeywords(String name)
-   {
+   public List<PSKeyword> loadKeywords(String name) {
       IPSContentService service = PSContentServiceLocator.getContentService();
 
       if (StringUtils.isBlank(name))
@@ -189,8 +185,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    // @see IPSContentWs#loadLocales(String, String)
-   public List<PSLocale> loadLocales(String code, String name)
-   {
+   public List<PSLocale> loadLocales(String code, String name) {
       if (name != null)
          name = StringUtils.replaceChars(name, '*', '%');
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
@@ -204,12 +199,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param sums The list to convert, assumed not <code>null</code>.
     * @return The map, never <code>null</code>.
     */
-   private Map<Long, String> getNameMap(List<? extends IPSCatalogSummary> sums)
-   {
+   private Map<Long, String> getNameMap(List<? extends IPSCatalogSummary> sums) {
       Map<Long, String> map = new HashMap<>();
 
-      for (IPSCatalogSummary summary : sums)
-      {
+      for (IPSCatalogSummary summary : sums) {
          map.put(summary.getGUID().longValue(), summary.getName());
       }
 
@@ -217,27 +210,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    // @see IPSContentWs#loadTranslationSettings()
-   public List<PSAutoTranslation> loadTranslationSettings()
-   {
+   public List<PSAutoTranslation> loadTranslationSettings() {
       IPSContentService svc = PSContentServiceLocator.getContentService();
 
       List<PSAutoTranslation> ats = svc.loadAutoTranslations();
 
       // fill in names
-      IPSWorkflowService service = PSWorkflowServiceLocator
-         .getWorkflowService();
+      IPSWorkflowService service = PSWorkflowServiceLocator.getWorkflowService();
       Map<Long, String> wfMap = getNameMap(service.findWorkflowsByName(null));
       IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-      Map<Long, String> commMap = getNameMap(roleMgr
-         .findCommunitiesByName(null));
+      Map<Long, String> commMap = getNameMap(roleMgr.findCommunitiesByName(null));
 
-      IPSContentDesignWs contentDesignWs = PSContentWsLocator
-         .getContentDesignWebservice();
-      Map<Long, String> ctMap = getNameMap(contentDesignWs
-         .findContentTypes(null));
+      IPSContentDesignWs contentDesignWs = PSContentWsLocator.getContentDesignWebservice();
+      Map<Long, String> ctMap = getNameMap(contentDesignWs.findContentTypes(null));
 
-      for (PSAutoTranslation at : ats)
-      {
+      for (PSAutoTranslation at : ats) {
          String wfName = wfMap.get(at.getWorkflowId());
          if (!StringUtils.isBlank(wfName))
             at.setWorkflowName(wfName);
@@ -257,46 +244,36 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public void checkinItems(List<IPSGuid> ids, String comment,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorsException
-   {
+         @SuppressWarnings("unused") String user) throws PSErrorsException {
       checkinItems(ids, comment, false);
    }
 
    // @see IPSContentWs#checkinItems(List, String, String)
    @Transactional
-   public void checkinItems(List<IPSGuid> ids, String comment)
-      throws PSErrorsException
-   {
+   public void checkinItems(List<IPSGuid> ids, String comment) throws PSErrorsException {
       checkinItems(ids, comment, false);
    }
 
    @Transactional
-   public void checkinItems(List<IPSGuid> ids, String comment, boolean ignoreRevisionCheck)
-   {
+   public void checkinItems(List<IPSGuid> ids, String comment, boolean ignoreRevisionCheck) {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSErrorsException results = new PSErrorsException();
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          PSLegacyGuid guid = (PSLegacyGuid) id;
          int contentId = guid.getContentId();
-         try
-         {
-            PSComponentSummary summary = PSWebserviceUtils
-               .getItemSummary(contentId);
+         try {
+            PSComponentSummary summary = PSWebserviceUtils.getItemSummary(contentId);
 
             // ignore if not checked out
             if (StringUtils.isBlank(summary.getCheckoutUserName()))
                continue;
 
-            if(!ignoreRevisionCheck)
+            if (!ignoreRevisionCheck)
                PSWebserviceUtils.handleRevision(guid, summary);
             checkInItem(contentId, comment);
             results.addResult(guid);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(guid, e);
          }
       }
@@ -308,28 +285,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public void checkoutItems(List<IPSGuid> ids, String comment,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorsException
-   {
+         @SuppressWarnings("unused") String user) throws PSErrorsException {
       checkoutItems(ids, comment);
    }
 
    // @see IPSContentWs#checkoutItems(List, String, String, String)
    @Transactional
-   public void checkoutItems(List<IPSGuid> ids, String comment)
-      throws PSErrorsException
-   {
+   public void checkoutItems(List<IPSGuid> ids, String comment) throws PSErrorsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSErrorsException results = new PSErrorsException();
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          PSLegacyGuid guid = (PSLegacyGuid) id;
          int contentId = guid.getContentId();
-         try
-         {
-            PSComponentSummary summary = PSWebserviceUtils
-               .getItemSummary(contentId);
+         try {
+            PSComponentSummary summary = PSWebserviceUtils.getItemSummary(contentId);
 
             // ignore if checked out by the user
             if (PSWebserviceUtils.isItemCheckedOutToUser(summary))
@@ -338,9 +308,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             PSWebserviceUtils.handleRevision(guid, summary);
             checkOutItem(contentId, comment);
             results.addResult(guid);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(guid, e);
          }
       }
@@ -352,36 +320,28 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public List<PSCoreItem> createItems(String contentType, int count,
-      @SuppressWarnings({"unused"})
-      String session, @SuppressWarnings("unused")
-      String user) throws
-           PSErrorException
-   {
+         @SuppressWarnings({"unused"}) String session, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return createItems(contentType, count);
    }
 
    @Transactional
    public List<PSCoreItem> createItems(String contentType, int count)
-      throws PSUnknownContentTypeException, PSErrorException
-   {
+         throws PSUnknownContentTypeException, PSErrorException {
       if (StringUtils.isBlank(contentType))
-         throw new IllegalArgumentException(
-            "contentType cannot be null or empty");
+         throw new IllegalArgumentException("contentType cannot be null or empty");
 
       if (count <= 0)
          throw new IllegalArgumentException("count must be > 0");
 
-      try
-      {
+      try {
          PSItemDefinition itemDef = getItemDefinition(contentType);
 
          PSSecurityToken securityToken = getRequest().getSecurityToken();
          List<PSCoreItem> items = new ArrayList<>();
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             /*
-             * Use server item and call load after the construction to load
-             * the default values.
+             * Use server item and call load after the construction to load the default values.
              */
             PSServerItem item = new PSServerItem(itemDef);
             item.load(null, securityToken);
@@ -390,14 +350,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          }
 
          return items;
-      }
-      catch (PSInvalidContentTypeException e)
-      {
-         throw new PSUnknownContentTypeException(e.getErrorCode(), e
-            .getMessage(), ExceptionUtils.getFullStackTrace(new Exception()));
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSInvalidContentTypeException e) {
+         throw new PSUnknownContentTypeException(e.getErrorCode(), e.getMessage(),
+               ExceptionUtils.getFullStackTrace(new Exception()));
+      } catch (PSCmsException e) {
          // this should never happen
          throwUnexpectedError(e);
 
@@ -407,28 +363,22 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public void deleteItems(List<IPSGuid> ids, @SuppressWarnings("unused")
-   String session, @SuppressWarnings("unused") String user)
-   throws PSErrorsException
-   {
+   public void deleteItems(List<IPSGuid> ids, @SuppressWarnings("unused") String session,
+         @SuppressWarnings("unused") String user) throws PSErrorsException {
       deleteItems(ids);
    }
 
    @Transactional
-   public void deleteItems(List<IPSGuid> ids)
-      throws PSErrorsException
-   {
+   public void deleteItems(List<IPSGuid> ids) throws PSErrorsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSRequest request = getNewRequest();
       PSErrorsException errors = new PSErrorsException();
-      logger.info("Processing {} items for deletion...",ids.size());
+      logger.info("Processing {} items for deletion...", ids.size());
       long count = 0;
-      long size =ids.size();
-      for (IPSGuid id : ids)
-      {
-         try
-         {
+      long size = ids.size();
+      for (IPSGuid id : ids) {
+         try {
             PSLegacyGuid guid = handleRevision((PSLegacyGuid) id);
             logger.info(".");
             List<String> itemIds = new ArrayList<>();
@@ -436,17 +386,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
             PSContentDataHandler.purgeItems(request, itemIds);
             count++;
-            if(count % 10 == 0){
-               logger.info("{} items remaining..",size -count);
+            if (count % 10 == 0) {
+               logger.info("{} items remaining..", size - count);
             }
-         }
-         catch (PSException | PSValidationException | PSErrorException e)
-         {
+         } catch (PSException | PSValidationException | PSErrorException e) {
             int code = IPSWebserviceErrors.DELETE_FAILED;
             PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, PSCoreItem.class
-                  .getName(), id.getUUID(), PSExceptionUtils.getMessageForLog(e)),
-               ExceptionUtils.getFullStackTrace(e));
+                  PSWebserviceErrors.createErrorMessage(code, PSCoreItem.class.getName(),
+                        id.getUUID(), PSExceptionUtils.getMessageForLog(e)),
+                  ExceptionUtils.getFullStackTrace(e));
 
             errors.addError(id, error);
          }
@@ -457,70 +405,52 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    @Deprecated
-   public List<PSSearchSummary> findItems(PSWSSearchRequest search,
-      boolean loadOperations, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused")
-      String user)
-      throws PSErrorException
-   {
+   public List<PSSearchSummary> findItems(PSWSSearchRequest search, boolean loadOperations,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return findItems(search, loadOperations);
    }
 
-   public List<PSSearchSummary> findItems(PSWSSearchRequest search,
-      boolean loadOperations)
-      throws PSErrorException
-   {
+   public List<PSSearchSummary> findItems(PSWSSearchRequest search, boolean loadOperations)
+         throws PSErrorException {
       if (search == null)
          throw new IllegalArgumentException("search cannot be null");
 
-      try
-      {
+      try {
          PSSearchHandler searchHandler = new PSSearchHandler();
-         PSWSSearchResponse response = searchHandler.search(getNewRequest(),
-            search);
+         PSWSSearchResponse response = searchHandler.search(getNewRequest(), search);
 
          List<PSSearchSummary> results = new ArrayList<>();
          String user = PSWebserviceUtils.getUserName();
-         for (IPSSearchResultRow row : response.getRowList())
-         {
+         for (IPSSearchResultRow row : response.getRowList()) {
             PSSearchSummary searchSummary = new PSSearchSummary(row);
             results.add(searchSummary);
 
-            if (loadOperations)
-            {
+            if (loadOperations) {
                IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
                PSComponentSummary component = mgr
-                  .loadComponentSummary(((PSLegacyGuid) searchSummary.getGUID())
-                     .getContentId());
-               searchSummary.setOperations(getAllowedOperations(component,
-                  user));
+                     .loadComponentSummary(((PSLegacyGuid) searchSummary.getGUID()).getContentId());
+               searchSummary.setOperations(getAllowedOperations(component, user));
             }
          }
 
          return results;
-      }
-      catch (PSException e)
-      {
+      } catch (PSException e) {
          throwUnexpectedError(e);
          return null; // turn off compiling error
       }
    }
 
-   @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
-   public String[] findItemPaths(IPSGuid id) throws PSErrorException
-   {
+   public String[] findItemPaths(IPSGuid id) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
       PSLocator locator = new PSLocator(((PSLegacyGuid) id).getContentId(), -1);
-      try
-      {
+      try {
          return getFolderProcessor().getItemPaths(locator);
-      }
-      catch (PSCmsException | PSNotFoundException e)
-      {
+      } catch (PSCmsException | PSNotFoundException e) {
          int code = IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID;
-         PSErrorException error = new PSErrorException(code,
-            PSWebserviceErrors.createErrorMessage(code, locator.getId(), e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         PSErrorException error = new PSErrorException(code, PSWebserviceErrors
+               .createErrorMessage(code, locator.getId(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
          logger.error(PSExceptionUtils.getMessageForLog(e));
          logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
@@ -529,39 +459,33 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    }
 
-   public List<PSItemSummary> findItems(List<IPSGuid> ids, boolean loadOperations) throws PSErrorException
-   {
+   public List<PSItemSummary> findItems(List<IPSGuid> ids, boolean loadOperations)
+         throws PSErrorException {
 
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
       List<Integer> contentIds = new ArrayList<>();
-      for(IPSGuid id: ids)
-      {
+      for (IPSGuid id : ids) {
          PSWebserviceUtils.validateLegacyGuid(id);
          contentIds.add(((PSLegacyGuid) id).getContentId());
       }
       List<PSComponentSummary> components;
-      try
-      {
+      try {
          components = mgr.loadComponentSummaries(contentIds);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
 
-         throw new PSErrorException(IPSWebserviceErrors.LOAD_OBJECTS_ERROR,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_OBJECTS_ERROR,  e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         throw new PSErrorException(IPSWebserviceErrors.LOAD_OBJECTS_ERROR, PSWebserviceErrors
+               .createErrorMessage(IPSWebserviceErrors.LOAD_OBJECTS_ERROR, e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
       PSComponentSummaries cs = new PSComponentSummaries();
-      for(PSComponentSummary c : components)
-      {
+      for (PSComponentSummary c : components) {
          cs.add(c);
       }
       return getItemSummaries(cs, loadOperations);
 
    }
 
-   public List<Integer> findItemIdsByFolder(String folderPath) throws PSErrorException
-   {
+   public List<Integer> findItemIdsByFolder(String folderPath) throws PSErrorException {
       List<Integer> results = null;
 
       PSServerFolderProcessor processor = getFolderProcessor();
@@ -572,22 +496,19 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       PSLocator folderLoc = new PSLocator(folderId);
       results = new ArrayList<>();
-      try
-      {
+      try {
          Set<Integer> ids = processor.getChildIds(folderLoc, true);
-         for (Integer id : ids)
-         {
+         for (Integer id : ids) {
             if (!processor.isItemFolder(new PSLocator(id)))
                results.add(id);
          }
 
          return results;
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          int code = IPSWebserviceErrors.UNEXPECTED_ERROR;
-         PSErrorException error =  new PSErrorException(code, PSWebserviceErrors.createErrorMessage(
-               code, PSExceptionUtils.getMessageForLog(e)), ExceptionUtils.getFullStackTrace(e));
+         PSErrorException error = new PSErrorException(code,
+               PSWebserviceErrors.createErrorMessage(code, PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
          logger.error(PSExceptionUtils.getMessageForLog(e));
          logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
@@ -598,95 +519,70 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Get the list of allowed operations for the supplied component and user.
     *
-    * @param comp the component for which to get the allowed operations,
-    *    not <code>null</code>.
-    * @param user the user for which to get the allowed operations, not
-    *    <code>null</code> or empty.
-    * @return a list with all alloed operations, never <code>null</code>,
-    *    may be empty.
+    * @param comp the component for which to get the allowed operations, not <code>null</code>.
+    * @param user the user for which to get the allowed operations, not <code>null</code> or empty.
+    * @return a list with all alloed operations, never <code>null</code>, may be empty.
     */
    @SuppressWarnings("unchecked")
-   private List<PSItemSummary.OperationEnum> getAllowedOperations(
-      PSComponentSummary comp, String user)
-   {
+   private List<PSItemSummary.OperationEnum> getAllowedOperations(PSComponentSummary comp,
+         String user) {
       List<PSItemSummary.OperationEnum> operations = new ArrayList<>();
 
-      if (comp.isFolder())
-      {
+      if (comp.isFolder()) {
          PSObjectPermissions permissions = comp.getPermissions();
-         if (permissions.hasServerAdminAccess() || permissions.hasWriteAccess())
-         {
+         if (permissions.hasServerAdminAccess() || permissions.hasWriteAccess()) {
             operations.add(PSItemSummary.OperationEnum.READ);
             operations.add(PSItemSummary.OperationEnum.WRITE);
-         }
-         else if (permissions.hasReadAccess())
-         {
+         } else if (permissions.hasReadAccess()) {
             operations.add(PSItemSummary.OperationEnum.READ);
          }
-      }
-      else
-      {
+      } else {
          PSRequest req = getRequest();
          int assignmentType;
-         try
-         {
+         try {
             IPSSystemService ssvc = PSSystemServiceLocator.getSystemService();
             IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
             IPSRequestContext ctx = new PSRequestContext(req);
             PSUserSession session = req.getSecurityToken().getUserSession();
-            if (StringUtils.isBlank(user))
-            {
+            if (StringUtils.isBlank(user)) {
                PSUserEntry[] entries = session.getAuthenticatedUserEntries();
-               if (entries != null)
-               {
+               if (entries != null) {
                   PSUserEntry entry = entries[0];
                   if (entry != null)
                      user = entry.getName();
                }
             }
             List<PSAssignmentTypeEnum> types = ssvc.getContentAssignmentTypes(
-                  Collections.singletonList(gmgr.makeGuid(comp
-                        .getCurrentLocator())), user, ctx.getSubjectRoles(),
-                  Integer.parseInt(session.getCommunityId(req, session
-                        .getUserCurrentCommunity())));
+                  Collections.singletonList(gmgr.makeGuid(comp.getCurrentLocator())), user,
+                  ctx.getSubjectRoles(),
+                  Integer.parseInt(session.getCommunityId(req, session.getUserCurrentCommunity())));
             assignmentType = types.get(0).getValue();
-         }
-         catch (PSSystemException | NumberFormatException | PSInternalRequestCallException e)
-         {
-            logger.error("Problems calculating assignment type. Error: {}" ,
-                    PSExceptionUtils.getMessageForLog(e));
+         } catch (PSSystemException | NumberFormatException | PSInternalRequestCallException e) {
+            logger.error("Problems calculating assignment type. Error: {}",
+                  PSExceptionUtils.getMessageForLog(e));
 
             assignmentType = PSAssignmentTypeEnum.NONE.getValue();
          }
 
          if (assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN
-            || assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE)
-         {
+               || assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE) {
             operations.add(PSItemSummary.OperationEnum.READ);
 
-            if (StringUtils.isBlank(comp.getCheckoutUserName()))
-            {
+            if (StringUtils.isBlank(comp.getCheckoutUserName())) {
                // if the item has not been checked out
                operations.add(PSItemSummary.OperationEnum.TRANSITION);
                operations.add(PSItemSummary.OperationEnum.CHECKOUT);
-            }
-            else
-            {
-               if (PSWebserviceUtils.isItemCheckedOutToUser(comp))
-               {
+            } else {
+               if (PSWebserviceUtils.isItemCheckedOutToUser(comp)) {
                   // if checked out by the same user
                   operations.add(PSItemSummary.OperationEnum.WRITE);
                   operations.add(PSItemSummary.OperationEnum.CHECKIN);
-               }
-               else if (assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN)
-               {
+               } else if (assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN) {
                   // if the user has admin access, allow force checkin
                   operations.add(PSItemSummary.OperationEnum.CHECKIN);
                }
             }
-         }
-         else if (assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_READER)
-         {
+         } else if (assignmentType == PSWorkFlowUtils.ASSIGNMENT_TYPE_READER) {
             operations.add(PSItemSummary.OperationEnum.READ);
          }
       }
@@ -699,61 +595,49 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    public List<PSRevisions> findRevisions(List<IPSGuid> ids,
-      @SuppressWarnings("unused") String session,
-      @SuppressWarnings("unused") String user) throws PSErrorException
-   {
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return findRevisions(ids);
    }
 
-   public List<PSRevisions> findRevisions(List<IPSGuid> ids)
-      throws PSErrorException
-   {
+   public List<PSRevisions> findRevisions(List<IPSGuid> ids) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       IPSSystemService sysSvc = PSSystemServiceLocator.getSystemService();
 
       List<PSRevisions> revisions = new ArrayList<>();
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          PSLegacyGuid guid = (PSLegacyGuid) id;
          int contentId = guid.getContentId();
 
-         List<PSContentStatusHistory> histList = sysSvc
-            .findContentStatusHistory(guid);
+         List<PSContentStatusHistory> histList = sysSvc.findContentStatusHistory(guid);
 
-         revisions.add(new PSRevisions(PSWebserviceUtils
-            .getItemSummary(contentId), histList));
+         revisions.add(new PSRevisions(PSWebserviceUtils.getItemSummary(contentId), histList));
       }
 
       return revisions;
    }
 
    @Deprecated
-   public List<String> getAssemblyUrls(List<IPSGuid> ids, String template,
-      int context, String filter, String site, String folderPath,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorException
-   {
+   public List<String> getAssemblyUrls(List<IPSGuid> ids, String template, int context,
+         String filter, String site, String folderPath, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return getAssemblyUrls(ids, template, context, filter, site, folderPath);
    }
 
-   public List<String> getAssemblyUrls(List<IPSGuid> ids, String templateName,
-      int context, String filterName, String site, String folderPath)
-      throws PSErrorException
-   {
+   public List<String> getAssemblyUrls(List<IPSGuid> ids, String templateName, int context,
+         String filterName, String site, String folderPath) throws PSErrorException {
       // validate parameters
       PSWebserviceUtils.validateLegacyGuids(ids);
       IPSAssemblyTemplate template = getTemplate(templateName);
       IPSItemFilter itemFilter = getItemFilter(filterName);
       IPSGuid folderId = null;
-      if (StringUtils.isNotBlank(folderPath))
-      {
+      if (StringUtils.isNotBlank(folderPath)) {
          int id = getFolderIdFromPath(folderPath, true);
          folderId = new PSLegacyGuid(id, -1);
       }
       IPSGuid siteId = null;
-      if (StringUtils.isNotBlank(site))
-      {
+      if (StringUtils.isNotBlank(site)) {
          siteId = getSite(site).getGUID();
       }
 
@@ -769,11 +653,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       String url;
       List<String> urls = new ArrayList<>(ids.size());
       IPSPublisherService srv = PSPublisherServiceLocator.getPublisherService();
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          itemId = getItemGuid((PSLegacyGuid) id, context);
-         url = srv.constructAssemblyUrl(host, port, protocol, siteId, itemId,
-            folderId, template, itemFilter, context, true);
+         url = srv.constructAssemblyUrl(host, port, protocol, siteId, itemId, folderId, template,
+               itemFilter, context, true);
          urls.add(url);
       }
 
@@ -781,27 +664,23 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Gets the item GUID from the specified id and context.
-    * If the specified id includes a revision (not <code>-1</code>), then
-    * simple return the id; otherwise the revision of the assembly url will be
-    * selected according to the specified context of the request. If the
-    * specified context is <code>0</code> (preview context), then uses edit
-    * revision if the item is checked out by the current user; otherwise
-    * uses current revision. If the specified context is not <code>0</code>,
-    * then uses public revision (if exists); otherwise uses current revision
-    * (if public  revision does not exist)
+    * Gets the item GUID from the specified id and context. If the specified id includes a revision
+    * (not <code>-1</code>), then simple return the id; otherwise the revision of the assembly url
+    * will be selected according to the specified context of the request. If the specified context
+    * is <code>0</code> (preview context), then uses edit revision if the item is checked out by the
+    * current user; otherwise uses current revision. If the specified context is not <code>0</code>,
+    * then uses public revision (if exists); otherwise uses current revision (if public revision
+    * does not exist)
     *
-    * @param id the source id, which may not may not include revision,
-    *    assumed not <code>null</code>.
-    * @param context the context used to construct assembly URL. Assumed
-    *    <code>0</code> for previewing.
+    * @param id the source id, which may not may not include revision, assumed not
+    *        <code>null</code>.
+    * @param context the context used to construct assembly URL. Assumed <code>0</code> for
+    *        previewing.
     * @return the id described above, never <code>null</code>.
     *
     * @throws PSErrorException If the specified item does not exist.
     */
-   private PSLegacyGuid getItemGuid(PSLegacyGuid id, int context)
-      throws PSErrorException
-   {
+   private PSLegacyGuid getItemGuid(PSLegacyGuid id, int context) throws PSErrorException {
       if (id.getRevision() != -1)
          return id;
 
@@ -812,31 +691,23 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       // handle non-previewing context
-      PSComponentSummary summary = PSWebserviceUtils.getItemSummary(id
-         .getContentId());
-      return new PSLegacyGuid(id.getContentId(), summary
-         .getPublicOrCurrentRevision());
+      PSComponentSummary summary = PSWebserviceUtils.getItemSummary(id.getContentId());
+      return new PSLegacyGuid(id.getContentId(), summary.getPublicOrCurrentRevision());
    }
 
    /**
     * Gets a site with the specified site name.
     *
-    * @param siteName the specified site name, assumed not <code>null</code> or
-    *    empty.
+    * @param siteName the specified site name, assumed not <code>null</code> or empty.
     * @return the specified site, never <code>null</code>.
     * @throws IllegalArgumentException if cannot find the specified site.
     */
-   private IPSSite getSite(String siteName)
-   {
+   private IPSSite getSite(String siteName) {
       IPSSiteManager sitemgr = PSSiteManagerLocator.getSiteManager();
-      try
-      {
+      try {
          return sitemgr.loadSite(siteName);
-      }
-      catch (PSNotFoundException e)
-      {
-         throw new IllegalArgumentException(
-            "Failed to find a site with name = " + siteName
+      } catch (PSNotFoundException e) {
+         throw new IllegalArgumentException("Failed to find a site with name = " + siteName
                + ", the underlying error was: " + PSExceptionUtils.getMessageForLog(e));
       }
    }
@@ -844,168 +715,132 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Gets a item filter with the specified name.
     *
-    * @param filterName the name of the specified item filter, not
-    *    <code>null</code> or empty.
+    * @param filterName the name of the specified item filter, not <code>null</code> or empty.
     * @return the specified item filter, never <code>null</code>.
-    * @throws IllegalArgumentException for invalid parameter or cannot find the
-    *    specified item filter.
+    * @throws IllegalArgumentException for invalid parameter or cannot find the specified item
+    *         filter.
     */
-   private IPSItemFilter getItemFilter(String filterName)
-   {
+   private IPSItemFilter getItemFilter(String filterName) {
 
       IPSFilterService srv = PSFilterServiceLocator.getFilterService();
-      try
-      {
+      try {
          return srv.findFilterByName(filterName);
-      }
-      catch (PSFilterException e)
-      {
-         throw new IllegalArgumentException(
-            "Cannot find item filter with name = " + filterName);
+      } catch (PSFilterException e) {
+         throw new IllegalArgumentException("Cannot find item filter with name = " + filterName);
       }
    }
 
    /**
     * Gets a template with the specified name.
     *
-    * @param templateName the name of the specified template, not
-    *    <code>null</code> or empty.
+    * @param templateName the name of the specified template, not <code>null</code> or empty.
     * @return the specified template, never <code>null</code>.
-    * @throws IllegalArgumentException for invalid parameter or cannot find the
-    *    specified template.
+    * @throws IllegalArgumentException for invalid parameter or cannot find the specified template.
     */
-   private IPSAssemblyTemplate getTemplate(String templateName)
-   {
+   private IPSAssemblyTemplate getTemplate(String templateName) {
       if (StringUtils.isBlank(templateName))
-         throw new IllegalArgumentException(
-            "templateName may not be null or empty.");
+         throw new IllegalArgumentException("templateName may not be null or empty.");
 
       IPSAssemblyService asbSrv = PSAssemblyServiceLocator.getAssemblyService();
-      try
-      {
+      try {
          return asbSrv.findTemplateByName(templateName);
-      }
-      catch (PSAssemblyException e)
-      {
-         throw new IllegalArgumentException(
-            "Cannot find a template with name = " + templateName);
+      } catch (PSAssemblyException e) {
+         throw new IllegalArgumentException("Cannot find a template with name = " + templateName);
       }
    }
 
    @Deprecated
-   public List<PSCoreItem> loadItems(List<IPSGuid> ids,
-      boolean includeBinary, boolean includeChildren, boolean includeRelated,
-      boolean includeFolderPath, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException
-   {
-      return loadItems(ids, includeBinary, includeChildren, includeRelated,
-         includeFolderPath);
+   public List<PSCoreItem> loadItems(List<IPSGuid> ids, boolean includeBinary,
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorResultsException {
+      return loadItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath);
    }
 
    public List<PSCoreItem> loadItems(List<IPSGuid> ids, boolean includeBinary,
-      boolean includeChildren, boolean includeRelated,
-      boolean includeFolderPath)
-      throws PSErrorResultsException
-   {
-      return doLoadItems(ids, includeBinary, includeChildren, includeRelated,
-         includeFolderPath, false, false, FOLDER_RELATE_TYPE);
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath)
+         throws PSErrorResultsException {
+      return doLoadItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath,
+            false, false, FOLDER_RELATE_TYPE);
    }
 
-   public List<PSCoreItem> loadItems(List<IPSGuid> ids,
-         boolean includeBinary, boolean includeChildren, boolean includeRelated,
-         boolean includeFolderPath, boolean includeRelatedItem)
-         throws PSErrorResultsException
-   {
-      return doLoadItems(ids, includeBinary, includeChildren, includeRelated,
-            includeFolderPath, false, includeRelatedItem, FOLDER_RELATE_TYPE);
+   public List<PSCoreItem> loadItems(List<IPSGuid> ids, boolean includeBinary,
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath,
+         boolean includeRelatedItem) throws PSErrorResultsException {
+      return doLoadItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath,
+            false, includeRelatedItem, FOLDER_RELATE_TYPE);
    }
 
-   public List<PSCoreItem> loadItems(List<IPSGuid> ids,
-                                     boolean includeBinary, boolean includeChildren, boolean includeRelated,
-                                     boolean includeFolderPath, boolean includeRelatedItem, String relationshipTypeName)
-           throws PSErrorResultsException
-   {
-      return doLoadItems(ids, includeBinary, includeChildren, includeRelated,
-              includeFolderPath, false, includeRelatedItem, relationshipTypeName);
+   public List<PSCoreItem> loadItems(List<IPSGuid> ids, boolean includeBinary,
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath,
+         boolean includeRelatedItem, String relationshipTypeName) throws PSErrorResultsException {
+      return doLoadItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath,
+            false, includeRelatedItem, relationshipTypeName);
    }
 
    @Deprecated
    @Transactional
-   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths,
-      String relationshipType, boolean enableRevisions,
-      @SuppressWarnings("unused") String session,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException, PSErrorException
-   {
+   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths, String relationshipType,
+         boolean enableRevisions, @SuppressWarnings("unused") String session,
+         @SuppressWarnings("unused") String user) throws PSErrorResultsException, PSErrorException {
       return newCopies(ids, paths, relationshipType, enableRevisions);
    }
 
    @Transactional
-   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths,
-                                     String relationshipType, boolean enableRevisions)
-           throws PSErrorResultsException, PSErrorException
-   {
+   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths, String relationshipType,
+         boolean enableRevisions) throws PSErrorResultsException, PSErrorException {
       // enableViewForceFuly ==true was created to fix the issue of ticket#6083
-      return newCopies(ids,  paths, relationshipType, enableRevisions ,false);
+      return newCopies(ids, paths, relationshipType, enableRevisions, false);
    }
 
    @Transactional
-   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths,
-      String relationshipType, boolean enableRevisions , boolean enableViewForceFully)
-      throws PSErrorResultsException, PSErrorException
-   {
+   public List<PSCoreItem> newCopies(List<IPSGuid> ids, List<String> paths, String relationshipType,
+         boolean enableRevisions, boolean enableViewForceFully)
+         throws PSErrorResultsException, PSErrorException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       paths = getMatchingPaths(paths, ids);
 
       if (!StringUtils.isBlank(relationshipType))
-         validateRelationshipType(relationshipType,
-            PSRelationshipConfig.CATEGORY_COPY);
+         validateRelationshipType(relationshipType, PSRelationshipConfig.CATEGORY_COPY);
 
       PSErrorResultsException results = new PSErrorResultsException();
-      for (int i = 0; i < ids.size(); i++)
-      {
+      for (int i = 0; i < ids.size(); i++) {
          PSLegacyGuid id = new PSLegacyGuid(ids.get(i).longValue());
          String path = paths.get(i);
 
-         try
-         {
+         try {
             PSItemDefinition def = getItemDefinition(getContentTypeId(id));
 
-            PSLegacyGuid copyId = (PSLegacyGuid) createNewCopy(id,
-               relationshipType, def.getInternalRequestResource());
+            PSLegacyGuid copyId = (PSLegacyGuid) createNewCopy(id, relationshipType,
+                  def.getInternalRequestResource());
 
             List<IPSGuid> copyIds = new ArrayList<>();
             copyIds.add(copyId);
 
-            if (!StringUtils.isBlank(path))
-            {
+            if (!StringUtils.isBlank(path)) {
                addFolderTree(path);
                addFolderChildren(path, copyIds);
             }
 
             enableRevisions(copyId, enableRevisions);
 
-            results.addResult(id, enableViewForceFully? loadNewlyItem(copyId) :loadItem(copyId));
-         } catch (PSORMException | PSException | PSErrorException e)
-         {
+            results.addResult(id, enableViewForceFully ? loadNewlyItem(copyId) : loadItem(copyId));
+         } catch (PSORMException | PSException | PSErrorException e) {
             int code = IPSWebserviceErrors.NEWCOPY_FAILED;
-            PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, id.getUUID(), e
-                  .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+            PSErrorException error = new PSErrorException(code, PSWebserviceErrors
+                  .createErrorMessage(code, id.getUUID(), e.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty()) {
-         //Only throw an exception if there aren't any valid results
+         // Only throw an exception if there aren't any valid results
          throw results;
-      }
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      } else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getResults(ids);
@@ -1015,20 +850,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Gets a matching paths from the specified paths and ids.
     *
-    * @param paths the source path. It must not be <code>null</code> or empty.
-    *    It contains either one path or the same number of paths as the ids.
+    * @param paths the source path. It must not be <code>null</code> or empty. It contains either
+    *        one path or the same number of paths as the ids.
     * @param ids the ids; assumed not <code>null</code> or empty.
     * @return the same number of paths as the ids.
     * @throws IllegalArgumentException the paths is invalid.
     */
-   private List<String> getMatchingPaths(List<String> paths, List<IPSGuid> ids)
-   {
+   private List<String> getMatchingPaths(List<String> paths, List<IPSGuid> ids) {
       if (paths == null || paths.isEmpty())
          throw new IllegalArgumentException("paths cannot be null or empty");
 
       // if there is only one path, then use it for all ids
-      if (paths.size() == 1)
-      {
+      if (paths.size() == 1) {
          String path = paths.get(0);
          paths = new ArrayList<>(ids.size());
          for (int i = 0; i < ids.size(); i++)
@@ -1036,55 +869,46 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       if (ids.size() != paths.size())
-         throw new IllegalArgumentException(
-            "paths must be of the same size as ids");
+         throw new IllegalArgumentException("paths must be of the same size as ids");
 
       return paths;
    }
 
    @Deprecated
    @Transactional
-   public List<PSCoreItem> newPromotableVersions(List<IPSGuid> ids,
-      List<String> paths, String relationshipType, boolean enableRevisions,
-      @SuppressWarnings("unused") String session, @SuppressWarnings("unused")
-      String user)
-      throws PSErrorResultsException, PSErrorException
-   {
-      return newPromotableVersions(ids, paths, relationshipType,
-         enableRevisions);
+   public List<PSCoreItem> newPromotableVersions(List<IPSGuid> ids, List<String> paths,
+         String relationshipType, boolean enableRevisions,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorResultsException, PSErrorException {
+      return newPromotableVersions(ids, paths, relationshipType, enableRevisions);
    }
 
    @Transactional
-   public List<PSCoreItem> newPromotableVersions(List<IPSGuid> ids,
-      List<String> paths, String relationshipType, boolean enableRevisions)
-      throws PSErrorResultsException, PSErrorException
-   {
+   public List<PSCoreItem> newPromotableVersions(List<IPSGuid> ids, List<String> paths,
+         String relationshipType, boolean enableRevisions)
+         throws PSErrorResultsException, PSErrorException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       paths = getMatchingPaths(paths, ids);
 
       if (!StringUtils.isBlank(relationshipType))
-         validateRelationshipType(relationshipType,
-            PSRelationshipConfig.CATEGORY_PROMOTABLE);
+         validateRelationshipType(relationshipType, PSRelationshipConfig.CATEGORY_PROMOTABLE);
 
       PSErrorResultsException results = new PSErrorResultsException();
-      for (int i = 0; i < ids.size(); i++)
-      {
+      for (int i = 0; i < ids.size(); i++) {
          PSLegacyGuid id = new PSLegacyGuid(ids.get(i).longValue());
          String path = paths.get(i);
 
-         try
-         {
+         try {
             PSItemDefinition def = getItemDefinition(getContentTypeId(id));
 
-            PSLegacyGuid copyId = (PSLegacyGuid) createNewPromotableVersion(id,
-               relationshipType, def.getInternalRequestResource());
+            PSLegacyGuid copyId = (PSLegacyGuid) createNewPromotableVersion(id, relationshipType,
+                  def.getInternalRequestResource());
 
             List<IPSGuid> copyIds = new ArrayList<>();
             copyIds.add(copyId);
 
-            if (!StringUtils.isBlank(path))
-            {
+            if (!StringUtils.isBlank(path)) {
                addFolderTree(path);
                addFolderChildren(path, copyIds);
             }
@@ -1092,24 +916,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             enableRevisions(copyId, enableRevisions);
 
             results.addResult(id, loadItem(copyId));
-         } catch (PSORMException | PSErrorException | PSException e)
-         {
+         } catch (PSORMException | PSErrorException | PSException e) {
             int code = IPSWebserviceErrors.NEWPROMOTABLEVERSION_FAILED;
-            PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, id.getUUID(), e
-                  .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+            PSErrorException error = new PSErrorException(code, PSWebserviceErrors
+                  .createErrorMessage(code, id.getUUID(), e.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty()) {
-         //Only throw an exception if there aren't any valid results
+         // Only throw an exception if there aren't any valid results
          throw results;
-      }
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      } else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getResults(ids);
@@ -1119,40 +940,34 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * Loads the specified item and resets its revisions.
     *
     * @param id the id of the item to load, assumed not <code>null</code>.
-    * @return the loaded item with all its revisions set to -1, never
-    *    <code>null</code>.
+    * @return the loaded item with all its revisions set to -1, never <code>null</code>.
     * @throws PSErrorResultsException if the specified item could not be found.
     */
-   private PSCoreItem loadItem(IPSGuid id)
-      throws PSErrorResultsException
-   {
+   private PSCoreItem loadItem(IPSGuid id) throws PSErrorResultsException {
       List<IPSGuid> ids = new ArrayList<>();
       ids.add(id);
 
-      PSCoreItem item = doLoadItems(ids, false, false, false, false,
-         false, false, FOLDER_RELATE_TYPE).get(0);
+      PSCoreItem item =
+            doLoadItems(ids, false, false, false, false, false, false, FOLDER_RELATE_TYPE).get(0);
       item.resetRevisions();
 
       return item;
    }
-    /**
-     * Loads the specified item and resets its revisions.
-     *
-     * @param id the id of the item to load, assumed not <code>null</code>.
-     * @return the loaded item with all its revisions set to -1, never
-     *    <code>null</code>.
-     * @throws PSErrorResultsException if the specified item could not be found.
-     */
-    private PSCoreItem loadNewlyItem(IPSGuid id)
-            throws PSErrorResultsException
-    {
-        //created to fix ticket #6083
-       List<IPSGuid> ids = new ArrayList<>();
-       ids.add(id);
 
-        return doLoadItems(ids, false, false, false, false,
-                true, false, FOLDER_RELATE_TYPE).get(0);
-    }
+   /**
+    * Loads the specified item and resets its revisions.
+    *
+    * @param id the id of the item to load, assumed not <code>null</code>.
+    * @return the loaded item with all its revisions set to -1, never <code>null</code>.
+    * @throws PSErrorResultsException if the specified item could not be found.
+    */
+   private PSCoreItem loadNewlyItem(IPSGuid id) throws PSErrorResultsException {
+      // created to fix ticket #6083
+      List<IPSGuid> ids = new ArrayList<>();
+      ids.add(id);
+
+      return doLoadItems(ids, false, false, false, false, true, false, FOLDER_RELATE_TYPE).get(0);
+   }
 
    /**
     * @deprecated
@@ -1169,51 +984,39 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public List<PSCoreItem> newTranslations(List<IPSGuid> ids,
-      List<PSAutoTranslation> translationSettings, String relationshipType,
-      boolean enableRevisions, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused")
-      String user)
-      throws PSErrorResultsException, PSErrorException
-   {
-      return newTranslations(ids, translationSettings, relationshipType,
-         enableRevisions);
+         List<PSAutoTranslation> translationSettings, String relationshipType,
+         boolean enableRevisions, @SuppressWarnings("unused") String session,
+         @SuppressWarnings("unused") String user) throws PSErrorResultsException, PSErrorException {
+      return newTranslations(ids, translationSettings, relationshipType, enableRevisions);
    }
 
    @Transactional
    public List<PSCoreItem> newTranslations(List<IPSGuid> ids,
-      List<PSAutoTranslation> translationSettings, String relationshipType,
-      boolean enableRevisions)
-      throws PSErrorResultsException, PSErrorException
-   {
+         List<PSAutoTranslation> translationSettings, String relationshipType,
+         boolean enableRevisions) throws PSErrorResultsException, PSErrorException {
       final int errorCode = IPSWebserviceErrors.NEWTRANSLATION_FAILED;
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       final List<PSComponentSummary> summaries = loadSummaries(ids);
       final boolean explicitLocales = translationSettings != null;
-      final List<String> allLocaleCodes =
-            getLocaleCodes(loadLocales(null, null));
-      final List<String> localeCodes = explicitLocales
-            ? getTranslationSettingsLocaleCodes(translationSettings)
-            : allLocaleCodes;
+      final List<String> allLocaleCodes = getLocaleCodes(loadLocales(null, null));
+      final List<String> localeCodes =
+            explicitLocales ? getTranslationSettingsLocaleCodes(translationSettings)
+                  : allLocaleCodes;
 
-      validateTranslationRequest(localeCodes, summaries, ids, explicitLocales,
-            allLocaleCodes);
+      validateTranslationRequest(localeCodes, summaries, ids, explicitLocales, allLocaleCodes);
 
       if (!StringUtils.isBlank(relationshipType))
-         validateRelationshipType(relationshipType,
-            PSRelationshipConfig.CATEGORY_TRANSLATION);
+         validateRelationshipType(relationshipType, PSRelationshipConfig.CATEGORY_TRANSLATION);
 
       List<PSCoreItem> results = new ArrayList<>();
-      for (String localeCode : localeCodes)
-      {
+      for (String localeCode : localeCodes) {
          PSErrorResultsException errorResults = new PSErrorResultsException();
          final List<IPSGuid> resultIds = new ArrayList<>();
-         for (int i = 0; i < ids.size(); i++)
-         {
+         for (int i = 0; i < ids.size(); i++) {
             final IPSGuid originalId = ids.get(i);
             final PSComponentSummary summary = summaries.get(i);
-            if (summary.getLocale().equals(localeCode))
-            {
+            if (summary.getLocale().equals(localeCode)) {
                assert !explicitLocales;
                // the request was to convert to all the locales,
                // except the item's one
@@ -1221,38 +1024,30 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             }
 
             PSLegacyGuid id = new PSLegacyGuid(originalId.longValue());
-            if (id.getRevision() == -1)
-            {
-               id = new PSLegacyGuid(id.getContentId(),
-                     summary.getCurrentLocator().getRevision());
+            if (id.getRevision() == -1) {
+               id = new PSLegacyGuid(id.getContentId(), summary.getCurrentLocator().getRevision());
             }
             resultIds.add(id);
 
-            try
-            {
+            try {
                PSItemDefinition def = getItemDefinition(getContentTypeId(id));
 
-               PSLegacyGuid copyId = (PSLegacyGuid) createNewTranslation(id,
-                     relationshipType, localeCode,
-                     def.getInternalRequestResource());
+               PSLegacyGuid copyId = (PSLegacyGuid) createNewTranslation(id, relationshipType,
+                     localeCode, def.getInternalRequestResource());
                enableRevisions(copyId, enableRevisions);
 
                errorResults.addResult(id, loadItem(copyId));
-            }
-            catch (PSException | PSORMException e)
-            {
+            } catch (PSException | PSORMException e) {
                addToErrorResults(e, id, errorCode, errorResults);
             }
          }
 
          if (errorResults.hasErrors() && errorResults.getResults().isEmpty()) {
-            //Only throw an exception if there aren't any valid results
+            // Only throw an exception if there aren't any valid results
             throw errorResults;
-         }
-         else if(errorResults.hasErrors() ){
+         } else if (errorResults.hasErrors()) {
             logger.warn("Error processing folder(s): {} Error: {}",
-                    errorResults.getAllErrorIdsString(),
-                    errorResults.getAllErrorString());
+                  errorResults.getAllErrorIdsString(), errorResults.getAllErrorString());
          }
 
          results.addAll(errorResults.getResults(resultIds));
@@ -1263,49 +1058,41 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /**
     * Adds the provided error to the error results.
+    * 
     * @param e the exception to add. Assumed not <code>null</code>.
     * @param id the failed item id. Assumed not <code>null</code>.
     * @param code the error code to add.
-    * @param errorResults the results to add to.
-    * Assumed not <code>null</code>.
+    * @param errorResults the results to add to. Assumed not <code>null</code>.
     */
-   private void addToErrorResults(final Exception e,
-         final PSLegacyGuid id, final int code,
-         final PSErrorResultsException errorResults)
-   {
-      final PSErrorException error = new PSErrorException(code,
-            PSWebserviceErrors.createErrorMessage(code, id.getUUID(),
-               PSExceptionUtils.getMessageForLog(e)),
-               ExceptionUtils.getFullStackTrace(e));
+   private void addToErrorResults(final Exception e, final PSLegacyGuid id, final int code,
+         final PSErrorResultsException errorResults) {
+      final PSErrorException error =
+            new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code, id.getUUID(),
+                  PSExceptionUtils.getMessageForLog(e)), ExceptionUtils.getFullStackTrace(e));
       errorResults.addError(id, error);
    }
 
    /**
-    * Makes sure the translation request is valid.
-    * Throws <code>IllegalArgumentException</code> if the data is invalid.
+    * Makes sure the translation request is valid. Throws <code>IllegalArgumentException</code> if
+    * the data is invalid.
+    * 
     * @param localeCodes the locales to validate. Assumed not <code>null</code>.
     * @param summaries the item summaries. Assumed not <code>null</code>.
-    * @param ids the GUIDS of the ids the summaries.
-    * Assumed not <code>null</code>, same length as the summaries list.
+    * @param ids the GUIDS of the ids the summaries. Assumed not <code>null</code>, same length as
+    *        the summaries list.
     * @param explicitLocales whether the locales were specified explicitely.
     * @param allLocaleCodes codes of all the system locales
     * @throws PSErrorException on an unexpected error while retrieving data.
     */
    private void validateTranslationRequest(final List<String> localeCodes,
-         final List<PSComponentSummary> summaries,
-         final List<IPSGuid> ids, final boolean explicitLocales,
-         final List<String> allLocaleCodes)
-      throws PSErrorException
-   {
+         final List<PSComponentSummary> summaries, final List<IPSGuid> ids,
+         final boolean explicitLocales, final List<String> allLocaleCodes) throws PSErrorException {
       assert summaries.size() == ids.size();
-      if (localeCodes.isEmpty())
-      {
-         throw new IllegalArgumentException(
-               "no locales to create translations for are available");
+      if (localeCodes.isEmpty()) {
+         throw new IllegalArgumentException("no locales to create translations for are available");
       }
 
-      if (explicitLocales)
-      {
+      if (explicitLocales) {
          localesMustExist(localeCodes, allLocaleCodes);
          insureNoTranslationToSameLocale(localeCodes, summaries, ids);
       }
@@ -1314,113 +1101,88 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Throws <code>IllegalArgumentException</code> if it finds any item
-    * has a locale from the provided locale list.
-    * @param localeCodes the locales to check.
-    * Assumed not <code>null</code>.
-    * @param summaries the items to check.
-    * Assumed not <code>null</code>.
-    * @param ids the item ids in the same order.
-    * Assumed not <code>null</code>.
+    * Throws <code>IllegalArgumentException</code> if it finds any item has a locale from the
+    * provided locale list.
+    * 
+    * @param localeCodes the locales to check. Assumed not <code>null</code>.
+    * @param summaries the items to check. Assumed not <code>null</code>.
+    * @param ids the item ids in the same order. Assumed not <code>null</code>.
     */
    private void insureNoTranslationToSameLocale(final List<String> localeCodes,
-         final List<PSComponentSummary> summaries, final List<IPSGuid> ids)
-   {
+         final List<PSComponentSummary> summaries, final List<IPSGuid> ids) {
       assert summaries.size() == ids.size();
-      for (int i = 0; i < summaries.size(); i++)
-      {
+      for (int i = 0; i < summaries.size(); i++) {
          final PSComponentSummary summary = summaries.get(i);
-         if (localeCodes.contains(summary.getLocale()))
-         {
+         if (localeCodes.contains(summary.getLocale())) {
             final IPSGuid id = ids.get(i);
-            throw new IllegalArgumentException("Item " +
-                  id.toString() + "(" + id.longValue()
-                  + ") can't be translated to its own locale "
-                  + summary.getLocale());
+            throw new IllegalArgumentException("Item " + id.toString() + "(" + id.longValue()
+                  + ") can't be translated to its own locale " + summary.getLocale());
          }
       }
    }
 
    /**
-    * Throws <code>IllegalArgumentException</code> if any of the provided items
-    * are already translations.
+    * Throws <code>IllegalArgumentException</code> if any of the provided items are already
+    * translations.
+    * 
     * @param summaries the items to check. Assumed not <code>null</code>.
-    * @param ids the id values of the summaries in the same order.
-    * Assumed not <code>null</code>.
+    * @param ids the id values of the summaries in the same order. Assumed not <code>null</code>.
     * @throws PSErrorException on data loading.
     */
    private void insureNoTranslations(final List<PSComponentSummary> summaries,
-         final List<IPSGuid> ids) throws PSErrorException
-   {
+         final List<IPSGuid> ids) throws PSErrorException {
       assert summaries.size() == ids.size();
 
-      final PSRelationshipProcessor processor =
-            PSWebserviceUtils.getRelationshipProcessor();
+      final PSRelationshipProcessor processor = PSWebserviceUtils.getRelationshipProcessor();
 
-      for (int i = 0; i < summaries.size(); i++)
-      {
+      for (int i = 0; i < summaries.size(); i++) {
          final PSComponentSummary summary = summaries.get(i);
          final IPSGuid id = ids.get(i);
          final PSRelationshipFilter filter = new PSRelationshipFilter();
          filter.setDependent(summary.getCurrentLocator());
          filter.setCategory(PSRelationshipConfig.CATEGORY_TRANSLATION);
          final PSRelationshipSet owners;
-         try
-         {
+         try {
             owners = processor.getRelationships(filter);
-         }
-         catch (PSCmsException e)
-         {
+         } catch (PSCmsException e) {
             int code = IPSWebserviceErrors.NEWTRANSLATION_FAILED;
-            throw new PSErrorException(code,
-                  PSWebserviceErrors.createErrorMessage(code, id.getUUID(),
-                        PSExceptionUtils.getMessageForLog(e)),
-                        ExceptionUtils.getFullStackTrace(e));
+            throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
+                  id.getUUID(), PSExceptionUtils.getMessageForLog(e)),
+                  ExceptionUtils.getFullStackTrace(e));
          }
-         if (owners != null && !owners.isEmpty())
-         {
-            throw new IllegalArgumentException(
-               "Item " + id.toString() + "(" + id.longValue()
-               + ") is already a translation of an existing item and "
-               + "cannot be further translated");
+         if (owners != null && !owners.isEmpty()) {
+            throw new IllegalArgumentException("Item " + id.toString() + "(" + id.longValue()
+                  + ") is already a translation of an existing item and "
+                  + "cannot be further translated");
          }
       }
    }
 
    /**
-    * Throws <code>IllegalArgumentException</code> if any of the locales
-    * does not exist.
-    * @param localeCodes the locale codes to validate.
-    * Assumed not <code>null</code>.
-    * @param allLocaleCodes all existing locale codes.
-    * Assumed not <code>null</code>.
+    * Throws <code>IllegalArgumentException</code> if any of the locales does not exist.
+    * 
+    * @param localeCodes the locale codes to validate. Assumed not <code>null</code>.
+    * @param allLocaleCodes all existing locale codes. Assumed not <code>null</code>.
     */
    private void localesMustExist(final List<String> localeCodes,
-         final List<String> allLocaleCodes)
-   {
-      for (final String locale : localeCodes)
-      {
-         if (!allLocaleCodes.contains(locale))
-         {
-            throw new IllegalArgumentException(
-                  "Invalid locale \"" + locale + "\" to translate to");
+         final List<String> allLocaleCodes) {
+      for (final String locale : localeCodes) {
+         if (!allLocaleCodes.contains(locale)) {
+            throw new IllegalArgumentException("Invalid locale \"" + locale + "\" to translate to");
          }
       }
    }
 
    /**
     * Loads summaries for the provided ids.
+    * 
     * @param ids the ids to load summaries for. Assumed not <code>null</code>.
     * @return the list of component summaries in the same order as their ids.
-    * @throws PSErrorException if the specified item for any of the provided
-    * ids does not exist.
+    * @throws PSErrorException if the specified item for any of the provided ids does not exist.
     */
-   private List<PSComponentSummary> loadSummaries(List<IPSGuid> ids)
-         throws PSErrorException
-   {
+   private List<PSComponentSummary> loadSummaries(List<IPSGuid> ids) throws PSErrorException {
       final List<PSComponentSummary> summaries = new ArrayList<>();
-      for (final IPSGuid originalId : ids)
-      {
+      for (final IPSGuid originalId : ids) {
          summaries.add(PSWebserviceUtils.getItemSummary(originalId.getUUID()));
       }
       return summaries;
@@ -1428,20 +1190,17 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /**
     * Extracts locale codes from the provided translation settings.
-    * @param translationSettings translation settings to extract locales from.
-    * Assumed not <code>null</code>.
-    * @return a list of locales extracted from the list of translation settings.
-    * The locales are in the same position as the translation settings they are
-    * extracted from.
-    * Has the same number of entries as the translation settings list.
-    * Not <code>null</code>.
+    * 
+    * @param translationSettings translation settings to extract locales from. Assumed not
+    *        <code>null</code>.
+    * @return a list of locales extracted from the list of translation settings. The locales are in
+    *         the same position as the translation settings they are extracted from. Has the same
+    *         number of entries as the translation settings list. Not <code>null</code>.
     */
    private List<String> getTranslationSettingsLocaleCodes(
-         final List<PSAutoTranslation> translationSettings)
-   {
+         final List<PSAutoTranslation> translationSettings) {
       final List<String> codes = new ArrayList<>();
-      for (final PSAutoTranslation translationSetting : translationSettings)
-      {
+      for (final PSAutoTranslation translationSetting : translationSettings) {
          codes.add(translationSetting.getLocale());
       }
       assert codes.size() == translationSettings.size();
@@ -1450,19 +1209,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /**
     * Extracts locale codes from the provided locales.
-    * @param locales locales to extract locale codes from.
-    * Assumed not <code>null</code>.
-    * @return a list of locale codes extracted from the list of locales.
-    * The codes are in the same position as the locales they are
-    * extracted from.
-    * Has the same number of entries as the locales list.
-    * Not <code>null</code>.
+    * 
+    * @param locales locales to extract locale codes from. Assumed not <code>null</code>.
+    * @return a list of locale codes extracted from the list of locales. The codes are in the same
+    *         position as the locales they are extracted from. Has the same number of entries as the
+    *         locales list. Not <code>null</code>.
     */
-   private List<String> getLocaleCodes(final List<PSLocale> locales)
-   {
+   private List<String> getLocaleCodes(final List<PSLocale> locales) {
       final List<String> codes = new ArrayList<>();
-      for (final PSLocale locale : locales)
-      {
+      for (final PSLocale locale : locales) {
          codes.add(locale.getLanguageString());
       }
       assert codes.size() == locales.size();
@@ -1472,38 +1227,29 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public List<PSItemStatus> prepareForEdit(List<IPSGuid> ids,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException
-   {
+         @SuppressWarnings("unused") String user) throws PSErrorResultsException {
       return prepareForEdit(ids);
    }
 
    @SuppressWarnings("unchecked")
    @Transactional
-   public List<PSItemStatus> prepareForEdit(List<IPSGuid> ids)
-      throws PSErrorResultsException
-   {
+   public List<PSItemStatus> prepareForEdit(List<IPSGuid> ids) throws PSErrorResultsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSErrorResultsException results = new PSErrorResultsException();
-      for (IPSGuid id : ids)
-      {
-         try
-         {
+      for (IPSGuid id : ids) {
+         try {
             results.addResult(id, prepareForEdit(id));
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(id, e);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty())
          throw results;
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getResults(ids);
@@ -1514,9 +1260,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * //see base interface method for details
     */
    @Transactional
-   public PSItemStatus prepareForEdit(IPSGuid itemId)
-      throws PSErrorException
-   {
+   public PSItemStatus prepareForEdit(IPSGuid itemId) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(itemId);
       int id = ((PSLegacyGuid) itemId).getContentId();
 
@@ -1525,110 +1269,94 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       long fromStateId = summary.getContentStateId();
       itemStatus.setFromStateId(fromStateId);
 
-      logger.debug("prepareForEdit() id={}, workflowId={}, currentStateId={}",
-              id , summary.getWorkflowAppId(), summary.getContentStateId());
+      logger.debug("prepareForEdit() id={}, workflowId={}, currentStateId={}", id,
+            summary.getWorkflowAppId(), summary.getContentStateId());
 
       transitionItemIfNeeded(itemStatus, summary);
 
       // handle checkout if needed
-      if (PSWebserviceUtils.isItemCheckedOutToUser(summary))
-      {
+      if (PSWebserviceUtils.isItemCheckedOutToUser(summary)) {
          itemStatus.setDidCheckout(false);
-      }
-      else
-      {
+      } else {
          checkOutItem(summary.getContentId(), null);
          itemStatus.setDidCheckout(true);
       }
 
-      if (logger.isDebugEnabled())
-      {
-         logger.debug("prepareForEdit() itemStatus={}" , itemStatus);
+      if (logger.isDebugEnabled()) {
+         logger.debug("prepareForEdit() itemStatus={}", itemStatus);
       }
 
       return itemStatus;
    }
 
    /**
-    * Performs workflow transitions for the specified item from public state
-    * (valid-flag is 'y') to quick-edit state (valid-flag is 'i') if the
-    * specified item is in public state .
+    * Performs workflow transitions for the specified item from public state (valid-flag is 'y') to
+    * quick-edit state (valid-flag is 'i') if the specified item is in public state .
     *
-    * @param itemStatus used to record the result of the possible transition,
-    *    assumed not <code>null</code>.
-    * @param summary the summary of the specified item, assumed not
-    *    <code>null</code>.
+    * @param itemStatus used to record the result of the possible transition, assumed not
+    *        <code>null</code>.
+    * @param summary the summary of the specified item, assumed not <code>null</code>.
     * @throws PSErrorException if an error occurs.
     */
-   private void transitionItemIfNeeded(PSItemStatus itemStatus,
-      PSComponentSummary summary) throws PSErrorException
-   {
+   private void transitionItemIfNeeded(PSItemStatus itemStatus, PSComponentSummary summary)
+         throws PSErrorException {
       PSWorkflow wf = PSWebserviceUtils.getWorkflow(summary.getWorkflowAppId());
 
       // get current state
       int stateId = summary.getContentStateId();
       PSState currState = PSWebserviceUtils.getStateById(wf, stateId);
 
-      if (currState == null)
-      {
+      if (currState == null) {
          throw new PSErrorException(IPSWebserviceErrors.CANNOT_FIND_WORKFLOW_STATE_ID,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_WORKFLOW_STATE_ID, stateId, wf
-               .getGUID().longValue(), wf.getName()), ExceptionUtils
-               .getFullStackTrace(new Exception()));
+               PSWebserviceErrors.createErrorMessage(
+                     IPSWebserviceErrors.CANNOT_FIND_WORKFLOW_STATE_ID, stateId,
+                     wf.getGUID().longValue(), wf.getName()),
+               ExceptionUtils.getFullStackTrace(new Exception()));
       }
 
-      logger.debug("workflowId={}, stateId={}, isPublishable={}"
-              , stateId, summary.getWorkflowAppId(), currState.isPublishable());
+      logger.debug("workflowId={}, stateId={}, isPublishable={}", stateId,
+            summary.getWorkflowAppId(), currState.isPublishable());
 
       // perform transition if needed
-      if (currState.isPublishable())
-      {
+      if (currState.isPublishable()) {
          PSTransition trans = getTransitionToQuickEdit(currState, wf);
-         PSWebserviceUtils.transitionItem(summary.getContentId(), trans
-            .getTrigger(), null, null);
+         PSWebserviceUtils.transitionItem(summary.getContentId(), trans.getTrigger(), null, null);
 
-         PSState toState = PSWebserviceUtils.getStateById(wf, trans
-            .getToState());
+         PSState toState = PSWebserviceUtils.getStateById(wf, trans.getToState());
 
          itemStatus.setFromStateId(currState.getStateId());
          itemStatus.setFromState(currState.getName());
          itemStatus.setToStateId(toState.getStateId());
          itemStatus.setToState(toState.getName());
          itemStatus.setDidTransition(true);
-      }
-      else
-      {
+      } else {
          itemStatus.setDidTransition(false);
       }
    }
 
    /**
-    * Find a transition where its from-state is the specified public state
-    * and its to-state is a quick-edit state (its valid-flag is 'i').
+    * Find a transition where its from-state is the specified public state and its to-state is a
+    * quick-edit state (its valid-flag is 'i').
     *
     * @param pubState the public state, assumed not <code>null</code>.
-    * @param wf the workflow contains all searchable states, assumed not
-    *    <code>null</code>.
+    * @param wf the workflow contains all searchable states, assumed not <code>null</code>.
     * @return the quick-edit state, never <code>null</code>.
     * @throws PSErrorException if failed to find a quick-edit state.
     */
    private PSTransition getTransitionToQuickEdit(PSState pubState, PSWorkflow wf)
-      throws PSErrorException
-   {
-      for (PSTransition t : pubState.getTransitions())
-      {
+         throws PSErrorException {
+      for (PSTransition t : pubState.getTransitions()) {
          PSState toState = PSWebserviceUtils.getStateById(wf, t.getToState());
-         if (toState.getContentValidValue().equalsIgnoreCase("i"))
-         {
+         if (toState.getContentValidValue().equalsIgnoreCase("i")) {
             return t;
          }
       }
 
       throw new PSErrorException(IPSWebserviceErrors.CANNOT_FIND_TRANS_TO_QE_STATE,
-         PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_TRANS_TO_QE_STATE,
-            pubState.getStateId(), pubState.getName(),
-            wf.getGUID().longValue(), wf.getName()), ExceptionUtils
-            .getFullStackTrace(new Exception()));
+            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_TRANS_TO_QE_STATE,
+                  pubState.getStateId(), pubState.getName(), wf.getGUID().longValue(),
+                  wf.getName()),
+            ExceptionUtils.getFullStackTrace(new Exception()));
 
    }
 
@@ -1636,12 +1364,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * Check int the specified item.
     *
     * @param id the item id.
-    * @param comment The comment, may be <code>null</code> or empty for no
-    *    comment.
+    * @param comment The comment, may be <code>null</code> or empty for no comment.
     * @throws PSErrorException if failed to check in the specified item.
     */
-   private void checkInItem(int id, String comment) throws PSErrorException
-   {
+   private void checkInItem(int id, String comment) throws PSErrorException {
       checkInOutItem(id, -1, false, comment);
    }
 
@@ -1649,12 +1375,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * Check out the current revision of the specified item.
     *
     * @param id the item id.
-    * @param comment The comment, may be <code>null</code> or empty for no
-    *    comment.
+    * @param comment The comment, may be <code>null</code> or empty for no comment.
     * @throws PSErrorException if failed to check out of the specified item.
     */
-   private void checkOutItem(int id, String comment) throws PSErrorException
-   {
+   private void checkOutItem(int id, String comment) throws PSErrorException {
       checkInOutItem(id, -1, true, comment);
    }
 
@@ -1662,19 +1386,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * Check in or out the specified item.
     *
     * @param id the item id.
-    * @param revision the revision of the item. It may be <code>-1</code> if
-    *    the revision of the item is ignored for this operation.
-    * @param isCheckout <code>true</code> if performing check out; otherwise
-    *    performing check in.
-    * @param comment The comment, may be <code>null</code> or empty for no
-    * comment.
+    * @param revision the revision of the item. It may be <code>-1</code> if the revision of the
+    *        item is ignored for this operation.
+    * @param isCheckout <code>true</code> if performing check out; otherwise performing check in.
+    * @param comment The comment, may be <code>null</code> or empty for no comment.
     * @throws PSErrorException if failed to check in/out of the specified item.
     */
-   private void checkInOutItem(int id, int revision, boolean isCheckout,
-      String comment) throws PSErrorException
-   {
-      PSWebServicesRequestHandler ws = PSWebServicesRequestHandler
-         .getInstance();
+   private void checkInOutItem(int id, int revision, boolean isCheckout, String comment)
+         throws PSErrorException {
+      PSWebServicesRequestHandler ws = PSWebServicesRequestHandler.getInstance();
 
       PSRequest req = getRequest();
 
@@ -1682,40 +1402,31 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       Map<String, Object> oldParams = req.getParameters();
       req.setParameters(new HashMap<>());
 
-      try
-      {
-         req
-            .setParameter(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(id));
-         if (revision != -1)
-         {
-            req.setParameter(IPSHtmlParameters.SYS_REVISION, Integer
-               .toString(revision));
+      try {
+         req.setParameter(IPSHtmlParameters.SYS_CONTENTID, Integer.toString(id));
+         if (revision != -1) {
+            req.setParameter(IPSHtmlParameters.SYS_REVISION, Integer.toString(revision));
          }
 
-         if (!StringUtils.isBlank(comment))
-         {
-            PSWorkFlowUtils.setTransitionCommentInHTMLParams(comment, req
-               .getParameters());
+         if (!StringUtils.isBlank(comment)) {
+            PSWorkFlowUtils.setTransitionCommentInHTMLParams(comment, req.getParameters());
          }
 
          if (isCheckout)
             ws.executeCheckInOut(req, IPSConstants.TRIGGER_CHECKOUT);
          else
             ws.executeCheckInOut(req, IPSConstants.TRIGGER_CHECKIN);
-      }
-      catch (PSException e)
-      {
+      } catch (PSException e) {
          int errorCode;
          if (isCheckout)
             errorCode = IPSWebserviceErrors.FAILED_CHECK_OUT_ITEM;
          else
             errorCode = IPSWebserviceErrors.FAILED_CHECK_IN_ITEM;
-         String message = PSWebserviceErrors.createErrorMessage(errorCode, id, PSExceptionUtils.getMessageForLog(e));
+         String message = PSWebserviceErrors.createErrorMessage(errorCode, id,
+               PSExceptionUtils.getMessageForLog(e));
          String stack = ExceptionUtils.getFullStackTrace(e);
-         throw  new PSErrorException(errorCode, message, stack, e);
-      }
-      finally
-      {
+         throw new PSErrorException(errorCode, message, stack, e);
+      } finally {
          req.setParameters(oldParams);
       }
    }
@@ -1731,23 +1442,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Override
    @Transactional
    public void promoteRevisions(List<IPSGuid> ids, String session, String user)
-      throws PSErrorsException, PSErrorException
-   {
+         throws PSErrorsException, PSErrorException {
       promoteRevisions(ids);
    }
 
    @Transactional
-   public void promoteRevisions(List<IPSGuid> ids)
-      throws PSErrorsException
-   {
+   public void promoteRevisions(List<IPSGuid> ids) throws PSErrorsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       // validates revision of the ids
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          PSLegacyGuid guid = (PSLegacyGuid) id;
-         if (guid.getRevision() == -1)
-         {
+         if (guid.getRevision() == -1) {
             throw new IllegalArgumentException("ids must specify revision");
          }
       }
@@ -1755,46 +1461,38 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       String method = "promoteRevisions";
 
       PSErrorsException results = new PSErrorsException();
-      for (IPSGuid id : ids)
-      {
+      for (IPSGuid id : ids) {
          PSLegacyGuid guid = (PSLegacyGuid) id;
          int contentId = guid.getContentId();
          int revision = guid.getRevision();
 
-         try
-         {
+         try {
             // ensure checked in
-            PSComponentSummary sum = PSWebserviceUtils
-               .getItemSummary(contentId);
-            if (!StringUtils.isBlank(sum.getCheckoutUserName()))
-            {
+            PSComponentSummary sum = PSWebserviceUtils.getItemSummary(contentId);
+            if (!StringUtils.isBlank(sum.getCheckoutUserName())) {
                int code = IPSWebserviceErrors.ITEM_NOT_CHECKED_IN;
                results.addError(id,
-                  new PSErrorException(code, PSWebserviceErrors
-                     .createErrorMessage(code, guid.longValue(), method),
-                     ExceptionUtils.getFullStackTrace(new Exception())));
+                     new PSErrorException(code,
+                           PSWebserviceErrors.createErrorMessage(code, guid.longValue(), method),
+                           ExceptionUtils.getFullStackTrace(new Exception())));
             }
 
             // ensure non-public
-            PSWorkflow wf = PSWebserviceUtils.getWorkflow(sum
-               .getWorkflowAppId());
-            PSState currState = PSWebserviceUtils.getStateById(wf, sum
-               .getContentStateId());
-            if (currState.isPublishable())
-            {
+            PSWorkflow wf = PSWebserviceUtils.getWorkflow(sum.getWorkflowAppId());
+            PSState currState = PSWebserviceUtils.getStateById(wf, sum.getContentStateId());
+            if (currState.isPublishable()) {
                int code = IPSWebserviceErrors.INAVLID_ACTION_FOR_STATE;
-               results.addError(id, new PSErrorException(code,
-                  PSWebserviceErrors.createErrorMessage(code, guid.longValue(),
-                     wf.getName(), currState.getName()), ExceptionUtils
-                     .getFullStackTrace(new Exception())));
+               results.addError(id,
+                     new PSErrorException(code,
+                           PSWebserviceErrors.createErrorMessage(code, guid.longValue(),
+                                 wf.getName(), currState.getName()),
+                           ExceptionUtils.getFullStackTrace(new Exception())));
             }
 
             // checkout the revision
             checkInOutItem(contentId, revision, true, null);
             results.addResult(id);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(id, e);
          }
       }
@@ -1806,17 +1504,12 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    // @see IPSContentWs#releaseFromEdit(List, boolean, String, String)
    @Transactional
    public void releaseFromEdit(List<PSItemStatus> status, boolean checkinOnly)
-      throws PSErrorsException
-   {
+         throws PSErrorsException {
       PSErrorsException results = new PSErrorsException();
-      for (PSItemStatus s : status)
-      {
-         try
-         {
+      for (PSItemStatus s : status) {
+         try {
             releaseFromEdit(s, checkinOnly);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(new PSLegacyGuid(s.getId(), -1), e);
          }
       }
@@ -1830,139 +1523,118 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     */
    @Transactional
    public void releaseFromEdit(PSItemStatus itemStatus, boolean checkinOnly)
-      throws PSErrorException
-   {
+         throws PSErrorException {
       notNull(itemStatus, "itemStatus may not be null");
-      if (logger.isDebugEnabled())
-      {
-         logger.debug("releaseFromEdit() itemStatus={}" , itemStatus);
+      if (logger.isDebugEnabled()) {
+         logger.debug("releaseFromEdit() itemStatus={}", itemStatus);
       }
 
       int id = itemStatus.getId();
-      if (itemStatus.isDidCheckout())
-      {
+      if (itemStatus.isDidCheckout()) {
          checkInItem(id, null);
       }
-      if (itemStatus.isDidTransition() && (!checkinOnly))
-      {
-         PSComponentSummary summary = PSWebserviceUtils
-            .getItemSummary(id);
+      if (itemStatus.isDidTransition() && (!checkinOnly)) {
+         PSComponentSummary summary = PSWebserviceUtils.getItemSummary(id);
 
 
-         logger.debug("releaseFromEdit() id={}, workflowId={}, currentStateId={}" , id, summary.getWorkflowAppId(), summary.getContentStateId());
+         logger.debug("releaseFromEdit() id={}, workflowId={}, currentStateId={}", id,
+               summary.getWorkflowAppId(), summary.getContentStateId());
 
-         if (!validateItemState(summary, itemStatus))
-         {
+         if (!validateItemState(summary, itemStatus)) {
             return;
          }
 
-         PSWorkflow wf = PSWebserviceUtils.getWorkflow(summary
-            .getWorkflowAppId());
-         PSState toState = PSWebserviceUtils.getStateById(wf, itemStatus
-            .getFromStateId());
-         PSState fromState = PSWebserviceUtils.getStateById(wf, itemStatus
-            .getToStateId());
+         PSWorkflow wf = PSWebserviceUtils.getWorkflow(summary.getWorkflowAppId());
+         PSState toState = PSWebserviceUtils.getStateById(wf, itemStatus.getFromStateId());
+         PSState fromState = PSWebserviceUtils.getStateById(wf, itemStatus.getToStateId());
          PSTransition trans = getTransition(fromState, toState, wf);
 
-            logger.debug("releaseFromEdit() transition= {}", trans);
+         logger.debug("releaseFromEdit() transition= {}", trans);
 
-         PSWebserviceUtils.transitionItem(summary.getContentId(), trans
-            .getTrigger(), null, null);
+         PSWebserviceUtils.transitionItem(summary.getContentId(), trans.getTrigger(), null, null);
       }
    }
 
    /**
-    * Determines if the current state of the specified item is the to-state of
-    * the specified item-status.
+    * Determines if the current state of the specified item is the to-state of the specified
+    * item-status.
     *
     * @param item the item in question, assumed not <code>null</code>.
     * @param itemStatus the item status in question, assumed not <code>null</code>.
-    * <code>null</code>.
+    *        <code>null</code>.
     *
-    * @return <code>true</code> if current state of the item is the same as
-    * the to-state of the item-status; otherwise return <code>false</code>.
+    * @return <code>true</code> if current state of the item is the same as the to-state of the
+    *         item-status; otherwise return <code>false</code>.
     *
-    * @throws PSErrorException if current state of the item is not the same
-    * as the from state of the item-status.
+    * @throws PSErrorException if current state of the item is not the same as the from state of the
+    *         item-status.
     */
-   private boolean validateItemState(PSComponentSummary item,
-         PSItemStatus itemStatus)
-   {
-      if (item.getContentStateId() == itemStatus.getToStateId())
-      {
+   private boolean validateItemState(PSComponentSummary item, PSItemStatus itemStatus) {
+      if (item.getContentStateId() == itemStatus.getToStateId()) {
          return true;
       }
 
       PSWorkflow wf = PSWebserviceUtils.getWorkflow(item.getWorkflowAppId());
       PSState toState = PSWebserviceUtils.getStateById(wf, itemStatus.getFromStateId());
 
-      PSState currState = PSWebserviceUtils.getStateById(wf, item
-            .getContentStateId());
+      PSState currState = PSWebserviceUtils.getStateById(wf, item.getContentStateId());
 
-      throw  new PSErrorException(IPSWebserviceErrors.CURR_STATE_NOT_MATCH,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CURR_STATE_NOT_MATCH, currState
-                  .getStateId(), currState.getName(), toState.getStateId(),
-                  toState.getName()), ExceptionUtils
-                  .getFullStackTrace(new Exception()));
+      throw new PSErrorException(IPSWebserviceErrors.CURR_STATE_NOT_MATCH,
+            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CURR_STATE_NOT_MATCH,
+                  currState.getStateId(), currState.getName(), toState.getStateId(),
+                  toState.getName()),
+            ExceptionUtils.getFullStackTrace(new Exception()));
    }
 
    /**
-    * Finds a transition contains the specified from-state and the specified
-    * to-state. If cannot find such transition, then lookup a transition that
-    * leads to a state with the same "content-valid" flag as the to-state.
+    * Finds a transition contains the specified from-state and the specified to-state. If cannot
+    * find such transition, then lookup a transition that leads to a state with the same
+    * "content-valid" flag as the to-state.
     *
     * @param fromState the from-state, assumed not <code>null</code>.
     * @param toState the to-state, assumed not <code>null</code>.
-    * @param wf the workflow that contains all transitions and states, assumed
-    *            not <code>null</code>.
+    * @param wf the workflow that contains all transitions and states, assumed not
+    *        <code>null</code>.
     * @return the specified transition, never <code>null</code>.
     * @throws PSErrorException if cannot find the specified transition.
     */
-   private PSTransition getTransition(PSState fromState, PSState toState,
-      PSWorkflow wf) throws PSErrorException
-   {
+   private PSTransition getTransition(PSState fromState, PSState toState, PSWorkflow wf)
+         throws PSErrorException {
       // find a transition: fromState -> toState
       long toStateId = toState.getStateId();
-      for (PSTransition t : fromState.getTransitions())
-      {
-         if (t.getToState() == toStateId)
-         {
+      for (PSTransition t : fromState.getTransitions()) {
+         if (t.getToState() == toStateId) {
             return t;
          }
       }
 
       // find a transition: to a state that has the same flag as the "toState"
       String contentFlag = toState.getContentValidValue();
-      for (PSTransition t : fromState.getTransitions())
-      {
+      for (PSTransition t : fromState.getTransitions()) {
          PSState state = PSWebserviceUtils.getStateById(wf, t.getToState());
-         if (state.getContentValidValue().equals(contentFlag))
-         {
+         if (state.getContentValidValue().equals(contentFlag)) {
             return t;
          }
       }
       throw new PSErrorException(IPSWebserviceErrors.CANNOT_FIND_TRANS_4_STATE_2_STATE,
-         PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.CANNOT_FIND_TRANS_4_STATE_2_STATE, fromState
-            .getStateId(), fromState.getName(), toState.getStateId(), toState
-            .getName(), wf.getGUID().longValue(), wf.getName()), ExceptionUtils
-            .getFullStackTrace(new Exception()));
+            PSWebserviceErrors.createErrorMessage(
+                  IPSWebserviceErrors.CANNOT_FIND_TRANS_4_STATE_2_STATE, fromState.getStateId(),
+                  fromState.getName(), toState.getStateId(), toState.getName(),
+                  wf.getGUID().longValue(), wf.getName()),
+            ExceptionUtils.getFullStackTrace(new Exception()));
    }
 
    @Deprecated
    @Transactional
-   public List<IPSGuid> saveItems(List<PSCoreItem> items,
-      boolean enableRevisions, boolean checkin, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException
-   {
+   public List<IPSGuid> saveItems(List<PSCoreItem> items, boolean enableRevisions, boolean checkin,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorResultsException {
       return saveItems(items, enableRevisions, checkin);
    }
 
    @Transactional
-   public List<IPSGuid> saveItems(List<PSCoreItem> items,
-         boolean enableRevisions, boolean checkin)
-         throws PSErrorResultsException
-   {
+   public List<IPSGuid> saveItems(List<PSCoreItem> items, boolean enableRevisions, boolean checkin)
+         throws PSErrorResultsException {
       if (items == null || items.isEmpty())
          throw new IllegalArgumentException("items cannot be null or empty");
 
@@ -1974,16 +1646,14 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param items
     * @param enableRevisions
     * @param checkin
-    * @param folderId the id of the folder to include in the request to save
-    *    the items.  May be <code>null</code> if the folder id is not
+    * @param folderId the id of the folder to include in the request to save the items. May be
+    *        <code>null</code> if the folder id is not
     * @return
     * @throws PSErrorResultsException
     */
    @Transactional
-   public List<IPSGuid> saveItems(List<PSCoreItem> items,
-      boolean enableRevisions, boolean checkin, IPSGuid folderId)
-      throws PSErrorResultsException
-   {
+   public List<IPSGuid> saveItems(List<PSCoreItem> items, boolean enableRevisions, boolean checkin,
+         IPSGuid folderId) throws PSErrorResultsException {
       return saveItems(items, enableRevisions, checkin, folderId, FOLDER_RELATE_TYPE);
    }
 
@@ -1998,11 +1668,8 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @throws PSErrorResultsException
     */
    @Transactional
-   public List<IPSGuid> saveItems(List<PSCoreItem> items,
-                                  boolean enableRevisions, boolean checkin, IPSGuid folderId,
-                                  String relationshipTypeName)
-           throws PSErrorResultsException
-   {
+   public List<IPSGuid> saveItems(List<PSCoreItem> items, boolean enableRevisions, boolean checkin,
+         IPSGuid folderId, String relationshipTypeName) throws PSErrorResultsException {
       if (items == null || items.isEmpty())
          throw new IllegalArgumentException("items cannot be null or empty");
 
@@ -2010,22 +1677,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       PSErrorResultsException results = new PSErrorResultsException();
       PSLegacyGuid guid = null;
-      for (PSCoreItem item : items)
-      {
-         try
-         {
+      for (PSCoreItem item : items) {
+         try {
             // create new request for each iteration
             PSRequest request = getNewRequest();
 
-            if (folderId != null)
-            {
+            if (folderId != null) {
                // add the folder id to the request
                request.setParameter(IPSHtmlParameters.SYS_FOLDERID,
-                       String.valueOf(folderId.getUUID()));
+                     String.valueOf(folderId.getUUID()));
             }
 
-            if (StringUtils.isBlank(request.getParameter(IPSHtmlParameters.SYS_CONTENTTYPEID)))
-            {
+            if (StringUtils.isBlank(request.getParameter(IPSHtmlParameters.SYS_CONTENTTYPEID))) {
                // add the content type id if it's not already there
                request.setParameter(IPSHtmlParameters.SYS_CONTENTTYPEID, item.getContentTypeId());
             }
@@ -2056,8 +1719,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
             // process folders if supplied
             List<String> paths = item.getFolderPaths();
-            if (paths != null)
-            {
+            if (paths != null) {
                processFoldersForItem(guid, paths, relationshipTypeName);
             }
 
@@ -2068,39 +1730,36 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
                checkInItem(guid.getContentId(), null);
 
             results.addResult(guid, serverItem);
-         }
-         catch (PSException | PSORMException | PSErrorsException e)
-         {
+         } catch (PSException | PSORMException | PSErrorsException e) {
             int code = IPSWebserviceErrors.FAILED_SAVE_ITEM;
             PSErrorException error = new PSErrorException(code,
-                    PSWebserviceErrors.createErrorMessage(code, guid.getUUID(),
-                            PSExceptionUtils.getMessageForLog(e)), PSExceptionUtils.getDebugMessageForLog(e),e);
+                  PSWebserviceErrors.createErrorMessage(code, guid.getUUID(),
+                        PSExceptionUtils.getMessageForLog(e)),
+                  PSExceptionUtils.getDebugMessageForLog(e), e);
             results.addError(guid, error);
-         } catch (PSErrorException e)
-         {
-            logger.error("Error performing workflow transition for item: {}. Error: {}", guid.getContentId(), PSExceptionUtils.getMessageForLog(e));
+         } catch (PSErrorException e) {
+            logger.error("Error performing workflow transition for item: {}. Error: {}",
+                  guid.getContentId(), PSExceptionUtils.getMessageForLog(e));
             results.addError(guid, e);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty())
          throw results;
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getIds();
    }
 
    /**
-    * Walks a list of paths for an item and adds the item to the paths.
-    * If the item was in paths no longer in the list it is removed from
-    * those paths.
+    * Walks a list of paths for an item and adds the item to the paths. If the item was in paths no
+    * longer in the list it is removed from those paths.
     *
-    * This method is Synchronised to prevent two threads from creating
-    * the same directory if it does not exist.
+    * This method is Synchronised to prevent two threads from creating the same directory if it does
+    * not exist.
     *
     * @param guid - guid of the item may be <code>null</code>
     * @param paths - list of paths may be <code>null</code> or empty.
@@ -2108,10 +1767,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @throws PSErrorResultsException
     * @throws PSErrorsException
     */
-   private synchronized void processFoldersForItem(PSLegacyGuid guid,
-         List<String> paths, String relationshipTypeName)
-      throws PSErrorException, PSErrorResultsException, PSErrorsException
-   {
+   private synchronized void processFoldersForItem(PSLegacyGuid guid, List<String> paths,
+         String relationshipTypeName)
+         throws PSErrorException, PSErrorResultsException, PSErrorsException {
       if (guid == null)
          return;
 
@@ -2125,10 +1783,8 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       existingPaths.addAll(Arrays.asList(findFolderPaths(guid, relationshipTypeName)));
 
       // handle new paths
-      for (String path : paths)
-      {
-         if (!existingPaths.contains(path))
-         {
+      for (String path : paths) {
+         if (!existingPaths.contains(path)) {
             addFolderTree(path);
             addFolderChildren(path, guids);
          }
@@ -2144,18 +1800,13 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Enables the revisions for the supplied item is so requested.
     *
-    * @param guid the id of the item for which to enable the revisions,
-    *    assumed not <code>null</code>.
-    * @param enable <code>true</code> to enable the revisions,
-    *    <code>false</code> otherwise.
-    * @throws PSORMException if it fails to enable the revisions for the
-    *    identified item.
+    * @param guid the id of the item for which to enable the revisions, assumed not
+    *        <code>null</code>.
+    * @param enable <code>true</code> to enable the revisions, <code>false</code> otherwise.
+    * @throws PSORMException if it fails to enable the revisions for the identified item.
     */
-   private void enableRevisions(PSLegacyGuid guid, boolean enable)
-      throws PSORMException
-   {
-      if (enable)
-      {
+   private void enableRevisions(PSLegacyGuid guid, boolean enable) throws PSORMException {
+      if (enable) {
          List<Integer> ids = new ArrayList<>();
          ids.add(guid.getContentId());
 
@@ -2171,13 +1822,11 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Get the content type id for the supplied item.
     *
-    * @param guid the item id for which to get the content type id, assumed
-    *    not <code>null</code>.
+    * @param guid the item id for which to get the content type id, assumed not <code>null</code>.
     * @return the content type id.
     * @throws IllegalArgumentException if the supplied id is invalid.
     */
-   private long getContentTypeId(PSLegacyGuid guid)
-   {
+   private long getContentTypeId(PSLegacyGuid guid) {
       List<Integer> ids = new ArrayList<>();
       ids.add(guid.getContentId());
 
@@ -2191,49 +1840,40 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    public List<PSCoreItem> viewItems(List<IPSGuid> ids, boolean includeBinary,
-      boolean includeChildren, boolean includeRelated,
-      boolean includeFolderPath, @SuppressWarnings("unused") String session,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException
-   {
-      return viewItems(ids, includeBinary, includeChildren, includeRelated,
-         includeFolderPath);
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorResultsException {
+      return viewItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath);
    }
 
    public List<PSCoreItem> viewItems(List<IPSGuid> ids, boolean includeBinary,
-      boolean includeChildren, boolean includeRelated,
-      boolean includeFolderPath)
-      throws PSErrorResultsException
-   {
-      return doLoadItems(ids, includeBinary, includeChildren, includeRelated,
-         includeFolderPath, true, false, FOLDER_RELATE_TYPE);
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath)
+         throws PSErrorResultsException {
+      return doLoadItems(ids, includeBinary, includeChildren, includeRelated, includeFolderPath,
+            true, false, FOLDER_RELATE_TYPE);
    }
 
    /**
-    * Convenience method for {@link #loadItems(List, boolean, boolean, boolean,
-    * boolean)} or {@link #viewItems(List, boolean, boolean,
-    * boolean, boolean)} depending on the extra flag.
+    * Convenience method for {@link #loadItems(List, boolean, boolean, boolean, boolean)} or
+    * {@link #viewItems(List, boolean, boolean, boolean, boolean)} depending on the extra flag.
     *
-    * @param isView <code>true</code> to return item views, <code>false</code>
-    *    to return loaded items.
-    * @param includeRelatedItem if both <code>includeRelated</code> and this
-    * is <code>true</code>, then load both the relationships as well as the
-    * related items; otherwise the related items will not be loaded.
+    * @param isView <code>true</code> to return item views, <code>false</code> to return loaded
+    *        items.
+    * @param includeRelatedItem if both <code>includeRelated</code> and this is <code>true</code>,
+    *        then load both the relationships as well as the related items; otherwise the related
+    *        items will not be loaded.
     */
    @SuppressWarnings("unchecked")
    private List<PSCoreItem> doLoadItems(List<IPSGuid> ids, boolean includeBinary,
-      boolean includeChildren, boolean includeRelated, boolean includeFolderPath, boolean isView, boolean includeRelatedItem, String relationshipTypeName)
-      throws PSErrorResultsException
-   {
+         boolean includeChildren, boolean includeRelated, boolean includeFolderPath, boolean isView,
+         boolean includeRelatedItem, String relationshipTypeName) throws PSErrorResultsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSRequest request = getNewRequest();
 
       PSErrorResultsException results = new PSErrorResultsException();
-      for (IPSGuid id : ids)
-      {
-         try
-         {
+      for (IPSGuid id : ids) {
+         try {
             PSLegacyGuid guid = (PSLegacyGuid) id;
             if (!isView)
                guid = handleRevision(guid);
@@ -2243,20 +1883,17 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             PSItemDefinition def = getItemDefinition(getContentTypeId(guid));
 
             PSServerItem serverItem = new PSServerItem(def);
-            serverItem.load(guid.getLocator(), request, includeBinary,
-               includeChildren, includeRelated, includeRelatedItem);
+            serverItem.load(guid.getLocator(), request, includeBinary, includeChildren,
+                  includeRelated, includeRelatedItem);
 
-            if (includeChildren)
-            {
+            if (includeChildren) {
                // default child entry action to "update"
                Iterator<PSItemChild> children = serverItem.getAllChildren();
-               while (children.hasNext())
-               {
+               while (children.hasNext()) {
                   PSItemChild child = children.next();
 
                   Iterator<PSItemChildEntry> entries = child.getAllEntries();
-                  while (entries.hasNext())
-                  {
+                  while (entries.hasNext()) {
                      PSItemChildEntry entry = entries.next();
                      entry.setAction(PSItemChildEntry.CHILD_ACTION_UPDATE);
                   }
@@ -2264,27 +1901,25 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
             }
 
             if (includeFolderPath)
-               serverItem.setFolderPaths(Arrays.asList(findFolderPaths(guid, relationshipTypeName)));
+               serverItem
+                     .setFolderPaths(Arrays.asList(findFolderPaths(guid, relationshipTypeName)));
 
             results.addResult(id, serverItem);
-         }
-         catch (PSErrorException | PSException e)
-         {
+         } catch (PSErrorException | PSException e) {
             int code = isView ? IPSWebserviceErrors.FAILED_VIEW_ITEM
-               : IPSWebserviceErrors.FAILED_LOAD_ITEM;
-            PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, id.getUUID(), e
-                  .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+                  : IPSWebserviceErrors.FAILED_LOAD_ITEM;
+            PSErrorException error = new PSErrorException(code, PSWebserviceErrors
+                  .createErrorMessage(code, id.getUUID(), e.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty())
          throw results;
-      else if(results.hasErrors()) {
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
 
       }
 
@@ -2293,20 +1928,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public List<PSItemChildEntry> createChildEntries(IPSGuid id, String name,
-      int count, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused")
-      String user) throws
-           PSErrorException
-   {
+   public List<PSItemChildEntry> createChildEntries(IPSGuid id, String name, int count,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return createChildEntries(id, name, count);
    }
 
    @Transactional
-   public List<PSItemChildEntry> createChildEntries(IPSGuid id, String name,
-      int count) throws PSUnknownChildException,
-      PSInvalidStateException, PSErrorException
-   {
+   public List<PSItemChildEntry> createChildEntries(IPSGuid id, String name, int count)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
@@ -2318,24 +1948,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSLegacyGuid lguid = (PSLegacyGuid) id;
 
       // validate/update revision
-      try
-      {
+      try {
          lguid = handleRevision(lguid);
-      }
-      catch (PSErrorException er)
-      {
+      } catch (PSErrorException er) {
          throwUnexpectedError(er);
       }
 
       PSRequest req = getRequest();
       PSLocator loc = lguid.getLocator();
       PSServerItem parent;
-      try
-      {
+      try {
          parent = PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          PSErrorException er = handleLoadFailed(id, e);
          throwUnexpectedError(er);
          return new ArrayList<>(); // never happen here, used to turn off compiling error
@@ -2344,27 +1968,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       ensureCheckedOut(parent, "createChildEntries");
 
       PSItemChildEntry entry = null;
-      try
-      {
+      try {
          // this way we get the field defaults
          entry = parent.createChildEntry(req, name);
          entry.setAction(PSItemChildEntry.CHILD_ACTION_INSERT);
-      }
-      catch (PSInvalidChildTypeException e)
-      {
+      } catch (PSInvalidChildTypeException e) {
          handleMissingChildType(name);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          throwOperationError("Failed to create child entry: ", e);
       }
 
-      for (int i = 0; i < count; i++)
-      {
+      for (int i = 0; i < count; i++) {
          if (i == 0)
             results.add(entry);
          else {
-            if(entry != null) {
+            if (entry != null) {
                results.add((PSItemChildEntry) entry.clone());
             }
          }
@@ -2374,59 +1992,44 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Just like {@link PSWebserviceUtils#handleRevision(PSLegacyGuid, PSComponentSummary)} except it loads the component summary, then calls
-    * the above method.
+    * Just like {@link PSWebserviceUtils#handleRevision(PSLegacyGuid, PSComponentSummary)} except it
+    * loads the component summary, then calls the above method.
     *
-    * @throws PSErrorException if the component summary for the item cannot be
-    *    loaded.
+    * @throws PSErrorException if the component summary for the item cannot be loaded.
     */
-   private PSLegacyGuid handleRevision(PSLegacyGuid lguid)
-      throws PSErrorException
-   {
-      PSComponentSummary summary = PSWebserviceUtils.getItemSummary(lguid
-         .getContentId());
+   private PSLegacyGuid handleRevision(PSLegacyGuid lguid) throws PSErrorException {
+      PSComponentSummary summary = PSWebserviceUtils.getItemSummary(lguid.getContentId());
       return PSWebserviceUtils.handleRevision(lguid, summary);
    }
 
    @Deprecated
    @Transactional
-   public void deleteChildEntries(IPSGuid id, String name,
-      List<IPSGuid> childIds, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused")
-      String user)
-      throws PSUnknownChildException, PSInvalidStateException,
-      PSErrorsException, PSErrorException
-   {
+   public void deleteChildEntries(IPSGuid id, String name, List<IPSGuid> childIds,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorsException,
+         PSErrorException {
       deleteChildEntries(id, name, childIds);
    }
 
    @Transactional
-   public void deleteChildEntries(IPSGuid id, String name,
-      List<IPSGuid> childIds)
-      throws
-           PSErrorsException, PSErrorException
-   {
+   public void deleteChildEntries(IPSGuid id, String name, List<IPSGuid> childIds)
+         throws PSErrorsException, PSErrorException {
       if (id == null)
          throw new IllegalArgumentException("id may not be null");
       if (!(id instanceof PSLegacyGuid))
-         throw new IllegalArgumentException(
-            "id must be instance of legacy guid");
+         throw new IllegalArgumentException("id must be instance of legacy guid");
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
       if (childIds == null || childIds.isEmpty())
-         throw new IllegalArgumentException(
-            "childIds may not be null or empty");
+         throw new IllegalArgumentException("childIds may not be null or empty");
 
       PSLegacyGuid lguid = (PSLegacyGuid) id;
       PSErrorsException results = new PSErrorsException();
 
       // validate revision
-      try
-      {
+      try {
          lguid = handleRevision(lguid);
-      }
-      catch (PSErrorException e)
-      {
+      } catch (PSErrorException e) {
          results.addError(id, e);
          throw results;
       }
@@ -2435,13 +2038,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSLocator loc = lguid.getLocator();
 
       PSServerItem parent;
-      try
-      {
-         parent = PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS
-            | PSServerItem.TYPE_CHILD);
-      }
-      catch (Exception e)
-      {
+      try {
+         parent =
+               PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS | PSServerItem.TYPE_CHILD);
+      } catch (Exception e) {
          throwOperationError("Failed to load parent item ", e);
          return; // never happen here, used to turn off compiling error/warning
       }
@@ -2449,8 +2049,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       ensureCheckedOut(parent, "deleteChildEntries");
 
       PSItemChild child = parent.getChildByName(name);
-      if (child == null)
-      {
+      if (child == null) {
          handleMissingChildType(name);
       }
 
@@ -2458,24 +2057,20 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       // walk existing children and mark them for delete if a match
       Set<Integer> childSet = new HashSet<>();
-      for (IPSGuid guid : childIds)
-      {
+      for (IPSGuid guid : childIds) {
          if (!(guid instanceof PSLegacyGuid))
-            throw new IllegalArgumentException(
-               "childIds must be instanceof PSLegacyGuid");
+            throw new IllegalArgumentException("childIds must be instanceof PSLegacyGuid");
 
          PSLegacyGuid childGuid = (PSLegacyGuid) guid;
          int childId = childGuid.getChildId();
-         if (childId != delChildId)
-         {
+         if (childId != delChildId) {
             results.addError(guid, handleInvalidChildId(guid, name, id));
          }
          childSet.add(childGuid.getUUID());
       }
 
       Iterator<PSItemChildEntry> entries = child.getAllEntries();
-      while (entries.hasNext())
-      {
+      while (entries.hasNext()) {
          PSItemChildEntry entry = entries.next();
          if (childSet.contains(entry.getChildRowId()))
             entry.setAction(PSItemChildEntry.CHILD_ACTION_DELETE);
@@ -2484,12 +2079,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       // save parent back
-      try
-      {
+      try {
          parent.save(req);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          results.addError(id, handleItemSaveFailedError(id, e));
       }
 
@@ -2498,36 +2090,28 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    @Deprecated
-   public List<PSItemChildEntry> loadChildEntries(IPSGuid contentId,
-      String name, boolean includeBinary, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused")
-      String user)
-      throws PSUnknownChildException, PSErrorResultsException, PSErrorException
-   {
+   public List<PSItemChildEntry> loadChildEntries(IPSGuid contentId, String name,
+         boolean includeBinary, @SuppressWarnings("unused") String session,
+         @SuppressWarnings("unused") String user)
+         throws PSUnknownChildException, PSErrorResultsException, PSErrorException {
       return loadChildEntries(contentId, name, includeBinary);
    }
 
-   public List<PSItemChildEntry> loadChildEntries(IPSGuid id, String name,
-      boolean includeBinary)
-      throws PSUnknownChildException, PSErrorResultsException
-   {
+   public List<PSItemChildEntry> loadChildEntries(IPSGuid id, String name, boolean includeBinary)
+         throws PSUnknownChildException, PSErrorResultsException {
       if (id == null)
          throw new IllegalArgumentException("id may not be null");
       if (!(id instanceof PSLegacyGuid))
-         throw new IllegalArgumentException(
-            "id must be instance of legacy guid");
+         throw new IllegalArgumentException("id must be instance of legacy guid");
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
 
       List<PSItemChildEntry> results = new ArrayList<>();
 
       PSLegacyGuid lguid = (PSLegacyGuid) id;
-      try
-      {
+      try {
          lguid = handleRevision(lguid);
-      }
-      catch (PSErrorException e)
-      {
+      } catch (PSErrorException e) {
          PSErrorResultsException errorResults = new PSErrorResultsException();
          errorResults.addError(id, e);
          throw errorResults;
@@ -2536,29 +2120,24 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSRequest req = getRequest();
       PSLocator loc = lguid.getLocator();
       PSServerItem parent;
-      try
-      {
+      try {
          int flags = PSServerItem.TYPE_FIELDS | PSServerItem.TYPE_CHILD;
          if (includeBinary)
             flags |= PSServerItem.TYPE_BINARY;
          parent = PSServerItem.loadItem(loc, req, flags);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          PSErrorResultsException errorResults = new PSErrorResultsException();
          errorResults.addError(id, handleLoadFailed(id, e));
          throw errorResults;
       }
 
       PSItemChild child = parent.getChildByName(name);
-      if (child == null)
-      {
+      if (child == null) {
          handleMissingChildType(name);
       }
 
       Iterator<PSItemChildEntry> entries = child.getAllEntries();
-      while (entries.hasNext())
-      {
+      while (entries.hasNext()) {
          PSItemChildEntry entry = entries.next();
 
          entry.setAction(PSItemChildEntry.CHILD_ACTION_UPDATE);
@@ -2570,27 +2149,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public void reorderChildEntries(IPSGuid id, String name,
-      List<IPSGuid> childIds, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused") String user)
-      throws PSUnknownChildException, PSInvalidStateException,
-      PSErrorsException, PSErrorException
-   {
+   public void reorderChildEntries(IPSGuid id, String name, List<IPSGuid> childIds,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorsException,
+         PSErrorException {
       reorderChildEntries(id, name, childIds);
    }
 
 
    @Transactional
-   public void reorderChildEntries(IPSGuid id, String name,
-      List<IPSGuid> childIds)
-      throws PSUnknownChildException, PSInvalidStateException,
-      PSErrorsException
-   {
+   public void reorderChildEntries(IPSGuid id, String name, List<IPSGuid> childIds)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorsException {
       if (id == null)
          throw new IllegalArgumentException("id may not be null");
       if (!(id instanceof PSLegacyGuid))
-         throw new IllegalArgumentException(
-            "id must be instance of legacy guid");
+         throw new IllegalArgumentException("id must be instance of legacy guid");
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
       if (childIds == null || childIds.isEmpty())
@@ -2601,12 +2174,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSErrorsException results = new PSErrorsException();
 
       // validate revision
-      try
-      {
+      try {
          lguid = handleRevision(lguid);
-      }
-      catch (PSErrorException e)
-      {
+      } catch (PSErrorException e) {
          results.addError(id, e);
          throw results;
       }
@@ -2615,13 +2185,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSLocator loc = lguid.getLocator();
 
       PSServerItem parent;
-      try
-      {
-         parent = PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS
-            | PSServerItem.TYPE_CHILD);
-      }
-      catch (Exception e)
-      {
+      try {
+         parent =
+               PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS | PSServerItem.TYPE_CHILD);
+      } catch (Exception e) {
          results.addError(id, handleLoadFailed(id, e));
          throw results;
       }
@@ -2629,15 +2196,12 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       ensureCheckedOut(parent, "reorderChildEntries");
 
       PSItemChild child = parent.getChildByName(name);
-      if (child == null)
-      {
+      if (child == null) {
          handleMissingChildType(name);
       }
 
-      if (!child.isSequenced())
-      {
-         throw new IllegalArgumentException(
-            "Specified child does not support sequencing");
+      if (!child.isSequenced()) {
+         throw new IllegalArgumentException("Specified child does not support sequencing");
       }
 
       int delChildId = child.getChildId();
@@ -2647,23 +2211,19 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       // walk child guid list and reorder as specified
       int index = 0;
-      for (IPSGuid guid : childIds)
-      {
+      for (IPSGuid guid : childIds) {
          if (!(guid instanceof PSLegacyGuid))
-            throw new IllegalArgumentException(
-               "childIds must be instanceof PSLegacyGuid");
+            throw new IllegalArgumentException("childIds must be instanceof PSLegacyGuid");
 
          PSLegacyGuid childGuid = (PSLegacyGuid) guid;
          int childId = childGuid.getChildId();
-         if (childId != delChildId)
-         {
+         if (childId != delChildId) {
             // add error exception, continue and don't bump count
             results.addError(guid, handleInvalidChildId(guid, name, id));
          }
 
          PSItemChildEntry entry = childMap.get(childGuid.getUUID());
-         if (entry == null)
-         {
+         if (entry == null) {
             // add error exception, continue and don't bump count
             results.addError(guid, handleMissingChildId(guid, name, id));
          }
@@ -2673,12 +2233,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       // save parent back
-      try
-      {
+      try {
          parent.save(req);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          results.addError(id, handleItemSaveFailedError(id, e));
       }
 
@@ -2688,26 +2245,20 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public void saveChildEntries(IPSGuid contentId, String name,
-      List<PSItemChildEntry> entries, @SuppressWarnings("unused")
-      String session, @SuppressWarnings("unused") String user)
-      throws PSUnknownChildException, PSInvalidStateException,
-      PSErrorsException, PSErrorException
-   {
+   public void saveChildEntries(IPSGuid contentId, String name, List<PSItemChildEntry> entries,
+         @SuppressWarnings("unused") String session, @SuppressWarnings("unused") String user)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorsException,
+         PSErrorException {
       saveChildEntries(contentId, name, entries);
    }
 
    @Transactional
-   public void saveChildEntries(IPSGuid id, String name,
-      List<PSItemChildEntry> entries)
-      throws PSUnknownChildException, PSInvalidStateException,
-      PSErrorsException
-   {
+   public void saveChildEntries(IPSGuid id, String name, List<PSItemChildEntry> entries)
+         throws PSUnknownChildException, PSInvalidStateException, PSErrorsException {
       if (id == null)
          throw new IllegalArgumentException("id may not be null");
       if (!(id instanceof PSLegacyGuid))
-         throw new IllegalArgumentException(
-            "id must be instance of legacy guid");
+         throw new IllegalArgumentException("id must be instance of legacy guid");
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name may not be null or empty");
       if (entries == null || entries.isEmpty())
@@ -2717,12 +2268,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSErrorsException results = new PSErrorsException();
 
       // validate revision
-      try
-      {
+      try {
          lguid = handleRevision(lguid);
-      }
-      catch (PSErrorException e)
-      {
+      } catch (PSErrorException e) {
          results.addError(id, e);
          throw results;
       }
@@ -2731,13 +2279,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSLocator loc = lguid.getLocator();
 
       PSServerItem parent;
-      try
-      {
-         parent = PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS
-            | PSServerItem.TYPE_CHILD);
-      }
-      catch (Exception e)
-      {
+      try {
+         parent =
+               PSServerItem.loadItem(loc, req, PSServerItem.TYPE_FIELDS | PSServerItem.TYPE_CHILD);
+      } catch (Exception e) {
          results.addError(id, handleLoadFailed(id, e));
          throw results;
       }
@@ -2745,8 +2290,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       ensureCheckedOut(parent, "saveChildEntries");
 
       PSItemChild child = parent.getChildByName(name);
-      if (child == null)
-      {
+      if (child == null) {
          handleMissingChildType(name);
       }
 
@@ -2754,31 +2298,25 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       Map<Integer, PSItemChildEntry> childMap = getChildEntryMap(child);
 
       // walk supplied items and process each
-      for (PSItemChildEntry entry : entries)
-      {
+      for (PSItemChildEntry entry : entries) {
          PSErrorException err = null;
          int childRowId = entry.getChildRowId();
-         PSLegacyGuid childGuid = new PSLegacyGuid(parent.getContentTypeId(),
-            child.getChildId(), childRowId);
+         PSLegacyGuid childGuid =
+               new PSLegacyGuid(parent.getContentTypeId(), child.getChildId(), childRowId);
 
          String action = entry.getAction();
-         if (action.equals(PSItemChildEntry.CHILD_ACTION_INSERT))
-         {
-            if (childRowId != -1)
-            {
+         if (action.equals(PSItemChildEntry.CHILD_ACTION_INSERT)) {
+            if (childRowId != -1) {
                // set already exists error
                err = handleExistingChildId(childGuid, name, id);
                continue;
             }
 
             child.addEntry(entry);
-         }
-         else if (action.equals(PSItemChildEntry.CHILD_ACTION_UPDATE)
-            || action.equals(PSItemChildEntry.CHILD_ACTION_DELETE))
-         {
+         } else if (action.equals(PSItemChildEntry.CHILD_ACTION_UPDATE)
+               || action.equals(PSItemChildEntry.CHILD_ACTION_DELETE)) {
             PSItemChildEntry current = childMap.get(childRowId);
-            if (current == null)
-            {
+            if (current == null) {
                err = handleMissingChildId(childGuid, name, id);
                continue;
             }
@@ -2796,12 +2334,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       // save parent back
-      try
-      {
+      try {
          parent.save(req);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          results.addError(id, handleItemSaveFailedError(id, e));
       }
 
@@ -2812,18 +2347,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Build a map of child entries found in the supplied child.
     *
-    * @param child The child for which the map is returned, assumed not
-    *    <code>null</code>.
-    * @return The map with the entry's child row id as the key and the entry as
-    *    the value, never <code>null</code>, may be empty.
+    * @param child The child for which the map is returned, assumed not <code>null</code>.
+    * @return The map with the entry's child row id as the key and the entry as the value, never
+    *         <code>null</code>, may be empty.
     */
-   private Map<Integer, PSItemChildEntry> getChildEntryMap(PSItemChild child)
-   {
+   private Map<Integer, PSItemChildEntry> getChildEntryMap(PSItemChild child) {
       Map<Integer, PSItemChildEntry> childMap = new HashMap<>();
 
       Iterator<PSItemChildEntry> entries = child.getAllEntries();
-      while (entries.hasNext())
-      {
+      while (entries.hasNext()) {
          PSItemChildEntry entry = entries.next();
          childMap.put(entry.getChildRowId(), entry);
       }
@@ -2832,23 +2364,20 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /**
     * Determines if the current user has the supplied item checked out.
-    * @param parent The item that should be checked out, assumed not
-    *    <code>null</code>.
-    * @param operation The name of the operation being performed, assumed not
-    *    <code>null</code> or empty.
+    * 
+    * @param parent The item that should be checked out, assumed not <code>null</code>.
+    * @param operation The name of the operation being performed, assumed not <code>null</code> or
+    *        empty.
     *
-    * @throws PSInvalidStateException if the item is not checked out by the
-    *    specified user.
+    * @throws PSInvalidStateException if the item is not checked out by the specified user.
     */
    private void ensureCheckedOut(PSServerItem parent, String operation)
-      throws PSInvalidStateException
-   {
-      if (!PSWebserviceUtils.getUserName().equals(parent.getCheckedOutByName()))
-      {
+         throws PSInvalidStateException {
+      if (!PSWebserviceUtils.getUserName().equals(parent.getCheckedOutByName())) {
          int code = IPSWebserviceErrors.ITEM_NOT_CHECKED_OUT;
-         throw new PSInvalidStateException(code, PSWebserviceErrors
-            .createErrorMessage(code, parent.getContentId(), operation),
-            ExceptionUtils.getFullStackTrace(new Exception()));
+         throw new PSInvalidStateException(code,
+               PSWebserviceErrors.createErrorMessage(code, parent.getContentId(), operation),
+               ExceptionUtils.getFullStackTrace(new Exception()));
       }
    }
 
@@ -2859,13 +2388,12 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param e The exception being handled, assumed not <code>null</code>.
     * @return The error exception to return or throw, never <code>null</code>.
     */
-   private PSErrorException handleLoadFailed(IPSGuid id, Exception e)
-   {
+   private PSErrorException handleLoadFailed(IPSGuid id, Exception e) {
       int code = IPSWebserviceErrors.LOAD_FAILED;
       PSDesignGuid dguid = new PSDesignGuid(id);
-      return new PSErrorException(code, PSWebserviceErrors.createErrorMessage(
-         code, PSTypeEnum.valueOf(id.getType()), dguid.getValue(), e
-            .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+      return new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
+            PSTypeEnum.valueOf(id.getType()), dguid.getValue(), e.getLocalizedMessage()),
+            ExceptionUtils.getFullStackTrace(e));
    }
 
    /**
@@ -2875,62 +2403,51 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param e The exception being handled, assumed not <code>null</code>.
     * @return The error exception to return or throw, never <code>null</code>.
     */
-   private PSErrorException handleItemSaveFailedError(IPSGuid id, Exception e)
-   {
+   private PSErrorException handleItemSaveFailedError(IPSGuid id, Exception e) {
       int code = IPSWebserviceErrors.SAVE_FAILED;
       PSDesignGuid dguid = new PSDesignGuid(id);
-      return new PSErrorException(code, PSWebserviceErrors.createErrorMessage(
-         code, PSTypeEnum.valueOf(id.getType()), dguid.getValue(), e
-            .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+      return new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
+            PSTypeEnum.valueOf(id.getType()), dguid.getValue(), e.getLocalizedMessage()),
+            ExceptionUtils.getFullStackTrace(e));
    }
 
    /**
-    * Create an appropriate exception for a missing child entry that is expected
-    * to be found.
+    * Create an appropriate exception for a missing child entry that is expected to be found.
     *
     * @param guid The child item entry guid, assumed not <code>null</code>.
-    * @param name The child item field name, assumed not <code>null</code> or
-    *    empty.
+    * @param name The child item field name, assumed not <code>null</code> or empty.
     * @param id The parent item id, assumed not <code>null</code>.
     * @return The exception to return or throw, never <code>null</code>.
     */
-   private PSErrorException handleMissingChildId(IPSGuid guid, String name,
-      IPSGuid id)
-   {
+   private PSErrorException handleMissingChildId(IPSGuid guid, String name, IPSGuid id) {
       int code = IPSWebserviceErrors.CHILD_ENTRY_NOT_FOUND;
       return handleChildError(code, guid, name, id);
    }
 
    /**
-    * Create an appropriate exception for a child entry that has a child id
-    * which does not match the specified child field.
+    * Create an appropriate exception for a child entry that has a child id which does not match the
+    * specified child field.
     *
     * @param guid The child item entry guid, assumed not <code>null</code>.
-    * @param name The child item field name, assumed not <code>null</code> or
-    *    empty.
+    * @param name The child item field name, assumed not <code>null</code> or empty.
     * @param id The parent item id, assumed not <code>null</code>.
     * @return The exception to return or throw, never <code>null</code>.
     */
-   private PSErrorException handleInvalidChildId(IPSGuid guid, String name,
-      IPSGuid id)
-   {
+   private PSErrorException handleInvalidChildId(IPSGuid guid, String name, IPSGuid id) {
       int code = IPSWebserviceErrors.INVALID_CHILD_ID;
       return handleChildError(code, guid, name, id);
    }
 
    /**
-    * Create an appropriate exception for an existing child entry that is not
-    * expected to already exist.
+    * Create an appropriate exception for an existing child entry that is not expected to already
+    * exist.
     *
     * @param guid The child item entry guid, assumed not <code>null</code>.
-    * @param name The child item field name, assumed not <code>null</code> or
-    *    empty.
+    * @param name The child item field name, assumed not <code>null</code> or empty.
     * @param id The parent item id, assumed not <code>null</code>.
     * @return The exception to return or throw, never <code>null</code>.
     */
-   private PSErrorException handleExistingChildId(IPSGuid guid, String name,
-      IPSGuid id)
-   {
+   private PSErrorException handleExistingChildId(IPSGuid guid, String name, IPSGuid id) {
       int code = IPSWebserviceErrors.CHILD_ENTRY_ALREADY_EXISTS;
       return handleChildError(code, guid, name, id);
    }
@@ -2945,151 +2462,126 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param id The parent item guid, assumed not <code>null</code>.
     * @return The exception, never <code>null</code>.
     */
-   private PSErrorException handleChildError(int code, IPSGuid guid,
-      String name, IPSGuid id)
-   {
+   private PSErrorException handleChildError(int code, IPSGuid guid, String name, IPSGuid id) {
       PSDesignGuid childGuid = new PSDesignGuid(guid);
       PSDesignGuid parentGuid = new PSDesignGuid(id);
-      return new PSUnknownChildException(code, PSWebserviceErrors
-         .createErrorMessage(code, childGuid.getValue(), name, parentGuid
-            .getValue()), ExceptionUtils.getFullStackTrace(new Exception()));
+      return new PSUnknownChildException(code, PSWebserviceErrors.createErrorMessage(code,
+            childGuid.getValue(), name, parentGuid.getValue()),
+            ExceptionUtils.getFullStackTrace(new Exception()));
    }
 
    /**
-    * Create and throw an appropriate exception when a child field name is
-    * specified that does not exist in the parent.
+    * Create and throw an appropriate exception when a child field name is specified that does not
+    * exist in the parent.
     *
     * @param child name or id of child, assumed not <code>null</code> or empty.
     * @throws PSUnknownChildException always.
     */
-   private void handleMissingChildType(String child)
-      throws PSUnknownChildException
-   {
+   private void handleMissingChildType(String child) throws PSUnknownChildException {
       int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
-      throw new PSUnknownChildException(code, PSWebserviceErrors
-         .createErrorMessage(code, PSTypeEnum.LEGACY_CHILD_CONTENT_TYPE.name(),
-            child), ExceptionUtils.getFullStackTrace(new Exception()));
+      throw new PSUnknownChildException(
+            code, PSWebserviceErrors.createErrorMessage(code,
+                  PSTypeEnum.LEGACY_CHILD_CONTENT_TYPE.name(), child),
+            ExceptionUtils.getFullStackTrace(new Exception()));
    }
 
 
    @Deprecated
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid id,
-      List<IPSGuid> relatedIds, IPSGuid folderId, IPSGuid siteId,
-      IPSGuid slotId, IPSGuid templateId, int index, @SuppressWarnings("unused")
-      String user)
-      throws PSErrorException
-   {
-      return addContentRelations(id, relatedIds, folderId, siteId, slotId,
-         templateId, index);
+   public List<PSAaRelationship> addContentRelations(IPSGuid id, List<IPSGuid> relatedIds,
+         IPSGuid folderId, IPSGuid siteId, IPSGuid slotId, IPSGuid templateId, int index,
+         @SuppressWarnings("unused") String user) throws PSErrorException {
+      return addContentRelations(id, relatedIds, folderId, siteId, slotId, templateId, index);
    }
 
    @Deprecated
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid id,
-      List<IPSGuid> relatedIds, String slot, String template, int index,
-      String relationshipName, @SuppressWarnings("unused")
-      String user) throws PSErrorException
-   {
-      return addContentRelations(id, relatedIds, slot, template,
-         relationshipName, index);
+   public List<PSAaRelationship> addContentRelations(IPSGuid id, List<IPSGuid> relatedIds,
+         String slot, String template, int index, String relationshipName,
+         @SuppressWarnings("unused") String user) throws PSErrorException {
+      return addContentRelations(id, relatedIds, slot, template, relationshipName, index);
    }
 
    @Deprecated
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid id,
-      List<IPSGuid> relatedIds, String slot, String template, int index,
-      @SuppressWarnings("unused")
-      String user) throws PSErrorException
-   {
+   public List<PSAaRelationship> addContentRelations(IPSGuid id, List<IPSGuid> relatedIds,
+         String slot, String template, int index, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return addContentRelations(id, relatedIds, slot, template, index);
    }
 
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId,
-      List<IPSGuid> relatedIds, String slotName, String templateName,
-      String relationshipName, int index) throws PSErrorException
-   {
+   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId, List<IPSGuid> relatedIds,
+         String slotName, String templateName, String relationshipName, int index)
+         throws PSErrorException {
       // validating parameters
       PSWebserviceUtils.validateLegacyGuid(ownerId);
       PSWebserviceUtils.validateLegacyGuids(relatedIds);
       if (StringUtils.isBlank(slotName))
-         throw new IllegalArgumentException(
-            "slotName may not be null or empty.");
+         throw new IllegalArgumentException("slotName may not be null or empty.");
       if (StringUtils.isBlank(templateName))
-         throw new IllegalArgumentException(
-            "templateName may not be null or empty.");
+         throw new IllegalArgumentException("templateName may not be null or empty.");
 
-      IPSTemplateSlot slot = (IPSTemplateSlot) PSWebserviceUtils
-         .getSlotOrTemplateFromName(slotName, true);
+      IPSTemplateSlot slot =
+            (IPSTemplateSlot) PSWebserviceUtils.getSlotOrTemplateFromName(slotName, true);
 
       String relName = slot.getRelationshipName();
 
       // validate the relationship name, it has to be AA category
-      if (StringUtils.isBlank(relationshipName))
-      {
-         if (StringUtils.isBlank(relName))
-         {
-            throw new IllegalArgumentException(
-               "relationshipName may not be null or empty" +
-               "since it is not defined in the slot.");
+      if (StringUtils.isBlank(relationshipName)) {
+         if (StringUtils.isBlank(relName)) {
+            throw new IllegalArgumentException("relationshipName may not be null or empty"
+                  + "since it is not defined in the slot.");
          }
-      }
-      else // relationshipName is NOT blank
+      } else // relationshipName is NOT blank
       {
-         if (StringUtils.isBlank(relName))
-         {
+         if (StringUtils.isBlank(relName)) {
             relName = relationshipName;
-         }
-         else if (!relName.equalsIgnoreCase(relationshipName))
-         {
+         } else if (!relName.equalsIgnoreCase(relationshipName)) {
             throw new IllegalArgumentException(
-               "relationshipName must be the same as the one defined in slot.");
+                  "relationshipName must be the same as the one defined in slot.");
          }
       }
 
-      IPSAssemblyTemplate template = (IPSAssemblyTemplate) PSWebserviceUtils
-         .getSlotOrTemplateFromName(templateName, false);
+      IPSAssemblyTemplate template =
+            (IPSAssemblyTemplate) PSWebserviceUtils.getSlotOrTemplateFromName(templateName, false);
 
       return addContentRelations(ownerId, relatedIds, slot, template, index,
-               slot.getRelationshipName(), null, null);
+            slot.getRelationshipName(), null, null);
    }
 
    /*
-    *  (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#addContentRelations(com.percussion.utils.guid.IPSGuid, java.util.List, java.lang.String, java.lang.String, int, java.lang.String)
+    * (non-Javadoc)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#addContentRelations(com.percussion.utils.guid.
+    * IPSGuid, java.util.List, java.lang.String, java.lang.String, int, java.lang.String)
     */
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId,
-            List<IPSGuid> relatedIds, String slotName, String templateName,
-            int index) throws PSErrorException
-   {
+   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId, List<IPSGuid> relatedIds,
+         String slotName, String templateName, int index) throws PSErrorException {
       // validating parameters
       PSWebserviceUtils.validateLegacyGuid(ownerId);
       PSWebserviceUtils.validateLegacyGuids(relatedIds);
       if (StringUtils.isBlank(slotName))
-         throw new IllegalArgumentException(
-            "slotName may not be null or empty.");
+         throw new IllegalArgumentException("slotName may not be null or empty.");
       if (StringUtils.isBlank(templateName))
-         throw new IllegalArgumentException(
-            "templateName may not be null or empty.");
+         throw new IllegalArgumentException("templateName may not be null or empty.");
 
-      IPSTemplateSlot slot = (IPSTemplateSlot) PSWebserviceUtils
-         .getSlotOrTemplateFromName(slotName, true);
+      IPSTemplateSlot slot =
+            (IPSTemplateSlot) PSWebserviceUtils.getSlotOrTemplateFromName(slotName, true);
 
-      IPSAssemblyTemplate template = (IPSAssemblyTemplate) PSWebserviceUtils
-         .getSlotOrTemplateFromName(templateName, false);
+      IPSAssemblyTemplate template =
+            (IPSAssemblyTemplate) PSWebserviceUtils.getSlotOrTemplateFromName(templateName, false);
 
       return addContentRelations(ownerId, relatedIds, slot, template, index,
-               slot.getRelationshipName(), null, null);
+            slot.getRelationshipName(), null, null);
    }
 
    @Transactional
-   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId,
-      List<IPSGuid> relatedIds, IPSGuid folderId, IPSGuid siteId,
-      IPSGuid slotId, IPSGuid templateId, int index)
-      throws PSErrorException
-   {
+   public List<PSAaRelationship> addContentRelations(IPSGuid ownerId, List<IPSGuid> relatedIds,
+         IPSGuid folderId, IPSGuid siteId, IPSGuid slotId, IPSGuid templateId, int index)
+         throws PSErrorException {
       // validating parameters
       PSWebserviceUtils.validateLegacyGuid(ownerId);
       PSWebserviceUtils.validateLegacyGuids(relatedIds);
@@ -3101,11 +2593,10 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          throw new IllegalArgumentException("templateId may not be null.");
 
       IPSTemplateSlot slot = PSWebserviceUtils.loadSlot(slotId);
-      IPSAssemblyTemplate template =
-         PSWebserviceUtils.loadUnmodifiableTemplate(templateId);
+      IPSAssemblyTemplate template = PSWebserviceUtils.loadUnmodifiableTemplate(templateId);
 
       return addContentRelations(ownerId, relatedIds, slot, template, index,
-         slot.getRelationshipName(), (PSLegacyGuid)folderId, siteId);
+            slot.getRelationshipName(), (PSLegacyGuid) folderId, siteId);
    }
 
    /**
@@ -3115,23 +2606,18 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @see #addContentRelations(IPSGuid, List, String, String, int)
     * @see #addContentRelations(IPSGuid, List, String, String, String, int)
     */
-   private List<PSAaRelationship> addContentRelations(IPSGuid ownerId,
-      List<IPSGuid> relatedIds, IPSTemplateSlot slot,
-      IPSAssemblyTemplate template,  int index, String relationshipName,
-      PSLegacyGuid folderId, IPSGuid siteId)
-      throws PSErrorException
-   {
+   private List<PSAaRelationship> addContentRelations(IPSGuid ownerId, List<IPSGuid> relatedIds,
+         IPSTemplateSlot slot, IPSAssemblyTemplate template, int index, String relationshipName,
+         PSLegacyGuid folderId, IPSGuid siteId) throws PSErrorException {
       // validate the relationship name
-      getRelationshipConfig(relationshipName,
-         PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+      getRelationshipConfig(relationshipName, PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
 
       PSLocator owner = ((PSLegacyGuid) ownerId).getLocator();
 
-      List<PSAaRelationship> rels = createAaRelationships(owner, relatedIds,
-         index, relationshipName, slot, template, folderId, siteId);
+      List<PSAaRelationship> rels = createAaRelationships(owner, relatedIds, index,
+            relationshipName, slot, template, folderId, siteId);
 
-      List<PSAaRelationship> existRels = loadSlotContentRelationships(owner, slot
-         .getGUID());
+      List<PSAaRelationship> existRels = loadSlotContentRelationships(owner, slot.getGUID());
 
       // sort all existing relationships according to their sortrank property
       existRels.sort(new RelationshipSorter());
@@ -3147,33 +2633,25 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Used to sort relationships based on the sort rank property.
     */
-   private class RelationshipSorter implements Comparator<PSAaRelationship>
-   {
-      /* (non-Javadoc)
+   private class RelationshipSorter implements Comparator<PSAaRelationship> {
+      /*
+       * (non-Javadoc)
+       * 
        * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
        */
-      public int compare(PSAaRelationship rel1, PSAaRelationship rel2)
-      {
+      public int compare(PSAaRelationship rel1, PSAaRelationship rel2) {
          int sortrank1 = 0;
-         try
-         {
-            sortrank1 = Integer.parseInt(rel1
-               .getProperty(IPSHtmlParameters.SYS_SORTRANK));
-         }
-         catch (Exception e)
-         {
-            //ignore and keep 0
+         try {
+            sortrank1 = Integer.parseInt(rel1.getProperty(IPSHtmlParameters.SYS_SORTRANK));
+         } catch (Exception e) {
+            // ignore and keep 0
          }
 
          int sortrank2 = 0;
-         try
-         {
-            sortrank2 = Integer.parseInt(rel2
-               .getProperty(IPSHtmlParameters.SYS_SORTRANK));
-         }
-         catch (Exception e)
-         {
-            //ignore and keep 0
+         try {
+            sortrank2 = Integer.parseInt(rel2.getProperty(IPSHtmlParameters.SYS_SORTRANK));
+         } catch (Exception e) {
+            // ignore and keep 0
          }
 
          return (sortrank1 - sortrank2);
@@ -3181,43 +2659,35 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Creates AA relationships from the given owner, dependents, starting rank,
-    * relationship name, slot and template.
+    * Creates AA relationships from the given owner, dependents, starting rank, relationship name,
+    * slot and template.
     *
-    * @param owner the owner of the created relationships; assumed not
-    *    <code>null</code>.
-    * @param dependentIds the dependent ids; assumed not <code>null</code> or
-    *    empty.
+    * @param owner the owner of the created relationships; assumed not <code>null</code>.
+    * @param dependentIds the dependent ids; assumed not <code>null</code> or empty.
     * @param index the starting rank number.
-    * @param relationshipName the name of the created relationships; assumed
-    *    not <code>null</code> or empty.
-    * @param slot the slot of the created relationships; assumed not
-    *    <code>null</code>.
-    * @param template the template of the created relationships; assumed not
-    *    <code>null</code>.
+    * @param relationshipName the name of the created relationships; assumed not <code>null</code>
+    *        or empty.
+    * @param slot the slot of the created relationships; assumed not <code>null</code>.
+    * @param template the template of the created relationships; assumed not <code>null</code>.
     *
     * @return the created relationships; never <code>null</code> or empty.
     *
     * @throws PSErrorException if an error occurs.
     */
-   private List<PSAaRelationship> createAaRelationships(PSLocator owner,
-      List<IPSGuid> dependentIds, int index, String relationshipName,
-      IPSTemplateSlot slot, IPSAssemblyTemplate template, PSLegacyGuid folderId,
-      IPSGuid siteId)
-      throws PSErrorException
-   {
+   private List<PSAaRelationship> createAaRelationships(PSLocator owner, List<IPSGuid> dependentIds,
+         int index, String relationshipName, IPSTemplateSlot slot, IPSAssemblyTemplate template,
+         PSLegacyGuid folderId, IPSGuid siteId) throws PSErrorException {
       // get relationshipConfig, slot & template from names
-      PSRelationshipConfig config = getRelationshipConfig(relationshipName,
-         PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+      PSRelationshipConfig config =
+            getRelationshipConfig(relationshipName, PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
 
       PSAaRelationship relationship;
       List<PSAaRelationship> relationships = new ArrayList<>();
-      for (IPSGuid dependentId : dependentIds)
-      {
+      for (IPSGuid dependentId : dependentIds) {
          PSWebserviceUtils.validateLegacyGuid(dependentId);
 
-         PSLocator dependent = PSWebserviceUtils.getHeadLocator(
-            (PSLegacyGuid) dependentId, false, config);
+         PSLocator dependent =
+               PSWebserviceUtils.getHeadLocator((PSLegacyGuid) dependentId, false, config);
          relationship = new PSAaRelationship(owner, dependent, slot, template);
          relationship.setId(PSWebserviceUtils.getNextRelationshipId());
          relationship.setSortRank(index++);
@@ -3234,24 +2704,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Merges the supplied source relationship collection into the target
-    * relationship collection at the given index. First the
-    * supplied source relationships are inserted at the specified index.
-    * Then all target relationships sortrank property is normalized
-    * starting with 1, continiously incremented by 1.
+    * Merges the supplied source relationship collection into the target relationship collection at
+    * the given index. First the supplied source relationships are inserted at the specified index.
+    * Then all target relationships sortrank property is normalized starting with 1, continiously
+    * incremented by 1.
     *
-    * @param target the relationship collection into which to insert the
-    *    supplied source collection, assumed not <code>null</code>.
-    * @param source the relationship collection which will be inserted into
-    *    the supplied target collection at the provided index, assumed not
-    *    <code>null</code>.
-    * @param index the index where to insert the supplied source relationships
-    *    into the target relationships. Supply -1 or a value greater than the
-    *    target relationship size to append the source to the target.
+    * @param target the relationship collection into which to insert the supplied source collection,
+    *        assumed not <code>null</code>.
+    * @param source the relationship collection which will be inserted into the supplied target
+    *        collection at the provided index, assumed not <code>null</code>.
+    * @param index the index where to insert the supplied source relationships into the target
+    *        relationships. Supply -1 or a value greater than the target relationship size to append
+    *        the source to the target.
     */
-   private void mergeAaRelationships(List<PSAaRelationship> target,
-      List<PSAaRelationship> source, int index)
-   {
+   private void mergeAaRelationships(List<PSAaRelationship> target, List<PSAaRelationship> source,
+         int index) {
       // calculate the location index for new relationships
       if (index == -1 || index > target.size())
          index = target.size();
@@ -3261,37 +2728,31 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          target.add(index++, source.get(i));
 
       // normalize the sortrank property as 0-based index
-      for (int i = 0; i < target.size(); i++)
-      {
+      for (int i = 0; i < target.size(); i++) {
          PSAaRelationship rel = target.get(i);
          rel.setProperty(IPSHtmlParameters.SYS_SORTRANK, String.valueOf(i));
       }
    }
 
    /**
-    * Gets the relationship configuration from the specified relationship name
-    * and the specified category.
+    * Gets the relationship configuration from the specified relationship name and the specified
+    * category.
     *
-    * @param relationshipName the name of the relationship config, may not be
-    *    <code>null</code> or empty.
-    * @param category the specified relationship category. It may be
-    *    <code>null</code> if the category does not to be validated.
+    * @param relationshipName the name of the relationship config, may not be <code>null</code> or
+    *        empty.
+    * @param category the specified relationship category. It may be <code>null</code> if the
+    *        category does not to be validated.
     * @return specified relationship config, never <code>null</code>.
     */
-   private PSRelationshipConfig getRelationshipConfig(String relationshipName,
-      String category)
-   {
-      PSRelationshipConfig config = PSRelationshipCommandHandler
-         .getRelationshipConfig(relationshipName);
+   private PSRelationshipConfig getRelationshipConfig(String relationshipName, String category) {
+      PSRelationshipConfig config =
+            PSRelationshipCommandHandler.getRelationshipConfig(relationshipName);
       if (config == null)
          throw new IllegalArgumentException(
-            "Cannot find relationship configuration with name: "
-               + relationshipName);
-      if (category != null && !config.getCategory().equalsIgnoreCase(category))
-      {
+               "Cannot find relationship configuration with name: " + relationshipName);
+      if (category != null && !config.getCategory().equalsIgnoreCase(category)) {
          throw new IllegalArgumentException(
-            "The category of the relationship configuration must be '"
-               + category + "'.");
+               "The category of the relationship configuration must be '" + category + "'.");
       }
 
       return config;
@@ -3299,17 +2760,14 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public void deleteContentRelations(List<IPSGuid> ids,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorsException, PSErrorException
-   {
+   public void deleteContentRelations(List<IPSGuid> ids, @SuppressWarnings("unused") String user)
+         throws PSErrorsException, PSErrorException {
       deleteContentRelations(ids);
    }
 
    @Transactional
    public void deleteContentRelations(List<IPSGuid> ids)
-      throws PSErrorsException, PSErrorException
-   {
+         throws PSErrorsException, PSErrorException {
       if (ids == null || ids.isEmpty())
          throw new IllegalArgumentException("ids may not be null or empty.");
 
@@ -3317,75 +2775,61 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    @Deprecated
-   public List<PSItemSummary> findDependents(IPSGuid id,
-      PSRelationshipFilter filter, boolean isLoadOperations,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorException
-   {
+   public List<PSItemSummary> findDependents(IPSGuid id, PSRelationshipFilter filter,
+         boolean isLoadOperations, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return findDependents(id, filter, isLoadOperations);
    }
 
-   public List<PSItemSummary> findDependents(IPSGuid id,
-      PSRelationshipFilter filter, boolean isLoadOperations)
-      throws PSErrorException
-   {
+   public List<PSItemSummary> findDependents(IPSGuid id, PSRelationshipFilter filter,
+         boolean isLoadOperations) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
 
       filter = setFilterByAaCategorysIfNeeded(filter);
       filter.setOwner(((PSLegacyGuid) id).getLocator());
 
-      try
-      {
-         PSComponentSummaries summs = PSWebserviceUtils
-            .getRelationshipProcessor().getSummaries(filter, false);
+      try {
+         PSComponentSummaries summs =
+               PSWebserviceUtils.getRelationshipProcessor().getSummaries(filter, false);
          return getItemSummaries(summs, isLoadOperations);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS, id.toString(), PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS,
+                     id.toString(), PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    /**
     * Converts the specified component summaries to item summary.
     *
-    * @param summaries the to be converted objects, assumed not
-    *    <code>null</code>.
-    * @param isLoadOperations <code>true</code> if set the allowed operations
-    *    for the returned item summaries; otherwise, the allowed operations
-    *    of the returned item summaries will be <code>null</code>.
+    * @param summaries the to be converted objects, assumed not <code>null</code>.
+    * @param isLoadOperations <code>true</code> if set the allowed operations for the returned item
+    *        summaries; otherwise, the allowed operations of the returned item summaries will be
+    *        <code>null</code>.
     * @return the converted object, never <code>null</code>, may be empty.
     */
    private List<PSItemSummary> getItemSummaries(PSComponentSummaries summaries,
-      boolean isLoadOperations)
-   {
-      List<PSItemSummary> result = new ArrayList<>(summaries
-         .size());
+         boolean isLoadOperations) {
+      List<PSItemSummary> result = new ArrayList<>(summaries.size());
       String contentTypeName;
       Iterator summariesIt = summaries.iterator();
-      while (summariesIt.hasNext())
-      {
+      while (summariesIt.hasNext()) {
          PSThreadUtils.checkForInterrupt();
          PSComponentSummary comp = (PSComponentSummary) summariesIt.next();
 
          // get content type name from content type id
-         try
-         {
+         try {
             PSItemDefManager mgr = PSItemDefManager.getInstance();
             contentTypeName = mgr.contentTypeIdToName(comp.getContentTypeId());
-         }
-         catch (PSInvalidContentTypeException e)
-         {
+         } catch (PSInvalidContentTypeException e) {
             throw new RuntimeException(PSExceptionUtils.getMessageForLog(e), e);
          }
 
-         PSItemSummary target = new PSItemSummary(comp.getContentId(), -1, comp
-            .getName(), (int) comp.getContentTypeId(), contentTypeName, comp.isRevisionLock());
+         PSItemSummary target = new PSItemSummary(comp.getContentId(), -1, comp.getName(),
+               (int) comp.getContentTypeId(), contentTypeName, comp.isRevisionLock());
 
-         if (isLoadOperations)
-         {
+         if (isLoadOperations) {
             String user = PSWebserviceUtils.getUserName();
             target.setOperations(getAllowedOperations(comp, user));
          }
@@ -3397,50 +2841,41 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    @Deprecated
-   public List<PSItemSummary> findOwners(IPSGuid id,
-      PSRelationshipFilter filter, boolean isLoadOperations,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorException
-   {
+   public List<PSItemSummary> findOwners(IPSGuid id, PSRelationshipFilter filter,
+         boolean isLoadOperations, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return findOwners(id, filter, isLoadOperations);
    }
 
-   public List<PSItemSummary> findOwners(IPSGuid id,
-      PSRelationshipFilter filter, boolean isLoadOperations)
-      throws PSErrorException
-   {
+   public List<PSItemSummary> findOwners(IPSGuid id, PSRelationshipFilter filter,
+         boolean isLoadOperations) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
 
       filter = setFilterByAaCategorysIfNeeded(filter);
       filter.setDependent(((PSLegacyGuid) id).getLocator());
 
-      try
-      {
-         PSComponentSummaries summs = PSWebserviceUtils
-            .getRelationshipProcessor().getSummaries(filter, true);
+      try {
+         PSComponentSummaries summs =
+               PSWebserviceUtils.getRelationshipProcessor().getSummaries(filter, true);
          return getItemSummaries(summs, isLoadOperations);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_PARENT_ITEMS, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PARENT_ITEMS, id.toString(), PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_PARENT_ITEMS,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PARENT_ITEMS,
+                     id.toString(), PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    /**
     * @see IPSContentWs#loadContentRelations(PSRelationshipFilter, boolean)
     */
-   public List<PSAaRelationship> loadContentRelations(
-      PSRelationshipFilter filter, boolean isLoadReferenceInfo)
-      throws PSErrorException
-   {
+   public List<PSAaRelationship> loadContentRelations(PSRelationshipFilter filter,
+         boolean isLoadReferenceInfo) throws PSErrorException {
       if (filter == null)
          throw new IllegalArgumentException("filter may not be null.");
 
       filter = setFilterByAaCategorysIfNeeded(filter);
-      List<PSRelationship> srcRels = PSWebserviceUtils
-         .loadRelationships(filter);
+      List<PSRelationship> srcRels = PSWebserviceUtils.loadRelationships(filter);
 
       // use the map to locally cache the loaded slot/template
       LoadAARelationshipCache tmpCache = new LoadAARelationshipCache();
@@ -3449,27 +2884,24 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       List<PSAaRelationship> result = new ArrayList<>();
       PSAaRelationship rel;
 
-      for (PSRelationship srcRel : srcRels)
-      {
+      for (PSRelationship srcRel : srcRels) {
          rel = new PSAaRelationship(srcRel);
          result.add(rel);
 
          if (!isLoadReferenceInfo)
             continue;
 
-         //\/\/\/\/\/\/\/\/\/\
+         // \/\/\/\/\/\/\/\/\/\
          // set transient data
-         //\/\/\/\/\/\/\/\/\/\
+         // \/\/\/\/\/\/\/\/\/\
          IPSTemplateSlot slot = tmpCache.getSlot(rel.getSlotId());
          rel.setSlot(slot);
-         IPSAssemblyTemplate template = tmpCache.getTemplate(rel
-            .getTemplateId());
+         IPSAssemblyTemplate template = tmpCache.getTemplate(rel.getTemplateId());
          rel.setTemplate(template);
 
          // set folder properties
          int folderId = rel.getFolderId();
-         if (folderId != -1)
-         {
+         if (folderId != -1) {
             PSLegacyGuid folderGuid = new PSLegacyGuid(folderId, -1);
             rel.setFolderName(tmpCache.getFolderName(folderGuid));
             rel.setFolderPath(tmpCache.getFolderPath(folderGuid));
@@ -3488,50 +2920,37 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Turn on filtering by category if the specified filter is <code>null</code>
-    * or has not set category or relationship names; otherwise do nothing.
+    * Turn on filtering by category if the specified filter is <code>null</code> or has not set
+    * category or relationship names; otherwise do nothing.
     *
     * @param filter the filter in question, may be <code>null</code>.
     * @return the created or modified filter, never <code>null</code>.
-    * @throws IllegalArgumentException if the category of the specified filter
-    *   is specified, but is not Active Assembly, or if the relationship config
-    *   name(s) is specified, but at least one of them is not Active Assembly
-    *   category.
+    * @throws IllegalArgumentException if the category of the specified filter is specified, but is
+    *         not Active Assembly, or if the relationship config name(s) is specified, but at least
+    *         one of them is not Active Assembly category.
     */
-   private PSRelationshipFilter setFilterByAaCategorysIfNeeded(
-      PSRelationshipFilter filter)
-   {
-      if (filter == null)
-      {
+   private PSRelationshipFilter setFilterByAaCategorysIfNeeded(PSRelationshipFilter filter) {
+      if (filter == null) {
          filter = new PSRelationshipFilter();
          filter.setCommunityFiltering(false);
          filter.setCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
          return filter;
       }
-      if ((!StringUtils.isBlank(filter.getCategory()))
-         && (!filter.getCategory().equalsIgnoreCase(
-            PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY)))
-      {
-         throw new IllegalArgumentException(
-            "The category of Active Assembly filter must be: "
+      if ((!StringUtils.isBlank(filter.getCategory())) && (!filter.getCategory()
+            .equalsIgnoreCase(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))) {
+         throw new IllegalArgumentException("The category of Active Assembly filter must be: "
                + PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
       }
 
       // validate relationship name, must be active assembly category
-      if (!filter.getNames().isEmpty())
-      {
-         for (String name : filter.getNames())
-         {
-            PSRelationshipConfig config = PSRelationshipCommandHandler
-               .getRelationshipConfig(name);
-            if (!config.getCategory().equals(
-               PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))
+      if (!filter.getNames().isEmpty()) {
+         for (String name : filter.getNames()) {
+            PSRelationshipConfig config = PSRelationshipCommandHandler.getRelationshipConfig(name);
+            if (!config.getCategory().equals(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))
                throw new IllegalArgumentException(
-                  "Invalid Active Assembly relationship name: '" + name + "'.");
+                     "Invalid Active Assembly relationship name: '" + name + "'.");
          }
-      }
-      else
-      {
+      } else {
          filter.setCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
       }
 
@@ -3545,38 +2964,33 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @return the folder path, never <code>null</code>, may be empty.
     * @throws PSErrorException if failed to load the specified folder path.
     */
-   private String loadFolderPath(PSLegacyGuid folderId) throws PSErrorException
-   {
+   private String loadFolderPath(PSLegacyGuid folderId) throws PSErrorException {
       PSLocator locator = new PSLocator(folderId.getContentId(), -1);
-      try
-      {
+      try {
          PSServerFolderProcessor processor = getFolderProcessor();
 
          PSWebserviceUtils.getRelationshipProcessor();
          String[] paths = processor.getItemPaths(locator);
-         if (paths == null || paths.length == 0)
-         {
+         if (paths == null || paths.length == 0) {
             throw new PSErrorException(IPSWebserviceErrors.NO_FOLDER_PATH_FOR_FOLDERID,
-               PSWebserviceErrors
-                  .createErrorMessage(IPSWebserviceErrors.NO_FOLDER_PATH_FOR_FOLDERID, folderId.getContentId()),
-               ExceptionUtils.getFullStackTrace(new Exception()));
+                  PSWebserviceErrors.createErrorMessage(
+                        IPSWebserviceErrors.NO_FOLDER_PATH_FOR_FOLDERID, folderId.getContentId()),
+                  ExceptionUtils.getFullStackTrace(new Exception()));
          }
          return paths[0];
-      }
-      catch (PSCmsException | PSNotFoundException e)
-      {
+      } catch (PSCmsException | PSNotFoundException e) {
          // error occurred while finding folder path, may caused by a bad data.
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_FOLDER_PATH, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_FOLDER_PATH, folderId.toString(), e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_FOLDER_PATH,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_FOLDER_PATH,
+                     folderId.toString(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    /**
     *
     */
-   private class LoadAARelationshipCache
-   {
+   private class LoadAARelationshipCache {
       /**
        * Gets the slot with the specified slot id.
        *
@@ -3586,8 +3000,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
        *
        * @throws PSErrorException if the specified slot does not exit.
        */
-      IPSTemplateSlot getSlot(IPSGuid slotId) throws PSErrorException
-      {
+      IPSTemplateSlot getSlot(IPSGuid slotId) throws PSErrorException {
          if (m_slotMap.get(slotId) == null)
             m_slotMap.put(slotId, PSWebserviceUtils.loadSlot(slotId));
 
@@ -3597,20 +3010,15 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       /**
        * Gets the template with the specified template id.
        *
-       * @param templateId the id of the template, assumed not
-       *    <code>null</code>.
+       * @param templateId the id of the template, assumed not <code>null</code>.
        * @return the specified template, never <code>null</code>.
        * @throws PSErrorException if the specified template does not exit.
        */
-      IPSAssemblyTemplate getTemplate(IPSGuid templateId)
-         throws PSErrorException
-      {
-         if (m_templateMap.get(templateId) == null)
-         {
+      IPSAssemblyTemplate getTemplate(IPSGuid templateId) throws PSErrorException {
+         if (m_templateMap.get(templateId) == null) {
             // need to load template with slot since the slot will be accessed
             // by PSContentTypeVariant when creating PSAaRelationship
-            m_templateMap.put(templateId,
-               PSWebserviceUtils.loadUnmodifiableTemplate(templateId));
+            m_templateMap.put(templateId, PSWebserviceUtils.loadUnmodifiableTemplate(templateId));
          }
 
          return m_templateMap.get(templateId);
@@ -3620,13 +3028,11 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       /**
        * Gets the site with the specified site id.
        *
-       * @param siteId the id of the specified site, assumed not
-       *    <code>null</code>.
+       * @param siteId the id of the specified site, assumed not <code>null</code>.
        * @return the specified site, never <code>null</code>.
        * @throws PSErrorException if the specified site does not exit.
        */
-      IPSSite getSite(IPSGuid siteId) throws PSErrorException
-      {
+      IPSSite getSite(IPSGuid siteId) throws PSErrorException {
          if (m_siteMap.get(siteId) == null)
             m_siteMap.put(siteId, loadSite(siteId));
 
@@ -3636,17 +3042,13 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       /**
        * Gets the name of the specified folder.
        *
-       * @param folderId the id of the specified folder, assumed not
-       *    <code>null</code>.
+       * @param folderId the id of the specified folder, assumed not <code>null</code>.
        * @return the name of the folder, never <code>null</code>.
        * @throws PSErrorException if the specified folder does not exit.
        */
-      String getFolderName(IPSGuid folderId) throws PSErrorException
-      {
-         if (m_folderMap.get(folderId) == null)
-         {
-            PSComponentSummary summary = PSWebserviceUtils
-               .getItemSummary(folderId.getUUID());
+      String getFolderName(IPSGuid folderId) throws PSErrorException {
+         if (m_folderMap.get(folderId) == null) {
+            PSComponentSummary summary = PSWebserviceUtils.getItemSummary(folderId.getUUID());
             m_folderMap.put(folderId, summary);
          }
 
@@ -3656,15 +3058,12 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       /**
        * Gets the name of the specified folder.
        *
-       * @param folderId the id of the specified folder, assumed not
-       *    <code>null</code>.
+       * @param folderId the id of the specified folder, assumed not <code>null</code>.
        * @return the name of the folder, never <code>null</code>.
        * @throws PSErrorException if the specified folder does not exit.
        */
-      String getFolderPath(PSLegacyGuid folderId) throws PSErrorException
-      {
-         if (m_folderPathMap.get(folderId) == null)
-         {
+      String getFolderPath(PSLegacyGuid folderId) throws PSErrorException {
+         if (m_folderPathMap.get(folderId) == null) {
             m_folderPathMap.put(folderId, loadFolderPath(folderId));
          }
 
@@ -3678,21 +3077,17 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
        * @return the specified site, never <code>null</code>.
        * @throws PSErrorException if the specified site does not exist.
        */
-      private IPSSite loadSite(IPSGuid siteId) throws PSErrorException
-      {
+      private IPSSite loadSite(IPSGuid siteId) throws PSErrorException {
          IPSSiteManager sitemgr = PSSiteManagerLocator.getSiteManager();
-         try
-         {
+         try {
             return sitemgr.loadSite(siteId);
-         }
-         catch (PSNotFoundException e)
-         {
+         } catch (PSNotFoundException e) {
             // cannot find site, may caused by bad data.
             PSDesignGuid guid = new PSDesignGuid(siteId);
             throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND, IPSSite.class
-                  .getName(), guid.longValue()), ExceptionUtils
-                  .getFullStackTrace(e));
+                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+                        IPSSite.class.getName(), guid.longValue()),
+                  ExceptionUtils.getFullStackTrace(e));
          }
       }
 
@@ -3732,22 +3127,17 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    @Deprecated
    @Transactional
    public void reorderContentRelations(List<IPSGuid> ids, int index,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorException
-   {
+         @SuppressWarnings("unused") String user) throws PSErrorException {
       reorderContentRelations(ids, index);
    }
 
    @Transactional
-   public void reorderContentRelations(List<IPSGuid> ids, int index)
-      throws PSErrorException
-   {
+   public void reorderContentRelations(List<IPSGuid> ids, int index) throws PSErrorException {
       if (ids == null || ids.isEmpty())
          throw new IllegalArgumentException("ids may not be null or empty.");
 
       List<PSAaRelationship> rels = new ArrayList<>();
-      for (IPSGuid rid : ids)
-      {
+      for (IPSGuid rid : ids) {
          rels.add(getAaRelationshipById(rid));
       }
 
@@ -3756,52 +3146,43 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public void reArrangeContentRelations(List<PSAaRelationship> rels,
-      int index, @SuppressWarnings("unused") String user)
-   throws PSErrorException
-   {
+   public void reArrangeContentRelations(List<PSAaRelationship> rels, int index,
+         @SuppressWarnings("unused") String user) throws PSErrorException {
       reArrangeContentRelations(rels, index);
    }
 
    @Transactional
-   public void reArrangeContentRelations(List<PSAaRelationship> rels,
-      int index) throws PSErrorException
-   {
+   public void reArrangeContentRelations(List<PSAaRelationship> rels, int index)
+         throws PSErrorException {
       if (rels == null || rels.isEmpty())
          throw new IllegalArgumentException("rels cannot be null or empty");
 
       // validate slotid and owner for supplied relationships
       IPSGuid slotid = null;
       PSLocator owner = null;
-      for (PSAaRelationship r : rels)
-      {
+      for (PSAaRelationship r : rels) {
          if (slotid == null)
             slotid = r.getSlotId();
          else if (!slotid.equals(r.getSlotId()))
-            throw new IllegalArgumentException(
-               "all relationhips must belong to the same slot");
+            throw new IllegalArgumentException("all relationhips must belong to the same slot");
 
          if (owner == null)
             owner = r.getOwner();
          else if (!owner.equals(r.getOwner()))
-            throw new IllegalArgumentException(
-               "all relationhips must belong to the same owner");
+            throw new IllegalArgumentException("all relationhips must belong to the same owner");
       }
 
-      PSWebserviceUtils
-         .validateItemCheckoutByUser(rels.get(0).getOwner());
+      PSWebserviceUtils.validateItemCheckoutByUser(rels.get(0).getOwner());
 
       List<PSAaRelationship> existingRels = new ArrayList<>();
-      if(owner != null && slotid != null) {
-         existingRels = loadSlotContentRelationships(owner,
-                 slotid);
+      if (owner != null && slotid != null) {
+         existingRels = loadSlotContentRelationships(owner, slotid);
       }
 
       // get a list of relationships which exist in the 'existingRels', but
       // not in the specified 'rels' relationships.
       List<PSAaRelationship> resultSet = new ArrayList<>();
-      for (PSAaRelationship r : existingRels)
-      {
+      for (PSAaRelationship r : existingRels) {
          if (!rels.contains(r))
             resultSet.add(r);
       }
@@ -3814,53 +3195,44 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /*
     * //see base interface method for details
     */
-   public List<PSAaRelationship> loadSlotContentRelationships(IPSGuid ownerId,
-         IPSGuid slotid) throws PSErrorException
-   {
+   public List<PSAaRelationship> loadSlotContentRelationships(IPSGuid ownerId, IPSGuid slotid)
+         throws PSErrorException {
       notNull(ownerId);
       notNull(slotid);
 
       PSWebserviceUtils.validateLegacyGuid(ownerId);
-      return loadSlotContentRelationships(
-            ((PSLegacyGuid) ownerId).getLocator(), slotid);
+      return loadSlotContentRelationships(((PSLegacyGuid) ownerId).getLocator(), slotid);
    }
 
    /**
-    * Gets a list of Active Assembly relationships which have the specified
-    * owner and slot.
+    * Gets a list of Active Assembly relationships which have the specified owner and slot.
     *
-    * @param owner the owner of the requested relationships, assumed not
-    * <code>null</code>.
-    * @param slotid the slot id of the specified slot, assumed not
-    * <code>null</code>.
+    * @param owner the owner of the requested relationships, assumed not <code>null</code>.
+    * @param slotid the slot id of the specified slot, assumed not <code>null</code>.
     *
-    * @return the requested relationships in the order of , it may be empty,
-    * but never <code>null</code>. It is in the order of
-    * {@link IPSHtmlParameters#SYS_SORTRANK} property of the relationships.
+    * @return the requested relationships in the order of , it may be empty, but never
+    *         <code>null</code>. It is in the order of {@link IPSHtmlParameters#SYS_SORTRANK}
+    *         property of the relationships.
     *
     * @throws PSErrorException if failed to load the relationships.
     */
    @SuppressWarnings("unchecked")
-   private List<PSAaRelationship> loadSlotContentRelationships(PSLocator owner,
-      IPSGuid slotid) throws PSErrorException
-   {
+   private List<PSAaRelationship> loadSlotContentRelationships(PSLocator owner, IPSGuid slotid)
+         throws PSErrorException {
       PSRelationshipFilter filter = new PSRelationshipFilter();
       filter.setOwner(owner);
-      filter.setProperty(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotid
-         .longValue()));
+      filter.setProperty(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotid.longValue()));
       filter.setCategory(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
 
       // Set to use the owner revision on the filter if it is true for all
       // Active Assembly relationships; otherwise, don't set the flag on the
       // filter.
       Iterator configs = PSRelationshipCommandHandler
-         .getRelationshipConfigs(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
+            .getRelationshipConfigs(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
       filter.limitToOwnerRevision(true);
-      while (configs.hasNext())
-      {
+      while (configs.hasNext()) {
          PSRelationshipConfig config = (PSRelationshipConfig) configs.next();
-         if (!config.useOwnerRevision())
-         {
+         if (!config.useOwnerRevision()) {
             filter.limitToOwnerRevision(false);
             break;
          }
@@ -3871,65 +3243,50 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Retrieves the specified relationship with the specified relationship id.
     *
-    * @param rid the id of the specified relationship, assumed not
-    *    <code>null</code>.
+    * @param rid the id of the specified relationship, assumed not <code>null</code>.
     * @return the relationship with the specified id, never <code>null</code>.
-    * @throws PSErrorException if an error occurred during retrieving the
-    *    specified relationship.
+    * @throws PSErrorException if an error occurred during retrieving the specified relationship.
     */
-   private PSAaRelationship getAaRelationshipById(IPSGuid rid)
-      throws PSErrorException
-   {
+   private PSAaRelationship getAaRelationshipById(IPSGuid rid) throws PSErrorException {
       PSRelationshipFilter filter = new PSRelationshipFilter();
-      PSRelationshipProcessor processor = PSWebserviceUtils
-         .getRelationshipProcessor();
+      PSRelationshipProcessor processor = PSWebserviceUtils.getRelationshipProcessor();
 
       List<PSRelationship> rels;
       filter.setRelationshipId(rid.getUUID());
-      try
-      {
+      try {
          rels = processor.getRelationshipList(filter);
-         if (rels.isEmpty())
-         {
-            throw new PSErrorException( IPSWebserviceErrors.OBJECT_NOT_FOUND,
-               PSWebserviceErrors.createErrorMessage( IPSWebserviceErrors.OBJECT_NOT_FOUND, PSRelationship.class
-                  .getName(), rid.longValue()), ExceptionUtils
-                  .getFullStackTrace(new Exception()));
+         if (rels.isEmpty()) {
+            throw new PSErrorException(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.OBJECT_NOT_FOUND,
+                        PSRelationship.class.getName(), rid.longValue()),
+                  ExceptionUtils.getFullStackTrace(new Exception()));
          }
          return new PSAaRelationship(rels.get(0));
-      }
-      catch (PSCmsException e)
-      {
-         throw  new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP, rid.longValue(), e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_RELATIONSHIP,
+                     rid.longValue(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    @Deprecated
    @Transactional
    public void saveContentRelations(List<PSAaRelationship> relationships,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorsException, PSErrorException
-   {
+         @SuppressWarnings("unused") String user) throws PSErrorsException, PSErrorException {
       saveContentRelations(relationships);
    }
 
    @Transactional
    public void saveContentRelations(List<PSAaRelationship> relationships)
-      throws PSErrorsException, PSErrorException
-   {
+         throws PSErrorsException, PSErrorException {
       if (relationships == null || relationships.isEmpty())
-         throw new IllegalArgumentException(
-            "relationships may not be null or empty.");
+         throw new IllegalArgumentException("relationships may not be null or empty.");
 
-      List<PSRelationship> rels = new ArrayList<>(relationships
-         .size());
+      List<PSRelationship> rels = new ArrayList<>(relationships.size());
       // validate all owner items have been checked out by the user
-      for (PSAaRelationship rel : relationships)
-      {
-         PSLocator owner = PSWebserviceUtils.validateItemCheckoutByUser(rel
-            .getOwner());
+      for (PSAaRelationship rel : relationships) {
+         PSLocator owner = PSWebserviceUtils.validateItemCheckoutByUser(rel.getOwner());
          // always reset the owner since the revision of the owner may be -1
          rel.setOwner(owner);
          rels.add(rel);
@@ -3948,24 +3305,19 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     */
    @Deprecated
    @Transactional
-   public PSFolder addFolder(String name, String path,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorException
-   {
+   public PSFolder addFolder(String name, String path, @SuppressWarnings("unused") String user)
+         throws PSErrorException {
       return addFolder(name, path);
    }
 
    @Transactional
-   public PSFolder addFolder(String name, String path)
-   throws PSErrorException
-   {
+   public PSFolder addFolder(String name, String path) throws PSErrorException {
       return addFolder(name, path, true);
    }
 
    @Transactional
    public PSFolder addFolder(String name, String path, boolean loadTransientData)
-      throws PSErrorException
-   {
+         throws PSErrorException {
       if (StringUtils.isBlank(name))
          throw new IllegalArgumentException("name must not be null or empty.");
       if (StringUtils.isBlank(path))
@@ -3977,11 +3329,13 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#addFolder(java.lang.String, java.lang.String, java.lang.String, boolean)
+    * 
+    * @see com.percussion.webservices.content.IPSContentWs#addFolder(java.lang.String,
+    * java.lang.String, java.lang.String, boolean)
     */
    @Transactional
-   public PSFolder addFolder(String name, String parentPath, String srcPath, boolean loadTransientData)
-   {
+   public PSFolder addFolder(String name, String parentPath, String srcPath,
+         boolean loadTransientData) {
       notEmpty(name);
       notEmpty(parentPath);
       notEmpty(srcPath);
@@ -3993,57 +3347,49 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Just like {@link #addFolder(String, String, String)}, except
-    * this specifies a parent id instead of parent path.
+    * Just like {@link #addFolder(String, String, String)}, except this specifies a parent id
+    * instead of parent path.
+    * 
     * @param parentId the parent folder id.
     */
    private PSFolder addFolder(String name, int parentId, int srcId, boolean loadTransientData)
-      throws PSErrorException
-   {
+         throws PSErrorException {
       List<IPSGuid> ids = new ArrayList<>(1);
       ids.add(new PSLegacyGuid(srcId, -1));
 
       // clone the folder from the parent folder, except the name
       List<PSFolder> folders = null;
-      try
-      {
+      try {
          folders = loadFolders(ids, loadTransientData);
-      }
-      catch (PSErrorResultsException e)
-      {
+      } catch (PSErrorResultsException e) {
          int code = IPSWebserviceErrors.FAILED_LOAD_FOLDER;
-         throw new PSErrorException(code, PSWebserviceErrors
-            .createErrorMessage(code, ids.get(0).toString(), e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+         throw new PSErrorException(code, PSWebserviceErrors.createErrorMessage(code,
+               ids.get(0).toString(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
       PSFolder folder = (PSFolder) folders.get(0).clone();
       folder.setName(name);
       folder.setDescription(name);
-      if (folder.getDisplayFormatId() == -1)
-      {
+      if (folder.getDisplayFormatId() == -1) {
          // this should not happen.
          // set to the default display format (id=0) if it does
-         logger.warn("Cannot find display format property from Folder id='{}'", folders.get(0).getLocator());
+         logger.warn("Cannot find display format property from Folder id='{}'",
+               folders.get(0).getLocator());
          folder.setDisplayFormatId(0);
       }
 
 
       // make sure the current user has the Admin access
       String user = PSWebserviceUtils.getUserName();
-      int permissions = PSObjectAclEntry.ACCESS_ADMIN |
-         PSObjectAclEntry.ACCESS_READ |
-         PSObjectAclEntry.ACCESS_WRITE;
+      int permissions = PSObjectAclEntry.ACCESS_ADMIN | PSObjectAclEntry.ACCESS_READ
+            | PSObjectAclEntry.ACCESS_WRITE;
 
-      PSObjectAclEntry entry = folder.getAcl().getAclEntry(user,
-         PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
-      if (entry == null)
-      {
-         entry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_USER,
-            user, permissions);
+      PSObjectAclEntry entry =
+            folder.getAcl().getAclEntry(user, PSObjectAclEntry.ACL_ENTRY_TYPE_USER);
+      if (entry == null) {
+         entry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_USER, user, permissions);
          folder.getAcl().add(entry);
-      }
-      else
-      {
+      } else {
          entry.setPermissions(permissions);
       }
 
@@ -4058,77 +3404,63 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Creates a folder relationship between the specified folder child
-    * and parent.
+    * Creates a folder relationship between the specified folder child and parent.
     *
     * @param child the child folder, assumed not <code>null</code>.
     * @param parent the parent folder, assumed not <code>null</code>.
     * @throws PSErrorException if an error occurs.
     */
-   private void createFolderRelationship(PSFolder child, PSLocator parent)
-      throws PSErrorException
-   {
+   private void createFolderRelationship(PSFolder child, PSLocator parent) throws PSErrorException {
       List<PSLocator> children = new ArrayList<>();
       children.add(child.getLocator());
-      try
-      {
+      try {
          getFolderProcessor().addChildren(children, parent);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          // remove the orphan data if failed to create Folder Relationship
-         try
-         {
+         try {
             getFolderProcessor().delete(child);
-         }
-         catch (PSCmsException e1)
-         {
-            //ignore this error
+         } catch (PSCmsException e1) {
+            // ignore this error
             logger.warn("Error: {} when trying to delete orphaned child folder.",
-                    PSExceptionUtils.getMessageForLog(e1));
+                  PSExceptionUtils.getMessageForLog(e1));
          }
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS, PSExceptionUtils.getMessageForLog(e)), ExceptionUtils
-            .getFullStackTrace(e));
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_SAVE_RELATIONSHIPS,
+                     PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
 
    }
 
    // @see IPSContentWs#addFolderChildren(IPSGuid, List)
    @Transactional
-   public void addFolderChildren(IPSGuid parentId, List<IPSGuid> childIds)
-      throws PSErrorException
-   {
+   public void addFolderChildren(IPSGuid parentId, List<IPSGuid> childIds) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(parentId);
       PSWebserviceUtils.validateLegacyGuids(childIds);
 
       // convert GUIDs to PSLocators
-      PSLocator parent = new PSLocator(
-         ((PSLegacyGuid) parentId).getContentId(), 1);
+      PSLocator parent = new PSLocator(((PSLegacyGuid) parentId).getContentId(), 1);
       List<PSLocator> children = new ArrayList<>(childIds.size());
       for (IPSGuid id : childIds)
          children.add(new PSLocator(((PSLegacyGuid) id).getContentId(), -1));
 
-      try
-      {
+      try {
          getFolderProcessor().addChildren(children, parent);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_ADD_FOLDER_CHILDREN, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_ADD_FOLDER_CHILDREN, childIds.toString(), parentId.toString(),
-               PSExceptionUtils.getMessageForLog(e)), ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_ADD_FOLDER_CHILDREN,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_ADD_FOLDER_CHILDREN,
+                     childIds.toString(), parentId.toString(),
+                     PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    // @see IPSContentWs#addFolderChildren(String, List, String)
    @Transactional
    public void addFolderChildren(String parentPath, List<IPSGuid> childIds)
-      throws PSErrorException
-   {
+         throws PSErrorException {
       if (StringUtils.isBlank(parentPath))
-         throw new IllegalArgumentException(
-            "parentPath must not be null or empty.");
+         throw new IllegalArgumentException("parentPath must not be null or empty.");
       PSWebserviceUtils.validateLegacyGuids(childIds);
 
       int parentId = getFolderIdFromPath(parentPath, true);
@@ -4137,24 +3469,20 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    @Deprecated
    @Transactional
-   public List<PSFolder> addFolderTree(String path,
-      @SuppressWarnings("unused") String user)
-      throws PSErrorResultsException, PSErrorException
-   {
+   public List<PSFolder> addFolderTree(String path, @SuppressWarnings("unused") String user)
+         throws PSErrorResultsException, PSErrorException {
       return addFolderTree(path);
    }
 
    @Transactional
    public List<PSFolder> addFolderTree(String path)
-   throws PSErrorResultsException, PSErrorException
-   {
+         throws PSErrorResultsException, PSErrorException {
       return addFolderTree(path, true);
    }
 
    @Transactional
    public List<PSFolder> addFolderTree(String path, boolean loadTransientData)
-      throws PSErrorResultsException, PSErrorException
-   {
+         throws PSErrorResultsException, PSErrorException {
       if (StringUtils.isBlank(path))
          throw new IllegalArgumentException("path must not be null or empty.");
 
@@ -4163,26 +3491,23 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       int parentId = lookupParentId(path, names);
       PSErrorResultsException results = new PSErrorResultsException();
 
-      // Do not allow folders with a space,  but still handle existing folders
+      // Do not allow folders with a space, but still handle existing folders
       // that may already have spaces until we clean up.
 
-      for (String invalidPathItemToTest : names)
-      {
+      for (String invalidPathItemToTest : names) {
          if (PSFolderPathUtils.testHasInvalidChars(invalidPathItemToTest))
-            throw new IllegalArgumentException("Cannot create a folder containing the following characters" + SecureStringUtils.INVALID_ITEM_NAME_CHARACTERS);
+            throw new IllegalArgumentException(
+                  "Cannot create a folder containing the following characters"
+                        + SecureStringUtils.INVALID_ITEM_NAME_CHARACTERS);
       }
 
-      while (!names.empty())
-      {
-         try
-         {
+      while (!names.empty()) {
+         try {
             PSFolder folder = addFolder(names.pop(), parentId, parentId, loadTransientData);
             folders.add(folder);
             parentId = folder.getLocator().getId();
             results.addResult(new PSLegacyGuid(folder.getLocator()), folder);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(new PSLegacyGuid(-1, -1), e);
             throw results;
          }
@@ -4192,20 +3517,16 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Search the 1st existing folder from the specified folder path. The lookup
-    * process is from the longest path towards to the root.
+    * Search the 1st existing folder from the specified folder path. The lookup process is from the
+    * longest path towards to the root.
     *
-    * @param origPath the path used to search from, assumed not
-    *    <code>null</code> or empty.
-    * @param childNames the stack of non-existing folder names, which will be
-    *    used to create child folder. Assumed not <code>null</code>.
-    * @return the folder id of the 1st existing folder when performing
-    *   backwords lookups.
+    * @param origPath the path used to search from, assumed not <code>null</code> or empty.
+    * @param childNames the stack of non-existing folder names, which will be used to create child
+    *        folder. Assumed not <code>null</code>.
+    * @return the folder id of the 1st existing folder when performing backwords lookups.
     * @throws PSErrorException if an error occurs.
     */
-   private int lookupParentId(String origPath, Stack<String> childNames)
-      throws PSErrorException
-   {
+   private int lookupParentId(String origPath, Stack<String> childNames) throws PSErrorException {
       String path = origPath;
       // remove the '/' at the end if any
       if (path.charAt(path.length() - 1) == '/')
@@ -4213,8 +3534,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       int index;
       int parentId = -1;
-      while (parentId == -1)
-      {
+      while (parentId == -1) {
          parentId = getFolderIdFromPath(path, false);
          if (parentId != -1)
             break;
@@ -4222,7 +3542,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          index = path.lastIndexOf("/");
          if (index == -1 || path.equals("/"))
             throw new IllegalArgumentException(
-               "Cannot find existing folder from path: '" + origPath + "'.");
+                  "Cannot find existing folder from path: '" + origPath + "'.");
 
          childNames.push(path.substring(index + 1));
          path = path.substring(0, index);
@@ -4233,51 +3553,44 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /*
     * (non-Javadoc)
+    * 
     * @see com.percussion.webservices.content.IPSContentWs#deleteFolders(java.util.List, boolean)
     */
    @Transactional
-   public void deleteFolders(List<IPSGuid> ids, boolean purgeItems)
-   throws PSErrorsException
-   {
+   public void deleteFolders(List<IPSGuid> ids, boolean purgeItems) throws PSErrorsException {
       deleteFolders(ids, purgeItems, true);
    }
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#deleteFolders(java.util.List, boolean, boolean)
+    * 
+    * @see com.percussion.webservices.content.IPSContentWs#deleteFolders(java.util.List, boolean,
+    * boolean)
     */
    @Transactional
-   public void deleteFolders(List<IPSGuid> ids, boolean purgeItems,
-         boolean checkFolderPermission) throws PSErrorsException
-   {
+   public void deleteFolders(List<IPSGuid> ids, boolean purgeItems, boolean checkFolderPermission)
+         throws PSErrorsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSErrorsException errors = new PSErrorsException();
       PSRequest request = getRequest();
       PSServerFolderProcessor processor = getFolderProcessor();
-      for (IPSGuid id : ids)
-      {
-         try
-         {
+      for (IPSGuid id : ids) {
+         try {
             int contentId = ((PSLegacyGuid) id).getContentId();
-            if (purgeItems)
-            {
+            if (purgeItems) {
                PSFolderHandler.purgeFolderAndChildItems(contentId, request);
-            }
-            else
-            {
-               PSKey[] keys = new PSKey[] { new PSLocator(contentId, 1) };
+            } else {
+               PSKey[] keys = new PSKey[] {new PSLocator(contentId, 1)};
                processor.deleteFolders(keys, checkFolderPermission, RECYCLE_RELATE_TYPE);
             }
             errors.addResult(id);
-         }
-         catch (PSException | PSValidationException e)
-         {
+         } catch (PSException | PSValidationException e) {
             int code = IPSWebserviceErrors.DELETE_FAILED;
             PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, PSFolder.class
-                  .getName(), id.toString(), PSExceptionUtils.getMessageForLog(e)),
-               ExceptionUtils.getFullStackTrace(e));
+                  PSWebserviceErrors.createErrorMessage(code, PSFolder.class.getName(),
+                        id.toString(), PSExceptionUtils.getMessageForLog(e)),
+                  ExceptionUtils.getFullStackTrace(e));
             errors.addError(id, error);
          }
       }
@@ -4287,93 +3600,76 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    @Deprecated
-   public List<PSItemSummary> findFolderChildren(IPSGuid id,
-      boolean isLoadOperations, @SuppressWarnings("unused")
-      String user) throws PSErrorException
-   {
+   public List<PSItemSummary> findFolderChildren(IPSGuid id, boolean isLoadOperations,
+         @SuppressWarnings("unused") String user) throws PSErrorException {
       return findFolderChildren(id, isLoadOperations);
    }
 
-   public List<PSItemSummary> findFolderParents(IPSGuid id,
-         boolean isLoadOperation)
-   {
+   public List<PSItemSummary> findFolderParents(IPSGuid id, boolean isLoadOperation) {
       PSWebserviceUtils.validateLegacyGuid(id);
 
       PSLocator parentId = new PSLocator(((PSLegacyGuid) id).getContentId(), 1);
-      try
-      {
-         PSComponentSummary[] children = getFolderProcessor()
-            .getParentSummaries(parentId);
+      try {
+         PSComponentSummary[] children = getFolderProcessor().getParentSummaries(parentId);
 
          // convert to the returned format
          PSComponentSummaries summs = new PSComponentSummaries();
          for (PSComponentSummary comp : children)
             summs.add(comp);
          return getItemSummaries(summs, isLoadOperation);
-      }
-      catch (PSCmsException e)
-      {
-         throw new RuntimeException("Failed to find folder parent for id="
-               + id.toString(), e);
+      } catch (PSCmsException e) {
+         throw new RuntimeException("Failed to find folder parent for id=" + id.toString(), e);
       }
 
    }
-   public List<PSItemSummary> findFolderChildren(IPSGuid id,
-      boolean isLoadOperation) throws PSErrorException
-   {
+
+   public List<PSItemSummary> findFolderChildren(IPSGuid id, boolean isLoadOperation)
+         throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
 
       PSLocator parentId = new PSLocator(((PSLegacyGuid) id).getContentId(), 1);
-      try
-      {
-         PSComponentSummary[] children = getFolderProcessor()
-            .getChildSummaries(parentId);
+      try {
+         PSComponentSummary[] children = getFolderProcessor().getChildSummaries(parentId);
 
          // convert to the returned format
          PSComponentSummaries summs = new PSComponentSummaries();
          for (PSComponentSummary comp : children)
             summs.add(comp);
          return getItemSummaries(summs, isLoadOperation);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, id.toString(), PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN,
+               PSWebserviceErrors.createErrorMessage(
+                     IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, id.toString(),
+                     PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
-   public List<PSItemSummary> findChildFolders(IPSGuid id) throws PSErrorException
-   {
+   public List<PSItemSummary> findChildFolders(IPSGuid id) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
 
       PSLocator parentId = new PSLocator(((PSLegacyGuid) id).getContentId(), 1);
-      try
-      {
-         PSComponentSummaries summs = getFolderProcessor()
-            .getChildFolderSummaries(parentId);
+      try {
+         PSComponentSummaries summs = getFolderProcessor().getChildFolderSummaries(parentId);
 
          // convert to the returned format
          return getItemSummaries(summs, false);
-      }
-      catch (PSCmsException e)
-      {
-        throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, id.toString(), PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN,
+               PSWebserviceErrors.createErrorMessage(
+                     IPSWebserviceErrors.FAILED_FIND_FOLDER_CHILDREN, id.toString(),
+                     PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
-   public List<PSItemSummary> findFolderChildren(String path,
-      boolean isLoadOperations, @SuppressWarnings("unused")
-      String user) throws PSErrorException
-   {
+   public List<PSItemSummary> findFolderChildren(String path, boolean isLoadOperations,
+         @SuppressWarnings("unused") String user) throws PSErrorException {
       return findFolderChildren(path, isLoadOperations);
    }
 
-   public List<PSItemSummary> findFolderChildren(String path,
-      boolean isLoadOperation) throws PSErrorException
-   {
+   public List<PSItemSummary> findFolderChildren(String path, boolean isLoadOperation)
+         throws PSErrorException {
       if (StringUtils.isBlank(path))
          throw new IllegalArgumentException("path must not be null or empty.");
 
@@ -4388,10 +3684,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * //see base interface method for details
     */
    @SuppressWarnings("java:S1075")
-   public boolean isChildExistInFolder(String folderPath, String name)
-   {
+   public boolean isChildExistInFolder(String folderPath, String name) {
       String path;
-      if (folderPath.charAt(folderPath.length()-1) == '/')
+      if (folderPath.charAt(folderPath.length() - 1) == '/')
          path = folderPath + name;
       else
          path = folderPath + "/" + name;
@@ -4403,8 +3698,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /*
     * //see base interface method for details
     */
-   public boolean isChildExistInFolder(IPSGuid folderId, String name)
-   {
+   public boolean isChildExistInFolder(IPSGuid folderId, String name) {
       String[] paths = findItemPaths(folderId);
       if (paths == null || paths.length == 0)
          return false;
@@ -4414,42 +3708,36 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    // @see IPSContentWs#findFolderPaths(IPSGuid)
    @Override
-   public String[] findFolderPaths(IPSGuid id) throws PSErrorException
-   {
+   public String[] findFolderPaths(IPSGuid id) throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
       PSLocator locator = new PSLocator(((PSLegacyGuid) id).getContentId(), -1);
-      try
-      {
+      try {
          return getFolderProcessor().getFolderPaths(locator);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID,
-            PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID, locator.getId(), e
-               .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID,
+                     locator.getId(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    @Override
-   public String[] findFolderPaths(IPSGuid id, String relationshipTypeName) throws PSErrorException
-   {
+   public String[] findFolderPaths(IPSGuid id, String relationshipTypeName)
+         throws PSErrorException {
       PSWebserviceUtils.validateLegacyGuid(id);
       PSLocator locator = new PSLocator(((PSLegacyGuid) id).getContentId(), -1);
-      try
-      {
+      try {
          return getFolderProcessor().getFolderPaths(locator, relationshipTypeName);
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID,
-                 PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID, locator.getId(), e
-                         .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_PATH_FROM_ID,
+                     locator.getId(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    // @see IPSContentWs#findPathIds(String)
-   public List<IPSGuid> findPathIds(String path) throws PSErrorException
-   {
+   public List<IPSGuid> findPathIds(String path) throws PSErrorException {
       if (StringUtils.isBlank(path))
          throw new IllegalArgumentException("path must be null or empty.");
 
@@ -4458,8 +3746,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          path = path.substring(0, path.length() - 1);
 
       List<IPSGuid> result = new ArrayList<>();
-      while (path.length() > 0)
-      {
+      while (path.length() > 0) {
          if (path.equals("/")) // exclude the root id
             break;
 
@@ -4476,151 +3763,134 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#loadFolder(com.percussion.utils.guid.IPSGuid)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#loadFolder(com.percussion.utils.guid.IPSGuid)
     */
-   public PSFolder loadFolder(IPSGuid id) throws PSErrorException
-   {
+   public PSFolder loadFolder(IPSGuid id) throws PSErrorException {
       return loadFolder(id, true);
    }
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#loadFolder(com.percussion.utils.guid.IPSGuid, boolean)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#loadFolder(com.percussion.utils.guid.IPSGuid,
+    * boolean)
     */
-   public PSFolder loadFolder(IPSGuid id, boolean loadTransientData)
-         throws PSErrorException
-   {
+   public PSFolder loadFolder(IPSGuid id, boolean loadTransientData) throws PSErrorException {
       PSServerFolderProcessor processor = getFolderProcessor();
-      try
-      {
-         PSFolder folder = processor.openFolder(new PSLocator(
-               ((PSLegacyGuid) id).getContentId(), -1));
+      try {
+         PSFolder folder =
+               processor.openFolder(new PSLocator(((PSLegacyGuid) id).getContentId(), -1));
          if (loadTransientData)
             setFolderTransientData(folder);
 
          return folder;
-      }
-      catch (PSCmsException e)
-      {
+      } catch (PSCmsException e) {
          throw new PSErrorException(IPSWebserviceErrors.FAILED_LOAD_FOLDER,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_FOLDER, id.toString(), e
-                     .getLocalizedMessage()), ExceptionUtils
-                     .getFullStackTrace(e));
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_LOAD_FOLDER,
+                     id.toString(), e.getLocalizedMessage()),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    /*
     * (non-Javadoc)
+    * 
     * @see com.percussion.webservices.content.IPSContentWs#loadFolders(java.util.List)
     */
-   public List<PSFolder> loadFolders(List<IPSGuid> ids)
-      throws PSErrorResultsException
-   {
+   public List<PSFolder> loadFolders(List<IPSGuid> ids) throws PSErrorResultsException {
       return loadFolders(ids, true);
    }
 
    /*
     * (non-Javadoc)
+    * 
     * @see com.percussion.webservices.content.IPSContentWs#loadFolders(java.util.List, boolean)
     */
    @SuppressWarnings("unchecked")
-   public List<PSFolder> loadFolders(List<IPSGuid> ids,
-         boolean loadTransientData) throws PSErrorResultsException
-   {
+   public List<PSFolder> loadFolders(List<IPSGuid> ids, boolean loadTransientData)
+         throws PSErrorResultsException {
       PSWebserviceUtils.validateLegacyGuids(ids);
 
       PSErrorResultsException results = new PSErrorResultsException();
-      for (IPSGuid id : ids)
-      {
-         try
-         {
+      for (IPSGuid id : ids) {
+         try {
             PSFolder folder = loadFolder(id, loadTransientData);
             results.addResult(id, folder);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             results.addError(id, e);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty()) {
-         //Only throw an exception if there aren't any valid results
+         // Only throw an exception if there aren't any valid results
          throw results;
-      }
-      else if(results.hasErrors() ){
+      } else if (results.hasErrors()) {
          logger.warn("Error loading properties for folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+               results.getAllErrorIdsString(), results.getAllErrorString());
       }
       return results.getResults(ids);
    }
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#findDescendantFolders(com.percussion.utils.guid.IPSGuid)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#findDescendantFolders(com.percussion.utils.
+    * guid.IPSGuid)
     */
-   public List<PSFolder> findDescendantFolders(IPSGuid id)
-   {
+   public List<PSFolder> findDescendantFolders(IPSGuid id) {
       notNull(id);
 
       List<IPSGuid> ids = getDescendantFolderIds(id);
-      try
-      {
+      try {
          if (ids.isEmpty())
             return Collections.emptyList();
 
          return loadFolders(ids, false);
-      }
-      catch (PSErrorResultsException e)
-      {
+      } catch (PSErrorResultsException e) {
          throw new PSErrorException(
-               "Failed to load some descendant folders for folder id = "
-                     + id.toString(), e);
+               "Failed to load some descendant folders for folder id = " + id.toString(), e);
       }
    }
 
    /**
     * Gets all descendant folder IDs for the specified folder.
+    * 
     * @param id the ID of the folder, assumed not <code>null</code>.
     * @return the list of descendant folder IDs, never <code>null</code>, but may be empty.
     */
-   private List<IPSGuid> getDescendantFolderIds(IPSGuid id)
-   {
-      try
-      {
+   private List<IPSGuid> getDescendantFolderIds(IPSGuid id) {
+      try {
          PSServerFolderProcessor processor = getFolderProcessor();
-         PSLocator folderId = ((PSLegacyGuid)id).getLocator();
+         PSLocator folderId = ((PSLegacyGuid) id).getLocator();
          PSLocator[] locators;
 
          locators = processor.getDescendentFolderLocators(folderId);
          List<IPSGuid> ids = new ArrayList<>();
-         for (PSLocator locator : locators)
-         {
+         for (PSLocator locator : locators) {
             IPSGuid guid = new PSLegacyGuid(locator);
             ids.add(guid);
          }
          return ids;
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(
-               "Failed to get all descendant folder IDs for folder id = "
-                     + id, e);
+      } catch (PSCmsException e) {
+         throw new PSErrorException("Failed to get all descendant folder IDs for folder id = " + id,
+               e);
       }
    }
 
 
    /**
-    * Set transient data for the specified folder. The transient data will
-    * not persisted with the folder when the folder is saved into the
-    * repository, such as community name, display name, folder path, ...etc.
+    * Set transient data for the specified folder. The transient data will not persisted with the
+    * folder when the folder is saved into the repository, such as community name, display name,
+    * folder path, ...etc.
     *
     * @param folder the specified folder, assumed not <code>null</code>.
-    * @throws PSErrorException if an error occurred when failed to load
-    *    the transient data.
+    * @throws PSErrorException if an error occurred when failed to load the transient data.
     */
-   private void setFolderTransientData(PSFolder folder) throws PSErrorException
-   {
+   private void setFolderTransientData(PSFolder folder) throws PSErrorException {
       // set folder path and guid
       PSLegacyGuid folderId = new PSLegacyGuid(folder.getLocator().getId(), -1);
       folder.setFolderPath(loadFolderPath(folderId));
@@ -4628,74 +3898,61 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       IPSGuid id;
       // set community name
-      if (folder.getCommunityId() != -1)
-      {
+      if (folder.getCommunityId() != -1) {
          id = new PSGuid(PSTypeEnum.COMMUNITY_DEF, folder.getCommunityId());
          IPSBackEndRoleMgr roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
          PSCommunity community;
-         try
-         {
+         try {
             community = roleMgr.loadCommunity(id);
             folder.setCommunityName(community.getName());
-         }
-         catch (PSServiceSecurityException e)
-         {
+         } catch (PSServiceSecurityException e) {
             throw new PSErrorException(IPSWebserviceErrors.LOAD_FAILED,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED, PSCommunity.class
-                  .getName(), id.longValue(), PSExceptionUtils.getMessageForLog(e)),
-               ExceptionUtils.getFullStackTrace(e));
+                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED,
+                        PSCommunity.class.getName(), id.longValue(),
+                        PSExceptionUtils.getMessageForLog(e)),
+                  ExceptionUtils.getFullStackTrace(e));
 
          }
       }
 
       // set display format name
-      if (folder.getDisplayFormatId() != -1)
-      {
+      if (folder.getDisplayFormatId() != -1) {
          IPSUiDesignWs uiws = PSUiWsLocator.getUiDesignWebservice();
          id = new PSGuid(PSTypeEnum.DISPLAY_FORMAT, folder.getDisplayFormatId());
          List<IPSGuid> ids = new ArrayList<>();
          ids.add(id);
 
-         try
-         {
-            List<PSDisplayFormat> dfs = uiws.loadDisplayFormats(ids, false,
-               false, "", "");
+         try {
+            List<PSDisplayFormat> dfs = uiws.loadDisplayFormats(ids, false, false, "", "");
             folder.setDisplayFormatName(dfs.get(0).getName());
-         }
-         catch (PSErrorResultsException e)
-         {
+         } catch (PSErrorResultsException e) {
             throw new PSErrorException(IPSWebserviceErrors.LOAD_FAILED,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED,
-                  PSDisplayFormat.class.getName(), id.longValue(), e
-                     .getLocalizedMessage()), ExceptionUtils
-                  .getFullStackTrace(e));
+                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.LOAD_FAILED,
+                        PSDisplayFormat.class.getName(), id.longValue(), e.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e));
          }
       }
    }
 
    /**
-    * Gets a new instance of the folder processor, which is created from
-    * the current request.
+    * Gets a new instance of the folder processor, which is created from the current request.
     *
     * @return the created folder processor, never <code>null</code>.
     */
-   private PSServerFolderProcessor getFolderProcessor()
-   {
+   private PSServerFolderProcessor getFolderProcessor() {
       return PSServerFolderProcessor.getInstance();
    }
 
    // @see IPSContentWs#loadFolders(String[])
    @SuppressWarnings("unchecked")
    public List<PSFolder> loadFolders(String[] paths)
-      throws PSErrorResultsException,IllegalArgumentException
-   {
+         throws PSErrorResultsException, IllegalArgumentException {
       if (paths == null || paths.length == 0)
          throw new IllegalArgumentException("paths may not be null or empty.");
 
       for (String path : paths)
          if (StringUtils.isBlank(path))
-            throw new IllegalArgumentException(
-               "folder paths entries cannot be null or empty.");
+            throw new IllegalArgumentException("folder paths entries cannot be null or empty.");
 
       PSServerFolderProcessor processor = getFolderProcessor();
 
@@ -4703,34 +3960,26 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       List<IPSGuid> ids = new ArrayList<>();
       PSErrorResultsException results = new PSErrorResultsException();
-      for (String path : paths)
-      {
+      for (String path : paths) {
          PSLegacyGuid id = null;
-         try
-         {
+         try {
             id = new PSLegacyGuid(getFolderIdFromPath(path, true), -1);
 
-            PSFolder folder = processor.openFolder(new PSLocator(
-               ( id).getContentId(), -1));
+            PSFolder folder = processor.openFolder(new PSLocator((id).getContentId(), -1));
             setFolderTransientData(folder);
 
             results.addResult(id, folder);
-         }
-         catch (PSCmsException e)
-         {
+         } catch (PSCmsException e) {
             // id is always valid if we get here
             int code = IPSWebserviceErrors.FAILED_LOAD_FOLDER;
-            PSErrorException error = new PSErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code, id.toString(), e
-                  .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e));
+            PSErrorException error = new PSErrorException(code, PSWebserviceErrors
+                  .createErrorMessage(code, id.toString(), e.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e));
 
             results.addError(id, error);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             /*
-             * The id may not be valid if we get here, create a fake id for
-             * the error results.
+             * The id may not be valid if we get here, create a fake id for the error results.
              */
             if (id == null)
                id = new PSLegacyGuid(nextFakeFolderId--, -1);
@@ -4742,10 +3991,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       if (results.hasErrors() && results.getResults().isEmpty())
          throw results;
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getResults(ids);
@@ -4755,44 +4003,35 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * Gets the folder id from the specified folder path.
     *
     * @param path the folder path, assumed not <code>null</code> or empty.
-    * @param isRequired <code>true</code> if the specified path must be an
-    *    existing folder; otherwise the specified path may not be an existing
-    *    folder.
-    * @return the folder id of the specified folder path. It may be
-    *    <code>-1</code> if cannot find a folder with the path and the
-    *    isRequired parameter is <code>false</code>.
-    * @throws PSErrorException if an error occurs or cannot find the specified
-    *    folder and the isRequired parameter is <code>null</code>.
+    * @param isRequired <code>true</code> if the specified path must be an existing folder;
+    *        otherwise the specified path may not be an existing folder.
+    * @return the folder id of the specified folder path. It may be <code>-1</code> if cannot find a
+    *         folder with the path and the isRequired parameter is <code>false</code>.
+    * @throws PSErrorException if an error occurs or cannot find the specified folder and the
+    *         isRequired parameter is <code>null</code>.
     */
    private int getFolderIdFromPath(String path, boolean isRequired) throws PSErrorException {
       return getFolderIdFromPath(path, isRequired, FOLDER_RELATE_TYPE);
    }
 
    private int getFolderIdFromPath(String path, boolean isRequired, String relationshipTypeName)
-      throws PSErrorException
-   {
-      PSRelationshipProcessor processor = PSWebserviceUtils
-         .getRelationshipProcessor();
+         throws PSErrorException {
+      PSRelationshipProcessor processor = PSWebserviceUtils.getRelationshipProcessor();
 
-      try
-      {
-         int id = processor.getIdByPath(
-            RELATIONSHIP_COMPTYPE, path,
-                 relationshipTypeName);
+      try {
+         int id = processor.getIdByPath(RELATIONSHIP_COMPTYPE, path, relationshipTypeName);
 
-         if (id == -1 && isRequired)
-         {
-           throw new PSErrorException(IPSWebserviceErrors.PATH_NOT_EXIST,
-               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.PATH_NOT_EXIST, path),
-               ExceptionUtils.getFullStackTrace(new Exception()));
+         if (id == -1 && isRequired) {
+            throw new PSErrorException(IPSWebserviceErrors.PATH_NOT_EXIST,
+                  PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.PATH_NOT_EXIST, path),
+                  ExceptionUtils.getFullStackTrace(new Exception()));
          }
          return id;
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException( IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH, PSWebserviceErrors
-            .createErrorMessage( IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH, path, PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH,
+                     path, PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
@@ -4802,21 +4041,21 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     *
     *
     * @param property to search for. assumed not <code>null</code> or empty.
-
+    * 
     */
-   public List<PSFolder>  getFoldersByProperty(String property)  throws PSErrorException {
+   public List<PSFolder> getFoldersByProperty(String property) throws PSErrorException {
 
 
       IPSContentService service = PSContentServiceLocator.getContentService();
 
-      List<PSFolderProperty>  propertiesList = service.getFolderProperties(property);
+      List<PSFolderProperty> propertiesList = service.getFolderProperties(property);
 
       List<IPSGuid> ids = new ArrayList<>();
 
 
-      for(PSFolderProperty folderProperty: propertiesList){
+      for (PSFolderProperty folderProperty : propertiesList) {
 
-         //set the GUID of the folder from the property
+         // set the GUID of the folder from the property
          PSGuid guid = new PSLegacyGuid(folderProperty.getContentID());
 
          ids.add(guid);
@@ -4825,16 +4064,13 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       List<PSFolder> folders = new ArrayList<>();
 
-      try
-      {
-         if (ids != null && !ids.isEmpty()){
-            //convert folder GUIDs to folders
+      try {
+         if (ids != null && !ids.isEmpty()) {
+            // convert folder GUIDs to folders
             folders = loadFolders(ids);
          }
 
-      }
-      catch (PSErrorResultsException e)
-      {
+      } catch (PSErrorResultsException e) {
          logger.error(PSExceptionUtils.getMessageForLog(e));
       }
 
@@ -4843,33 +4079,25 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
 
 
-
-
-
-
-
-
-
-
    /**
     * @see IPSContentWs#moveFolderChildren(IPSGuid, IPSGuid, List)
     */
    @Transactional
-   public void moveFolderChildren(IPSGuid sourceId, IPSGuid targetId,
-      List<IPSGuid> childIds) throws PSErrorException
-   {
+   public void moveFolderChildren(IPSGuid sourceId, IPSGuid targetId, List<IPSGuid> childIds)
+         throws PSErrorException {
       moveFolderChildren(sourceId, targetId, childIds, true);
    }
 
    /*
     * (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#moveFolderChildren(com.percussion.utils.guid.IPSGuid, com.percussion.utils.guid.IPSGuid, java.util.List, boolean)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#moveFolderChildren(com.percussion.utils.guid.
+    * IPSGuid, com.percussion.utils.guid.IPSGuid, java.util.List, boolean)
     */
    @Transactional
-   public void moveFolderChildren(IPSGuid sourceId, IPSGuid targetId,
-         List<IPSGuid> childIds, boolean checkFolderPermission)
-         throws PSErrorException
-   {
+   public void moveFolderChildren(IPSGuid sourceId, IPSGuid targetId, List<IPSGuid> childIds,
+         boolean checkFolderPermission) throws PSErrorException {
       // validate ids
       PSWebserviceUtils.validateLegacyGuid(sourceId);
       PSWebserviceUtils.validateLegacyGuid(targetId);
@@ -4881,58 +4109,40 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       validateMovedItemInTargetFolder(targetId, children);
 
       List<PSLocator> childLocators = new ArrayList<>();
-      for (PSComponentSummary child : children)
-      {
+      for (PSComponentSummary child : children) {
          childLocators.add(child.getCurrentLocator());
       }
 
-      PSLocator src = new PSLocator(((PSLegacyGuid) sourceId).getContentId(),
-         -1);
-      PSLocator tgt = new PSLocator(((PSLegacyGuid) targetId).getContentId(),
-         -1);
+      PSLocator src = new PSLocator(((PSLegacyGuid) sourceId).getContentId(), -1);
+      PSLocator tgt = new PSLocator(((PSLegacyGuid) targetId).getContentId(), -1);
 
-      try
-      {
-         getFolderProcessor().moveFolderChildren(src, childLocators, tgt,
-               false, checkFolderPermission);
-      }
-      catch (PSCmsException e)
-      {
+      try {
+         getFolderProcessor().moveFolderChildren(src, childLocators, tgt, false,
+               checkFolderPermission);
+      } catch (PSCmsException e) {
          throwUnexpectedError(e);
       }
    }
 
    /**
-    * Make sure the specified folder does not contain any item with the same
-    * name as the specified item list.
+    * Make sure the specified folder does not contain any item with the same name as the specified
+    * item list.
     *
-    * @param folderId the ID of the folder in question, assumed not
-    * <code>null</code>.
-    * @param items the list of items, assumed not <code>null</code>, may be
-    * empty.
+    * @param folderId the ID of the folder in question, assumed not <code>null</code>.
+    * @param items the list of items, assumed not <code>null</code>, may be empty.
     */
-   private void validateMovedItemInTargetFolder(IPSGuid folderId,
-         List<PSComponentSummary> items)
-   {
+   private void validateMovedItemInTargetFolder(IPSGuid folderId, List<PSComponentSummary> items) {
       String[] paths = findItemPaths(folderId);
-      if (paths == null || paths.length == 0)
-      {
-         throw new PSErrorException("Failed to move items to folder (id="
-               + folderId.toString() + ") because the folder does not exist.");
+      if (paths == null || paths.length == 0) {
+         throw new PSErrorException("Failed to move items to folder (id=" + folderId.toString()
+               + ") because the folder does not exist.");
       }
       String path = paths[0];
 
-      for (PSComponentSummary child : items)
-      {
-         if (isChildExistInFolder(path, child.getName()))
-         {
-            String msg = "Cannot move item (id="
-                  + child.getContentId()
-                  + ", name="
-                  + child.getName()
-                  + ") to folder (path="
-                  + path
-                  + ", id="
+      for (PSComponentSummary child : items) {
+         if (isChildExistInFolder(path, child.getName())) {
+            String msg = "Cannot move item (id=" + child.getContentId() + ", name="
+                  + child.getName() + ") to folder (path=" + path + ", id="
                   + ((PSLegacyGuid) folderId).getContentId()
                   + ") because a child item with the same name already exists in the folder.";
             logger.warn(msg);
@@ -4943,16 +4153,13 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    // @see IPSContentWs#moveFolderChildren(String, String, List, String, String)
    @Transactional
-   public void moveFolderChildren(String sourcePath, String targetPath,
-      List<IPSGuid> childIds) throws PSErrorException
-   {
+   public void moveFolderChildren(String sourcePath, String targetPath, List<IPSGuid> childIds)
+         throws PSErrorException {
       if (StringUtils.isBlank(sourcePath))
-         throw new IllegalArgumentException(
-            "sourcePath may not be null or empty.");
+         throw new IllegalArgumentException("sourcePath may not be null or empty.");
 
       if (StringUtils.isBlank(targetPath))
-         throw new IllegalArgumentException(
-            "targetPath may not be null or empty.");
+         throw new IllegalArgumentException("targetPath may not be null or empty.");
 
       int srcId = getFolderIdFromPath(sourcePath, true);
       int tgtId = getFolderIdFromPath(targetPath, true);
@@ -4965,16 +4172,14 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
    // @see IPSContentWs#removeFolderChildren(IPSGuid, List, boolean)
    @Transactional
-   public void removeFolderChildren(IPSGuid parentId, List<IPSGuid> childIds,
-      boolean purgeItems) throws PSErrorsException, PSErrorException
-   {
+   public void removeFolderChildren(IPSGuid parentId, List<IPSGuid> childIds, boolean purgeItems)
+         throws PSErrorsException, PSErrorException {
       removeFolderChildren(parentId, childIds, purgeItems, FOLDER_RELATE_TYPE);
    }
 
    @Transactional
-   public void removeFolderChildren(IPSGuid parentId, List<IPSGuid> childIds,
-                                    boolean purgeItems, String relationshipTypeName) throws PSErrorsException, PSErrorException
-   {
+   public void removeFolderChildren(IPSGuid parentId, List<IPSGuid> childIds, boolean purgeItems,
+         String relationshipTypeName) throws PSErrorsException, PSErrorException {
       // validate ids
       PSWebserviceUtils.validateLegacyGuid(parentId);
       if (childIds != null && (!childIds.isEmpty()))
@@ -4986,70 +4191,58 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       // separate sub-folders and items
       List<PSKey> itemLocators = new ArrayList<>();
       List<IPSGuid> subFolders = new ArrayList<>();
-      for (PSComponentSummary comp : children)
-      {
-         if (comp.isFolder())
-         {
+      for (PSComponentSummary comp : children) {
+         if (comp.isFolder()) {
             PSLegacyGuid id = new PSLegacyGuid(comp.getContentId(), -1);
             subFolders.add(id);
-         }
-         else
-         {
+         } else {
             itemLocators.add(new PSLocator(comp.getContentId(), -1));
          }
       }
 
       // remove all sub-folders
-      if (!subFolders.isEmpty())
-      {
+      if (!subFolders.isEmpty()) {
          deleteFolders(subFolders, purgeItems);
       }
 
       // collecting the successful ids
-      for (IPSGuid id : subFolders)
-      {
+      for (IPSGuid id : subFolders) {
          results.addResult(id);
       }
 
       PSRequest request = getRequest();
 
       // process items, one at a time
-      for (PSKey k : itemLocators)
-      {
+      for (PSKey k : itemLocators) {
          PSLocator locator = (PSLocator) k;
          PSLegacyGuid id = new PSLegacyGuid(locator);
          List<PSKey> singleKey = Collections.singletonList(k);
-         try
-         {
+         try {
             // remove folder relationship between the parent and item children
-            PSLocator parent = new PSLocator(((PSLegacyGuid) parentId)
-                    .getContentId(), -1);
+            PSLocator parent = new PSLocator(((PSLegacyGuid) parentId).getContentId(), -1);
             getFolderProcessor().delete(parent, singleKey, relationshipTypeName);
 
             // purge the item if requeted
-            if (purgeItems)
-            {
-               List<String> singleId = Collections.singletonList(String
-                       .valueOf(locator.getId()));
+            if (purgeItems) {
+               List<String> singleId = Collections.singletonList(String.valueOf(locator.getId()));
                PSContentDataHandler.purgeItems(request, singleId);
             }
             results.addResult(id);
-         }
-         catch (PSCmsException e1) // failed to attach folder children
+         } catch (PSCmsException e1) // failed to attach folder children
          {
             int errorCode = IPSWebserviceErrors.FAILED_DELETE_RELATIONSHIPS;
             PSErrorException error = new PSErrorException(errorCode,
-                    PSWebserviceErrors.createErrorMessage(errorCode, e1
-                            .getLocalizedMessage()), ExceptionUtils.getFullStackTrace(e1));
+                  PSWebserviceErrors.createErrorMessage(errorCode, e1.getLocalizedMessage()),
+                  ExceptionUtils.getFullStackTrace(e1));
             results.addError(id, error);
-         }
-         catch (PSException | PSValidationException e) // failed to delete item
+         } catch (PSException | PSValidationException e) // failed to delete item
          {
             int code = IPSWebserviceErrors.DELETE_FAILED;
-            PSErrorException error = new PSErrorException(code,
-                    PSWebserviceErrors.createErrorMessage(code, "Item", id
-                            .toString(), PSExceptionUtils.getMessageForLog(e)), ExceptionUtils
-                    .getFullStackTrace(e));
+            PSErrorException error =
+                  new PSErrorException(code,
+                        PSWebserviceErrors.createErrorMessage(code, "Item", id.toString(),
+                              PSExceptionUtils.getMessageForLog(e)),
+                        ExceptionUtils.getFullStackTrace(e));
             results.addError(id, error);
          }
       }
@@ -5063,62 +4256,51 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     *
     * @return The request, never <code>null</code>.
     *
-    * @throws IllegalStateException if the current thread has not had a request
-    * initialized.
+    * @throws IllegalStateException if the current thread has not had a request initialized.
     */
-   private PSRequest getNewRequest()
-   {
+   private PSRequest getNewRequest() {
       return new PSRequest(getRequest().getSecurityToken());
    }
 
    /**
-    * Gets the summaries for the specified parent id and its child ids.
-    * Validates the child ids for the specified parent folder id if the child
-    * ids is specified, not <code>null</code> or empty; otherwise get the
-    * summaries for all children of the specified folder parent.
+    * Gets the summaries for the specified parent id and its child ids. Validates the child ids for
+    * the specified parent folder id if the child ids is specified, not <code>null</code> or empty;
+    * otherwise get the summaries for all children of the specified folder parent.
     *
-    * @param parentId the specified folder id, assumed not <code>null</code>
-    *    and is an instance of {@link PSLegacyGuid}.
-    * @param childIds a list of {@link PSLegacyGuid} instances. It may be
-    *    <code>null</code> or empty.
-    * @param purgeItems <code>true</code> if items are being purged.
-    *                   This indicates whether or not the recycle bin is purging items
-    *                   or if they are being moved to recycle bin from folder.
-    * @return a list of child summaries for the specified folder, never
-    *    <code>null</code>, may be empty.
-    * @throws PSErrorException if any of the specified child ids is not a child
-    *    of the specified folder parent; or any error occurs.
+    * @param parentId the specified folder id, assumed not <code>null</code> and is an instance of
+    *        {@link PSLegacyGuid}.
+    * @param childIds a list of {@link PSLegacyGuid} instances. It may be <code>null</code> or
+    *        empty.
+    * @param purgeItems <code>true</code> if items are being purged. This indicates whether or not
+    *        the recycle bin is purging items or if they are being moved to recycle bin from folder.
+    * @return a list of child summaries for the specified folder, never <code>null</code>, may be
+    *         empty.
+    * @throws PSErrorException if any of the specified child ids is not a child of the specified
+    *         folder parent; or any error occurs.
     */
-   private List<PSComponentSummary> getChildSummaries(IPSGuid parentId,
-      List<IPSGuid> childIds, boolean purgeItems) throws PSErrorException
-   {
+   private List<PSComponentSummary> getChildSummaries(IPSGuid parentId, List<IPSGuid> childIds,
+         boolean purgeItems) throws PSErrorException {
       PSServerFolderProcessor processor = getFolderProcessor();
 
-      PSLocator parent = new PSLocator(
-         ((PSLegacyGuid) parentId).getContentId(), -1);
+      PSLocator parent = new PSLocator(((PSLegacyGuid) parentId).getContentId(), -1);
       Set<Integer> allChildIds = null;
       Set<Integer> tgtChildsIds = new HashSet<>();
-      try
-      {
+      try {
          String relType = purgeItems ? RECYCLE_RELATE_TYPE : FOLDER_RELATE_TYPE;
          allChildIds = processor.getChildIds(parent, false, relType);
          // take all child ids if not specified
-         if (childIds == null || childIds.isEmpty())
-         {
+         if (childIds == null || childIds.isEmpty()) {
             tgtChildsIds = allChildIds;
-         }
-         else
-         {
+         } else {
             // validating the specified child ids
-            for (IPSGuid id : childIds)
-            {
+            for (IPSGuid id : childIds) {
                PSLegacyGuid guid = (PSLegacyGuid) id;
-               if (!allChildIds.contains(guid.getContentId()))
-               {
+               if (!allChildIds.contains(guid.getContentId())) {
                   throw new PSErrorException(IPSWebserviceErrors.INVALID_FOLDER_CHILD,
-                     PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.INVALID_FOLDER_CHILD,
-                        parent.getId(), guid.getContentId()), ExceptionUtils
-                        .getFullStackTrace(new Exception()));
+                        PSWebserviceErrors.createErrorMessage(
+                              IPSWebserviceErrors.INVALID_FOLDER_CHILD, parent.getId(),
+                              guid.getContentId()),
+                        ExceptionUtils.getFullStackTrace(new Exception()));
                }
                tgtChildsIds.add(guid.getContentId());
             }
@@ -5127,32 +4309,27 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          // get child summaries
          PSComponentSummary[] children = processor.getChildSummaries(parent, relType);
          List<PSComponentSummary> result = new ArrayList<>();
-         for (PSComponentSummary comp : children)
-         {
-            if (tgtChildsIds.contains(comp.getContentId()))
-            {
+         for (PSComponentSummary comp : children) {
+            if (tgtChildsIds.contains(comp.getContentId())) {
                result.add(comp);
             }
          }
 
          return result;
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS, parent.getId(), PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_CHILD_ITEMS,
+                     parent.getId(), PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    // @see IPSContentWs#removeFolderChildren(String, List, boolean)
    @Transactional
-   public void removeFolderChildren(String parentPath, List<IPSGuid> childIds,
-      boolean purgeItems) throws PSErrorsException, PSErrorException
-   {
+   public void removeFolderChildren(String parentPath, List<IPSGuid> childIds, boolean purgeItems)
+         throws PSErrorsException, PSErrorException {
       if (StringUtils.isBlank(parentPath))
-         throw new IllegalArgumentException(
-            "parentPath may not be null or empty.");
+         throw new IllegalArgumentException("parentPath may not be null or empty.");
       if (childIds != null && (!childIds.isEmpty()))
          PSWebserviceUtils.validateLegacyGuids(childIds);
 
@@ -5166,12 +4343,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @see IPSContentWs#saveFolders(List)
     */
    @Transactional
-   public List<IPSGuid> saveFolders(List<PSFolder> folders)
-      throws PSErrorResultsException
-   {
+   public List<IPSGuid> saveFolders(List<PSFolder> folders) throws PSErrorResultsException {
       if (folders == null || folders.isEmpty())
-         throw new IllegalArgumentException(
-            "folders must not be null or empty.");
+         throw new IllegalArgumentException("folders must not be null or empty.");
 
       for (PSFolder folder : folders)
          if (folder.getLocator().getId() == -1)
@@ -5179,32 +4353,26 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       List<IPSGuid> originalIds = new ArrayList<>();
       PSErrorResultsException results = new PSErrorResultsException();
-      for (PSFolder folder : folders)
-      {
-         try
-         {
+      for (PSFolder folder : folders) {
+         try {
             IPSGuid originalId = new PSLegacyGuid(folder.getLocator());
             originalIds.add(originalId);
 
             PSFolder savedFolder = saveFolder(folder);
             IPSGuid newId = new PSLegacyGuid(savedFolder.getLocator());
             results.addResult(originalId, newId);
-         }
-         catch (PSErrorException e)
-         {
+         } catch (PSErrorException e) {
             PSGuid id = new PSLegacyGuid(folder.getLocator());
             results.addError(id, e);
          }
       }
 
       if (results.hasErrors() && results.getResults().isEmpty()) {
-         //Only throw an exception if there aren't any valid results
+         // Only throw an exception if there aren't any valid results
          throw results;
-      }
-      else if(results.hasErrors() ){
-         logger.warn("Error processing folder(s): {} Error: {}",
-                 results.getAllErrorIdsString(),
-                 results.getAllErrorString());
+      } else if (results.hasErrors()) {
+         logger.warn("Error processing folder(s): {} Error: {}", results.getAllErrorIdsString(),
+               results.getAllErrorString());
       }
 
       return results.getResults(originalIds);
@@ -5213,28 +4381,23 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Saves the specified folder to the repository.
     *
-    * @param folder the to be saved folder, never <code>null</code>.
-    *    It may or may not be a persisted folder.
+    * @param folder the to be saved folder, never <code>null</code>. It may or may not be a
+    *        persisted folder.
     *
     * @return the saved folder which contains all persisted keys and data.
     *
     * @throws PSErrorException if failed to save the specified folder.
     */
-   public PSFolder saveFolder(PSFolder folder) throws PSErrorException
-   {
+   public PSFolder saveFolder(PSFolder folder) throws PSErrorException {
       notNull(folder);
 
-      try
-      {
+      try {
          PSServerFolderProcessor processor = getFolderProcessor();
 
          PSFolder savedFolder;
-         if (folder.getLocator().getId() == -1)
-         {
+         if (folder.getLocator().getId() == -1) {
             savedFolder = processor.save(folder);
-         }
-         else
-         {
+         } else {
             // if has assigned id, but not persisted, then assumed it is
             // an existing folder, and need to merge the new data to
             // the existing folder.
@@ -5242,32 +4405,27 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
             savedFolder = processor.save(folder);
          }
-         //seems to break here
+         // seems to break here
          return savedFolder;
-      }
-      catch (PSCmsException e)
-      {
-        throw new PSErrorException(IPSWebserviceErrors.SAVE_FAILED, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.SAVE_FAILED, PSFolder.class.getName(), folder
-               .getLocator().getId(), PSExceptionUtils.getMessageForLog(e)), ExceptionUtils
-            .getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.SAVE_FAILED,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.SAVE_FAILED,
+                     PSFolder.class.getName(), folder.getLocator().getId(),
+                     PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
    }
 
    /**
-    * Loads the specified folder and merges the folder data from the specified
-    * folder to the loaded folder object. This is typically used when updating
-    * an existing folder.
+    * Loads the specified folder and merges the folder data from the specified folder to the loaded
+    * folder object. This is typically used when updating an existing folder.
     *
-    * @param folder the to be updated existing folder, assumed not
-    *    <code>null</code>.
+    * @param folder the to be updated existing folder, assumed not <code>null</code>.
     * @throws PSCmsException if failed to load the specified folder.
     */
-   private PSFolder mergeFolderData(PSFolder folder) throws PSCmsException
-   {
+   private PSFolder mergeFolderData(PSFolder folder) throws PSCmsException {
       PSServerFolderProcessor processor = getFolderProcessor();
-      PSFolder[] origFolder = processor.openFolder(new PSKey[] { folder
-         .getLocator() });
+      PSFolder[] origFolder = processor.openFolder(new PSKey[] {folder.getLocator()});
 
       origFolder[0].mergeFrom(folder);
       return origFolder[0];
@@ -5276,79 +4434,63 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Get the item definition for the supplied parameters.
     *
-    * @param contentType the name of the content type for which to get the
-    *    item definition, assumed not <code>null</code> or empty.
+    * @param contentType the name of the content type for which to get the item definition, assumed
+    *        not <code>null</code> or empty.
     *
     * @return the requested item definition, never <code>null</code>.
-    * @throws PSInvalidContentTypeException if the supplied content type is
-    *    unknown.
+    * @throws PSInvalidContentTypeException if the supplied content type is unknown.
     */
    private PSItemDefinition getItemDefinition(String contentType)
-      throws PSInvalidContentTypeException
-   {
+         throws PSInvalidContentTypeException {
       PSItemDefManager itemDefMgr = PSItemDefManager.getInstance();
 
-      return itemDefMgr.getItemDef(contentType,
-         getRequest().getSecurityToken());
+      return itemDefMgr.getItemDef(contentType, getRequest().getSecurityToken());
    }
 
    /**
     * Get the item definition for the supplied parameters.
     *
-    * @param contentTypeId the content type id for which to get the
-    *    item definition.
+    * @param contentTypeId the content type id for which to get the item definition.
     * @return the requested item definition, never <code>null</code>.
-    * @throws PSInvalidContentTypeException if the supplied content type id is
-    *    unknown.
+    * @throws PSInvalidContentTypeException if the supplied content type id is unknown.
     */
    private PSItemDefinition getItemDefinition(long contentTypeId)
-      throws PSInvalidContentTypeException
-   {
+         throws PSInvalidContentTypeException {
       PSItemDefManager itemDefMgr = PSItemDefManager.getInstance();
 
-      return itemDefMgr.getItemDef(contentTypeId,
-         getRequest().getSecurityToken());
+      return itemDefMgr.getItemDef(contentTypeId, getRequest().getSecurityToken());
    }
 
    /**
-    * Validate that the supplied relationship type exists for the specified
-    * category. Throws an <code>IllegalArgumentException</code> if the specified
-    * relationship does not exist.
+    * Validate that the supplied relationship type exists for the specified category. Throws an
+    * <code>IllegalArgumentException</code> if the specified relationship does not exist.
     *
-    * @param type the relationship type to validate, assumed not
-    *    <code>null</code> or empty.
-    * @param category the catagory for which to validate, assumed not
-    *    <code>null</code> or empty.
+    * @param type the relationship type to validate, assumed not <code>null</code> or empty.
+    * @param category the catagory for which to validate, assumed not <code>null</code> or empty.
     * @throws PSErrorException for any unexpected error.
     */
-   private void validateRelationshipType(String type, String category)
-      throws PSErrorException
-   {
+   private void validateRelationshipType(String type, String category) throws PSErrorException {
       IPSSystemDesignWs service = PSSystemWsLocator.getSystemDesignWebservice();
-      List<IPSCatalogSummary> relationships = service.findRelationshipTypes(
-         type, category);
+      List<IPSCatalogSummary> relationships = service.findRelationshipTypes(type, category);
 
       if (relationships.isEmpty())
-         throw new IllegalArgumentException("unknown relationship type \""
-            + type + "\" for category \"" + category + "\".");
+         throw new IllegalArgumentException(
+               "unknown relationship type \"" + type + "\" for category \"" + category + "\".");
    }
 
    /**
     * Create a new copy for the identified item.
     *
-    * @param id the id of the item to create a new copy for, not
-    *    <code>null</code>.
-    * @param type the relationship type, <code>null</code> or empty to use
-    *    the default system new copy relationship.
-    * @param resource the resource name to use to make the internal request,
-    *    not <code>null</code> or empty.
+    * @param id the id of the item to create a new copy for, not <code>null</code>.
+    * @param type the relationship type, <code>null</code> or empty to use the default system new
+    *        copy relationship.
+    * @param resource the resource name to use to make the internal request, not <code>null</code>
+    *        or empty.
     *
     * @return the id of the new copied item, never <code>null</code>.
     * @throws PSException for any error creating the new copy.
     */
-   private IPSGuid createNewCopy(IPSGuid id, String type, String resource)
-      throws PSException
-   {
+   private IPSGuid createNewCopy(IPSGuid id, String type, String resource) throws PSException {
       if (StringUtils.isBlank(type))
          type = PSRelationshipConfig.TYPE_NEW_COPY;
 
@@ -5358,18 +4500,16 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Create a new promotable version for the identified item.
     *
-    * @param id the id of the item to create a new promotable version for, not
-    *    <code>null</code>.
-    * @param type the relationship type, <code>null</code> or empty to use
-    *    the default system promotable relationship.
-    * @param resource the resource name to use to make the internal request,
-    *    not <code>null</code> or empty.
+    * @param id the id of the item to create a new promotable version for, not <code>null</code>.
+    * @param type the relationship type, <code>null</code> or empty to use the default system
+    *        promotable relationship.
+    * @param resource the resource name to use to make the internal request, not <code>null</code>
+    *        or empty.
     * @return the id of the new promotable item, never <code>null</code>.
     * @throws PSException for any error creating the new promotable version.
     */
-   private IPSGuid createNewPromotableVersion(IPSGuid id, String type,
-      String resource) throws PSException
-   {
+   private IPSGuid createNewPromotableVersion(IPSGuid id, String type, String resource)
+         throws PSException {
       if (StringUtils.isBlank(type))
          type = PSRelationshipConfig.TYPE_PROMOTABLE_VERSION;
 
@@ -5379,21 +4519,17 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    /**
     * Create a new translation for the identified item.
     *
-    * @param id the id of the item to create a new translation for, not
-    *    <code>null</code>.
-    * @param type the relationship type, <code>null</code> or empty to use
-    *    the default system translation relationship.
-    * @param locale the locale code used for the new translation,
-    *    not <code>null</code>.
-    * @param resource the resource name to use to make the internal request,
-    *    not <code>null</code> or empty.
+    * @param id the id of the item to create a new translation for, not <code>null</code>.
+    * @param type the relationship type, <code>null</code> or empty to use the default system
+    *        translation relationship.
+    * @param locale the locale code used for the new translation, not <code>null</code>.
+    * @param resource the resource name to use to make the internal request, not <code>null</code>
+    *        or empty.
     * @return the id of the new trnalation item, never <code>null</code>.
     * @throws PSException for any error creating the new translation.
     */
-   private IPSGuid createNewTranslation(IPSGuid id, String type,
-      final String locale, String resource)
-      throws PSException
-   {
+   private IPSGuid createNewTranslation(IPSGuid id, String type, final String locale,
+         String resource) throws PSException {
       if (locale == null)
          throw new IllegalArgumentException("Locale cannot be null");
 
@@ -5407,23 +4543,19 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
    }
 
    /**
-    * Create a new related item for the identified item and the specified
-    * relationship type.
+    * Create a new related item for the identified item and the specified relationship type.
     *
-    * @param id the id of the item to create a new related item for, not
-    *    <code>null</code>.
-    * @param type the relationship type, not <code>null</code> or empty,
-    *    assumed to be a valid relationship type.
-    * @param resource the resource name to use to make the internal request,
-    *    not <code>null</code> or empty.
-    * @param parameters additional service specific parameters, may be
-    *    <code>null</code> or empty.
+    * @param id the id of the item to create a new related item for, not <code>null</code>.
+    * @param type the relationship type, not <code>null</code> or empty, assumed to be a valid
+    *        relationship type.
+    * @param resource the resource name to use to make the internal request, not <code>null</code>
+    *        or empty.
+    * @param parameters additional service specific parameters, may be <code>null</code> or empty.
     * @return the id of the new related item, never <code>null</code>.
     * @throws PSException for any error creating the new related item.
     */
    private IPSGuid createRelatedItem(IPSGuid id, String type, String resource,
-      Map<String, String> parameters) throws PSException
-   {
+         Map<String, String> parameters) throws PSException {
       if (id == null)
          throw new IllegalArgumentException("id cannot be null");
 
@@ -5436,84 +4568,73 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       // create new request each time
       PSRequest request = getNewRequest();
 
-      IPSInternalResultHandler rh = (IPSInternalResultHandler) PSServer
-         .getInternalRequestHandler(resource);
+      IPSInternalResultHandler rh =
+            (IPSInternalResultHandler) PSServer.getInternalRequestHandler(resource);
       if (rh == null)
-         throw new PSException(IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING,
-            resource);
+         throw new PSException(IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING, resource);
 
       Map<String, String> params = null;
       if (parameters != null)
          params = parameters;
       else
          params = new HashMap<>();
-      params.put(IPSHtmlParameters.SYS_COMMAND,
-         PSRelationshipCommandHandler.COMMAND_NAME);
-      params.put(IPSHtmlParameters.SYS_CONTENTID, String
-         .valueOf(((PSLegacyGuid) id).getContentId()));
-      params.put(IPSHtmlParameters.SYS_REVISION, String
-         .valueOf(((PSLegacyGuid) id).getRevision()));
+      params.put(IPSHtmlParameters.SYS_COMMAND, PSRelationshipCommandHandler.COMMAND_NAME);
+      params.put(IPSHtmlParameters.SYS_CONTENTID,
+            String.valueOf(((PSLegacyGuid) id).getContentId()));
+      params.put(IPSHtmlParameters.SYS_REVISION, String.valueOf(((PSLegacyGuid) id).getRevision()));
       params.put(IPSHtmlParameters.SYS_RELATIONSHIPTYPE, type);
       request.setParameters((HashMap) params);
       PSExecutionData data = null;
-      try
-      {
+      try {
          data = rh.makeInternalRequest(request);
-      }
-      finally
-      {
-         if(data != null)
+      } finally {
+         if (data != null)
             data.release();
       }
 
-      return new PSLegacyGuid(Integer.parseInt(request
-         .getParameter(IPSHtmlParameters.SYS_CONTENTID)), Integer
-         .parseInt(request.getParameter(IPSHtmlParameters.SYS_REVISION)));
+      return new PSLegacyGuid(
+            Integer.parseInt(request.getParameter(IPSHtmlParameters.SYS_CONTENTID)),
+            Integer.parseInt(request.getParameter(IPSHtmlParameters.SYS_REVISION)));
    }
 
-   public IPSGuid getIdByPath(String path) throws PSErrorException
-   {
+   public IPSGuid getIdByPath(String path) throws PSErrorException {
       return getIdByPath(path, FOLDER_RELATE_TYPE);
    }
 
    /*
     * (non-Javadoc)
+    * 
     * @see com.percussion.webservices.content.IPSContentWs#getIdByPath(java.lang.String)
     */
-   public IPSGuid getIdByPath(String path, String relationshipTypeName) throws PSErrorException
-   {
+   public IPSGuid getIdByPath(String path, String relationshipTypeName) throws PSErrorException {
       if (StringUtils.isBlank(path))
          throw new IllegalArgumentException("path must be null or empty.");
-      PSRelationshipProcessor processor = PSWebserviceUtils
-      .getRelationshipProcessor();
+      PSRelationshipProcessor processor = PSWebserviceUtils.getRelationshipProcessor();
       IPSGuid guid = null;
-      try
-      {
-         int id = processor.getIdByPath(
-               RELATIONSHIP_COMPTYPE, path,
-               relationshipTypeName);
-         if (id != -1)
-         {
-            guid = PSGuidManagerLocator.getGuidMgr().makeGuid(
-                  new PSLocator(id, -1));
+      try {
+         int id = processor.getIdByPath(RELATIONSHIP_COMPTYPE, path, relationshipTypeName);
+         if (id != -1) {
+            guid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(id, -1));
          }
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH, PSWebserviceErrors
-            .createErrorMessage(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH, path, PSExceptionUtils.getMessageForLog(e)),
-            ExceptionUtils.getFullStackTrace(e));
+      } catch (PSCmsException e) {
+         throw new PSErrorException(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH,
+               PSWebserviceErrors.createErrorMessage(IPSWebserviceErrors.FAILED_FIND_ID_FROM_PATH,
+                     path, PSExceptionUtils.getMessageForLog(e)),
+               ExceptionUtils.getFullStackTrace(e));
       }
 
       return guid;
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.content.IPSContentWs#loadDependentSlotContentRelationships(com.percussion.design.objectstore.PSLocator, com.percussion.utils.guid.IPSGuid)
+   /*
+    * (non-Javadoc)
+    * 
+    * @see
+    * com.percussion.webservices.content.IPSContentWs#loadDependentSlotContentRelationships(com.
+    * percussion.design.objectstore.PSLocator, com.percussion.utils.guid.IPSGuid)
     */
-   public List<PSAaRelationship> loadDependentSlotContentRelationships(PSLocator dependent, IPSGuid slotid)
-         throws PSErrorException
-   {
+   public List<PSAaRelationship> loadDependentSlotContentRelationships(PSLocator dependent,
+         IPSGuid slotid) throws PSErrorException {
       notNull(dependent);
       notNull(slotid);
 
