@@ -76,7 +76,10 @@ updates:
           - ">=1.8"
       - dependency-name: "com.lmax:disruptor"
         versions:
-          - ">=4" 
+          - ">=4"
+      - dependency-name: "org.jmock:*"
+        versions:
+          - ">=2.9" 
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
