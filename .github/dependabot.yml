@@ -86,7 +86,10 @@ updates:
           - ">=2.2.0"
       - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
         versions:
-          - ">=10.0.0.beta3"    
+          - ">=10.0.0.beta3" 
+      - dependency-name: "org.mortbay.jasper:apache-jsp"
+        versions:
+          - ">=10"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
