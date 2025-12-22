@@ -142,7 +142,7 @@
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <maven.bundle.plugin.version>4.2.1</maven.bundle.plugin.version>
+        <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
