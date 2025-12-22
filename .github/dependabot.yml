@@ -96,6 +96,9 @@ updates:
       - dependency-name: "org.mockito:*"
         versions:
           - ">=5"
+      - dependency-name: "org.apache.solr:*"
+        versions:
+          - ">=9"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
