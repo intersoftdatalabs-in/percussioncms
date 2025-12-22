@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<LdapConfig>
+    <LdapServer>
+        <host></host>
+        <port>-400</port>
+        <user>CN=Administrator</user>
+        <password>password</password>
+        <catalog></catalog>
+        <objectAttributeName>samaccountname</objectAttributeName>
+        <organizationalUnit>OU=Users,DC=org,DC=perc,DC=edu</organizationalUnit>
+        <bad>asdf</bad>
+    </LdapServer>
+</LdapConfig>

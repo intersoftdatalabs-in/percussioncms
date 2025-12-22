@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="CategoryConfig" type="psCategoryConfiguration"/>
+
+  <xs:complexType name="tree">
+    <xs:sequence/>
+    <xs:attribute name="url" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="psCategoryConfiguration">
+    <xs:sequence>
+      <xs:element name="tree" type="tree" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+

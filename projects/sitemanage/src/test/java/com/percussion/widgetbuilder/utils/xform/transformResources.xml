@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Resources>
+    <file id="testWidget_js"  path="/rx_resources/widgets/testWidget/js/testWidgetUi.js"  type="javascript" >
+        <dependency refid="percSystem.jquery"/>
+    </file>
+    <file id="testWidget_style" path="/rx_resources/widgets/testWidget/css/testWidget.css" type="css" context="PREVIEW"/>   
+</Resources>

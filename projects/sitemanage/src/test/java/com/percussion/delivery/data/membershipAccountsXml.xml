@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+
+<DeliveryServicesContent>
+    <MembershipService>
+        <Memberships>
+            <Membership>
+                <EmailAddress>user@percussion.com</EmailAddress>
+                <Password>password</Password>
+                <ConfirmationRequired>false</ConfirmationRequired>
+            </Membership>
+            <Membership>
+                <EmailAddress>email@server.com</EmailAddress>
+                <Password>pass123</Password>
+                <ConfirmationRequired>false</ConfirmationRequired>
+            </Membership>
+            <Membership>
+                <EmailAddress>account@email.com</EmailAddress>
+                <Password>percussion</Password>
+                <ConfirmationRequired>true</ConfirmationRequired>
+            </Membership>
+            <Membership>
+                <EmailAddress>test@percussion.com</EmailAddress>
+                <Password>test</Password>
+                <ConfirmationRequired>false</ConfirmationRequired>
+            </Membership>                        
+        </Memberships>
+    </MembershipService>
+</DeliveryServicesContent>

@@ -1,0 +1,213 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.itemmanagement.extension;
+
+import com.percussion.data.PSConversionException;
+import com.percussion.extension.IPSExtensionDef;
+import com.percussion.extension.IPSUdfProcessor;
+import com.percussion.extension.PSExtensionException;
+import com.percussion.itemmanagement.service.IPSWorkflowHelper;
+import com.percussion.pathmanagement.service.impl.PSPathUtils;
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.server.IPSRequestContext;
+import com.percussion.server.PSServer;
+import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.share.dao.PSFolderPathUtils;
+import com.percussion.share.service.IPSIdMapper;
+import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.webservices.content.PSContentWsLocator;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Gets the url parameters which can be used to generate the read-only editor view link for a page
+ * or asset.
+ */
+public class PSGenerateReadOnlyLink extends com.percussion.extension.PSSimpleJavaUdfExtension {
+  private static final Logger log = LogManager.getLogger(PSGenerateReadOnlyLink.class);
+
+  private IPSIdMapper idMapper;
+  private IPSWorkflowHelper workflowHelper;
+
+  @Override
+  public void init(IPSExtensionDef extDef, File file) throws PSExtensionException {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  /**
+   * It returns the read-only editor view link for a page or asset.
+   *
+   * <p>See {@link IPSUdfProcessor#processUdf(Object[], IPSRequestContext) processUdf} for detail.
+   *
+   * @param params the parameters for this extension, never <code>null</code>. It is expected to
+   *     contain 5 elements: the content ID of the page or asset in question, revision of the page
+   *     or asset in question, host name, port, and flag which indicates if the url should use http
+   *     or https.
+   * @param request the parameter request, never <code>null</code>.
+   * @return URL object, may be <code>null</code>.
+   */
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    try {
+      if (params.length < 5) {
+        throw new IllegalArgumentException("params must contain 5 parameters.");
+      }
+
+      URL url = null;
+
+      var id = getContentId(params);
+
+      var service = PSContentWsLocator.getContentWebservice();
+      var paths = service.findItemPaths(id);
+      if (paths.length == 0) {
+        var msg1 = "Failed to generate read-only link for content ID = " + id;
+        var cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
+        if (cmsMgr.findItemEntry(id.getUUID()) != null) {
+          log.warn(msg1 + " as the item does not exist.");
+        } else {
+          log.warn(msg1 + " as the item is not under a folder.");
+        }
+        return url;
+      }
+
+      var host = getStringParameter(params, 2);
+      var port = getIntParameter(params, 3);
+      var useHttps = getBooleanParameter(params, 4);
+
+      var itemId = idMapper.getString(id);
+      var finderPath = PSPathUtils.getFinderPath(paths[0]);
+
+      String site = null;
+      String view;
+      String pathType;
+
+      if (workflowHelper.isPage(itemId)) {
+        site =
+            Optional.ofNullable(StringUtils.split(finderPath, "/"))
+                .filter(arr -> arr.length > 1)
+                .map(arr -> arr[1])
+                .orElse(null);
+        view = "editor";
+        pathType = "page";
+      } else {
+        view = "editAsset";
+        pathType = "asset";
+      }
+
+      var urlParams = new HashMap<String, String>();
+      urlParams.put("view", view);
+
+      Optional.ofNullable(site).ifPresent(s -> urlParams.put("site", s));
+      urlParams.put("mode", "readonly");
+      urlParams.put("id", itemId);
+      urlParams.put("name", PSFolderPathUtils.getName(finderPath));
+      urlParams.put("path", finderPath);
+      urlParams.put("pathType", pathType);
+
+      url =
+          PSUrlUtils.createUrl(
+              host, port, "/cm/app/", urlParams.entrySet().iterator(), null, request);
+
+      // If we have to use SSL modify the URL to use https
+      if (PSServer.isRequestBehindProxy(null)) {
+        var proxyScheme = PSServer.getProperty("proxyScheme", url.getProtocol());
+        url = new URL(proxyScheme, url.getHost(), url.getPort(), url.getFile());
+      } else {
+        if (useHttps) {
+          url = new URL("https", url.getHost(), url.getPort(), url.getFile());
+        }
+      }
+
+      return url;
+    } catch (PSNotFoundException | PSValidationException | MalformedURLException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSConversionException(e);
+    }
+  }
+
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
+
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
+
+  public IPSWorkflowHelper getWorkflowHelper() {
+    return workflowHelper;
+  }
+
+  public void setWorkflowHelper(IPSWorkflowHelper workflowHelper) {
+    this.workflowHelper = workflowHelper;
+  }
+
+  /**
+   * Gets the content ID from the specified parameters.
+   *
+   * @param params the parameters, expecting 1st parameter is the content ID and 2nd is the
+   *     revision.
+   * @return the content ID in GUID, never <code>null</code>.
+   */
+  private IPSGuid getContentId(Object[] params) {
+    if (params.length < 2) {
+      throw new IllegalArgumentException("params must contain 2 parameters.");
+    }
+
+    var contentId = getIntParameter(params, 0);
+    var revision = getIntParameter(params, 1);
+
+    return new PSLegacyGuid(contentId, revision);
+  }
+
+  private int getIntParameter(Object[] params, int index) {
+    var p = params[index];
+    if (!(p instanceof Integer)) {
+      throw new IllegalArgumentException("Parameter[" + index + "] is not Integer.");
+    }
+    return (Integer) p;
+  }
+
+  private String getStringParameter(Object[] params, int index) {
+    var p = params[index];
+    if (!(p instanceof String)) {
+      throw new IllegalArgumentException("Parameter[" + index + "] is not String.");
+    }
+    return (String) p;
+  }
+
+  private Boolean getBooleanParameter(Object[] params, int index) {
+    var p = params[index];
+    if (!(p instanceof Boolean)) {
+      throw new IllegalArgumentException("Parameter[" + index + "] is not Boolean.");
+    }
+    return (Boolean) p;
+  }
+}

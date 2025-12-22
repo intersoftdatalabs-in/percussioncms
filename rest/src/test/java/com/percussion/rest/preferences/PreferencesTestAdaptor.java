@@ -1,0 +1,51 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.rest.preferences;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+@Component
+@Lazy
+public class PreferencesTestAdaptor implements IPreferenceAdaptor {
+
+  @Override
+  public UserPreferenceList getAllUserPreferences() {
+    return null;
+  }
+
+  @Override
+  public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
+    return null;
+  }
+
+  @Override
+  public UserPreference loadPreference(String preference) {
+    return null;
+  }
+
+  @Override
+  public UserPreference savePreference(UserPreference pref) {
+    return null;
+  }
+
+  @Override
+  public void deletePreference(UserPreference pref) {
+    // No-op for test adaptor
+  }
+}

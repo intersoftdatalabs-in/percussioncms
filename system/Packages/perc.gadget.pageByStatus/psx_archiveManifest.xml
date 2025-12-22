@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXArchiveManifest>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_tobeprocessed-png">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\images\tobeprocessed.png</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_tobeprocessed-png\tobeprocessed.png</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_perc__workflow__status__gadget-xml">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\perc_workflow_status_gadget.xml</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_perc__workflow__status__gadget-xml\perc_workflow_status_gadget.xml</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_processing-gif">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\images\processing.gif</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_processing-gif\processing.gif</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_perc__workflow__status__gadget-js">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\perc_workflow_status_gadget.js</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_perc__workflow__status__gadget-js\perc_workflow_status_gadget.js</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_previewIcon-png">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\images\previewIcon.png</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_previewIcon-png\previewIcon.png</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_gadgetIconPagesByStatus-png">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\images\gadgetIconPagesByStatus.png</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_gadgetIconPagesByStatus-png\gadgetIconPagesByStatus.png</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_errorIcon-gif">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\inception\cm\gadgets\repository\perc_workflow_status_gadget\images\errorIcon.gif</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__workflow__status__gadget_images_errorIcon-gif\errorIcon.gif</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+</PSXArchiveManifest>

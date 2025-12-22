@@ -1,0 +1,16 @@
+
+<?xml version='1.0' encoding='UTF-8'?>
+
+
+
+<!--
+   This file contains the DTD that specifies the error message that is 
+   used to report non-fatal error conditions encountered during processing.
+-->
+<!ELEMENT PSXNonFatalError (description )>
+
+<!--
+   Detailed description of the error.
+-->
+<!ELEMENT description (#PCDATA)>
+

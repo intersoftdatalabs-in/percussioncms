@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- Include the shared definitions -->
+<!ENTITY % RelationshipSet SYSTEM "PSXRelationshipSet.dtd">
+%RelationshipSet;
+<!--
+   XML documents conforming to this DTD will be sent to the Active Assembly 
+   Handler. The first locator defines the current owner of the relationships 
+   to be processed. The dependent set provides a list of locators and 
+   properties to be processed. The second locator is optional and specifies 
+   the target for operations like 'move'.
+   
+   type - the relationship type to use, must be a type with category 
+      'rs_activeassembly'. Defaults to 'Related Content' if not supplied.
+   
+   index - the index used for the requested operation. This makes only sense
+      for 'insert' and 'reorder' requests. Not supplied or set to -1 if not
+      used.
+-->
+<!ELEMENT PSXActiveAssemblerHandlerRequest (PSXLocator, PSXDependentSet, 
+   PSXLocator?)>
+<!ATTLIST PSXActiveAssemblerHandlerRequest
+   type CDATA #IMPLIED
+   index CDATA #IMPLIED
+>
+<!--
+   A collection of dependent objects.
+-->
+<!ELEMENT PSXDependentSet (PSXDependent+)>
+<!--
+   The dependent provides a locator and an optional property set. Known
+   properties are 'sys_variantid', 'sys_slotid' and 'sys_sortrank'.
+-->
+<!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>
+<!--
+   A collection of system and/or user properties. Use the relationship 
+   configuration to find out if a property is a system or user property.
+-->
+<!ELEMENT PSXPropertySet (PSXProperty+)>

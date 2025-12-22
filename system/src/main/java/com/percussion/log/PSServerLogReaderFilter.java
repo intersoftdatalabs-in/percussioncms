@@ -1,0 +1,134 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// REFACTORED: CP-JAVA11
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.log;
+
+/**
+ * The PSServerLogReaderFilter class implements log message filtering for server messages. Construct
+ * a filter with the appropriate attributes, then calling the IPSLogReader's {@link
+ * com.percussion.log.IPSLogReader#read read} method. The filter will cause only messages generated
+ * by the server to be read. A time range for messages can optionally be applied.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
+ */
+public class PSServerLogReaderFilter implements IPSLogReaderFilter {
+
+  /** Construct a server log filter to retrieve all log entries for the server. */
+  public PSServerLogReaderFilter(boolean rawText) {
+    this(null, null);
+  }
+
+  /**
+   * Construct a server log filter to retrieve log entries within the specified time range for the
+   * server.
+   *
+   * @param out the output stream to write the log entries to
+   * @param rawText <code>true</code> to dump raw text; <code>false</code> to use an XML format
+   * @param startTime the earliest log entry to read; use <code>null</code> to ignore start time
+   * @param endTime the latest log entry to read; use <code>null</code> to ignore end time
+   */
+  public PSServerLogReaderFilter(java.util.Date startTime, java.util.Date endTime) {
+    super();
+    m_startTime = startTime;
+    m_endTime = endTime;
+  }
+
+  /**
+   * Get the application id(s) to retrieve log entries for. Return <code>null</code> to get all log
+   * entries (application or server). Return an empty array to retrieve only server entries.
+   *
+   * @return the Application id(s) to retrieve log entries for
+   */
+  public int[] getApplicationIds() {
+    return new int[0];
+  }
+
+  /**
+   * Get the time to use as the earliest log entry to retrieve. Return <code>null</code> to retrieve
+   * entries starting from the earliest recorded log entry.
+   *
+   * @return the earliest log entry time to retrieve
+   */
+  public java.util.Date getStartTime() {
+    return m_startTime;
+  }
+
+  /**
+   * Get the time to use as the latest log entry to retrieve. Return <code>null</code> to retrieve
+   * entries including the most recently recorded log entry.
+   *
+   * @return the latest log entry time to retrieve
+   */
+  public java.util.Date getEndTime() {
+    return m_endTime;
+  }
+
+  /**
+   * Get the time to use for the next traversal of log entries. This uses the latest log time read
+   * by processMessage. If this log filter was not previously used in a call to the {@link
+   * com.percussion.log.IPSLogReader#read IPSLogReader's read} method, <code>null</code> will be
+   * returned.
+   *
+   * @return the time to use for the next traversal of log entries
+   */
+  public java.util.Date getNextStartTime() {
+    return null;
+  }
+
+  /**
+   * Get the types of log entries to retrieve. Return <code>null</code> or an empty array to
+   * retrieve all types of log entries.
+   *
+   * @return the types of log entries
+   */
+  public int[] getEntryTypes() {
+    return null;
+  }
+
+  /**
+   * Process the next log message.
+   *
+   * @param msg the log message which was read, or <code>null</code> to signify that no more log
+   *     messages exist
+   * @param filterWasApplied <code>true</code> if the filter conditions were applied prior to this
+   *     call by the log reader; <code>false</code> if applying filter conditions is not supported
+   *     by the log reader
+   */
+  public void processMessage(PSLogEntry msg, boolean filterWasApplied) {}
+
+  private java.util.Date m_startTime;
+  private java.util.Date m_endTime;
+}

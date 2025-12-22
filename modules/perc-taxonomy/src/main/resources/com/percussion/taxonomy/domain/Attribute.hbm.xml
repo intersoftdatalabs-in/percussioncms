@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.percussion.taxonomy.domain.Attribute" table="TAX_ATTRIBUTE">
+    <id name="Id" column="ID" type="integer">
+      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
+    </id>
+    <many-to-one name="taxonomy" class="com.percussion.taxonomy.domain.Taxonomy" column="TAXONOMY_ID" fetch="select" not-null="true"/>
+    <property name="Is_multiple" column="IS_MULTIPLE" type="boolean"/>
+    <property name="Is_node_name" column="IS_NODE_NAME" type="integer" not-null="true"/>
+    <property name="Is_required" column="IS_REQUIRED" type="boolean"/>
+    <property name="Is_percussion_item" column="IS_PERCUSSION_ITEM" type="boolean"/>
+    <property name="Created_by_id" column="CREATED_BY_ID" type="string" not-null="true"/>
+    <property name="Created_at" column="CREATED_AT" type="timestamp" not-null="true"/>
+    <property name="Modified_by_id" column="MODIFIED_BY_ID" type="string" not-null="true"/>
+     <property name="Modified_at" column="MODIFIED_AT" type="timestamp" not-null="true"/>
+    <set name="attribute_langs" fetch="join" order-by="ID asc">
+        <key column="ATTRIBUTE_ID" />
+        <one-to-many class="com.percussion.taxonomy.domain.Attribute_lang" />
+    </set>
+	
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,22 @@
+
+
+<project name="BuildSamples" default="copy" basedir=".">
+	<description>
+        This process copies the solaris/linux shell scripts for Tomcat to 
+        a destination directory with the correct line endings
+    </description>
+	<!-- set global properties for this build -->
+	<property name="project.home" location="../../.."/>
+	<property name="output.dir" location="${project.home}/build/tomcat/TomcatSolarisFiles/bin"/>
+	<property name="source.dir" location="${project.home}/release/tomcat/TomcatSolarisFiles/bin"/>
+	
+	<target name="init">
+		<delete dir="${output.dir}"/>
+		<mkdir dir="${output.dir}"/>
+	</target>
+	
+	<target name="copy" depends="init">
+		<fixcrlf srcdir="${source.dir}" destdir="${output.dir}" includes="*.sh" eol="lf" eof="remove" />
+	</target>
+	
+</project>

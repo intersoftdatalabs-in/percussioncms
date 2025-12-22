@@ -1,0 +1,138 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// REFACTORED: CP-JAVA11
+package com.percussion.share.extension;
+
+import com.percussion.delivery.service.impl.PSDeliveryInfoService;
+import com.percussion.security.PSEncryptor;
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.server.IPSStartupProcess;
+import com.percussion.server.IPSStartupProcessManager;
+import com.percussion.server.PSServer;
+import com.percussion.utils.io.PathUtils;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Startup process that will check and rotate secureKey if required.
+ *
+ * @author Santosh Dhariwal
+ */
+public class PSRotateSecureKey extends TimerTask implements IPSStartupProcess {
+
+  private static final Logger log = LogManager.getLogger(PSRotateSecureKey.class);
+  private static final String SECURE_KEY_ROTATION_TIME_PROP = "secureKeyRotationTime";
+  private static final int SECURE_KEY_ROTATION_TIME_DEFAULT = 0;
+
+  public PSRotateSecureKey() {}
+
+  @Override
+  public void run() {
+    rotateKey();
+  }
+
+  /** Allow for running from the command line. */
+  public static void main(String[] args) {
+    var props = new Properties();
+    props.setProperty(PSRotateSecureKey.class.getSimpleName(), "true");
+    var run = new PSRotateSecureKey();
+    try {
+      run.doStartupWork(props);
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  /** This method triggers a rotateKey on PSEncryptor. */
+  private static void rotateKey() {
+    try {
+      PSEncryptor.rotateKey(
+          "AES", PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
+      PSDeliveryInfoService.copySecureKeyToDeliveryServer(null);
+    } catch (Exception e) {
+      log.error("Key rotation failed with error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug("PSRotateKey Failed ERROR: {}", PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  @Override
+  public void doStartupWork(Properties startupProps) {
+    var propName = getPropName();
+    if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
+      log.info(
+          "{} is set to false or missing from startup properties file. Nothing to run.", propName);
+      return;
+    }
+    try {
+      var rotationTime =
+          PSServer.getServerProps()
+              .getProperty(
+                  SECURE_KEY_ROTATION_TIME_PROP, String.valueOf(SECURE_KEY_ROTATION_TIME_DEFAULT));
+      long rotationDays = Long.parseLong(rotationTime);
+      if (rotationDays <= 0) {
+        return;
+      }
+      var keyLocation = PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
+      var SECURE_KEY_FILE = ".key";
+      Path secureKeyFile = Paths.get(keyLocation + SECURE_KEY_FILE);
+      BasicFileAttributes attr = Files.readAttributes(secureKeyFile, BasicFileAttributes.class);
+      FileTime lastModified = attr.lastModifiedTime();
+
+      long ft = lastModified.toMillis();
+      long now = System.currentTimeMillis();
+      long diff = now - ft;
+      long days = TimeUnit.MILLISECONDS.toDays(diff);
+      if (days > rotationDays) {
+        log.info(
+            "Rotating the system security key as it is {} days old based on the policy setting"
+                + " {}={} ...",
+            days,
+            SECURE_KEY_ROTATION_TIME_PROP,
+            rotationDays);
+        rotateKey();
+      } else {
+        // Set Timer for remaining days to rotate
+        var timer = new Timer();
+        long delay = TimeUnit.DAYS.toMillis(rotationDays - days);
+        timer.schedule(this, delay);
+      }
+    } catch (Exception e) {
+      log.error("Key rotation failed with error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  @Override
+  public void setStartupProcessManager(IPSStartupProcessManager mgr) {
+    mgr.addStartupProcess(this);
+  }
+
+  static String getPropName() {
+    return PSRotateSecureKey.class.getSimpleName();
+  }
+}

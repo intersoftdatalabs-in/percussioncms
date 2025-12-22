@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxs_Calendar_cas" dependencyType="Local" displayName="rxs_Calendar_cas" isIncluded="yes" objectType="Application" objectTypeName="Application" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="p_month (p_month)">
+      <PSXApplicationIDTypesElement elementName="ResultPages">
+         <PSXApplicationIDTypeMapping type="VariantDef" value="407">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_variantid</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>=</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>407</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppNamedItemIdContext name="p_Month.xsl" type="ResultPage"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

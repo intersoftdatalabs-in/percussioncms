@@ -1,0 +1,58 @@
+
+
+.mcol {
+    width: 1000px;
+    overflow: auto;
+}
+
+.mcol table {
+    border-collapse: collapse;
+}
+
+.mcol-end-spacer div {
+    width: 100px;
+}
+
+.mcol-direc .mcol-direc-wrapper {
+    width: 230px;
+    border: thin solid #0099bf;
+    -moz-border-radius: 15%;
+    vertical-align: top;
+    height: 350px;
+    overflow: auto;
+    background-color: white;
+}
+
+.mcol-direc .mcol-direc-subdirec {
+    margin-left: 5px;
+}
+
+.mcol-listing {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+.mcol-opened {
+    background-color: #54c;
+    color: #ff7;
+}
+
+.ui-draggable-dragging {
+    background-color: #ff0;
+}
+
+
+.mcol-clickable {
+    cursor: pointer;
+}
+
+.mcol-header {
+    width: 1000px;
+}
+
+body * {
+    font-family: 'Open Sans', sans-serif;
+}

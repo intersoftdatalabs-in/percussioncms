@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXArchiveManifest>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-css">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_membership_gadget\perc_membership_gadget.css</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-css\perc_membership_gadget.css</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_PercEditSiteUser-js">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_membership_gadget\PercEditSiteUser.js</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_PercEditSiteUser-js\PercEditSiteUser.js</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_images_perc__membership__gadget-png">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_membership_gadget\images\perc_membership_gadget.png</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_images_perc__membership__gadget-png\perc_membership_gadget.png</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-xml">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_membership_gadget\perc_membership_gadget.xml</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-xml\perc_membership_gadget.xml</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-js">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_membership_gadget\perc_membership_gadget.js</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__membership__gadget_perc__membership__gadget-js\perc_membership_gadget.js</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+</PSXArchiveManifest>

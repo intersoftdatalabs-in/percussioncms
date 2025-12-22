@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tables>
+	<table name="CATALOGER" allowSchemaChanges="n">
+		<row>
+			<column name="CONTENTID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="REVISIONID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="DISPLAYTITLE">
+				<jdbctype>VARCHAR</jdbctype>
+				<size>50</size>
+				<allowsnull>yes</allowsnull>
+			</column>
+			<column name="DESCRIPTION">
+				<jdbctype>CLOB</jdbctype>
+				<size/>
+				<allowsnull>yes</allowsnull>
+			</column>
+		</row>
+		<primarykey>
+			<name>CONTENTID</name>
+			<name>REVISIONID</name>
+		</primarykey>
+	</table>
+	<table name="CATALOGER_AVAILABLE_SET" allowSchemaChanges="n">
+		<row>
+			<column name="CONTENTID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="REVISIONID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="SORTRANK">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="AVAILABLE">
+				<jdbctype>VARCHAR</jdbctype>
+				<size>50</size>
+				<allowsnull>yes</allowsnull>
+			</column>
+		</row>
+	</table>
+	<table name="CATALOGER_CATALOGS" allowSchemaChanges="n">
+		<row>
+			<column name="CONTENTID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="REVISIONID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="SYSID">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="SORTRANK">
+				<jdbctype>INTEGER</jdbctype>
+				<size/>
+				<allowsnull>no</allowsnull>
+			</column>
+			<column name="NAME">
+				<jdbctype>VARCHAR</jdbctype>
+				<size>50</size>
+				<allowsnull>yes</allowsnull>
+			</column>
+			<column name="CATALOG">
+				<jdbctype>BLOB</jdbctype>
+				<size/>
+				<allowsnull>yes</allowsnull>
+			</column>
+		</row>
+	</table>
+</tables>

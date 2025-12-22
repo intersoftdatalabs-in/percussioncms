@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- DTD for the PSItemCreatorConfig -->
+<!-- EXAMPLE:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<itemCreatorConfig>
+   <createItems amount="5" community="1002" contenttype="311" workflow="4" folder="701" titleprefix="This is a test Generic">
+      <connectionInfo host="localhost" port="9992" sslport="-1" user="admin1" password="demo"/>      
+       <fields>
+         <field name="body">
+            <value><![CDATA[<p><b>hello world</b></p>]]></value>
+         </field>
+         <field name="callout">
+            <value><![CDATA[<p><b>hello world callout</b></p>]]></value>
+         </field>
+         <field name="description">
+            <value><![CDATA[The description field]]></value>
+         </field>
+      </fields>
+   </createItems>
+</itemCreatorConfig>
+
+-->
+<!ELEMENT connectionInfo EMPTY>
+<!ATTLIST connectionInfo
+   host CDATA #REQUIRED
+   port CDATA #REQUIRED
+   sslport CDATA #IMPLIED
+   user CDATA #REQUIRED
+   password CDATA #REQUIRED
+>
+<!ELEMENT createItems (connectionInfo, fields)+>
+<!ATTLIST createItems
+   amount CDATA #REQUIRED
+   community CDATA #REQUIRED
+   contenttype CDATA #REQUIRED
+   workflow CDATA #REQUIRED
+   folder CDATA #IMPLIED
+   titleprefix CDATA #REQUIRED
+>
+<!ELEMENT field (value)*>
+<!ATTLIST field
+   name CDATA #REQUIRED
+>
+<!ELEMENT fields (field+)>
+<!ELEMENT itemCreatorConfig (createItems)>
+<!ELEMENT value (#PCDATA)>

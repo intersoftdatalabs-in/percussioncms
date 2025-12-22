@@ -1,0 +1,10 @@
+
+
+<applicationDocs targetNamespace="http://wadl.dev.java.net/2009/02">
+    
+    <doc xml:lang="en" title="Percussion CMS RESTful  API">
+        This endpoint represents the RESTful API for this particular Percussion CMS instance.
+        The API strives to support RESTful resourced based grammar.
+    </doc>
+
+</applicationDocs>

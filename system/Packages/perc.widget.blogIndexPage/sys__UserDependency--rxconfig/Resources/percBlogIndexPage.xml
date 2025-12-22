@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Resources>
+<file id="blog_index_page_css"  path="/web_resources/widgets/percBlogIndexPage/css/percBlogIndexPage.css"  type="css" ></file>
+<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
+	 <dependency refid="percSystem.common_slim_js"/>
+</file>
+</Resources>

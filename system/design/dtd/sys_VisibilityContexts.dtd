@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!ELEMENT PSXVisibilityContexts (PSXVisibilityContext*)>
+<!ATTLIST PSXVisibilityContexts
+	contextsurl CDATA #IMPLIED
+>
+<!ELEMENT PSXVisibilityContext (Value, Description?)>
+<!ATTLIST PSXVisibilityContext
+	contextid CDATA #REQUIRED
+	name CDATA #REQUIRED
+>
+<!ELEMENT Value (#PCDATA)>
+<!ELEMENT Description (#PCDATA)>

@@ -1,0 +1,72 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.design.objectstore;
+
+import com.percussion.xml.PSXmlDocumentBuilder;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+
+import org.junit.jupiter.api.Test;
+
+
+// Test case
+public class PSInputTranslationsTest extends TestCase
+{
+   public PSInputTranslationsTest(String name)
+   {
+      super(name);
+   }
+
+   public void testEquals() throws Exception
+   {
+   }
+
+   public void testXml() throws Exception
+   {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+
+      // create test object
+      PSRule rule = new PSRule(new PSExtensionCallSet());
+      PSApplyWhen applyWhen = new PSApplyWhen();
+      applyWhen.add(rule);
+      applyWhen.add(rule);
+      applyWhen.add(rule);
+      PSConditionalExit exit = new PSConditionalExit(new PSExtensionCallSet(), applyWhen);
+
+      PSInputTranslations testTo = new PSInputTranslations();
+      testTo.add(exit);
+      testTo.add(exit);
+      Element elem = testTo.toXml(doc);
+      root.appendChild(elem);
+
+      // create a new object and populate it from our testTo element
+      PSInputTranslations testFrom = new PSInputTranslations(elem, null, null);
+      assertTrue(testTo.equals(testFrom));
+   }
+
+   public static Test suite()
+   {
+      TestSuite suite = new TestSuite();
+
+      suite.addTest(new PSInputTranslationsTest("testXml"));
+      
+      return suite;
+   }
+}

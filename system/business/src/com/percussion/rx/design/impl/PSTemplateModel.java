@@ -1,0 +1,385 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.rx.design.impl;
+
+import com.percussion.rx.design.IPSAssociationSet;
+import com.percussion.rx.design.IPSAssociationSet.AssociationType;
+import com.percussion.rx.design.PSDesignModelUtils;
+import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.IPSTemplateService;
+import com.percussion.services.assembly.IPSTemplateSlot;
+import com.percussion.services.assembly.PSAssemblyException;
+import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.contentmgr.IPSContentMgr;
+import com.percussion.services.contentmgr.IPSNodeDefinition;
+import com.percussion.services.contentmgr.PSContentMgrLocator;
+import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.sitemgr.IPSSite;
+import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.services.sitemgr.PSSiteManagerLocator;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.types.PSPair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.jcr.RepositoryException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class PSTemplateModel extends PSDesignModel
+{
+   @Override
+   public Object load(IPSGuid guid)
+   {
+      return loadTemplate(guid, true);
+   }
+
+   @Override
+   public Object loadModifiable(IPSGuid guid)
+   {
+      return loadTemplate(guid, false);
+   }
+
+   @Override
+   public Collection<String> findAllNames()
+   {
+      IPSTemplateService service = (IPSTemplateService) getService();
+      try {
+         return service.findAllTemplates().stream().map(t -> t.getName()).collect(Collectors.toList());
+      } catch (PSAssemblyException e) {
+         log.error("Cannot load template names",e);
+         return Collections.emptyList();
+      }
+   }
+   
+   /**
+    * Loads the readonly or modifiable template from the template service for
+    * the supplied guid based on the readonly flag.
+    * 
+    * @param guid Must not be <code>null</code> and must be a template guid.
+    * @param readonly Flag to indicate whether to load a readonly or modifiable
+    * template.
+    * @return Object template object never <code>null</code>, throws
+    * {@link RuntimeException} in case of an error.
+    */
+   private Object loadTemplate(IPSGuid guid, boolean readonly)
+   {
+      if (guid == null || !isValidGuid(guid))
+         throw new IllegalArgumentException("guid is not valid for this model");
+      IPSTemplateService service = (IPSTemplateService) getService();
+      IPSAssemblyTemplate obj = null;
+      try
+      {
+         if (readonly)
+         {
+            obj = service.loadUnmodifiableTemplate(guid);
+         }
+         else
+         {
+            obj = service.loadTemplate(guid, true);
+         }
+      }
+      catch (PSAssemblyException e)
+      {
+         throw new RuntimeException(e);
+      }
+      if (obj == null)
+      {
+         String msg = "Failed to get the design object for guid {0}";
+         Object[] args = { guid.toString() };
+         throw new RuntimeException(MessageFormat.format(msg, args));
+      }
+      return obj;
+   }
+
+   @Override
+   public void save(Object obj)
+   {
+      save(obj, null);
+   }
+
+   /**
+    * Saves the template along with its associations. If the associationSets or
+    * <code>null</code> or empty or associations of these sets are
+    * <code>null</code> or empty then the original associations are not
+    * touched. The association setting is replacement only and does not merge
+    * the supplied list with the original association list. The objects of
+    * associations are expected to be of type String. If any object in the list
+    * of associations is not a String or no slot object exists with that name
+    * then it is not added to the template.
+    * 
+    * @param obj Object
+    * 
+    */
+   @Override
+   public void save(Object obj, List<IPSAssociationSet> associationSets)
+   {
+      if (obj == null)
+         throw new IllegalArgumentException("obj must not be null");
+
+      if (!(obj instanceof IPSAssemblyTemplate))
+      {
+         throw new RuntimeException("Invalid Object passed for save.");
+      }
+      IPSTemplateService service = (IPSTemplateService) getService();
+      try
+      {
+         IPSAssemblyTemplate template = (IPSAssemblyTemplate) obj;
+         if (associationSets != null)
+         {
+            for (IPSAssociationSet set : associationSets)
+            {
+               if (set.getType() == AssociationType.TEMPLATE_SLOT)
+               {
+                  if (set.getAssociations() != null)
+                     setSlotAssociations(template, set.getAssociations());
+               }
+            }
+         }
+         service.saveTemplate(template);
+      }
+      catch (PSAssemblyException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * Sets the supplied slot associations on the supplied template. See
+    * {@link #save(Object, List)} for details.
+    * 
+    * @param template assumed not <code>null</code>.
+    * @param associations assumed not <code>null</code>
+    */
+   @SuppressWarnings("unchecked")
+   private void setSlotAssociations(IPSAssemblyTemplate template,
+         List associations)
+   {
+      List<String> slotNames = PSDesignModelUtils.getStringList(associations);
+      // Log all the ones in the list that are not instances of String
+      if (slotNames.size() != associations.size())
+      {
+         associations.removeAll(slotNames);
+         for (Object obj : associations)
+         {
+            String msg = "Skipping the template ({0}), slot ({1}) association "
+                  + "as the type of the association is not String.";
+            Object[] args = { template.getName(), obj.toString() };
+            log.warn(MessageFormat.format(msg, args));
+         }
+      }
+      IPSTemplateService service = (IPSTemplateService) getService();
+
+      List<IPSTemplateSlot> slots = new ArrayList<>();
+      if (!slotNames.isEmpty())
+      {
+         slots = service.findSlotsByNames(slotNames);
+         // Log all names that do not have slot objects
+         if (slots.size() != slotNames.size())
+         {
+            List<String> temp = new ArrayList<>();
+            for (IPSTemplateSlot slot : slots)
+            {
+               temp.add(slot.getName());
+            }
+            for (String sn : temp)
+            {
+               String msg = "Failed to load the slot with the given name {0}, "
+                     + "skipping the template {1} and slot {2} association.";
+               Object[] args = { sn, template.getName(), sn };
+               log.warn(MessageFormat.format(msg, args));
+            }
+         }
+      }
+      Set<IPSTemplateSlot> tempSlots = new HashSet<>(slots);
+      template.setSlots(tempSlots);
+   }
+
+   @Override
+   public void delete(IPSGuid guid)
+   {
+      IPSAssemblyService service = PSAssemblyServiceLocator
+            .getAssemblyService();
+      
+      IPSAssemblyTemplate template = service.findTemplate(guid);
+      if(template == null)
+      {
+         String msg = "Failed to find the template with the given id ({0}) "
+               + " skipping the deletion.";
+         Object[] args = { guid };
+         log.info(MessageFormat.format(msg, args));
+         return;
+      }
+      
+      String depTypes = PSDesignModelUtils.checkDependencies(guid);
+      if(depTypes != null)
+      {
+         String msg = "Skipped deletion of template ({0}) as it is " +
+               "currently being used by ({1})";
+         Object[] args = { template.getName(), depTypes };
+         throw new RuntimeException(MessageFormat.format(msg, args));
+      }
+
+      try
+      {
+         removeSiteAssociations(guid);
+         removeContentTypeAssociations(guid);
+         removeSlotAssocations(guid);
+         service.deleteTemplate(guid);
+      }
+      catch (Exception e)
+      {
+         String msg = "Failed to delete the template with the given id ({0}) "
+               + "and name ({1})";
+         Object[] args = { guid, template.getName() };
+         throw new RuntimeException(MessageFormat.format(msg, args));
+      }
+   }
+
+   /**
+    * Helper method to remove the content type template associations if exists.
+    * 
+    * @param guid, Template guid assumed not <code>null</code>.
+    * @throws RepositoryException
+    */
+   private void removeContentTypeAssociations(IPSGuid guid)
+      throws RepositoryException
+   {
+      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
+      List<IPSNodeDefinition> nodeDefs = mgr.findAllItemNodeDefinitions();
+      List<IPSNodeDefinition> nodeDefs2Save = new ArrayList<>();
+      for (IPSNodeDefinition nodeDef : nodeDefs)
+      {
+         Set<IPSGuid> ctemps = nodeDef.getVariantGuids();
+         if (ctemps.contains(guid))
+         {
+            nodeDef.removeVariantGuid(guid);
+            nodeDefs2Save.add(nodeDef);
+         }
+      }
+      if (!nodeDefs2Save.isEmpty())
+      {
+         mgr.saveNodeDefinitions(nodeDefs2Save);
+      }
+   }
+
+   /**
+    * Helper method to remove the site template associations.
+    * 
+    * @param guid, Template guid assumed not <code>null</code>.
+    * @throws PSAssemblyException
+    */
+   private void removeSiteAssociations(IPSGuid guid)
+           throws PSAssemblyException, PSNotFoundException {
+      IPSAssemblyService service = PSAssemblyServiceLocator
+            .getAssemblyService();
+      IPSAssemblyTemplate template;
+      template = service.loadTemplate(guid, true);
+
+      // get site / templates associations
+      IPSSiteManager sitemgr = PSSiteManagerLocator
+            .getSiteManager();
+      Map<PSPair<IPSGuid, String>, Collection<IPSGuid>> siteToTemplates = sitemgr
+            .findSiteTemplatesAssociations();
+
+      // save template / sites associations
+      for (Map.Entry<PSPair<IPSGuid, String>, Collection<IPSGuid>> entry : siteToTemplates
+            .entrySet())
+      {
+         IPSGuid siteId = entry.getKey().getFirst();
+         Collection<IPSGuid> templateIds = entry.getValue();
+
+         // remove template / sites associations
+         if (templateIds.contains(template.getGUID()))
+         {
+            IPSSite s = sitemgr.loadSite(siteId);
+            s.getAssociatedTemplates().remove(template);
+            sitemgr.saveSite(s);
+         }
+      }
+   }
+
+   /**
+    * 
+    * Helper method to handle the slot association removals for the supplied
+    * template.
+    * 
+    * @param guid, Template guid assumed not <code>null</code>.
+    * @throws PSAssemblyException
+    */
+   private void removeSlotAssocations(IPSGuid guid) throws PSAssemblyException
+   {
+      IPSAssemblyService service = PSAssemblyServiceLocator
+            .getAssemblyService();
+      List<IPSTemplateSlot> allSlots = service.findSlotsByName(null);
+      List<IPSTemplateSlot> modSlots = new ArrayList<>();
+      for (IPSTemplateSlot slot : allSlots)
+      {
+         Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations = slot
+               .getSlotAssociations();
+         Iterator<PSPair<IPSGuid, IPSGuid>> iter = slotAssociations.iterator();
+         boolean modified = false;
+         while (iter.hasNext())
+         {
+            PSPair<IPSGuid, IPSGuid> assoc = iter.next();
+            if (guid.equals(assoc.getFirst())
+                  || guid.equals(assoc.getSecond()))
+            {
+               iter.remove();
+               modified = true;
+            }
+         }
+         if (modified)
+         {
+            slot.setSlotAssociations(slotAssociations);
+            modSlots.add(slot);
+         }
+      }
+      if (!modSlots.isEmpty())
+      {
+         // now save the slots
+         for (IPSTemplateSlot slot : modSlots)
+         {
+            service.saveSlot(slot);
+         }
+      }
+
+   }
+
+   @Override
+   public List<IPSAssociationSet> getAssociationSets()
+   {
+      List<IPSAssociationSet> asets = new ArrayList<>();
+      asets.add(new PSAssociationSet(AssociationType.TEMPLATE_SLOT));
+      return asets;
+   }
+
+   /**
+    * The logger for this class.
+    */
+   private static final Logger log = LogManager.getLogger(PSTemplateModel.class);
+
+}

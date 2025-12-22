@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="SystemDef" dependencyType="Shared" displayName="System Def" isIncluded="no" objectType="SystemDef" objectTypeName="System Def" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="SystemDef">
+      <PSXApplicationIDTypesElement elementName="CEField">
+         <PSXApplicationIDTypeMapping type="sys_none" value="-1">
+            <PSXAppExtensionParamIdContext index="0" paramName="p1">
+               <PSXExtensionParamValue id="0">
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>-1</text>
+                     </PSXTextLiteral>
+                  </value>
+               </PSXExtensionParamValue>
+               <PSXAppExtensionCallIdContext extRef="Java/global/percussion/generic/sys_Literal">
+                  <PSXAppCEItemIdContext type="DataLocator">
+                     <PSXAppNamedItemIdContext name="sys_relevancy" type="CEField">
+                        <PSXAppNamedItemIdContext name="systemFieldset" type="FieldSet"/>
+                     </PSXAppNamedItemIdContext>
+                  </PSXAppCEItemIdContext>
+               </PSXAppExtensionCallIdContext>
+            </PSXAppExtensionParamIdContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+      <PSXApplicationIDTypesElement elementName="InputDataExits">
+         <PSXApplicationIDTypeMapping type="sys_none" value="2">
+            <PSXAppExtensionParamIdContext index="4" paramName="RequiredAccessLevel">
+               <PSXExtensionParamValue id="222">
+                  <value>
+                     <PSXTextLiteral id="223">
+                        <text>2</text>
+                     </PSXTextLiteral>
+                  </value>
+               </PSXExtensionParamValue>
+               <PSXAppExtensionCallIdContext extRef="Java/global/percussion/workflow/sys_wfAuthenticateUser" index="1">
+                  <PSXAppNamedItemIdContext name="preview" type="SysDefInputDataExitCmd"/>
+               </PSXAppExtensionCallIdContext>
+            </PSXAppExtensionParamIdContext>
+         </PSXApplicationIDTypeMapping>
+         <PSXApplicationIDTypeMapping type="sys_none" value="3">
+            <PSXAppExtensionParamIdContext index="4" paramName="RequiredAccessLevel">
+               <PSXExtensionParamValue id="185">
+                  <value>
+                     <PSXTextLiteral id="186">
+                        <text>3</text>
+                     </PSXTextLiteral>
+                  </value>
+               </PSXExtensionParamValue>
+               <PSXAppExtensionCallIdContext extRef="Java/global/percussion/workflow/sys_wfAuthenticateUser" index="1">
+                  <PSXAppNamedItemIdContext name="edit" type="SysDefInputDataExitCmd"/>
+               </PSXAppExtensionCallIdContext>
+            </PSXAppExtensionParamIdContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+      <PSXApplicationIDTypesElement elementName="CEAppFlow">
+         <PSXApplicationIDTypeMapping type="sys_none" value="0">
+            <PSXAppExtensionParamIdContext index="8" paramName="paramValue4">
+               <PSXExtensionParamValue id="158">
+                  <value>
+                     <PSXTextLiteral id="163">
+                        <text>0</text>
+                     </PSXTextLiteral>
+                  </value>
+               </PSXExtensionParamValue>
+               <PSXAppExtensionCallIdContext extRef="Java/global/percussion/generic/sys_MakeAbsLink">
+                  <PSXAppUrlRequestIdContext href="">
+                     <PSXAppIndexedItemIdContext index="0" type="ConditionalRequest">
+                        <PSXAppNamedItemIdContext name="clone" type="AppFlow"/>
+                     </PSXAppIndexedItemIdContext>
+                  </PSXAppUrlRequestIdContext>
+               </PSXAppExtensionCallIdContext>
+            </PSXAppExtensionParamIdContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

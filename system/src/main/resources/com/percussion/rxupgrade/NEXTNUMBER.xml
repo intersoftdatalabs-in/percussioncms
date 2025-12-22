@@ -1,0 +1,44 @@
+
+
+<table name="NEXTNUMBER">
+      <row>
+         <column name="KEYNAME">variableid</column>
+         <column name="NEXTNR">300</column>
+      </row>
+      <row>
+         <column name="KEYNAME">contextid</column>
+         <column name="NEXTNR">300</column>
+      </row>
+      <row>
+         <column name="KEYNAME">schemeid</column>
+         <column name="NEXTNR">300</column>
+      </row>
+      <row>
+         <column name="KEYNAME">schemeparamid</column>
+         <column name="NEXTNR">300</column>
+      </row>
+		<row>
+			<column name="KEYNAME">componentid</column>
+			<column name="NEXTNR">1000</column>
+		</row>
+		<row>
+			<column name="KEYNAME">propertyid</column>
+			<column name="NEXTNR">1000</column>
+		</row>
+		<row>
+			<column name="KEYNAME">communityid</column>
+			<column name="NEXTNR">1000</column>
+		</row>
+		<row>
+			<column name="KEYNAME">PersistedProperty</column>
+			<column name="NEXTNR">1000</column>
+		</row>
+      <row>
+         <column name="KEYNAME">Attribute</column>
+         <column name="NEXTNR">1000</column>
+      </row>
+      <row>
+         <column name="KEYNAME">AttributeValue</column>
+         <column name="NEXTNR">1000</column>
+      </row>
+	</table>

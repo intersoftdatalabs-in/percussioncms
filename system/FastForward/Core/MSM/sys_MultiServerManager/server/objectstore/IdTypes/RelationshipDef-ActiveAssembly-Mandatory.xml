@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="ActiveAssembly-Mandatory" dependencyType="Shared" displayName="Active Assembly - Mandatory" isIncluded="no" objectType="RelationshipDef" objectTypeName="Relationship Definition" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="Active Assembly - Mandatory">
+      <PSXApplicationIDTypesElement elementName="UserProps">
+         <PSXApplicationIDTypeMapping type="sys_none" value="1">
+            <PSXAppNamedItemIdContext name="sys_sortrank" type="PSProperty"/>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

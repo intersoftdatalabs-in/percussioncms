@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="Smog">
+      <!-- EMPTY Property Set -->
+      <propertySet name="emptySet1"/>
+		<property name="parent">
+			<propertySet name="emptySet2"/>
+		</property>
+		<property name="emptyValues">
+         <pvalues/>
+      </property>
+
+		<property name="nullProperty"/>
+		
+   </SolutionConfig>
+   
+</SolutionConfigurations>
+

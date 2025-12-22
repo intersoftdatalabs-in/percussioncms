@@ -1,0 +1,9 @@
+
+
+<project name="removeJBOSS" default="removeJBOSS">
+    <!-- Responsible for removing JBOSS from the install -->
+    <target name="removeJBOSS">
+        <echo>Removing legacy JBOSS application server...</echo>
+        <!-- TODO: Implement Me -->
+    </target>
+</project>

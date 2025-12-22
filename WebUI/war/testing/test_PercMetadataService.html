@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <title></title>
+  <link rel="stylesheet" media="screen" type="text/css" href="../css/qunit.css" />
+  <script src="../jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+  <script src="../jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+  <script src="../jslib/profiles/3x/libraries/qunit/qunit.js"></script>
+  <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/json2.js"></script>
+  <script src="../plugins/perc_path_constants.js"></script>
+  <script src="../services/PercServiceUtils.js"></script>
+  <script src="../services/PercMetadataService.js"></script>
+  <script>
+   $(document).ready(function(){
+      
+      var testKeyPrefix = "test.percmetadata.";  
+        
+      
+      asyncTest("Test save item 1", function(){
+         $.PercMetadataService.save(testKeyPrefix + "1", "some data1",
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 1 saved without error"); 
+                   start();                  
+                }
+                else
+                {
+                   ok(false, "Error occured on save: " + msg);
+                   start();                   
+                }
+             });
+       });
+       
+       asyncTest("Test find item 1", function(){    
+          $.PercMetadataService.find(testKeyPrefix + "1", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   var data = result.metadata.data;
+                   equals(data, "some data1");
+                   start()
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg); 
+                   start()                  
+                }
+          });
+       });
+          
+       asyncTest("Test save item 2", function(){   
+          $.PercMetadataService.save(testKeyPrefix + "2", "some data2",
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 2 saved without error");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on save: " + msg);
+                   start();                   
+                }
+             });
+        });  
+        
+        asyncTest("Test find item 2", function(){  
+           $.PercMetadataService.find(testKeyPrefix + "2", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   var data = result.metadata.data;
+                   equals(data, "some data2");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg);
+                   start();                   
+                }
+           });
+        });    
+        
+        asyncTest("Test save item 3", function(){      
+           $.PercMetadataService.save(testKeyPrefix + "3", "some data3",
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 3 saved without error");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on save: " + msg);
+                   start();
+                }
+             }); 
+         });
+         
+         asyncTest("Test find item 3", function(){    
+           $.PercMetadataService.find(testKeyPrefix + "3", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   var data = result.metadata.data;
+                   equals(data, "some data3");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg);
+                   start();                   
+                }
+             });        
+         });
+         
+         asyncTest("Test findByPrefix after saves", function(){
+             $.PercMetadataService.findByPrefix(testKeyPrefix, function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   var data = result.metadata;
+                   ok(data.length == 3, "Metadata array should have a length of 3");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg); 
+                   start();                  
+                }
+          });  
+         });
+         
+         asyncTest("Test delete item 1", function(){
+          $.PercMetadataService.deleteEntry(testKeyPrefix + "1",
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 1 deleted without error"); 
+                   start();                  
+                }
+                else
+                {
+                   ok(false, "Error occured on delete: " + msg);
+                   start();                   
+                }
+             });
+         });
+         
+         asyncTest("Test find by prefix after delete", function(){
+          $.PercMetadataService.findByPrefix(testKeyPrefix, function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   var data = result.metadata;
+                   ok(data.length == 2, "Metadata array should have a length of 2");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg); 
+                   start();                  
+                }
+          });  
+         });
+         
+         asyncTest("Test verify item 1 deleted", function(){   
+          $.PercMetadataService.find(testKeyPrefix + "1", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(typeof(result.metadata) == 'undefined', "item 1 deleted");
+                   start()
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg); 
+                   start()                  
+                }
+          });
+         });
+         
+         asyncTest("Test delete item 2", function(){   
+          $.PercMetadataService.deleteEntry(testKeyPrefix + "2", 
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 2 deleted without error");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on delete: " + msg);
+                   start();                   
+                }
+             });
+          });
+             
+          asyncTest("Test verify item 2 deleted", function(){  
+           $.PercMetadataService.find(testKeyPrefix + "2", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(typeof(result.metadata) == 'undefined', "item 2 deleted");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg);
+                   start();                   
+                }
+           });
+          });
+            
+          asyncTest("Test delete item 3", function(){   
+           $.PercMetadataService.deleteEntry(testKeyPrefix + "3",
+             function(status, msg){
+                if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(true, "Data 3 deleted without error");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on delete: " + msg);
+                   start();
+                }
+             });
+          });
+          
+          asyncTest("Test verify item 3 deleted", function(){   
+           $.PercMetadataService.find(testKeyPrefix + "3", function(status, result){
+             if(status == $.PercServiceUtils.STATUS_SUCCESS)
+                {
+                   ok(typeof(result.metadata) == 'undefined', "item 3 deleted");
+                   start();
+                }
+                else
+                {
+                   ok(false, "Error occured on find: " + msg);
+                   start();                   
+                }
+             });        
+           });      
+   
+   });
+   
+   
+  </script>
+  </head>
+  <body>
+  <h1 id="qunit-header">Testing: PercMetadataService.js</h1>
+  <h2 id="qunit-banner"></h2>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>   
+  </body>
+</html>

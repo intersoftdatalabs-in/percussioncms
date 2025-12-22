@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="RSS">
+
+		<property name="ci_or_allSites">
+			<pvalues>
+				<pvalue>Corporate_Investments</pvalue>
+			</pvalues>
+		</property>		
+      
+      <property name="visibility">
+      		<pvalues>
+       		    <pvalue>rffPgEiGeneric</pvalue>
+      		</pvalues>
+      </property>
+
+   </SolutionConfig>
+</SolutionConfigurations>

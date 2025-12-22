@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="RSS">
+
+<!---  ========================================
+        Content Type        "rffBrief"      
+        =========================================
+-->	
+	<propertySet name="ct">
+  
+      <property name="fields"> 
+      </property>
+      
+	</propertySet>
+	
+   </SolutionConfig>
+</SolutionConfigurations>

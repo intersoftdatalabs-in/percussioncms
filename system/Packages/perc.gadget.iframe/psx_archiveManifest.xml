@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXArchiveManifest>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_images_gadgettIconIframeOver-jpg">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_iframe_gadget\images\gadgettIconIframeOver.jpg</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_images_gadgettIconIframeOver-jpg\gadgettIconIframeOver.jpg</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_images_gadgetIconIframe-jpg">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_iframe_gadget\images\gadgetIconIframe.jpg</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_images_gadgetIconIframe-jpg\gadgetIconIframe.jpg</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_perc__iframe__gadget-xml">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>C:\DevEnv\Installs\dev\cm\gadgets\repository\perc_iframe_gadget\perc_iframe_gadget.xml</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__iframe__gadget_perc__iframe__gadget-xml\perc_iframe_gadget.xml</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+</PSXArchiveManifest>

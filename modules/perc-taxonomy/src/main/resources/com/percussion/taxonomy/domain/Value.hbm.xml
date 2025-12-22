@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.percussion.taxonomy.domain.Value" table="TAX_VALUE">
+    <id name="Id" column="ID" type="integer">
+      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
+    </id>
+    <property name="Name" column="NAME" type="string" not-null="true"/>
+    <many-to-one name="node" class="com.percussion.taxonomy.domain.Node" column="NODE_ID" not-null="true"/>
+    <many-to-one name="attribute" class="com.percussion.taxonomy.domain.Attribute" column="ATTRIBUTE_ID" not-null="true"/>
+    <many-to-one name="lang" class="com.percussion.taxonomy.domain.Language" column="LANG_ID" not-null="true"/>
+    <property name="Created_by_id" column="CREATED_BY_ID" type="string" not-null="true"/>
+    <property name="Created_at" column="CREATED_AT" type="timestamp" not-null="true"/>
+    <property name="Percussion_item_id" column="PERCUSSION_ITEM_ID" type="integer"/>
+  </class>
+</hibernate-mapping>

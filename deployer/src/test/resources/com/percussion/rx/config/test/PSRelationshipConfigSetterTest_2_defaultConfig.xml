@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName=" Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+	<SolutionConfig name="PSRelationshipConfigTest">
+		<propertySet name="deepCloning">
+			<property name="enabled" value="false"/>
+		</propertySet>
+		<propertySet name="shallowCloning">
+			<property name="enabled" value="false"/>
+		</propertySet>
+		<property name="fieldOverrides">
+			<propertySet>
+				<property name="fieldName" value="sys_title"/>
+				<property name="extension" value="Java/global/percussion/relationship/sys_CloneTitle"/>
+				<property name="extensionParams">
+					<pvalues>
+						<pvalue>Copy ($clone_count) of {0}</pvalue>
+						<pvalue>PSXContentItemStatus/CONTENTSTATUS.TITLE</pvalue>
+					</pvalues>
+				</property>
+			</propertySet>
+			<propertySet>
+				<property name="fieldName" value="sys_communityid"/>
+				<property name="extension" value="Java/global/percussion/generic/sys_OverrideLiteral"/>
+				<property name="extensionParams">
+					<pvalues>
+						<pvalue>PSXContentItemStatus/CONTENTSTATUS.COMMUNITYID</pvalue>
+						<pvalue>sys_communityid_override</pvalue>
+					</pvalues>
+				</property>
+			</propertySet>
+			<propertySet>
+				<property name="fieldName" value="sys_workflowid"/>
+				<property name="extension" value="Java/global/percussion/generic/sys_OverrideLiteral"/>
+				<property name="extensionParams">
+					<pvalues>
+						<pvalue>PSXContentItemStatus/WORKFLOWAPPS.WORKFLOWAPPID</pvalue>
+						<pvalue>sys_workflowid_override</pvalue>
+					</pvalues>
+				</property>
+			</propertySet>
+		</property>
+		<property name="effects"/>
+	</SolutionConfig>
+</SolutionConfigurations>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.percussion.taxonomy.domain.Attribute_lang" table="TAX_ATTRIBUTE_LANG">
+    <id name="Id" column="ID" type="integer">
+      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
+    </id>
+    <property name="Name" column="NAME" type="string"/>
+    <many-to-one name="attribute" class="com.percussion.taxonomy.domain.Attribute" column="ATTRIBUTE_ID" not-null="true"/>
+    <many-to-one name="language" class="com.percussion.taxonomy.domain.Language" column="LANGUAGE_ID" not-null="true"/>
+  </class>
+</hibernate-mapping>

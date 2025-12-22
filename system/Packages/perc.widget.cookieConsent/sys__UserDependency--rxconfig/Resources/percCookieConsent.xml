@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Resources>
+	<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js" type="javascript" >
+		     <dependency refid="percSystem.common_slim_js"/>
+	</file>
+    <file id="cookie_consent_css" path="/web_resources/widgets/cookieConsent/css/cookie-consent.css" type="css" />
+	<file id="cookie_consent_js" path="/web_resources/widgets/cookieConsent/js/cookie-consent.js" type="javascript">
+        <dependency refid="percSystem.jquery"/>
+    </file>
+</Resources>

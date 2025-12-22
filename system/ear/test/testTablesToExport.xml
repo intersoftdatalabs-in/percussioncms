@@ -1,0 +1,16 @@
+
+
+<tables>
+	<table name='PSX_TEMPLATE'/>
+	<table name='PSX_CONTENTTYPE_TEMPLATE'/>
+	<table name='PSX_TEMPLATE_BINDING'/>
+	<table name='RXVARIANTCOMMUNITY'/>
+	<table name="PSX_ITEM_FILTER" />
+	<table name='PSX_ITEM_FILTER_RULE'/>
+	<table name='PSX_ITEM_FILTER_RULE_PARAM'/>
+	<table name='RXSLOTTYPE'/>
+	<table name='PSX_SLOT_FINDER_PARAM'/>
+	<table name="RXCONTENTLIST" />
+	<table name='PSX_CONTENTLIST_GENERATOR_PARAM'/>
+	<table name='PSX_CONTENTLIST_EXPANDER_PARAM'/>
+</tables>

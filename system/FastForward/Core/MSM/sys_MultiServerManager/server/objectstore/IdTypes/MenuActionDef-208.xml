@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="208" dependencyType="Shared" displayName="Slot_Item_Preview" isIncluded="no" objectType="MenuActionDef" objectTypeName="Action Menu Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="URL">
+      <PSXApplicationIDTypesElement elementName="UrlParams">
+         <PSXApplicationIDTypeMapping type="sys_none" value="0">
+            <PSXAppNamedItemIdContext name="sys_authtype" type="Param"/>
+         </PSXApplicationIDTypeMapping>
+         <PSXApplicationIDTypeMapping type="ContextDef" value="0">
+            <PSXAppNamedItemIdContext name="sys_context" type="Param"/>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

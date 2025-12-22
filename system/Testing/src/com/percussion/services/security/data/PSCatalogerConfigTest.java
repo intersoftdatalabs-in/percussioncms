@@ -1,0 +1,244 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.services.security.data;
+
+import com.percussion.services.security.data.PSCatalogerConfig.ConfigTypes;
+import com.percussion.utils.tools.PSTestUtils;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Test case for the {@link PSCatalogerConfig}.
+ */
+public class PSCatalogerConfigTest extends TestCase
+{
+   /**
+    * Test the parameterized constructor.
+    * 
+    * @throws Exception If the test fails.
+    */
+   public void testCtor() throws Exception
+   {
+      Object[] args = ARGS.clone();
+      PSCatalogerConfig config;
+      
+      config = (PSCatalogerConfig) PSTestUtils.testCtor(PSCatalogerConfig.class, 
+         PARAMS, args, false);
+      assertEquals(config.getName(), args[NAME]);
+      assertEquals(config.getConfigType(), args[TYPE]);
+      assertEquals(config.getClassName(), args[CLASS]);
+      assertEquals(config.getDescription(), args[DESC]);
+      assertEquals(config.getProperties(), args[PROPS]);
+      
+      args[NAME] = null;
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+      args[NAME] = "";
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+
+      args[NAME] = "name";
+      args[TYPE] = null;
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+
+      args[TYPE] = ConfigTypes.ROLE;
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, false);
+      
+      args[CLASS] = null;
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+      args[CLASS] = "";
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+      
+      args[CLASS] = "com.test.PSCataloger";
+      args[DESC] = null;
+      config = (PSCatalogerConfig) PSTestUtils.testCtor(PSCatalogerConfig.class, 
+         PARAMS, args, false);
+      assertEquals(config.getDescription(), "");
+      
+      args[PROPS] = null;
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, true);
+      args[PROPS] = new HashMap<String, String>();
+      PSTestUtils.testCtor(PSCatalogerConfig.class, PARAMS, args, false);
+   }
+   
+   /**
+    * Test the get and set methods.
+    * 
+    * @throws Exception If the test fails.
+    */
+   public void testAccessors() throws Exception
+   {
+      PSCatalogerConfig config = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, ARGS, false);
+      
+      testSetter(config, NAME, ARGS[NAME], false);
+      testSetter(config, NAME, null, true);
+      testSetter(config, NAME, "", true);
+      
+      testSetter(config, DESC, ARGS[DESC], false);
+      config.setDescription(null);
+      assertEquals(config.getDescription(), "");
+      testSetter(config, DESC, "", false);
+      
+      testSetter(config, CLASS, ARGS[CLASS], false);
+      testSetter(config, CLASS, null, true);
+      testSetter(config, CLASS, "", true);
+      
+      testSetter(config, PROPS, ARGS[PROPS], false);
+      testSetter(config, PROPS, null, true);
+      testSetter(config, PROPS, new HashMap<String, String>(), false);
+   }
+   
+   /**
+    * Test a set/get method.
+    * 
+    * @param config The config to use, assumed not <code>null</code>.
+    * @param iProp The index into the arrays of the arg to test.
+    * @param val The val to set/get, may be <code>null</code> or empty.
+    * @param shouldThrow <code>true</code> if the setter should throw an 
+    * excpetion, <code>false</code> if not.
+    * 
+    * @throws Exception If the test fails.
+    */
+   private void testSetter(PSCatalogerConfig config, int iProp, Object val, 
+      boolean shouldThrow) throws Exception 
+   {
+      Object[] args = ARGS.clone();
+      args[iProp] = val;
+      PSTestUtils.testSetter(config, METHODS[iProp], args[iProp], PARAMS[iProp], 
+         shouldThrow);
+   }
+   
+   /**
+    * Test to/fromXml.
+    * 
+    * @throws Exception If the test fails.
+    */
+   public void testXml() throws Exception
+   {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      
+      PSCatalogerConfig config1 = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, ARGS, false);
+      assertEquals(config1, new PSCatalogerConfig(config1.toXml(doc), 
+         config1.getConfigType()));
+      
+      Object[] args = ARGS.clone();
+      args[TYPE] = ConfigTypes.ROLE;
+      config1 = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, args, false);
+      assertEquals(config1, new PSCatalogerConfig(config1.toXml(doc), 
+         config1.getConfigType()));
+      
+      config1.setDescription(null);
+      assertEquals(config1, new PSCatalogerConfig(config1.toXml(doc), 
+         config1.getConfigType()));
+      
+      config1.setProperties(new HashMap<String, String>());
+      assertEquals(config1, new PSCatalogerConfig(config1.toXml(doc), 
+         config1.getConfigType()));
+   }
+   
+   /**
+    * Test the equals method.
+    * 
+    * @throws Exception If the test fails.
+    */   
+   public void testEquals() throws Exception
+   {
+      PSCatalogerConfig config1 = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, ARGS, false);
+      PSCatalogerConfig config2 = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, ARGS, false);
+      
+      assertEquals(config1, config2);
+      assertTrue(config1.hashCode() == config2.hashCode());
+      assertTrue(!config1.equals(null));
+      
+      Object[] args = ARGS.clone();
+      args[TYPE] = ConfigTypes.ROLE;
+      PSCatalogerConfig config3 = (PSCatalogerConfig) PSTestUtils.testCtor(
+         PSCatalogerConfig.class, PARAMS, args, false);
+      assertTrue(!config1.equals(config3));
+      assertTrue(config1.hashCode() != config3.hashCode());
+      
+      config2.setName(config2.getName() + "test");
+      assertTrue(!config1.equals(config2));
+      assertTrue(config1.hashCode() != config2.hashCode());
+      config1.setName(config2.getName());
+      assertEquals(config1, config2);
+      assertTrue(config1.hashCode() == config2.hashCode());
+      
+      config2.setClassName(config2.getClassName() + "test");
+      assertTrue(!config1.equals(config2));
+      assertTrue(config1.hashCode() != config2.hashCode());
+      config1.setClassName(config2.getClassName());
+      assertEquals(config1, config2);
+      assertTrue(config1.hashCode() == config2.hashCode());
+      
+      config2.setDescription(null);
+      assertTrue(!config1.equals(config2));
+      assertTrue(config1.hashCode() != config2.hashCode());
+      config1.setDescription("");
+      assertEquals(config1, config2);
+      assertTrue(config1.hashCode() == config2.hashCode());
+      
+      config2.setProperties(new HashMap<String, String>());
+      assertTrue(!config1.equals(config2));
+      assertTrue(config1.hashCode() != config2.hashCode());
+      config1.setProperties(config2.getProperties());
+      assertEquals(config1, config2);
+      assertTrue(config1.hashCode() == config2.hashCode());
+      
+      assertEquals(config1, config1.clone());
+   }
+   
+   /**
+    * Array of classes used to call the ctor by reflection.
+    */
+   private static final Class[] PARAMS = new Class[] {String.class, 
+      ConfigTypes.class, String.class, String.class, Map.class};
+   
+   /**
+    * Array of values used for the constructor and accessor args.
+    */
+   private static Object[] ARGS;
+   static
+   {
+      Map<String, String> props = new HashMap<String, String>();
+      props.put("prop1", "val1");
+      ARGS = new Object[] {"name", ConfigTypes.SUBJECT, "com.test.PSCataloger", 
+         "desc", props};      
+   }
+   
+   /**
+    * Array of bean property names used to call accessors by reflection.
+    */
+   private static final String[] METHODS = new String[] {"Name", "ConfigType", 
+      "ClassName", "Description", "Properties"};
+   
+   // constants for indexes into the arrays by readable name
+   private static final int NAME = 0;
+   private static final int TYPE = 1;
+   private static final int CLASS = 2;
+   private static final int DESC = 3;
+   private static final int PROPS = 4;
+   
+}
+

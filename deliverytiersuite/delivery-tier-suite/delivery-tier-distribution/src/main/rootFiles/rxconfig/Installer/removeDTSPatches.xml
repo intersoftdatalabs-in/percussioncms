@@ -1,0 +1,16 @@
+
+
+<project name="removeDTSPatches" default="removeDTSPatches">
+    <!-- Responsible for old 5.3 patches and patch backups zip files and logs in patch folder -->
+    <target name="removeDTSPatches">
+        <echo>Removing old Patches and Patch Backups...</echo>
+        <delete includeemptydirs="true" failonerror="false" verbose="true">
+            <fileset dir="${install.dir}/Patch">
+                <include name="5315_*/**" />
+                <exclude name="5315_20200310"/>
+                <exclude name="InstallToolkit" />
+                <exclude name="history.log"/>
+            </fileset>
+        </delete>
+    </target>
+</project>

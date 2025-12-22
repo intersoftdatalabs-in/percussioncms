@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!ELEMENT contentlist (contentitem+)>
+<!ATTLIST contentlist
+   context CDATA #REQUIRED
+   deliverytype (bea) "bea"
+>
+
+<!ELEMENT contentitem (title, contenturl, delivery, modifydate, modifyuser,
+   expiredate, contenttype, customproperties?)>
+<!ATTLIST contentitem
+   contentid CDATA #REQUIRED
+   revision CDATA #REQUIRED
+   variantid CDATA #REQUIRED
+   unpublish (yes | no) "no"
+>
+
+<!ELEMENT delivery (location)>
+
+<!ELEMENT customproperties (author?, creationdate?, lockedby?, mimetype?, 
+   description?, comments?)>
+
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT contenturl (#PCDATA)>
+<!ELEMENT modifydate (#PCDATA)>
+<!ELEMENT modifyuser (#PCDATA)>
+<!ELEMENT expiredate (#PCDATA)>
+<!ELEMENT contenttype (#PCDATA)>
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT creationdate (#PCDATA)>
+<!ELEMENT lockedby (#PCDATA)>
+<!ELEMENT mimetype (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT comments (#PCDATA)>
+
+<!ELEMENT location (#PCDATA)>

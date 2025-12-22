@@ -1,0 +1,61 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// REFACTORED: CP-JAVA11
+package com.percussion.rx.publisher;
+
+import java.util.List;
+import com.percussion.services.assembly.IPSAssemblyItem;
+import com.percussion.services.assembly.IPSAssemblyResult;
+
+/**
+ * Expands an assembly result into multiple assembly items that
+ * are then added immediately (front of the queue) to the current publishing job.
+ * <p>
+ * Implementations must be stateless and thread-safe. This interface is used by
+ * publishing handlers to support advanced pagination and batch expansion logic.
+ * <p>
+ * <b>Java 11 Modernization:</b>
+ * <ul>
+ *   <li>Clarified nullability and contract in Javadoc</li>
+ *   <li>Improved spelling and grammar in comments</li>
+ *   <li>Marked as refactored for Java 11</li>
+ * </ul>
+ *
+ * @author adamgent
+ */
+public interface IPSAssemblyResultExpander {
+
+    /**
+     * The parameter in {@link IPSAssemblyResult#getParameters()} that designates
+     * the name of the expander to run.
+     */
+    String ASSEMBLY_RESULT_EXPANDER_PARAM = "perc_expander";
+
+    /**
+     * Expands the given assembly result into a list of assembly items to be published.
+     * <p>
+     * The publisher handler will call this for assembly results that are marked as paginate
+     * and have the parameter {@value #ASSEMBLY_RESULT_EXPANDER_PARAM} set to this expander.
+     * <p>
+     * <b>Contract:</b> Implementations must return a non-null list (may be empty).
+     *
+     * @param assemblyResult the assembly result to expand, never {@code null}
+     * @return a non-null, possibly empty list of expanded assembly items
+     * @throws Exception if expansion fails for any reason
+     */
+    List<IPSAssemblyItem> expand(IPSAssemblyResult assemblyResult) throws Exception;
+}

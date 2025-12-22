@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:element name="ProxyConfigurations">
+        <xs:annotation>
+            <xs:documentation>Comment describing your root element</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ProxyConfig" type="ProxyConfig" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="ProxyConfig">
+        <xs:complexContent>
+            <xs:extension base="PSAbstractDataObject">
+                <xs:sequence>
+                    <xs:element name="host" type="xs:string"/>
+                    <xs:element name="port" type="xs:integer"/>
+                    <xs:element name="user" type="xs:string"  minOccurs="0" />
+                    <xs:element name="password" minOccurs="0" >
+	                  <xs:complexType>
+	                     <xs:simpleContent>
+	                        <xs:extension base="xs:string">
+	                           <xs:attribute name="encrypted" type="xs:boolean" use="optional" default="false"/>
+	                        </xs:extension>
+	                     </xs:simpleContent>
+	                  </xs:complexType>
+               		</xs:element>
+                    <xs:element name="protocols" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element minOccurs="0" maxOccurs="unbounded" name="protocol" type="xs:string" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="PSAbstractDataObject"/>
+</xs:schema>

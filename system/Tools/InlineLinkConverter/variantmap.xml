@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<VariantMap>
+	<inlinelink inlineslotid="101">
+		<variant pagevarid="1" inlinevarid="27"/>
+		<variant pagevarid="25" inlinevarid="28"/>
+		<variant pagevarid="19" inlinevarid="29"/>
+		<variant pagevarid="9" inlinevarid="30"/>
+		<variant pagevarid="12" inlinevarid="31"/>
+	</inlinelink>
+	<inlineimage inlineslotid="102">
+		<variant imagevarid="19" inlinevarid="32"/>
+	</inlineimage >
+</VariantMap>

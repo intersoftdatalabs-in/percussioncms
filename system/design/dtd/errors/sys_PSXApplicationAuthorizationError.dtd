@@ -1,0 +1,20 @@
+
+<?xml version='1.0' encoding='UTF-8'?>
+
+
+
+<!--
+   This file contains the DTD that specifies the error message that is 
+   used to report a failed attempt to login to an application.
+-->
+<!ELEMENT PSXApplicationAuthorizationError (description, source )>
+
+<!--
+   Source that caused the error.
+-->
+<!ELEMENT source (#PCDATA)>
+
+<!--
+   Detailed description of the error.
+-->
+<!ELEMENT description (#PCDATA)>

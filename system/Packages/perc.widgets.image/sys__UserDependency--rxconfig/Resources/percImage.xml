@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Resources>
+	<file id="lightbox_css" path="/web_resources/widgets/image/lightbox/lightbox.css" type="css">
+	</file>
+	<file id="lightbox_js" path="/web_resources/widgets/image/lightbox/lightbox.js" type="javascript">
+		<dependency refid="percSystem.jquery"/>
+	</file>
+</Resources>

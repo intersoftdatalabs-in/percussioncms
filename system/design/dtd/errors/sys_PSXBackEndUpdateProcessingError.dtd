@@ -1,0 +1,31 @@
+
+<?xml version='1.0' encoding='UTF-8'?>
+
+
+
+<!--
+   This file contains the DTD that specifies the error message that is 
+   used to report an error encountered during back-end (database) 
+   update processing using the internal error information. This usually 
+   occurs when Rhythmyx encounters an error pre-processing the request.
+-->
+<!ELEMENT PSXBackEndUpdateProcessingError (PSXError* )>
+
+<!ELEMENT PSXError (description, source, data )>
+
+<!--
+   This element is not always empty. When more detailed information
+   about the error is available then this element contains an Xml 
+   sub-tree containing the element(s) causing the error. 
+-->
+<!ELEMENT data EMPTY>
+
+<!--
+   Source that caused the error.
+-->
+<!ELEMENT source (#PCDATA)>
+
+<!--
+   Detailed description of the error.
+-->
+<!ELEMENT description (#PCDATA)>

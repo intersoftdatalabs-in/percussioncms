@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!ELEMENT Compare (options)>
+<!ATTLIST Compare
+   version CDATA #REQUIRED
+>
+<!ELEMENT option (#PCDATA)>
+<!ATTLIST option
+   name (dcGranularity | dcHTML | dcMoveSense | dcNewPrgmList | dcOldPrgmList | dcPunctuation) #REQUIRED
+>
+<!ELEMENT options (option+)>

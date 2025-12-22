@@ -1,0 +1,19 @@
+
+
+<tables>
+    <table name="WORKFLOWAPPS" />
+    <table name="STATES" />
+    <table name="ROLES" />
+    <table name="TRANSITIONS" />
+    <table name="STATEROLES" />
+    <table name="CONTENTADHOCUSERS" />
+    <table name="NOTIFICATIONS" />
+    <table name="CONTENTSTATUS" />
+    <table name="CONTENTAPPROVALS" />
+    <table name="CONTENTSTATUSHISTORY" />
+    <table name="CONTENTTYPES" />
+    <table name="CONTENT" />
+    <table name="AGINGNOTIFYROLES" />
+    <table name="NEXTNUMBER" />
+    <table name="AGING"/>
+ </tables>

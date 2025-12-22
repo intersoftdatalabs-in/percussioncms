@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<ProxyConfigurations>
+	<!--
+	<ProxyConfig>
+        <host>localhost</host>
+        <port>1531</port>
+        <user>admin1</user>
+        <password encrypted="false">demo</password>
+        <protocols>
+            <protocol>HTTP</protocol>
+            <protocol>HTTPS</protocol>
+        </protocols>
+    </ProxyConfig>
+	<ProxyConfig>
+        <host>percussion.com</host>
+        <port>1531</port>
+        <user>admin2</user>
+        <password encrypted="false">demo</password>
+        <protocols>
+            <protocol>LDAP</protocol>
+        </protocols>
+    </ProxyConfig>
+	<ProxyConfig>
+        <host>google.com</host>
+        <port>1622</port>
+        <user>admin2</user>
+        <password>demo</password>
+        <protocols>
+            <protocol>LDAPS</protocol>
+        </protocols>
+    </ProxyConfig>  
+    -->      
+</ProxyConfigurations>

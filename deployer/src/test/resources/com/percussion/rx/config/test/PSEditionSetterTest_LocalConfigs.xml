@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="RSS">
+
+<!---  ========================================
+        Edition        "CI_Full"      
+        =========================================
+-->
+	
+      <property name="priority" value="HIGH" />
+      <property name="preTasks">
+      	<propertySet>
+	         <property name="extensionName" value="Java/global/percussion/task/sys_editionCommandTask" />
+	         <property name="extensionParams">
+	         	<pvalues>
+	         		<pair value1="command" value2="someCooamd ${edition_name}" />
+	         	</pvalues>
+	         </property>
+	               	
+	         <property name="continueOnFailure" value="false" />
+      	</propertySet>
+      </property>
+      
+      <property name="postTasks">
+      	<propertySet>
+	         <property name="extensionName" value="Java/global/percussion/task/sys_editionCommandTask" />
+	         <property name="extensionParams">
+	         	<pvalues>
+	         		<pair value1="command" value2="otherCooamd ${edition_name}" />
+	         	</pvalues>
+	         </property>
+	               	
+	         <property name="continueOnFailure" value="true" />
+      	</propertySet>
+      </property>
+      
+   </SolutionConfig>
+</SolutionConfigurations>

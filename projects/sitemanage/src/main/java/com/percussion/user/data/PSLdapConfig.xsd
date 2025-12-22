@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="LdapConfig" type="psLdapConfig"/>
+
+  <xs:complexType name="psLdapServer">
+    <xs:complexContent>
+      <xs:extension base="psAbstractDataObject">
+        <xs:sequence>
+          <xs:element name="host" type="xs:string" minOccurs="0"/>
+          <xs:element name="port" type="xs:int" minOccurs="0"/>
+          <xs:element name="user" type="xs:string" minOccurs="0"/>
+          <xs:element name="password" type="xs:string" minOccurs="0"/>
+          <xs:element name="catalog" type="catalogType" minOccurs="0"/>
+          <xs:element name="objectAttributeName" type="xs:string" minOccurs="0"/>
+          <xs:element name="emailAttributeName" type="xs:string" minOccurs="0"/>
+          <xs:element name="organizationalUnit" type="xs:string" maxOccurs="unbounded"/>
+          <xs:element name="secure" type="xs:boolean" minOccurs="0" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="psAbstractDataObject">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="psLdapConfig">
+    <xs:complexContent>
+      <xs:extension base="psAbstractDataObject">
+        <xs:sequence>
+          <xs:element name="LdapServer" type="psLdapServer" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="catalogType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="shallow"/>
+      <xs:enumeration value="deep"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

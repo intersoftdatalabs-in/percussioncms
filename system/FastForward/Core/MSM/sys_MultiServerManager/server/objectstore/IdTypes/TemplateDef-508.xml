@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="yes" autoExpand="yes" dependencyId="508" dependencyType="Local" displayName="rffSnNavPreload" isIncluded="yes" objectType="TemplateDef" objectTypeName="Template Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="TemplateBinding">
+      <PSXApplicationIDTypesElement elementName="TemplateBindings">
+         <PSXApplicationIDTypeMapping type="sys_none" value="0">
+            <PSXBindingParamIdContext index="0" occur="0">
+               <PSXTextLiteral id="0">
+                  <text>0</text>
+               </PSXTextLiteral>
+               <PSXBindingIdContext bName="$context" bValue="0" index="1"/>
+            </PSXBindingParamIdContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

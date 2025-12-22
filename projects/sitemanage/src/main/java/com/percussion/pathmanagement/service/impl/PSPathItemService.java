@@ -1,0 +1,1044 @@
+// REFACTORED: CP-JAVA11
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.pathmanagement.service.impl;
+
+import static com.percussion.share.dao.PSFolderPathUtils.concatPath;
+import static com.percussion.share.dao.PSFolderPathUtils.pathSeparator;
+import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.PAGE_CATALOG;
+import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.SECTION_SYSTEM_FOLDER_NAME;
+import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
+import static com.percussion.webservices.PSWebserviceUtils.isItemCheckedOutToUser;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
+
+import com.percussion.assetmanagement.service.IPSAssetService;
+import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
+import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCharacterInFolderNameException;
+import com.percussion.designmanagement.service.impl.PSFileSystemService;
+import com.percussion.itemmanagement.service.IPSItemWorkflowService;
+import com.percussion.itemmanagement.service.IPSItemWorkflowService.PSItemWorkflowServiceException;
+import com.percussion.pagemanagement.data.PSPage;
+import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
+import com.percussion.pathmanagement.data.PSDeleteFolderCriteria.SkipItemsType;
+import com.percussion.pathmanagement.data.PSFolderPermission;
+import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
+import com.percussion.pathmanagement.data.PSMoveFolderItem;
+import com.percussion.pathmanagement.data.PSPathItem;
+import com.percussion.pathmanagement.data.PSRenameFolderItem;
+import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.services.contentmgr.IPSContentMgr;
+import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.share.IPSSitemanageConstants;
+import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.PSFolderHelper;
+import com.percussion.share.data.IPSItemSummary;
+import com.percussion.share.data.PSItemProperties;
+import com.percussion.share.data.PSItemSummaryUtils;
+import com.percussion.share.data.PSNoContent;
+import com.percussion.share.service.IPSDataService;
+import com.percussion.share.service.IPSIdMapper;
+import com.percussion.share.service.exception.PSBeanValidationException;
+import com.percussion.share.service.exception.PSBeanValidationUtils;
+import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.ui.service.IPSListViewHelper;
+import com.percussion.user.data.PSAccessLevelRequest;
+import com.percussion.user.service.IPSUserService;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.thread.PSThreadUtils;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorResultsException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.jcr.query.Query;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Base class for all path item services. Each path item service must implement {@link
+ * #getFullFolderPath(String)}. The {@link #findItem(String)} and {@link #findItems(String)} methods
+ * should also be overridden when necessary in order to modify the item discovery algorithms.
+ */
+public abstract class PSPathItemService implements IPSPathService {
+  /** Used for folder item operations. Initialized in ctor, never <code>null</code> after that. */
+  protected IPSFolderHelper folderHelper;
+
+  /** The id mapper, initialized by constructor, never <code>null</code> after that. */
+  protected IPSIdMapper idMapper;
+
+  /** Used for item workflow operations. Initialized in ctor, never <code>null</code> after that. */
+  protected IPSItemWorkflowService itemWorkflowService;
+
+  /** Used for checking current user and access level */
+  protected IPSUserService userService;
+
+  /** Used for asset operations. Initialized in ctor, never <code>null</code> after that. */
+  protected IPSAssetService assetService;
+
+  /** Used for relationship operations. Initialized in ctor, never <code>null</code> after that. */
+  protected IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+
+  /** Used for jcr query execution. Initialized in ctor, never <code>null</code> after that. */
+  protected IPSContentMgr contentMgr;
+
+  /**
+   * Used for server workflow operations. Initialized in ctor, never <code>null</code> after that.
+   */
+  protected IPSWorkflowService workflowService;
+
+  protected IPSPageService pageService;
+
+  private IPSListViewHelper listViewHelper;
+
+  /**
+   * The root name seen in the ui as the base for all items located by this service. Initialized in
+   * the spring configuration.
+   */
+  private String rootName;
+
+  /**
+   * A comma separated list of user roles that are allowed to access this service. If it null or
+   * empty, all roles are allowed to access it.
+   */
+  private List<String> rolesAllowed;
+
+  /** Constant for catalog path folder */
+  private static String CATALOG_FOLDERS =
+      pathSeparator() + concatPath(SECTION_SYSTEM_FOLDER_NAME, PAGE_CATALOG);
+
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSPathItemService.class);
+
+  /** The constant to represent the recycled content relationship type. */
+  private static final String TYPE_RECYCLED_CONTENT = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
+
+  /** The constant to represent the recycled content relationship type. */
+  private static final String TYPE_FOLDER_CONTENT = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
+
+  /** The static constant to represent the root recycling folder. */
+  private static final String RECYCLING_ROOT = "//Folders/$System$/Recycling";
+
+  public PSPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSIdMapper idMapper,
+      IPSItemWorkflowService itemWorkflowService,
+      IPSAssetService assetService,
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+      IPSContentMgr contentMgr,
+      IPSWorkflowService workflowService,
+      IPSPageService pageService,
+      IPSListViewHelper listViewHelper,
+      IPSUserService userService) {
+    super();
+    this.folderHelper = folderHelper;
+    this.idMapper = idMapper;
+    this.itemWorkflowService = itemWorkflowService;
+    this.assetService = assetService;
+    this.widgetAssetRelationshipService = widgetAssetRelationshipService;
+    this.contentMgr = contentMgr;
+    this.workflowService = workflowService;
+    this.pageService = pageService;
+    this.listViewHelper = listViewHelper;
+    this.userService = userService;
+  }
+
+  @Override
+  public IPSListViewHelper getListViewHelper() {
+    return listViewHelper;
+  }
+
+  @Override
+  public void setListViewHelper(IPSListViewHelper listViewHelper) {
+    this.listViewHelper = listViewHelper;
+  }
+
+  @Override
+  public List<String> getRolesAllowed() {
+    return rolesAllowed;
+  }
+
+  @Override
+  public void setRolesAllowed(List<String> rolesAllowed) {
+    this.rolesAllowed = rolesAllowed;
+  }
+
+  @Override
+  public PSPathItem find(String path)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    log.debug("Find root of path: {}", path);
+    if ("/".equals(path)) {
+      return findRoot();
+    }
+    return findItem(path);
+  }
+
+  @Override
+  public PSItemProperties findItemProperties(String path)
+      throws PSPathNotFoundServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+    notEmpty(path, "path");
+    if (log.isDebugEnabled()) {
+      log.debug("find item properties: {}", path);
+    }
+    var fullFolderPath = getFullFolderPath(path);
+    try {
+      return folderHelper.findItemProperties(fullFolderPath);
+    } catch (Exception e) {
+      throw new PSPathNotFoundServiceException("Path not found: " + path);
+    }
+  }
+
+  @Override
+  public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+    notNull(request, "request");
+    var path = request.getPath();
+    var workflowName = request.getWorkflow();
+    var stateName = request.getState();
+    if (log.isDebugEnabled()) {
+      log.debug("find item properties: {}, {}, {}", path, workflowName, stateName);
+    }
+
+    int workflowId;
+    int stateId;
+    try {
+      workflowId = itemWorkflowService.getWorkflowId(workflowName);
+      stateId = itemWorkflowService.getStateId(workflowName, stateName);
+    } catch (PSItemWorkflowServiceException e) {
+      throw new PSPathServiceException(e);
+    }
+
+    var jcrQuery =
+        new StringBuilder("select rx:sys_title, jcr:path from ")
+            .append(getQuerySelectFrom())
+            .append(" where jcr:path like '")
+            .append(getFullFolderPath(path))
+            .append("/%' and rx:sys_workflowid = ")
+            .append(workflowId);
+
+    if (stateId != -1) {
+      jcrQuery.append(" and rx:sys_contentstateid = ").append(stateId);
+    }
+
+    var props = new ArrayList<PSItemProperties>();
+    try {
+      var query = contentMgr.createQuery(jcrQuery.toString(), Query.SQL);
+      var queryResult = contentMgr.executeQuery(query, -1, new HashMap<>(), null);
+      var rowIter = queryResult.getRows();
+      while (rowIter.hasNext()) {
+        var r = rowIter.nextRow();
+        var itemName = r.getValue("rx:sys_title").getString();
+        var itemPath = r.getValue("jcr:path").getString();
+        var fullItemPath = folderHelper.concatPath(itemPath, itemName);
+
+        if (!StringUtils.containsIgnoreCase(fullItemPath, CATALOG_FOLDERS)) {
+          var itemProps = folderHelper.findItemProperties(fullItemPath);
+          itemProps.setPath(PSPathUtils.getFinderPath(fullItemPath));
+          PSPage page = null;
+          try {
+            page = pageService.findPageByPath(fullItemPath);
+          } catch (Exception e) {
+            log.warn("Error occurred while finding the page by path : " + fullItemPath, e);
+          }
+          if (page == null) {
+            throw new PSPathNotFoundServiceException(
+                "The page: '" + fullItemPath + "' could not be found.");
+          }
+          itemProps.setSummary(page.getSummary());
+          props.add(itemProps);
+        }
+      }
+    } catch (Exception e) {
+      throw new PSPathServiceException("Failed to get item properties for path: " + path, e);
+    }
+    return props;
+  }
+
+  @Override
+  public PSNoContent moveItem(PSMoveFolderItem request)
+      throws PSDataServiceException, PSPathServiceException, PSItemWorkflowServiceException {
+    var path = request.getTargetFolderPath();
+    var relativePath = path.substring(path.indexOf('/'));
+    if (relativePath.charAt(relativePath.length() - 1) != '/') {
+      relativePath += "/";
+    }
+    var targetPath = getFullFolderPath(relativePath);
+
+    path = request.getItemPath();
+    relativePath = path.substring(path.indexOf('/'));
+    if (relativePath.charAt(relativePath.length() - 1) != '/') {
+      relativePath += "/";
+    }
+    var itemPath = getFullFolderPath(relativePath);
+    validateUserAccessBeforeMove(itemPath, targetPath);
+    folderHelper.moveItem(targetPath, itemPath, true);
+
+    return new PSNoContent("moveItem");
+  }
+
+  private void validateUserAccessBeforeMove(String srcPath, String targetPath)
+      throws PSDataServiceException, PSPathServiceException, PSItemWorkflowServiceException {
+    var curUser = userService.getCurrentUser();
+    if (!(curUser.isAdminUser() || curUser.isDesignerUser())) {
+      IPSItemSummary sum;
+      try {
+        sum = folderHelper.findItem(srcPath);
+      } catch (Exception e) {
+        throw new PSPathServiceException("Failed to move, could not find the selected item.");
+      }
+      if (!sum.isFolder()) {
+        if (!itemWorkflowService.isModifyAllowed(sum.getId())) {
+          throw new PSPathServiceException("You are not authorized to move the selected item.");
+        }
+      }
+      var acLevelReq = new PSAccessLevelRequest();
+      acLevelReq.setParentFolderPath(targetPath);
+      var accLevel = userService.getAccessLevel(acLevelReq);
+      if ("READER".equals(accLevel.getAccessLevel()) || "NONE".equals(accLevel.getAccessLevel())) {
+        throw new PSPathServiceException(
+            "You are not authorized to move this item into this folder.");
+      }
+    }
+  }
+
+  @Override
+  public List<PSPathItem> findChildren(String path)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+    log.debug("Find children of path: {}", path);
+    return findItems(path);
+  }
+
+  @Override
+  public PSPathItem addFolder(String path)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    notEmpty(path, "path");
+    log.debug("Add folder: {}", path);
+    try {
+      folderHelper.createFolder(getFullFolderPath(path));
+    } catch (Exception e) {
+      throw new PSPathServiceException("Failed to add folder: " + path, e);
+    }
+    return find(path);
+  }
+
+  @Override
+  public PSPathItem addNewFolder(String path)
+      throws PSPathNotFoundServiceException,
+          PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    notEmpty(path, "path");
+    var folderPath = path;
+    var item = findItem(path);
+    if (item.isLeaf()) {
+      folderPath = relativeParentPath(path);
+    }
+    log.debug("Add new folder to: {}", folderPath);
+    var folderName =
+        folderHelper.getUniqueFolderName(
+            getFullFolderPath(folderHelper.concatPath(folderPath, "/")),
+            PSFileSystemService.NEW_FOLDER_NAME_PREFIX);
+    return addFolder(folderHelper.concatPath(folderPath, folderName, "/"));
+  }
+
+  public String relativeParentPath(String path) throws PSPathNotFoundServiceException {
+    PSPathUtils.validatePath(path);
+    path = removeEnd(path, "/");
+    var parentPath = substringBeforeLast(path, "/");
+    return parentPath + "/";
+  }
+
+  @Override
+  public PSPathItem renameFolder(PSRenameFolderItem item)
+      throws PSValidationException,
+          PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          IPSDataService.DataServiceLoadException,
+          PSBeanValidationException {
+    var errors = PSBeanValidationUtils.validate(item);
+    errors.throwIfInvalid();
+
+    var path = item.getPath();
+    if ("/".equals(path)) {
+      throw new PSPathServiceException("Root folder may not be renamed");
+    }
+    log.debug("Rename folder: {}", path);
+    var name = item.getName();
+
+    if (name.length() > 50) {
+      log.debug("Cannot rename folder because name exceeds 50 characters: {}", name);
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.longName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because that name exceeds character"
+              + " limit.");
+      throw errors;
+    }
+
+    try {
+      folderHelper.renameFolder(getFullFolderPath(path), name);
+    } catch (PSReservedNameServiceException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.reservedName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because that name is a reserved folder"
+              + " name");
+      throw errors;
+    } catch (PSErrorResultsException e) {
+      var msg = "Failed to rename folder.";
+      var iter = e.getErrors().entrySet().iterator();
+      if (iter.hasNext()) {
+        var obj = iter.next();
+        msg = ((PSErrorException) (obj.getValue())).getLocalizedMessage();
+        if (msg.contains("This field cannot be empty and must be unique within the folder")) {
+          msg =
+              "An asset or folder with the name you specified already exists. Specify a different"
+                  + " name.";
+        }
+      }
+      errors.rejectValue("name", "renameFolderItem.name", msg);
+      throw errors;
+    } catch (PSInvalidCharacterInFolderNameException e) {
+      errors.rejectValue(
+          "name",
+          "renameFolderItem.invalidCharInName",
+          "Cannot rename folder '<old_name>' to '<new_name>' because folder names cannot contain"
+              + " the following characters: "
+              + e.getInvalidChars());
+      throw errors;
+    } catch (Exception e) {
+      errors.rejectValue("name", "renameFolderItem.name", "Failed to rename folder");
+      throw errors;
+    }
+    return find(folderHelper.concatPath(relativeParentPath(path), name, "/"));
+  }
+
+  @Override
+  public int deleteFolder(PSDeleteFolderCriteria criteria)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException,
+          PSNotFoundException {
+    notNull(criteria, "criteria");
+    var path = criteria.getPath();
+    if ("/".equals(path)) {
+      throw new PSPathServiceException("Root folder may not be deleted");
+    }
+    log.debug("Delete folder: {}", path);
+    var items = findAllPurgeableLeafItems(path);
+    return deleteFolder(path, getInUseItems(items), criteria);
+  }
+
+  @Override
+  public String validateFolderDelete(String path)
+      throws PSPathServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          PSItemWorkflowServiceException,
+          IPSDataService.DataServiceLoadException,
+          PSNotFoundException {
+    notEmpty(path, "path");
+    var response = "";
+    var folder = find(path);
+    if (!folderHelper.validateFolderPermissionForDelete(folder.getId())) {
+      response += FOLDER_HAS_NO_ADMIN_PERMISSION;
+    }
+    var items = findAllPurgeableLeafItems(path);
+    if (!validateFolderDeleteAuthorization(items)) {
+      response += getNotAuthorizedResult();
+    }
+    if (!validateFolderDeleteTemplates(items)) {
+      response += getInUseTemplatesResult();
+    }
+    if (!getInUseItems(items).isEmpty()) {
+      if (!StringUtils.isEmpty(response)) {
+        response += ',';
+      }
+      response += getInUsePagesResult();
+    }
+    return !StringUtils.isEmpty(response) ? response : VALIDATE_SUCCESS;
+  }
+
+  @Override
+  public String findLastExistingPath(String path) {
+    notEmpty(path);
+    var tmpPath = path;
+    PSPathItem item = null;
+    do {
+      try {
+        item = find(tmpPath);
+      } catch (Exception e) {
+        tmpPath =
+            folderHelper.concatPath(
+                PSPathUtils.getFinderPath(
+                    folderHelper.parentPath(PSPathUtils.getFolderPath(tmpPath))),
+                "/");
+      }
+    } while (item == null);
+    return StringUtils.removeStart(StringUtils.removeEnd(tmpPath, "/"), "/");
+  }
+
+  @Override
+  public String getRootName() {
+    return rootName;
+  }
+
+  @Override
+  public void setRootName(String rootName) {
+    this.rootName = rootName;
+  }
+
+  /**
+   * Attempts to find the item identified by the specified path.
+   *
+   * @param path the item path. This is a relative path.
+   * @return {@link PSPathItem} which represents the item located at the specified path. Never
+   *     <code>null</code>.
+   */
+  protected PSPathItem findItem(String path)
+      throws PSPathNotFoundServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    var fullFolderPath = getFullFolderPath(path);
+    IPSItemSummary dataItemSummary = getItemFromPath(path, fullFolderPath);
+    PSPathItem item = createPathItem();
+    convert(dataItemSummary, item);
+    item.setPath(path);
+    item.setFolderPath(fullFolderPath);
+    return item;
+  }
+
+  /**
+   * Attempts to find the items which are children of the location identified by the specified path.
+   *
+   * @param path the parent item path. This is a relative path.
+   * @return list of {@link PSPathItem} objects which represent the child items of the specified
+   *     path. Never <code>null</code>.
+   */
+  protected List<PSPathItem> findItems(String path)
+      throws PSPathNotFoundServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+    var fullFolderPath = getFullFolderPath(path);
+    List<IPSItemSummary> sums;
+    try {
+      sums = folderHelper.findItems(fullFolderPath, PSPathOptions.folderChildrenOnly());
+    } catch (Exception e) {
+      throw new PSPathNotFoundServiceException("Path not found: " + path, e);
+    }
+
+    var pathFolderItems = new ArrayList<PSPathItem>();
+    var pathItems = new ArrayList<PSPathItem>();
+
+    for (IPSItemSummary data : sums) {
+      PSThreadUtils.checkForInterrupt();
+      if (shouldFilterItem(data)) {
+        continue;
+      }
+
+      PSPathItem item = createPathItem();
+      convert(data, item);
+      item.setPath(path + item.getName());
+      item.setFolderPath(folderHelper.concatPath(fullFolderPath, item.getName()));
+      if (data.isFolder()) {
+        pathFolderItems.add(item);
+      } else {
+        pathItems.add(item);
+      }
+    }
+
+    Collections.sort(pathFolderItems, PSPathItemComparator.getInstance());
+    Collections.sort(pathItems, PSPathItemComparator.getInstance());
+    pathFolderItems.addAll(pathItems);
+
+    return pathFolderItems;
+  }
+
+  /**
+   * Generates the full internal folder path for the specified relative path. This path is used for
+   * all item lookup operations.
+   *
+   * @param path the path identifying a relative location of an item or folder in the system.
+   * @return the complete folder path used for item lookup. Never <code>null</code> or empty.
+   */
+  protected abstract String getFullFolderPath(String path)
+      throws IPSDataService.DataServiceNotFoundException,
+          PSPathNotFoundServiceException,
+          PSValidationException;
+
+  /**
+   * Gets the root of the folder path used for all item lookup operations. See {@link
+   * #getFullFolderPath(String)}.
+   *
+   * @return the internal folder root. Never <code>null</code> or empty.
+   */
+  protected abstract String getFolderRoot() throws PSPathServiceException;
+
+  /**
+   * Gets the from portion of the jcr query select statement used in {@link
+   * #findItemProperties(PSItemByWfStateRequest)}.
+   *
+   * @return the jcr query select from component.
+   */
+  protected String getQuerySelectFrom() {
+    return "rx:" + IPSPageService.PAGE_CONTENT_TYPE;
+  }
+
+  protected PSPathItem createPathItem() {
+    return new PSPathItem();
+  }
+
+  protected void convert(IPSItemSummary itemSummary, PSPathItem item) {
+    PSItemSummaryUtils.copyProperties(itemSummary, item);
+    if (itemSummary.isFolder()) {
+      item.setLeaf(false);
+    }
+    try {
+      if (PSPathOptions.shouldCheckChildTypes()
+          && (itemSummary.isFolder()
+              || IPSSitemanageConstants.SITE_CONTENTTYPE.equalsIgnoreCase(itemSummary.getType()))) {
+        List<IPSItemSummary> sums;
+        boolean foldersOnly = PSPathOptions.folderChildrenOnly();
+        if (IPSSitemanageConstants.SITE_CONTENTTYPE.equalsIgnoreCase(itemSummary.getType())) {
+          sums = folderHelper.findItems(itemSummary.getFolderPaths().get(0), foldersOnly);
+        } else {
+          sums =
+              folderHelper.findItems(
+                  folderHelper.concatPath(
+                      itemSummary.getFolderPaths().get(0), itemSummary.getName()),
+                  foldersOnly);
+        }
+
+        for (IPSItemSummary sum : sums) {
+          if (IPSItemSummary.Category.SECTION_FOLDER.equals(sum.getCategory())
+              || IPSItemSummary.Category.EXTERNAL_SECTION_FOLDER.equals(sum.getCategory())) {
+            item.setHasSectionChildren(true);
+          } else if (sum.isFolder() && !(".system".equals(sum.getName()))) {
+            item.setHasFolderChildren(true);
+          } else {
+            item.setHasItemChildren(true);
+          }
+          if (item.hasItemChildren() && item.hasFolderChildren() && item.hasSectionChildren()) {
+            break;
+          }
+        }
+
+      } else {
+        item.setHasItemChildren(false);
+        item.setHasFolderChildren(false);
+        item.setHasSectionChildren(false);
+      }
+    } catch (Exception e) {
+      // The path wasn't found, set the properties to false
+      item.setHasItemChildren(false);
+      item.setHasFolderChildren(false);
+      item.setHasSectionChildren(false);
+    }
+  }
+
+  protected PSPathItem findRoot()
+      throws PSPathNotFoundServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+    PSPathItem root = new PSPathItem();
+    root.setName(getRootName());
+    root.setPath("/");
+    root.setLeaf(false);
+    root.setHasItemChildren(true);
+    root.setHasFolderChildren(true);
+    root.setHasSectionChildren(true);
+    root.setFolderPath(getFullFolderPath("/"));
+    return root;
+  }
+
+  /**
+   * Finds all (purgeable) leaf items for the specified folder path, recursive. This includes leaf
+   * items in sub-folders, etc. The purgeable items are the items under the folders that current
+   * user has ADMIN or WRITE access to the folders.
+   *
+   * @param path the folder.
+   * @return list of all items included under the folder.
+   */
+  private List<PSPathItem> findAllPurgeableLeafItems(String path)
+      throws PSPathNotFoundServiceException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException {
+
+    PSPathUtils.validatePath(path);
+
+    List<PSPathItem> items = new ArrayList<>();
+
+    for (PSPathItem item : findItems(path)) {
+      if (item.isLeaf()) {
+        items.add(item);
+      } else if (folderHelper.hasFolderPermission(item.getId(), PSFolderPermission.Access.WRITE)) {
+        items.addAll(findAllPurgeableLeafItems(folderHelper.concatPath(item.getPath(), "/")));
+      }
+    }
+
+    return items;
+  }
+
+  /**
+   * Gets in use items from a list of (leaf) items, where the items are used by other approved pages
+   * (pages are in "Pending" or "Live" state).
+   *
+   * @param items a list of leaf items in question, not <code>null</code>.
+   * @return list of paths representing the in use children of the path. Never <code>null</code>,
+   *     may be empty.
+   */
+  private List<String> getInUseItems(List<PSPathItem> items)
+      throws PSValidationException, PSNotFoundException {
+    List<String> inUseItemPaths = new ArrayList<>();
+
+    Map<String, Set<String>> assetRelOwnersMap = new HashMap<>();
+    List<Integer> deletePageIds = new ArrayList<>();
+
+    for (PSPathItem item : items) {
+      PSThreadUtils.checkForInterrupt();
+
+      Set<String> relOwners = getApprovedPages(item);
+      if (!relOwners.isEmpty()) {
+        assetRelOwnersMap.put(item.getPath(), relOwners);
+      }
+
+      PSLegacyGuid id = (PSLegacyGuid) idMapper.getGuid(item.getId());
+      deletePageIds.add(id.getContentId());
+    }
+
+    Iterator<String> iter = assetRelOwnersMap.keySet().iterator();
+    while (iter.hasNext()) {
+      PSThreadUtils.checkForInterrupt();
+
+      String itemPath = iter.next();
+      Set<String> relOwners = assetRelOwnersMap.get(itemPath);
+      for (String owner : relOwners) {
+        PSLegacyGuid id = (PSLegacyGuid) idMapper.getGuid(owner);
+        if (!deletePageIds.contains(id.getContentId())) {
+          // asset is being used by page which is not going to be
+          // deleted
+          inUseItemPaths.add(itemPath);
+          break;
+        }
+      }
+    }
+
+    return inUseItemPaths;
+  }
+
+  /**
+   * Validates that the current user is authorized to delete the specified items
+   *
+   * @param items a list of leaf items in question, not <code>null</code>.
+   * @return <code>true</code> if the user is authorized, <code>false</code> otherwise.
+   */
+  private boolean validateFolderDeleteAuthorization(List<PSPathItem> items)
+      throws PSItemWorkflowServiceException, PSValidationException {
+    for (PSPathItem item : items) {
+      if (!itemWorkflowService.isModifyAllowed(item.getId())) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Validates that all items (assets, pages) under the specified folder are not in use by one or
+   * more templates.
+   *
+   * @param items a list of leaf items in question, not <code>null</code>.
+   * @return <code>true</code> if all assets are not in use by templates, <code>false</code>
+   *     otherwise.
+   */
+  private boolean validateFolderDeleteTemplates(List<PSPathItem> items) {
+    for (PSPathItem item : items) {
+      try {
+        if (widgetAssetRelationshipService.isUsedByTemplate(item.getId())) {
+          return false;
+        }
+      } catch (PSValidationException | PSNotFoundException e) {
+        log.warn(
+            "Validation error preparing for delete action, id: {} Error: {}",
+            item.getId(),
+            e.getMessage());
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Result to be returned when items used by approved pages are found by {@link
+   * #validateFolderDelete(String)}.
+   *
+   * @return string response indicating that items are in use by approved pages.
+   */
+  protected abstract String getInUsePagesResult() throws PSPathServiceException;
+
+  /**
+   * Result to be returned when unauthorized items are found by {@link
+   * #validateFolderDelete(String)}.
+   *
+   * @return string response indicating that the user is not authorized to delete items.
+   */
+  protected abstract String getNotAuthorizedResult() throws PSPathServiceException;
+
+  /**
+   * Result to be returned when items linked by templates are found by {@link
+   * #validateFolderDelete(String)}.
+   *
+   * @return string response indicating that items are linked by templates.
+   */
+  protected abstract String getInUseTemplatesResult() throws PSPathServiceException;
+
+  /**
+   * Used to determine if an item should be filtered in
+   * {@link #findItems(String)}.
+   *
+   * @param item the summary that will be checked for filtering.
+   * @return <code>true</code> if the item should be filtered,
+   *         <code>false<code> otherwise.
+   */
+  protected boolean shouldFilterItem(IPSItemSummary item) {
+    return false;
+  }
+
+  /**
+   * Removes the specified path item from the given folder. The item may also be purged depending on
+   * the value of @param shouldPurge.
+   *
+   * @param fullFolderPath path to the folder which contains the item, never blank.
+   * @param item never <code>null</code>.
+   * @param shouldPurge true if the item should be permanently deleted
+   */
+  protected void removeItem(String fullFolderPath, PSPathItem item, boolean shouldPurge)
+      throws Exception {
+    notEmpty(fullFolderPath);
+    notNull(item);
+
+    folderHelper.removeItem(fullFolderPath, item.getId(), shouldPurge);
+  }
+
+  /**
+   * Gets all approved pages which use the specified item.
+   *
+   * @param item never <code>null</code>.
+   * @return set of id's for the pages. Never <code>null</code>, may be empty.
+   */
+  protected Set<String> getApprovedPages(PSPathItem item)
+      throws PSValidationException, PSNotFoundException {
+    notNull(item);
+
+    return itemWorkflowService.getApprovedPages(item.getId());
+  }
+
+  private IPSItemSummary getItemFromPath(String path, String fullFolderPath)
+      throws PSPathNotFoundServiceException {
+    String error = "Path not found: " + path;
+    if (fullFolderPath == null) throw new PSPathNotFoundServiceException(error);
+    IPSItemSummary item;
+    try {
+      item = folderHelper.findItem(fullFolderPath);
+      if (item == null) throw new PSPathNotFoundServiceException(error);
+    } catch (Exception e) {
+      throw new PSPathNotFoundServiceException(error, e);
+    }
+    return item;
+  }
+
+  /**
+   * Deletes the given folder recursively.
+   *
+   * @param path the folder path, assumed not <code>null</code>.
+   * @param inUseItems list of in use item paths, assumed not <code>null</code>. {@link
+   *     SkipItemsType#EMPTY} or <code>null</code>, in use items will be skipped.
+   * @return number of undeleted items;
+   */
+  private int deleteFolder(String path, List<String> inUseItems, PSDeleteFolderCriteria criteria)
+      throws IPSDataService.DataServiceNotFoundException,
+          PSPathServiceException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    PSPathItem folderItem = findItem(path);
+    var fullFolderPath = getFullFolderPath(path);
+    int undeletedItems = 0;
+    String pathToCheck = PSFolderHelper.getOppositePath(fullFolderPath);
+    //        if (!criteria.getShouldPurge()) {
+    //            if (!folderHelper.isFolderValidForRecycleOrRestore(pathToCheck, fullFolderPath,
+    // TYPE_RECYCLED_CONTENT, TYPE_FOLDER_CONTENT)) {
+    //                throw new PSPathServiceException("This folder already exists under the recycle
+    // bin. Please rename" +
+    //                        " the folder prior to recycling or purge the folder under the recycle
+    // bin.");
+    //            }
+    //        }
+
+    // attempt to purge the child items if possible
+    if (folderHelper.hasFolderPermission(folderItem.getId(), PSFolderPermission.Access.WRITE)) {
+      undeletedItems = purgeFolderChildren(path, inUseItems, criteria);
+    }
+
+    // attempt to purge the folder itself if possible
+    if (findItems(path).isEmpty()) {
+      try {
+        if (folderHelper.validateFolderPermissionForDelete(folderItem.getId())) {
+          folderHelper.deleteFolder(fullFolderPath, !criteria.getShouldPurge());
+        } else {
+          undeletedItems++;
+        }
+      } catch (Exception e) {
+        throw new PSPathServiceException("Failed to delete folder: " + path, e);
+      }
+    }
+
+    return undeletedItems;
+  }
+
+  /**
+   * Purge the child items for the specified folder.
+   *
+   * @param path the path of the specified folder, assumed not blank.
+   * @param inUseItems list of in use item paths, assumed not <code>null</code>.
+   * @return number of undeleted items;
+   */
+  private int purgeFolderChildren(
+      String path, List<String> inUseItems, PSDeleteFolderCriteria criteria)
+      throws IPSDataService.DataServiceNotFoundException,
+          PSPathServiceException,
+          PSValidationException,
+          IPSDataService.DataServiceLoadException {
+    int undeletedItems = 0;
+
+    var fullFolderPath = getFullFolderPath(path);
+    SkipItemsType skipItems = criteria.getSkipItems();
+
+    int ord = -1;
+    if (skipItems != null) {
+      ord = skipItems.ordinal();
+    }
+
+    boolean shouldSkip =
+        skipItems == null
+            || ord == SkipItemsType.EMPTY.ordinal()
+            || ord == SkipItemsType.YES.ordinal();
+    List<PSPathItem> childItems = findItems(path);
+    for (PSPathItem child : childItems) {
+      String childPath = child.getPath();
+      if (child.isLeaf()) {
+        if (inUseItems.contains(childPath) && shouldSkip) {
+          undeletedItems++;
+        } else {
+          try {
+            if (hasDeletePermission(child.getId())) {
+              // remove the item
+              // shouldPurge is false so the item is not purged, it is recycled.
+              removeItem(fullFolderPath, child, criteria.getShouldPurge());
+            } else {
+              undeletedItems++;
+            }
+          } catch (Exception e) {
+            if (skipItems != null) {
+              log.warn("Error deleting item.", e);
+              // return failed item path
+              undeletedItems++;
+            } else {
+              throw new PSPathServiceException("Failed to delete item: " + childPath, e);
+            }
+          }
+        }
+      } else {
+        // recurse into sub-folder
+        undeletedItems +=
+            deleteFolder(folderHelper.concatPath(childPath, "/"), inUseItems, criteria);
+      }
+    }
+
+    return undeletedItems;
+  }
+
+  /**
+   * Determines if current user has privilege (or permission) to delete the specified item.
+   *
+   * @param itemId the ID of the item in question, not empty.
+   * @return <code>true</code> if current user has privilege to delete the item; otherwise current
+   *     user does not have privilege to delete the item.
+   */
+  private boolean hasDeletePermission(String itemId)
+      throws PSValidationException, PSItemWorkflowServiceException, PSNotFoundException {
+    IPSGuid id = idMapper.getGuid(itemId);
+
+    PSComponentSummary sum = getItemSummary(((PSLegacyGuid) id).getContentId());
+    if (sum.isFolder())
+      return folderHelper.hasFolderPermission(itemId, PSFolderPermission.Access.ADMIN);
+
+    if (!isEmpty(sum.getCheckoutUserName()) && !isItemCheckedOutToUser(sum)) return false;
+
+    return itemWorkflowService.isModifiableByUser(itemId)
+        && !widgetAssetRelationshipService.isUsedByTemplate(itemId);
+  }
+
+  /**
+   * Determines if a path item represents a Page.
+   *
+   * @param item the path item, may not be <code>null</code>.
+   * @return <code>true</code> if the item is a Page, <code>false</code> otherwise.
+   */
+  protected boolean isPage(PSPathItem item) {
+    notNull(item);
+
+    return item.getType().equals(IPSPageService.PAGE_CONTENT_TYPE);
+  }
+
+  /** Constant for the response given when validation of a folder for delete is successful. */
+  public static final String VALIDATE_SUCCESS = "Success";
+
+  /**
+   * Part of the response from {@link #validateFolderDelete(String)} if the current user does not
+   * ADMIN access to the specified folder or one of its descendant folders
+   */
+  public static String FOLDER_HAS_NO_ADMIN_PERMISSION = "FolderHasNoAdminPermission";
+}

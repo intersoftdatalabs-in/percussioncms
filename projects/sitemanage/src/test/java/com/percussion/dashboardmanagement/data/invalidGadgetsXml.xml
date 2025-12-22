@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+
+<DashboardContent>
+	<GadgetDefInvalidNode column="1" expanded="false" gadgetType="perc_comments_gadget">
+	    <UserPref name="site">Site1</UserPref>
+	    <UserPref name="zrows">5</UserPref>
+	</GadgetDefInvalidNode>
+	<GadgetDef column="0" expanded="true" gadgetType="cm1_welcome_gadget"/>
+	<GadgetDef column="1" expanded="false" gadgetType="perc_workflow_status_gadget">
+	    <UserPref name="site">@all</UserPref>
+	    <UserPref name="status">Pending</UserPref>
+	    <UserPref name="zrows">5</UserPref>
+	</GadgetDef>
+</DashboardContent>

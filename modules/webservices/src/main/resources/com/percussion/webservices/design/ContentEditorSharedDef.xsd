@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<xsd:schema targetNamespace="urn:www.percussion.com/6.0.0/common" xmlns:com="urn:www.percussion.com/6.0.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xsd:include schemaLocation="BasicObjects.xsd"/>
+   <xsd:element name="PSContentEditorSharedDef">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="com:PSXSharedFieldGroup" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="com:PSXCommandHandlerStylesheets" minOccurs="0"/>
+            <xsd:element ref="com:PSXApplicationFlow" minOccurs="0"/>
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+   <xsd:element name="PSXSharedFieldGroup">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="com:PSXContainerLocator"/>
+            <xsd:element ref="com:PSXFieldSet"/>
+            <xsd:element ref="com:PSXUIDefinition"/>
+            <xsd:element ref="com:PSXValidationRules" minOccurs="0"/>
+            <xsd:element ref="com:PSXInputTranslations" minOccurs="0"/>
+            <xsd:element ref="com:PSXOutputTranslations" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attribute name="name" type="xsd:string" use="required"/>
+         <xsd:attribute name="filename" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation>The name of the file from which this was loaded and will be stored back, a relative path including file extension from the default shared definition directory.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
+</xsd:schema>

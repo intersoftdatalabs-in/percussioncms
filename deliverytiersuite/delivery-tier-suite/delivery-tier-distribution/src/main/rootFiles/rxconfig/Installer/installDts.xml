@@ -1,0 +1,893 @@
+<project name="install" default="install" >
+
+    <property name="install.dir" value="D:\installs\dts11"/>
+    <property name="install.src" location="..\.."/>
+    <property name="install.dts" value="true"/> <!-- This is set from PSDeliveryTierInstall installanywhere action -->
+    <property name="dts.servertype" value="Production"/> <!-- This is set from PSDeliveryTierInstall install anywhere action -->
+    <property name="dts.zip.location" location="${install.dir}/rxconfig/Installer/optional/delivery-tier-distribution.jar"/>
+    <property name="perc.version" value="${project.parent.version}"/>
+    <property name="perc.java.home" value="${install.dir}/JRE" />
+    <property name="perc.dts.backup" value="${install.dir}/PreInstall/Backups" />
+
+    <echo>Setting up TaskDefs</echo>
+    <path id="ant.deps" cache="true">
+        <fileset dir="${basedir}">
+            <include name="perc-ant-${perc.version}.jar" />
+        </fileset>
+        <fileset dir="${install.src}/Deployment/Server/perc-lib" erroronmissingdir="false">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${install.src}/Deployment/Server/common/lib" erroronmissingdir="false">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${install.src}/Deployment/Server/perc-lib" erroronmissingdir="false">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${install.src}/Deployment/Server/common/lib" erroronmissingdir="false">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+
+    <classloader classpathref="ant.deps" parentfirst="false" name="ant.loader.ant.deps"/>
+    <taskdef resource="com/percussion/ant/antlib.xml" classpathref="ant.deps" loaderref="ant.loader.ant.deps"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="ant.deps" loaderref="ant.loader.ant.deps"/>
+
+    <condition property="isWindows" else="false">
+        <os family="windows" />
+    </condition>
+
+    <condition property="isLinux" else="false">
+        <os family="unix" />
+    </condition>
+
+    <condition property="isMac" else="false">
+        <os family="mac"/>
+    </condition>
+
+    <!-- If we see either of these files - it is an upgrade -->
+    <condition property="prod.dts.upgrade" value="true" else="false">
+        <available file="${install.dir}/Deployment/Server/conf/server.xml" type="file"/>
+    </condition>
+
+    <condition property="stage.dts.upgrade" value="true" else="false">
+        <available file="${install.dir}/Staging/Deployment/Server/conf/server.xml" type="file"/>
+    </condition>
+
+    <!-- Text files to fix up line endings -->
+    <patternset id="text.files">
+        <include name="**/*.txt"/>
+        <include name="**/*.sh"/>
+        <include name="**/*.bat"/>
+        <include name="**/*.xml"/>
+        <include name="**/*.xsl"/>
+        <include name="**/*.md"/>
+    </patternset>
+
+    <target name="install">
+        <echo>Initializing Log...</echo>
+        <mkdir dir="${install.dir}/rxconfig/Installer"/>
+        <touch file="${install.dir}/rxconfig/Installer/dts-install.log" />
+        <record name="${install.dir}/rxconfig/Installer/dts-install.log" loglevel="verbose"/>
+        <echo>Property configuration..</echo>
+        <echoproperties />
+
+        <if>
+            <isset property="${isMac}" />
+            <then>
+                <echo>Skipping setting executable permissions on osx</echo>
+            </then>
+            <else>
+                <if>
+                    <isset property="isLinux" />
+                    <then>
+                        <echo>Setting executable Permissions</echo>
+                        <chmod perm="o+x" failifexecutionfails="false" failonerror="false" includes="**/*.sh" dir="${install.dir}"/>
+                    </then>
+                </if>
+            </else>
+        </if>
+
+        <if>
+            <available file="${install.dir}/Patch" type="dir" />
+            <then>
+                <echo>Removing any old patches...</echo>
+                <ant antfile="removeDTSPatches.xml" target="removeDTSPatches" inheritAll="true" inheritRefs="true" />
+            </then>
+        </if>
+
+        <if>
+            <or>
+                <istrue value="${prod.dts.upgrade}"/>
+                <istrue value="${install.prod.dts}"/>
+            </or>
+            <then>
+                <echo>Installing prod dts </echo>
+                <install-dts type="Production" upgrade="${prod.dts.upgrade}"/>
+            </then>
+        </if>
+
+        <if>
+            <isfalse value="${install.prod.dts}"/>
+            <then>
+                <echo>Installing stage dts </echo>
+                <install-dts type="Staging" upgrade="${stage.dts.upgrade}"/>
+            </then>
+        </if>
+
+        <if>
+            <and>
+                <istrue value="${install.prod.dts}"/>
+                <istrue value="${stage.dts.upgrade}"/>
+            </and>
+            <then>
+                <echo>Installing stage dts </echo>
+                <install-dts type="Staging" upgrade="${stage.dts.upgrade}"/>
+            </then>
+        </if>
+        <copy file="${install.src}/Version.properties" tofile="${install.dir}/Version.properties" overwrite="true" failonerror="false" force="true"/>
+
+        <if>
+            <istrue value="${install.prod.dts}"/>
+            <then>
+                <echo>Fixing line endings in ${install.dir}...</echo>
+                <fixcrlf srcdir="${install.dir}/Deployment"  preservelastmodified="true">
+                    <patternset refid="text.files"/>
+                </fixcrlf>
+                <fixcrlf srcdir="${install.dir}" includes="startup.sh" preservelastmodified="true"  />
+                <fixcrlf srcdir="${install.dir}" includes="shutdown.sh" preservelastmodified="true" />
+                <echo>Fixing executable file permissions...</echo>
+                <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                    <fileset dir="${install.dir}/Deployment">
+                        <include name="**/*.sh"/>
+                        <include name="**/*.bin"/>
+                    </fileset>
+                </chmod>
+                <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                    <fileset dir="${install.dir}">
+                        <include name="startup.sh"/>
+                        <include name="shutdown.sh"/>
+                    </fileset>
+                </chmod>
+                <echo>Deleting files...</echo>
+                <delete file="${install.dir}/Deployment/Server/conf/logging.properties" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Deployment/Server/webapps/manager" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Deployment/Server/webapps/host-manager" failonerror="false" verbose="true" quiet="false"/>
+                <delete file="${install.dir}/Deployment/Server/webapps/perc-caching.war" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Deployment/Server/webapps/perc-caching" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Deployment/Server/WEB-INF" failonerror="false"/>
+            </then>
+            <else>
+                <fixcrlf srcdir="${install.dir}/Staging/Deployment"  preservelastmodified="true">
+                    <patternset refid="text.files"/>
+                </fixcrlf>
+                <fixcrlf srcdir="${install.dir}/Staging" includes="startup.sh" preservelastmodified="true"  />
+                <fixcrlf srcdir="${install.dir}/Staging" includes="shutdown.sh" preservelastmodified="true" />
+                <echo>Fixing executable file permissions for Staging...</echo>
+                <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                    <fileset dir="${install.dir}/Staging/Deployment">
+                        <include name="**/*.sh"/>
+                        <include name="**/*.bin"/>
+                    </fileset>
+                </chmod>
+                <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                    <fileset dir="${install.dir}/Staging">
+                        <include name="startup.sh"/>
+                        <include name="shutdown.sh"/>
+                    </fileset>
+                </chmod>
+                <delete file="${install.dir}/Staging/Deployment/Server/conf/logging.properties" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Staging/Deployment/Server/webapps/manager" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Staging/Deployment/Server/webapps/host-manager" failonerror="false" verbose="true" quiet="false"/>
+                <delete file="${install.dir}/Staging/Deployment/Server/webapps/perc-caching.war" failonerror="false" verbose="true" quiet="false"/>
+                <delete dir="${install.dir}/Staging/Deployment/Server/webapps/perc-caching" failonerror="false" verbose="true" quiet="false"/>
+
+                <!-- TODO: Figure out why this directory is being generated in 1st place and remove this step -->
+                <delete dir="${install.dir}/Staging/Deployment/Server/WEB-INF" failonerror="false"/>
+            </else>
+        </if>
+
+    </target>
+
+    <target name="updateDTSTableSchema">
+        <!-- Make sure secure keys are copied in -->
+        <mkdir dir="${install.dir}/rxconfig/secure" />
+        <copy todir="${install.dir}/rxconfig/secure">
+            <fileset dir="${install.src}/rxconfig/secure">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <echo>Dropping Metadata Tables.......</echo>
+        <PSExecDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames=""
+                          sql="drop table PERC_PAGE_METADATA_PROPERTIES"/>
+        <PSExecDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames="" sql="drop table PERC_PAGE_METADATA"/>
+        <PSExecDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames="" preSql="select COUNT(*) from BLOG_POST_VISIT" preSqlValue="0"
+                          sql="drop table BLOG_POST_VISIT"/>
+        <PSExecDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames="" preSql="select COUNT(*) from PERC_COOKIE_CONSENT" preSqlValue="0"
+                          sql="drop table PERC_COOKIE_CONSENT"/>
+    </target>
+
+
+    <target name="updateStagingDTSTableSchema">
+        <echo>Dropping Staging Metadata Tables.......</echo>
+        <PSExecStagingDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                                 qualifyViewNames="" sql="drop table PERC_PAGE_METADATA_PROPERTIES"/>
+        <PSExecStagingDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                                 qualifyViewNames="" sql="drop table PERC_PAGE_METADATA"/>
+        <PSExecStagingDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames="" preSql="select COUNT(*) from BLOG_POST_VISIT" preSqlValue="0"
+                          sql="drop table BLOG_POST_VISIT"/>
+        <PSExecStagingDTSSQLStmt silenceErrors="false" failonerror="false" rootDir="${install.dir}" printExceptionStackTrace="true" qualifyTableNames=""
+                          qualifyViewNames="" preSql="select COUNT(*) from PERC_COOKIE_CONSENT" preSqlValue="0"
+                          sql="drop table PERC_COOKIE_CONSENT"/>
+
+    </target>
+
+    <macrodef name="install-dts">
+        <attribute name="type" default="Production"/>
+        <attribute name="upgrade" default="false" />
+        <sequential>
+            <echo>DTS Type= @{type}</echo>
+            <echo>DTS Upgrade= @{upgrade}</echo>
+            <echo>Install Dir= ${install.dir}</echo>
+            <local name="serviceFileName"/>
+            <local name="serviceFileNameLinux"/>
+
+            <condition property="serviceFileName" value="DTSStagingService.bat" else="DTSProductionService.bat">
+                <or>
+                    <equals arg1="@{type}" arg2="Staging"/>
+                    <equals arg1="stage.dts.upgrade" arg2="true"/>
+                </or>
+            </condition>
+            <condition property="serviceFileNameLinux" value="DTSStagingService.sh" else="DTSProductionService.sh">
+                <or>
+                    <equals arg1="@{type}" arg2="Staging"/>
+                    <equals arg1="stage.dts.upgrade" arg2="true"/>
+                </or>
+            </condition>
+
+            <local name="staging.dir"/>
+
+            <condition property="staging.dir" value="/Staging" else="">
+                <and>
+                    <equals arg1="@{type}" arg2="Staging" />
+                </and>
+            </condition>
+
+            <echo>Staging Dir: ${staging.dir}</echo>
+
+            <delete dir="${install.dir}${staging.dir}/Deployment/Server/log4j2/lib" verbose="true" failonerror="false" quiet="true" />
+            <mkdir dir="${install.dir}${staging.dir}/Deployment/Server/log4j2/lib"/>
+
+            <copy verbose="true" todir="${install.dir}${staging.dir}/Deployment/Server/log4j2/lib">
+                <fileset dir="${install.src}/Deployment/Server/common/lib">
+                    <include name="log4j*.jar"/>
+                    <include name="commons-logging*.jar"/>
+                    <include name="slf4j*.jar"/>
+                    <include name="disrupter*.jar"/>
+                </fileset>
+            </copy>
+
+            <if>
+                <and>
+                    <!-- Figure out if upgrading from 5.3 or from later versions based on that create new Server.xml -->
+                    <available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"/>
+                    <not>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml.5.3"/>
+                    </not>
+                    <not>
+                        <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" substring="${http.SSLEnabled}" />
+                    </not>
+                    <equals arg1="@{upgrade}" arg2="true"/>
+                </and>
+                <then>
+                    <echo>RENAMING Production SERVER XML to 5.3..</echo>
+                    <if>
+                        <available file="${install.dir}/Deployment/Server/conf/server.xml"/>
+                        <then>
+                            <copy file="${install.dir}/Deployment/Server/conf/server.xml" tofile="${install.dir}/Deployment/Server/conf/server.xml.5.3" overwrite="false" />
+                        </then>
+                    </if>
+                    <echo>RENAMING Staging SERVER XML to 5.3..as it is required by PSUpdateDTSConfiguration</echo>
+                    <if>
+                        <available file="${install.dir}/Staging/Deployment/Server/conf/server.xml"/>
+                        <then>
+                            <copy file="${install.dir}/Staging/Deployment/Server/conf/server.xml" tofile="${install.dir}/Staging/Deployment/Server/conf/server.xml.5.3" overwrite="false" />
+                        </then>
+                    </if>
+                    <echo>Create New SERVER XML</echo>
+                    <copy verbose="true" todir="${install.dir}${staging.dir}/Deployment/Server/conf">
+                        <fileset dir="${install.src}/Deployment/Server/conf/">
+                            <include name="server.xml"/>
+                        </fileset>
+                    </copy>
+                </then>
+            </if>
+
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-caching.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-comments-services.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-form-processor.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-membership-services.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-metadata-services.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/perc-polls-services.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/conf/Catalina/localhost/feeds.xml"/>
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/webapps/perc-caching.war" />
+            <delete failonerror="false" file="${install.dir}${staging.dir}/Deployment/Server/webapps/perc-caching" />
+            <delete failonerror="false" dir="${install.dir}${staging.dir}/Deployment/Server/webapps/manager"  verbose="true" quiet="false"/>
+            <delete failonerror="false" dir="${install.dir}${staging.dir}/Deployment/Server/webapps/host-manager"  verbose="true" quiet="false"/>
+
+            <mkdir dir="${install.dir}${staging.dir}/Deployment/Server/conf/perc/"/>
+            <if>
+                <not>
+                    <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties"/>
+                </not>
+                <then>
+                    <copy file="${install.src}/Deployment/Server/conf/perc/perc-security.properties" tofile="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties" failonerror="false" verbose="true" overwrite="false" force="true"/>
+                    <touch file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties" verbose="true"/>
+                </then>
+            </if>
+            <propertyfile file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties">
+                <entry key="encryption.type" default="ENC" />
+                <entry key="contentSecurityPolicy" default="default-src * ; img-src * 'self' 'unsafe-inline' 'unsafe-eval';object-src * 'self' 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' ; script-src * 'unsafe-inline' 'unsafe-eval' ; style-src * 'unsafe-inline' 'unsafe-eval' ; frame-src * 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self';" />
+                <entry key="cspReportOnly" default="false" />
+                <entry key="csrfCookieHttpOnly" default="false" />
+                <entry key="xframeOptionsPolicy" default="SAMEORIGIN" />
+                <entry key="xssProtection" default="true" />
+                <entry key="accessControlAllowedOrigins" default="*" />
+                <entry key="hstsIncludeSubDomains" default="true" />
+                <entry key="hstsMaxAgeSeconds" default="31536000" />
+                <entry key="xframeOptionsPolicy" default="SAMEORIGIN" />
+                <entry key="disableCSRFProtection" default="false" />
+                <entry key="referrerPolicy" default="strict-origin-when-cross-origin" />
+                <!-- Entries to remove -->
+                <entry key="Access-Control-Allow-Origin" operation="del" />
+                <entry key="ContentSecurityPolicy" operation="del" />
+                <entry key="cacheControlMaxAgeValue" default="60" />
+                <entry key="cacheControlMaxAgeUnit" default="SECONDS" />
+            </propertyfile>
+            <if>
+                <isfalse value="@{upgrade}"/>
+                <then>
+                    <copy todir="${install.dir}${staging.dir}" verbose="true">
+                        <fileset dir="${install.src}">
+                            <include name="Deployment/**" />
+                        </fileset>
+                    </copy>
+
+                    <copy todir="${install.dir}${staging.dir}/" verbose="true">
+                        <fileset dir="${install.src}">
+                            <include name="*" />
+                            <exclude name="*.bat" if="${isLinux}"/>
+                            <exclude name="*.sh" if="${isWindows}"/>
+                            <exclude name="JRE/"/>
+                            <exclude name="linux-x64-jre/" />
+                            <exclude name="windows-x64-jre/"/>
+                            <exclude name="rxconfig/"/>
+                            <exclude name="tomcat10.exe"/>
+                            <exclude name="tomcat10w.exe"/>
+                            <exclude name="tcnative-1.dll"/>
+                            <exclude name="DTSProductionService.bat"/>
+                            <exclude name="DTSStagingService.bat"/>
+                            <exclude name="DTSProductionService.sh"/>
+                            <exclude name="DTSStagingService.sh"/>
+                        </fileset>
+                    </copy>
+
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server">
+                        <fileset dir="${install.src}">
+                            <include name="${serviceFileName}" if="${isWindows}"/>
+                            <include name="${serviceFileNameLinux}" if="${isLinux}"/>
+                        </fileset>
+                    </copy>
+
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/bin">
+                        <fileset dir="${install.src}">
+                            <include name="tomcat10.exe" if="${isWindows}"/>
+                            <include name="tomcat10w.exe" if="${isWindows}"/>
+                            <include name="tcnative-1.dll" if="${isWindows}"/>
+                        </fileset>
+                    </copy>
+                    <if>
+                        <and>
+                            <equals arg1="@{type}" arg2="Staging"/>
+                            <available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" type="file"/>
+                            <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties" type="file"/>
+                            <not>
+                                <istrue value="@{upgrade}"/>
+                            </not>
+                        </and>
+                        <then>
+                            <propertyfile file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties">
+                                <entry key="http.port" value="9970"/>
+                                <entry key="https.port" value="9443"/>
+                                <entry key="shutdown.port" value="9971"/>
+                                <entry key="http.redirectPort" value="9443"/>
+                            </propertyfile>
+                        </then>
+                    </if>
+                </then>
+                <else>
+                    <echo>DTS Already installed - preparing for upgrade...</echo>
+
+                    <mkdir dir="${perc.dts.backup}" />
+
+                    <tstamp>
+                        <format property="backup.dirname" pattern="yyyyMMdd-HHmmss"  locale="en,US" />
+                    </tstamp>
+                    <local name="new.backup.dir"/>
+                    <property name="new.backup.dir" value="${perc.dts.backup}/${backup.dirname}" />
+
+                    <echo>Backing up existing DTS to ${new.backup.dir} ...</echo>
+
+                    <!--Keep Version File to know upgrade is from what version to what -->
+                    <copy file="${install.dir}/Version.properties" tofile="${new.backup.dir}/Version.properties" overwrite="true" failonerror="false" force="true"/>
+
+                    <copy todir="${new.backup.dir}${staging.dir}" preservelastmodified="true" overwrite="true" force="true" verbose="true">
+                        <fileset dir="${install.dir}${staging.dir}/Deployment" />
+                    </copy>
+
+                    <copy todir="${new.backup.dir}/JRE" preservelastmodified="true" overwrite="true" force="true" verbose="true" failonerror="false">
+                        <fileset dir="${install.dir}/JRE" includes="**/*" followsymlinks="true"/>
+                    </copy>
+
+                    <delete failonerror="false" includeemptydirs="true" verbose="true">
+                        <fileset dir="${install.dir}/PreInstall/Backups/">
+                            <include name="**/log4j*.jar"/>
+                        </fileset>
+                    </delete>
+
+                    <if>
+                        <or>
+                            <istrue value="${prod.dts.upgrade}"/>
+                            <istrue value="${stage.dts.upgrade}"/>
+                        </or>
+                        <then>
+                            <echo>Deleting old log4j jars Prod : ${prod.dts.upgrade} | Staging : ${stage.dts.upgrade}</echo>
+                            <delete failonerror="false" includeemptydirs="true" verbose="true">
+                                <fileset dir="${install.dir}${staging.dir}/Deployment/">
+                                    <include name="**/log4j*.jar"/>
+                                </fileset>
+                            </delete>
+                        </then>
+                    </if>
+
+                    <copy verbose="true" todir="${install.dir}${staging.dir}/Deployment/Server/log4j2/lib">
+                        <fileset dir="${install.src}/Deployment/Server/common/lib">
+                            <include name="log4j*.jar"/>
+                            <include name="commons-logging*.jar"/>
+                            <include name="slf4j*.jar"/>
+                            <include name="disrupter*.jar"/>
+                        </fileset>
+                    </copy>
+
+                    <!-- Remove previous versions to avoid having to deal with individual files -->
+                    <echo>Removing previous DTS version files...</echo>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/webapps"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/lib"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/bin"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/common"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/shared"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/work"/>
+                    <delete quiet="false" verbose="true" failonerror="true" dir="${install.dir}${staging.dir}/Deployment/Server/temp"/>
+                    <mkdir dir="${install.dir}${staging.dir}/Deployment/Server/work" />
+                    <mkdir dir="${install.dir}${staging.dir}/Deployment/Server/temp" />
+
+                    <echo>Installing new DTS files 1...</echo>
+                    <copy todir="${install.dir}${staging.dir}/" failonerror="true" verbose="true" overwrite="true" force="true">
+                        <fileset dir="${install.src}">
+                            <include name="Deployment/**" />
+                            <exclude name="Deployment/Server/conf/tomcat-users.xml"/>
+                            <exclude name="Deployment/Server/conf/.keystore"/>
+                            <exclude name="Deployment/Server/conf/server.xml"/>
+                        </fileset>
+                    </copy>
+                    <!--Copy New Keystore to dir, will be used for certificate upgrade-->
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/.keystore" />
+                        <then>
+                            <copy file="${install.src}/Deployment/Server/conf/.keystore" tofile="${install.dir}${staging.dir}/Deployment/Server/conf/.keystoreNew" failonerror="false" verbose="true" overwrite="true" force="true"/>
+                        </then>
+                    </if>
+
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server" overwrite="true" verbose="true">
+                        <fileset dir="${install.src}">
+                            <include name="${serviceFileName}" if="${isWindows}"/>
+                            <include name="${serviceFileNameLinux}" if="${isLinux}"/>
+                        </fileset>
+                    </copy>
+
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/bin" overwrite="true" verbose="true">
+                        <fileset dir="${install.src}">
+                            <include name="tomcat10.exe" if="${isWindows}"/>
+                            <include name="tomcat10w.exe" if="${isWindows}"/>
+                            <include name="tcnative-1.dll" if="${isWindows}"/>
+                        </fileset>
+                    </copy>
+
+                    <!-- Restore customer configuration files -->
+                    <echo>Installing new DTS files.2..</echo>
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/conf/perc" overwrite="true" verbose="true" failonerror="false">
+                        <fileset dir="${new.backup.dir}${staging.dir}/Server/conf/perc">
+                            <include name="*.properties"/>
+                            <include name="*.xml"/>
+                        </fileset>
+                    </copy>
+
+                    <echo>Restore Server.xml... if perc_catalina is already created</echo>
+                    <if>
+                        <available file="${new.backup.dir}${staging.dir}/Server/conf/perc/perc-catalina.properties"/>
+                        <then>
+                            <copy todir="${install.dir}${staging.dir}/Deployment/Server/conf" overwrite="true" verbose="true" failonerror="false">
+                                <fileset dir="${new.backup.dir}${staging.dir}/Server/conf">
+                                    <include name="server.xml"/>
+                                </fileset>
+                            </copy>
+                            <if>
+                                <not>
+                                    <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" substring="org.apache.catalina.valves.ErrorReportValve" />
+                                </not>
+                                <then>
+                                    <echo>Adding Error Codes to Server.xml</echo>
+                                    <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" summary="yes">
+                                        <replacetoken><![CDATA[ pattern="%h %l %u %t &quot;%r&quot; %s %b" />]]></replacetoken>
+                                        <replacevalue><![CDATA[pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+                                        <Valve className="org.apache.catalina.valves.ErrorReportValve"
+                                        errorCode.403="webapps/ROOT/error.html"
+                                        errorCode.404="webapps/ROOT/error.html"
+                                        errorCode.414="webapps/ROOT/error.html"
+                                        errorCode.415="webapps/ROOT/error.html"
+                                        errorCode.501="webapps/ROOT/error.html"
+                                        errorCode.500="webapps/ROOT/error.html"
+                                        errorCode.502="webapps/ROOT/error.html"
+                                        showReport="false"
+                                        showServerInfo="false"/>]]></replacevalue>
+                                    </replace>
+                                </then>
+                            </if>
+                        </then>
+                    </if>
+
+                    <!-- Adding hibernate Cache Region Factory class as part of Hibernate 5 upgrade -->
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.xml"/>
+                        <then>
+                            <if>
+                                <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.xml" substring="EhcacheRegionFactory" />
+                                <else>
+                                    <echo>Adding hibernate cache region factory class</echo>
+                                    <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.xml" summary="yes">
+                                        <replacetoken><![CDATA[<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>]]></replacetoken>
+                                        <replacevalue><![CDATA[<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+                                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.internal.EhcacheRegionFactory</prop>]]></replacevalue>
+                                    </replace>
+                                </else>
+                            </if>
+                        </then>
+                    </if>
+
+
+                    <!-- Restore mysql-connector if present -->
+
+                    <echo>Restore mysql-connector if present in Server/common/lib.....................</echo>
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/common/lib"
+                          verbose="true" failonerror="false">
+                        <fileset dir="${new.backup.dir}${staging.dir}/Server/common/lib">
+                            <include name="mysql-connector*.jar"/>
+                        </fileset>
+                    </copy>
+                    <echo>Restore mysql-connector if present in Server/perc-lib again on re-upgrading upgraded environment............................................</echo>
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/common/lib"
+                          verbose="true" failonerror="false">
+                        <fileset dir="${new.backup.dir}${staging.dir}/Server/perc-lib">
+                            <include name="mysql-connector*.jar"/>
+                        </fileset>
+                    </copy>
+                    <echo>Restore mysql-connector if present in Server/lib re-upgrading upgraded environment............................................</echo>
+                    <copy todir="${install.dir}${staging.dir}/Deployment/Server/common/lib"
+                          verbose="true" failonerror="false">
+                        <fileset dir="${new.backup.dir}${staging.dir}/Server/lib">
+                            <include name="mysql-connector*.jar"/>
+                        </fileset>
+                    </copy>
+
+                    <copy todir="${install.dir}${staging.dir}" overwrite="true" force="true" verbose="true">
+                        <fileset dir="${install.src}">
+                            <include name="*" />
+                            <exclude name="*.bat" if="${isLinux}"/>
+                            <exclude name="*.sh" if="${isWindows}"/>
+                            <exclude name="JRE/"/>
+                            <exclude name="linux-x64-jre/" />
+                            <exclude name="windows-x64-jre/"/>
+                            <exclude name="rxconfig/"/>
+                            <exclude name="tomcat10.exe"/>
+                            <exclude name="tomcat10w.exe"/>
+                            <exclude name="tcnative-1.dll"/>
+                            <exclude name="DTSProductionService.bat"/>
+                            <exclude name="DTSStagingService.bat"/>
+                            <exclude name="DTSProductionService.sh"/>
+                            <exclude name="DTSStagingService.sh"/>
+
+                        </fileset>
+                    </copy>
+
+                    <delete failonerror="false" dir="${install.dir}${staging.dir}/Deployment/Server/webapps/manager"  verbose="true" quiet="false"/>
+                    <delete failonerror="false" dir="${install.dir}${staging.dir}/Deployment/Server/webapps/host-manager"  verbose="true" quiet="false"/>
+
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata" type="dir"/>
+                        <then>
+                            <mkdir dir="${install.dir}${staging.dir}/backups"/>
+
+                            <echo>Checking if upgrade is required for metadata database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percmetadata" type="dir"/>
+                                <then>
+
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percmetadata"
+                                                    username="APP"
+                                                    password="test"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                    />
+                                </then>
+                            </if>
+
+                            <echo>Checking if upgrade is required for comments database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/perccomments" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/perccomments"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+
+                            <echo>Checking if upgrade is required for feeds database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percfeeds" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percfeeds"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+
+
+                            <echo>Checking if upgrade is required for forms database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percforms" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percforms"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+
+                            <echo>Checking if upgrade is required for membership database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percmembership" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percmembership"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+
+                            <echo>Checking if upgrade is required for polls database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percpolls" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percpolls"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+
+                            <echo>Checking if upgrade is required for caching database....</echo>
+                            <if>
+                                <available file="${install.dir}${staging.dir}/Deployment/Server/derbydata/percakamaiqueuedata" type="dir"/>
+                                <then>
+                                    <PSUpgradeDerby targetVersion="10.14.2.0"
+                                                    rootDir="${install.dir}${staging.dir}"
+                                                    databasePath="${install.dir}${staging.dir}/Deployment/Server/derbydata/percakamaiqueuedata"
+                                                    backupDirectory="${install.dir}${staging.dir}/backups"
+                                                    username="APP"
+                                                    password="test"
+                                    />
+                                </then>
+                            </if>
+                        </then>
+                        <else>
+                            <echo>Skipping Derby upgrade as ${install.dir}${staging.dir}/derbydata is not found.</echo>
+                        </else>
+                    </if>
+
+
+                    <if>
+                        <and>
+                            <equals arg1="@{type}" arg2="Staging"/>
+                            <istrue value="@{upgrade}"/>
+                        </and>
+                        <then>
+                            <echo>Removing old Staging DTS JRE...</echo>
+                            <delete failonerror="false" dir="${install.dir}${staging.dir}/JRE" verbose="true"/>
+                        </then>
+                    </if>
+
+                    <if>
+                        <and>
+                            <equals arg1="@{type}" arg2="Staging"/>
+                            <istrue value="@{upgrade}"/>
+                        </and>
+                        <then>
+                            <echo>Dropping Metadata Tables....</echo>
+                            <antcall target="updateStagingDTSTableSchema" inheritall="true"/>
+                        </then>
+                        <else>
+                            <echo>Dropping for Staging metadata database....</echo>
+                            <antcall target="updateDTSTableSchema" inheritall="true"/>
+                        </else>
+                    </if>
+
+
+                    <echo>Scanning existing configuration...</echo>
+                    <PSUpdateDTSConfiguration rootDir="${install.dir}" />
+                    <delete failonerror="false" verbose="true" file="${install.dir}/Deployment/Server/conf/server.xml.5.3" />
+                    <delete failonerror="false" verbose="true" file="${install.dir}/Staging/Deployment/Server/conf/server.xml.5.3" />
+
+                    <PSUpgradeRemoveTomcatAJP rootDir="${install.dir}" />
+                    <PSUpdateDTSCertificate rootDir="${install.dir}" />
+
+                    <echo>Removing obsolete Tomcat listeners...</echo>
+                    <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" summary="yes">
+                        <replacetoken><![CDATA[<Listener className="org.apache.catalina.core.JasperListener"/>]]></replacetoken>
+                        <replacevalue><![CDATA[]]></replacevalue>
+                    </replace>
+
+
+                    <if>
+                        <and>
+                            <equals arg1="@{type}" arg2="Staging"/>
+                            <available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" type="file"/>
+                            <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties" type="file"/>
+                            <istrue value="@{upgrade}"/>
+                        </and>
+                        <then>
+                            <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties" token="shutdown.port=8005" value="shutdown.port=9971" />
+                        </then>
+                    </if>
+
+                </else>
+            </if>
+            <!-- Updating hibernate.dialect for MySql -->
+            <echo>Updating hibernate.dialect </echo>
+            <if>
+                <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties"/>
+                <then>
+                    <if>
+                        <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties" substring="org.hibernate.dialect.MySQLInnoDBDialect" />
+                        <then>
+                            <echo>Updating hibernate.dialect</echo>
+                            <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties" summary="yes">
+                                <replacetoken><![CDATA[org.hibernate.dialect.MySQLInnoDBDialect]]></replacetoken>
+                                <replacevalue><![CDATA[org.hibernate.dialect.MySQL5InnoDBDialect]]></replacevalue>
+                            </replace>
+                        </then>
+                    </if>
+                </then>
+            </if>
+
+            <echo>Adding Ciphers to connector...</echo>
+            <if>
+                <not>
+                    <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" substring="ciphers=" />
+                </not>
+                <then>
+                    <replace file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" summary="yes">
+                        <replacetoken><![CDATA[sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"]]></replacetoken>
+                        <replacevalue><![CDATA[ciphers="${https.ciphers}"
+                        sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"]]>
+                        </replacevalue>
+                    </replace>
+                </then>
+            </if>
+
+            <replace file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh" summary="yes"
+                     token="@JAVA_OPTS@" value="-Drxdeploydir=${install.dir}">
+            </replace>
+
+            <replace file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat" summary="yes"
+                     token="@JAVA_OPTS@" value="-Drxdeploydir=${install.dir}">
+            </replace>
+
+            <echo>Registering current TLS ciphers...</echo>
+            <echo>NOTE: Ciphers supported will depend on the JRE version and make (OpenJRE-8 vs OracleJRE-8) for the JRE registered in ${install.dir}/JRE...</echo>
+
+            <propertyfile file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties">
+                <entry key="https.ciphers" value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384"/>
+                <entry key="https.keystoreType" default="JKS"/>
+            </propertyfile>
+
+            <if>
+                <and>
+                    <equals arg1="@{type}" arg2="Production"/>
+                    <available file="${install.dir}/Deployment/Server/conf/server.xml" type="file"/>
+                </and>
+                <then>
+                    <echo>Fixing line endings in ${install.dir}...for Production</echo>
+                    <fixcrlf srcdir="${install.dir}/Deployment"  preservelastmodified="true">
+                        <patternset refid="text.files"/>
+                    </fixcrlf>
+                    <fixcrlf srcdir="${install.dir}" includes="startup.sh" preservelastmodified="true"  />
+                    <fixcrlf srcdir="${install.dir}" includes="shutdown.sh" preservelastmodified="true" />
+                    <echo>Fixing executable file permissions...</echo>
+                    <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                        <fileset dir="${install.dir}/Deployment">
+                            <include name="**/*.sh"/>
+                            <include name="**/*.bin"/>
+                        </fileset>
+                    </chmod>
+                    <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                        <fileset dir="${install.dir}">
+                            <include name="startup.sh"/>
+                            <include name="shutdown.sh"/>
+                        </fileset>
+                    </chmod>
+                </then>
+            </if>
+
+            <if>
+                <and>
+                    <equals arg1="@{type}" arg2="Staging"/>
+                    <available file="${install.dir}/Staging/Deployment/Server/conf/server.xml" type="file"/>
+                </and>
+                <then>
+                    <echo>Fixing line endings in ${install.dir}/Staging...for Staging</echo>
+                    <fixcrlf srcdir="${install.dir}/Staging/Deployment"  preservelastmodified="true">
+                        <patternset refid="text.files"/>
+                    </fixcrlf>
+                    <fixcrlf srcdir="${install.dir}/Staging" includes="startup.sh" preservelastmodified="true"  />
+                    <fixcrlf srcdir="${install.dir}/Staging" includes="shutdown.sh" preservelastmodified="true" />
+                    <echo>Fixing executable file permissions for Staging...</echo>
+                    <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                        <fileset dir="${install.dir}/Staging/Deployment">
+                            <include name="**/*.sh"/>
+                            <include name="**/*.bin"/>
+                        </fileset>
+                    </chmod>
+                    <chmod failonerror="false" verbose="true" perm="ugo+rx">
+                        <fileset dir="${install.dir}/Staging">
+                            <include name="startup.sh"/>
+                            <include name="shutdown.sh"/>
+                        </fileset>
+                    </chmod>
+                </then>
+            </if>
+       </sequential>
+    </macrodef>
+
+</project>

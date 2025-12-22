@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxs_Support_pub" dependencyType="Local" displayName="rxs_Support_pub" isIncluded="yes" objectType="Application" objectTypeName="Application" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="navimage_active_location (navimage_active_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+   <PSXApplicationIDTypesResource resourceName="default_full_location (default_full_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+   <PSXApplicationIDTypesResource resourceName="navimage_rollover_location (navimage_rollover_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+   <PSXApplicationIDTypesResource resourceName="navimage_inactive_location (navimage_inactive_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+   <PSXApplicationIDTypesResource resourceName="b_image_location (b_image_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+   <PSXApplicationIDTypesResource resourceName="b_file_location (b_file_location)">
+      <PSXApplicationIDTypesElement elementName="DataMapper">
+         <PSXApplicationIDTypeMapping type="ContextDef" value="301">
+            <PSXAppConditionalContext type="value">
+               <PSXConditional id="0">
+                  <variable>
+                     <PSXSingleHtmlParameter id="0">
+                        <name>sys_context</name>
+                     </PSXSingleHtmlParameter>
+                  </variable>
+                  <operator>&lt;&gt;</operator>
+                  <value>
+                     <PSXTextLiteral id="0">
+                        <text>301</text>
+                     </PSXTextLiteral>
+                  </value>
+                  <boolean>AND</boolean>
+               </PSXConditional>
+               <PSXAppDataMappingIdContext beMapping="sys_casGetSiteBaseUrl(, yes)" docMapping="PSXXmlField/location/baseurl" type="Conditional"/>
+            </PSXAppConditionalContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

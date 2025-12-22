@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Resources>
+	<!-- Preview Context -->
+	<file id="hover_intent_preview" path="/web_resources/widgets/navBar/js/hoverIntent.js" type="javascript" context="PREVIEW">
+		<dependency refid="percSystem.jquery"/>
+	</file>
+	
+	<file id="superfish_js_preview" path="/web_resources/widgets/navBar/js/superfish.js" type="javascript" context="PREVIEW">
+		<dependency refid="percSystem.jquery"/>
+	</file>
+	
+	<file id="navbar_supersubs_js_preview" path="/web_resources/widgets/navBar/js/supersubs.js" type="javascript" context="PREVIEW">
+		<dependency refid="percNavBar.superfish_js_preview"/>
+	</file>
+	
+	<file id="navbar_js_preview" path="/web_resources/widgets/navBar/js/navbar.js" type="javascript" context="PREVIEW">
+		<dependency refid="percNavBar.superfish_js_preview"/>
+	</file>
+	
+	
+	<!-- Publish Context -->
+	<file id="hover_intent" path="/web_resources/widgets/navBar/js/hoverIntent.min.js" type="javascript" context="PUBLISH">
+		<dependency refid="percSystem.jquery"/>
+	</file>
+	
+	<file id="superfish_js" path="/web_resources/widgets/navBar/js/superfish.min.js" type="javascript" context="PUBLISH">
+		<dependency refid="percSystem.jquery"/>
+	</file>
+	
+	<file id="navbar_supersubs_js" path="/web_resources/widgets/navBar/js/supersubs.min.js" type="javascript" context="PUBLISH">
+		<dependency refid="percNavBar.superfish_js"/>
+	</file>
+	
+	<file id="navbar_js" path="/web_resources/widgets/navBar/js/navbar.min.js" type="javascript" context="PUBLISH">
+		<dependency refid="percNavBar.superfish_js"/>
+	</file>
+
+</Resources>

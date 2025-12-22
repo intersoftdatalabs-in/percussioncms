@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="505" dependencyType="Local" displayName="rffEvents" isIncluded="yes" objectType="SlotDef" objectTypeName="Slot Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no">
+         <Dependencies>
+            <PSXDeployableElement>
+               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="306" dependencyType="Shared" displayName="rffEvent" isIncluded="no" objectType="ContentEditor" objectTypeName="Content Type" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
+               <Description/>
+            </PSXDeployableElement>
+            <PSXDeployableElement>
+               <PSXDependency autoDep="no" autoExpand="yes" dependencyId="504" dependencyType="Shared" displayName="rffSnTitleLink" isIncluded="no" objectType="sys_Templates" objectTypeName="Template" supportsIdMapping="no" supportsIdTypes="no" supportsParentId="no" supportsUserDependencies="no"/>
+               <Description/>
+            </PSXDeployableElement>
+         </Dependencies>
+      </PSXDependency>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="Slot-FinderArguments">
+      <PSXApplicationIDTypesElement elementName="SlotFinderParams">
+         <PSXApplicationIDTypeMapping type="sys_none" value="4">
+            <PSXAppNamedItemIdContext name="max_results" type="Param"/>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

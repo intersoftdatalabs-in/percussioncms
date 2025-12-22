@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<PSXWebdavConfigDef root="/Site/mysite" communityid="10" communityname="default" locale="en-us">
+	<PSXWebdavContentType name="image" id="4" contentfield="bodycontent" ownerfield="abstractcontent" default="true">
+		<PropertyMap>
+			<PSXPropertyFieldNameMapping name="displayname">
+				<FieldName>sys_title</FieldName>
+			</PSXPropertyFieldNameMapping>
+			<PSXPropertyFieldNameMapping name="getcontenttype">
+				<FieldName>sys_contenttype</FieldName>
+			</PSXPropertyFieldNameMapping>
+			<PSXPropertyFieldNameMapping name="getcontentlength">
+				<FieldName>sys_contentlength</FieldName>
+			</PSXPropertyFieldNameMapping>
+		</PropertyMap>
+	</PSXWebdavContentType>
+	<PSXWebdavContentType name="article" id="1" contentfield="bodycontent" ownerfield="abstractcontent" default="true">
+		<MimeTypes>
+		   <MimeType>text/plain</MimeType>
+		   <MimeType>text/xml</MimeType>
+		</MimeTypes>
+		<PropertyMap>
+			<PSXPropertyFieldNameMapping name="displayname">
+				<FieldName>sys_title</FieldName>
+			</PSXPropertyFieldNameMapping>
+			<PSXPropertyFieldNameMapping name="getcontenttype">
+				<FieldName>sys_contenttype</FieldName>
+			</PSXPropertyFieldNameMapping>
+			<PSXPropertyFieldNameMapping name="getcontentlength">
+				<FieldName>sys_contentlength</FieldName>
+			</PSXPropertyFieldNameMapping>
+		</PropertyMap>
+	</PSXWebdavContentType>
+</PSXWebdavConfigDef>

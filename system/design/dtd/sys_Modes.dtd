@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!ELEMENT PSXModes (PSXMode*)>
+<!ATTLIST PSXModes
+	modesurl CDATA #IMPLIED
+>
+<!ELEMENT PSXMode (Description?)>
+<!ATTLIST PSXMode
+	modeid CDATA #REQUIRED
+	name CDATA #REQUIRED
+	label CDATA #REQUIRED
+>
+<!ELEMENT Description (#PCDATA)>

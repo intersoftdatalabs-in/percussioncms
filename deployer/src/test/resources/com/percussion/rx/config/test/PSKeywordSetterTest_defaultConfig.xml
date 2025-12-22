@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="keywordSetter">
+      <property name="bodyMarkupDescription" value="Body Markup Lookups"/>
+      <property name="bodyMarkupChoices">
+         <description>The first entry in the pair is a color, the 2nd is the value stored in the db for that color choice.</description>
+         <pvalues>
+            <pair value1="Text" value2="1" />
+            <pair value1="HTML" value2="2" />
+         </pvalues>
+      </property>
+   </SolutionConfig>
+</SolutionConfigurations>

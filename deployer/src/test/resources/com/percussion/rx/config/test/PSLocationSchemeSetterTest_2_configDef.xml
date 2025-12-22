@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+   <!-- Positive test, 
+   		modify existing Location Scheme 
+   -->
+   <bean id="CI_Home" class="com.percussion.rx.config.impl.PSLocationSchemeConfigHandler">
+      <property name="name" value="CI_Home_ExtraOne"/>
+      <property name="contexts" value="${com.percussion.RSS.contexts}"/>
+      <property name="contentType" value="rffHome"/>
+      <property name="template" value="rffSnTitleLink"/>
+      <property name="propertySetters">
+      	<bean class="com.percussion.rx.config.impl.PSLocationSchemeSetter">
+      		<property name="properties">
+		         <map>
+		            <entry key="description" value="${com.percussion.RSS.description}"/>		         
+		            <entry key="expression" value="${com.percussion.RSS.expression}"/>
+		         </map>
+         	</property>
+      	</bean>
+      </property>
+   </bean>
+</beans>

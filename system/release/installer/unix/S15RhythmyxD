@@ -1,0 +1,37 @@
+#! /bin/sh
+
+SERVER_DIR=
+
+SplitServerPath()
+{
+   if [ -f  ./RhythmyxTmp.awk ] ; then
+      rm ./RhythmyxTmp.awk
+   fi
+   
+   echo " {                                                         " > RhythmyxTmp.awk   
+   echo "     cmd=\"\"                                              " >>RhythmyxTmp.awk
+   echo "     if (ACTION==\"start\")                                " >>RhythmyxTmp.awk
+   echo "     {                                                     " >>RhythmyxTmp.awk   
+   echo "        cmd=\"/bin/RhythmyxDaemon start \"                 " >>RhythmyxTmp.awk
+   echo "     }                                                     " >>RhythmyxTmp.awk
+   echo "     if (ACTION==\"stop\")                                 " >>RhythmyxTmp.awk
+   echo "     {                                                     " >>RhythmyxTmp.awk
+   echo "        cmd=\"/bin/RhythmyxDaemon stop \"                  " >>RhythmyxTmp.awk
+   echo "     }                                                     " >>RhythmyxTmp.awk
+   echo "     n=split( serverDir, path, \":\" )                     " >>RhythmyxTmp.awk
+   echo "     for ( i = 1; i <= n; ++i )                            " >>RhythmyxTmp.awk
+   echo "     {                                                     " >>RhythmyxTmp.awk
+   echo "        if( length (path[i] ) > 0)                         " >>RhythmyxTmp.awk
+   echo "        {                                                  " >>RhythmyxTmp.awk 
+   echo "             system(path[i] cmd path[i])                   " >>RhythmyxTmp.awk
+   echo "        }                                                  " >>RhythmyxTmp.awk
+   echo "     }                                                     " >>RhythmyxTmp.awk
+   echo "  }                                                        " >>RhythmyxTmp.awk
+}
+
+id > RhythmyxOut.txt
+SplitServerPath
+nawk -v serverDir=$SERVER_DIR -v ACTION=$1 -f RhythmyxTmp.awk RhythmyxOut.txt
+rm RhythmyxOut.txt
+rm RhythmyxTmp.awk
+

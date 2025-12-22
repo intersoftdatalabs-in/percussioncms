@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="com.percussion.taxonomy.domain.Visibility" table="TAX_VISIBILITY">
+    <id name="Id" column="ID" type="integer">
+      <generator class="com.percussion.data.utils.PSNextNumberHibernateGenerator"/>
+    </id>
+    <many-to-one name="taxonomy" class="com.percussion.taxonomy.domain.Taxonomy" column="TAXONOMY_ID" fetch="select" not-null="true"/>
+    <property name="community_id" column="COMMUNITY_ID" type="long" not-null="true"/>
+   </class>
+</hibernate-mapping>

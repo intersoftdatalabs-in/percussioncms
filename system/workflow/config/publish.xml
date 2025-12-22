@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- The 1st example sets up the edition 301 (name=EI_Full) to publish on the
+     "Direct to Public" Transitions (id=3) for the Standard Workflow (id=5). 
+     The 2nd example sets up the edition 301 (name=EI_Full) to publish on the 
+     "Republish" Transitions (id=1) for the Standard Workflow (id=5).
+     
+	  Make your additions and removals below 
+-->
+<PSXConfig polling-time="1500">
+<!-- The attribute polling-time is the time between two successive attempts to publish an 
+edition when the same edition is already running. Longer the interval fewer will be 
+the requests to the server but more time lag between the transition and publishing 
+-->
+	<PSXPublish>
+	    <PSXWorkflowId>5</PSXWorkflowId>
+	    <PSXTransitionId>3</PSXTransitionId>
+	    <PSXEdition>301</PSXEdition> 		
+	</PSXPublish>
+	<PSXPublish>
+	    <PSXWorkflowId>5</PSXWorkflowId>
+	    <PSXTransitionId>1</PSXTransitionId>
+	    <PSXEdition>301</PSXEdition> 		
+	</PSXPublish>
+</PSXConfig>

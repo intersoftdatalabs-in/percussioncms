@@ -1,0 +1,22 @@
+
+<?xml version='1.0' encoding='UTF-8'?>
+
+
+
+<!--
+   This file contains the DTD that specifies the error message that is 
+   used to report unexpected errors. This usually occurs when an exception 
+   is thrown which the code did not anticipate.
+-->
+<!ELEMENT PSXUnknownProcessingError (source, description )>
+
+<!--
+   Source that caused the error.
+-->
+<!ELEMENT source (#PCDATA)>
+
+<!--
+   Detailed description of the error.
+-->
+<!ELEMENT description (#PCDATA)>
+

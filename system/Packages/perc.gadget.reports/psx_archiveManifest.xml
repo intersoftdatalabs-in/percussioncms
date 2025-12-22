@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXArchiveManifest>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-xml">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>e:\DevEnv\Installs\5315Patch\cm\gadgets\repository\perc_reports_gadget\perc_reports_gadget.xml</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-xml\perc_reports_gadget.xml</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_images_gadgetReports-png">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>e:\DevEnv\Installs\5315Patch\cm\gadgets\repository\perc_reports_gadget\images\gadgetReports.png</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_images_gadgetReports-png\gadgetReports.png</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-js">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>e:\DevEnv\Installs\5315Patch\cm\gadgets\repository\perc_reports_gadget\perc_reports_gadget.js</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-js\perc_reports_gadget.js</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+   <PSXDepFilesIdTypes DependencyKey="sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-css">
+      <PSXDependencyFile fileType="SUPPORT_FILE">
+         <RxFile>e:\DevEnv\Installs\5315Patch\cm\gadgets\repository\perc_reports_gadget\perc_reports_gadget.css</RxFile>
+         <ArchiveFile>sys__UserDependency--cm_gadgets_repository_perc__reports__gadget_perc__reports__gadget-css\perc_reports_gadget.css</ArchiveFile>
+      </PSXDependencyFile>
+   </PSXDepFilesIdTypes>
+</PSXArchiveManifest>

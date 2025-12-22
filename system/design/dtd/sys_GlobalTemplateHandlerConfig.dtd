@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- The default global template handler (which is a loadable request handler)
+options can be overridden using the configuration document based on this DTD -->
+<!-- Root element for the configuration document -->
+<!ELEMENT GlobalTemplateHandlerConfig (Option*)>
+<!-- Each option parameter specified with Option element -->
+<!ELEMENT Option (#PCDATA)>
+<!-- The allowed attributes and their meanings are as follow:
+   CleanAppFolder - Whether to clean the global template application folder 
+      before processing. Allowed values are [yes]/[true] or [no]/[false]. Default 
+      is [yes]/[true]
+   GlobalTemplateApp - Name of the global template application where the source 
+      HTML files for global templates are put via Workbench 
+   LogFile - Name of the log file to write the processing log. Default is 
+      [globaltemplates.log]
+   TouchVariants - Option to indicate the handler to touch (reset the last 
+      modified date) of all variant XSL stylesheet so that the XSL processor 
+      would not use the cached ones. Allowed values are [yes]/[true] or 
+      [no]/[false]. Default is [yes]/[true]
+   -->
+<!ATTLIST Option
+	name (CleanAppFolder | GlobalTemplateApp | LogFile | TouchVariants) #IMPLIED

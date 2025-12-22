@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="com.percussion.extension.IPSJexlMethod" />
+    </list>
+  </component>
+  <component name="ExcludeFromValidation">
+    <file url="file://$PROJECT_DIR$/system/services/src/com/percussion/services/assembly/impl/PSInlineLinkContentHandler.java" />
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="gwt" url="file://$PROJECT_DIR$/PCM-PkgMgtUI" />
+    <file type="web" url="file://$PROJECT_DIR$/delivery" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/caching" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/comments" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/feeds" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/forms" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/integrations" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/membership" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/metadata" />
+    <file type="web" url="file://$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/polls" />
+    <file type="web" url="file://$PROJECT_DIR$/WebUI" />
+    <type id="Spring" />
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-security-utils/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-exceptions-spring/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-toolkit/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-taxonomy/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-ant/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-samples/perc-loader-sample-java/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/SSLTools/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/Help/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/redirect-tool/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/p13n-api/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/segmentation-api/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/segmentation-rx/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/extensions-landingpage/pom.xml" />
+        <option value="$PROJECT_DIR$/deliverytiersuite/delivery-tier-suite/p13n-ds/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/extensions-serverutils/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-i18n/pom.xml" />
+        <option value="$PROJECT_DIR$/modules/perc-checkboxtree/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/modules/ant-install/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
+  </component>
+</project>

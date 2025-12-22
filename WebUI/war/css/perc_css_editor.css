@@ -1,0 +1,69 @@
+
+
+
+
+3.perc-css-theme-editor-buttonbar {
+    margin-top: 0px;
+    left: 0px;
+    z-index: 2;
+    position: relative;
+	margin-right:21px;
+}
+
+.perc-css-theme-editor-button {
+    float: right;
+}
+
+.perc-css-theme-editor-button a {
+    float: right;
+    padding: 4px;
+}
+
+.perc-css-gallery-item {
+    padding: 10px;
+    margin: 4px;
+    float: left;
+}
+
+#perc-css-gallery-button-bar {
+    float: right;
+}
+
+.perc-icon-top-right {
+    float: right;	
+    margin-left: 4px;
+}
+
+.perc-css-gallery-themeHighlighted {
+    background-color: #CAF589;
+	border: 2px solid #CAF589;
+}
+
+#perc-css-theme-editor-area {
+    text-align: left;
+    font-family: Courier New, Courier, monospace;
+    width: 100%;
+    border: 1px solid black;
+    overflow: auto;
+    height: 174px;
+    clear: both;   
+}
+
+#perc-css-override-editor-area{
+	width: 99%;
+	/* This value would ideally be 199 for FF, but 197 is required for IE to not overlap the bottom border. */
+	height: 197px;
+}
+
+#perc-styleTabs-1,#perc-styleTabs-2,#perc-styleTabs-3{
+	height:220px;
+}
+	
+#perc-css-override-editor-alert-text{
+	float:left;
+}	
+
+#perc-styleTabs-1{
+	overflow-x:auto;
+}
+

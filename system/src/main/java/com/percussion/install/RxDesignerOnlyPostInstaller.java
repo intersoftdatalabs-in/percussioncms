@@ -1,0 +1,59 @@
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.install;
+
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.util.PSProperties;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+// REFACTORED: CP-JAVA11
+public class RxDesignerOnlyPostInstaller {
+
+  private static final Logger log = LogManager.getLogger(RxDesignerOnlyPostInstaller.class);
+
+  public RxDesignerOnlyPostInstaller() {
+    super();
+  }
+
+  public static void main(String[] args) {
+    String rootDirectory = new String(".");
+    // current directory
+    if (args.length == 1) {
+      rootDirectory = args[0];
+    }
+
+    try {
+      String strFileName =
+          rootDirectory + File.separator + "bin" + File.separator + m_designerPropName;
+      File file = new File(strFileName);
+      if (!file.exists()) file.createNewFile();
+
+      PSProperties props = new PSProperties(strFileName);
+      props.setProperty("installRoot", rootDirectory);
+      props.store(new FileOutputStream(strFileName), null);
+    } catch (IOException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
+
+  private static String m_designerPropName = "designer.properties";
+}

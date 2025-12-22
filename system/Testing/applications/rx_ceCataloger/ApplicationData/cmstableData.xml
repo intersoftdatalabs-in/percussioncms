@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<tables>
+   <table name="CATALOGER"/>
+   <table name="CATALOGER_AVAILABLE_SET"/>
+   <table name="CATALOGER_CATALOGS"/>
+</tables>

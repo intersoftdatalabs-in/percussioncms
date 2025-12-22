@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+   <bean id="rffBrief" class="com.percussion.rx.config.impl.PSObjectConfigHandler">
+      <property name="name" value="rffBrief"/>
+      <property name="type" value="NODEDEF"/>
+      <property name="propertySetters">
+      	<list>
+	      	<bean class="com.percussion.rx.config.impl.PSContentTypeSetter">
+	      		<property name="properties">
+			         <map>
+			            <entry key="label" value="${com.percussion.RSS.ct.label}"/>
+			            <entry key="iconValue" value="${com.percussion.RSS.ct.iconValue}"/>
+			            <entry key="defaultWorkflow" value="${com.percussion.RSS.ct.defaultWorkflow}"/>
+						
+			            <entry key="templates" value="${com.percussion.RSS.ct.templates}"/>
+			            <entry key="workflows" value="${com.percussion.RSS.ct.workflows}"/>
+					
+			            <entry key="fields" value="${com.percussion.RSS.ct.fields}"/>
+			         </map>
+	         	</property>
+	        	</bean>
+	      	<bean class="com.percussion.rx.config.impl.PSContentTypeFieldSetter">
+	      		<property name="fieldName" value="placeholder"/>
+	      		<property name="properties">
+			         <map>
+			            <entry key="default" value="${com.percussion.RSS.fd.default}"/>
+			            <entry key="required" value="${com.percussion.RSS.fd.required}"/>
+			            <entry key="sequence" value="${com.percussion.RSS.fd.sequence}"/>
+			            <entry key="showInPreview" value="${com.percussion.RSS.fd.showInPreview}"/>
+			            <entry key="userSearchable" value="${com.percussion.RSS.fd.userSearchable}"/>
+			         </map>
+	         	</property>
+	      	</bean>
+	      	<bean class="com.percussion.rx.config.impl.PSContentTypeFieldSetter">
+	      		<property name="fieldName" value="callout"/>
+	      		<property name="properties">
+			         <map>
+			            <entry key="label" value="${com.percussion.RSS.callout.label}"/>
+			            <entry key="controlParameters" value="${com.percussion.RSS.callout.controlParameters}"/>
+			         </map>
+	         	</property>
+	      	</bean>
+
+				<!--   Do nothing if "fields" property has no value or null -->	      	
+	        	<bean class="com.percussion.rx.config.impl.PSContentTypeSetter">
+	      		<property name="properties">
+			         <map>
+			            <entry key="label" value="${com.percussion.RSS.ct.label}"/>
+			            <entry key="fields" value="${com.percussion.RSS.ct.fields_null_value1}"/>
+			         </map>
+	         	</property>
+	        	</bean>
+	        	<bean class="com.percussion.rx.config.impl.PSContentTypeSetter">
+	      		<property name="properties">
+			         <map>
+			            <entry key="label" value="${com.percussion.RSS.ct.label}"/>
+			            <entry key="fields" value="${com.percussion.RSS.ct.fields_null_value2}"/>
+			         </map>
+	         	</property>
+	        	</bean>
+	        	
+        	</list>
+     	</property>
+   </bean>
+</beans>

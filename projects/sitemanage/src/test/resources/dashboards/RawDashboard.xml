@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<Dashboard>
+	<dashboardConfiguration>
+		<columnDisplayed>true</columnDisplayed>
+		<columnDisplayed>true</columnDisplayed>
+		<columnDisplayed>false</columnDisplayed>
+	</dashboardConfiguration>
+	<gadgets>
+		<name>Gadget Name 1</name>
+		<url>Gadget URL 1</url>
+		<XPosition>123</XPosition>
+		<YPosition>234</YPosition>
+	</gadgets>
+	<gadgets>
+		<name>Gadget Name 2</name>
+		<url>Gadget URL 2</url>
+		<XPosition>321</XPosition>
+		<YPosition>432</YPosition>
+	</gadgets>
+</Dashboard>

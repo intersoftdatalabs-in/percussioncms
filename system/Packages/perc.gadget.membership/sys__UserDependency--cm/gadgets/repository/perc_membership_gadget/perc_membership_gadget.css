@@ -1,0 +1,12 @@
+
+
+.perc-membership-gadget table.perc-datatable th.perc-datatable-head-column.perc-last {
+    text-align: left
+}
+
+.perc-last {
+    text-align: left
+}
+body * {
+    font-family: 'Open Sans', sans-serif;
+}

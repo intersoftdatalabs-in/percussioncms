@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+   <!-- === Define servlet URLs below /Rhythmyx/user/apps/ -->
+	<bean id="solnLinkBackUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping" abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="mappings">
+			<props>
+				<prop key="ap">actionPanelLinkBackController</prop>
+				<prop key="aa">activeAssemblyLinkBackController</prop>
+				<prop key="cx">contentExplorerLinkBackController</prop>
+				<prop key="help">helpLinkBackController</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="solnLinkbackViewResolver" class="com.percussion.soln.linkback.servlet.NamespacedInternalResourceViewResolver">
+		<property name="namespace" value="linkback." />
+		<property name="prefix" value="/ui/linkback/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+   
+   <!-- === Define servlet beans -->
+	<bean id="actionPanelLinkBackController" class="com.percussion.soln.linkback.servlet.ActionPanelLinkbackController">
+		<property name="helpViewName" value="linkback.LinkbackHelpView" />
+		<property name="errorViewName" value="linkback.LinkbackErrorView" />
+	</bean>
+	<bean id="activeAssemblyLinkBackController" class="com.percussion.soln.linkback.servlet.ActiveAssemblyLinkbackController">
+		<property name="helpViewName" value="linkback.LinkbackHelpView" />
+		<property name="errorViewName" value="linkback.LinkbackErrorView" />
+		<property name="itemSummaryFinder" ref="itemSummaryFinder" />
+	</bean>
+	<bean id="contentExplorerLinkBackController" class="com.percussion.soln.linkback.servlet.ContentExplorerLinkbackController">
+		<property name="helpViewName" value="linkback.LinkbackHelpView" />
+		<property name="errorViewName" value="linkback.LinkbackErrorView" />
+	</bean>
+	<bean id="helpLinkBackController" class="com.percussion.soln.linkback.servlet.GenericLinkbackController">
+		<property name="helpViewName" value="linkback.LinkbackHelpView" />
+		<property name="errorViewName" value="linkback.LinkbackErrorView" />
+	</bean>
+	<bean id="itemSummaryFinder" class="com.percussion.soln.linkback.utils.ItemSummaryFinder">
+		<property name="cmsContentSummaries" ref="sys_cmsObjectMgr" />
+	</bean>
+</beans>

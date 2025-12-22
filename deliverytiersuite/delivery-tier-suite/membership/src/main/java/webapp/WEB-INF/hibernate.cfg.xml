@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"classpath:/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+
+<session-factory>
+	 <mapping class="com.percussion.membership.data.rdbms.impl.PSMembership"/>
+	 <mapping class="com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey"/>
+</session-factory>
+</hibernate-configuration>

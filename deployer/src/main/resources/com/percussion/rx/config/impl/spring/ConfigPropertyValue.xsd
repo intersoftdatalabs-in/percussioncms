@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<xsd:schema xmlns="http://www.percussion.com/schema/property"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.percussion.com/schema/config"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+   <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+   <xsd:element name="list">
+	<xsd:complexType>
+		<xsd:attribute name="lookupKey" type="xsd:string"/>
+	</xsd:complexType>
+   </xsd:element>
+   <xsd:element name="map">
+	<xsd:complexType>
+		<xsd:attribute name="lookupKey" type="xsd:string"/>
+	</xsd:complexType>
+   </xsd:element>
+
+</xsd:schema>

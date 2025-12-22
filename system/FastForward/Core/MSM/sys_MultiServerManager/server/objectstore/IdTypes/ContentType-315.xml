@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PSXApplicationIDTypes>
+   <PSXDeployableObject>
+      <PSXDependency autoDep="yes" autoExpand="yes" dependencyId="315" dependencyType="Local" displayName="rffNavTree" isIncluded="yes" objectType="ContentType" objectTypeName="Content Type Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
+      <RequiredClasses/>
+   </PSXDeployableObject>
+   <PSXApplicationIDTypesResource resourceName="rffNavTree (template)">
+      <PSXApplicationIDTypesElement elementName="CEUIDefinition">
+         <PSXApplicationIDTypeMapping type="sys_none" value="1">
+            <PSXAppEntryIdContext>
+               <PSXEntry default="no" sequence="0">
+                  <PSXDisplayText>Yes</PSXDisplayText>
+                  <Value>1</Value>
+               </PSXEntry>
+               <PSXAppCEItemIdContext type="Choices">
+                  <PSXAppUISetIdContext>
+                     <PSXAppNamedItemIdContext name="no_propagate" type="DisplayMapping">
+                        <PSXAppDisplayMapperIdContext fieldSetRef="rxs_ct_navtree" id="0"/>
+                     </PSXAppNamedItemIdContext>
+                  </PSXAppUISetIdContext>
+               </PSXAppCEItemIdContext>
+            </PSXAppEntryIdContext>
+         </PSXApplicationIDTypeMapping>
+      </PSXApplicationIDTypesElement>
+   </PSXApplicationIDTypesResource>
+</PSXApplicationIDTypes>

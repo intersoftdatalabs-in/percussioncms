@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<SolutionConfigurations publisherPrefix="com.percussion" publisherName="Percussion"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="localConfig.xsd">
+   <SolutionConfig name="RSS">
+
+<!---  ========================================
+        Content List        "rffCiFullBinary"      
+        =========================================
+-->
+      <property name="deliveryType" value="filesystem"/>
+      <property name="filter" value="public"/>
+      <property name="generator" value="Java/global/percussion/system/sys_SearchGenerator"/>
+      <propertySet name="generatorParams">
+      	<property name="query" value="select rx:sys_contentid, rx:sys_folderid from rx:rfffile,rx:rffimage,rx:percnavimage where jcr:path like '//Sites/CorporateInvestments%'"/>
+      </propertySet>
+      <property name="expander" value="Java/global/percussion/system/sys_SiteTemplateExpander"/>
+      <propertySet name="expanderParams">
+      </propertySet>
+   </SolutionConfig>
+</SolutionConfigurations>

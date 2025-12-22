@@ -1,0 +1,147 @@
+<project name="copy-resources" default="all" basedir=".">
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="../../rxconfig/Installer/perc-ant-@@perc.version@@.jar"/>
+		</classpath>
+	</taskdef>
+
+	<taskdef name="ftp" classname="org.apache.tools.ant.taskdefs.optional.net.FTP">
+		<classpath>
+			<pathelement location="../../rxconfig/Installer/perc-ant-@@perc.version@@.jar"/>
+		</classpath>
+	</taskdef>
+
+	<!-- Copy web_resources to our new site. -->
+	<target name="default">
+		<fail unless="perc.site.root" message="perc.site.root" />
+		<fail unless="perc.sys.dir" message="perc.sys.dir" />
+		<property name="perc.sys.web_resources" location="${perc.sys.dir}/web_resources" />
+        <property name="perc.sys.rxconfig" location="${perc.sys.dir}/rxconfig" />
+		<property name="perc.sys.rx_resources" location="${perc.sys.dir}/rx_resources" />
+		<property name="perc.sys.sys_resources" location="${perc.sys.dir}/sys_resources" />
+		<property name="perc.sys.sys_resources.web-inf" location="${perc.sys.sys_resources}/webapps/WEB-INF" />
+		<property name="perc.sys.sys_resources.root" location="${perc.sys.sys_resources}/webapps/ROOT" />
+		<property name="perc.site.web_resources" location="${perc.site.root}/web_resources" />
+		<property name="perc.site.rx_resources" location="${perc.site.root}/rx_resources" />
+        <property name="perc.site.web-inf" location="${perc.site.root}/WEB-INF" />
+        <property name="perc.site.error.default" value="/error.html" />
+        <property name="perc.ftp.all_resources" location="${perc.site.root}" />  
+
+        <!-- Error page properties -->
+        <!-- Notice the value attribute should be used not the location attr. -->
+        <property name="perc.site.error.400" value="${perc.site.error.default}" />
+        <property name="perc.site.error.401" value="${perc.site.error.default}" />
+        <property name="perc.site.error.402" value="${perc.site.error.default}" />
+        <property name="perc.site.error.403" value="${perc.site.error.default}" />
+        <property name="perc.site.error.404" value="${perc.site.error.default}" />
+        <property name="perc.site.error.414" value="${perc.site.error.default}" />
+        <property name="perc.site.error.415" value="${perc.site.error.default}" />
+        <!--  Severe Error pages. -->
+        <property name="perc.site.error.500" value="${perc.site.error.default}" />
+        <property name="perc.site.error.501" value="${perc.site.error.default}" />
+        <property name="perc.site.error.502" value="${perc.site.error.default}" />
+
+
+		<if>
+			<available file="${perc.sitemap.temp}" type="dir"/>
+			<then>
+				<copy todir="${perc.site.root}" overwrite="true" force="true" failonerror="false">
+					<fileset dir="${perc.sitemap.temp}">
+						<include name="**"/>
+					</fileset>
+				</copy>
+			</then>
+		</if>
+
+		<mkdir dir="${perc.site.web_resources}"/>
+		<mkdir dir="${perc.site.web-inf}"/>
+        
+		<touch>
+			<fileset dir="${perc.sys.web_resources}" excludesfile="../../rx_resources/ant/excludes.txt">
+				<include name="**"/>
+			</fileset>
+		</touch>
+
+		<if>
+			<available file="${perc.site.web_resources}/cm/css/fontawesome/" type="dir" />
+			<then>
+				<delete dir="${perc.site.web_resources}/cm/css/fontawesome/"/>
+			</then>
+		</if>
+
+		<copy todir="${perc.site.web_resources}" overwrite="true" force="true" failonerror="true" >
+			<fileset dir="${perc.sys.web_resources}" excludesfile="../../rx_resources/ant/excludes.txt" casesensitive="true">
+				<include name="**"/>
+			</fileset>
+		</copy>		
+
+		<!-- Copy site configuration (only if the path is set) -->
+		<if>
+			<isset property="perc.site.config"/>
+			<then>
+				<echo>Delete Existing site configuration</echo>
+				<delete  dir="${perc.site.web-inf}/" includeEmptyDirs="true" failonerror="false">
+					<exclude name="web.xml"/>
+				</delete>
+				<echo>Copy New site configuration</echo>
+				<copy todir="${perc.site.web-inf}" overwrite="true" failonerror="true">
+		            <fileset dir="${perc.site.config}">
+		           		<exclude name="web.xml"/>
+		            </fileset>
+		        </copy>
+				
+		        <copy todir="${perc.site.web-inf}" overwrite="true" failonerror="true">
+		            <fileset dir="${perc.site.config}">
+		           		<include name="web.xml"/>
+		            </fileset>
+		            <!-- Expand the properties in the skeleton web.xml -->     
+		            <filterchain>
+		                <expandproperties />
+		            </filterchain>
+		        </copy>
+
+			</then>
+		</if>
+
+	</target>
+
+	<target name="publishingFTP" if="perc.publishingFtp.set" >
+		<echo>Starting FTP file transfer...</echo>
+		 <ftp server="${perc.ftp.serverAddress}"
+			 port="${perc.ftp.port}"
+           	   remotedir="${perc.ftp.remoteDir}" 
+               userid="${perc.ftp.username}"
+               password="${perc.ftp.password}"
+			   useFtps="${perc.ftp.useFtps}"
+			   passive="yes"
+               skipFailedTransfers="false"
+               verbose="yes"
+               ignoreNoncriticalErrors="yes"
+               >
+               <fileset dir="${perc.ftp.all_resources}"  />
+           </ftp>
+		<echo>Finished FTP file transfer.</echo>
+	</target>
+	<!-- Publish web_resources to the secure FTP server. -->
+    <target name="publishingSecureFTP" if="perc.publishSecureFtp.set" >
+    	<if>
+    	 <isset property="perc.publishSecureFtp.private_key"/>
+    	 <then>
+        	<scp trust="true" sftp="true" todir="${perc.ftp.username}:@${perc.ftp.serverAddress}:${perc.ftp.remoteDir}" port="${perc.ftp.port}" keyfile="${perc.publishSecureFtp.private_key}" >
+                   <fileset dir="${perc.ftp.all_resources}">
+                      <include name="**"/>
+                   </fileset>
+            </scp>
+    	 </then>
+    	 <else>
+        	<scp trust="true" sftp="true" todir="${perc.ftp.username}:${perc.ftp.password}@${perc.ftp.serverAddress}:${perc.ftp.remoteDir}" port="${perc.ftp.port}" >
+                   <fileset dir="${perc.ftp.all_resources}">
+                      <include name="**"/>
+                   </fileset>
+            </scp>
+    	 </else>
+    	</if>
+    </target>
+	
+	<target name="all" depends="default, publishingFTP,publishingSecureFTP" />
+</project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<ProxyConfigurations>
+	
+    <ProxyConfig>
+        <host>172.10.0.1</host>
+        <port>80</port>
+        <user>testuser1</user>
+        <password encrypted="false">testpassword1</password>
+        <protocols>
+            <protocol>HTTP</protocol>
+        </protocols>
+    </ProxyConfig>
+    
+    <ProxyConfig>
+        <host>172.10.0.1</host>
+        <port>8443</port>
+        <user>testuser2</user>
+        <password encrypted="false">testpassword2</password>
+        <protocols>
+            <protocol>HTTPS</protocol>
+        </protocols>
+    </ProxyConfig>
+    
+</ProxyConfigurations>
