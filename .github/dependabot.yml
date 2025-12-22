@@ -104,7 +104,10 @@ updates:
           - ">=3.6"
       - dependency-name: "org.hibernate.validator:hibernate-validator"
         versions:
-          - ">=7" 
+          - ">=7"
+      - dependency-name: "org.owasp:csrfguard"
+        versions:
+          - "4.5.0-jakarta"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
