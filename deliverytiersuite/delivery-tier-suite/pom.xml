@@ -60,8 +60,6 @@
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
-        <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
-        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
         <java.source.version>1.8</java.source.version>
         <java.version>1.8.0</java.version>
         <javassist.version>3.25.0-GA</javassist.version>
@@ -119,7 +117,6 @@
         <skip.unit.tests>false</skip.unit.tests>
         <slf4j.version>2.0.17</slf4j.version>
         <solr.version>8.11.4</solr.version>
-        <spotbugs.plugin.version>4.9.8</spotbugs.plugin.version>
         <spring.security.version>5.8.16</spring.security.version>
         <spring.version>5.3.39</spring.version>
         <sqlite.version>3.28.0</sqlite.version>
@@ -207,61 +204,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>${spotbugs.plugin.version}</version>
-                    <configuration>
-                        <fork>false</fork>
-                        <spotbugsXmlOutputDirectory>target/site</spotbugsXmlOutputDirectory>
-                        <skipEmptyReport>false</skipEmptyReport>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <includeTests>true</includeTests>
-                        <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
-                        <xmlOutput>true</xmlOutput>
-                        <effort>Max</effort>
-                        <threshold>Low</threshold>
-                        <failOnError>false</failOnError>
-                        <plugins>
-                            <plugin>
-                                <groupId>com.h3xstream.findsecbugs</groupId>
-                                <artifactId>findsecbugs-plugin</artifactId>
-                                <version>1.14.0</version>
-                            </plugin>
-                        </plugins>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>build-tools</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>perc-security-utils</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.h3xstream.findsecbugs</groupId>
-                            <artifactId>findsecbugs-plugin</artifactId>
-                            <version>1.14.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.mebigfatguy.fb-contrib</groupId>
-                            <artifactId>fb-contrib</artifactId>
-                            <version>7.7.2</version>
-                        </dependency>
-                    </dependencies>
-                    <executions>
-                        <execution>
-                            <id>scan</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <phase>verify</phase>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
@@ -483,11 +425,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.plugin.version}</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>

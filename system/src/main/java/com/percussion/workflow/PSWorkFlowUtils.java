@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.workflow;
@@ -47,7 +46,6 @@ import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.workflow.mail.IPSMailMessageContext;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
@@ -432,7 +430,7 @@ public class PSWorkFlowUtils {
     }
   }
 
-  /*  ********* Workflow Utility Methods ******** */
+  /* ********* Workflow Utility Methods ******** */
 
   /**
    * Outputs a message to trace file and PSConsole or output stream, depending on workflow
@@ -612,8 +610,7 @@ public class PSWorkFlowUtils {
     }
 
     /*
-     * If the username is the same as the Workflow admin name,
-     * the user is an administrator
+     * If the username is the same as the Workflow admin name, the user is an administrator
      */
     if (sUserName.trim().equalsIgnoreCase(sAdminName)) {
       return (true);
@@ -624,8 +621,7 @@ public class PSWorkFlowUtils {
     }
 
     /*
-     * If the Workflow admin name is one of the user's roles,
-     * the user is an administrator.
+     * If the Workflow admin name is one of the user's roles, the user is an administrator.
      */
 
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
@@ -674,14 +670,12 @@ public class PSWorkFlowUtils {
    */
   public static String filterUserName(String sUserName) {
     /*
-    Vitaly, Dec 9 2002: made this method a 'noop' for the following reasons:
-    1. The IP based authentication method it was designed for is now obsolete
-    2. It screws up a username, which has one or more commas in it,
-       ie: "Lee, Christo" -> would be returned by this method as "Lee"
-    3. This method is used by several workflow classes, so the 'noop' approach
-       minimizes the number of changes needed to fix the above problem
-    4. Fixes: RX-02-11-0151
-    */
+     * Vitaly, Dec 9 2002: made this method a 'noop' for the following reasons: 1. The IP based
+     * authentication method it was designed for is now obsolete 2. It screws up a username, which
+     * has one or more commas in it, ie: "Lee, Christo" -> would be returned by this method as "Lee"
+     * 3. This method is used by several workflow classes, so the 'noop' approach minimizes the
+     * number of changes needed to fix the above problem 4. Fixes: RX-02-11-0151
+     */
     return sUserName;
   }
 
@@ -741,8 +735,7 @@ public class PSWorkFlowUtils {
    */
   public static ResourceBundle getResourceBundle() {
     /*
-     * load the resources first. this will throw an exception if we can't
-     * find them
+     * load the resources first. this will throw an exception if we can't find them
      */
     if (null == m_ResourceBundle)
       m_ResourceBundle =
@@ -1016,7 +1009,7 @@ public class PSWorkFlowUtils {
     commonsMultiPartEmail.send();
   }
 
-  /*  ********* String Methods ********* */
+  /* ********* String Methods ********* */
 
   /**
    * Create a list of the substrings of a string, using a specified delimiter. Surrounding
@@ -1057,7 +1050,6 @@ public class PSWorkFlowUtils {
    * @return <CODE>String</CODE> containing the stack trace
    * @throws IllegalArgumentException if the input is <CODE>null</CODE>
    */
-  @SuppressFBWarnings()
   public static String stackTraceString(Throwable throwable) {
     if (null == throwable) {
       throw new IllegalArgumentException("Throwable may not be null or empty.");
@@ -1068,7 +1060,7 @@ public class PSWorkFlowUtils {
     return sw.toString();
   }
 
-  /*  ********* Date and Calender Methods ********* */
+  /* ********* Date and Calender Methods ********* */
   /**
    * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
    * hh:mm:ss:milli.
@@ -1143,9 +1135,8 @@ public class PSWorkFlowUtils {
    */
   public static Date sqlDateFromCalendar(Calendar calendar) {
     /*
-     * This code uses the constructor uses the constructor
-     * java.sql.Date(long Date).  Calendar.getTime() is a java.util.Date
-     *  and java.util.Date.getTime() is a long
+     * This code uses the constructor uses the constructor java.sql.Date(long Date).
+     * Calendar.getTime() is a java.util.Date and java.util.Date.getTime() is a long
      */
     return (null == calendar) ? null : new Date(calendar.getTime().getTime());
   }
@@ -1336,7 +1327,7 @@ public class PSWorkFlowUtils {
     }
   }
 
-  /*  ********* List Methods ********* */
+  /* ********* List Methods ********* */
   /**
    * Create a list from an array of objects with primitives replaced by wrapper classes (e.g. int
    * replaced by Integer)
@@ -1515,8 +1506,8 @@ public class PSWorkFlowUtils {
     String val = null;
 
     /*
-     * Create a map with the lower cased strings as keys, and the strings as
-     * values. This map collects the unique strings.
+     * Create a map with the lower cased strings as keys, and the strings as values. This map
+     * collects the unique strings.
      */
     while (iter.hasNext()) {
       val = (String) iter.next();
@@ -1563,8 +1554,8 @@ public class PSWorkFlowUtils {
     String email = null;
 
     /*
-     * Create a map with the lower cased strings as keys, and the strings as
-     * values. This map collects the unique strings.
+     * Create a map with the lower cased strings as keys, and the strings as values. This map
+     * collects the unique strings.
      */
     while (iter.hasNext()) {
       val = iter.next();
@@ -2036,8 +2027,8 @@ public class PSWorkFlowUtils {
         // Don't show buttons for aging transitions
         if (!tc.isAgingTransition()) {
           /*
-           * Transition required roles are ignored for an administrator,
-           * otherwise check whether user acts in one of them
+           * Transition required roles are ignored for an administrator, otherwise check whether
+           * user acts in one of them
            */
           if (!isAdmin) {
             List transitionRequiredRoles = tc.getTransitionRoles();

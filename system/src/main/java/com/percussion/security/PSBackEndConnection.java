@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.security;
 
@@ -23,7 +22,6 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.jdbc.PSConnectionInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -53,37 +51,37 @@ public class PSBackEndConnection {
    *     changed in any way. May not be <code>null</code> or empty, the following properties are
    *     expected:
    *     <TABLE BORDER="1">
-   *    <TH><TD>Property</TD>
+   *        <TH>
+   *        <TD>Property</TD>
    *        <TD>Description</TD>
-   *        <TD>Required?</TD>
-   *    </TH>
-   *    <TR><TD>datasourceName</TD>
-   *        <TD>The datasource to connect to, may be omitted to use the
-   *        repository.</TD>
+   *        <TD>Required?</TD></TH>
+   *        <TR>
+   *        <TD>datasourceName</TD>
+   *        <TD>The datasource to connect to, may be omitted to use the repository.</TD>
    *        <TD>N</TD>
-   *    </TR>
-   *    <TR>
+   *        </TR>
+   *        <TR>
    *        <TD>tableName</TD>
    *        <TD>The name of the table containing the user info.</TD>
    *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
+   *        </TR>
+   *        <TR>
    *        <TD>uidColumn</TD>
    *        <TD>The column in the table containing user ids.</TD>
    *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
+   *        </TR>
+   *        <TR>
    *        <TD>passwordColumn</TD>
    *        <TD>The column in the table containing passwords.</TD>
    *        <TD>Y</TD>
-   *    </TR>
-   *    <TR>
+   *        </TR>
+   *        <TR>
    *        <TD>passwordFilter</TD>
    *        <TD>The fully qualified extension name for the extension implementing
-   *           IPSPasswordFilter</TD>
+   *        IPSPasswordFilter</TD>
    *        <TD>N</TD>
-   *    </TR>
-   *    </TABLE>
+   *        </TR>
+   *        </TABLE>
    */
   public PSBackEndConnection(Properties properties) {
     if (properties == null) throw new IllegalArgumentException("properties cannot be null");
@@ -130,7 +128,6 @@ public class PSBackEndConnection {
    * @return all connection properties with the property name as key and the description as property
    *     value, never <code>null</code>.
    */
-  @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
   public static Properties getConnectionProperties() {
     Properties props = new Properties();
 
