@@ -1,22 +1,21 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.installerbot;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -39,15 +38,13 @@ import java.util.regex.Pattern;
 
 
 /**
- * Console applications which performs automatic installation
- * of Rhythmyx server.
+ * Console applications which performs automatic installation of Rhythmyx server.
  *
  * @author Andriy Palamarchuk
- * @todo use generics, StringBuilder when backwards compatibility
- * with 1.4 is not required anymore. (Andriy) 
+ * @todo use generics, StringBuilder when backwards compatibility with 1.4 is not required anymore.
+ *       (Andriy)
  */
-public class PSRxInstallerBot
-{
+public class PSRxInstallerBot {
    /**
     * Standalone invocation entry point.
     */
@@ -55,47 +52,39 @@ public class PSRxInstallerBot
       final int result = INSTANCE.run(args);
       INSTANCE.exit(result);
    }
-   
+
    /**
     * Exits the program and returns the specified result to the OS.
     */
-   public void exit(int result)
-   {
+   public void exit(int result) {
       System.exit(result);
    }
 
    /**
-    * Instance entry point. To be directly called from {@link #main(String[])}.
-    * Minimizes logic in {@link #main(String[])}.
+    * Instance entry point. To be directly called from {@link #main(String[])}. Minimizes logic in
+    * {@link #main(String[])}.
+    * 
     * @param args command-line arguments as received by {@link #main(String[])}.
     * @return value to be returned by the program to OS on exit.
     */
    public int run(String[] args) throws InterruptedException {
-      if (args.length != EXPECTED_COMMAND_LINE_ARGS_COUNT)
-      {
-         m_out.println("Unexpected number of arguments. "
-               + "Expected " + EXPECTED_COMMAND_LINE_ARGS_COUNT
-               + " but got " + args.length);
+      if (args.length != EXPECTED_COMMAND_LINE_ARGS_COUNT) {
+         m_out.println("Unexpected number of arguments. " + "Expected "
+               + EXPECTED_COMMAND_LINE_ARGS_COUNT + " but got " + args.length);
          printUsage();
          return 1;
       }
       final String configurationFileName = args[0];
       final Properties propreties;
-      try
-      {
-          propreties = loadProperties(configurationFileName);
-      }
-      catch (IOException e)
-      {
+      try {
+         propreties = loadProperties(configurationFileName);
+      } catch (IOException e) {
          printExceptionError(e);
          return 1;
       }
-      try
-      {
+      try {
          return configureAndRunInstaller(propreties);
-      }
-      catch (PSConsoleAppDriverException e)
-      {
+      } catch (PSConsoleAppDriverException e) {
          printExceptionError(e);
          return 1;
       }
@@ -103,13 +92,13 @@ public class PSRxInstallerBot
 
    /**
     * Runs installer using parameters provided in specified properties.
-    * @param properties installation and installer parameters.
-    * Can't be <code>null</code>.
+    * 
+    * @param properties installation and installer parameters. Can't be <code>null</code>.
     * @return code to be returned by the program to OS on exit.
     * @throws PSConsoleAppDriverException on installation session failure.
     */
    int configureAndRunInstaller(final Properties properties)
-           throws PSConsoleAppDriverException, InterruptedException {
+         throws PSConsoleAppDriverException, InterruptedException {
       final String message;
       message = parseConfiguration(properties);
       if (message != null) {
@@ -121,28 +110,24 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Prints exception description to program output. 
+    * Prints exception description to program output.
     */
-   @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-   private void printExceptionError(final Exception e)
-   {
+    private void printExceptionError(final Exception e) {
       m_out.println("Installation error");
       e.printStackTrace(m_out);
    }
 
    /**
     * Loads properties from the specified file.
-    * @param propertiesFileName properties file to load.
-    * Should be valid file name.
+    * 
+    * @param propertiesFileName properties file to load. Should be valid file name.
     * @return properties from the properties file.
     * @throws FileNotFoundException if file not found.
     * @throws IOException on file reading failure.
     */
-   @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-   Properties loadProperties(final String propertiesFileName) throws IOException
-   {
+   Properties loadProperties(final String propertiesFileName) throws IOException {
       final Properties properties = new Properties();
-      try(FileInputStream fs = new FileInputStream(propertiesFileName)){
+      try (FileInputStream fs = new FileInputStream(propertiesFileName)) {
          properties.load(fs);
       }
       return properties;
@@ -151,28 +136,20 @@ public class PSRxInstallerBot
    /**
     * Prints usage of the automated installation program to program output.
     */
-   private void printUsage()
-   {
+   private void printUsage() {
+      m_out.println("Rhythmyx Installer runner should be called with one parameter -");
+      m_out.println("file name pointing to the property file storing configuration.");
+      m_out.println("The property file should have following properties.");
       m_out.println(
-            "Rhythmyx Installer runner should be called with one parameter -");
-      m_out.println(
-            "file name pointing to the property file storing configuration.");
-      m_out.println(
-            "The property file should have following properties.");
-      m_out.println("You can copy and paste text below to create configuration "
-            + "property file.\n\n");
+            "You can copy and paste text below to create configuration " + "property file.\n\n");
 
-      try(BufferedReader reader =
-                  new BufferedReader(new InputStreamReader(openDefaultConfiguration())))
-      {
+      try (BufferedReader reader =
+            new BufferedReader(new InputStreamReader(openDefaultConfiguration()))) {
          String s;
-         while ((s = reader.readLine()) != null)
-         {
+         while ((s = reader.readLine()) != null) {
             m_out.println(s);
          }
-      }
-      catch (IOException e)
-      {
+      } catch (IOException e) {
          assert false : e;
       }
    }
@@ -180,19 +157,17 @@ public class PSRxInstallerBot
    /**
     * Returns stream to the default configuration resource.
     */
-   InputStream openDefaultConfiguration()
-   {
-      return getClass().getResourceAsStream(
-            "defaultRxInstallerBotConfig.properties");
+   InputStream openDefaultConfiguration() {
+      return getClass().getResourceAsStream("defaultRxInstallerBotConfig.properties");
    }
-   
+
    /**
     * Launches and runs installation process. The bot should be configured.
+    * 
     * @throws PSConsoleAppDriverException on installation failure.
     */
    void runInstaller() throws PSConsoleAppDriverException, InterruptedException {
-      m_driver.launchApplication(
-            getLaunchInstallerCommand(), getInstallerTimeoutInSeconds());
+      m_driver.launchApplication(getLaunchInstallerCommand(), getInstallerTimeoutInSeconds());
       try {
          passWelcomePage();
          reviewAgreementPage();
@@ -201,29 +176,22 @@ public class PSRxInstallerBot
          specifyInstallationDirectory();
          specifyProductsToInstall();
          specifyPublisherFeatures();
-         
-         if (getInstallFastForward())
-         {
+
+         if (getInstallFastForward()) {
             specifyFastForwardFeatures();
          }
          specifyServerType();
          enterLicense();
-         if (isNewInstallation())
-         {
+         if (isNewInstallation()) {
             specifyDatabase();
             nameRhythmyxService();
-            
-            m_driver.expect(
-                  "The service name you have specified already exists",
-                  SHORT_WAIT);
 
-            if (m_driver.isLastExpectTimeOut())
-            {
+            m_driver.expect("The service name you have specified already exists", SHORT_WAIT);
+
+            if (m_driver.isLastExpectTimeOut()) {
                expectInOutput(RHYTHMYX_SERVER_SETTINGS_PATTERN);
                expectInOutput(BIND_PORT_PATTERN);
-            }
-            else
-            {
+            } else {
                confirmDefaultChoice();
                gotoNextPage();
                expect(RHYTHMYX_SERVER_SETTINGS_PATTERN);
@@ -233,53 +201,48 @@ public class PSRxInstallerBot
 
             configureRhythmyxServer();
          }
-         
-         if (isNewInstallation())
-         {
+
+         if (isNewInstallation()) {
             configureSearchEngine();
          }
-         if (isNewInstallation())
-         {
+         if (isNewInstallation()) {
             configureApplicationServer();
          }
-         
+
          confirmInstallationConfiguration();
          watchInstallation();
          readReadme();
          confirmSuccessfulCompletion();
-      }
-      finally
-      {
+      } finally {
          m_driver.stop();
       }
    }
 
    /**
-    * This is a workaround for ExpectJ bug.
-    * If there is a match in {@link IPSConsoleAppDriver#expect(String, long)}
-    * it bombs out later.
-    * Ideally needs to be further researched.
+    * This is a workaround for ExpectJ bug. If there is a match in
+    * {@link IPSConsoleAppDriver#expect(String, long)} it bombs out later. Ideally needs to be
+    * further researched.
     */
    protected void sleepOverExpectJBug() throws InterruptedException {
-         Thread.sleep(SHORT_WAIT * MILISECONDS_IN_SEC);
+      Thread.sleep(SHORT_WAIT * MILISECONDS_IN_SEC);
    }
 
    /**
-    * Handles installer completion report. 
+    * Handles installer completion report.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void confirmSuccessfulCompletion() throws PSConsoleAppDriverException
-   {
+   private void confirmSuccessfulCompletion() throws PSConsoleAppDriverException {
       expect("InstallShield Wizard has successfully installed Suite");
       confirmDefaultChoice();
    }
 
    /**
     * Handles installer Readmy output.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void readReadme() throws PSConsoleAppDriverException
-   {
+   private void readReadme() throws PSConsoleAppDriverException {
       expect("Please read the information below.");
       expect("README for Percussion Rhythmyx");
       expect("[Press Enter]");
@@ -289,16 +252,15 @@ public class PSRxInstallerBot
 
    /**
     * Monitors installation progress as reported by installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void watchInstallation() throws PSConsoleAppDriverException
-   {
+   private void watchInstallation() throws PSConsoleAppDriverException {
       expect("Querying Rhythmyx Service status...");
       expect("Querying Rhythmyx Application Server Service status...");
       expect("Connecting to");
       expect(" extension:");
-      if (isUpdateInstallation())
-      {
+      if (isUpdateInstallation()) {
          // sometimes installer asks whether it should overwrite JVM.
          // this is a confirmation of default choice (No), so the bot
          // won't have to recognize this conditional interaction
@@ -307,24 +269,23 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Monitors installer report on installation target. 
+    * Monitors installer report on installation target.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void confirmInstallationConfiguration()
-      throws PSConsoleAppDriverException
-   {
+   private void confirmInstallationConfiguration() throws PSConsoleAppDriverException {
       expect("Suite will be installed in the following location");
       gotoNextPage();
    }
 
    /**
     * Provides to the installer parameters of application server configuration.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void configureApplicationServer() throws PSConsoleAppDriverException
-   {
+   private void configureApplicationServer() throws PSConsoleAppDriverException {
       expect("Application Server Settings");
-      
+
       expect("Naming Service Port.");
       confirmDefaultChoice();
       expect("Naming Service RMI Port.");
@@ -342,10 +303,10 @@ public class PSRxInstallerBot
 
    /**
     * Specifies search engine configuration to installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void configureSearchEngine() throws PSConsoleAppDriverException
-   {
+   private void configureSearchEngine() throws PSConsoleAppDriverException {
       expect("Rhythmyx Full Text Search Settings.");
       expect("host name");
       confirmDefaultChoice();
@@ -358,29 +319,28 @@ public class PSRxInstallerBot
 
    /**
     * Specifies Rhythmyx server configuration to installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void configureRhythmyxServer() throws PSConsoleAppDriverException
-   {
+   private void configureRhythmyxServer() throws PSConsoleAppDriverException {
       m_driver.send(getRhythmyxPort() + "\n");
       gotoNextPage();
       skipWarning();
    }
 
-   private void skipWarning() throws PSConsoleAppDriverException
-   {
+   private void skipWarning() throws PSConsoleAppDriverException {
       expect("1. Don't repeat this warning");
       expect("Each port number in this installation must be unique.");
       confirmDefaultChoice();
    }
-   
+
 
    /**
     * Specifies Rhythmyx service configuration to the installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void nameRhythmyxService() throws PSConsoleAppDriverException
-   {
+   private void nameRhythmyxService() throws PSConsoleAppDriverException {
       expect("Rhythmyx Service Properties.");
       expect("Rhythmyx Service Name");
       final Date date = new Date();
@@ -392,15 +352,15 @@ public class PSRxInstallerBot
 
    /**
     * Configures database as requested by installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyDatabase() throws PSConsoleAppDriverException
-   {
+   private void specifyDatabase() throws PSConsoleAppDriverException {
       expect(REPOSITORY_DATABASE_SELECTION_PATTERN);
       expect("Jdbc driver");
-      m_driver.send(
-            findItemNumberInNumberedList(getDbDriver(),
-                  REPOSITORY_DATABASE_SELECTION_PATTERN) + "\n");
+      m_driver
+            .send(findItemNumberInNumberedList(getDbDriver(), REPOSITORY_DATABASE_SELECTION_PATTERN)
+                  + "\n");
       gotoNextPage();
       expect(REPOSITORY_DATABASE_SELECTION_PATTERN);
       expect("Database Server:");
@@ -412,13 +372,10 @@ public class PSRxInstallerBot
       gotoNextPage();
       expect(SCHEMA_OWNER_PATTERN);
       expect(FIRST_ITEM_PATTERN);
-      m_driver.send(findItemNumberInNumberedList(getDbSchema(),
-            SCHEMA_OWNER_PATTERN) + "\n");
-      if (!StringUtils.isEmpty(getDbDatabase()))
-      {
+      m_driver.send(findItemNumberInNumberedList(getDbSchema(), SCHEMA_OWNER_PATTERN) + "\n");
+      if (!StringUtils.isEmpty(getDbDatabase())) {
          expect(FIRST_ITEM_PATTERN);
-         m_driver.send(
-            findItemNumberInNumberedList(getDbDatabase(), "  Database") + "\n");
+         m_driver.send(findItemNumberInNumberedList(getDbDatabase(), "  Database") + "\n");
       }
       expect("Please provide a name for this datasource configuration");
       confirmDefaultChoice();
@@ -426,49 +383,42 @@ public class PSRxInstallerBot
    }
 
    /**
-    * In the spawned process output finds list of items delimited in the
-    * beginning by <code>driversListMarker</code> parameter, finds choice
-    * specified by <code>choiceName</code> and returns its number in the list.
-    * @throws PSConsoleAppDriverException if data format expectations
-    * are not met,
-    * match is not found.
+    * In the spawned process output finds list of items delimited in the beginning by
+    * <code>driversListMarker</code> parameter, finds choice specified by <code>choiceName</code>
+    * and returns its number in the list.
+    * 
+    * @throws PSConsoleAppDriverException if data format expectations are not met, match is not
+    *         found.
     */
    String findItemNumberInNumberedList(String choiceName, String list)
-         throws PSConsoleAppDriverException
-   {
+         throws PSConsoleAppDriverException {
       final String outStr = m_driver.getCurrentStandardOutContents();
-      final String choices =
-         StringUtils.substringAfterLast(outStr, list);
-      if (StringUtils.isEmpty(choices))
-      {
+      final String choices = StringUtils.substringAfterLast(outStr, list);
+      if (StringUtils.isEmpty(choices)) {
          throw new PSConsoleAppDriverException(
-               "Was not able to find list marker \""
-               + list + "\" in current output:\n" + outStr);
+               "Was not able to find list marker \"" + list + "\" in current output:\n" + outStr);
       }
       final String[] lines = choices.split("\n");
-      for (int i = 0; i < lines.length; i++)
-      {
+      for (int i = 0; i < lines.length; i++) {
          final String s = lines[i].trim();
          final Matcher matcher = m_numberedChoicePattern.matcher(s);
-         if (s.endsWith(" " + choiceName) && matcher.find())
-         {
+         if (s.endsWith(" " + choiceName) && matcher.find()) {
             assert matcher.groupCount() == 1 : s;
             assert StringUtils.isNotBlank(matcher.group());
             return matcher.group(1);
          }
       }
-      
-      throw new PSConsoleAppDriverException(
-            "Requested choice \"" + choiceName + "\" "
+
+      throw new PSConsoleAppDriverException("Requested choice \"" + choiceName + "\" "
             + "was not found in list:\n\"" + choices + "\"");
    }
 
    /**
     * Provides installer with licensing information.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void enterLicense() throws PSConsoleAppDriverException
-   {
+   private void enterLicense() throws PSConsoleAppDriverException {
       expect("Enter your license number");
       m_driver.send(getLicenseNumber() + "\n");
       expect("Enter your installation code.");
@@ -481,10 +431,10 @@ public class PSRxInstallerBot
 
    /**
     * Provides server type to the installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyServerType() throws PSConsoleAppDriverException
-   {
+   private void specifyServerType() throws PSConsoleAppDriverException {
       expect("Rhythmyx Server Type");
       confirmDefaultChoice();
       gotoNextPage();
@@ -492,19 +442,19 @@ public class PSRxInstallerBot
 
    /**
     * Convenience function to approve installer's default choice.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void confirmDefaultChoice() throws PSConsoleAppDriverException
-   {
+   private void confirmDefaultChoice() throws PSConsoleAppDriverException {
       m_driver.send("\n");
    }
 
    /**
     * Chooses FastForward features to install.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyFastForwardFeatures() throws PSConsoleAppDriverException
-   {
+   private void specifyFastForwardFeatures() throws PSConsoleAppDriverException {
       assert getInstallFastForward();
       expect("Select the features for \"Rhythmyx FastForward");
       confirmDefaultChoice();
@@ -513,14 +463,13 @@ public class PSRxInstallerBot
 
    /**
     * Chooses Publisher features to install.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyPublisherFeatures() throws PSConsoleAppDriverException
-   {
+   private void specifyPublisherFeatures() throws PSConsoleAppDriverException {
       expect(SELECT_PUBLISHER_FEATURES);
       expect("1.  [ ] Database Publisher");
-      if (getInstallDbPublisher())
-      {
+      if (getInstallDbPublisher()) {
          m_driver.send(1 + "\n");
          expect(SELECT_PUBLISHER_FEATURES);
          expect("1.  [x] Database Publisher");
@@ -531,15 +480,13 @@ public class PSRxInstallerBot
 
    /**
     * Makes installer to install required products.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyProductsToInstall() throws PSConsoleAppDriverException
-   {
+   private void specifyProductsToInstall() throws PSConsoleAppDriverException {
       expect(SELECT_PRODUCTS_PATTERN);
-      if (isNewInstallation())
-      {
-         if (!getInstallFastForward())
-         {
+      if (isNewInstallation()) {
+         if (!getInstallFastForward()) {
             expect("7. [x] Rhythmyx FastForward (New Install Only)");
             m_driver.send("7\n");
             expect("1. Deselect 'Rhythmyx FastForward");
@@ -553,18 +500,15 @@ public class PSRxInstallerBot
 
    /**
     * Provides installer with the installation directory.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyInstallationDirectory()
-         throws PSConsoleAppDriverException
-   {
-      if (isUpdateInstallation())
-      {
+   private void specifyInstallationDirectory() throws PSConsoleAppDriverException {
+      if (isUpdateInstallation()) {
          expect(INSTALLATION_DIRECTORY_PATTERN);
          expect(FIRST_ITEM_PATTERN);
          m_driver.send(
-               findItemNumberInNumberedList("Other...",
-                     INSTALLATION_DIRECTORY_PATTERN) + "\n");
+               findItemNumberInNumberedList("Other...", INSTALLATION_DIRECTORY_PATTERN) + "\n");
          gotoNextPage();
       }
 
@@ -572,8 +516,7 @@ public class PSRxInstallerBot
       m_driver.send(getInstallationDir() + "\n");
       gotoNextPage();
 
-      if (isNewInstallation())
-      {
+      if (isNewInstallation()) {
          expect("The directory does not exist.  Do you want to create it?");
          confirmDefaultChoice();
       }
@@ -581,24 +524,23 @@ public class PSRxInstallerBot
 
    /**
     * Provides installer with installation type.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void specifyInstallationType() throws PSConsoleAppDriverException
-   {
+   private void specifyInstallationType() throws PSConsoleAppDriverException {
       expect(NEW_INSTALL_PATTERN);
       expect(FIRST_ITEM_PATTERN);
       m_driver.send(
-            findItemNumberInNumberedList(getInstallationType(),
-                  "Choose Installation Type") + "\n");
+            findItemNumberInNumberedList(getInstallationType(), "Choose Installation Type") + "\n");
       gotoNextPage();
    }
 
    /**
     * Accepts agreement as presented by installer.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void acceptAgreement() throws PSConsoleAppDriverException
-   {
+   private void acceptAgreement() throws PSConsoleAppDriverException {
       final String ACCEPT = "I accept";
       expect(ACCEPT);
       m_driver.send("1\n");
@@ -609,10 +551,10 @@ public class PSRxInstallerBot
 
    /**
     * Reviews presented by installer agreement page.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void reviewAgreementPage() throws PSConsoleAppDriverException
-   {
+   private void reviewAgreementPage() throws PSConsoleAppDriverException {
       expect("SOFTWARE LICENSE AND SUPPORT AGREEMENT");
       m_driver.send("q\n");
    }
@@ -620,76 +562,69 @@ public class PSRxInstallerBot
    /**
     * Calls <code>expect</code> method of the driver while handling timeout.
     */
-   private void expect(final String pattern) throws PSConsoleAppDriverException
-   {
+   private void expect(final String pattern) throws PSConsoleAppDriverException {
       m_driver.expect(pattern);
-      if (m_driver.isLastExpectTimeOut())
-      {
+      if (m_driver.isLastExpectTimeOut()) {
          reportTimeout(pattern);
       }
    }
-   
+
    /**
     * Makes sure the provided patter already exists in installer output.
+    * 
     * @param pattern the pattern to search for.
     * @throws PSConsoleAppDriverException if the pattern was not foudn.
     */
-   private void expectInOutput(final String pattern)
-         throws PSConsoleAppDriverException
-   {
-      if (!m_driver.getCurrentStandardOutContents().contains(pattern))
-      {
+   private void expectInOutput(final String pattern) throws PSConsoleAppDriverException {
+      if (!m_driver.getCurrentStandardOutContents().contains(pattern)) {
          reportTimeout(pattern);
       }
    }
 
    /**
     * Throws an exception notifying user that provided pattern was not found.
+    * 
     * @param pattern the pattern to report.
     * @throws PSConsoleAppDriverException the exception reporting the failure.
     */
-   private void reportTimeout(final String pattern)
-         throws PSConsoleAppDriverException
-   {
-      final PSConsoleAppDriverException e =
-         new PSConsoleAppDriverException("Pattern \"" + pattern +
-               "\" was not found in the installer output");
+   private void reportTimeout(final String pattern) throws PSConsoleAppDriverException {
+      final PSConsoleAppDriverException e = new PSConsoleAppDriverException(
+            "Pattern \"" + pattern + "\" was not found in the installer output");
       e.setTimeOut(true);
       throw e;
    }
-   
+
    /**
     * Handles Welcome installer page.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void passWelcomePage() throws PSConsoleAppDriverException
-   {
+   private void passWelcomePage() throws PSConsoleAppDriverException {
       expect("Welcome to the InstallShield wizard for Rhythmyx.");
       confirmDefaultChoice();
    }
 
    /**
     * Makes installer to go to next installation page.
+    * 
     * @throws PSConsoleAppDriverException on installation failure
     */
-   private void gotoNextPage() throws PSConsoleAppDriverException
-   {
+   private void gotoNextPage() throws PSConsoleAppDriverException {
       expect(NEXT_PAGE_CONFIRMATION);
       confirmDefaultChoice();
    }
 
    /**
     * Validates and sets installer and installation parameters.
-    * @return <code>null</code> if configuration is parsed without problems.
-    * Othewise returns error message.
+    * 
+    * @return <code>null</code> if configuration is parsed without problems. Othewise returns error
+    *         message.
     */
-   String parseConfiguration(final Properties properties)
-   {
+   String parseConfiguration(final Properties properties) {
       final StringBuilder message = new StringBuilder();
       checkForUnrecognizedKeys(properties, message);
       checkForMissingKeys(properties, message);
-      if (message.length() == 0)
-      {
+      if (message.length() == 0) {
          parseValues(properties, message);
       }
       return message.length() == 0 ? null : message.toString();
@@ -697,28 +632,24 @@ public class PSRxInstallerBot
 
    /**
     * Validates and sets installation parameter values.
+    * 
     * @param properties the installation configuration.
     * @param message buffer to add validation error messages to.
     */
-   void parseValues(final Properties properties, final StringBuilder message)
-   {
+   void parseValues(final Properties properties, final StringBuilder message) {
       setLogFile(properties.getProperty(LOG_FILE_PROP));
-      setLaunchInstallerCommand(
-            properties.getProperty(LAUNCH_INSTALLER_COMMAND_PROP));
+      setLaunchInstallerCommand(properties.getProperty(LAUNCH_INSTALLER_COMMAND_PROP));
       readInstallationTypeProperty(properties, message);
 
-      for (Iterator<String> i = getMandatoryProperties().iterator();
-            i.hasNext();)
-      {
+      for (Iterator<String> i = getMandatoryProperties().iterator(); i.hasNext();) {
          final String property = i.next();
          propertyMustNotBeBlank(properties, message, property);
       }
 
-      if (message.length() != 0)
-      {
+      if (message.length() != 0) {
          return;
       }
-      
+
       readInstallationDirectoryProperty(properties, message);
       readTimeoutProperty(properties, message);
       setLicenseNumber(properties.getProperty(LICENSE_NUMBER_PROP));
@@ -728,29 +659,25 @@ public class PSRxInstallerBot
       setDbServer(properties.getProperty(DB_SERVER_PROP));
       setDbUser(properties.getProperty(DB_USER_PROP));
       setDbPassword(properties.getProperty(DB_PASSWORD_PROP));
-      setRhythmyxServiceName(
-            properties.getProperty(RHYTHMYX_SERVICE_NAME_PROP));
-      setRhythmyxServiceDescription(
-            properties.getProperty(RHYTHMYX_SERVICE_DESCRIPTION_PROP));
+      setRhythmyxServiceName(properties.getProperty(RHYTHMYX_SERVICE_NAME_PROP));
+      setRhythmyxServiceDescription(properties.getProperty(RHYTHMYX_SERVICE_DESCRIPTION_PROP));
 
       readRhythmyxPort(properties, message);
-      
+
       readFastForward(properties, message);
 
       validateBooleanProperty(properties, INSTALL_DB_PUBLISHER_PROP, message);
-      setInstallDbPublisher(Boolean.parseBoolean(
-            properties.getProperty(INSTALL_DB_PUBLISHER_PROP)));
-      
+      setInstallDbPublisher(
+            Boolean.parseBoolean(properties.getProperty(INSTALL_DB_PUBLISHER_PROP)));
+
       readDeleteExistingInstallation(properties, message);
    }
 
    /**
     * Reads value of property {@link #RHYTHMYX_PORT_PROP}.
     */
-   private void readRhythmyxPort(Properties properties, StringBuilder message)
-   {
-      if (isNewInstallation())
-      {
+   private void readRhythmyxPort(Properties properties, StringBuilder message) {
+      if (isNewInstallation()) {
          validatePortNumber(properties, RHYTHMYX_PORT_PROP, message);
          setRhythmyxPort(properties.getProperty(RHYTHMYX_PORT_PROP));
       }
@@ -759,13 +686,10 @@ public class PSRxInstallerBot
    /**
     * Names of properties which must have non-blank values.
     */
-   private Set<String> getMandatoryProperties()
-   {
-      final Set<String> mandatoryProperties =
-            new HashSet<>(CONFIGURATION_PROPERTY_NAMES);
+   private Set<String> getMandatoryProperties() {
+      final Set<String> mandatoryProperties = new HashSet<>(CONFIGURATION_PROPERTY_NAMES);
       mandatoryProperties.remove(DB_DATABASE_PROP);
-      if (isUpdateInstallation())
-      {
+      if (isUpdateInstallation()) {
          mandatoryProperties.remove(DB_DRIVER_PROP);
          mandatoryProperties.remove(DB_SCHEMA_PROP);
          mandatoryProperties.remove(DB_SERVER_PROP);
@@ -779,129 +703,105 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Makes sure boolean property has valid value.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Makes sure boolean property has valid value. In case of validation error adds error messages
+    * to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param propertyName configuration parameter name to validate.
     * @param message buffer to add validation error messages to.
     */
-   private void validateBooleanProperty(final Properties properties,
-         final String propertyName, StringBuilder message)
-   {
+   private void validateBooleanProperty(final Properties properties, final String propertyName,
+         StringBuilder message) {
       final String value = properties.getProperty(propertyName);
-      if (!value.equalsIgnoreCase(Boolean.TRUE.toString()) &&
-            !value.equalsIgnoreCase(Boolean.FALSE.toString()))
-      {
-         message.append("Property " + propertyName + " can have only values \""
-               + Boolean.TRUE + "\" or \"" + Boolean.FALSE
-               + "\" but found value \"" + value);
+      if (!value.equalsIgnoreCase(Boolean.TRUE.toString())
+            && !value.equalsIgnoreCase(Boolean.FALSE.toString())) {
+         message.append("Property " + propertyName + " can have only values \"" + Boolean.TRUE
+               + "\" or \"" + Boolean.FALSE + "\" but found value \"" + value);
          message.append("\n");
       }
    }
 
    /**
-    * Makes sure the string presents valid port number.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Makes sure the string presents valid port number. In case of validation error adds error
+    * messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param propertyName configuration parameter name to validate.
     * @param message buffer to add validation error messages to.
     */
-   private void validatePortNumber(final Properties properties,
-         final String propertyName, StringBuilder message)
-   {
+   private void validatePortNumber(final Properties properties, final String propertyName,
+         StringBuilder message) {
       final String value = properties.getProperty(propertyName);
-      if (!StringUtils.isNumeric(value))
-      {
-         message.append("Numeric value is expected for port number "
-               + "specified by property" + propertyName
-               + " but found \"" + value + "\".\n");
+      if (!StringUtils.isNumeric(value)) {
+         message.append("Numeric value is expected for port number " + "specified by property"
+               + propertyName + " but found \"" + value + "\".\n");
       }
    }
 
    /**
-    * Validates and sets install fast forward property.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Validates and sets install fast forward property. In case of validation error adds error
+    * messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
-   private void readFastForward(final Properties properties,
-         final StringBuilder message)
-   {
+   private void readFastForward(final Properties properties, final StringBuilder message) {
       validateBooleanProperty(properties, INSTALL_FASTFORWARD_PROP, message);
-      setInstallFastForward(Boolean.valueOf(
-            properties.getProperty(INSTALL_FASTFORWARD_PROP)).booleanValue());
-      if (getInstallFastForward() && isUpdateInstallation())
-      {
-         message.append(INSTALL_FASTFORWARD_PROP
-               + " property can't be \"true\" during upgrade.\n");
+      setInstallFastForward(
+            Boolean.valueOf(properties.getProperty(INSTALL_FASTFORWARD_PROP)).booleanValue());
+      if (getInstallFastForward() && isUpdateInstallation()) {
+         message.append(INSTALL_FASTFORWARD_PROP + " property can't be \"true\" during upgrade.\n");
       }
    }
 
    /**
-    * Validates a property indicating whether to remove existing installation.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Validates a property indicating whether to remove existing installation. In case of validation
+    * error adds error messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
    private void readDeleteExistingInstallation(final Properties properties,
-         final StringBuilder message)
-   {
-      validateBooleanProperty(
-            properties, DELETE_EXISTING_INSTALLATION_PROP, message);
-      final boolean delete =  Boolean.valueOf(properties.getProperty(
-            DELETE_EXISTING_INSTALLATION_PROP)).booleanValue();
-      if (delete && isUpdateInstallation())
-      {
+         final StringBuilder message) {
+      validateBooleanProperty(properties, DELETE_EXISTING_INSTALLATION_PROP, message);
+      final boolean delete = Boolean
+            .valueOf(properties.getProperty(DELETE_EXISTING_INSTALLATION_PROP)).booleanValue();
+      if (delete && isUpdateInstallation()) {
          message.append(DELETE_EXISTING_INSTALLATION_PROP + " property "
                + "can't be \"true\" during upgrade.\n");
       }
    }
 
    /**
-    * Validates and sets timeout value.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Validates and sets timeout value. In case of validation error adds error messages to the
+    * <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
-   private void readTimeoutProperty(Properties properties, StringBuilder message)
-   {
-      final String value =
-            properties.getProperty(INSTALLER_TIMEOUT_IN_SEC_PROP);
-      if (StringUtils.isNumeric(value))
-      {
+   private void readTimeoutProperty(Properties properties, StringBuilder message) {
+      final String value = properties.getProperty(INSTALLER_TIMEOUT_IN_SEC_PROP);
+      if (StringUtils.isNumeric(value)) {
          setInstallerTimeoutInSeconds(Integer.parseInt(value));
-      }
-      else
-      {
-         message.append("Was not able to interpret value \""
-               + value +
-               "\" for configuration property "
-               + INSTALLER_TIMEOUT_IN_SEC_PROP
-               + ". Please specify valid numeric value.\n");
+      } else {
+         message.append(
+               "Was not able to interpret value \"" + value + "\" for configuration property "
+                     + INSTALLER_TIMEOUT_IN_SEC_PROP + ". Please specify valid numeric value.\n");
       }
    }
-   
+
    /**
-    * Validates and sets installation type value.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Validates and sets installation type value. In case of validation error adds error messages to
+    * the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
    private void readInstallationTypeProperty(final Properties properties,
-         final StringBuilder message)
-   {
-      final String str = properties.getProperty(INSTALLATION_TYPE); 
-      if (!str.equals(INSTALLATION_TYPE_NEW)
-            && !str.equals(INSTALLATION_TYPE_UPDATE))
-      {
-         message.append("Installation type \"" + str
-               + "\" specified by configuration property "
+         final StringBuilder message) {
+      final String str = properties.getProperty(INSTALLATION_TYPE);
+      if (!str.equals(INSTALLATION_TYPE_NEW) && !str.equals(INSTALLATION_TYPE_UPDATE)) {
+         message.append("Installation type \"" + str + "\" specified by configuration property "
                + INSTALLATION_TYPE + " was not recognized. "
                + "Please specify valid installation type.\n");
       }
@@ -909,60 +809,51 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Validates and sets installation directory value.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Validates and sets installation directory value. In case of validation error adds error
+    * messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
    private void readInstallationDirectoryProperty(final Properties properties,
-         final StringBuilder message)
-   {
-      final String dirStr = properties.getProperty(INSTALLATION_DIR_PROP); 
+         final StringBuilder message) {
+      final String dirStr = properties.getProperty(INSTALLATION_DIR_PROP);
       final File dir = new File(dirStr);
-      if (dir.exists() && !dir.isDirectory())
-      {
+      if (dir.exists() && !dir.isDirectory()) {
          message.append("Installation directory \"" + dirStr
-               + "\" specified by configuration property "
-               + INSTALLATION_DIR_PROP + " was not found. "
-               + "Please specify valid directory.\n");
+               + "\" specified by configuration property " + INSTALLATION_DIR_PROP
+               + " was not found. " + "Please specify valid directory.\n");
       }
       setInstallationDir(dirStr);
    }
 
    /**
-    * Makes sure the property has non-blank value.
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Makes sure the property has non-blank value. In case of validation error adds error messages
+    * to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param propertyName configuration parameter name to validate.
     * @param message buffer to add validation error messages to.
     */
-   private void propertyMustNotBeBlank(final Properties properties,
-         final StringBuilder message, final String propertyName)
-   {
-      if (StringUtils.isBlank(properties.getProperty(propertyName)))
-      {
-         message.append(
-               "Please specify valid value for property " + propertyName);
+   private void propertyMustNotBeBlank(final Properties properties, final StringBuilder message,
+         final String propertyName) {
+      if (StringUtils.isBlank(properties.getProperty(propertyName))) {
+         message.append("Please specify valid value for property " + propertyName);
          message.append("\n");
       }
    }
 
    /**
-    * Makes sure all the mandatory configuration parameters are present. 
-    * In case of validation error
+    * Makes sure all the mandatory configuration parameters are present. In case of validation error
     * adds error messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
-   private void checkForMissingKeys(Properties properties, StringBuilder message)
-   {
-      final Set<String> missingKeys =
-            new HashSet<String>(CONFIGURATION_PROPERTY_NAMES);
+   private void checkForMissingKeys(Properties properties, StringBuilder message) {
+      final Set<String> missingKeys = new HashSet<String>(CONFIGURATION_PROPERTY_NAMES);
       missingKeys.removeAll(properties.keySet());
-      if (!missingKeys.isEmpty())
-      {
+      if (!missingKeys.isEmpty()) {
          message.append("Missing configuration properties: ");
          message.append(missingKeys);
          message.append("\n");
@@ -970,38 +861,32 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Checks for non-recognized configuration parameters. 
-    * In case of validation error
-    * adds error messages to the <code>message</code> parameter.
+    * Checks for non-recognized configuration parameters. In case of validation error adds error
+    * messages to the <code>message</code> parameter.
+    * 
     * @param properties the configuration parameters
     * @param message buffer to add validation error messages to.
     */
    @SuppressWarnings("unchecked")
-   private void checkForUnrecognizedKeys(final Properties properties,
-         StringBuilder message)
-   {
+   private void checkForUnrecognizedKeys(final Properties properties, StringBuilder message) {
       final Set<String> unrecognizedKeys = new HashSet(properties.keySet());
       unrecognizedKeys.removeAll(CONFIGURATION_PROPERTY_NAMES);
-      if (!unrecognizedKeys.isEmpty())
-      {
+      if (!unrecognizedKeys.isEmpty()) {
          message.append("Unrecognized configuration properties: ");
          message.append(unrecognizedKeys);
          message.append("\n");
       }
    }
-   
+
    /**
-    * Generates Rhythmyx service name based on value returned by
-    * {@link #getRhythmyxServiceName()}.
-    * @param date date to use for auto-generated name.
-    * Assumed to be not <code>null</code>.
+    * Generates Rhythmyx service name based on value returned by {@link #getRhythmyxServiceName()}.
+    * 
+    * @param date date to use for auto-generated name. Assumed to be not <code>null</code>.
     * @return {@link #getRhythmyxServiceName()}. If that method returns
-    * {@link #GENERATE_VALUE_AUTOMATICALLY} returns value composed of
-    * {@link #DEFAULT_RHYTHMYX_SERVICE_NAME}, date/time and db driver.
-    * Never blank.
+    *         {@link #GENERATE_VALUE_AUTOMATICALLY} returns value composed of
+    *         {@link #DEFAULT_RHYTHMYX_SERVICE_NAME}, date/time and db driver. Never blank.
     */
-   String generateRhythmyxServiceName(final Date date)
-   {
+   String generateRhythmyxServiceName(final Date date) {
       return getRhythmyxServiceName().equals(GENERATE_VALUE_AUTOMATICALLY)
             ? DEFAULT_RHYTHMYX_SERVICE_NAME + getInstallationSuffix(date)
             : getRhythmyxServiceName();
@@ -1010,15 +895,13 @@ public class PSRxInstallerBot
    /**
     * Generates Rhythmyx service description based on value returned by
     * {@link #getRhythmyxServiceDescription()}.
-    * @param date date to use for auto-generated description.
-    * Assumed to be not <code>null</code>.
+    * 
+    * @param date date to use for auto-generated description. Assumed to be not <code>null</code>.
     * @return {@link #getRhythmyxServiceDescription()}. If that method returns
-    * {@link #GENERATE_VALUE_AUTOMATICALLY} returns value composed of
-    * {@link #DEFAULT_RHYTHMYX_SERVICE_DESCRIPTION}, date/time and db driver.
-    * Never blank.
+    *         {@link #GENERATE_VALUE_AUTOMATICALLY} returns value composed of
+    *         {@link #DEFAULT_RHYTHMYX_SERVICE_DESCRIPTION}, date/time and db driver. Never blank.
     */
-   String generateRhythmyxServiceDescription(final Date date)
-   {
+   String generateRhythmyxServiceDescription(final Date date) {
       final String serviceDescription = getRhythmyxServiceDescription();
       return serviceDescription.equals(GENERATE_VALUE_AUTOMATICALLY)
             ? DEFAULT_RHYTHMYX_SERVICE_DESCRIPTION + getInstallationSuffix(date)
@@ -1026,289 +909,239 @@ public class PSRxInstallerBot
    }
 
    /**
-    * Generates string unique to installation if <code>date</code>
-    * is unique.
+    * Generates string unique to installation if <code>date</code> is unique.
+    * 
     * @param date the time installation runs on.
     * @return string composed of date/time, current db driver.
     */
-   private String getInstallationSuffix(final Date date)
-   {
+   private String getInstallationSuffix(final Date date) {
       final FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
       return " " + format.format(date) + " - " + getDbDriver();
    }
 
    /**
-    * Installation session log file. Passed to the driver.
-    * Set from configuration property.
+    * Installation session log file. Passed to the driver. Set from configuration property.
+    * 
     * @see IPSConsoleAppDriver#setLogFile(String)
     */
-   String getLogFile()
-   {
+   String getLogFile() {
       return m_driver.getLogFile();
    }
 
    /**
     * @see #getLogFile()
     */
-   private void setLogFile(final String logFile)
-   {
+   private void setLogFile(final String logFile) {
       m_driver.setLogFile(logFile);
    }
 
    /**
-    * Command to run in order to start installer.
-    * Set from configuration property.
+    * Command to run in order to start installer. Set from configuration property.
     */
-   String getLaunchInstallerCommand()
-   {
+   String getLaunchInstallerCommand() {
       return m_launchInstallerCommand;
    }
 
    /**
     * @see #getLaunchInstallerCommand()
     */
-   private void setLaunchInstallerCommand(String launchInstallerCommand)
-   {
+   private void setLaunchInstallerCommand(String launchInstallerCommand) {
       m_launchInstallerCommand = launchInstallerCommand;
    }
 
    /**
-    * Returns <code>true</code> when installation type returned by
-    * {@link #getInstallationType()} is {@link #INSTALLATION_TYPE_NEW}.
+    * Returns <code>true</code> when installation type returned by {@link #getInstallationType()} is
+    * {@link #INSTALLATION_TYPE_NEW}.
     */
-   private boolean isNewInstallation()
-   {
+   private boolean isNewInstallation() {
       return getInstallationType().equals(INSTALLATION_TYPE_NEW);
    }
 
    /**
-    * Returns <code>true</code> when installation type returned by
-    * {@link #getInstallationType()} is {@link #INSTALLATION_TYPE_UPDATE}.
+    * Returns <code>true</code> when installation type returned by {@link #getInstallationType()} is
+    * {@link #INSTALLATION_TYPE_UPDATE}.
     */
-   private boolean isUpdateInstallation()
-   {
+   private boolean isUpdateInstallation() {
       return getInstallationType().equals(INSTALLATION_TYPE_UPDATE);
    }
 
    /**
-    * Installation type (whether new or update).
-    * Set from configuration property.
+    * Installation type (whether new or update). Set from configuration property.
     */
-   String getInstallationType()
-   {
+   String getInstallationType() {
       return m_installationType;
    }
 
    /**
     * @see #getInstallationType()
     */
-   private void setInstallationType(String installationType)
-   {
+   private void setInstallationType(String installationType) {
       m_installationType = installationType;
    }
 
    /**
-    * Directory to install Rhythmyx to.
-    * Set from configuration property.
+    * Directory to install Rhythmyx to. Set from configuration property.
     */
-   String getInstallationDir()
-   {
+   String getInstallationDir() {
       return m_installationDir;
    }
 
    /**
     * @see #getInstallationDir()
     */
-   private void setInstallationDir(String installationDir)
-   {
+   private void setInstallationDir(String installationDir) {
       m_installationDir = installationDir;
    }
 
    /**
-    * Time in seconds after which installation times out.
-    * Set from configuration property.
+    * Time in seconds after which installation times out. Set from configuration property.
     */
-   int getInstallerTimeoutInSeconds()
-   {
+   int getInstallerTimeoutInSeconds() {
       return m_installerTimeoutInSeconds;
    }
 
    /**
     * @see #getInstallerTimeoutInSeconds()
     */
-   private void setInstallerTimeoutInSeconds(int installerTimeoutInSeconds)
-   {
+   private void setInstallerTimeoutInSeconds(int installerTimeoutInSeconds) {
       m_installerTimeoutInSeconds = installerTimeoutInSeconds;
    }
 
    /**
-    * Rhythmyx license number to pass to the installer.
-    * Set from configuration property.
+    * Rhythmyx license number to pass to the installer. Set from configuration property.
     */
-   String getLicenseNumber()
-   {
+   String getLicenseNumber() {
       return m_licenseNumber;
    }
 
    /**
     * @see #getLicenseNumber()
     */
-   private void setLicenseNumber(String licenseNumber)
-   {
+   private void setLicenseNumber(String licenseNumber) {
       m_licenseNumber = licenseNumber;
    }
 
    /**
-    * Database driver to choose from choices presented by installer. 
-    * Set from configuration property.
+    * Database driver to choose from choices presented by installer. Set from configuration
+    * property.
     */
-   String getDbDriver()
-   {
+   String getDbDriver() {
       return m_dbDriver;
    }
 
-   private void setDbDriver(String dbDriver)
-   {
+   private void setDbDriver(String dbDriver) {
       this.m_dbDriver = dbDriver;
    }
 
    /**
-    * Database schema/owner to provide to installer.
-    * Set from configuration property.
+    * Database schema/owner to provide to installer. Set from configuration property.
     */
-   String getDbSchema()
-   {
+   String getDbSchema() {
       return m_dbSchema;
    }
 
-   private void setDbSchema(String dbSchema)
-   {
+   private void setDbSchema(String dbSchema) {
       this.m_dbSchema = dbSchema;
    }
 
    /**
-    * Database name (for some DB servers only) to provide to installer.
-    * Set from configuration property.
+    * Database name (for some DB servers only) to provide to installer. Set from configuration
+    * property.
     */
-   String getDbDatabase()
-   {
+   String getDbDatabase() {
       return m_dbDatabase;
    }
 
-   private void setDbDatabase(String dbDatabase)
-   {
+   private void setDbDatabase(String dbDatabase) {
       m_dbDatabase = dbDatabase;
    }
 
    /**
-    * Database driver to choose from choices presented by installer. 
-    * Set from configuration property.
+    * Database driver to choose from choices presented by installer. Set from configuration
+    * property.
     */
-   String getDbServer()
-   {
+   String getDbServer() {
       return m_dbServer;
    }
 
-   private void setDbServer(String dbServer)
-   {
+   private void setDbServer(String dbServer) {
       m_dbServer = dbServer;
    }
 
    /**
-    * Database user connecting to DB to provide to installer.
-    * Set from configuration property.
+    * Database user connecting to DB to provide to installer. Set from configuration property.
     */
-   String getDbUser()
-   {
+   String getDbUser() {
       return m_dbUser;
    }
 
-   private void setDbUser(String dbUser)
-   {
+   private void setDbUser(String dbUser) {
       m_dbUser = dbUser;
    }
 
    /**
-    * DB password to provide to installer. 
-    * Set from configuration property.
+    * DB password to provide to installer. Set from configuration property.
     */
-   String getDbPassword()
-   {
+   String getDbPassword() {
       return m_dbPassword;
    }
 
-   private void setDbPassword(String dbPassword)
-   {
+   private void setDbPassword(String dbPassword) {
       m_dbPassword = dbPassword;
    }
 
    /**
-    * Rhythmyx service name to provide to installer.
-    * Set from configuration property.
+    * Rhythmyx service name to provide to installer. Set from configuration property.
     */
-   String getRhythmyxServiceName()
-   {
+   String getRhythmyxServiceName() {
       return m_rhythmyxServiceName;
    }
 
-   private void setRhythmyxServiceName(String rhythmyxServiceName)
-   {
+   private void setRhythmyxServiceName(String rhythmyxServiceName) {
       m_rhythmyxServiceName = rhythmyxServiceName;
    }
 
    /**
-    * Rhythmyx service description to provide to installer.
-    * Set from configuration property.
+    * Rhythmyx service description to provide to installer. Set from configuration property.
     */
-   String getRhythmyxServiceDescription()
-   {
+   String getRhythmyxServiceDescription() {
       return m_rhythmyxServiceDescription;
    }
 
-   private void setRhythmyxServiceDescription(String rhythmyxServiceDescription)
-   {
+   private void setRhythmyxServiceDescription(String rhythmyxServiceDescription) {
       m_rhythmyxServiceDescription = rhythmyxServiceDescription;
    }
 
    /**
-    * Port Rhythmyx server will run on to provide to installer.
-    * Set from configuration property.
+    * Port Rhythmyx server will run on to provide to installer. Set from configuration property.
     */
-   String getRhythmyxPort()
-   {
+   String getRhythmyxPort() {
       return m_rhythmyxPort;
    }
 
-   private void setRhythmyxPort(String rhythmyxPort)
-   {
+   private void setRhythmyxPort(String rhythmyxPort) {
       m_rhythmyxPort = rhythmyxPort;
    }
 
    /**
-    * Whether to install FastForward. Passed to installer.
-    * Set from configuration property.
+    * Whether to install FastForward. Passed to installer. Set from configuration property.
     */
-   boolean getInstallFastForward()
-   {
+   boolean getInstallFastForward() {
       return m_installFastForward;
    }
 
-   private void setInstallFastForward(boolean installFastForward)
-   {
+   private void setInstallFastForward(boolean installFastForward) {
       m_installFastForward = installFastForward;
    }
 
    /**
-    * Whether to install database publisher. Passed to installer.
-    * Set from configuration property.
+    * Whether to install database publisher. Passed to installer. Set from configuration property.
     */
-   boolean getInstallDbPublisher()
-   {
+   boolean getInstallDbPublisher() {
       return m_installDbPublisher;
    }
 
-   private void setInstallDbPublisher(boolean installDbPublisher)
-   {
+   private void setInstallDbPublisher(boolean installDbPublisher) {
       m_installDbPublisher = installDbPublisher;
    }
 
@@ -1316,9 +1149,8 @@ public class PSRxInstallerBot
    /**
     * The Rhythmyx Server Settings section pattern to expect.
     */
-   private static final String RHYTHMYX_SERVER_SETTINGS_PATTERN =
-         "Rhythmyx Server Settings";
-   
+   private static final String RHYTHMYX_SERVER_SETTINGS_PATTERN = "Rhythmyx Server Settings";
+
    /**
     * The bind port pattern to expect.
     */
@@ -1354,8 +1186,7 @@ public class PSRxInstallerBot
    /**
     * The string to expect for the installation directory prompt.
     */
-   private static final String INSTALLATION_DIRECTORY_PATTERN =
-         "Installation Directory";
+   private static final String INSTALLATION_DIRECTORY_PATTERN = "Installation Directory";
 
    /**
     * The pattern for the "New install" option of the installation type page.
@@ -1363,7 +1194,7 @@ public class PSRxInstallerBot
    private static final String NEW_INSTALL_PATTERN = "New install";
 
    /**
-    * Number of command-line arguments {@link #main(String[])} expects. 
+    * Number of command-line arguments {@link #main(String[])} expects.
     */
    static final int EXPECTED_COMMAND_LINE_ARGS_COUNT = 1;
    /**
@@ -1374,270 +1205,257 @@ public class PSRxInstallerBot
     * Pattern for the publisher features page.
     */
    private static final String SELECT_PUBLISHER_FEATURES =
-         "Select the features for \"Rhythmyx Publisher\" you would like to " +
-         "install";
+         "Select the features for \"Rhythmyx Publisher\" you would like to " + "install";
 
    // configuration property names
    /**
-    * Property name for console session log file.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for console session log file. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String LOG_FILE_PROP = "log.file";
 
    /**
-    * Property name for command to run installer.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for command to run installer. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String LAUNCH_INSTALLER_COMMAND_PROP = "installer.command";
-   
+
    /**
-    * Property name for installation type (whether new installation or update).
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for installation type (whether new installation or update). See
+    * defaultRxInstallerBotConfig.properties in this package for details.
     */
    static final String INSTALLATION_TYPE = "installation.type";
 
    /**
-    * Property name for directory where to install Rhythmyx.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for directory where to install Rhythmyx. See
+    * defaultRxInstallerBotConfig.properties in this package for details.
     */
    static final String INSTALLATION_DIR_PROP = "installation.dir";
 
    /**
-    * Property name for whole installtaion session timeout (in seconds).
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for whole installtaion session timeout (in seconds). See
+    * defaultRxInstallerBotConfig.properties in this package for details.
     */
    static final String INSTALLER_TIMEOUT_IN_SEC_PROP = "installation.timeout";
 
    /**
-    * Property name for Rhythmyx license number.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx license number. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String LICENSE_NUMBER_PROP = "license.number";
 
    /**
-    * Property name for database driver.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for database driver. See defaultRxInstallerBotConfig.properties in this package
+    * for details.
     */
    static final String DB_DRIVER_PROP = "db.driver";
 
    /**
-    * Property name for Rhythmyx database schema.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx database schema. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String DB_SCHEMA_PROP = "db.schema";
 
    /**
-    * Property name for Rhythmyx database.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx database. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String DB_DATABASE_PROP = "db.database";
 
    /**
-    * Property name for database server name.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for database server name. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String DB_SERVER_PROP = "db.server";
 
    /**
-    * Property name for database user.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for database user. See defaultRxInstallerBotConfig.properties in this package
+    * for details.
     */
    static final String DB_USER_PROP = "db.user";
 
    /**
-    * Property name for database user password.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for database user password. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String DB_PASSWORD_PROP = "db.password";
 
    /**
-    * Property name for Rhythmyx service name.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx service name. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String RHYTHMYX_SERVICE_NAME_PROP = "rhythmyx.service.name";
 
    /**
-    * Property name for Rhythmyx service description.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx service description. See defaultRxInstallerBotConfig.properties in
+    * this package for details.
     */
-   static final String RHYTHMYX_SERVICE_DESCRIPTION_PROP =
-         "rhythmyx.service.desc";
+   static final String RHYTHMYX_SERVICE_DESCRIPTION_PROP = "rhythmyx.service.desc";
 
    /**
-    * Property name for Rhythmyx server port.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for Rhythmyx server port. See defaultRxInstallerBotConfig.properties in this
+    * package for details.
     */
    static final String RHYTHMYX_PORT_PROP = "rhythmyx.port";
 
    /**
-    * Property name for indicator whether to install FastForward.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for indicator whether to install FastForward. See
+    * defaultRxInstallerBotConfig.properties in this package for details.
     */
    static final String INSTALL_FASTFORWARD_PROP = "install.fastforward";
-   
-   /**
-    * Property name for the indicator whether to delete existing installation.
-    * Installbot does nothing with this value except making sure it exists
-    * and is valid.
-    * Can't be <code>true</code> on update.
-    */
-   static final String DELETE_EXISTING_INSTALLATION_PROP =
-         "delete.existing.installation";
 
    /**
-    * Property name for indicator whether to install database publisher.
-    * See defaultRxInstallerBotConfig.properties in this package for details.
+    * Property name for the indicator whether to delete existing installation. Installbot does
+    * nothing with this value except making sure it exists and is valid. Can't be <code>true</code>
+    * on update.
+    */
+   static final String DELETE_EXISTING_INSTALLATION_PROP = "delete.existing.installation";
+
+   /**
+    * Property name for indicator whether to install database publisher. See
+    * defaultRxInstallerBotConfig.properties in this package for details.
     */
    static final String INSTALL_DB_PUBLISHER_PROP = "install.db.publisher";
 
    /**
     * All the configuration property names.
     */
-   private static final Set<String> CONFIGURATION_PROPERTY_NAMES =
-         new HashSet<String>(Arrays.asList(new String[]
-         {LOG_FILE_PROP, LAUNCH_INSTALLER_COMMAND_PROP,
-               INSTALLATION_TYPE,
-               INSTALLATION_DIR_PROP, INSTALLER_TIMEOUT_IN_SEC_PROP,
-               LICENSE_NUMBER_PROP,
-               DB_DRIVER_PROP, DB_SCHEMA_PROP, DB_DATABASE_PROP, DB_SERVER_PROP,
-               DB_USER_PROP, DB_PASSWORD_PROP,
-               RHYTHMYX_SERVICE_NAME_PROP,
-               RHYTHMYX_SERVICE_DESCRIPTION_PROP, RHYTHMYX_PORT_PROP,
-               INSTALL_FASTFORWARD_PROP,
-               INSTALL_DB_PUBLISHER_PROP,
-               DELETE_EXISTING_INSTALLATION_PROP}));
-   
+   private static final Set<String> CONFIGURATION_PROPERTY_NAMES = new HashSet<String>(
+         Arrays.asList(new String[] {LOG_FILE_PROP, LAUNCH_INSTALLER_COMMAND_PROP,
+               INSTALLATION_TYPE, INSTALLATION_DIR_PROP, INSTALLER_TIMEOUT_IN_SEC_PROP,
+               LICENSE_NUMBER_PROP, DB_DRIVER_PROP, DB_SCHEMA_PROP, DB_DATABASE_PROP,
+               DB_SERVER_PROP, DB_USER_PROP, DB_PASSWORD_PROP, RHYTHMYX_SERVICE_NAME_PROP,
+               RHYTHMYX_SERVICE_DESCRIPTION_PROP, RHYTHMYX_PORT_PROP, INSTALL_FASTFORWARD_PROP,
+               INSTALL_DB_PUBLISHER_PROP, DELETE_EXISTING_INSTALLATION_PROP}));
+
    /**
-    * This is a new installation - one of the values property
-    * {@link #getInstallationType()} can accept.
+    * This is a new installation - one of the values property {@link #getInstallationType()} can
+    * accept.
     */
    static final String INSTALLATION_TYPE_NEW = NEW_INSTALL_PATTERN;
 
    /**
-    * This is an upgrade - one of the values property
-    * {@link #getInstallationType()} can accept.
+    * This is an upgrade - one of the values property {@link #getInstallationType()} can accept.
     */
    static final String INSTALLATION_TYPE_UPDATE = "Upgrade existing install";
-   
+
    /**
-    * Property value indicating that data specified by this property should
-    * be automatically generated.
+    * Property value indicating that data specified by this property should be automatically
+    * generated.
     */
    static final String GENERATE_VALUE_AUTOMATICALLY = "auto";
-   
+
    /**
     * Default Rhythmyx service name as suggested by installer.
     */
    static final String DEFAULT_RHYTHMYX_SERVICE_NAME = "Rhythmyx Server";
-   
+
    /**
     * Short wait in seconds for the installer response.
     */
-   private static final long SHORT_WAIT = 10; 
+   private static final long SHORT_WAIT = 10;
 
    /**
     * Default Rhythmyx service description as suggested by installer.
     */
-   static final String DEFAULT_RHYTHMYX_SERVICE_DESCRIPTION =
-         "Percussion Rhythmyx Server";
-   
+   static final String DEFAULT_RHYTHMYX_SERVICE_DESCRIPTION = "Percussion Rhythmyx Server";
+
    /**
     * Singleton instance.
     */
    static PSRxInstallerBot INSTANCE = new PSRxInstallerBot();
-   
+
    /**
     * Program output. Usually corresponds to {@link System#out}
     */
    PrintWriter m_out = new PrintWriter(System.out, true);
-   
+
    /**
     * Object providing access to the installer.
     */
    IPSConsoleAppDriver m_driver = new PSExpectJConsoleAppDriver();
 
    /**
-    * Regex pattern used to extract choice number from the list of choices
-    * provided by installer (e.g. list of DB drivers).
+    * Regex pattern used to extract choice number from the list of choices provided by installer
+    * (e.g. list of DB drivers).
     */
-   private final Pattern m_numberedChoicePattern =
-         Pattern.compile("(\\d+)\\.\\s");
-   
+   private final Pattern m_numberedChoicePattern = Pattern.compile("(\\d+)\\.\\s");
+
    /**
     * @see #getLaunchInstallerCommand()
     */
    private String m_launchInstallerCommand;
-   
+
    /**
     * @see #getInstallationType()
     */
    private String m_installationType;
-   
+
    /**
     * @see #getInstallationDir()
     */
    private String m_installationDir;
-   
+
    /**
     * @see #getInstallerTimeoutInSeconds()
     */
    private int m_installerTimeoutInSeconds;
-   
+
    /**
     * @see #getLicenseNumber()
     */
    private String m_licenseNumber;
-   
+
    /**
     * @see #getDbDriver()
     */
    private String m_dbDriver;
-   
+
    /**
     * @see #getDbSchema()
     */
    private String m_dbSchema;
-   
+
    /**
     * @see #getDbDatabase()
     */
    private String m_dbDatabase;
-   
+
    /**
     * @see #getDbDriver()
     */
    private String m_dbServer;
-   
+
    /**
     * @see #getDbUser()
     */
    private String m_dbUser;
-   
+
    /**
     * @see #getDbPassword()
     */
    private String m_dbPassword;
-   
+
    /**
     * @see #getRhythmyxServiceName()
     */
    private String m_rhythmyxServiceName;
-   
+
    /**
     * @see #getRhythmyxServiceDescription()
     */
    private String m_rhythmyxServiceDescription;
-   
+
    /**
     * @see #getRhythmyxPort()
     */
    private String m_rhythmyxPort;
-   
+
    /**
     * @see #getInstallFastForward()
     */
    private boolean m_installFastForward;
-   
+
    /**
     * @see #getInstallDbPublisher()
     */

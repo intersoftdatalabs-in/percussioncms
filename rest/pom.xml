@@ -171,13 +171,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerVersion>1.8</compilerVersion>
-                    <target>1.8</target>
-                    <testTarget>1.8</testTarget>
-                    <debug>true</debug>
-                    <debuglevel>lines,vars,source</debuglevel>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -19,6 +19,10 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sf.oval</groupId>
             <artifactId>oval</artifactId>
         </dependency>
@@ -451,11 +455,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-annotations</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <scope>compile</scope>
@@ -489,11 +488,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>tablefactory</artifactId>
             <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -660,13 +654,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${jdk.version}</target>
-                    <fork>true</fork>
-                    <meminitial>1024m</meminitial>
-                    <maxmem>2024m</maxmem>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

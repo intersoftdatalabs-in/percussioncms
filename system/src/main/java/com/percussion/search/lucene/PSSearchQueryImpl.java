@@ -28,7 +28,6 @@ import com.percussion.search.PSSearchResult;
 import com.percussion.search.lucene.analyzer.PSLuceneAnalyzerFactory;
 import com.percussion.server.PSServer;
 import com.percussion.util.IPSHtmlParameters;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -264,7 +263,6 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
    *     directory exists with that content type id.
    * @throws PSSearchException in case of io or index corrupted exceptions.
    */
-  @SuppressFBWarnings({"PATH_TRAVERSAL_IN"})
   private IndexReader getIndexReader(String ctypeId) throws IOException, PSSearchException {
 
     if (!StringUtils.isNumeric(ctypeId))

@@ -1,24 +1,23 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.test.ant;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -39,15 +38,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 
 /**
- * Create the filter file for use in deploying the autotester client and server.
- * This task reads the server.xml from Tomcat and the server.properties file and
- * creates a property file for the autotester to use.
+ * Create the filter file for use in deploying the autotester client and server. This task reads the
+ * server.xml from Tomcat and the server.properties file and creates a property file for the
+ * autotester to use.
  * 
  * @author dougrand
  */
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class PSMakeFilterFileTask extends Task
-{
+public class PSMakeFilterFileTask extends Task {
 
    /**
     * The rhythmyx root directory, a required property. Set via ANT
@@ -58,7 +55,7 @@ public class PSMakeFilterFileTask extends Task
     * The output property file path, a required property. Set via ANT
     */
    String m_propertyFile;
-   
+
    /**
     * The test port to use when getting host info, defaults to 32000
     */
@@ -77,118 +74,80 @@ public class PSMakeFilterFileTask extends Task
     * @see org.apache.tools.ant.Task#execute()
     */
    @Override
-   public void execute() throws BuildException
-   {
-      if (StringUtils.isBlank(m_propertyFile))
-      {
+   public void execute() throws BuildException {
+      if (StringUtils.isBlank(m_propertyFile)) {
          throw new BuildException("propertyFile is a required attribute");
       }
-      if (StringUtils.isBlank(m_rhythmyxRoot))
-      {
+      if (StringUtils.isBlank(m_rhythmyxRoot)) {
          throw new BuildException("rhythmyxRoot is a required attribute");
       }
 
       Writer w = null;
       PrintWriter pw = null;
 
-      try
-      {
+      try {
          w = new FileWriter(m_propertyFile);
          pw = new PrintWriter(w);
 
          File rxroot = new File(m_rhythmyxRoot);
-         if (!rxroot.exists())
-         {
-            throw new BuildException("The given root directory doesn't exist: "
-                  + rxroot);
+         if (!rxroot.exists()) {
+            throw new BuildException("The given root directory doesn't exist: " + rxroot);
          }
-         File serverxml = new File(rxroot,
-               "AppServer/server/rx/deploy/jbossweb-tomcat55.sar/server.xml");
-         if (!serverxml.exists())
-         {
+         File serverxml =
+               new File(rxroot, "AppServer/server/rx/deploy/jbossweb-tomcat55.sar/server.xml");
+         if (!serverxml.exists()) {
             throw new BuildException("server.xml doesn't exist: " + serverxml);
          }
-         DocumentBuilderFactory f = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(  new PSXmlSecurityOptions(
-                 true,
-                 true,
-                 true,
-                 false,
-                 true,
-                 false
-         ));
-         try
-         {
+         DocumentBuilderFactory f = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+               new PSXmlSecurityOptions(true, true, true, false, true, false));
+         try {
             DocumentBuilder b = f.newDocumentBuilder();
             Document d = b.parse(serverxml);
             NodeList nl = d.getElementsByTagName("Connector");
-            if (nl.getLength() == 0)
-            {
-               throw new BuildException(
-                     "Couldn't find the connector element in server.xml");
+            if (nl.getLength() == 0) {
+               throw new BuildException("Couldn't find the connector element in server.xml");
             }
             Element el = (Element) nl.item(0);
             String port = el.getAttribute("port");
-            if (port == null || port.trim().length() == 0)
-            {
+            if (port == null || port.trim().length() == 0) {
                handleErrorOutput("Missing port information from server.xml");
             }
             pw.println("wsport=" + port);
             pw.println("rxport=" + port);
-         }
-         catch (ParserConfigurationException e1)
-         {
+         } catch (ParserConfigurationException e1) {
             throw new BuildException("Couldn't get an XML parser", e1);
-         }
-         catch (SAXException e)
-         {
+         } catch (SAXException e) {
             throw new BuildException("Problem parsing server.xml", e);
-         }
-         catch (IOException e)
-         {
+         } catch (IOException e) {
             throw new BuildException(e);
          }
          // Grab host name and ip
          ServerSocket sock = null;
-         try
-         {
+         try {
             short testPort = Short.parseShort(m_testPort);
             sock = new ServerSocket(testPort);
             InetAddress addr = sock.getInetAddress().getLocalHost();
             pw.println("host=" + addr.getHostName());
             pw.println("ip=" + addr.getHostAddress());
-         }
-         catch(NumberFormatException e)
-         {
+         } catch (NumberFormatException e) {
             handleErrorOutput("Badly formed test port number: " + m_testPort);
+         } finally {
+            if (sock != null)
+               sock.close();
          }
-         finally
-         {
-            if (sock != null) sock.close();
-         }
-      }
-      catch (IOException e)
-      {
-         handleErrorOutput("Could not open property file: "
-               + e.getLocalizedMessage());
-      }
-      catch (Exception e)
-      {
+      } catch (IOException e) {
+         handleErrorOutput("Could not open property file: " + e.getLocalizedMessage());
+      } catch (Exception e) {
          handleErrorOutput("Unexpected error: " + e.getLocalizedMessage());
          e.printStackTrace();
-      }
-      finally
-      {
+      } finally {
          if (pw != null)
             pw.flush();
          if (w != null)
-            try
-            {
+            try {
                w.close();
-            }
-            catch (IOException e1)
-            {
-               handleErrorOutput("Unexpected problem: "
-                     + e1.getLocalizedMessage());
+            } catch (IOException e1) {
+               handleErrorOutput("Unexpected problem: " + e1.getLocalizedMessage());
             }
       }
 
@@ -197,48 +156,43 @@ public class PSMakeFilterFileTask extends Task
    /**
     * @return Returns the propertyFile.
     */
-   public String getPropertyFile()
-   {
+   public String getPropertyFile() {
       return m_propertyFile;
    }
 
    /**
     * @param propertyFile The propertyFile to set.
     */
-   public void setPropertyFile(String propertyFile)
-   {
+   public void setPropertyFile(String propertyFile) {
       m_propertyFile = propertyFile;
    }
 
    /**
     * @return Returns the rhythmyxRoot.
     */
-   public String getRhythmyxRoot()
-   {
+   public String getRhythmyxRoot() {
       return m_rhythmyxRoot;
    }
 
    /**
     * @param rhythmyxRoot The rhythmyxRoot to set.
     */
-   public void setRhythmyxRoot(String rhythmyxRoot)
-   {
+   public void setRhythmyxRoot(String rhythmyxRoot) {
       m_rhythmyxRoot = rhythmyxRoot;
    }
-   
-   
+
+
    /**
     * @return Returns the testPort.
     */
-   public String getTestPort()
-   {
+   public String getTestPort() {
       return m_testPort;
    }
+
    /**
     * @param testPort The testPort to set.
     */
-   public void setTestPort(String testPort)
-   {
+   public void setTestPort(String testPort) {
       m_testPort = testPort;
    }
 }

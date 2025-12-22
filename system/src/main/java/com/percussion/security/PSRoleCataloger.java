@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.security;
 
@@ -24,7 +23,6 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,9 +50,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   private static Logger log = LogManager.getLogger(PSRoleCataloger.class);
 
   /**
-   * Convenience constructor that calls
-   * {@link #PSRoleCataloger(Properties, PSServerConfiguration)} with
-   * <code>null<code> for the server configuration.
+   * Convenience constructor that calls {@link #PSRoleCataloger(Properties, PSServerConfiguration)}
+   * with <code>null<code> for the server configuration.
    */
   public PSRoleCataloger(Properties properties) {
     this(properties, null);
@@ -63,14 +60,13 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * Constructs a new role cataloger for the supplied properties.
    *
-   * @param properties the role cataloger requires one property: a reference to
-   *           the <code>PSDirectorySet</code> definition used as the role
-   *           server, not <code>null</code> or empty.
-   * @param config the server configuration with all directory definitions, may
-   *           be <code>null<code> in which case this will get it from the
+   * @param properties the role cataloger requires one property: a reference to the
+   *        <code>PSDirectorySet</code> definition used as the role server, not <code>null</code> or
+   *        empty.
+   * @param config the server configuration with all directory definitions, may be
+   *        <code>null<code> in which case this will get it from the
    *    <code>PSServer</code>.
-   * @throws PSSecurityException if the referenced role provider was not
-   *    found.
+   * @throws PSSecurityException if the referenced role provider was not found.
    */
   public PSRoleCataloger(Properties properties, PSServerConfiguration config)
       throws PSSecurityException {
@@ -366,7 +362,6 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
    *     <code>null</code>, may be empty.
    * @throws NamingException for any JNDI lookup error.
    */
-  @SuppressFBWarnings("LDAP_INJECTION") // Mitigated in PSJndiUtils.buildFilter
   private NamingEnumeration getAttributes(
       DirContext context, PSDirectoryDefinition directory, Map filterValues, String[] returnAttrs)
       throws NamingException {
@@ -377,8 +372,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   }
 
   /**
-   * The role providef used for this cataloger, initialized in constructor,
-   * never <code>null<code> or never changed after that.
+   * The role providef used for this cataloger, initialized in constructor, never <code>null<code>
+   * or never changed after that.
    */
   protected PSRoleProvider m_roleProvider = null;
 }

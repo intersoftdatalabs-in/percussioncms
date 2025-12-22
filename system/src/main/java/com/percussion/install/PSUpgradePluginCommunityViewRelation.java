@@ -1,25 +1,23 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.install;
 
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSSQLStatement;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -41,12 +39,11 @@ public class PSUpgradePluginCommunityViewRelation implements IPSUpgradePlugin {
 
   /**
    * Implements process method of IPSUpgradePlugin.
-   * @param config IPSUpgradeModule object.
-   *    may not be <code>null<code>.
-   * @param elemData data element of plugin.
+   *
+   * @param config IPSUpgradeModule object. may not be <code>null<code>.
+   * &#64;param elemData data element of plugin.
    * @return <code>null</code>.
    */
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     config.getLogStream().println("Running community view relation plugin");
     Statement stmt = null;

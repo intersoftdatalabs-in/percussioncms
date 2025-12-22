@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.i18n;
@@ -24,7 +23,6 @@ import com.percussion.i18n.tmxdom.PSTmxDocument;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,12 +61,10 @@ import org.xml.sax.SAXException;
  * meaningful value.
  */
 /*
- * Note: right now loading the document into cache is fairly quick process.
- * However, when several languages are deployed and the resource bundle grows
- * to a size to slowdown loading resources significantly, we may have to
- * consider reading resources in a separate thread.
+ * Note: right now loading the document into cache is fairly quick process. However, when several
+ * languages are deployed and the resource bundle grows to a size to slowdown loading resources
+ * significantly, we may have to consider reading resources in a separate thread.
  */
-@SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
 public class PSTmxResourceBundle implements IPSTmxDtdConstants {
 
   private static PSTmxResourceBundle INSTANCE;
@@ -104,6 +100,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     }
     return INSTANCE;
   }
+
   /**
    * Get the value for the given key using the default language. Simply delegates to <code>
    * getString(String, String)</code>
@@ -343,6 +340,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       }
     }
   }
+
   /** This method loads/reloads the i18n resource to cache. */
   public synchronized boolean loadResources() {
     boolean ret = true;
@@ -505,6 +503,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       }
     }
   }
+
   /** Method to empty the resource cache. */
   private void flushCache() {
     if (ms_ResourceBundles.isEmpty()) return;

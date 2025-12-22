@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.server;
@@ -130,7 +129,6 @@ import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.utils.types.PSPair;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.serialization.PSObjectSerializer;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -296,7 +294,7 @@ public class PSServer {
               && path.startsWith(getRequestRoot());
 
       // String sessionid = (String) PSRequestInfo
-      //       .getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      // .getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
       String sessionid = "";
       if (isloopback) {
         path = path + ";jsessionid=" + sessionid;
@@ -442,8 +440,7 @@ public class PSServer {
         PSObjectSerializer.getInstance().registerBeanClasses(PSServer.class);
 
         /*
-         * get singleton of lock manager early on since anyone might start to
-         * use it
+         * get singleton of lock manager early on since anyone might start to use it
          */
         PSServerLockManager.createInstance();
 
@@ -453,13 +450,13 @@ public class PSServer {
         // load macro definitions
         initMacros();
 
-        /* we need the objectstore handler to initialize the datasource
-         * resolver
+        /*
+         * we need the objectstore handler to initialize the datasource resolver
          */
         if (!initObjectStoreHandler()) return false;
 
-        /* initialize the datasource resolver. this must be done before
-         * initializing the log
+        /*
+         * initialize the datasource resolver. this must be done before initializing the log
          */
         if (0 != (toInit & INITED_DB_POOL)) {
           PSMetaDataCache.getInstance();
@@ -479,8 +476,9 @@ public class PSServer {
         /* initialize the error mananger/handler */
         if (0 != (toInit & INITED_ERROR)) initErrorHandling();
 
-        /* Only install mgr if the flag is set, otherwise we run w/ no
-        security. */
+        /*
+         * Only install mgr if the flag is set, otherwise we run w/ no security.
+         */
         if (ms_srvConfig.getUseSandboxSecurity()) System.setSecurityManager(new SecurityManager());
 
         if (0 != (toInit & INITED_EXTENSION)) {
@@ -530,10 +528,10 @@ public class PSServer {
         ms_customCtrlMgr = PSCustomControlManager.getInstance();
         ms_customCtrlMgr.init(getRxDir());
 
-        /* JS: moved this to after initializing security so we can create
-         * AclHandlers for each app as we create the app summaries in the
-         * init of the PSXmlObjectStoreHandler instead of doing it lazily
-         * when the summaries are requested by the designer.
+        /*
+         * JS: moved this to after initializing security so we can create AclHandlers for each app
+         * as we create the app summaries in the init of the PSXmlObjectStoreHandler instead of
+         * doing it lazily when the summaries are requested by the designer.
          */
         PSApplication[] apps = null;
         /* initialize the object store (also inits request handlers) */
@@ -544,8 +542,9 @@ public class PSServer {
 
         PSThreadRequestUtils.initServerThreadRequest();
 
-        /* once the db pool and security pool is up, we can load the
-         * runnable applications from the object store
+        /*
+         * once the db pool and security pool is up, we can load the runnable applications from the
+         * object store
          */
         if (0 != (toInit & INITED_REQ_HANDLERS)) initRequestHandlers(apps);
 
@@ -555,8 +554,7 @@ public class PSServer {
       // once the request handlers have started, we can start search services
 
       /*
-       * Fix for search queue starting up too soon:
-       * http://bugs/browse/CML-4793
+       * Fix for search queue starting up too soon: http://bugs/browse/CML-4793
        */
 
       if (!isCaseSensitiveURL())
@@ -569,7 +567,7 @@ public class PSServer {
       ms_cacheManager.start();
 
       // Send message to Configuration Service:
-      //     -Server Initialization complete, install the Packages.
+      // -Server Initialization complete, install the Packages.
       if (0 != (toInit & INITED_PACKAGE_INSTALL)) {
         PSNotificationHelper.notifyServerInitComplete(getRxDir());
         ms_WhatsUp |= INITED_PACKAGE_INSTALL;
@@ -598,7 +596,6 @@ public class PSServer {
     }
   }
 
-  @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
   public static String stackToString(Exception t) {
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);
@@ -759,8 +756,8 @@ public class PSServer {
           com.percussion.security.IPSSecurityErrors.SECURITY_NOT_INITIALIZED, null);
     }
 
-    /* verify the user has the appropriate access for what they
-     * are trying to do
+    /*
+     * verify the user has the appropriate access for what they are trying to do
      */
     int accessLevel = ms_AclHandler.getUserAccessLevel(tok);
     if ((accessLevel & level) != level) {
@@ -797,13 +794,13 @@ public class PSServer {
       if (PSConsole.isConsoleUser(request)) return;
     }
 
-    /* These three string-type variables are added in by Jian Huang, on 04/25/1999*/
+    /* These three string-type variables are added in by Jian Huang, on 04/25/1999 */
     String resourceType = request.getAppName();
     String resourceName = request.getRequestPage();
     String sessionId = request.getUserSessionId();
 
-    /* verify the user has the appropriate access for what they
-     * are trying to do
+    /*
+     * verify the user has the appropriate access for what they are trying to do
      */
     int accessLevel = ms_AclHandler.getUserAccessLevel(request);
     if ((accessLevel & level) != level) {
@@ -1235,8 +1232,8 @@ public class PSServer {
     String reqType = req.getCgiVariable(IPSCgiVariables.CGI_PS_REQUEST_TYPE);
     if (reqType != null) {
       /*
-       * get the request type header field (PS-Request-Type) if this is not
-       * specified, it's a data request
+       * get the request type header field (PS-Request-Type) if this is not specified, it's a data
+       * request
        */
       rh = ms_RequestHandlers.get(reqType);
       if (rh == null) {
@@ -1385,8 +1382,9 @@ public class PSServer {
       // let these propagate
       throw e;
     } catch (Exception e) {
-      /* Some IO or parsing exception probably - log it and return the
-       * empty config - resource handler will deal with any missing data.
+      /*
+       * Some IO or parsing exception probably - log it and return the empty config - resource
+       * handler will deal with any missing data.
        */
       int msgCode = IPSServerErrors.CE_SYSTEM_DEF_LOAD;
       Object[] args = {e.toString()};
@@ -1415,9 +1413,9 @@ public class PSServer {
       // let these propagate
       throw e;
     } catch (Exception e) {
-      /* Some IO or parsing exception probably - log it and return the
-       * empty config - resource handler will deal with any missing
-       * data.
+      /*
+       * Some IO or parsing exception probably - log it and return the empty config - resource
+       * handler will deal with any missing data.
        */
       int msgCode = IPSServerErrors.CE_SHARED_DEF_LOAD;
       Object[] args = {"unknown", e.toString()};
@@ -1450,8 +1448,8 @@ public class PSServer {
       IPSRequestHandler rh = handlers.next();
       if (rh instanceof PSApplicationHandler) {
         PSApplicationHandler ah = (PSApplicationHandler) rh;
-        /* this will validate the type, don't want to duplicate that code
-         * here
+        /*
+         * this will validate the type, don't want to duplicate that code here
          */
         Iterator<PSEntry> entries = ah.getAclEntries(type);
         while (entries.hasNext()) {
@@ -1482,9 +1480,8 @@ public class PSServer {
   private static boolean loadConfig() {
     PSConsole.printInfoMsg("Server", IPSServerErrors.LOADING_CONFIG, (Object[]) null);
 
-    /* load server configuration settings for:
-     *    - Server (log, request queue, etc.)
-     *    - ObjectStore
+    /*
+     * load server configuration settings for: - Server (log, request queue, etc.) - ObjectStore
      */
     try {
       // load the server properties file
@@ -1492,9 +1489,9 @@ public class PSServer {
 
       if (!ms_serverProps.isEmpty()) {
 
-        /* Determine whether to pause and wait for user input before exiting
-         * ms_noPauseOnExit will be set to true once all initialization
-         * is complete.
+        /*
+         * Determine whether to pause and wait for user input before exiting ms_noPauseOnExit will
+         * be set to true once all initialization is complete.
          */
 
         String noPauseOnExit = ms_serverProps.getProperty(PROP_NO_PAUSE_ON_EXIT);
@@ -1543,8 +1540,9 @@ public class PSServer {
 
       return true;
     } catch (Exception e) {
-      /* this is thrown if one of our config files is missing, etc.
-       * we really can't recover from this, so spit out an error.
+      /*
+       * this is thrown if one of our config files is missing, etc. we really can't recover from
+       * this, so spit out an error.
        */
       Object[] params = {e.getMessage()};
       PSServerLogHandler.handleTerminalError(IPSServerErrors.LOAD_CONFIG_FAILURE, params);
@@ -1572,9 +1570,9 @@ public class PSServer {
       ms_objectStore = new PSXmlObjectStoreHandler(ms_objectStoreProps);
       PSServerXmlObjectStore.createInstance((PSXmlObjectStoreHandler) ms_objectStore);
     } catch (Exception e) {
-      /* the objectDirectory setting is missing or points to an
-       * invalid directory.
-       * we really can't recover from this, so spit out an error.
+      /*
+       * the objectDirectory setting is missing or points to an invalid directory. we really can't
+       * recover from this, so spit out an error.
        */
       Object[] params = {e.getMessage()};
       PSServerLogHandler.handleTerminalError(IPSServerErrors.OBJECT_STORE_INIT_FAILED, params);
@@ -1700,11 +1698,10 @@ public class PSServer {
   private static void initSecurity() {
     PSConsole.printInfoMsg("Server", IPSServerErrors.SEC_POOL_INIT, (Object[]) null);
 
-    /* initialize server security by:
-     *    - initializing the security provider pool
-     *    - loading the public roles
-     *    - start ACL handler (must be done AFTER loading roles!!!)
-     *    - load data encryptor settings
+    /*
+     * initialize server security by: - initializing the security provider pool - loading the public
+     * roles - start ACL handler (must be done AFTER loading roles!!!) - load data encryptor
+     * settings
      */
     PSRoleManager.getInstance();
 
@@ -1737,9 +1734,10 @@ public class PSServer {
     PSValidatorAdapter validateContext = new PSValidatorAdapter(ms_objectStore);
     validateContext.throwOnErrors(true);
 
-    /* If the app is hidden, it will not respond to any type of external
-     * requests, will not be listed in the rooted request handlers, and
-     * will not print a console message to the console on startup.
+    /*
+     * If the app is hidden, it will not respond to any type of external requests, will not be
+     * listed in the rooted request handlers, and will not print a console message to the console on
+     * startup.
      */
     if (!app.isHidden()) {
       PSConsole.printInfoMsg(
@@ -1960,8 +1958,10 @@ public class PSServer {
       /* sort apps in start priorty order, then start each one */
       Comparator<PSApplication> c =
           new Comparator<PSApplication>() {
-            /* This comparison is inconsistent with equals. It orders the
-            list in order from highest startPriority to lowest. */
+            /*
+             * This comparison is inconsistent with equals. It orders the list in order from highest
+             * startPriority to lowest.
+             */
             public int compare(PSApplication x, PSApplication y) {
               int xPri = x.getStartPriority();
               int yPri = y.getStartPriority();
@@ -2053,9 +2053,10 @@ public class PSServer {
       PSRequestHandlerDef def = defs.next();
       IPSLoadableRequestHandler loadableHandler = null;
       try {
-        /* Use a constructor with the signature (IPSObjectStoreHandler,
-        IPSExtensionManager) if one exists.  Otherwise, use the empty
-        contructor */
+        /*
+         * Use a constructor with the signature (IPSObjectStoreHandler, IPSExtensionManager) if one
+         * exists. Otherwise, use the empty contructor
+         */
         Class handlerClass = Class.forName(def.getClassName());
         try {
           Constructor handlerCtor =
@@ -2074,8 +2075,8 @@ public class PSServer {
         throw new PSServerException(IPSServerErrors.LOADABLE_REQUEST_HANDLER_CREATE_ERROR, args);
       }
 
-      /* Add to master request handler list, using handler name, and
-       * extdata as the root
+      /*
+       * Add to master request handler list, using handler name, and extdata as the root
        */
       ms_RequestHandlers.put("extdata-" + def.getHandlerName(), loadableHandler);
 
@@ -2092,8 +2093,8 @@ public class PSServer {
 
         requestRoots.add(requestRoot);
 
-        /* Add it to the rooted handler list so requests can be identified
-         * by the request root
+        /*
+         * Add it to the rooted handler list so requests can be identified by the request root
          */
         ms_rootedRequestHandlers.put(requestRoot, loadableHandler);
 
@@ -2219,17 +2220,17 @@ public class PSServer {
 
     if (!didInit) return false;
 
-    /* if the object store's not up yet, we create a default log handler.
-     * once the object store is activated, a real log handler will be
-     * created as well.
+    /*
+     * if the object store's not up yet, we create a default log handler. once the object store is
+     * activated, a real log handler will be created as well.
      */
     PSLogger logger = null;
     if (ms_srvConfig != null) // use the server's logger if available
     logger = ms_srvConfig.getLogger();
 
     if (logger == null) {
-      /* The object store must not be up yet.
-       * We'll enable all logging by default.
+      /*
+       * The object store must not be up yet. We'll enable all logging by default.
        */
       logger = new PSLogger();
 
@@ -2255,9 +2256,9 @@ public class PSServer {
 
     PSErrorManager.init();
 
-    /* we'll use default error page and notifier for the error handler
-     * constructor until we start the object store. initObjectStore
-     * will then create the real object.
+    /*
+     * we'll use default error page and notifier for the error handler constructor until we start
+     * the object store. initObjectStore will then create the real object.
      */
     com.percussion.util.PSMapClassToObject errorPages =
         new com.percussion.util.PSMapClassToObject();
@@ -2405,11 +2406,11 @@ public class PSServer {
   }
 
   private static synchronized void shutdownRequestHandlers() {
-    /* now go through the handlers and shut each one down.  May be dupes in
-     * in this list, so keep track of who's been shut down so we don't call
-     * shutdown more than once.  Also create and loop through a local copy
-     * of the handlers as each shutdown may modify the actual table which
-     * could result in a failure (CML-3019).
+    /*
+     * now go through the handlers and shut each one down. May be dupes in in this list, so keep
+     * track of who's been shut down so we don't call shutdown more than once. Also create and loop
+     * through a local copy of the handlers as each shutdown may modify the actual table which could
+     * result in a failure (CML-3019).
      */
     if (ms_RequestHandlers != null) {
       Set<IPSRequestHandler> stoppedHandlers = new HashSet<IPSRequestHandler>();
@@ -2528,9 +2529,8 @@ public class PSServer {
     if (ms_WhatsUp == INITED_NONE) return;
 
     /*
-     * Remove expired design object locks. This may only be done on a normal
-     * server shutdown to make sure the no expired locks are removed after
-     * a server crash.
+     * Remove expired design object locks. This may only be done on a normal server shutdown to make
+     * sure the no expired locks are removed after a server crash.
      */
     IPSObjectLockService service = PSObjectLockServiceLocator.getLockingService();
     List<PSObjectLock> expiredLocks = service.findExpiredLocks();
@@ -2552,8 +2552,7 @@ public class PSServer {
     // if (ms_WhatsUp & INITED_OBJECT_STORE)
 
     /*
-     * shut down search before request handlers as search may be using
-     * applications
+     * shut down search before request handlers as search may be using applications
      */
     try {
       // TODO - ignore for now
@@ -2619,8 +2618,10 @@ public class PSServer {
       try {
         ms_serverErrorHandler.shutdown();
       } catch (Exception e) {
-        /* shutdown throws no errors; this block ignores runtime errors
-        so we can continue the shutdown process */
+        /*
+         * shutdown throws no errors; this block ignores runtime errors so we can continue the
+         * shutdown process
+         */
       }
 
       ms_WhatsUp ^= INITED_ERROR;
@@ -2682,13 +2683,12 @@ public class PSServer {
           "Fatal server error - shutting down",
           new String[] {"Press [Enter] in the next 10 seconds to pause -"});
 
-      /* Wait a total of 10 seconds to allow user to respond.
-       * Check for a response every .5 seconds
-       * If they respond, issue a message and wait for them to Press [Enter].
-       * Otherwise return. We use this 2 step process to avoid waiting
-       * forever in case the user does not have access to the input, but
-       * the input stream is not null (this is the case with the Rhythmyx
-       * Daemon at the point of this implementation.)
+      /*
+       * Wait a total of 10 seconds to allow user to respond. Check for a response every .5 seconds
+       * If they respond, issue a message and wait for them to Press [Enter]. Otherwise return. We
+       * use this 2 step process to avoid waiting forever in case the user does not have access to
+       * the input, but the input stream is not null (this is the case with the Rhythmyx Daemon at
+       * the point of this implementation.)
        */
       int totalWaitTimeMillis = 10000;
       int pollingIntervalMillis = 500;
@@ -3124,8 +3124,8 @@ public class PSServer {
     PSUserSession sess = request.getUserSession();
     List list = null;
     try {
-      /* if communities is disabled the community value is "0" which is the
-       * default.
+      /*
+       * if communities is disabled the community value is "0" which is the default.
        */
       if (!"yes".equals(ms_serverProps.getProperty("communities_enabled", "no"))) {
         sess.setPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, "10");
@@ -3422,8 +3422,8 @@ public class PSServer {
       long[] ids = new long[contentIds.length + 1];
       System.arraycopy(contentIds, 0, ids, 0, contentIds.length);
       /*
-       * the folder content type is generally not visible as a
-       * content type, but we want to index it so it becomes searchable
+       * the folder content type is generally not visible as a content type, but we want to index it
+       * so it becomes searchable
        */
       ids[ids.length - 1] = PSFolder.FOLDER_CONTENT_TYPE_ID;
       for (int i = 0; i < ids.length; i++) {

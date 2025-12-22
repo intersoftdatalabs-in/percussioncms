@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.tablefactory.tools;
 
@@ -27,7 +26,6 @@ import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,7 +70,6 @@ public class PSCatalogTableData {
    * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
    *     specified in the properties file.
    */
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   public static PSJdbcDbmsDef loadProps(String propsName)
       throws PSJdbcTableFactoryException, IOException {
     if (propsName == null) throw new IllegalArgumentException("propsName may not be null");
@@ -83,9 +80,10 @@ public class PSCatalogTableData {
       Properties props = new Properties();
       in = new FileInputStream(propsFile);
       props.load(in);
-      /* This utility class is designed to be used with the workflow
-      properties file, which should always have an encrypted password.
-      So force that setting if the flag isn't set. */
+      /*
+       * This utility class is designed to be used with the workflow properties file, which should
+       * always have an encrypted password. So force that setting if the flag isn't set.
+       */
       if (props.getProperty("PWD_ENCRYPTED") == null) {
         props.setProperty("PWD_ENCRYPTED", "Y");
       }
@@ -364,12 +362,9 @@ public class PSCatalogTableData {
 
     // tablesToExport DTD is similar to table def / data, see example:
     /*
-    <?xml version="1.0" encoding="UTF-8"?>
-    <tables>
-       <table name="T1"/>
-       <table name="T2"/>
-    <tables>
-    */
+     * <?xml version="1.0" encoding="UTF-8"?> <tables> <table name="T1"/> <table name="T2"/>
+     * <tables>
+     */
 
     Document tablesToExportDoc = PSXmlDocumentBuilder.createXmlDocument();
     Element tablesToExportRoot = tablesToExportDoc.createElement("tables");

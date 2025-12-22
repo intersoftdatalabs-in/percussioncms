@@ -48,7 +48,6 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
-            <version>${javax.annotation.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>

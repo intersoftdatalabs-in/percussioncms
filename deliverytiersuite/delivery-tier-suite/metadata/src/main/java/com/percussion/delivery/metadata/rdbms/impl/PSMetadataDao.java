@@ -23,7 +23,6 @@ import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.utils.PSHashCalculator;
 import com.percussion.error.PSExceptionUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
-@SuppressFBWarnings("UNSAFE_HASH_EQUALS")
 @Repository
 @Scope("singleton")
 public class PSMetadataDao implements IPSMetadataDao {
