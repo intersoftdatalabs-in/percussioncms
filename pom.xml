@@ -117,7 +117,7 @@
         <jackson.annotations.version>2.20</jackson.annotations.version>
         <jackson.version>2.20.1</jackson.version>
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
-        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
+        <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
         <jasypt.version>1.9.3</jasypt.version>
         <java.source.version>1.8</java.source.version>
