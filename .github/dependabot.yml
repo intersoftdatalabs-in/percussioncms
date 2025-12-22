@@ -46,7 +46,7 @@ updates:
           - ">=6"
       - dependency-name: "org.apache.jackrabbit:jackrabbit-jcr-commons"
         versions:
-          - ">=2.22"
+          - ">=2.21"
       - dependency-name: "com.diffplug.spotless:spotless-maven-plugin"
         versions:
           - ">=2.31"
@@ -86,7 +86,7 @@ updates:
           - ">=2.2.0"
       - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
         versions:
-          - ">=10"    
+          - ">=10.0.0.beta3"    
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
