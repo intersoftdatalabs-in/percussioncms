@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      open-pull-requests-limit: 5
       interval: "daily"
+    open-pull-requests-limit: 5
     target-branch: "development-8.1.x"
     # ignore known groups/artifacts that require > Java 1.8.0+
     ignore:
@@ -84,11 +84,11 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      open-pull-requests-limit: 5
       interval: "weekly"
+    open-pull-requests-limit: 5
     target-branch: "development"
     ignore:
-    - dependency-name: "jakarta.inject:jakarta.inject-api"
-      versions:
-        - ">=2"  
-    - dependency-name: "com.percussion:*"
+      - dependency-name: "jakarta.inject:jakarta.inject-api"
+        versions:
+          - ">=2"  
+      - dependency-name: "com.percussion:*"
