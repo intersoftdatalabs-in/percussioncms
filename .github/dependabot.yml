@@ -90,6 +90,9 @@ updates:
       - dependency-name: "org.mortbay.jasper:apache-jsp"
         versions:
           - ">=10"
+      - dependency-name: "com.github.spotbugs:spotbugs-annotations"
+        versions:
+          - ">=4.9"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
