@@ -99,6 +99,9 @@ updates:
       - dependency-name: "org.apache.solr:*"
         versions:
           - ">=9"
+      - dependency-name: "org.codehaus.plexus:plexus-utils"
+        versions:
+          - ">=3.6"          
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
