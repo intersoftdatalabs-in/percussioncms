@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.utils.servlet;
 
@@ -20,7 +19,6 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.error.PSExceptionUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -186,6 +184,7 @@ public class PSInputValidatorFilter implements Filter {
       this.illegalParameterName = badParameterName;
     }
   }
+
   /**
    * Validates and cleanses the 'known' request input parameters. Invalid input parameter values
    * will be stripped and a warning message will be logged.
@@ -211,7 +210,6 @@ public class PSInputValidatorFilter implements Filter {
     return null;
   }
 
-  @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
   private void doLoadCustomProps(String propsFilePath) {
     // Load custom restrictions file
     if (isBlank(propsFilePath)) {
@@ -229,6 +227,7 @@ public class PSInputValidatorFilter implements Filter {
       log.error(message, e);
     }
   }
+
   /**
    * Load the properties for the input filter that contains field restrictions. Properties will
    * overwrite any existing properties at the time of this call.
@@ -302,12 +301,12 @@ public class PSInputValidatorFilter implements Filter {
       }
       if (buff.length() > 0) list.add(buff.toString());
     } catch (IOException e) {
-      log.error(
-          e.getLocalizedMessage(),
-          e); // Highly doubtful this would ever get hit for a string reader
+      log.error(e.getLocalizedMessage(), e); // Highly doubtful this would ever get hit for a string
+      // reader
     }
     return list.toArray(new String[] {});
   }
+
   /**
    * Runs all restriction checks on the property value to determine if it is considered a valid
    * input value.

@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.security;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -164,6 +162,7 @@ public class SecureStringUtils {
   public static final int MAX_FILENAME_LEN = 255;
   public static final Pattern filenamePattern =
       Pattern.compile("[^\\w.\\w]", Pattern.UNICODE_CHARACTER_CLASS);
+
   /**
    * Remove / replace any invalid characters.
    *
@@ -171,7 +170,7 @@ public class SecureStringUtils {
    * @return the sanitized filename
    * @throws IllegalArgumentException if the filename is too long
    */
-  public static String sanitizeFileName(@Nonnull String s) {
+  public static String sanitizeFileName(String s) {
     String fileName = s.trim();
     if (fileName.length() > MAX_FILENAME_LEN) fileName = s.substring(0, MAX_FILENAME_LEN - 1);
 
@@ -1283,6 +1282,7 @@ public class SecureStringUtils {
     }
     return ret;
   }
+
   /**
    * Utility to sanitize a string for use in a file system path under a specified path.
    *
@@ -1310,6 +1310,7 @@ public class SecureStringUtils {
 
     return str.replace("'", "\'");
   }
+
   /**
    * Utility to sanitize a string for use in a SQL statement.
    *
@@ -1386,6 +1387,7 @@ public class SecureStringUtils {
 
     return ret;
   }
+
   /**
    * Sanitizes a user provided string for use in HTML
    *

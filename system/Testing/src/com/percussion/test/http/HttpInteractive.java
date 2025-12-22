@@ -1,25 +1,24 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.test.http;
 
 import com.percussion.test.io.IOTools;
 import com.percussion.test.io.LogSink;
 import com.percussion.util.PSURLEncoder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,42 +35,32 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 /**
- * An interactive low-level HTTP requestor. It lets you repeatedly send
- * GET and POST requests to an HTTP server, allowing you to set individual
- * header values and whatnot.
+ * An interactive low-level HTTP requestor. It lets you repeatedly send GET and POST requests to an
+ * HTTP server, allowing you to set individual header values and whatnot.
  */
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class HttpInteractive implements LogSink
-{
+public class HttpInteractive implements LogSink {
 
    private static final Logger log = LogManager.getLogger(HttpInteractive.class);
+
    /**
     * The main entry point.
     */
-   public static void main(String[] args)
-   {
-      try
-      {
+   public static void main(String[] args) {
+      try {
          ms_in = new BufferedReader(new InputStreamReader(System.in));
          boolean again = false;
          HttpInteractive http = new HttpInteractive();
-         do
-         {
-            try
-            {
+         do {
+            try {
                http.run();
                System.err.println("\n\n");
                again = yesNo("Send another request?", again);
-            }
-            catch (Throwable t)
-            {
+            } catch (Throwable t) {
                log.error(t.getMessage());
                log.debug(t.getMessage(), t);
             }
          } while (again);
-      }
-      catch (Throwable t)
-      {
+      } catch (Throwable t) {
          log.error(t.getMessage());
          log.debug(t.getMessage(), t);
       }
@@ -79,58 +68,43 @@ public class HttpInteractive implements LogSink
    }
 
    /**
-    * Construct a new HttpInteractive object. It can be re-used
-    * interactively again and again by calling the run() method.
-    * It remembers your last choices so it is easier to run
-    * subsequent similar or identical HTTP requests the second
-    * time around.
+    * Construct a new HttpInteractive object. It can be re-used interactively again and again by
+    * calling the run() method. It remembers your last choices so it is easier to run subsequent
+    * similar or identical HTTP requests the second time around.
     */
-   public HttpInteractive()
-      throws IOException
-   {
-   }
+   public HttpInteractive() throws IOException {}
 
    /**
-    * Queries the user for the desired settings, then sends
-    * the request, captures the output, and optionally
-    * displays the output.
+    * Queries the user for the desired settings, then sends the request, captures the output, and
+    * optionally displays the output.
     */
-   public void run() throws IOException, HttpConnectException
-   {
+   public void run() throws IOException, HttpConnectException {
       HttpRequest req = buildRequest();
       req.enableTrace(this);
       System.err.println("\nReady to send request.");
       boolean send = yesNo("Send request (N=quit)?", true);
-      if (send)
-      {
+      if (send) {
          req.sendRequest();
          HttpHeaders hdrs = req.getResponseHeaders();
          File tmpFile = File.createTempFile("http_", ".out", new File("."));
          System.err.println("Saving content to " + tmpFile.toString() + "...");
          OutputStream out = null;
-         try
-         {
+         try {
             out = new BufferedOutputStream(new FileOutputStream(tmpFile));
             long bytes = IOTools.copyStream(req.getResponseContent(), out);
             System.err.println("Wrote " + bytes + " bytes.");
-         }
-         finally
-         {
+         } finally {
             if (out != null)
                out.close();
          }
 
          boolean shouldPrint = yesNo("Print file to screen?", true);
-         if (shouldPrint)
-         {
+         if (shouldPrint) {
             InputStream in = null;
-            try
-            {
+            try {
                in = new BufferedInputStream(new FileInputStream(tmpFile));
                IOTools.copyStream(in, System.out);
-            }
-            finally
-            {
+            } finally {
                if (in != null)
                   in.close();
             }
@@ -141,9 +115,7 @@ public class HttpInteractive implements LogSink
    /**
     * Queries the user for request settings.
     */
-   public HttpRequest buildRequest()
-      throws IOException
-   {
+   public HttpRequest buildRequest() throws IOException {
       System.err.println("Please answer the following questions about the request.");
       m_method = getResponse("Method (GET or POST)", m_method).toUpperCase();
       m_protocol = getResponse("Protocol", m_protocol).toLowerCase();
@@ -152,27 +124,24 @@ public class HttpInteractive implements LogSink
       m_port = Integer.parseInt(portStr);
 
       m_url = getResponse(
-         "URL (not including the query string -- for example, /Rhythmyx/MyApp/request.xml)", m_url);
-      
+            "URL (not including the query string -- for example, /Rhythmyx/MyApp/request.xml)",
+            m_url);
+
       m_shouldEncode = yesNo("Should we encode the URL?", m_shouldEncode);
-      if (m_shouldEncode)
-      {
+      if (m_shouldEncode) {
          m_url = PSURLEncoder.encodePath(m_url);
          // System.err.println("Encoded URL: " + url);
       }
 
       m_query = getResponse("Query string (for example, ?foo=bar&bar=baz)", m_query);
-      if (m_query.length() > 0)
-      {
-         if (!m_query.startsWith("?"))
-         {
+      if (m_query.length() > 0) {
+         if (!m_query.startsWith("?")) {
             System.err.println("WARNING: Automatically prepending a ? to the query");
             m_query = "?" + m_query;
          }
 
          m_shouldEncodeQuery = yesNo("Should we encode the query?", !m_shouldEncodeQuery);
-         if (m_shouldEncodeQuery)
-         {
+         if (m_shouldEncodeQuery) {
             m_query = PSURLEncoder.encodeQuery(m_query);
             // System.err.println("Encoded query: " + query);
          }
@@ -182,42 +151,36 @@ public class HttpInteractive implements LogSink
 
       HttpRequest req = new HttpRequest(fullUrl, m_method, null);
 
-      if (m_reqHdrs != null)
-      {
+      if (m_reqHdrs != null) {
          boolean addPrevHdrs = yesNo("Use previous request headers?", true);
-         if (!addPrevHdrs)
-         {
+         if (!addPrevHdrs) {
             m_reqHdrs = new HttpHeaders();
          }
-      }
-      else
-      {
+      } else {
          m_reqHdrs = new HttpHeaders();
       }
 
       System.err.println("Enter header values one per line in the form Name: value");
       System.err.println("An empty line finishes headers.");
-      while (true)
-      {
+      while (true) {
          String hdr = getResponse("", "");
          if (hdr.length() == 0)
             break;
 
          int colonPos = hdr.indexOf(":");
          int startVal = colonPos + 1;
-         if (-1 == colonPos)
-         {
+         if (-1 == colonPos) {
             System.err.println("WARNING: Malformed header \"" + hdr + "\"");
             boolean shouldKeep = yesNo("Are you sure you want to send this header?", false);
             if (!shouldKeep)
                continue;
             colonPos = hdr.length();
          }
-         
+
          String hdrName = hdr.substring(0, colonPos).trim();
          if (colonPos == hdr.length())
             colonPos = hdr.length() - 1;
-         String hdrVal = hdr.substring(colonPos+1).trim();
+         String hdrVal = hdr.substring(colonPos + 1).trim();
 
          System.err.println("Adding header NAME(" + hdrName + ") VALUE(" + hdrVal + ")");
          m_reqHdrs.addHeader(hdrName, hdrVal);
@@ -226,35 +189,28 @@ public class HttpInteractive implements LogSink
       req.addRequestHeaders(m_reqHdrs);
 
       m_hasContent = yesNo("Does request have content?", m_hasContent);
-      if (m_hasContent)
-      {
+      if (m_hasContent) {
          long contentLength = 0;
          InputStream content = null;
          m_isFile = yesNo("Send content from file?", m_isFile);
-         while (m_isFile)
-         {
+         while (m_isFile) {
             m_filename = getResponse("Filename", m_filename);
             File f = new File(m_filename);
-            if (!f.exists() || f.isDirectory())
-            {
+            if (!f.exists() || f.isDirectory()) {
                System.err.println("Cannot open file " + f.getCanonicalPath());
-            }
-            else
-            {
-               System.err.println("Opened file " + f.getCanonicalPath()
-                  + " (" + f.length() + " bytes)");
+            } else {
+               System.err.println(
+                     "Opened file " + f.getCanonicalPath() + " (" + f.length() + " bytes)");
                contentLength = f.length();
                content = new BufferedInputStream(new FileInputStream(f));
                break;
             }
          }
 
-         if (!m_isFile)
-         {
+         if (!m_isFile) {
             StringBuilder buff = new StringBuilder();
             System.err.println("Type the content below. End with a line containing only a .");
-            while (true)
-            {
+            while (true) {
                String line = ms_in.readLine();
                if (line.equals("."))
                   break;
@@ -262,7 +218,7 @@ public class HttpInteractive implements LogSink
             }
 
             m_charset = getResponse("Character encoding", m_charset);
-            
+
             // TODO: allow content-type
 
             byte[] bytes = buff.toString().getBytes(m_charset);
@@ -271,8 +227,8 @@ public class HttpInteractive implements LogSink
             System.err.println("Encoded input to " + bytes.length + " bytes.");
          }
 
-         boolean shouldCalcLen = yesNo(
-            "Should we set the Content-Length header to " + contentLength + "?", true);
+         boolean shouldCalcLen =
+               yesNo("Should we set the Content-Length header to " + contentLength + "?", true);
          if (shouldCalcLen)
             req.addRequestHeader("Content-Length", "" + contentLength);
 
@@ -283,38 +239,27 @@ public class HttpInteractive implements LogSink
    }
 
    /**
-    * Gets a one-line response from the user. Prompts with the given
-    * string, and also displays and uses the given defaultValue. If
-    * the user presses ENTER, the given default value will be used.
-    * If the given default value is <CODE>null</CODE>, then an empty
-    * line will not be accepted, and the prompt will be repeated
-    * until the user types something in.
+    * Gets a one-line response from the user. Prompts with the given string, and also displays and
+    * uses the given defaultValue. If the user presses ENTER, the given default value will be used.
+    * If the given default value is <CODE>null</CODE>, then an empty line will not be accepted, and
+    * the prompt will be repeated until the user types something in.
     */
-   public static String getResponse(String prompt, String defaultValue)
-      throws IOException
-   {
+   public static String getResponse(String prompt, String defaultValue) throws IOException {
       String val = null;
-      while (val == null)
-      {
+      while (val == null) {
          System.err.print(prompt);
          if (defaultValue != null)
             System.err.print(" [" + defaultValue + "]");
          System.err.print(" : ");
          val = ms_in.readLine();
-         if (val == null)
-         {
+         if (val == null) {
             throw new IOException("Standard input closed.");
-         }
-         else if (val.trim().length() == 0)
-         {
-            if (defaultValue == null)
-            {
+         } else if (val.trim().length() == 0) {
+            if (defaultValue == null) {
                System.err.println("\07Response required.");
             }
             val = defaultValue;
-         }
-         else
-         {
+         } else {
             break;
          }
       }
@@ -322,18 +267,13 @@ public class HttpInteractive implements LogSink
    }
 
    /**
-    * Prompts the user for a yes or no response. Returns true
-    * if the user chose yes, false if the user chose no. The
-    * default will be returned if the user hits ENTER. If the
-    * user types something other than a yes or a no, the
-    * input will not be accepted.
+    * Prompts the user for a yes or no response. Returns true if the user chose yes, false if the
+    * user chose no. The default will be returned if the user hits ENTER. If the user types
+    * something other than a yes or a no, the input will not be accepted.
     */
-   public static boolean yesNo(String prompt, boolean defaultYes)
-      throws IOException
-   {
+   public static boolean yesNo(String prompt, boolean defaultYes) throws IOException {
       String def = (defaultYes ? "Y" : "N");
-      while (true)
-      {
+      while (true) {
          String resp = getResponse(prompt, def);
          if (resp.toLowerCase().startsWith("y"))
             return true;
@@ -344,19 +284,16 @@ public class HttpInteractive implements LogSink
       }
    }
 
-   public void log(String msg, Throwable t)
-   {
+   public void log(String msg, Throwable t) {
       log(msg);
       log(t);
    }
 
-   public void log(Throwable t)
-   {
+   public void log(Throwable t) {
       t.printStackTrace();
    }
 
-   public void log(String message)
-   {
+   public void log(String message) {
       System.err.println("\t" + message);
    }
 

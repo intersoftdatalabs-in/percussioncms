@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.pubserver.impl;
 
@@ -76,7 +75,6 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.service.IPSUtilityService;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -293,8 +291,7 @@ public class PSPubServerService implements IPSPubServerService {
   /*
    * (non-Javadoc)
    *
-   * @see
-   * com.percussion.pubserver.IPSPubServerService#getPubServerList()
+   * @see com.percussion.pubserver.IPSPubServerService#getPubServerList()
    */
   @Override
   public List<PSPublishServerInfo> getPubServerList(String siteId)
@@ -372,9 +369,9 @@ public class PSPubServerService implements IPSPubServerService {
       siteDataService.createPublishingItemsForPubServer(site, server, isDefaultServer);
 
       /*
-       * Check if the server being updated is the same default server. If not, then
-       * the previous default server needs to be updated in order to change the publishing type
-       * and update the content list appropriately.
+       * Check if the server being updated is the same default server. If not, then the previous
+       * default server needs to be updated in order to change the publishing type and update the
+       * content list appropriately.
        *
        */
       boolean clearIncrementalQueue = false;
@@ -477,9 +474,9 @@ public class PSPubServerService implements IPSPubServerService {
       siteDataService.updateServerEditions(site, oldServer, server, isDefaultServer);
 
       /*
-       * Check if the server being updated is the same default server. If not, then
-       * the previous default server needs to be updated in order to change the publishing type
-       * and update the content list appropriately.
+       * Check if the server being updated is the same default server. If not, then the previous
+       * default server needs to be updated in order to change the publishing type and update the
+       * content list appropriately.
        *
        */
       boolean clearIncrementalQueue =
@@ -602,7 +599,10 @@ public class PSPubServerService implements IPSPubServerService {
 
   /*
    * (non-Javadoc)
-   * @see com.percussion.pubserver.IPSPubServerService#deletePubServersBySite(com.percussion.utils.guid.IPSGuid)
+   *
+   * @see
+   * com.percussion.pubserver.IPSPubServerService#deletePubServersBySite(com.percussion.utils.guid.
+   * IPSGuid)
    */
   public void deletePubServersBySite(IPSGuid siteId) {
     notNull(siteId);
@@ -697,8 +697,7 @@ public class PSPubServerService implements IPSPubServerService {
   /*
    * (non-Javadoc)
    *
-   * @see
-   * com.percussion.pubserver.IPSPubServerService#getDefaultPubServer()
+   * @see com.percussion.pubserver.IPSPubServerService#getDefaultPubServer()
    */
   @Override
   public PSPubServer getDefaultPubServer(IPSGuid siteId) throws PSNotFoundException {
@@ -996,12 +995,15 @@ public class PSPubServerService implements IPSPubServerService {
    *
    * @param server The server to update
    * @param site The site for which the server is being updated
-   * @param publishFolderValue The folder value to use, either explicit isOwnServerSet is <code>true</code>, or else
-   * it is the base folder path used to compute the publish folder location from the site name
-   * @param isOwnServerSet <code><code>false</code> if using tomcat and the default publishing folder configuration, <code>true</code>
-   * if not tomcat or if not using the default publishing config.
+   * @param publishFolderValue The folder value to use, either explicit isOwnServerSet is
+   *        <code>true</code>, or else it is the base folder path used to compute the publish folder
+   *        location from the site name
+   * @param isOwnServerSet <code><code>false</code> if using tomcat and the default publishing
+   *        folder configuration, <code>true</code> if not tomcat or if not using the default
+   *        publishing config.
    * @param ownServerVal If file system and using own server, this is the folder value to use.
-   * @param isDefaultServerSet <code>true</code> if using the default folder location, <code>false</code> otherwise.
+   * @param isDefaultServerSet <code>true</code> if using the default folder location,
+   *        <code>false</code> otherwise.
    *
    * @return <code>true</code> if the property of was changed, <code>false</code> if not
    */
@@ -1074,7 +1076,6 @@ public class PSPubServerService implements IPSPubServerService {
    * @param pubServerInfo
    * @param oldPasswordProperty
    */
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   private void setPasswordProperty(
       PSPubServer server,
       PSPublishServerInfo pubServerInfo,
@@ -1332,7 +1333,7 @@ public class PSPubServerService implements IPSPubServerService {
         // Add the password property
         serverProperty = new PSPublishServerProperty();
         serverProperty.setKey(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY);
-        // Do not send back real password but dummy value.  If this is passed back we keep same
+        // Do not send back real password but dummy value. If this is passed back we keep same
         // password
         serverProperty.setValue(PASSWORD_ENTRY);
         serverInfo.getProperties().add(serverProperty);

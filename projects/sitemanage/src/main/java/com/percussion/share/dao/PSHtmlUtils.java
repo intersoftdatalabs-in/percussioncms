@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.share.dao;
@@ -41,8 +40,9 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import se.fishtank.css.selectors.NodeSelectorException;
-import se.fishtank.css.selectors.dom.DOMNodeSelector;
+import se.fishtank.css.selectors.Selectors;
+import se.fishtank.css.selectors.dom.W3CNode;
+import se.fishtank.css.selectors.parser.ParserException;
 
 /**
  * Utility class to apply tidy to HTML and/or extract content from HTML string.
@@ -139,9 +139,8 @@ public class PSHtmlUtils {
 
           String value;
           value = attr.getValue();
-          if (value == null
-              && !StringUtils.isBlank(
-                  attrValue)) { // if it is attribute like "checked" or "selected"
+          if (value == null && !StringUtils.isBlank(attrValue)) { // if it is attribute like
+            // "checked" or "selected"
             attrMatch = false;
           } else if (!value.equals(attrValue)) attrMatch = false;
 
@@ -191,9 +190,8 @@ public class PSHtmlUtils {
 
           String value;
           value = attr.getValue();
-          if (value == null
-              && !StringUtils.isBlank(
-                  attrValue)) { // if it is attribute like "checked" or "selected"
+          if (value == null && !StringUtils.isBlank(attrValue)) { // if it is attribute like
+            // "checked" or "selected"
             attrMatch = false;
           } else if (!value.equals(attrValue)) attrMatch = false;
 
@@ -248,10 +246,12 @@ public class PSHtmlUtils {
   private static String extractHtmlOnly(
       String cssSelector, Document sourceDoc, String filename, boolean outerHTML) {
     try {
-      DOMNodeSelector selector = new DOMNodeSelector(sourceDoc);
-      Set<Node> nodes = selector.querySelectorAll(cssSelector);
+      W3CNode root = new W3CNode(sourceDoc);
+      Selectors<Node, W3CNode> selectors = new Selectors<>(root);
+      java.util.List<Node> nodeList = selectors.querySelectorAll(cssSelector);
+      Set<Node> nodes = new java.util.LinkedHashSet<>(nodeList);
       return convertNodesToString(nodes, outerHTML);
-    } catch (NodeSelectorException e) {
+    } catch (ParserException e) {
       String msg;
       if (StringUtils.isBlank(filename))
         msg = "Failed to extract HTML with CSS Selector, \"" + cssSelector + "\".";

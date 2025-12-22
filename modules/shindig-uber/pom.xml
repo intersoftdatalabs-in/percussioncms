@@ -87,6 +87,10 @@
                     <artifactId>caja</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>caja</groupId>
+                    <artifactId>htmlparser</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
@@ -127,6 +131,10 @@
                     <artifactId>caja</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>caja</groupId>
+                    <artifactId>htmlparser</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
@@ -146,13 +154,13 @@
             <artifactId>rome</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- Caja r3828 not available in Central; excluded from shindig-gadgets instead -->
-        <!-- <dependency>
+        <!-- Caja r3828 not available in Central; loaded from local lib folder -->
+        <dependency>
             <groupId>caja</groupId>
             <artifactId>caja</artifactId>
             <version>r3828</version>
             <scope>compile</scope>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>org.apache.shindig</groupId>
             <artifactId>shindig-features</artifactId>
@@ -256,6 +264,7 @@
                                     <include>org.apache.shindig:shindig-features:*</include>
                                     <include>org.apache.shindig:shindig-gadgets:*</include>
                                     <include>org.apache.shindig:shindig-social-api:*</include>
+                                    <include>caja:caja:*</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
