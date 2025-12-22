@@ -183,7 +183,7 @@
         <poi.version>5.2.2</poi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quartz.version>2.3.2</quartz.version>
+        <quartz.version>2.4.1</quartz.version>
         <rdf4j.version>3.7.7</rdf4j.version>
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
