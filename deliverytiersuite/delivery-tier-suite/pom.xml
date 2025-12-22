@@ -299,7 +299,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.11-SNAPSHOT</version>
+                    <version>10.0.0.beta2</version>
                     <configuration>
                         <scanIntervalSeconds>10</scanIntervalSeconds>
                         <stopPort>8005</stopPort>
