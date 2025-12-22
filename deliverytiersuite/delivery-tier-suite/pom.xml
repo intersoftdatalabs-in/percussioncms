@@ -98,7 +98,7 @@
         <maven.site.plugin.version>3.21.0</maven.site.plugin.version>
         <maven.source.jar.plugin.version>3.2.0</maven.source.jar.plugin.version>
         <maven.surefire.plugin.version>3.0.0-M4</maven.surefire.plugin.version>
-        <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
+        <maven.toolchains.plugin.version>3.2.0</maven.toolchains.plugin.version>
         <maven.version>[3.6.0,)</maven.version>
         <nettyall.version>4.1.45.Final</nettyall.version>
         <oracle.version>12.1.0.1</oracle.version>
