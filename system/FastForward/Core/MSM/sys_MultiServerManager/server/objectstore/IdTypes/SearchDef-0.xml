@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-
-<PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="0" dependencyType="Shared" displayName="Default CX New Search" isIncluded="no" objectType="SearchDef" objectTypeName="Search Definition" supportsIdMapping="yes" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-</PSXApplicationIDTypes>

@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!ELEMENT item (contentname*, contenturl* )>
-<!ELEMENT contenturl (#PCDATA)>
-<!ELEMENT contentname (#PCDATA)>
-<!ELEMENT contenttypesurl (item* )>

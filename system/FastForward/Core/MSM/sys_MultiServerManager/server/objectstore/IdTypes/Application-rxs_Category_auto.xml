@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-
-<PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="rxs_Category_auto" dependencyType="Shared" displayName="rxs_Category_auto" isIncluded="no" objectType="Application" objectTypeName="Application" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-</PSXApplicationIDTypes>

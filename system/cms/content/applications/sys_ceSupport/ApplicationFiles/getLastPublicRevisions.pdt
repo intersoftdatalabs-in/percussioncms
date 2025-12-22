@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!ELEMENT HistoryEntry EMPTY>
-<!ATTLIST  HistoryEntry contentId CDATA #REQUIRED>
-<!ATTLIST  HistoryEntry revision CDATA #REQUIRED>
-<!ELEMENT LastPublicRevisions (HistoryEntry* )>

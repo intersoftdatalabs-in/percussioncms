@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!ELEMENT Site (VariantId, SiteId )>
-<!ELEMENT SiteId (#PCDATA)>
-<!ELEMENT VariantId (#PCDATA)>
-<!ELEMENT CloneVaraintSites (Site* )>

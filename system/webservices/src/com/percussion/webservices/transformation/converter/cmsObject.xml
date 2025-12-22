@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-
-<PSXCmsObject isRevisionable="true" isWorkflowable="true" name="Item" typeId="1">
-   <Description>It is the smallest unit that contains editable content.</Description>
-   <Factory/>
-</PSXCmsObject>

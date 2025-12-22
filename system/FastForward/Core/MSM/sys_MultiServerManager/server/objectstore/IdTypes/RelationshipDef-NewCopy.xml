@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-
-<PSXApplicationIDTypes>
-   <PSXDeployableObject>
-      <PSXDependency autoDep="no" autoExpand="yes" dependencyId="NewCopy" dependencyType="Shared" displayName="New Copy" isIncluded="no" objectType="RelationshipDef" objectTypeName="Relationship Definition" supportsIdMapping="no" supportsIdTypes="yes" supportsParentId="no" supportsUserDependencies="no"/>
-      <RequiredClasses/>
-   </PSXDeployableObject>
-</PSXApplicationIDTypes>

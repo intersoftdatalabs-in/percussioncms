@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!ELEMENT contenttype (name, id, variant* )>
-<!ELEMENT variant (name, id, updatelink )>
-<!ELEMENT updatelink (#PCDATA)>
-<!ELEMENT id (#PCDATA)>
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT cpntenttypevariantlookup (contenttype* )>

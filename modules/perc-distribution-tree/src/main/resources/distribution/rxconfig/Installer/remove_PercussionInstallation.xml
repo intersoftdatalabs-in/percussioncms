@@ -1,9 +1,0 @@
-
-
-<project name="remove_PercussionInstallation" default="remove_PercussionInstallation">
-    <!-- Responsible for removing <InstallDir>/_Percussion_installation folder if present -->
-    <target name="remove_PercussionInstallation">
-        <echo>Removing obsolete _Percussion_Installation folder...</echo>
-        <!-- TODO: Implement Me -->
-    </target>
-</project>

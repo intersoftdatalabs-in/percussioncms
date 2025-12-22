@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<Configure id="Server" class="org.eclipse.jetty.server.Server">
-
-</Configure>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-
-<Resources>
-<file type="css" path="/rx_resources/widgets/percPerson/css/percPerson.css" context="PREVIEW" id="percPerson_style"/>
-<file id="common_js"  path="/web_resources/cm/common/js/perc_common_ui.js"  type="javascript" >
-	     <dependency refid="percSystem.common_slim_js"/>
-</file>
-</Resources>

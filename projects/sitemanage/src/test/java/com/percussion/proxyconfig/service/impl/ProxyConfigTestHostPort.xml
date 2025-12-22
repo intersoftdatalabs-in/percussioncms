@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-
-<ProxyConfigurations>
-	<ProxyConfig>
-        <host>localhost</host>
-        <port>1531</port>
-    </ProxyConfig>
-</ProxyConfigurations>

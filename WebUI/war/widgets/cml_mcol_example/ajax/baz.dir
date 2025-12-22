@@ -1,4 +1,0 @@
-[
-	{type: 'file', tag: 'clob' },
-	{type: 'dir', tag: 'home', url: 'ajax/home.dir' }
-]

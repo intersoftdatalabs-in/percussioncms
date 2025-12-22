@@ -1,6 +1,0 @@
-[
-	{type: 'dir', tag: 'foo', url: 'ajax/foo.dir'},
-	{type: 'file', tag: 'bar'},
-	{type: 'dir', tag: 'baz', url: 'ajax/baz.dir'},
-	{type: 'file', tag: 'zib'}
-]

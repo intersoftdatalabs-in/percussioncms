@@ -1,5 +1,0 @@
-
-
-<!-- Note: pre-ugrade plugin modules must include a <preupgrade/> element -->
-<rxupgrade>
-</rxupgrade>

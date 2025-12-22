@@ -1,9 +1,0 @@
-
-
-.percDepartment-empty-style
-{
-    height: 100px;
-    background: transparent url(/Rhythmyx/rx_resources/widgets/percDepartment/images/percDepartmentPlaceholder.png) no-repeat scroll center center;
-    filter: alpha(opacity=50);
-    opacity: .50;
-}

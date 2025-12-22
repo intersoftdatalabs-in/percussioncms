@@ -1,4 +1,0 @@
-## This file lists the packages that are part of the refactored Java 17 codebase.
-## PACKAGE NAME, DESCRIPTION
-
-com.percussion.delivery.comments.services, REST service endpoints with Jakarta EE and Java 17 features

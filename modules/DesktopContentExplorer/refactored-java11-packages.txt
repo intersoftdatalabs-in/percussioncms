@@ -1,6 +1,0 @@
-# Java 11 Refactored Packages
-# This file tracks packages that have been fully refactored to Java 11 standards
-# Format: one package name per line
-
-# Core CX package - partially refactored
-# com.percussion.cx - in progress

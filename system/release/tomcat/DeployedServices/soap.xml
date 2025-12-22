@@ -1,7 +1,0 @@
-
-
-<soapServer>
-	<configManager value="org.apache.soap.server.DefaultConfigManager" >
-		<option name="filename" value="DeployedServices.ds" />
-	</configManager>
-</soapServer>

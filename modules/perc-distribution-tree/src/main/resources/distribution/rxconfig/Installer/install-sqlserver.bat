@@ -1,1 +1,0 @@
-java -DUID=sa -DPWD=demo -DDB_SERVER=//localhost -DDB_SCHEMA=dbo -DDB_BACKEND=MSSQL -DDB_DRIVER_NAME=jdbc:sqlserver -DDSCONFIG_NAME=PercussionData -DDDB_DRIVER_CLASS_NAME=com.microsoft.sqlserver.jdbc.SQLServerDriver -DDB_NAME=tester2 -Dinstall.dir=C:\DevEnv\Installs\dev-sqlserver -Dinstall.stage.dts=false -Dinstall.dts=false -jar perc-ant-8.0.2-SNAPSHOT.jar -f install.xml
