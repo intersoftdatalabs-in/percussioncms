@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
@@ -54,7 +53,6 @@ import com.percussion.util.IPSHtmlParameters;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -204,7 +202,6 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   }
 
   @Override
-  @SuppressFBWarnings("RU_INVOKE_RUN")
   public void process(PSPageContent pageContent, PSSiteImportCtx context)
       throws PSSiteImportException {
     try {
@@ -543,8 +540,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   /*
    * (non-Javadoc)
    *
-   * @see com.percussion.sitemanage.importer.helpers.impl.
-   * PSGenericMetadataExtractorHelper
+   * @see com.percussion.sitemanage.importer.helpers.impl. PSGenericMetadataExtractorHelper
    * #saveTargetItem(com.percussion.pagemanagement.data.IPSHtmlMetadata)
    */
   @Override
@@ -575,8 +571,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   /*
    * (non-Javadoc)
    *
-   * @see com.percussion.sitemanage.importer.helpers.impl.
-   * PSGenericMetadataExtractorHelper
+   * @see com.percussion.sitemanage.importer.helpers.impl. PSGenericMetadataExtractorHelper
    * #addHtmlWidgetToTemplate(com.percussion.sitemanage.data.PSSiteImportCtx)
    */
   @Override
@@ -628,8 +623,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   /*
    * (non-Javadoc)
    *
-   * @see com.percussion.sitemanage.importer.helpers.impl.
-   * PSGenericMetadataExtractorHelper
+   * @see com.percussion.sitemanage.importer.helpers.impl. PSGenericMetadataExtractorHelper
    * #getTargetItem(com.percussion.sitemanage.data.PSSiteImportCtx)
    */
   @Override

@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.legacy.security.deprecated;
@@ -23,7 +22,6 @@ import com.percussion.security.IPSSecretKey;
 import com.percussion.security.PSAbstractEncryptor;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -64,6 +62,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
       return "";
     }
   }
+
   /** Private ctor to force static use. */
   private PSLegacyEncrypter(String keyLocation) {
     this.keyLocation = keyLocation;
@@ -223,7 +222,6 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    * @param key The secret key to encrypt the string, may not be <code>null</code> or empty.
    * @return The encrypted string, never <code>null</code>, may be empty.
    */
-  @SuppressFBWarnings("CIPHER_INTEGRITY")
   @Deprecated
   @Override
   public String encrypt(String str, String key) {
@@ -246,6 +244,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
       throw new RuntimeException(e);
     }
   }
+
   /**
    * Decrypts the provided string using the supplied secret key.
    *
@@ -255,7 +254,6 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    * @param legacyDecryptor
    * @return The decrypted string, never <code>null</code>, may be empty.
    */
-  @SuppressFBWarnings("CIPHER_INTEGRITY")
   @Deprecated
   @Override
   public String decrypt(String str, String key, PSAbstractEncryptor legacyDecryptor) {
@@ -281,6 +279,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
       throw new RuntimeException(e);
     }
   }
+
   /**
    * Converts a <code>BigInteger</code> to a byte array whose size is a multiple of {@link
    * #BYTE_ARRAY_MULTIPLE}. For positive values or a value of zero, the byte array is padded with

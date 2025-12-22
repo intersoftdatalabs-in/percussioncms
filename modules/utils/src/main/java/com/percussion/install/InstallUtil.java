@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.install;
@@ -25,7 +24,6 @@ import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSDriverHelper;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.string.PSStringUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -76,7 +74,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** The InstallUtil class contains some utility methods for the installer. */
-@SuppressFBWarnings("PATH_TRAVERSAL_IN")
 public class InstallUtil {
 
   private static final Logger log = LogManager.getLogger(InstallUtil.class);
@@ -337,16 +334,14 @@ public class InstallUtil {
   }
 
   /**
-   * Checks if the specified table exists for the specified database and
-   * schema.
+   * Checks if the specified table exists for the specified database and schema.
    *
    * @param table the table to look for, may not be <code>null<code>
-   * @param conn the connection to the database, may not be <code>null<code>
-   * @param database the name of the database, may not be <code>null<code>
-   * @param schema the schema for this connection, may not be <code>null<code>
+   * &#64;param conn the connection to the database, may not be <code>null<code>
+   * &#64;param database the name of the database, may not be <code>null<code>
+   * &#64;param schema the schema for this connection, may not be <code>null<code>
    *
-   * @return <code>true</code> if the database contains the table,
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if the database contains the table, <code>false</code> otherwise.
    *
    * @throws SQLException
    */
@@ -816,7 +811,6 @@ public class InstallUtil {
    *
    * @param port the port to check for availability
    */
-  @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") // Is just a port check no TLS required
   public static boolean portAvailable(int port) {
     try (ServerSocket ss = new ServerSocket(port)) {
       ss.setReuseAddress(true);
@@ -1343,7 +1337,6 @@ public class InstallUtil {
    * @return <code>true</code> if server socket was successfully bound to a given port, <code>false
    *     </code> otherwise.
    */
-  @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") // Is just a port check no TLS required
   public static boolean isBindableTcpPort(String port) {
     if (port == null || port.trim().length() == 0) return false;
 

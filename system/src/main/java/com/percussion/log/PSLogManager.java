@@ -1,25 +1,23 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.log;
 
 import com.percussion.server.PSServer;
 import com.percussion.util.PSDoubleList;
 import com.percussion.utils.jdbc.PSConnectionHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -59,19 +57,35 @@ import org.xml.sax.SAXException;
  * are using are as follows:
  *
  * <table border="1">
- *     <tr><th>Range</th>      <th>Component</th></tr>
- *     <tr><td>0001 - 2000</td><td>Server Logging</td></tr>
- *     <tr><td>2001 - 4000</td><td>Application Logging</td></tr>
- *     <tr><td>4001 - 6000</td><td>User Logging</td></tr>
- *     <tr><td>6001 - 8000</td><td>Error Logging</td></tr>
- *  </table>
+ * <tr>
+ * <th>Range</th>
+ * <th>Component</th>
+ * </tr>
+ * <tr>
+ * <td>0001 - 2000</td>
+ * <td>Server Logging</td>
+ * </tr>
+ * <tr>
+ * <td>2001 - 4000</td>
+ * <td>Application Logging</td>
+ * </tr>
+ * <tr>
+ * <td>4001 - 6000</td>
+ * <td>User Logging</td>
+ * </tr>
+ * <tr>
+ * <td>6001 - 8000</td>
+ * <td>Error Logging</td>
+ * </tr>
+ * </table>
  *
  * <p>All log messages are stored using the format defined in the java.text.MessageFormat class. The
  * message string contains curly braces around parameters, which are 0 based. The
  * MessageFormat.format method can then be used with an array of arguments to generate the
  * appropriate string. For instance:
  *
- * <pre><code>
+ * <pre>
+ * <code>
  *     String msg = PSLogManager.getMessageText(999);
  *
  *     // let's assume the returned message is:
@@ -83,7 +97,8 @@ import org.xml.sax.SAXException;
  *
  *     // displayMsg is returned containing:
  *     //    "param1=1, param 2 date=Jan 6, 1999, param 2   time=4:50 PM"
- *  </code></pre>
+ *  </code>
+ * </pre>
  *
  * This model is excellent for internationalization as the position of the parameters may change
  * based upon the target language.
@@ -109,46 +124,58 @@ public class PSLogManager {
    * <p>In case of fileTo = "DBMS":
    *
    * <table border="1">
-   *   <tr><th>Key</th><th>Value</th></tr>
-   *   <tr><td>logTo</td>
-   *       <td>DBMS</td>
-   *   </tr>
-   *   <tr><td>driverType</td>
-   *       <td>the    type of driver  to  connect with (must be ODBC)</td>
-   *   </tr>
-   *   <tr><td>serverName</td>
-   *       <td>the    back-end    server name (must    be  an  ODBC DSN)</td>
-   *   </tr>
-   *   <tr><td>databaseName</td>
-   *       <td>the    back-end    database    containing the  E2  object store</td>
-   *   </tr>
-   *   <tr><td>loginId</td>
-   *       <td>the    login    ID  to  use when  connecting</td>
-   *   </tr>
-   *   <tr><td>loginPw</td>
-   *       <td>the    login    password    to  use when   connecting</td>
-   *   </tr>
-   *   <tr><td>logUrl</td>
-   *      <td><B>OPTIONAL</B>the URL of the backup log file to be used while the
-   *      back end is down (currently, only URLs of the type
-   *      file:///c:/foo/bar/baz/logfile.ext are supported
-   *   </td>
-   *   </tr>
-   *   </table>
+   * <tr>
+   * <th>Key</th>
+   * <th>Value</th>
+   * </tr>
+   * <tr>
+   * <td>logTo</td>
+   * <td>DBMS</td>
+   * </tr>
+   * <tr>
+   * <td>driverType</td>
+   * <td>the type of driver to connect with (must be ODBC)</td>
+   * </tr>
+   * <tr>
+   * <td>serverName</td>
+   * <td>the back-end server name (must be an ODBC DSN)</td>
+   * </tr>
+   * <tr>
+   * <td>databaseName</td>
+   * <td>the back-end database containing the E2 object store</td>
+   * </tr>
+   * <tr>
+   * <td>loginId</td>
+   * <td>the login ID to use when connecting</td>
+   * </tr>
+   * <tr>
+   * <td>loginPw</td>
+   * <td>the login password to use when connecting</td>
+   * </tr>
+   * <tr>
+   * <td>logUrl</td>
+   * <td><B>OPTIONAL</B>the URL of the backup log file to be used while the back end is down
+   * (currently, only URLs of the type file:///c:/foo/bar/baz/logfile.ext are supported</td>
+   * </tr>
+   * </table>
    *
    * <p>In case of fileTo = "FILE":
    *
    * <table border="1">
-   *   <tr><th>Key</th><th>Value</th></tr>
-   *   <tr><td>logTo</td>
-   *       <td>FILE</td>
-   *   </tr>
-   *   <tr><td>logUrl</td>
-   *         <td>the URL of the log file (currently, only URLs of the type
-   *         file:///c:/foo/bar/baz/logfile.ext are supported
-   *      </td>
-   *   </tr>
-   *   </table>
+   * <tr>
+   * <th>Key</th>
+   * <th>Value</th>
+   * </tr>
+   * <tr>
+   * <td>logTo</td>
+   * <td>FILE</td>
+   * </tr>
+   * <tr>
+   * <td>logUrl</td>
+   * <td>the URL of the log file (currently, only URLs of the type
+   * file:///c:/foo/bar/baz/logfile.ext are supported</td>
+   * </tr>
+   * </table>
    *
    * @param props The properties defining where the log is stored, not <code>null</code>
    * @param loc The locale to use, used to determine the string bundle resource
@@ -220,8 +247,10 @@ public class PSLogManager {
       } catch (SQLException e) {
         printSqlException("LogManager", "Caught SQLException", e);
 
-        /* It is possible that Rhythmyx is starting before the backend,
-        so wait and retry a few times before throwing the error */
+        /*
+         * It is possible that Rhythmyx is starting before the backend, so wait and retry a few
+         * times before throwing the error
+         */
         conOut(
             "Making five attempts to retry connection, " + "sleeping 10 seconds between attempts.");
         for (int i = 0; (i < 5 && e != null); i++) {
@@ -251,56 +280,31 @@ public class PSLogManager {
 
           java.util.Date now = new java.util.Date();
 
-          /* This was removed to fix bug Rx-00-10-0077. I left the code because we may
-             want to re-instate it in the future with slight modifications.
-
-                         // if there are any messages hanging out in secondary log file, then
-                         // immediately transfer them to the back end (failing that, add them
-                         // to the queue so we can do it later)
-
-                         PSServerLogReaderFilter filter
-                            = new PSServerLogReaderFilter(null, now)
-                         {
-                            public int[] getApplicationIds()
-                            {
-                               return null; // all messages
-                            }
-
-                            public void processMessage(PSLogEntry msg,
-                               boolean filterWasApplied)
-                            {
-                               if (firstMsg)
-                                  conOut("Found existing messages in secondary log file. Transferring to back end.");
-
-                               firstMsg = false;
-
-                               if (filterWasApplied && msg != null)
-                               {
-                                  if (isOpen)
-                                  {
-                                     try
-                                     {
-                                        m_logWriter.write(msg);
-                                     }
-                                     catch (Throwable t)
-                                     {
-                                        isOpen = false;
-                                     }
-                                  }
-
-                                  if (!isOpen)
-                                  {
-                                     m_queue.add(msg);
-                                  }
-                               }
-                            }
-
-                            private boolean firstMsg = true;
-                            private boolean isOpen = true;
-                         };
-
-                         m_secondaryLogReader.read(filter);
-          */
+          /*
+           * This was removed to fix bug Rx-00-10-0077. I left the code because we may want to
+           * re-instate it in the future with slight modifications.
+           *
+           * // if there are any messages hanging out in secondary log file, then // immediately
+           * transfer them to the back end (failing that, add them // to the queue so we can do it
+           * later)
+           *
+           * PSServerLogReaderFilter filter = new PSServerLogReaderFilter(null, now) { public int[]
+           * getApplicationIds() { return null; // all messages }
+           *
+           * public void processMessage(PSLogEntry msg, boolean filterWasApplied) { if (firstMsg)
+           * conOut("Found existing messages in secondary log file. Transferring to back end.");
+           *
+           * firstMsg = false;
+           *
+           * if (filterWasApplied && msg != null) { if (isOpen) { try { m_logWriter.write(msg); }
+           * catch (Throwable t) { isOpen = false; } }
+           *
+           * if (!isOpen) { m_queue.add(msg); } } }
+           *
+           * private boolean firstMsg = true; private boolean isOpen = true; };
+           *
+           * m_secondaryLogReader.read(filter);
+           */
           m_secondaryLogWriter.truncateLog(now);
         } catch (SAXException sax) {
           conOut(
@@ -333,16 +337,15 @@ public class PSLogManager {
       // give the queue checker thread some time to get started
       synchronized (m_queueChecker) {
         conOut("Starting log queue thread...");
-        /* The following line used to be outside (above) this block. This
-        resulted in a race condition which, depending on the timeslice size,
-        could cause a hang. The hang could occur under the following
-        condition: start was called, the logQ thread executes thru its
-        notifyAll method before this thread even gets into this
-        block. Then when it gets to the wait below, it would block forever.
-        By moving it in here, the start method (which is synchronized)
-        will block immediately, until this thread goes into the wait
-        state, at which point it will initialize and notify this
-        thread that it has completed. */
+        /*
+         * The following line used to be outside (above) this block. This resulted in a race
+         * condition which, depending on the timeslice size, could cause a hang. The hang could
+         * occur under the following condition: start was called, the logQ thread executes thru its
+         * notifyAll method before this thread even gets into this block. Then when it gets to the
+         * wait below, it would block forever. By moving it in here, the start method (which is
+         * synchronized) will block immediately, until this thread goes into the wait state, at
+         * which point it will initialize and notify this thread that it has completed.
+         */
         m_queueChecker.start();
         m_queueChecker.wait();
       }
@@ -538,7 +541,6 @@ public class PSLogManager {
   }
 
   /** Notify the log queue thread that a new message has been queued. */
-  @SuppressFBWarnings("NN_NAKED_NOTIFY")
   private static void notifyQueue() {
     synchronized (m_queue) {
       m_queue.notifyAll();

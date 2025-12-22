@@ -1,24 +1,22 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.install;
 
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSSqlHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,11 +47,9 @@ public class PSUpgradePluginUpdateWorkflowTransitions implements IPSUpgradePlugi
   /*
    * (non-Javadoc)
    *
-   * @see
-   * com.percussion.install.IPSUpgradePlugin#process(com.percussion.install
-   * .IPSUpgradeModule, org.w3c.dom.Element)
+   * @see com.percussion.install.IPSUpgradePlugin#process(com.percussion.install .IPSUpgradeModule,
+   * org.w3c.dom.Element)
    */
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   public PSPluginResponse process(IPSUpgradeModule module, Element elemData) {
     logger = module.getLogStream();
     Connection conn = null;
@@ -185,11 +181,11 @@ public class PSUpgradePluginUpdateWorkflowTransitions implements IPSUpgradePlugi
    * Updates the attributes <code>TRANSITIONLABEL<code> and
    * <code>TRANSITIONACTIONTRIGGER<code> of the table.
    *
-   * @param transitionTable the name of the transitions table.
-   * @param workflowId the workflow id
-   * @param stateId the state id on which want to update.
-   * @param oldValue the value of the transition name before the updating.
-   * @param newValue the value of the transition name after the updating.
+   * &#64;param transitionTable the name of the transitions table.
+   * &#64;param workflowId the workflow id
+   * &#64;param stateId the state id on which want to update.
+   * &#64;param oldValue the value of the transition name before the updating.
+   * &#64;param newValue the value of the transition name after the updating.
    * @param conn a <code>Connection<code> object, assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
    */
@@ -225,11 +221,11 @@ public class PSUpgradePluginUpdateWorkflowTransitions implements IPSUpgradePlugi
   /**
    * Updates the attribute <code>TRANSITIONTOSTATEID<code> of the table.
    *
-   * @param transitionTable the name of the transitions table.
-   * @param workflowId the workflow id.
-   * @param stateId the state id on which want to update.
-   * @param resubmitStateId the resubmit state id.
-   * @param draftStateId the draft state id.
+   * &#64;param transitionTable the name of the transitions table.
+   * &#64;param workflowId the workflow id.
+   * &#64;param stateId the state id on which want to update.
+   * &#64;param resubmitStateId the resubmit state id.
+   * &#64;param draftStateId the draft state id.
    * @param conn a <code>Connection<code> object, assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
    */

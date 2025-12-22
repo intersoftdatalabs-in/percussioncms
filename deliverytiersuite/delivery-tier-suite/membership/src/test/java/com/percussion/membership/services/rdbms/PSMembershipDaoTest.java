@@ -22,7 +22,6 @@ import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSMemberExistsException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +74,6 @@ public class PSMembershipDaoTest extends TestCase {
     super.tearDown();
   }
 
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   @Test
   public void testMembership() throws Exception {
     IPSMembership membership = new PSMembership();
@@ -90,7 +88,6 @@ public class PSMembershipDaoTest extends TestCase {
     assertEquals(other, membership);
   }
 
-  @SuppressFBWarnings("HARD_CODE_PASSWORD")
   @Test
   public void testCreateAndFind() throws Exception {
     IPSMembership member = membershipDao.createMember("testUser", "demo", PSMemberStatus.Active);
@@ -191,7 +188,6 @@ public class PSMembershipDaoTest extends TestCase {
     assertEquals(members, found);
   }
 
-  @SuppressFBWarnings("PREDICTABLE_RANDOM")
   @Test
   public void testChangeStatusAccount() throws Exception {
     String userId = "testChangeStatusAccount@" + Math.random() + ".com";
@@ -222,7 +218,6 @@ public class PSMembershipDaoTest extends TestCase {
     membershipDao.deleteAccount(userId);
   }
 
-  @SuppressFBWarnings("PREDICTABLE_RANDOM")
   @Test
   public void testDeleteAccount() throws Exception {
     String userId = "testDeleteAccount@" + Math.random() + ".com";
