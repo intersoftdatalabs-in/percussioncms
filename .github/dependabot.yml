@@ -81,7 +81,12 @@ updates:
         versions:
           - ">=2.9"
       - dependency-name: "com.percussion:*"
-
+      - dependency-name: "org.dom4j:dom4j"
+        versions:
+          - ">=2.2.0"
+      - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
+        versions:
+          - ">=10"    
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
