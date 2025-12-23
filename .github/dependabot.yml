@@ -40,7 +40,7 @@ updates:
           - ">=1.9.8"
       - dependency-name: "org.apache.myfaces.core:*"
         versions:
-          - ">=4"
+          - ">=3"
       - dependency-name: "org.apache.felix:maven-bundle-plugin"
         versions:
           - ">=6"
