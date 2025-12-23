@@ -108,13 +108,11 @@
             <artifactId>jsoup</artifactId>
             <version>1.21.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.phloc/phloc-commons -->
         <dependency>
             <groupId>com.phloc</groupId>
             <artifactId>phloc-commons</artifactId>
-            <version>5.0.0</version>
+            <version>4.4.13</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.phloc/phloc-css -->
         <dependency>
             <groupId>com.phloc</groupId>
             <artifactId>phloc-css</artifactId>
