@@ -15,3 +15,4 @@
 * Cactus test framework is retired, remove any cactus dependencies and relocate any cactus tests to the CMLight-Main-cactus-tests module wich is currently excluded from the build.
 * Any23 is retired. Remove any Any23 dependencies. Refactor code that uses Any23 to not use it.
 * Add missing perc-i18n dependency where needed.
+* prefer the javax namespace, do not migrate to the jakarta namespace on this branch.

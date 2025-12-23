@@ -1,25 +1,24 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.servlets.taglib;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import org.apache.commons.lang.StringUtils;
-import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
+import org.apache.myfaces.shared.taglib.UIComponentTagUtils;
 
 /**
  * The tag that implements the actual menu item for the CSS menu implementation.
@@ -53,8 +52,11 @@ public class PSMenuItemTag extends PSJSFBaseTag {
     return "com.percussion.jsf.MenuItem";
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
    */
   @SuppressWarnings("unchecked")
   @Override
