@@ -139,10 +139,15 @@ _term() {
 
 trap _term SIGINT SIGQUIT SIGTERM 
 
+# Ensure the PID file directory exists
+if [ ! -z "$currentService" ]; then
+	mkdir -p /var/run/rxjetty/${currentService}
+fi
+
 cd ${JETTY_BASE}
 ${RUN_CMD} &
 child=$!
-echo /var/run/rxjetty/${currentService}
+echo "Started Jetty with PID $child"
 
 echo $child > "${PID_FILE}"
 wait $child
