@@ -1,3 +1,12 @@
+== Git Workflow
+* **NEVER push to remote** without explicit user permission
+* Before creating any feature branch:
+  1. Always pull latest changes on the base branch first
+  2. Always create a GitHub issue first documenting the bug/feature
+  3. Always include the issue number in the branch name (e.g., `bugfix/123-fix-logging`)
+* Only push commits after user has reviewed and approved changes
+* All changes must be tested locally before pushing
+
 == Branch Information
 * Branch Name: development-8.1.x
 * This branch is intended to maintain compatibility with Java 8 (JDK 1.8.0) while providing security updates and bug fixes.
