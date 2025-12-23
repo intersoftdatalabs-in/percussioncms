@@ -4,7 +4,7 @@
 
         <RollingFile name="FILE" fileName="${log4j:configParentLocation}/../logs/server.log"
                      filePattern="${log4j:configParentLocation}/../logs/server-%d{yyyy-MM-dd}-%i.log">
-            <PatternLayout header="${env:rxDir} ${env:deployerdir} ${java:runtime} - ${java:vm} - ${java:os}" pattern="%d %-5p [%c] %m%n"/>
+            <PatternLayout header="${sys:rxdeploydir} ${java:runtime} - ${java:vm} - ${java:os}" pattern="%d %-5p [%c] %m%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB" />
             </Policies>
