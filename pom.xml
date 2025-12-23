@@ -171,7 +171,7 @@
         <maven.version>[3.6.0,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mssql.version>13.3.0.jre8-preview</mssql.version>
-        <myfaces.version>3.0.3</myfaces.version>
+        <myfaces.version>2.3.11</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <ojdbc8.version>19.3.0.0</ojdbc8.version>
         <opencsv.version>5.12.0</opencsv.version>

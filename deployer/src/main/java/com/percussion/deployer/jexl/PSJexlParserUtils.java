@@ -1,27 +1,29 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.deployer.jexl;
 
-import java.io.StringReader;
+import org.apache.commons.jexl3.JexlFeatures;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
 import org.apache.commons.jexl3.parser.ParseException;
 import org.apache.commons.jexl3.parser.Parser;
+import org.apache.commons.jexl3.parser.ParserTokenManager;
+import org.apache.commons.jexl3.parser.SimpleCharStream;
 import org.apache.commons.jexl3.parser.SimpleNode;
-import org.apache.commons.jexl3.parser.TokenMgrError;
+import org.apache.commons.jexl3.parser.StringProvider;
+import org.apache.commons.jexl3.parser.TokenMgrException;
 
 /**
  * A util class for parsing jexl expressions or scripts
@@ -30,7 +32,8 @@ import org.apache.commons.jexl3.parser.TokenMgrError;
  */
 public class PSJexlParserUtils {
   /** the jexl parser */
-  protected static Parser ms_parser = new Parser(new StringReader(";"));
+  protected static Parser ms_parser =
+      new Parser(new ParserTokenManager(new SimpleCharStream(new StringProvider(";"), 1, 1)));
 
   /**
    * With the JEXL script, parse it
@@ -42,8 +45,8 @@ public class PSJexlParserUtils {
   public static PSJexlSimpleNode createScriptNode(String scriptText) throws Exception {
     SimpleNode script;
     try {
-      script = ms_parser.parse(null, scriptText, null, false, false);
-    } catch (TokenMgrError tme) {
+      script = ms_parser.parse(null, new JexlFeatures(), scriptText, null);
+    } catch (TokenMgrException tme) {
       throw new ParseException(tme.getMessage());
     }
 
@@ -68,8 +71,8 @@ public class PSJexlParserUtils {
     // Parse the Expression
     SimpleNode tree;
     try {
-      tree = ms_parser.parse(null, expression, null, false, isBoolean);
-    } catch (TokenMgrError tme) {
+      tree = ms_parser.parse(null, new JexlFeatures(), expression, null);
+    } catch (TokenMgrException tme) {
       throw new ParseException(tme.getMessage());
     }
 
