@@ -137,7 +137,6 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>${xml.apis.version}</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
