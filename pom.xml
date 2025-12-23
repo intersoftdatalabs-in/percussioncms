@@ -79,7 +79,7 @@
         <axiscore.version>1.4.2</axiscore.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.83</bc.version>
-        <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
+        <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
         <commons-cli.version>1.11.0</commons-cli.version>
@@ -140,7 +140,7 @@
         <lucene.version>8.11.4</lucene.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
-        <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
+        <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
