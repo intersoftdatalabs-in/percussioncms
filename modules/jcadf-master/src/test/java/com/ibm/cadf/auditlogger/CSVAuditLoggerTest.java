@@ -73,9 +73,18 @@ public class CSVAuditLoggerTest {
 
     // Reason reason = new Reason("File transfer", "10101", null, null);
 
-    Event event = EventFactory.getEventInstance(CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
-        Identifier.generateUniqueId(), "Send File", "successful", initiator, null, target, null,
-        observer, null);
+    Event event =
+        EventFactory.getEventInstance(
+            CADFType.EVENTTYPE.EVENTTYPE_ACTIVITY.name(),
+            Identifier.generateUniqueId(),
+            "Send File",
+            "successful",
+            initiator,
+            null,
+            target,
+            null,
+            observer,
+            null);
 
     String metricId = Identifier.generateUniqueId();
     Metric metric1 = new Metric(metricId, "size", "MB");
@@ -93,8 +102,10 @@ public class CSVAuditLoggerTest {
     if (file.exists()) {
 
       // create CSVReader object
-      CSVReader reader = new CSVReaderBuilder(new FileReader(Constants.CSV_AUDIT_FILES_NAME))
-          .withCSVParser(new CSVParserBuilder().withSeparator(',').build()).build();
+      CSVReader reader =
+          new CSVReaderBuilder(new FileReader(Constants.CSV_AUDIT_FILES_NAME))
+              .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
+              .build();
 
       // read all lines at once
       List<String[]> records = reader.readAll();
@@ -119,9 +130,21 @@ public class CSVAuditLoggerTest {
       Assert.assertEquals("AuditLoggerTest", auditRecord[4]);
       Assert.assertEquals("Configuration Component", auditRecord[5]);
       Assert.assertEquals("successful", auditRecord[6]);
-      Assert.assertEquals("<" + metric1.getMetricId() + " - " + metric1.getName() + " "
-          + measurement1.getResult() + " : " + metric1.getMetricId() + " - " + metric1.getName()
-          + " " + measurement2.getResult() + " : >", auditRecord[7]);
+      Assert.assertEquals(
+          "<"
+              + metric1.getMetricId()
+              + " - "
+              + metric1.getName()
+              + " "
+              + measurement1.getResult()
+              + " : "
+              + metric1.getMetricId()
+              + " - "
+              + metric1.getName()
+              + " "
+              + measurement2.getResult()
+              + " : >",
+          auditRecord[7]);
       reader.close();
     } else {
       Assert.fail();
