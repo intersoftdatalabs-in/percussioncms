@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.utils.jexl;
@@ -28,6 +27,7 @@ import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
+import org.apache.commons.jexl3.JexlFeatures;
 import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.logging.Log;
@@ -51,9 +51,15 @@ public class PSScript implements IPSScript {
   // Control JEXL debug
   private static boolean jexlUseDebug = false;
 
+  // Explicit feature toggles for backward-compatibility control
+  private static boolean jexlLexical = false;
+  private static boolean jexlLexicalShade = false;
+  private static boolean jexlConstCapture = false;
+
   private boolean compilable = false;
 
-  private JexlScript compiledScript = null;
+  private volatile JexlScript compiledScript = null;
+  private volatile String fixedScriptText = null;
 
   public PSScript(String scriptText) {
     this.scriptText = scriptText;
@@ -62,6 +68,7 @@ public class PSScript implements IPSScript {
   private String ownerType = "";
 
   private String ownerName = "";
+
   /**
    * * An optional string indicating the type of system object that owns this script. Never null
    *
@@ -126,14 +133,35 @@ public class PSScript implements IPSScript {
   @Override
   public Object eval(Map<String, Object> bindingsMap) throws JexlException {
     JexlContext context = new MapContext(bindingsMap);
-
-    if (compiledScript == null) {
-      String fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
-
-      compiledScript = EngineSingletonHolder.DEFAULT_ENGINE.createScript(fixedScriptText);
+    try {
+      // Double-checked locking to avoid duplicate compilation under concurrency
+      JexlScript local = compiledScript;
+      if (local == null) {
+        synchronized (this) {
+          local = compiledScript;
+          if (local == null) {
+            if (fixedScriptText == null) {
+              fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
+            }
+            local = EngineSingletonHolder.DEFAULT_ENGINE.createScript(fixedScriptText);
+            compiledScript = local;
+          }
+        }
+      }
+      return local.execute(context);
+    } catch (JexlException x) {
+      // Add owner context for faster diagnosis while preserving original exception type
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            "JEXL error in script. Type: "
+                + ownerType
+                + " Name: "
+                + ownerName
+                + " Script: "
+                + scriptText);
+      }
+      throw x;
     }
-
-    return compiledScript.execute(context);
   }
 
   @Override
@@ -195,6 +223,12 @@ public class PSScript implements IPSScript {
             .debug(jexlUseDebug)
             .logger(LOG)
             .cache(CACHE_SIZE)
+            // Explicit feature toggles (default false) to preserve legacy behavior
+            .features(
+                new JexlFeatures()
+                    .lexical(jexlLexical)
+                    .lexicalShade(jexlLexicalShade)
+                    .constCapture(jexlConstCapture))
             .create();
 
     private static void initConfig() {
@@ -226,6 +260,11 @@ public class PSScript implements IPSScript {
         jexlUseDebug = Boolean.parseBoolean(props.getProperty("jexlUseDebug", "false"));
 
         CACHE_SIZE = Integer.parseInt(props.getProperty("jexlCacheSize", "512"));
+
+        // Feature flags default to false for legacy semantics; can be enabled via config
+        jexlLexical = Boolean.parseBoolean(props.getProperty("jexlLexical", "false"));
+        jexlLexicalShade = Boolean.parseBoolean(props.getProperty("jexlLexicalShade", "false"));
+        jexlConstCapture = Boolean.parseBoolean(props.getProperty("jexlConstCapture", "false"));
       }
     }
 
@@ -242,6 +281,12 @@ public class PSScript implements IPSScript {
               .debug(jexlUseDebug)
               .logger(LOG)
               .cache(CACHE_SIZE)
+              // Preserve backward-compatible semantics unless explicitly overridden by config
+              .features(
+                  new JexlFeatures()
+                      .lexical(jexlLexical)
+                      .lexicalShade(jexlLexicalShade)
+                      .constCapture(jexlConstCapture))
               .create();
     }
   }
