@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.ibm.cadf.auditlogger;
@@ -26,7 +25,10 @@ import com.ibm.cadf.model.Measurement;
 import com.ibm.cadf.model.Metric;
 import com.ibm.cadf.model.Resource;
 import com.ibm.cadf.util.Constants;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class CSVAuditLoggerTest {
   }
 
   @Test
-  public void testCSVAuditing() throws CADFException, IOException {
+  public void testCSVAuditing() throws CADFException, IOException, CsvException {
 
     File file = new File(Constants.CSV_AUDIT_FILES_NAME);
     if (file.exists()) {
@@ -100,7 +102,10 @@ public class CSVAuditLoggerTest {
     if (file.exists()) {
 
       // create CSVReader object
-      CSVReader reader = new CSVReader(new FileReader(Constants.CSV_AUDIT_FILES_NAME), ',');
+      CSVReader reader =
+          new CSVReaderBuilder(new FileReader(Constants.CSV_AUDIT_FILES_NAME))
+              .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
+              .build();
 
       // read all lines at once
       List<String[]> records = reader.readAll();
