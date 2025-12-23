@@ -111,6 +111,9 @@ updates:
       - dependency-name: "org.xerial:sqlite-jdbc"
         versions:
           - ">=3.44"
+      - dependency-name: "com.sun.xml.ws:jaxws-ri"
+        versions:
+          - ">=3" 
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
