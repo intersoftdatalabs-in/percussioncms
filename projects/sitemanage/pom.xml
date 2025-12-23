@@ -112,7 +112,7 @@
         <dependency>
             <groupId>com.phloc</groupId>
             <artifactId>phloc-commons</artifactId>
-            <version>5.0.0</version>
+            <version>4.3.9</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.phloc/phloc-css -->
         <dependency>
