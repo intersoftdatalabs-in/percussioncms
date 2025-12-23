@@ -50,6 +50,9 @@ updates:
       - dependency-name: "com.diffplug.spotless:spotless-maven-plugin"
         versions:
           - ">=2.31"
+      - dependency-name: "com.google.googlejavaformat:google-java-format"
+        versions:
+          - ">=1.8"
       - dependency-name: "org.liquibase:*"
         versions:
           - ">=5"
