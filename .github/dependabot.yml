@@ -119,7 +119,10 @@ updates:
           - ">=3.44"
       - dependency-name: "com.sun.xml.ws:jaxws-ri"
         versions:
-          - ">=3" 
+          - ">=3"
+      - dependency-name: "com.ibm.icu:icu4j"
+        versions:
+          - ">=78"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
