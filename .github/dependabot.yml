@@ -123,6 +123,9 @@ updates:
       - dependency-name: "com.ibm.icu:icu4j"
         versions:
           - ">=78"
+      - dependency-name: "com.phloc:*"
+        versions:
+          - ">=4.5"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
