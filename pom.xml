@@ -281,7 +281,7 @@
             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-el</artifactId>
-                <version>8.5.9.1</version>
+                <version>9.0.107</version>
                 <scope>provided</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
