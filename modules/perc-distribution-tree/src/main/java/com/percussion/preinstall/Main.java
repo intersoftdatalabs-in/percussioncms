@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.preinstall;
@@ -110,7 +109,8 @@ public class Main {
       }
 
       percVersion = System.getProperty(PERCUSSION_VERSION);
-      if (percVersion == null) percVersion = "";
+      if (percVersion == null)
+        percVersion = "";
 
       developmentFlag = System.getProperty(DEVELOPMENT);
       if (developmentFlag == null || DEVELOPMENT.trim().equalsIgnoreCase(""))
@@ -144,26 +144,22 @@ public class Main {
         installSrc = Files.createTempDirectory(INSTALL_TEMPDIR);
 
         // add option to not delete for debugging
-        Runtime.getRuntime()
-            .addShutdownHook(
-                new Thread() {
-                  @Override
-                  public void run() {
-                    // If the debug flag is set don't delete the files.
-                    if (debug.equalsIgnoreCase("false")) {
-                      try {
-                        Files.walk(installSrc)
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
-                      } catch (IOException ex) {
-                        System.out.println(
-                            "An error occurred while executing the installation, installation has likely failed. "
-                                + ex.getMessage());
-                      }
-                    }
-                  }
-                });
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+          @Override
+          public void run() {
+            // If the debug flag is set don't delete the files.
+            if (debug.equalsIgnoreCase("false")) {
+              try {
+                Files.walk(installSrc).sorted(Comparator.reverseOrder()).map(Path::toFile)
+                    .forEach(File::delete);
+              } catch (IOException ex) {
+                System.out.println(
+                    "An error occurred while executing the installation, installation has likely failed. "
+                        + ex.getMessage());
+              }
+            }
+          }
+        });
 
         extractArchive(currentJar, installSrc, DISTRIBUTION_DIR);
 
@@ -228,19 +224,19 @@ public class Main {
     try (ZipFile archive = new ZipFile(archiveFile.toFile())) {
 
       // sort entries by name to always create folders first
-      List<? extends ZipEntry> entries =
-          archive.stream()
-              .sorted(Comparator.comparing(ZipEntry::getName))
-              .collect(Collectors.toList());
+      List<? extends ZipEntry> entries = archive.stream()
+          .sorted(Comparator.comparing(ZipEntry::getName)).collect(Collectors.toList());
 
       // copy each entry in the dest path
       for (ZipEntry entry : entries) {
         currentLineNo.getAndIncrement();
         String entryName = entry.getName();
-        if (!entryName.startsWith(folderPrefix)) continue;
+        if (!entryName.startsWith(folderPrefix))
+          continue;
 
         String name = entryName.substring(folderPrefix.length() + 1);
-        if (name.length() == 0) continue;
+        if (name.length() == 0)
+          continue;
 
         Path entryDest = destPath.resolve(name);
         File newFile = new File(entryDest.toString());
@@ -256,6 +252,12 @@ public class Main {
         System.out.println("Creating file " + entryDest);
 
         Files.copy(archive.getInputStream(entry), entryDest);
+
+        // Preserve executable permissions for shell scripts
+        if (entryName.endsWith(".sh")) {
+          File file = entryDest.toFile();
+          file.setExecutable(true, false); // Set executable for owner, group, and others
+        }
       }
     } catch (Exception ex) {
       log.error(ex.getMessage());
@@ -288,30 +290,14 @@ public class Main {
 
       ProcessBuilder builder;
       if (debugFlag.trim().length() > 0) {
-        builder =
-            new ProcessBuilder(
-                    javabin,
-                    debugFlag,
-                    "-Dfile.encoding=UTF-8",
-                    "-Dsun.jnu.encoding=UTF-8",
-                    "-Dinstall.dir=" + installDir.toAbsolutePath().toString(),
-                    "-jar",
-                    jar.toAbsolutePath().toString(),
-                    "-f",
-                    ANT_INSTALL)
+        builder = new ProcessBuilder(javabin, debugFlag, "-Dfile.encoding=UTF-8",
+            "-Dsun.jnu.encoding=UTF-8", "-Dinstall.dir=" + installDir.toAbsolutePath().toString(),
+            "-jar", jar.toAbsolutePath().toString(), "-f", ANT_INSTALL)
                 .directory(execPath.toFile());
       } else {
-        builder =
-            new ProcessBuilder(
-                    javabin,
-                    "-Dfile.encoding=UTF-8",
-                    "-Dsun.jnu.encoding=UTF-8",
-                    "-Dinstall.dir=" + installDir.toAbsolutePath().toString(),
-                    "-jar",
-                    jar.toAbsolutePath().toString(),
-                    "-f",
-                    ANT_INSTALL)
-                .directory(execPath.toFile());
+        builder = new ProcessBuilder(javabin, "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8",
+            "-Dinstall.dir=" + installDir.toAbsolutePath().toString(), "-jar",
+            jar.toAbsolutePath().toString(), "-f", ANT_INSTALL).directory(execPath.toFile());
       }
       // pass in known flags
       builder.environment().put(DEVELOPMENT, developmentFlag);
@@ -325,44 +311,41 @@ public class Main {
 
           InputStreamLineBuffer outBuff = new InputStreamLineBuffer(inStream);
           InputStreamLineBuffer errBuff = new InputStreamLineBuffer(inErrStream);
-          Thread streamReader =
-              new Thread(
-                  new Runnable() {
-                    public void run() {
-                      // start the input reader buffer threads
-                      outBuff.start();
-                      errBuff.start();
+          Thread streamReader = new Thread(new Runnable() {
+            public void run() {
+              // start the input reader buffer threads
+              outBuff.start();
+              errBuff.start();
 
-                      // while an input reader buffer thread is alive
-                      // or there are unconsumed data left
-                      while (outBuff.isAlive()
-                          || outBuff.hasNext()
-                          || errBuff.isAlive()
-                          || errBuff.hasNext()) {
+              // while an input reader buffer thread is alive
+              // or there are unconsumed data left
+              while (outBuff.isAlive() || outBuff.hasNext() || errBuff.isAlive()
+                  || errBuff.hasNext()) {
 
-                        // get the normal output if at least 50 millis have passed
-                        if (outBuff.timeElapsed() > 50)
-                          while (outBuff.hasNext()) {
-                            currentLineNo.getAndIncrement();
+                // get the normal output if at least 50 millis have passed
+                if (outBuff.timeElapsed() > 50)
+                  while (outBuff.hasNext()) {
+                    currentLineNo.getAndIncrement();
 
-                            System.out.println(errBuff.getNext());
-                          }
-                        // get the error output if at least 50 millis have passed
-                        if (errBuff.timeElapsed() > 50)
-                          while (errBuff.hasNext()) currentErrLineNo.getAndIncrement();
+                    System.out.println(errBuff.getNext());
+                  }
+                // get the error output if at least 50 millis have passed
+                if (errBuff.timeElapsed() > 50)
+                  while (errBuff.hasNext())
+                    currentErrLineNo.getAndIncrement();
 
-                        System.err.println(errBuff.getNext());
+                System.err.println(errBuff.getNext());
 
-                        // sleep a bit bofore next run
-                        try {
-                          Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                          Thread.currentThread().interrupt();
-                        }
-                      }
-                      System.out.println("Finish reading error and output stream");
-                    }
-                  });
+                // sleep a bit bofore next run
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                }
+              }
+              System.out.println("Finish reading error and output stream");
+            }
+          });
 
           streamReader.start();
 
@@ -441,16 +424,15 @@ public class Main {
           }
         }
       } catch (IOException e) {
-        log.info(
-            "Loading Installation.properties file failed", PSExceptionUtils.getMessageForLog(e));
+        log.info("Loading Installation.properties file failed",
+            PSExceptionUtils.getMessageForLog(e));
       }
     }
   }
 
   public static void updateUserSpringConfig(Path installDir) {
-    String userSprinXMLDir =
-        installDir.toAbsolutePath().toString()
-            + "/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/";
+    String userSprinXMLDir = installDir.toAbsolutePath().toString()
+        + "/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/";
     String[] ext = new String[] {"xml"};
     File userSprinXMLDirectory = new File(userSprinXMLDir);
     if (userSprinXMLDirectory.exists()) {
@@ -459,11 +441,9 @@ public class Main {
       for (File xmlFile : userSpringXMLFiles) {
         if (xmlFile.exists()) {
 
-          replaceTokens(
-              xmlFile,
+          replaceTokens(xmlFile,
               "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \n"
-                  + "   \"http://www.springframework.org/dtd/spring-beans.dtd\">\n"
-                  + "<beans>",
+                  + "   \"http://www.springframework.org/dtd/spring-beans.dtd\">\n" + "<beans>",
               "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n"
                   + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
                   + "xmlns:tx=\"http://www.springframework.org/schema/tx\"\n"
@@ -489,32 +469,28 @@ public class Main {
     if (categoryXML.exists()) {
 
       try (Stream<String> stream = Files.lines(Paths.get(categoryXMLDir))) {
-        stream.forEach(
-            s -> {
-              if (s.contains("<CategoryTree")) {
-                topLevelNodeToReplace.set(s);
-              }
-              if (s.contains("</CategoryTree")) ;
-              {
-                topLevelNodeEndToReplace.set(s);
-              }
-              if (s.contains("topLevelNodes")) {
-                topLevelNodeStringPresent.set(true);
-              }
-            });
+        stream.forEach(s -> {
+          if (s.contains("<CategoryTree")) {
+            topLevelNodeToReplace.set(s);
+          }
+          if (s.contains("</CategoryTree"))
+            ;
+          {
+            topLevelNodeEndToReplace.set(s);
+          }
+          if (s.contains("topLevelNodes")) {
+            topLevelNodeStringPresent.set(true);
+          }
+        });
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
 
       if (!topLevelNodeStringPresent.get()) {
-        replaceTokens(
-            categoryXML,
-            topLevelNodeToReplace.get(),
+        replaceTokens(categoryXML, topLevelNodeToReplace.get(),
             topLevelNodeToReplace + "\n" + "<topLevelNodes>");
-        replaceTokens(
-            categoryXML,
-            topLevelNodeEndToReplace.get(),
+        replaceTokens(categoryXML, topLevelNodeEndToReplace.get(),
             "</topLevelNodes>\n" + topLevelNodeEndToReplace);
       }
     }
@@ -536,9 +512,8 @@ public class Main {
     File oldServerXMLFile = new File(oldServerXMLDir + "server.xml");
     log.info("In updateJettyServerPortAndSSLToPreUpgradeSettings");
     if (oldServerXMLFile.exists()) {
-      DocumentBuilderFactory dbf =
-          PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-              new PSXmlSecurityOptions(true, true, true, false, true, false));
+      DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+          new PSXmlSecurityOptions(true, true, true, false, true, false));
       dbf.setValidating(false);
       DocumentBuilder db = dbf.newDocumentBuilder();
       try (FileInputStream fis = new FileInputStream(oldServerXMLFile)) {
@@ -549,8 +524,8 @@ public class Main {
           Element e = (Element) nodeList.item(i);
           boolean hasAttribute = e.hasAttribute("scheme");
           if (hasAttribute && e.getAttribute("scheme").equalsIgnoreCase("http")) {
-            writeInstallationPropertiesForJetty(
-                installDir, "jetty.http.port=", e.getAttribute("port"));
+            writeInstallationPropertiesForJetty(installDir, "jetty.http.port=",
+                e.getAttribute("port"));
           }
           if (hasAttribute && e.getAttribute("scheme").equalsIgnoreCase("https")) {
             setSSLConnectorProperties(installDir, e);
@@ -581,16 +556,16 @@ public class Main {
         }
       }
     }
-    writeInstallationPropertiesForJetty(
-        installDir, "jetty.sslContext.keyStorePath=", keyStoreFilePath);
-    writeInstallationPropertiesForJetty(
-        installDir, "jetty.sslContext.trustStorePath=", keyStoreFilePath);
-    writeInstallationPropertiesForJetty(
-        installDir, "jetty.sslContext.keyStorePassword=", keystorePassWord);
-    writeInstallationPropertiesForJetty(
-        installDir, "jetty.sslContext.keyManagerPassword=", keystorePassWord);
-    writeInstallationPropertiesForJetty(
-        installDir, "jetty.sslContext.trustStorePassword=", keystorePassWord);
+    writeInstallationPropertiesForJetty(installDir, "jetty.sslContext.keyStorePath=",
+        keyStoreFilePath);
+    writeInstallationPropertiesForJetty(installDir, "jetty.sslContext.trustStorePath=",
+        keyStoreFilePath);
+    writeInstallationPropertiesForJetty(installDir, "jetty.sslContext.keyStorePassword=",
+        keystorePassWord);
+    writeInstallationPropertiesForJetty(installDir, "jetty.sslContext.keyManagerPassword=",
+        keystorePassWord);
+    writeInstallationPropertiesForJetty(installDir, "jetty.sslContext.trustStorePassword=",
+        keystorePassWord);
     String newProtocol = null;
     if (sslProtocols != null) {
       String[] protocolArray = sslProtocols.split(",");
@@ -610,8 +585,8 @@ public class Main {
     writeInstallationPropertiesForJetty(installDir, "perc.ssl.protocols=", newProtocol);
   }
 
-  public static void writeInstallationPropertiesForJetty(
-      Path installDir, String replaceToken, String value) throws IOException {
+  public static void writeInstallationPropertiesForJetty(Path installDir, String replaceToken,
+      String value) throws IOException {
     AtomicReference<String> replaceString = new AtomicReference<>("");
     AtomicReference<String> replaceValue = new AtomicReference<>("");
 
@@ -619,13 +594,12 @@ public class Main {
         installDir.toAbsolutePath().toString() + INSTALLATION_PROPS_PATH;
 
     try (Stream<String> stream = Files.lines(Paths.get(installationPropertiesFileDir))) {
-      stream.forEach(
-          s -> {
-            if (s.contains(replaceToken)) {
-              replaceString.set(s);
-              replaceValue.set(replaceToken + value);
-            }
-          });
+      stream.forEach(s -> {
+        if (s.contains(replaceToken)) {
+          replaceString.set(s);
+          replaceValue.set(replaceToken + value);
+        }
+      });
     }
     File installationPropertiesFile =
         new File(installDir.toAbsolutePath().toString() + INSTALLATION_PROPS_PATH);
@@ -648,8 +622,7 @@ public class Main {
           }
         }
       } catch (IOException e) {
-        log.error(
-            "Loading Server.properties file failed. Error: {}",
+        log.error("Loading Server.properties file failed. Error: {}",
             PSExceptionUtils.getMessageForLog(e));
       }
     }

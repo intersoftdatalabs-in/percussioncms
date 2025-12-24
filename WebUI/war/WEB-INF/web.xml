@@ -357,9 +357,11 @@
     <!--
        + Axis servlets
     -->
+    <!-- Commented out: AxisHTTPSessionListener class not found in classpath
     <listener>
         <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
     </listener>
+    -->
 
     <servlet>
         <display-name>Apache-Axis Servlet</display-name>
