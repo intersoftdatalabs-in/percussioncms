@@ -133,6 +133,9 @@ updates:
       - dependency-name: "commons-digester:commons-digester"
         versions:
           - ">=1.9"
+      - dependency-name: "com.google.inject:guice"
+        versions:
+          - ">=5.2"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
