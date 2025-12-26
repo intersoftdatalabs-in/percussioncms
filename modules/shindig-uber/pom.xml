@@ -10,16 +10,6 @@
     <artifactId>shindig-uber</artifactId>
     <packaging>jar</packaging>
     <name>Shindig Uber Jar</name>
-    <distributionManagement>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>com.google.collections</groupId>
