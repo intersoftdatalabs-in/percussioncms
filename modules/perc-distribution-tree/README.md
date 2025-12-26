@@ -107,3 +107,4 @@ Verify:
 - Verify execution ID is NOT `default-cli`
 - Check phase is set to `process-resources`
 - Ensure task is inside `<executions>` block
+

@@ -188,7 +188,7 @@
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>4.0.1</servlet.spec>
-        <shindig.version>3.0.0-beta4</shindig.version>
+        <shindig.version>1.1-BETA5-incubating</shindig.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
         <skip.integration.tests>true</skip.integration.tests>
