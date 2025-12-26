@@ -25,6 +25,22 @@ function check_pid {
 	fi
 }
 
+#  Find running Jetty process by matching JETTY_BASE path
+function find_running_jetty {
+	# Look for java processes with jetty.base matching this installation
+	while IFS= read -r pid; do
+		if [ -f "/proc/$pid/cmdline" ]; then
+			cmdline=$(cat /proc/$pid/cmdline 2>/dev/null | tr '\0' ' ')
+			# Check if this is a Jetty process with matching base directory
+			if [[ "$cmdline" == *"jetty"* ]] && [[ "$cmdline" == *"-Djetty.base=${JETTY_BASE}"* ]]; then
+				PID=$pid
+				echo "Found running Jetty process with PID ${PID} (no PID file)"
+				return
+			fi
+		fi
+	done < <(pgrep -f "java.*jetty")
+}
+
 ##  Checking User and change to correct user if running under root or sudo
 RX_USER=$(ls -ld ${rxDir} | awk '{print $3}')
 if [ "${RX_USER}" != `whoami` ];then
@@ -60,6 +76,11 @@ if [ ! -z $currentService ]; then
 	check_pid  
 	echo
 	echo "This instance is installed as service ${currentService}"
+fi
+
+# If no PID found from PID files, search for running process
+if [ ${PID} -eq 0 ]; then
+	find_running_jetty
 fi
 
 if [ ${PID} -eq 0 ]; then
