@@ -168,8 +168,16 @@
         <servlet-name>JavaScriptServlet</servlet-name>
         <servlet-class>org.owasp.csrfguard.servlet.JavaScriptServlet</servlet-class>
         <init-param>
+            <param-name>source-file</param-name>
+            <param-value>WEB-INF/Owasp.CsrfGuard.js</param-value>
+        </init-param>
+        <init-param>
             <param-name>inject-into-attributes</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>token-per-page</param-name>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
@@ -275,6 +283,9 @@
     <listener>
         <listener-class>org.apache.shindig.common.servlet.GuiceServletContextListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
         <servlet-class>
@@ -287,24 +298,8 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     <!--
-       + Axis servlets
+       + Axis servlets - REMOVED (Axis is no longer supported)
     -->
-    <!-- Commented out: AxisHTTPSessionListener class not found in classpath
-    <listener>
-        <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
-    </listener>
-    -->
-    <servlet>
-        <display-name>Apache-Axis Servlet</display-name>
-        <servlet-name>AxisServlet</servlet-name>
-        <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <display-name>Axis Admin Servlet</display-name>
-        <servlet-name>AdminServlet</servlet-name>
-        <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
-        <load-on-startup>100</load-on-startup>
-    </servlet>
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
@@ -313,13 +308,6 @@
     <servlet>
         <servlet-name>Trinidad Resources</servlet-name>
         <servlet-class>org.apache.myfaces.trinidad.webapp.ResourceServlet</servlet-class>
-    </servlet>
-    <!--
-       - Axis servlets
-    -->
-    <servlet>
-        <servlet-name>ServletRedirector</servlet-name>
-        <servlet-class>org.apache.cactus.server.ServletTestRedirector</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RhythmyxServlet</servlet-name>
@@ -421,18 +409,6 @@
         <servlet-name>PSSiteImportLogViewer</servlet-name>
         <servlet-class>com.percussion.sitemanage.importer.PSSiteImportLogViewer</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>JnlpDownloadServlet</servlet-name>
-        <servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>JnlpDownloadServlet</servlet-name>
-        <url-pattern>*.jnlp</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>JnlpDownloadServlet</servlet-name>
-        <url-pattern>*.jar</url-pattern>
-    </servlet-mapping>
     <!-- catch all other requests -->
     <servlet-mapping>
         <servlet-name>CXFServlet</servlet-name>
@@ -488,10 +464,6 @@
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ServletRedirector</servlet-name>
-        <url-pattern>/ServletRedirector</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.faces</url-pattern>
     </servlet-mapping>
@@ -520,24 +492,8 @@
         <url-pattern>/linkback/*</url-pattern>
     </servlet-mapping>
     <!--
-       + Axis servlet mappings
+       + Axis servlet mappings - REMOVED (Axis is no longer supported)
     -->
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/servlet/AxisServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/servlet/AdminServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/webservices/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/designwebservices/*</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ActiveAssemblyServlet</servlet-name>
         <url-pattern>/assembly/aa</url-pattern>
@@ -776,6 +732,10 @@
         <res-sharing-scope>Shareable</res-sharing-scope>
     </resource-ref>
     <jsp-config>
+        <taglib>
+            <taglib-uri>http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld</taglib-uri>
+            <taglib-location>/WEB-INF/tlds/csrfguard.tld</taglib-location>
+        </taglib>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
             <page-encoding>UTF-8</page-encoding>

@@ -478,26 +478,8 @@
    </servlet>
  -->
     <!--
-       + Axis servlets
+       + Axis servlets - REMOVED (Axis is no longer supported)
     -->
-    <!-- Commented out: AxisHTTPSessionListener class not found in classpath
-    <listener>
-        <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
-    </listener>
-    -->
-
-    <servlet>
-        <display-name>Apache-Axis Servlet</display-name>
-        <servlet-name>AxisServlet</servlet-name>
-        <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <display-name>Axis Admin Servlet</display-name>
-        <servlet-name>AdminServlet</servlet-name>
-        <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
-        <load-on-startup>100</load-on-startup>
-    </servlet>
 
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
@@ -514,12 +496,6 @@
     <!--
        - Axis servlets
     -->
-
-    <servlet>
-        <servlet-name>ServletRedirector</servlet-name>
-        <servlet-class>org.apache.cactus.server.ServletTestRedirector</servlet-class>
-    </servlet>
-
 
     <servlet>
         <servlet-name>RhythmyxServlet</servlet-name>
@@ -710,11 +686,6 @@
 
 
     <servlet-mapping>
-        <servlet-name>ServletRedirector</servlet-name>
-        <url-pattern>/ServletRedirector</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.faces</url-pattern>
     </servlet-mapping>
@@ -748,27 +719,8 @@
         <url-pattern>/linkback/*</url-pattern>
     </servlet-mapping>
     <!--
-       + Axis servlet mappings
+       + Axis servlet mappings - REMOVED (Axis is no longer supported)
     -->
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/servlet/AxisServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>AdminServlet</servlet-name>
-        <url-pattern>/servlet/AdminServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/webservices/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>AxisServlet</servlet-name>
-        <url-pattern>/designwebservices/*</url-pattern>
-    </servlet-mapping>
     <!-- this entry is temporary and will be removed -->
     <servlet-mapping>
         <servlet-name>ActiveAssemblyServlet</servlet-name>
@@ -1067,6 +1019,10 @@
     </error-page>
 
     <jsp-config>
+        <taglib>
+            <taglib-uri>http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld</taglib-uri>
+            <taglib-location>/WEB-INF/tlds/csrfguard.tld</taglib-location>
+        </taglib>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
             <page-encoding>UTF-8</page-encoding>
