@@ -26,11 +26,9 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * @author stephenbolton
- *         <p>
- *         This is picked up by Jackson automatically by the Provider annotation It will modify the
- *         serialization behavior of the objects passed in we test that the class has the same
- *         ancestor package as this class to ensure we do not modify behavior for other parts of the
- *         system
+ *     <p>This is picked up by Jackson automatically by the Provider annotation It will modify the
+ *     serialization behavior of the objects passed in we test that the class has the same ancestor
+ *     package as this class to ensure we do not modify behavior for other parts of the system
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,7 +36,8 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
   private static ObjectMapper objectMapper = new ObjectMapper();
 
   static {
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+    objectMapper
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
         // Indent may help with testing but can slow performance and can
         // fail unit tests.
         // .configure(SerializationConfig.Feature.INDENT_OUTPUT, true)
@@ -52,7 +51,11 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
   @Override
   public ObjectMapper getContext(Class<?> objectType) {
     // only use this configuration for classes in same package and subpackages
-    return (objectType.getPackage().getName()
-        .startsWith(JacksonContextResolver.class.getPackage().getName())) ? objectMapper : null;
+    return (objectType
+            .getPackage()
+            .getName()
+            .startsWith(JacksonContextResolver.class.getPackage().getName()))
+        ? objectMapper
+        : null;
   }
 }
