@@ -1,4 +1,4 @@
-#!/bin/bash -bm
+#!/bin/bash
 
 scriptname="$(basename "$0")"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

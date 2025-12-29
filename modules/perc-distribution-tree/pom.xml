@@ -402,7 +402,7 @@
                 </dependencies>
                 <executions>
                     <execution>
-                        <id>default-cli</id>
+                        <id>setup-distribution-files</id>
                         <goals>
                             <goal>run</goal>
                         </goals>

@@ -178,7 +178,7 @@
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0</owasp.csrfguard.version>
         <owl.version>5.5.1</owl.version>
-        <pdfbox.version>3.0.6</pdfbox.version>
+        <pdfbox.version>2.0.30</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.2.2</poi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -188,7 +188,7 @@
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>4.0.1</servlet.spec>
-        <shindig.version>3.0.0-beta4</shindig.version>
+        <shindig.version>1.1-BETA5-incubating</shindig.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
         <skip.integration.tests>true</skip.integration.tests>

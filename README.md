@@ -107,6 +107,70 @@ This project uses the Maven Wrapper (`mvnw`), which ensures the correct Maven ve
    ./mvnw clean install -DskipTests
    ```
 
+### Installing the Application
+
+After building the project, you can install it using the distribution tool.
+
+#### Installing the Main CMS Application
+
+The main CMS application can be installed using the `perc-distribution-tree.jar`:
+
+```bash
+java -jar ./modules/perc-distribution-tree/target/perc-distribution-tree.jar <installation-directory>
+```
+
+**Example:**
+
+```bash
+java -jar ./modules/perc-distribution-tree/target/perc-distribution-tree.jar /opt/Percussion
+```
+
+This will deploy the application to the specified installation directory with Jetty as the application server.
+
+#### Installing the Delivery Tier
+
+The Delivery Tier services can be installed separately using the `delivery-tier-distribution.jar`:
+
+```bash
+java -jar ./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution-<version>.jar <installation-directory>
+```
+
+**Example:**
+
+```bash
+java -jar ./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution-8.1.6-SNAPSHOT.jar /opt/PercussionDTS
+```
+
+This installs the Delivery Tier services including:
+- Metadata Services
+- Comments Services
+- Form Processor
+- Polls Services
+- Membership Services
+- Feeds Services
+
+### Running the Application
+
+After installation:
+
+1. Navigate to your installation directory
+2. Start the Jetty server:
+   * **Linux/macOS**:
+
+     ```bash
+     cd <installation-directory>/jetty/base
+     ./start.sh
+     ```
+   * **Windows**:
+
+     ```cmd
+     cd <installation-directory>\jetty\base
+     start.bat
+     ```
+3. Access the application at `http://localhost:9992/` (default port)
+
+To stop the server, use `stop.sh` (Linux/macOS) or `stop.bat` (Windows) in the same directory.
+
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/percussion/percussioncms/blob/development/CONTRIBUTING.md) for more information.
