@@ -90,7 +90,7 @@ updates:
           - ">=2.2.0"
       - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
         versions:
-          - ">=10" 
+          - ">=10"
       - dependency-name: "org.mortbay.jasper:apache-jsp"
         versions:
           - ">=10"
@@ -136,6 +136,40 @@ updates:
       - dependency-name: "com.google.inject:guice"
         versions:
           - ">=5.2"
+      # Jakarta namespace - all Jakarta dependencies require Java 11+
+      - dependency-name: "jakarta.annotation:*"
+      - dependency-name: "jakarta.servlet:*"
+      - dependency-name: "jakarta.servlet.jsp:*"
+      - dependency-name: "jakarta.servlet.jsp.jstl:*"
+      - dependency-name: "jakarta.ws.rs:*"
+      - dependency-name: "jakarta.persistence:*"
+      - dependency-name: "jakarta.el:*"
+      - dependency-name: "jakarta.mail:*"
+      - dependency-name: "jakarta.validation:*"
+      - dependency-name: "jakarta.transaction:*"
+      - dependency-name: "jakarta.xml.bind:*"
+      - dependency-name: "jakarta.activation:*"
+      - dependency-name: "jakarta.inject:*"
+      - dependency-name: "jakarta.json:*"
+      # Trinidad 3.x requires Jakarta namespace
+      - dependency-name: "org.apache.myfaces.trinidad:*"
+        versions:
+          - ">=3"
+      # XML APIs 2.x may require Java 9+
+      - dependency-name: "xml-apis:xml-apis"
+        versions:
+          - ">=2"
+      # PDF Box - keep 3.x series, avoid backporting to 2.x
+      - dependency-name: "org.apache.pdfbox:*"
+        versions:
+          - "<3"
+      # Velocity 3.x may have compatibility issues
+      - dependency-name: "org.apache.velocity:velocity-engine-core"
+        versions:
+          - ">=3"
+      - dependency-name: "org.apache.velocity.tools:*"
+        versions:
+          - ">=4"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
