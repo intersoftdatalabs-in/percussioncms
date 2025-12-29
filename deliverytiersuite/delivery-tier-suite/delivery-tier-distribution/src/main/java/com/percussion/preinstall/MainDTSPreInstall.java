@@ -205,6 +205,12 @@ public class MainDTSPreInstall {
         }
         System.out.println("Creating file " + entryDest);
         Files.copy(archive.getInputStream(entry), entryDest);
+
+        // Preserve executable permissions for shell scripts
+        if (entryName.endsWith(".sh")) {
+          File file = entryDest.toFile();
+          file.setExecutable(true, false); // Set executable for owner, group, and others
+        }
       }
     }
   }

@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.patch;
@@ -1102,30 +1101,46 @@ public class PSSaveAssetsMaintenanceProcess
                 dbmsDef.getDataBase(),
                 dbmsDef.getSchema(),
                 dbmsDef.getDriver());
-        // Create the select query to check whether there is data in rows for a particular column or
-        // not.
-        String sqlSelect =
-            String.format(
-                "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL ", finalTableName, columnNew);
-        PSLogger.logInfo("Executing select statement : " + sqlSelect);
-        try (Statement stmtSelect = conn.createStatement();
-            Statement stmtAlterDropColumn = conn.createStatement();
-            Statement stmtAlterChangeName = conn.createStatement()) {
-          ResultSet rs = stmtSelect.executeQuery(sqlSelect);
-          int count = -1;
-          while (rs.next()) {
-            count = rs.getInt(1);
+
+        // Check if columns exist using DatabaseMetaData to avoid SQL exceptions
+        boolean newColumnExists = false;
+        boolean oldColumnExists = false;
+
+        try {
+          java.sql.DatabaseMetaData metaData = conn.getMetaData();
+          String schemaPattern = dbmsDef.getSchema();
+          String tableNamePattern = qualifyingTableName;
+
+          try (ResultSet columns =
+              metaData.getColumns(null, schemaPattern, tableNamePattern, null)) {
+            while (columns.next()) {
+              String colName = columns.getString("COLUMN_NAME");
+              if (columnNew.equalsIgnoreCase(colName)) {
+                newColumnExists = true;
+              }
+              if (columnOld.equalsIgnoreCase(colName)) {
+                oldColumnExists = true;
+              }
+            }
           }
-          rs.close();
-          // If there is no data in rows corresponding to selected column then first delete this
-          // column and then rename the existing column to this column name.
-          if (count == 0) {
-            String sqlAlterDropColumn =
-                String.format("ALTER TABLE %s DROP COLUMN %s ", finalTableName, columnNew);
+
+          PSLogger.logInfo(
+              "Column check - "
+                  + columnNew
+                  + " exists: "
+                  + newColumnExists
+                  + ", "
+                  + columnOld
+                  + " exists: "
+                  + oldColumnExists);
+
+          // If old column exists but new doesn't, rename old to new
+          if (oldColumnExists && !newColumnExists) {
+            PSLogger.logInfo("Renaming column " + columnOld + " to " + columnNew);
             String sqlAlterChangeName =
                 String.format(
                     "ALTER TABLE %s RENAME COLUMN %s TO %s ", finalTableName, columnOld, columnNew);
-            stmtAlterDropColumn.executeUpdate(sqlAlterDropColumn);
+
             if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) {
               sqlAlterChangeName =
                   String.format(
@@ -1141,7 +1156,67 @@ public class PSSaveAssetsMaintenanceProcess
               sqlAlterChangeName =
                   String.format("RENAME COLUMN %s.%s TO %s ", finalTableName, columnOld, columnNew);
             }
-            stmtAlterChangeName.executeUpdate(sqlAlterChangeName);
+
+            try (Statement stmtAlterChangeName = conn.createStatement()) {
+              stmtAlterChangeName.executeUpdate(sqlAlterChangeName);
+              PSLogger.logInfo("Successfully renamed column " + columnOld + " to " + columnNew);
+            }
+          }
+          // If both columns exist, check if new column is empty and migrate data if needed
+          else if (oldColumnExists && newColumnExists) {
+            PSLogger.logInfo("Both columns exist, checking if new column is empty");
+            String sqlSelect =
+                String.format(
+                    "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL ", finalTableName, columnNew);
+            PSLogger.logInfo("Executing select statement : " + sqlSelect);
+            try (Statement stmtSelect = conn.createStatement();
+                Statement stmtAlterDropColumn = conn.createStatement();
+                Statement stmtAlterChangeName = conn.createStatement()) {
+              ResultSet rs = stmtSelect.executeQuery(sqlSelect);
+              int count = -1;
+              while (rs.next()) {
+                count = rs.getInt(1);
+              }
+              rs.close();
+              // If there is no data in new column, drop it and rename old column to new name
+              if (count == 0) {
+                PSLogger.logInfo("New column is empty, dropping it and renaming old column");
+                String sqlAlterDropColumn =
+                    String.format("ALTER TABLE %s DROP COLUMN %s ", finalTableName, columnNew);
+                String sqlAlterChangeName =
+                    String.format(
+                        "ALTER TABLE %s RENAME COLUMN %s TO %s ",
+                        finalTableName, columnOld, columnNew);
+                stmtAlterDropColumn.executeUpdate(sqlAlterDropColumn);
+                if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) {
+                  sqlAlterChangeName =
+                      String.format(
+                          "ALTER TABLE %s CHANGE %s %s LONGBLOB NULL",
+                          finalTableName, columnOld, columnNew);
+                } else if (driver.equalsIgnoreCase(PSJdbcUtils.JTDS_DRIVER)
+                    || driver.equalsIgnoreCase(PSJdbcUtils.MICROSOFT_DRIVER)
+                    || driver.equalsIgnoreCase(PSJdbcUtils.SPRINTA)) {
+                  sqlAlterChangeName =
+                      String.format(
+                          "sp_rename '%s.%s', '%s', 'COLUMN' ",
+                          finalTableName, columnOld, columnNew);
+                } else if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) {
+                  sqlAlterChangeName =
+                      String.format(
+                          "RENAME COLUMN %s.%s TO %s ", finalTableName, columnOld, columnNew);
+                }
+                stmtAlterChangeName.executeUpdate(sqlAlterChangeName);
+                PSLogger.logInfo("Successfully migrated from old column to new column");
+              } else {
+                PSLogger.logInfo("New column has data (" + count + " rows), keeping both columns");
+              }
+            }
+          }
+          // If only new column exists, or neither exists, do nothing
+          else if (newColumnExists && !oldColumnExists) {
+            PSLogger.logInfo("Only new column exists, no migration needed");
+          } else {
+            PSLogger.logInfo("Neither column exists, will be created by package installer");
           }
         } catch (Exception e) {
           handleException(e);
