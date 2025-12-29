@@ -9,6 +9,10 @@
         <status>PENDING</status>
     </PackageFileEntry>
     <PackageFileEntry>
+        <packageName>perc.workflow</packageName>
+        <status>PENDING</status>
+    </PackageFileEntry>
+    <PackageFileEntry>
         <packageName>perc.Baseline</packageName>
         <status>PENDING</status>
     </PackageFileEntry>

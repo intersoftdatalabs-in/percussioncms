@@ -1,6 +1,6 @@
 == Git Workflow
 * **NEVER commit directly** to the development-8.1.x branch
-* **NEVER commit without explicit permission** 
+* **NEVER commit without explicit permission**
 * **NEVER push to remote** without explicit user permission
 * Before creating any feature branch:
 1. Always pull latest changes on the base branch first
@@ -29,3 +29,4 @@
 * Any23 is retired. Remove any Any23 dependencies. Refactor code that uses Any23 to not use it.
 * Add missing perc-i18n dependency where needed.
 * prefer the javax namespace, do not migrate to the jakarta namespace on this branch.
+* Add all AI generated plans, tasks, issues to the /docs/ai-generated folder for future reference.

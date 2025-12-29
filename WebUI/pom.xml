@@ -821,6 +821,41 @@
                             <filtering>false</filtering>
                             <excludes/>
                         </resource>
+                        <!-- Include system-scoped dependencies from system/lib - FLATTEN ALL JARS TO WEB-INF/lib -->
+                        <!-- Note: Unfortunately maven-war-plugin webResources don't support flattening -->
+                        <!-- We need to copy JARs individually to flatten the structure -->
+                        <resource>
+                            <directory>../system/lib/cglib/3.3.1-PATCHED</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <filtering>false</filtering>
+                            <includes>
+                                <include>*.jar</include>
+                            </includes>
+                        </resource>
+                        <resource>
+                            <directory>../system/lib/axis/axis/1.4.2</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <filtering>false</filtering>
+                            <includes>
+                                <include>*.jar</include>
+                            </includes>
+                        </resource>
+                        <resource>
+                            <directory>../system/lib/jardiff/jardiff/1.0.0</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <filtering>false</filtering>
+                            <includes>
+                                <include>*.jar</include>
+                            </includes>
+                        </resource>
+                        <resource>
+                            <directory>../system/lib/jnlp-servlet/jnlp-servlet/1.0.0</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <filtering>false</filtering>
+                            <includes>
+                                <include>*.jar</include>
+                            </includes>
+                        </resource>
                         <resource>
                             <!--We need to pass in build property for version of ContentExplorer jar -->
                             <directory>../system/ear/jsps</directory>

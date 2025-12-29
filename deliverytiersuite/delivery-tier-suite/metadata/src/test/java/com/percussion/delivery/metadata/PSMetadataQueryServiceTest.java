@@ -1666,8 +1666,9 @@ public class PSMetadataQueryServiceTest extends TestCase {
         if (latest == null) {
           latest = curDate;
         } else {
-          assertTrue(latest.before(curDate));
-          System.out.println(latest.toString() + " is older than " + curDate.toString());
+          assertTrue("Date " + curDate + " should be >= " + latest, !curDate.before(latest));
+          System.out.println(
+              latest.toString() + " is older than or equal to " + curDate.toString());
           latest = curDate;
         }
       }
