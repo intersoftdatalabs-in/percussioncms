@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20250517</version>
+            <version>20240303</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -83,18 +83,22 @@
                     <artifactId>oauth</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>caja</groupId>
-                    <artifactId>caja</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>caja</groupId>
-                    <artifactId>htmlparser</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.oauth.core</groupId>
+            <artifactId>oauth</artifactId>
+            <version>20090531</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-jmx</artifactId>
+            <version>2.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.shindig</groupId>
@@ -131,10 +135,6 @@
                     <artifactId>caja</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>caja</groupId>
-                    <artifactId>htmlparser</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
@@ -154,10 +154,10 @@
             <artifactId>rome</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- Caja r3828 not available in Central; loaded from local lib folder -->
         <dependency>
             <groupId>caja</groupId>
             <artifactId>caja</artifactId>
+            <!-- required version for beta 5 includes html-sanitize-minified.js and opensocial package.-->
             <version>r3828</version>
             <scope>compile</scope>
         </dependency>
@@ -170,19 +170,19 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-web</artifactId>
-            <version>2.0.6</version>
+            <version>1.13.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>7.0.0</version>
+            <version>2.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
-            <version>4.2.3</version>
+            <version>2.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -193,7 +193,7 @@
         <dependency>
             <groupId>de.odysseus.juel</groupId>
             <artifactId>juel-impl</artifactId>
-            <version>2.2.7</version>
+            <version>2.2.2</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
