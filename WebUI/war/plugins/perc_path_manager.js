@@ -58,13 +58,23 @@
             var path_end = pathclone.pop();
             function check_results(specs) {
                 console.log("check_results received:", specs);
-                if (!specs || !specs.PathItem) {
-                    console.error("Missing PathItem in response:", specs);
-                    if_error(I18N.message("perc.ui.path.manager@Item Not Found")); //I18N
+
+                // Handle different response formats from the API
+                var pathItems;
+                if (specs && specs.PathItemList) {
+                    // New format: {PathItemList: [...]}
+                    pathItems = specs.PathItemList;
+                } else if (specs && specs.PathItem) {
+                    // Old format: {PathItem: {...}} or {PathItem: [...]}
+                    pathItems = Array.isArray(specs.PathItem) ? specs.PathItem : [specs.PathItem];
+                } else {
+                    console.error("Missing PathItem or PathItemList in response:", specs);
+                    if (typeof if_error === 'function') {
+                        if_error(I18N.message("perc.ui.path.manager@Item Not Found")); //I18N
+                    }
                     return;
                 }
-                // Handle both single PathItem object and PathItem array
-                var pathItems = Array.isArray(specs.PathItem) ? specs.PathItem : [specs.PathItem];
+
                 var it = $.grep(pathItems, function (p) {
                     var path_components = p.path.split('/');
                     var e = path_components.pop();
