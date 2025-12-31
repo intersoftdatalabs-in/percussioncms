@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.6-SNAPSHOT</version>
+        <version>8.1.6</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-tinymce</artifactId>
-    <version>8.1.6-SNAPSHOT</version>
+    <version>8.1.6</version>
     <licenses>
         <license>
             <name>LGPL-2.1</name>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
-            <version>8.1.6-SNAPSHOT</version>
+            <version>8.1.6</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
