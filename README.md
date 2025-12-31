@@ -138,7 +138,7 @@ java -jar ./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/tar
 **Example:**
 
 ```bash
-java -jar ./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution-8.1.6-SNAPSHOT.jar /opt/PercussionDTS
+java -jar ./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar /opt/PercussionDTS
 ```
 
 This installs the Delivery Tier services including:

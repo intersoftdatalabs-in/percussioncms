@@ -25,6 +25,7 @@ Go to: https://github.com/intersoftdatalabs-in/percussioncms/releases/tag/untagg
 Click "Edit" and choose one of these approaches:
 
 #### Option A: Quick Edits (5 minutes)
+
 Open `QUICK_REFERENCE_v8.1.6.md` and use the copy-paste corrections:
 
 1. Find PR #405 in the release → Replace or remove (MyFaces 3.0.3 → rolled back)
@@ -35,6 +36,7 @@ Open `QUICK_REFERENCE_v8.1.6.md` and use the copy-paste corrections:
 6. Find PR #474 in the release → Remove (superseded by PR #511)
 
 #### Option B: Complete Rewrite (10 minutes)
+
 Copy the entire contents of `RELEASE_NOTES_v8.1.6_GITHUB_BODY.md` and paste it as the new release body.
 
 ### Step 4: Add Compatibility Note
