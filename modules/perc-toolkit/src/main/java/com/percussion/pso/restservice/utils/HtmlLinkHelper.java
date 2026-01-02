@@ -25,20 +25,33 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+<<<<<<< HEAD
 /***
  * Provides helper methods for processing links in
  * text.
  *
  * @author natechadwick
+=======
+/**
+ * * Provides helper methods for processing links in text.
+>>>>>>> development-8.1.x
  *
+ * @author natechadwick
  */
 public class HtmlLinkHelper {
 
   private static final Logger log = LogManager.getLogger(HtmlLinkHelper.class);
 
+<<<<<<< HEAD
   /***
    * Given the specified base url, will convert the supplied link from relative
    * to abolute and return a string the result.
+=======
+  /**
+   * * Given the specified base url, will convert the supplied link from relative to abolute and
+   * return a string the result.
+   *
+>>>>>>> development-8.1.x
    * @param base
    * @param src
    * @return An absolute version of the supplied url
@@ -54,8 +67,14 @@ public class HtmlLinkHelper {
     return t.toASCIIString();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the base link
+=======
+  /**
+   * * Returns the base link
+   *
+>>>>>>> development-8.1.x
    * @param link
    * @return
    * @throws URISyntaxException
@@ -105,8 +124,14 @@ public class HtmlLinkHelper {
     return doc;
   }
 
+<<<<<<< HEAD
   /***
    * Converts all links in the specified string to absolute.
+=======
+  /**
+   * * Converts all links in the specified string to absolute.
+   *
+>>>>>>> development-8.1.x
    * @param link
    * @param text
    * @return

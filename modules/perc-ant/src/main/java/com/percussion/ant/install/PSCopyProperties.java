@@ -112,9 +112,16 @@ public class PSCopyProperties extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ Bean property
+   * Accessors and Mutators ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the properties to remove
@@ -174,9 +181,16 @@ public class PSCopyProperties extends PSAction {
     destPropertiesFile = propsFile;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ Bean properties
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Properties which should be copied, never <code>null</code>, may be empty */
   private String[] properties = new String[0];

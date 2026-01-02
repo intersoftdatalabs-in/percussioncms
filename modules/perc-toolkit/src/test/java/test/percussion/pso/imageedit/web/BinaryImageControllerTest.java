@@ -16,6 +16,7 @@
  */
 package test.percussion.pso.imageedit.web;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ImageData;
@@ -51,6 +52,43 @@ public class BinaryImageControllerTest {
     cut.setCacheMgr(cacheMgr);
   }
 
+=======
+import static org.junit.Assert.*;
+
+import com.percussion.pso.imageedit.data.ImageData;
+import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
+import com.percussion.pso.imageedit.web.BinaryImageController;
+import com.percussion.pso.imageedit.web.ImageUrlBuilder;
+import java.io.ByteArrayInputStream;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+public class BinaryImageControllerTest {
+  private static final Logger log = LogManager.getLogger(BinaryImageControllerTest.class);
+
+  Mockery context;
+  BinaryImageController cut;
+  ImageUrlBuilder urlBldr;
+  ImageCacheManager cacheMgr;
+
+  @Before
+  public void setUp() throws Exception {
+    context = new Mockery();
+    cut = new BinaryImageController();
+    urlBldr = context.mock(ImageUrlBuilder.class);
+    cut.setUrlBuilder(urlBldr);
+    cacheMgr = context.mock(ImageCacheManager.class);
+    cut.setCacheMgr(cacheMgr);
+  }
+
+>>>>>>> development-8.1.x
   @Test
   public final void testHandleRequestNormal() {
     try {

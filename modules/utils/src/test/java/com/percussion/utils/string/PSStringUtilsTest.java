@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.string;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -204,6 +205,186 @@ public class PSStringUtilsTest {
     rval = PSStringUtils.stripQuotes("\"abc\"");
     assertEquals("abc", rval);
 
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+/** Unit tests for string utilities. */
+public class PSStringUtilsTest {
+
+  @Before
+  public void setup() {
+    // Set headless mode - this test covers code that relies on graphics engine
+    System.setProperty("java.awt.headless", "true");
+  }
+
+  /** @throws Exception */
+  @Test
+  public void testIndexOfIgnoringCase() throws Exception {
+    String testString = "abc def ghi";
+    String testString2 = "A";
+
+    int r;
+
+    r = PSStringUtils.indexOfIgnoringCase(testString2, "a", 0);
+    assertEquals(0, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "a", 0);
+    assertEquals(0, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "a", 1);
+    assertEquals(-1, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "b", 1);
+    assertEquals(1, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "h", 1);
+    assertEquals(9, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "i", 1);
+    assertEquals(10, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "GHI", 1);
+    assertEquals(8, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "b", 1);
+    assertEquals(1, r);
+
+    r = PSStringUtils.indexOfIgnoringCase(testString, "AbC", 0);
+    assertEquals(0, r);
+  }
+
+  /** @throws Exception */
+  @Test
+  public void testFolderRootPath() throws Exception {
+    String testPathA = "/f1/f2";
+
+    assertEquals(testPathA, PSFolderStringUtils.getFolderRootPathFromPattern(testPathA));
+  }
+
+  /** @throws Exception */
+  @Test
+  public void testFolderRootPath2() throws Exception {
+    String testPathA = "/f1/%";
+
+    assertEquals("/f1", PSFolderStringUtils.getFolderRootPathFromPattern(testPathA));
+  }
+
+  /** @throws Exception */
+  @Test
+  public void testFolderRootPath3() throws Exception {
+    String testPathA = "/%/f2";
+
+    assertEquals("/", PSFolderStringUtils.getFolderRootPathFromPattern(testPathA));
+  }
+
+  /** @throws Exception */
+  @Test
+  public void testMatch() throws Exception {
+    Pattern arr[] = PSFolderStringUtils.getFolderPatterns("/f1/%;/f2/%");
+    String setA[] = new String[] {"/f1/a"};
+    assertTrue(PSFolderStringUtils.oneMatched(setA, arr));
+
+    String setB[] = new String[] {"/f2/a"};
+    assertTrue(PSFolderStringUtils.oneMatched(setB, arr));
+
+    String setC[] = new String[] {"/f3/a"};
+    assertFalse(PSFolderStringUtils.oneMatched(setC, arr));
+  }
+
+  @Test
+  public void testCompressWhitespace() {
+    String a = "   b   c \n\t\fd e   \t f  ";
+    String c = PSStringUtils.compressWhitespace(a);
+    assertEquals(" b c d e f ", c);
+
+    a = "fee fie     foo fum";
+    c = PSStringUtils.compressWhitespace(a);
+    assertEquals("fee fie foo fum", c);
+  }
+
+  /**
+   * Test to make sure that we don't support regular expression, but take the special characters of
+   * regular expression literally from the specified path/pattern.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testNotSupportRegExpression() throws Exception {
+    // we are not support regular expression
+    String path1 = "//Sites/EnterpriseInvestments/Images/People";
+    String pattern1 = "//Sites/[A-Z]nterpriseInvestments/Images/People";
+    String pattern2 = "//Sites/[C-E]%/Images/People";
+    String pattern3 = "//Sites/EnterpriseInvestments/Images/Peopl.";
+    String pattern4 = "//Sites/EnterpriseInvestments/Images/Peopl?";
+
+    checkPattern(path1, pattern1, false);
+    checkPattern(path1, pattern2, false);
+    checkPattern(path1, pattern3, false);
+    checkPattern(path1, pattern4, false);
+
+    // we take the special character of RegEx literally
+    String path2 = "//Sites/[EC]nterpriseInvestments/Images/People";
+    String patt2 = "//Sites/[EC]%";
+    String path3 = "//Sites/[EC]nterpriseInvestments/Images/Peopl?";
+    String patt3 = "//Sites/[EC]%/Peopl?";
+
+    checkPattern(path2, patt2, true);
+    checkPattern(path3, patt3, true);
+  }
+
+  /**
+   * Validates the given path and pattern.
+   *
+   * @param path the tested path, assumed not <code>null</code> or empty.
+   * @param pattern the tested pattern, assumed not <code>null</code> or empty.
+   * @param bValid expected matching result.
+   */
+  private void checkPattern(String path, String pattern, boolean bValid) {
+    String paths[] = new String[] {path};
+    Pattern patterns[] = PSFolderStringUtils.getFolderPatterns(pattern);
+    if (bValid) assertTrue(PSFolderStringUtils.oneMatched(paths, patterns));
+    else assertFalse(PSFolderStringUtils.oneMatched(paths, patterns));
+  }
+
+  @Test
+  public void testListToString() {
+    List<String> test = new ArrayList<String>();
+    assertEquals("", PSStringUtils.listToString(test, ","));
+
+    test.add("a");
+    assertEquals("a", PSStringUtils.listToString(test, ","));
+
+    test.add("bb");
+    assertEquals("a bb", PSStringUtils.listToString(test, " "));
+
+    test.add("c c");
+    assertEquals("a:bb:c c", PSStringUtils.listToString(test, ":"));
+    assertEquals("a bb c c", PSStringUtils.listToString(test, " "));
+  }
+
+  @Test
+  public void testStripQuotes() {
+    String rval = PSStringUtils.stripQuotes("");
+    assertEquals("", rval);
+
+    rval = PSStringUtils.stripQuotes("'abc'");
+    assertEquals("abc", rval);
+
+    rval = PSStringUtils.stripQuotes("\"abc\"");
+    assertEquals("abc", rval);
+
+>>>>>>> development-8.1.x
     rval = PSStringUtils.stripQuotes("\"abc'");
     assertEquals("\"abc'", rval);
 
@@ -243,9 +424,13 @@ public class PSStringUtilsTest {
     assertEquals("fo,oB.arDoh!", PSStringUtils.toCamelCase("FO,O_B.AR_DOH!"));
   }
 
+<<<<<<< HEAD
   /**
    * @throws Exception
    */
+=======
+  /** @throws Exception */
+>>>>>>> development-8.1.x
   @Test
   public void testRemoveNonId() throws Exception {
     assertEquals("abc", PSStringUtils.replaceNonIdChars("abc"));
@@ -270,7 +455,11 @@ public class PSStringUtilsTest {
   /** Test the path abbreviator. */
   @Test
   // TODO: Fix me
+<<<<<<< HEAD
   @Disabled("Test is failing")
+=======
+  @Ignore("Test is failing")
+>>>>>>> development-8.1.x
   public void testPathAbbreviator() {
     Font x = new Font("Arial", Font.PLAIN, 12);
     Dimension dim = new Dimension(30, 12);

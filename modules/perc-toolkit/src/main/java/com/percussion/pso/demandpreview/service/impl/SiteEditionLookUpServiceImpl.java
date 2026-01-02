@@ -42,7 +42,11 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,6 +87,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
       asm = PSAssemblyServiceLocator.getAssemblyService();
     }
   }
+<<<<<<< HEAD
 
   /**
    * Gets the preview site, template, edition and context information from the configuration.
@@ -112,6 +117,36 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
     SiteEditionConfig siteConfig = null;
     SiteEditionHolder siteEditionHolder = new SiteEditionHolder();
 
+=======
+  /**
+   * Gets the preview site, template, edition and context information from the configuration.
+   *
+   * @param siteId the site id to use as a lookup key.
+   * @return the SiteTemplateHolder object. Never <code>null</code>
+   * @throws SiteLookUpException when the site information cannot be located, or the names in the
+   *     configuration are invalid.
+   */
+  public SiteEditionHolder LookUpSiteEdition(String siteId) throws SiteLookUpException {
+    String emsg;
+    if (StringUtils.isBlank(siteId)) {
+      emsg = "No site id was specified";
+      log.error(emsg);
+      throw new SiteLookUpException(emsg);
+    }
+    IPSGuid siteGuid = guidManager.makeGuid(Integer.parseInt(siteId), PSTypeEnum.SITE);
+
+    return LookUpSiteEdition(siteGuid);
+  }
+
+  public SiteEditionHolder LookUpSiteEdition(IPSGuid siteId) throws SiteLookUpException {
+    String emsg;
+    String pSiteName = null;
+    String editionName = null;
+    String siteName = null;
+    SiteEditionConfig siteConfig = null;
+    SiteEditionHolder siteEditionHolder = new SiteEditionHolder();
+
+>>>>>>> development-8.1.x
     IPSSite site;
     try {
       site = siteManager.loadSite(siteId);
@@ -203,7 +238,10 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
     }
     return edition;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Gets the site look up map instance
    *
@@ -212,7 +250,10 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   public Map<String, SiteEditionConfig> getSiteLookUpMap() {
     return siteLookUpMap;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Sets the site look up map instance.
    *
@@ -221,7 +262,10 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   public void setSiteLookUpMap(Map<String, SiteEditionConfig> siteLookUpMap) {
     this.siteLookUpMap = siteLookUpMap;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This method is only for testing purpose.
    *
@@ -239,7 +283,10 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   protected void setPubisherService(IPSPublisherService publisherService) {
     this.publisherService = publisherService;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This method is only for testing purpose.
    *

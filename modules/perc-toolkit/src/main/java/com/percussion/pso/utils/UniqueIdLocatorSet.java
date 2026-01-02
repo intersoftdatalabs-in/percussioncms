@@ -40,6 +40,7 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
   public UniqueIdLocatorSet() {
     super();
   }
+<<<<<<< HEAD
 
   /**
    * @param c
@@ -55,6 +56,16 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
     super(initialCapacity);
   }
 
+=======
+  /** @param c */
+  public UniqueIdLocatorSet(Collection<? extends PSLocator> c) {
+    super(c);
+  }
+  /** @param initialCapacity */
+  public UniqueIdLocatorSet(int initialCapacity) {
+    super(initialCapacity);
+  }
+>>>>>>> development-8.1.x
   /**
    * @param initialCapacity
    * @param loadFactor
@@ -62,10 +73,14 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
   public UniqueIdLocatorSet(int initialCapacity, float loadFactor) {
     super(initialCapacity, loadFactor);
   }
+<<<<<<< HEAD
 
   /**
    * @see java.util.HashSet#add(java.lang.Object)
    */
+=======
+  /** @see java.util.HashSet#add(java.lang.Object) */
+>>>>>>> development-8.1.x
   @Override
   public boolean add(PSLocator loc) {
     if (hasLocatorForId(loc.getId())) {
@@ -74,18 +89,26 @@ public class UniqueIdLocatorSet extends HashSet<PSLocator>
     return super.add(loc);
   }
 
+<<<<<<< HEAD
   /**
    * @see java.util.HashSet#contains(java.lang.Object)
    */
+=======
+  /** @see java.util.HashSet#contains(java.lang.Object) */
+>>>>>>> development-8.1.x
   @Override
   public boolean contains(Object o) {
     PSLocator loc = (PSLocator) o;
     return hasLocatorForId(loc.getId());
   }
 
+<<<<<<< HEAD
   /**
    * @see java.util.HashSet#remove(java.lang.Object)
    */
+=======
+  /** @see java.util.HashSet#remove(java.lang.Object) */
+>>>>>>> development-8.1.x
   @Override
   public boolean remove(Object o) {
     PSLocator loc = (PSLocator) o;

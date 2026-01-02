@@ -19,6 +19,7 @@ package com.percussion.extensions.general;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
+<<<<<<< HEAD
 
 /** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
 public class PSParamStringListToMultiParamsTest extends TestCase {
@@ -40,6 +41,30 @@ public class PSParamStringListToMultiParamsTest extends TestCase {
     parameters[2] = "targetName";
     parameters[3] = null;
 
+=======
+import junit.framework.TestCase;
+
+/** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
+public class PSParamStringListToMultiParamsTest extends TestCase {
+  /** Tets all exit contracts and functionality. */
+  public void testExit() throws Exception {
+    PSParamStringListToMultiParams test = new PSParamStringListToMultiParams();
+
+    // setup test request
+    String sourceValue = "value_1,value_2,value_3";
+    String targetValue = "someValue";
+    PSRequestContext request = new PSRequestContext(new TestRequest());
+    request.setParameter("sourceName", sourceValue);
+    request.setParameter("targetName", targetValue);
+
+    // setup valid parameters
+    String[] parameters = new String[4];
+    parameters[0] = "sourceName";
+    parameters[1] = ",";
+    parameters[2] = "targetName";
+    parameters[3] = null;
+
+>>>>>>> development-8.1.x
     // try null source
     parameters[0] = null;
     try {

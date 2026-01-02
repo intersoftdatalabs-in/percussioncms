@@ -49,7 +49,11 @@ public abstract class PSAbstractBeanValidator<FULL> implements Validator {
   protected abstract void doValidation(FULL obj, PSBeanValidationException e)
       throws PSValidationException;
 
+<<<<<<< HEAD
   public boolean supports(Class<?> clazz) {
+=======
+  public boolean supports(Class clazz) {
+>>>>>>> development-8.1.x
     return ovalValidator.supports(clazz);
   }
 
@@ -58,10 +62,14 @@ public abstract class PSAbstractBeanValidator<FULL> implements Validator {
       ovalValidator.validate(object, errors);
       if (errors instanceof PSBeanValidationException) {
         try {
+<<<<<<< HEAD
           // This cast is safe because the validator only accepts objects of type FULL
           @SuppressWarnings("unchecked")
           FULL fullObject = (FULL) object;
           doValidation(fullObject, (PSBeanValidationException) errors);
+=======
+          doValidation((FULL) object, (PSBeanValidationException) errors);
+>>>>>>> development-8.1.x
         } catch (PSValidationException e) {
           ((PSBeanValidationException) errors).addSuppressed(e);
         }

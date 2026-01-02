@@ -17,8 +17,13 @@
 
 package com.percussion.xmldom;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+>>>>>>> development-8.1.x
 
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
@@ -32,14 +37,23 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
+<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+=======
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+>>>>>>> development-8.1.x
 
 /** Test the text cleanup extension. */
 public class TestPSXDTextCleanup {
 
+<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
 
   @Test
@@ -47,6 +61,13 @@ public class TestPSXDTextCleanup {
       throws PSExtensionProcessingException,
           PSAuthorizationException,
           PSRequestValidationException,
+=======
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Test
+  public void testStringCleanup()
+      throws PSExtensionProcessingException, PSAuthorizationException, PSRequestValidationException,
+>>>>>>> development-8.1.x
           PSParameterMismatchException {
 
     PSXdTextCleanup psXdTextCleanup = new PSXdTextCleanup();
@@ -71,8 +92,12 @@ public class TestPSXDTextCleanup {
 
     context.setParameter(
         "postBody",
+<<<<<<< HEAD
         "<div class='rxbodyfield'><p>test</p></div><div class='rxbodyfield'><b>from 2nd"
             + " div</b></div>");
+=======
+        "<div class='rxbodyfield'><p>test</p></div><div class='rxbodyfield'><b>from 2nd div</b></div>");
+>>>>>>> development-8.1.x
     psXdTextCleanup.preProcessRequest(params, context);
     assertEquals(
         "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div</b></div>",
@@ -81,8 +106,12 @@ public class TestPSXDTextCleanup {
     // Test some unicode content
     context.setParameter(
         "postBody",
+<<<<<<< HEAD
         "<div class='rxbodyfield'><p>test</p></div><div class='rxbodyfield'><b>from 2nd div"
             + " 😀</b></div>");
+=======
+        "<div class='rxbodyfield'><p>test</p></div><div class='rxbodyfield'><b>from 2nd div 😀</b></div>");
+>>>>>>> development-8.1.x
     psXdTextCleanup.preProcessRequest(params, context);
     assertEquals(
         "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div 😀</b></div>",
@@ -91,11 +120,16 @@ public class TestPSXDTextCleanup {
 
   @Test
   public void testFileSource()
+<<<<<<< HEAD
       throws IOException,
           PSExtensionProcessingException,
           PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException {
+=======
+      throws IOException, PSExtensionProcessingException, PSAuthorizationException,
+          PSRequestValidationException, PSParameterMismatchException {
+>>>>>>> development-8.1.x
 
     PSXdTextCleanup psXdTextCleanup = new PSXdTextCleanup();
 
@@ -136,12 +170,20 @@ public class TestPSXDTextCleanup {
     assertEquals(text, newText);
   }
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setup() throws IOException {
     temporaryFolder.create();
   }
 
+<<<<<<< HEAD
   @AfterEach
+=======
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {
     temporaryFolder.delete();
   }

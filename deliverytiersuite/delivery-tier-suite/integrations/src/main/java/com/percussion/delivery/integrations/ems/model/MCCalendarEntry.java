@@ -24,21 +24,23 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MCCalendarEntry {
-	
-	private String calendarName;
-	private Integer calendarId;
-	
-	public String getCalendarName() {
-		return calendarName;
-	}
-	public void setCalendarName(String calendarName) {
-		this.calendarName = calendarName;
-	}
-	public Integer getCalendarId() {
-		return calendarId;
-	}
-	public void setCalendarId(Integer calendarId) {
-		this.calendarId = calendarId;
-	}
-	
+
+  private String calendarName;
+  private Integer calendarId;
+
+  public String getCalendarName() {
+    return calendarName;
+  }
+
+  public void setCalendarName(String calendarName) {
+    this.calendarName = calendarName;
+  }
+
+  public Integer getCalendarId() {
+    return calendarId;
+  }
+
+  public void setCalendarId(Integer calendarId) {
+    this.calendarId = calendarId;
+  }
 }

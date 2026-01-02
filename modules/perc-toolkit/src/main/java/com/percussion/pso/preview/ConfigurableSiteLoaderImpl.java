@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
@@ -55,6 +56,38 @@ public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements
     return mySites;
   }
 
+=======
+/** @author DavidBenua */
+public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements SiteLoader {
+
+  private static final Logger log = LogManager.getLogger(ConfigurableSiteLoaderImpl.class);
+
+  private List<String> allowedSites;
+
+  /** */
+  public ConfigurableSiteLoaderImpl() {
+    super();
+    allowedSites = new ArrayList<String>();
+  }
+
+  @Override
+  public synchronized List<IPSSite> loadAllSites() throws PSSiteManagerException {
+    List<IPSSite> allSites = super.loadAllSites();
+    List<IPSSite> mySites = new ArrayList<IPSSite>();
+
+    for (IPSSite site : allSites) {
+      if (allowedSites.contains(site.getName())) {
+        log.debug("found allowed site {}", site.getName());
+        mySites.add(site);
+      } else {
+        log.debug("ignoring site {}", site.getName());
+      }
+    }
+
+    return mySites;
+  }
+
+>>>>>>> development-8.1.x
   public List<String> getAllowedSites() {
     return allowedSites;
   }

@@ -22,6 +22,7 @@ import org.apache.commons.jexl3.JexlException;
 
 public interface IPSScript {
 
+<<<<<<< HEAD
   /***
    * An optional string indicating the type of system object that owns this script. Never null
    * @return a user friendly string that indicates the owner type: Template, Widget, Snippet, Location Scheme etc. Never null.  May be empty.
@@ -30,19 +31,46 @@ public interface IPSScript {
 
   /***
    * Sets the type of system object that owns this script.  Should be user friendly and i18N.
+=======
+  /**
+   * * An optional string indicating the type of system object that owns this script. Never null
+   *
+   * @return a user friendly string that indicates the owner type: Template, Widget, Snippet,
+   *     Location Scheme etc. Never null. May be empty.
+   */
+  public String getOwnerType();
+
+  /**
+   * * Sets the type of system object that owns this script. Should be user friendly and i18N.
+   *
+>>>>>>> development-8.1.x
    * @param ownerType
    */
   public void setOwnerType(String ownerType);
 
+<<<<<<< HEAD
   /***
    * An optional property that indicates the system object that owns this script.
+=======
+  /**
+   * * An optional property that indicates the system object that owns this script.
+   *
+>>>>>>> development-8.1.x
    * @return name of the system object, never null, may be empty
    */
   public String getOwnerName();
 
+<<<<<<< HEAD
   /***
    * Sets the user friendly name of the system object that owns this script. Should be user friendly.
    * @param ownerName  Never null.
+=======
+  /**
+   * * Sets the user friendly name of the system object that owns this script. Should be user
+   * friendly.
+   *
+   * @param ownerName Never null.
+>>>>>>> development-8.1.x
    */
   public void setOwnerName(String ownerName);
 
@@ -68,8 +96,12 @@ public interface IPSScript {
 
   public void setUseSilentMode(boolean useSilentMode);
 
+<<<<<<< HEAD
   /***
    * Reinitialize
    */
+=======
+  /** * Reinitialize */
+>>>>>>> development-8.1.x
   public void reinit(boolean reloadOptionsFromConfig);
 }

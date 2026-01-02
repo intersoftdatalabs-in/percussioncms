@@ -18,7 +18,11 @@
 package com.percussion.error;
 
 import java.util.Locale;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * The PSException class is the base class for all internal exceptions. It contains the basic
@@ -77,12 +81,20 @@ public class PSException extends java.lang.Exception implements IPSException {
 
   /** */
   private static final long serialVersionUID = 1L;
+<<<<<<< HEAD
 
   /** Default constructor */
   public PSException() {
     super();
   }
 
+=======
+  /** Default constructor */
+  public PSException() {
+    super();
+  }
+
+>>>>>>> development-8.1.x
   public PSException(Throwable cause) {
     super(cause);
     if (cause instanceof PSException) {
@@ -438,8 +450,12 @@ public class PSException extends java.lang.Exception implements IPSException {
   protected transient Object[] m_args;
   protected String m_lang;
 
+<<<<<<< HEAD
   /**
    * @see #setOverridingMessage(String)
    */
+=======
+  /** @see #setOverridingMessage(String) */
+>>>>>>> development-8.1.x
   protected String m_overridingMessage;
 }

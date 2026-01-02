@@ -92,30 +92,46 @@ public class PSZipPackage extends Zip {
     this.destDirPath = destDirPath;
   }
 
+<<<<<<< HEAD
   /**
    * @param tempDestPath the tempDestPath to set
    */
+=======
+  /** @param tempDestPath the tempDestPath to set */
+>>>>>>> development-8.1.x
   public void setTempPath1(String tempPath1) {
     this.tempPath1 = tempPath1;
   }
 
+<<<<<<< HEAD
   /**
    * @param tempPath2 the tempPath2 to set
    */
+=======
+  /** @param tempPath2 the tempPath2 to set */
+>>>>>>> development-8.1.x
   public void setTempPath2(String tempPath2) {
     this.tempPath2 = tempPath2;
   }
 
+<<<<<<< HEAD
   /**
    * @param packagename the packagename to set
    */
+=======
+  /** @param packagename the packagename to set */
+>>>>>>> development-8.1.x
   public void setPackageName(String packagename) {
     packageName = packagename;
   }
 
+<<<<<<< HEAD
   /**
    * @param rootDirPath the rootDirPath to set
    */
+=======
+  /** @param rootDirPath the rootDirPath to set */
+>>>>>>> development-8.1.x
   public void setRootDirPath(String rootDirPath) {
     this.rootDirPath = rootDirPath;
   }

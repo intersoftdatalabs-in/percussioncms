@@ -44,9 +44,13 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     return imageKey;
   }
 
+<<<<<<< HEAD
   /**
    * @see ImageCacheManager#getImage(String)
    */
+=======
+  /** @see ImageCacheManager#getImage(String) */
+>>>>>>> development-8.1.x
   public ImageData getImage(String imageKey) {
     Element elem = cache.get(imageKey);
     if (elem == null) {
@@ -67,9 +71,13 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     return cache.isKeyInCache(imageKey);
   }
 
+<<<<<<< HEAD
   /**
    * @see ImageCacheManager#removeImage(String)
    */
+=======
+  /** @see ImageCacheManager#removeImage(String) */
+>>>>>>> development-8.1.x
   public void removeImage(String imageKey) {
     cache.remove(imageKey);
   }
@@ -86,16 +94,24 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
     return Long.toHexString(value);
   }
 
+<<<<<<< HEAD
   /**
    * @return the cache
    */
+=======
+  /** @return the cache */
+>>>>>>> development-8.1.x
   public Cache getCache() {
     return cache;
   }
 
+<<<<<<< HEAD
   /**
    * @param cache the cache to set
    */
+=======
+  /** @param cache the cache to set */
+>>>>>>> development-8.1.x
   public void setCache(Cache cache) {
     this.cache = cache;
   }

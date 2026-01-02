@@ -46,7 +46,11 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -145,7 +149,10 @@ public class ImageItemSupport {
     PSItemChildEntry entry = elist.get(0);
     return entry;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds a child entry for a specific image size code.
    *
@@ -225,8 +232,12 @@ public class ImageItemSupport {
           }
         } else {
           log.debug(
+<<<<<<< HEAD
               "readMetaData: the image size is 0, so nothing has been uploaded. Leaving imagekey"
                   + " and metadata default (maybe null)");
+=======
+              "readMetaData: the image size is 0, so nothing has been uploaded. Leaving imagekey and metadata default (maybe null)");
+>>>>>>> development-8.1.x
         }
         // BeanUtils.setProperty(bean, propertyName, imageKey);
       } else {
@@ -315,16 +326,24 @@ public class ImageItemSupport {
     RxItemUtils.setFieldValue(item, fieldName + _WIDTH, image.getWidth());
   }
 
+<<<<<<< HEAD
   /**
    * @param cws the cws to set
    */
+=======
+  /** @param cws the cws to set */
+>>>>>>> development-8.1.x
   public void setCws(IPSContentWs cws) {
     this.cws = cws;
   }
 
+<<<<<<< HEAD
   /**
    * @param isdm the isdm to set
    */
+=======
+  /** @param isdm the isdm to set */
+>>>>>>> development-8.1.x
   public void setIsdm(ImageSizeDefinitionManager isdm) {
     this.isdm = isdm;
   }
@@ -333,9 +352,13 @@ public class ImageItemSupport {
     this.gmgr = gmgr;
   }
 
+<<<<<<< HEAD
   /**
    * @param cache the cache to set
    */
+=======
+  /** @param cache the cache to set */
+>>>>>>> development-8.1.x
   public void setCache(ImageCacheManager cache) {
     this.cache = cache;
   }

@@ -59,7 +59,10 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
     PSMapClassToObject pageMap = getErrorPageMaps(loc);
     m_errorURLs.put("", pageMap); /* mark it the default */
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This method is used to get the string resources hash table for a locale. If the resources are
    * not already loaded for the locale, they will be.
@@ -103,8 +106,13 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
     ResourceBundle bun = ResourceBundle.getBundle("com.percussion.error.PSErrorPagesBundle", loc);
 
     String key = null;
+<<<<<<< HEAD
     for (Enumeration<String> e = bun.getKeys(); e.hasMoreElements(); ) {
       key = e.nextElement();
+=======
+    for (Enumeration e = bun.getKeys(); e.hasMoreElements(); ) {
+      key = (String) e.nextElement();
+>>>>>>> development-8.1.x
       try {
         pageMap.addReplaceMapping(Class.forName(key), new URL(bun.getString(key)));
       } catch (java.net.MalformedURLException | ClassNotFoundException ex) {

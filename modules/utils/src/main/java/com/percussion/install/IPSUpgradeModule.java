@@ -63,7 +63,10 @@ public interface IPSUpgradeModule {
 
   /** close method for closing open log files and or log streams. */
   void close();
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /*
    * Element names
    */

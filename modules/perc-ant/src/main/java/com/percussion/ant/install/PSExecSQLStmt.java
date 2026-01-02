@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -77,6 +76,7 @@ import org.apache.tools.ant.BuildException;
 public class PSExecSQLStmt extends PSAction {
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
 
+<<<<<<< HEAD
   // see base class
 
   @Override
@@ -86,6 +86,15 @@ public class PSExecSQLStmt extends PSAction {
     File f = new File(propFile);
     if (!(f.exists() && f.isFile())) return;
 
+=======
+  @Override
+  public void execute() {
+    String propFile = getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
+
+    File f = new File(propFile);
+    if (!(f.exists() && f.isFile())) return;
+
+>>>>>>> development-8.1.x
     try (FileInputStream in = new FileInputStream(f)) {
       Properties props = new Properties();
       props.load(in);
@@ -176,6 +185,7 @@ public class PSExecSQLStmt extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /*******************************************************************
    * Private functions.
    *******************************************************************/
@@ -183,6 +193,17 @@ public class PSExecSQLStmt extends PSAction {
   /*******************************************************************
    * Property accessors and mutators.
    *******************************************************************/
+=======
+  /**
+   * ***************************************************************** Private functions.
+   * *****************************************************************
+   */
+
+  /**
+   * ***************************************************************** Property accessors and
+   * mutators. *****************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the name of table, which should be replaced by fully qualified table name before
@@ -451,9 +472,16 @@ public class PSExecSQLStmt extends PSAction {
     return strBuffer.toString();
   }
 
+<<<<<<< HEAD
   /*******************************************************************
    * Properties
    *******************************************************************/
+=======
+  /**
+   * ***************************************************************** Properties
+   * *****************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * names of tables, which should be replaced by fully qualified table name before executing the
@@ -472,6 +500,7 @@ public class PSExecSQLStmt extends PSAction {
    * </code>, may be empty
    */
   private String sql = "";
+<<<<<<< HEAD
 
   /**
    * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
@@ -513,5 +542,48 @@ public class PSExecSQLStmt extends PSAction {
   /*******************************************************************
    * Member variables
    *******************************************************************/
+=======
+>>>>>>> development-8.1.x
 
+  /**
+   * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
+   */
+  private String sqlSqlServer = "";
+
+  /**
+   * sql statement to use for Oracle database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlOracle = "";
+
+  /**
+   * sql statement to use for UDB (DB2) database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlUDB = "";
+
+  /**
+   * sql statement to use for Apache Derby database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
+   */
+  private String sqlDerby = "";
+
+  /**
+   * sql statement to use for Mysql database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlMysql = "";
+
+  /**
+   * Indicates whether the stack trace of the exception generated when executing the SQL statement
+   * should be printed to the log, defaults to <code>true</code>, modified using <code>
+   * setPrintExceptionStackTrace()</code> method.
+   */
+  private boolean mPrintExceptionStackTrace = true;
+
+  /**
+   * ***************************************************************** Member variables
+   * *****************************************************************
+   */
 }

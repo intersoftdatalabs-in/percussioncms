@@ -16,12 +16,21 @@
  */
 package com.percussion.fastforward.calendar;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.services.assembly.IPSAssemblyResult;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -38,9 +47,15 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 /*
  * Test class for com.percussion.fastforward.calendar.PSCalendarMonthModel
@@ -51,7 +66,11 @@ public class PSCalendarMonthModelTest {
 
   Mockery context = new Mockery();
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     m_info = new PSCalendarMonthModel();
   }
@@ -256,7 +275,11 @@ public class PSCalendarMonthModelTest {
 
   /** Tests assigning and retrieving events through 'setEvents' and 'getEventsForDay' */
   @Test
+<<<<<<< HEAD
   @Disabled // TODO: Fix me - test is failing
+=======
+  @Ignore // TODO: Fix me - test is failing
+>>>>>>> development-8.1.x
   public void testEvents() throws Exception {
     FastDateFormat df = FastDateFormat.getInstance("yyyy-MM-dd");
     Collection eventsForDay;
@@ -414,9 +437,13 @@ public class PSCalendarMonthModelTest {
   }
 
   private void doVelocityTest(VelocityContext ctx, String inputtemplate, String expectedoutput)
+<<<<<<< HEAD
       throws ParseErrorException,
           MethodInvocationException,
           ResourceNotFoundException,
+=======
+      throws ParseErrorException, MethodInvocationException, ResourceNotFoundException,
+>>>>>>> development-8.1.x
           IOException {
     StringWriter out = new StringWriter();
     ms_engine.evaluate(ctx, out, "Velo", inputtemplate);

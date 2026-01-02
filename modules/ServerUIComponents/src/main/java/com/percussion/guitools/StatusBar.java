@@ -52,6 +52,7 @@ public class StatusBar extends JPanel {
     setDefaultMessage(strMsg);
     setMessage(strMsg);
   }
+<<<<<<< HEAD
 
   /**
    * Sets the text of the status bar. If strText is empty or null, the current message is cleared
@@ -78,6 +79,33 @@ public class StatusBar extends JPanel {
     m_strDefaultMsg = strText;
   }
 
+=======
+  /**
+   * Sets the text of the status bar. If strText is empty or null, the current message is cleared
+   * and the default message is displayed (Ready). The screen is repainted after the message has
+   * been updated.
+   */
+  public void setMessage(String strText) {
+    if (null == strText || 0 == strText.trim().length()) clearMessage();
+    else m_label.setText(strText);
+  }
+
+  /**
+   * Clears the current message (if there is one), sets the default message and repaints the screen.
+   */
+  public void clearMessage() {
+    m_label.setText(m_strDefaultMsg);
+  }
+
+  /**
+   * Sets the text that will appear whenever the message is cleared (either explicitly or
+   * implicitly). By default, the text is 'Ready'.
+   */
+  public void setDefaultMessage(String strText) {
+    m_strDefaultMsg = strText;
+  }
+
+>>>>>>> development-8.1.x
   // private storage
   private String m_strDefaultMsg = "Status";
   private JLabel m_label = new JLabel(m_strDefaultMsg);

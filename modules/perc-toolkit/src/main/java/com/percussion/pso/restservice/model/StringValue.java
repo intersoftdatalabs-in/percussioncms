@@ -39,7 +39,10 @@ public class StringValue implements Value {
   public String getStringValue() {
     return stringValue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setStringValue.
    *

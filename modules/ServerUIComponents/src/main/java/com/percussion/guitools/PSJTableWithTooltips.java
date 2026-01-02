@@ -24,9 +24,13 @@ import javax.swing.table.AbstractTableModel;
 
 /** A subclass of JTable in which the current cell's value will also be displayed in a tooltip. */
 public class PSJTableWithTooltips extends JTable {
+<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel)
    */
+=======
+  /** @see javax.swing.JTable#JTable(javax.swing.table.TableModel) */
+>>>>>>> development-8.1.x
   public PSJTableWithTooltips(AbstractTableModel model) {
     super(model);
   }

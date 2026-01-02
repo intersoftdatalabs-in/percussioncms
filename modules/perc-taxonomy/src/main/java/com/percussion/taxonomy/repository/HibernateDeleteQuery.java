@@ -22,9 +22,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;
 
-/**
- * @author Steffen Gates May 6, 2011
- */
+/** @author Steffen Gates May 6, 2011 */
 public class HibernateDeleteQuery implements HibernateCallback {
   private String query;
 

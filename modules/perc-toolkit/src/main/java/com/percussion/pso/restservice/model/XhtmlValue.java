@@ -16,9 +16,15 @@
  */
 package com.percussion.pso.restservice.model;
 
+<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlValue;
+=======
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +36,7 @@ public class XhtmlValue implements Value {
 
   /** Field stringValue. */
   private String stringValue;
+<<<<<<< HEAD
 
   /** Field href. */
   private String href;
@@ -37,6 +44,13 @@ public class XhtmlValue implements Value {
   /** Field type. */
   public static final int TYPE = 1;
 
+=======
+  /** Field href. */
+  private String href;
+  /** Field type. */
+  public static final int TYPE = 1;
+
+>>>>>>> development-8.1.x
   /**
    * Method setStringValue.
    *
@@ -46,7 +60,10 @@ public class XhtmlValue implements Value {
   public void setStringValue(String stringValue) {
     this.stringValue = stringValue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getStringValue.
    *
@@ -57,7 +74,10 @@ public class XhtmlValue implements Value {
   public String getStringValue() {
     return stringValue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setHref.
    *
@@ -66,7 +86,10 @@ public class XhtmlValue implements Value {
   public void setHref(String href) {
     this.href = href;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getHref.
    *

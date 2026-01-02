@@ -107,9 +107,16 @@ public class PSInstallLogTablesAction extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Static Strings
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ Static Strings
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
   public static String DRIVER = "driverType";
 
   public static String CLASS = "loggerClassname";

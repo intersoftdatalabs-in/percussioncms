@@ -18,11 +18,15 @@ package com.percussion.security;
 
 import java.security.Principal;
 
+<<<<<<< HEAD
 /**
  * Represents a principal with a specified type.
  *
  * <p>Sunny Sal says: Types make the world go round—especially for principals!
  */
+=======
+/** Represents a principal with a specified type. */
+>>>>>>> development-8.1.x
 public interface IPSTypedPrincipal extends Principal {
   /** Types of principals that may be represented. */
   public enum PrincipalTypes {
@@ -54,9 +58,15 @@ public interface IPSTypedPrincipal extends Principal {
     }
 
     /**
+<<<<<<< HEAD
      * Private constructor using the ordinal value.
      *
      * @param ord The ordinal value, must be a valid value.
+=======
+     * Private ctor using the ordinal value
+     *
+     * @param ord The ordingal value, must be a valid value
+>>>>>>> development-8.1.x
      */
     private PrincipalTypes(int ord) {
       if (ord > Short.MAX_VALUE) {

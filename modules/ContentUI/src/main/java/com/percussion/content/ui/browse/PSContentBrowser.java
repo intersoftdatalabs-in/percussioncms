@@ -17,11 +17,19 @@
 
 package com.percussion.content.ui.browse;
 
+<<<<<<< HEAD
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.apache.commons.lang3.Validate.notNull;
+=======
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang.Validate.notNull;
+>>>>>>> development-8.1.x
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -61,7 +69,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -181,10 +193,14 @@ public class PSContentBrowser {
    */
   public static String getSiteFolderChildren(
       IPSRequestContext request, String absSiteFolderPath, String contentTypeId, String slotId)
+<<<<<<< HEAD
       throws PSSiteManagerException,
           PSErrorException,
           JSONException,
           PSAssemblyException,
+=======
+      throws PSSiteManagerException, PSErrorException, JSONException, PSAssemblyException,
+>>>>>>> development-8.1.x
           PSNotFoundException {
     if (request == null) {
       throw new IllegalArgumentException("request must not be null");

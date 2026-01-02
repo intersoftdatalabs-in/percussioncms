@@ -17,10 +17,16 @@
 
 package test.percussion.pso.demandpreview.service.impl;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
+=======
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+>>>>>>> development-8.1.x
 
 import com.percussion.pso.demandpreview.exception.SiteLookUpException;
 import com.percussion.pso.demandpreview.service.SiteEditionConfig;
@@ -39,6 +45,10 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.HashMap;
 import java.util.Map;
+<<<<<<< HEAD
+=======
+import junit.framework.Assert;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
@@ -60,7 +70,11 @@ public class SiteTemplateLookUpServiceImplTest {
 
   IPSGuidManager guidManager;
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     lookUp = new TestLookUpService();
@@ -77,7 +91,11 @@ public class SiteTemplateLookUpServiceImplTest {
   }
 
   @Test
+<<<<<<< HEAD
   @Disabled
+=======
+  @Ignore
+>>>>>>> development-8.1.x
   // TODO: Fix testLookUpSiteEdition
   public void testLookUpSiteEdition() throws SiteLookUpException {
     Map<String, SiteEditionConfig> siteLookUpMap = new HashMap<>();
@@ -153,7 +171,11 @@ public class SiteTemplateLookUpServiceImplTest {
             }
           });
       lookUp.LookUpSiteEdition("142");
+<<<<<<< HEAD
       Assertions.fail("Test with wrong site name failed");
+=======
+      Assert.fail("Test with wrong site name failed");
+>>>>>>> development-8.1.x
     } catch (SiteLookUpException | PSNotFoundException ex) {
       log.info("Got expected exception {}", ex.getMessage());
     }
@@ -252,10 +274,14 @@ public class SiteTemplateLookUpServiceImplTest {
     public void setGuidManager(IPSGuidManager guidManager) {
       super.setGuidManager(guidManager);
     }
+<<<<<<< HEAD
 
     /**
      * @see SiteEditionLookUpServiceImpl#setAsm(IPSAssemblyService)
      */
+=======
+    /** @see SiteEditionLookUpServiceImpl#setAsm(IPSAssemblyService) */
+>>>>>>> development-8.1.x
     @Override
     public void setAsm(IPSAssemblyService asm) {
       super.setAsm(asm);

@@ -1,23 +1,26 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.html;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
+=======
+import static org.junit.Assert.*;
+>>>>>>> development-8.1.x
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,15 +33,28 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+=======
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+>>>>>>> development-8.1.x
 
 /** Test to validate the HTML cleaner / parser against a document with all html 5 tags. */
 public class TestAllHTML5Tags {
 
+<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
+=======
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
 
   public Document parsedDoc;
   public String parsedHTML;
@@ -46,8 +62,14 @@ public class TestAllHTML5Tags {
   Map<String, String> globalAttributes = new HashMap<String, String>();
   Map<String, String> eventAttribute = new HashMap<String, String>();
 
+<<<<<<< HEAD
   @BeforeEach
   public void setup() throws IOException, PSHtmlParsingException {
+=======
+  @Before
+  public void setup() throws IOException, PSHtmlParsingException {
+    temporaryFolder.create();
+>>>>>>> development-8.1.x
 
     String sourceDoc =
         new Scanner(
@@ -149,7 +171,11 @@ public class TestAllHTML5Tags {
     globalAttributes.put("translate", "no");
   }
 
+<<<<<<< HEAD
   @AfterEach
+=======
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {}
 
   @Test
@@ -420,8 +446,13 @@ public class TestAllHTML5Tags {
   @Test
   public void testBodyTag() {
 
+<<<<<<< HEAD
     //        Elements tags = parsedDoc.select("body[class=unit-test]");
     //        assertTrue(tags.size()>0);
+=======
+    // Elements tags = parsedDoc.select("body[class=unit-test]");
+    // assertTrue(tags.size()>0);
+>>>>>>> development-8.1.x
 
   }
 
@@ -1255,6 +1286,10 @@ public class TestAllHTML5Tags {
   }
 
   @Test
+<<<<<<< HEAD
+=======
+  @Ignore("noscript tag is no longer supported in jsoup Safelists as of jsoup 1.21.2")
+>>>>>>> development-8.1.x
   public void testNoScriptTag() {
 
     Elements tags = parsedDoc.select("noscript[class=unit-test]");

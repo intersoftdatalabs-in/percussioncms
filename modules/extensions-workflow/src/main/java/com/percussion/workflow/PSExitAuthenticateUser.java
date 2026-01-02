@@ -33,13 +33,22 @@ import com.percussion.server.PSServer;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.system.PSAssignmentTypeHelper;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
+=======
+import com.percussion.util.IPSHtmlParameters;
+import com.percussion.util.PSCms;
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -298,10 +307,14 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
    * @throws PSRoleException if any role-related error occurs
    */
   private void authenticateUser(String lang, Connection connection, AuthParams localParams)
+<<<<<<< HEAD
       throws SQLException,
           PSAuthorizationException,
           PSEntryNotFoundException,
           PSRoleException,
+=======
+      throws SQLException, PSAuthorizationException, PSEntryNotFoundException, PSRoleException,
+>>>>>>> development-8.1.x
           PSCmsException {
 
     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering authenticateUser");
@@ -527,10 +540,14 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
    * @throws PSEntryNotFoundException if there is no state information found.
    */
   private boolean canUserCreate(Connection connection, AuthParams localParams)
+<<<<<<< HEAD
       throws SQLException,
           PSEntryNotFoundException,
           PSRoleException,
           PSAuthorizationException,
+=======
+      throws SQLException, PSEntryNotFoundException, PSRoleException, PSAuthorizationException,
+>>>>>>> development-8.1.x
           PSCmsException {
     log.debug("Entering canUserCreate...");
 

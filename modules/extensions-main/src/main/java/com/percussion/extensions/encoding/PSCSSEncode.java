@@ -28,9 +28,13 @@ import org.owasp.encoder.Encode;
 
 public class PSCSSEncode implements IPSFieldInputTransformer {
 
+<<<<<<< HEAD
   /***
    * Default public constructor.
    */
+=======
+  /** * Default public constructor. */
+>>>>>>> development-8.1.x
   public PSCSSEncode() {}
 
   @Override

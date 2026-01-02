@@ -39,7 +39,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -73,6 +77,7 @@ public class PSExtensionHelper {
     this.m_builder = builder;
     this.m_request = m_request;
   }
+<<<<<<< HEAD
 
   /**
    * We need to do this because the content editor will only set selected what already exists in the
@@ -179,6 +184,112 @@ public class PSExtensionHelper {
 
             log.debug("idString: {}", idString);
 
+=======
+  /**
+   * We need to do this because the content editor will only set selected what already exists in the
+   * database (PSCoreItem field) but since we are not using the database to determine whats selected
+   * but rather our sys_Lookup query resource we need to set all the display choices that it returns
+   * selected to "yes".
+   *
+   * @param resultDoc
+   * @param selectAll
+   * @throws PSExtensionProcessingException
+   */
+  public void updateDisplayChoices(Document resultDoc, boolean selectAll)
+      throws PSExtensionProcessingException {
+    log.debug(
+        "Starting Updating display choices with builder: "
+            + m_builder.getClass().getCanonicalName());
+    String errorMesg = "Error updating display choices";
+    if (resultDoc == null) {
+      throw new IllegalArgumentException(errorMesg + " Result Doc cannot be null");
+    }
+    PSOExtensionParamsHelper extParamHelper =
+        new PSOExtensionParamsHelper(m_parameters, m_request, log);
+    String fieldName = extParamHelper.getRequiredParameter(IDS_FIELD_NAME);
+
+    Collection<Integer> ids = null;
+    if (!selectAll) {
+      int contentId =
+          extParamHelper.getRequiredParameterAsNumber(IPSHtmlParameters.SYS_CONTENTID).intValue();
+      try {
+        ids = m_builder.retrieve(contentId);
+
+        log.debug("Selecting ids: {}", ids);
+
+      } catch (PSAssemblyException e) {
+        log.error(errorMesg, e);
+        throw new PSExtensionProcessingException(errorMesg, e);
+      } catch (PSException e) {
+        log.error(errorMesg, e);
+        throw new PSExtensionProcessingException(errorMesg, e);
+      }
+    }
+
+    NodeList controlNodes = resultDoc.getElementsByTagName("Control");
+    Element controlElement = null;
+    for (int i = 0; controlNodes != null && i < controlNodes.getLength(); i++) {
+      Element node = (Element) controlNodes.item(i);
+      if (node.hasAttribute("paramName") && fieldName.equals(node.getAttribute("paramName"))) {
+        controlElement = node;
+        break;
+      }
+    }
+    if (controlElement == null) {
+
+      log.warn("Field: {} could not be found in the content editor xml", fieldName);
+
+    } else {
+      NodeList displayChoicesNodes = controlElement.getElementsByTagName("DisplayChoices");
+      Element displayChoicesElement =
+          displayChoicesNodes != null && displayChoicesNodes.getLength() == 1
+              ? (Element) displayChoicesNodes.item(0)
+              : null;
+      if (displayChoicesElement == null) {
+        log.debug(
+            "No DisplayChoice Elements. Checking for Value e.g. multi value no child table, ; separated");
+        NodeList valueNodes = controlElement.getElementsByTagName("Value");
+        if (valueNodes.getLength() > 0) {
+          String itemList = valueNodes.item(0).getTextContent();
+
+          log.debug("Found selections " + itemList);
+
+          String replacementString = "";
+          for (int id : ids) {
+            if (replacementString.length() > 0) replacementString += ";";
+            replacementString += id;
+          }
+
+          log.debug("Replacing with ids {}", replacementString);
+
+          valueNodes.item(0).setTextContent(replacementString);
+        }
+
+      } else {
+        if (log.isTraceEnabled()) {
+          String xml = PSXmlDocumentBuilder.toString(displayChoicesElement);
+          log.trace("Nabeel changes...");
+
+          log.trace("Display Choices XML: {}", xml);
+        }
+        log.debug("Displayed choice... ");
+        NodeList displayEntryNodes = displayChoicesElement.getElementsByTagName("DisplayEntry");
+
+        log.debug("Got display entry elements, there are:  " + displayEntryNodes.getLength());
+        for (int i = 0; displayEntryNodes != null && i < displayEntryNodes.getLength(); i++) {
+          Element displayEntryElement = (Element) displayEntryNodes.item(i);
+          log.debug("displayEntryElement: {}", displayEntryElement);
+          log.debug("selectALL: {}", selectAll);
+
+          if (selectAll) {
+            displayEntryElement.setAttribute("selected", "yes");
+          } else {
+            String idString =
+                displayEntryElement.getElementsByTagName("Value").item(0).getTextContent();
+
+            log.debug("idString: {}", idString);
+
+>>>>>>> development-8.1.x
             int id = 0;
 
             // When the Aging Agent tries to move an item from Public, it tends to fail when the
@@ -188,8 +299,12 @@ public class PSExtensionHelper {
               id = Integer.parseInt(idString);
             } catch (NumberFormatException nfe) {
               log.warn(
+<<<<<<< HEAD
                   "The value for the control is not appropriately formatted or is not a number."
                       + " Using 0.");
+=======
+                  "The value for the control is not appropriately formatted or is not a number. Using 0.");
+>>>>>>> development-8.1.x
               id = 0;
             }
 

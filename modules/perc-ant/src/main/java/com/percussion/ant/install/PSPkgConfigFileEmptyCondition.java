@@ -87,6 +87,7 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
       if (root == null) {
         return false;
       }
+<<<<<<< HEAD
 
       NodeList nl = root.getElementsByTagName("SolutionConfig");
       if (nl == null) {
@@ -138,6 +139,60 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
     this.m_relativeFilePath = relativeFilePath;
   }
 
+=======
+
+      NodeList nl = root.getElementsByTagName("SolutionConfig");
+      if (nl == null) {
+        return false;
+      }
+
+      int nodeListLen = nl.getLength();
+      Element el = null;
+      for (int i = 0; i < nodeListLen; i++) {
+        el = (Element) nl.item(i);
+        NodeList propertyElems = el.getElementsByTagName("property");
+        NodeList propertySetElems = el.getElementsByTagName("propertySet");
+        if (propertyElems.getLength() > 0 || propertySetElems.getLength() > 0) {
+          return false;
+        }
+      }
+    } catch (Exception e) {
+      PSLogger.logError("Exception in PSPkgConfigFileEmptyCondition : " + e.getMessage());
+      PSLogger.logError(e);
+    }
+
+    return true;
+  }
+
+  /**
+   * ************************************************************* Mutators and Accessors
+   * *************************************************************
+   */
+
+  /**
+   * Returns the relative path of the package configuration file from the installation directory.
+   *
+   * @return the relative path of the package configuration file from the installation directory,
+   *     may be <code>null</code> or empty
+   */
+  public String getRelativeFilePath() {
+    return m_relativeFilePath;
+  }
+
+  /**
+   * Sets the relative path of the xml file from the installation directory.
+   *
+   * @param relativeFilePath the relative path of the xml file from the installation directory,
+   *     never <code>null</code> or empty
+   * @throw IllegalArgumentException if relativeFilePath is <code>null</code> or empty
+   */
+  public void setRelativeFilePath(String relativeFilePath) {
+    if ((relativeFilePath == null) || (relativeFilePath.trim().length() == 0))
+      throw new IllegalArgumentException("relativeFilePath may not be null or empty");
+    this.m_relativeFilePath = relativeFilePath;
+  }
+
+>>>>>>> development-8.1.x
   /** Stores the relative path of the package configuration file. */
   private String m_relativeFilePath =
       "rxconfig/Packages/DefaultConfigs/perc.SystemObjects_defaultConfig.xml";

@@ -89,7 +89,10 @@ public class FileProcessor {
       typeField.addValue(new PSTextValue(value));
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This method tries to make a more intelligent decision to determine the appropriate Mime type by
    * looking at both the type guess made by the browser and the file extension. Some browser do not

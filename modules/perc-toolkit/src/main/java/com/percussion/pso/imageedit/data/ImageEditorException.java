@@ -23,6 +23,7 @@ package com.percussion.pso.imageedit.data;
  */
 public class ImageEditorException extends RuntimeException {
   /** */
+<<<<<<< HEAD
   public ImageEditorException() {}
 
   /**
@@ -39,6 +40,19 @@ public class ImageEditorException extends RuntimeException {
     super(cause);
   }
 
+=======
+  public ImageEditorException() {
+    // TODO Auto-generated constructor stub
+  }
+  /** @param message */
+  public ImageEditorException(String message) {
+    super(message);
+  }
+  /** @param cause */
+  public ImageEditorException(Throwable cause) {
+    super(cause);
+  }
+>>>>>>> development-8.1.x
   /**
    * @param message
    * @param cause

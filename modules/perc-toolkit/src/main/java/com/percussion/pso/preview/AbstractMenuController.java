@@ -32,8 +32,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
@@ -173,6 +178,7 @@ public abstract class AbstractMenuController extends ParameterizableViewControll
     }
     return false;
   }
+<<<<<<< HEAD
 
   /**
    * Gets the site folder finder.
@@ -236,6 +242,68 @@ public abstract class AbstractMenuController extends ParameterizableViewControll
   }
 
   /**
+=======
+  /**
+   * Gets the site folder finder.
+   *
+   * @return the siteFolderFinder
+   */
+  public SiteFolderFinder getSiteFolderFinder() {
+    return siteFolderFinder;
+  }
+
+  /** Initialize the service pointers. */
+  protected static void initServices() {
+    if (asm == null) {
+      secws = PSSecurityWsLocator.getSecurityWebservice();
+      asm = PSAssemblyServiceLocator.getAssemblyService();
+      objectFinder = new PSOObjectFinder();
+    }
+  }
+
+  /** @param siteFolderFinder the siteFolderFinder to set */
+  public void setSiteFolderFinder(SiteFolderFinder siteFolderFinder) {
+    this.siteFolderFinder = siteFolderFinder;
+  }
+
+  /**
+   * Sets the assembly service pointer. Used only for unit testing.
+   *
+   * @param asm the assembly service to set.
+   */
+  public static void setAsm(IPSAssemblyService asm) {
+    AbstractMenuController.asm = asm;
+  }
+
+  /**
+   * Sets the security service pointer. Used only for unit testing.
+   *
+   * @param secws the secws to set.
+   */
+  public static void setSecws(IPSSecurityWs secws) {
+    AbstractMenuController.secws = secws;
+  }
+
+  /**
+   * Is the community visiblity flag set.
+   *
+   * @return the testCommunityVisibility
+   */
+  public boolean isTestCommunityVisibility() {
+    return testCommunityVisibility;
+  }
+
+  /**
+   * Sets the community visibility flag.
+   *
+   * @param testCommunityVisibility the testCommunityVisibility to set
+   */
+  public void setTestCommunityVisibility(boolean testCommunityVisibility) {
+    this.testCommunityVisibility = testCommunityVisibility;
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Sets the object finder. Used only for unit testing.
    *
    * @param objectFinder the objectFinder to set

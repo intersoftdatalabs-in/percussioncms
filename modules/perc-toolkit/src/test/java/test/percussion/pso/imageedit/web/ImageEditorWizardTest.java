@@ -16,7 +16,11 @@
  */
 package test.percussion.pso.imageedit.web;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
+=======
+import static org.junit.Assert.*;
+>>>>>>> development-8.1.x
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.data.MasterImageMetaData;
@@ -34,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +60,33 @@ public class ImageEditorWizardTest {
     cut.setImagePersistenceManager(imagePersistenceManager);
     cut.setImageResizeMgr(imageResizeManager);
     cut.setImageSizeDefMgr(imageSizeDefinitionManager);
+=======
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ImageEditorWizardTest {
+  private static final Logger log = LogManager.getLogger(ImageEditorWizardTest.class);
+  Mockery context;
+  TestableImageEditorWizard cut;
+  ImagePersistenceManager imagePersistenceManager;
+  ImageResizeManager imageResizeManager;
+  ImageSizeDefinitionManager imageSizeDefinitionManager;
+  ImageCacheManager imageCacheManager;
+
+  @Before
+  public void setUp() throws Exception {
+    context = new Mockery();
+    cut = new TestableImageEditorWizard();
+    imagePersistenceManager = context.mock(ImagePersistenceManager.class);
+    cut.setImagePersistenceManager(imagePersistenceManager);
+    imageResizeManager = context.mock(ImageResizeManager.class);
+    cut.setImageResizeMgr(imageResizeManager);
+    imageSizeDefinitionManager = context.mock(ImageSizeDefinitionManager.class);
+    cut.setImageSizeDefMgr(imageSizeDefinitionManager);
+    imageCacheManager = context.mock(ImageCacheManager.class);
+>>>>>>> development-8.1.x
     cut.setImageCacheManager(imageCacheManager);
   }
 
@@ -62,6 +94,7 @@ public class ImageEditorWizardTest {
   public final void testSetupDisplayImage() {
     fail("Not yet implemented");
   }
+<<<<<<< HEAD
 
   // @Test
   public final void testCreateScaledImage() {
@@ -100,6 +133,45 @@ public class ImageEditorWizardTest {
     result = cut.computeScaleFactor(200, 50);
     assertEquals(2.0, result, 0);
 
+=======
+  // @Test
+  public final void testCreateScaledImage() {
+    fail("Not yet implemented");
+  }
+
+  @Test
+  public final void testScaledRectangle() {
+    Rectangle rect = new Rectangle(100, 200, 300, 400);
+    Dimension bigDim = new Dimension(1000, 1000);
+    Rectangle result = cut.scaledRectangle(rect, 0.5, bigDim);
+    assertEquals(50.0, result.getX(), 0);
+    assertEquals(100.0, result.getY(), 0);
+    assertEquals(200.0, result.getHeight(), 0);
+    assertEquals(150.0, result.getWidth(), 0);
+  }
+
+  @Test
+  public final void testScaledRectangleClipped() {
+    Rectangle rect = new Rectangle(100, 200, 300, 400);
+    Dimension imageDim = new Dimension(350, 550);
+    Rectangle result = cut.scaledRectangle(rect, 2.0, imageDim);
+    assertEquals(200.0, result.getX(), 0);
+    assertEquals(400.0, result.getY(), 0);
+    assertEquals(150.0, result.getHeight(), 0);
+  }
+
+  @Test
+  public final void testComputeScaleFactor() {
+    cut.setMaxDisplayHeight(100);
+    cut.setMaxDisplayWidth(100);
+
+    double result = cut.computeScaleFactor(50, 50);
+    assertEquals(1.0, result, 0);
+
+    result = cut.computeScaleFactor(200, 50);
+    assertEquals(2.0, result, 0);
+
+>>>>>>> development-8.1.x
     result = cut.computeScaleFactor(50, 200);
     assertEquals(2.0, result, 0);
   }
@@ -157,6 +229,7 @@ public class ImageEditorWizardTest {
           }
         };
 
+<<<<<<< HEAD
     when(imageSizeDefinitionManager.getAllImageSizes()).thenReturn(sdl);
     List<Map<String, String>> result = cut.buildAllSizesList(mimd);
     assertNotNull(result);
@@ -164,6 +237,23 @@ public class ImageEditorWizardTest {
     assertTrue(result.get(0).containsKey("checked"));
     assertFalse(result.get(1).containsKey("checked"));
     verify(imageSizeDefinitionManager).getAllImageSizes();
+=======
+    context.checking(
+        new Expectations() {
+          {
+            one(imageSizeDefinitionManager).getAllImageSizes();
+            will(returnValue(sdl));
+          }
+        });
+
+    List<Map<String, String>> result = cut.buildAllSizesList(mimd);
+    assertNotNull(result);
+
+    assertEquals("sd1", result.get(0).get("code"));
+    assertTrue(result.get(0).containsKey("checked"));
+    assertFalse(result.get(1).containsKey("checked"));
+    context.assertIsSatisfied();
+>>>>>>> development-8.1.x
   }
 
   @Test

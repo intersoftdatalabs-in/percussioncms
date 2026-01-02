@@ -31,8 +31,13 @@ import com.percussion.webservices.PSErrorException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -135,14 +140,22 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
    */
   @IPSJexlMethod(
       description =
+<<<<<<< HEAD
           "returns a list(TaxNodeList) of related Taxons for a Node Id (String or Integer) and"
               + " relationship Type e.g 'Related To'",
+=======
+          "returns a list(TaxNodeList) of related Taxons for a Node Id (String or Integer) and relationship Type e.g 'Related To'",
+>>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(
             name = "node_id",
             description =
+<<<<<<< HEAD
                 "the node_id an individual id any Object where the toString can be converted to an"
                     + " Integer"),
+=======
+                "the node_id an individual id any Object where the toString can be converted to an Integer"),
+>>>>>>> development-8.1.x
         @IPSJexlParam(
             name = "relationship_type_name",
             description = "relationship_type_name 'Similar' or 'Related To'")
@@ -204,14 +217,22 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
    */
   @IPSJexlMethod(
       description =
+<<<<<<< HEAD
           "returns a list of taxonomy nodes (TaxNodeList) for from a comma separated string of"
               + " nodes ID(s) or integer",
+=======
+          "returns a list of taxonomy nodes (TaxNodeList) for from a comma separated string of nodes ID(s) or integer",
+>>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(
             name = "node_ids",
             description =
+<<<<<<< HEAD
                 "An Object or Collection of Objects where the toString can be converted to an"
                     + " Integer or a comma separated list of ids")
+=======
+                "An Object or Collection of Objects where the toString can be converted to an Integer or a comma separated list of ids")
+>>>>>>> development-8.1.x
       })
   public TaxNodeList getNodesFromIds(Object node_ids)
       throws PSErrorException, PSExtensionProcessingException {

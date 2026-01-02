@@ -22,7 +22,11 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
+<<<<<<< HEAD
 import com.percussion.system.utils.PSImageTools;
+=======
+import com.percussion.util.PSImageTools;
+>>>>>>> development-8.1.x
 import java.awt.image.BufferedImage;
 import java.io.File;
 import org.w3c.dom.Document;
@@ -98,7 +102,10 @@ public class PSInlineImageSizeExtractor implements IPSResultDocumentProcessor {
 
     return resDoc;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 }

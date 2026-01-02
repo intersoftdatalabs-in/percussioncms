@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.html;
@@ -26,7 +25,11 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -354,7 +357,24 @@ public class PSHtmlUtils {
 
     if (propVal == null || StringUtils.isEmpty(propVal.trim())) return ret;
     String[] tags = propVal.split(",");
+<<<<<<< HEAD
     String[] trimmedTags = Arrays.stream(tags).map(String::trim).toArray(String[]::new);
+=======
+    String[] trimmedTags =
+        Arrays.stream(tags)
+            .map(String::trim)
+            .filter(
+                tag -> {
+                  // jsoup 1.21.2 removed support for noscript tag in Safelists
+                  if ("noscript".equalsIgnoreCase(tag)) {
+                    log.warn(
+                        "Skipping 'noscript' tag as it is no longer supported in jsoup Safelists (jsoup 1.21.2+)");
+                    return false;
+                  }
+                  return true;
+                })
+            .toArray(String[]::new);
+>>>>>>> development-8.1.x
     ret.addTags(trimmedTags);
 
     return ret;
@@ -399,8 +419,12 @@ public class PSHtmlUtils {
       props.load(is);
     } catch (IOException e) {
       log.warn(
+<<<<<<< HEAD
           "Loading system default html-cleaner.properties as there was an error loading html"
               + " cleaner properties from: {}. Error: {}",
+=======
+          "Loading system default html-cleaner.properties as there was an error loading html cleaner properties from: {}. Error: {}",
+>>>>>>> development-8.1.x
           filename,
           PSExceptionUtils.getMessageForLog(e));
       // Use the default properties instead.
@@ -425,8 +449,12 @@ public class PSHtmlUtils {
       props.load(is);
     } catch (IOException e) {
       log.error(
+<<<<<<< HEAD
           "Error loading default html cleaner properties.  HTML cleansing may be unreliable. Error:"
               + " {}",
+=======
+          "Error loading default html cleaner properties.  HTML cleansing may be unreliable. Error: {}",
+>>>>>>> development-8.1.x
           PSExceptionUtils.getMessageForLog(e));
     }
 

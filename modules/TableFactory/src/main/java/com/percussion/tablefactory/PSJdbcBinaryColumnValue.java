@@ -19,11 +19,17 @@ package com.percussion.tablefactory;
 
 import java.io.FileInputStream;
 
+<<<<<<< HEAD
 /***
  * Contains a binary column value.
  *
  * @author natechadwick
+=======
+/**
+ * * Contains a binary column value.
+>>>>>>> development-8.1.x
  *
+ * @author natechadwick
  */
 public class PSJdbcBinaryColumnValue {
   private FileInputStream stream;

@@ -107,7 +107,11 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
     return m_sBody;
   }
 
+<<<<<<< HEAD
   /******** Context Defining Members ********/
+=======
+  /** ****** Context Defining Members ******* */
+>>>>>>> development-8.1.x
 
   /** ID of the workflow for this item. */
   private int m_nWorkflowID = 0;
@@ -115,7 +119,11 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
   /** the notification ID */
   private int m_nNotificationID = 0;
 
+<<<<<<< HEAD
   /******** Context Data Members ********/
+=======
+  /** ****** Context Data Members ******* */
+>>>>>>> development-8.1.x
 
   /** Subject of the mail notification */
   String m_sSubject = null;
@@ -123,7 +131,11 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
   /** Body of the mail notification */
   private String m_sBody = null;
 
+<<<<<<< HEAD
   /******** Database Related Variables ********/
+=======
+  /** ****** Database Related Variables ******* */
+>>>>>>> development-8.1.x
 
   /** static constant string that represents the qualified table name. */
   private static String TABLE_NC = PSConnectionMgr.getQualifiedIdentifier("NOTIFICATIONS");

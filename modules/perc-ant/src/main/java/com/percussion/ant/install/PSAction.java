@@ -187,6 +187,7 @@ public class PSAction extends Task {
   public boolean isSilenceErrors() {
     return m_silenceerrors;
   }
+<<<<<<< HEAD
 
   /** The root installation directory. */
   private static volatile String ms_rootDir;
@@ -208,6 +209,26 @@ public class PSAction extends Task {
    */
   private static volatile boolean m_silenceerrors = false;
 
+=======
+  /** The root installation directory. */
+  private static volatile String ms_rootDir;
+
+  /**
+   * If <code>true</code>, then all file copy operations using the {@link PSCopyFileAction} task
+   * will be performed as replace by date. Defaults to <code>false</code>.
+   */
+  private static volatile boolean ms_bRefreshFiles = false;
+
+  /**
+   * If false then the Action should not fail if an error occurs, when true (default) errors should
+   * be reported and fail the task.
+   */
+  private static volatile boolean m_failonerror = true;
+
+  /** * If true then the Action should not report any errors to logs. */
+  private static volatile boolean m_silenceerrors = false;
+
+>>>>>>> development-8.1.x
   /**
    * The name of the Ant property which if found indicates that a refresh of all files will be
    * performed. Default is REFRESH.

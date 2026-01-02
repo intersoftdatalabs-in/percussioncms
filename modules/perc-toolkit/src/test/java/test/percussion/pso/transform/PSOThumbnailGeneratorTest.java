@@ -47,13 +47,22 @@ public class PSOThumbnailGeneratorTest {
 
   TestThumbnailGenerator cut;
 
+<<<<<<< HEAD
   @BeforeEach
   public void setUp() {
+=======
+  @Before
+  public void setUp() throws Exception {
+>>>>>>> development-8.1.x
     cut = new TestThumbnailGenerator();
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeBoth() {
+=======
+  public final void testComputeSizeBoth() {
+>>>>>>> development-8.1.x
     Dimension originalSize = new Dimension(400, 300);
     Dimension result = cut.computeSize(0, 100, 200, originalSize);
     assertNotNull(result);
@@ -62,7 +71,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeWidth() {
+=======
+  public final void testComputeSizeWidth() {
+>>>>>>> development-8.1.x
     Dimension originalSize = new Dimension(100, 200);
     Dimension result = cut.computeSize(0, 50, 0, originalSize);
     assertNotNull(result);
@@ -71,7 +84,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeHeight() {
+=======
+  public final void testComputeSizeHeight() {
+>>>>>>> development-8.1.x
     Dimension originalSize = new Dimension(100, 200);
     Dimension result = cut.computeSize(0, 0, 100, originalSize);
     assertNotNull(result);
@@ -80,7 +97,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeNone() {
+=======
+  public final void testComputeSizeNone() {
+>>>>>>> development-8.1.x
     Dimension result;
     try {
       Dimension originalSize = new Dimension(100, 200);
@@ -88,12 +109,20 @@ public class PSOThumbnailGeneratorTest {
 
     } catch (IllegalArgumentException ex) {
       log.info("Expected Exception caught");
+<<<<<<< HEAD
       assertTrue(true, () -> "expected exception");
+=======
+      assertTrue("expected exception", true);
+>>>>>>> development-8.1.x
     }
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeMaxdimHeight() {
+=======
+  public final void testComputeSizeMaxdimHeight() {
+>>>>>>> development-8.1.x
     Dimension originalSize = new Dimension(100, 200);
     Dimension result = cut.computeSize(100, 0, 0, originalSize);
     assertNotNull(result);
@@ -102,7 +131,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testComputeSizeMaxdimWidth() {
+=======
+  public final void testComputeSizeMaxdimWidth() {
+>>>>>>> development-8.1.x
     Dimension originalSize = new Dimension(200, 100);
     Dimension result = cut.computeSize(100, 0, 0, originalSize);
     assertNotNull(result);
@@ -111,7 +144,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testHalfImage() {
+=======
+  public final void testHalfImage() {
+>>>>>>> development-8.1.x
     BufferedImage inImage = new BufferedImage(1000, 2000, BufferedImage.TYPE_INT_RGB);
     Graphics2D g2d = inImage.createGraphics();
     g2d.setColor(Color.CYAN);
@@ -126,7 +163,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testReadJpeg() {
+=======
+  public final void testReadJpeg() {
+>>>>>>> development-8.1.x
     log.info("reading a jpeg");
     InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/leonardo.jpg");
     assertNotNull(is);
@@ -150,7 +191,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testReadGif() {
+=======
+  public final void testReadGif() {
+>>>>>>> development-8.1.x
     log.info("reading a GIF");
     InputStream is =
         getClass().getResourceAsStream("/com/percussion/pso/transform/ninja_avatar.gif");
@@ -177,7 +222,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testReadPng() {
+=======
+  public final void testReadPng() {
+>>>>>>> development-8.1.x
     log.info("reading a PNG");
     InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/TestPNG.png");
     assertNotNull(is);
@@ -203,7 +252,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testResizeGif() {
+=======
+  public final void testResizeGif() {
+>>>>>>> development-8.1.x
     log.info("resizing a GIF");
     InputStream is =
         getClass().getResourceAsStream("/com/percussion/pso/transform/ninja_avatar.gif");
@@ -232,7 +285,11 @@ public class PSOThumbnailGeneratorTest {
   }
 
   @Test
+<<<<<<< HEAD
   void testWriteJpeg() {
+=======
+  public final void testWriteJpeg() {
+>>>>>>> development-8.1.x
     log.info("writing a jpeg");
     InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/leonardo.jpg");
     assertNotNull(is);

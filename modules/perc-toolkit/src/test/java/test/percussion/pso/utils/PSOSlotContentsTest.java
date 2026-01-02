@@ -44,9 +44,13 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class PSOSlotContentsTest extends TestCase {
   private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
 
@@ -63,6 +67,7 @@ public class PSOSlotContentsTest extends TestCase {
   IPSTemplateSlot otherSlot;
   IPSAssemblyTemplate template;
 
+<<<<<<< HEAD
   /**
    * @param name
    */
@@ -85,6 +90,24 @@ public class PSOSlotContentsTest extends TestCase {
 
     final PSLocator parent = new PSLocator(1, 1);
 
+=======
+  /** @param name */
+  public PSOSlotContentsTest(String name) {
+    super(name);
+  }
+  /** @see junit.framework.TestCase#setUp() */
+  @Before
+  protected void setUp() throws Exception {
+    super.setUp();
+  }
+  /** Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}. */
+  @Test
+  public void testPSOSlotContents() {
+    PSOSlotContents contents = new PSOSlotContents();
+
+    final PSLocator parent = new PSLocator(1, 1);
+
+>>>>>>> development-8.1.x
     final IPSGuid slot1 = new PSLegacyGuid(1L);
     final IPSGuid slot2 = new PSLegacyGuid(2L);
 

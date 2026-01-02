@@ -25,7 +25,11 @@ import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSPurgableTempFile;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +41,10 @@ import org.apache.logging.log4j.Logger;
  * @version 1.0
  */
 public class PSOFileUploadValidation implements IPSFieldValidator {
+<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
   // Constants
   private final String CLASSNAME = getClass().getName();
   private static final Logger log = LogManager.getLogger(PSOFileUploadValidation.class);

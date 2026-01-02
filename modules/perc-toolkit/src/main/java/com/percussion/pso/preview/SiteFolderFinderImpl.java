@@ -31,7 +31,11 @@ import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +55,10 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
   private SiteLoader siteLoader = null;
 
   private boolean testCommunityVisibility = true;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Default constructor */
   public SiteFolderFinderImpl() {
     super();
@@ -67,9 +74,13 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
     }
   }
 
+<<<<<<< HEAD
   /**
    * @see SiteFolderFinder#findSiteFolderLocations(String, String, String)
    */
+=======
+  /** @see SiteFolderFinder#findSiteFolderLocations(String, String, String) */
+>>>>>>> development-8.1.x
   public List<SiteFolderLocation> findSiteFolderLocations(
       String contentid, String folderid, String siteid) throws Exception {
     initServices();
@@ -197,44 +208,68 @@ public class SiteFolderFinderImpl implements SiteFolderFinder {
     SiteFolderFinderImpl.cws = cws;
   }
 
+<<<<<<< HEAD
   /**
    * @param secws the secws to set
    */
+=======
+  /** @param secws the secws to set */
+>>>>>>> development-8.1.x
   public static void setSecws(IPSSecurityWs secws) {
     SiteFolderFinderImpl.secws = secws;
   }
 
+<<<<<<< HEAD
   /**
    * @return the testCommunityVisibility
    */
+=======
+  /** @return the testCommunityVisibility */
+>>>>>>> development-8.1.x
   public boolean isTestCommunityVisibility() {
     return testCommunityVisibility;
   }
 
+<<<<<<< HEAD
   /**
    * @param testCommunityVisibility the testCommunityVisibility to set
    */
+=======
+  /** @param testCommunityVisibility the testCommunityVisibility to set */
+>>>>>>> development-8.1.x
   public void setTestCommunityVisibility(boolean testCommunityVisibility) {
     this.testCommunityVisibility = testCommunityVisibility;
   }
 
+<<<<<<< HEAD
   /**
    * @return the siteLoader
    */
+=======
+  /** @return the siteLoader */
+>>>>>>> development-8.1.x
   public SiteLoader getSiteLoader() {
     return siteLoader;
   }
 
+<<<<<<< HEAD
   /**
    * @param siteLoader the siteLoader to set
    */
+=======
+  /** @param siteLoader the siteLoader to set */
+>>>>>>> development-8.1.x
   public void setSiteLoader(SiteLoader siteLoader) {
     this.siteLoader = siteLoader;
   }
 
+<<<<<<< HEAD
   /**
    * @param finder the finder to set
    */
+=======
+  /** @param finder the finder to set */
+>>>>>>> development-8.1.x
   public static void setFinder(PSOObjectFinder finder) {
     SiteFolderFinderImpl.finder = finder;
   }

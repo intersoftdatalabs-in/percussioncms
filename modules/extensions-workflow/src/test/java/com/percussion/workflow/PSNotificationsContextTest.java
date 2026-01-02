@@ -16,13 +16,19 @@
  */
 package com.percussion.workflow;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+import com.percussion.utils.testing.IntegrationTest;
+>>>>>>> development-8.1.x
 import java.sql.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /** PSNotificationsContextTest is a test class for the class PSNotificationsContext */
+<<<<<<< HEAD
 @Tag("IntegrationTest")
 public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
 
@@ -47,6 +53,32 @@ public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
     String subject = "";
     String body = "";
 
+=======
+@Category(IntegrationTest.class)
+public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
+
+  private static final Logger log = LogManager.getLogger(PSNotificationsContextTest.class);
+
+  /**
+   * Constructor specifying command line arguments
+   *
+   * @param args command line arguments - see {@link #HelpMessage} for options.
+   */
+  public PSNotificationsContextTest(String[] args) {
+    m_sArgs = args;
+  }
+
+  /* IMPLEMENTATION OF METHODS FROM CLASS PSAbstractWorkflowTest  */
+  public void ExecuteTest(Connection connection) throws PSWorkflowTestException {
+    log.info("\nExecuting test of PSNotificationsContext\n");
+    Exception except = null;
+    String exceptionMessage = "";
+    int workflowID = 1;
+    int notificationID = 1;
+    String subject = "";
+    String body = "";
+
+>>>>>>> development-8.1.x
     PSNotificationsContext context = null;
 
     try {

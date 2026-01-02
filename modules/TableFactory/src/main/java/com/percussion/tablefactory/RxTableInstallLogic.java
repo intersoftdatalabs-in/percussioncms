@@ -17,7 +17,11 @@
 
 package com.percussion.tablefactory;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -134,7 +138,10 @@ public class RxTableInstallLogic {
    * this to the list and performTransition may modify, if required.
    */
   public static final String ASSIGNMENT_TYPE_CURRENT_USER = "assignmenttypecurrentuser";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
    * 2 - Checked out by some body else
@@ -149,7 +156,10 @@ public class RxTableInstallLogic {
    * adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_STATUS_CURRENT_DOCUMENT = "checkoutstatuscurrentdocument";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * HTML Parameter name that stores the current document's checkout user name. authenticateUser
    * exit adds this to the list and performTransition may modify, if required.
@@ -158,6 +168,7 @@ public class RxTableInstallLogic {
 
   /** HTML Parameter name that stores the content status history id after writing the history. */
   public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
+<<<<<<< HEAD
 
   /*
   /**
@@ -218,6 +229,67 @@ public class RxTableInstallLogic {
     if (null != m_sLogFile) m_sLogFile = m_sLogFile.trim();
   }
 
+=======
+  /*
+  /**
+  * Ad-hoc options:
+  *  0 - No Ad-Hoc
+  *   1 - Ad-Hoc enabled
+  *   2 - Anonymous Ad-Hoc
+  *
+  */
+  public static final int ADHOC_DISABLED = 0;
+  public static final int ADHOC_ENABLED = 1;
+  public static final int ADHOC_ANONYMOUS = 2;
+
+  public static final String SNEWSTATEIDKEY = "sNewStateIDKey";
+
+  public static final String ACTION_TRIGGER_NAME = "ACTION_TRIGGER_NAME";
+  public static final String DEFAULT_ACTION_TRIGGER_NAME = "WFAction";
+
+  public static final String REQUEST_NAME = "REQUEST_NAME";
+  public static final String DEFAULT_REQUEST_NAME = "request";
+
+  public static final String ACTION_LIST_ELEMENT_NAME = "ACTION_LIST_ELEMENT_NAME";
+  public static final String DEFAULT_ACTION_LIST_ELEMENT_NAME = "ActionList";
+
+  public static final String ACTION_ELEMENT_NAME = "ACTION_ELEMENT_NAME";
+  public static final String DEFAULT_ACTION_ELEMENT_NAME = "Action";
+
+  public static final String CONTENT_HISTORY_REQUEST = "CONTENT_HISTORY_REQUEST";
+  public static final String HISTORY_ACTION_ELEMENT_NAME = "HistoryAction";
+  public static final String VIEW_ACTION_ELEMENT_NAME = "ViewAction";
+  public static final String EDIT_ACTION_ELEMENT_NAME = "EditAction";
+  public static final String CHECKINOUT_ACTION_ELEMENT_NAME = "CheckInOutAction";
+
+  public static final String TRIGGER_CHECK_IN = "TRIGGER_CHECK_IN";
+  public static final String DEFAULT_TRIGGER_CHECK_IN = "CheckIn";
+
+  public static final String TRIGGER_CHECK_OUT = "TRIGGER_CHECK_OUT";
+  public static final String DEFAULT_TRIGGER_CHECK_OUT = "CheckOut";
+
+  public static final String CHECKINOUT_CONDITION_IGNORE = "ignore";
+  public static final String CHECKINOUT_CONDITION_CHECKIN = "checkin";
+  public static final String CHECKINOUT_CONDITION_CHECKOUT = "checkout";
+
+  private static ResourceBundle m_ResourceBundle = null;
+
+  static {
+    try {
+      properties.load(new FileInputStream(FILE_PROPERTIES));
+    } catch (IOException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+
+    String temp = properties.getProperty("DEBUG", "false");
+    if (null != temp && temp.equalsIgnoreCase("true")) m_bDebug = true;
+
+    m_sLogFile = properties.getProperty("LOGFILE");
+    if (null != m_sLogFile) m_sLogFile = m_sLogFile.trim();
+  }
+
+>>>>>>> development-8.1.x
   /**
    * Helper function to compare two role lists
    *

@@ -17,19 +17,31 @@
 package com.percussion.pso.restservice.model;
 
 import java.util.List;
+<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+=======
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+>>>>>>> development-8.1.x
 
 /** */
 @XmlRootElement(name = "Child")
 public class Child {
   /** Field name. */
   private String name;
+<<<<<<< HEAD
 
   /** Field rows. */
   private List<ChildRow> rows;
 
+=======
+  /** Field rows. */
+  private List<ChildRow> rows;
+
+>>>>>>> development-8.1.x
   /**
    * Method setName.
    *
@@ -38,7 +50,10 @@ public class Child {
   public void setName(String name) {
     this.name = name;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getName.
    *
@@ -57,7 +72,10 @@ public class Child {
   public void setRows(List<ChildRow> rows) {
     this.rows = rows;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getRows.
    *

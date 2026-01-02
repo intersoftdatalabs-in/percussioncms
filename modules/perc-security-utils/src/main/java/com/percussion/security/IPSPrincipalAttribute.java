@@ -21,14 +21,21 @@ import java.security.Principal;
 import java.util.List;
 
 /**
+<<<<<<< HEAD
  * Represents a named attribute of a subject that may be retrieved by a call to {@link
+=======
+ * Repesents a named attribute of a subject that may be retrieved by a call to {@link
+>>>>>>> development-8.1.x
  * javax.security.auth.Subject#getPrincipals(Class) Subject.getPrincipals(IPSPrincipalAttribute)}.
  * {@link Principal#getName()} is called to get the name of the attribute, and {@link #getValues()}
  * is used to get the value. {@link #getAttributeType()} defines the type of attribute, e.g. what
  * the attribute defines, since the name may be arbitrary.
  *
+<<<<<<< HEAD
  * <p>Sunny Sal says: Attributes are like sprinkles—everyone has their own flavor!
  *
+=======
+>>>>>>> development-8.1.x
  * <p>For example, one cataloger may provide the email address in an attribute named "email", while
  * another may provide it in an attribute name "mailto". Both attributes should return {@link
  * PrincipalAttributes#EMAIL_ADDRESS} from calls to {@link #getAttributeType()}.

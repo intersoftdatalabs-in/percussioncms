@@ -18,11 +18,15 @@ package com.percussion.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+<<<<<<< HEAD
 import com.percussion.utils.jsr170.PSStringEncoder;
 import org.junit.jupiter.api.Test;
 
 public class PSStringEncoderTest {
   @Test
+=======
+public class PSStringEncoderTest extends TestCase {
+>>>>>>> development-8.1.x
   public void testEncode() throws Exception {
     String enc, dec;
 
@@ -33,7 +37,10 @@ public class PSStringEncoderTest {
     assertEquals("abc", dec);
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testEncode2() throws Exception {
     String enc, dec;
 
@@ -44,7 +51,10 @@ public class PSStringEncoderTest {
     assertEquals(dec, "a_b'c");
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testEncode3() throws Exception {
     String enc, dec;
 
@@ -55,7 +65,10 @@ public class PSStringEncoderTest {
     assertEquals(dec, "a b<>c");
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testEncode4() throws Exception {
     String enc, dec;
 
@@ -66,7 +79,10 @@ public class PSStringEncoderTest {
     assertEquals(dec, "a\tb\"c");
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testEmpty() throws Exception {
     String enc, dec;
 
@@ -77,7 +93,10 @@ public class PSStringEncoderTest {
     assertEquals("", dec);
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testDecode1() throws Exception {
     String dec;
 

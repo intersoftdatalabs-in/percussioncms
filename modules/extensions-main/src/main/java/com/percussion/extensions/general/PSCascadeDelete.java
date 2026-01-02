@@ -120,9 +120,13 @@ public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPre
    * or invalid.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     request.printTraceMessage("PSCascadeDelete#preProcessRequest()");
 

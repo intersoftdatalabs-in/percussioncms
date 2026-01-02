@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getCategoryStatesResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getCategoryStatesResult"})
 @XmlRootElement(name = "GetCategoryStatesResponse")
 public class GetCategoryStatesResponse {
 
-    @XmlElement(name = "GetCategoryStatesResult")
-    protected String getCategoryStatesResult;
+  @XmlElement(name = "GetCategoryStatesResult")
+  protected String getCategoryStatesResult;
 
-    /**
-     * Gets the value of the getCategoryStatesResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetCategoryStatesResult() {
-        return getCategoryStatesResult;
-    }
+  /**
+   * Gets the value of the getCategoryStatesResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetCategoryStatesResult() {
+    return getCategoryStatesResult;
+  }
 
-    /**
-     * Sets the value of the getCategoryStatesResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetCategoryStatesResult(String value) {
-        this.getCategoryStatesResult = value;
-    }
-
+  /**
+   * Sets the value of the getCategoryStatesResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetCategoryStatesResult(String value) {
+    this.getCategoryStatesResult = value;
+  }
 }

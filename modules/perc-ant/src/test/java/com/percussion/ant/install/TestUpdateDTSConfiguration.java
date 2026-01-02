@@ -17,8 +17,13 @@
 
 package com.percussion.ant.install;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+>>>>>>> development-8.1.x
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.utils.container.adapters.DtsConnectorConfigurationAdapterTest;
@@ -29,6 +34,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,11 +45,26 @@ import org.junit.jupiter.api.io.TempDir;
 public class TestUpdateDTSConfiguration {
 
   @TempDir public Path temporaryFolder;
+=======
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+/** * Test the ant task that creates the DTS properties */
+public class TestUpdateDTSConfiguration {
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
 
   private static String STAGING_PATH = "Staging/Deployment";
   private static String STAGING_PATH_WIN = "Staging\\Deployment";
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setup() {
     PSSecureXMLUtils.setupJAXPDefaults();
   }
@@ -58,7 +79,11 @@ public class TestUpdateDTSConfiguration {
 
   @Test
   public void testProperties() throws IOException {
+<<<<<<< HEAD
     Path root = temporaryFolder.toPath();
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcWinLax =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
@@ -158,7 +183,11 @@ public class TestUpdateDTSConfiguration {
   @Test
   public void testDTSUpgradeExistingCatalinaProps() throws IOException {
 
+<<<<<<< HEAD
     Path root = temporaryFolder.toPath().resolve("8to8upgrade");
+=======
+    Path root = temporaryFolder.getRoot().toPath().resolve("8to8upgrade");
+>>>>>>> development-8.1.x
     root.toFile().mkdirs();
 
     InputStream srcProdDTSXML =
@@ -268,7 +297,11 @@ public class TestUpdateDTSConfiguration {
   @Test
   public void testDTSUpgradeStagingExistingCatalinaProps() throws IOException {
 
+<<<<<<< HEAD
     Path root = temporaryFolder.toPath().resolve("53Stageto8upgrade");
+=======
+    Path root = temporaryFolder.getRoot().toPath().resolve("53Stageto8upgrade");
+>>>>>>> development-8.1.x
     root.toFile().mkdirs();
 
     InputStream srcProdDTSXML =

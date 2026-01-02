@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.pso.jexl;
@@ -61,8 +60,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * @throws IllegalArgumentException
    * @throws IOException
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an api specifically for
   // pulling remote content
+=======
+  // content
+>>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Returns a status code for a url",
       params = {
@@ -232,8 +235,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * @throws IllegalArgumentException
    * @throws IOException
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API method for
   // returning remote JSON content in a template.
+=======
+>>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Returns JSONObject based on a URL.",
       params = {
@@ -251,8 +257,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       int statusCode = client.executeMethod(get);
       if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
         log.warn(
+<<<<<<< HEAD
             "JEXL: getRemoteJSONContent request was not 200/304: URL: {} Status Code: {} Status"
                 + " Message: {}",
+=======
+            "JEXL: getRemoteJSONContent request was not 200/304: URL: {} Status Code: {} Status Message: {}",
+>>>>>>> development-8.1.x
             statusCode,
             get.getStatusLine(),
             urlString);
@@ -277,7 +287,10 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * @throws IllegalArgumentException
    * @throws IOException
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API
+=======
+>>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Returns JSONObject based on a URL.",
       params = {
@@ -307,8 +320,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       int statusCode = client.executeMethod(get);
       if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
         log.warn(
+<<<<<<< HEAD
             "JEXL: getRemoteJSONContent response was not 200/304. URL: {} Status Code: {} Status"
                 + " Message: {}",
+=======
+            "JEXL: getRemoteJSONContent response was not 200/304. URL: {} Status Code: {} Status Message: {}",
+>>>>>>> development-8.1.x
             urlString,
             statusCode,
             get.getStatusLine());
@@ -377,8 +394,11 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    * @throws IllegalArgumentException
    * @throws IOException
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting
   // remote data by url
+=======
+>>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Returns JSONObject based on a URL.",
       params = {
@@ -414,8 +434,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
       int statusCode = client.executeMethod(get);
       if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_MODIFIED) {
         log.warn(
+<<<<<<< HEAD
             "JEXL: getRemoteJSONContent was not 200/304. URL: {} Status Code:{}, Status Message:"
                 + " {}",
+=======
+            "JEXL: getRemoteJSONContent was not 200/304. URL: {} Status Code:{}, Status Message: {}",
+>>>>>>> development-8.1.x
             urlString,
             statusCode,
             get.getStatusLine());
@@ -552,8 +576,12 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
    */
   @IPSJexlMethod(
       description =
+<<<<<<< HEAD
           "Returns JSOUP document with xml content, returns a JSoup Document element. Alias for"
               + " getRemoteXMLContent",
+=======
+          "Returns JSOUP document with xml content, returns a JSoup Document element. Alias for getRemoteXMLContent",
+>>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(
             name = "urlString",

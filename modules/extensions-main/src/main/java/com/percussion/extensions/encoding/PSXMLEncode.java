@@ -28,9 +28,13 @@ import org.owasp.encoder.Encode;
 
 public class PSXMLEncode implements IPSFieldInputTransformer {
 
+<<<<<<< HEAD
   /***
    * Default public constructor.
    */
+=======
+  /** * Default public constructor. */
+>>>>>>> development-8.1.x
   public PSXMLEncode() {}
 
   @Override

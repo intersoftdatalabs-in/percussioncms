@@ -91,7 +91,10 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
     char mnemonic = (char) PSI18NTranslationKeyValues.getInstance().getMnemonic(lookup);
     return mnemonic;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Use the {@link PSI18NTranslationKeyValues} class to lookup a label string for the given lookup
    * string value. Returns <code>null</code> if no label is defined.

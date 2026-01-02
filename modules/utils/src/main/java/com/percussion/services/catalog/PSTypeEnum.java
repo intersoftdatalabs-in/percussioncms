@@ -16,7 +16,11 @@
  */
 package com.percussion.services.catalog;
 
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * This enum lists all types in the system that participate in cataloging. The ordinal value of
@@ -369,7 +373,11 @@ public enum PSTypeEnum {
    * @param clazz
    * @param displayName
    */
+<<<<<<< HEAD
   private PSTypeEnum(int ord, String displayName, Class<?> clazz) {
+=======
+  private PSTypeEnum(int ord, String displayName, Class clazz) {
+>>>>>>> development-8.1.x
     this(ord, clazz, displayName, null);
   }
 
@@ -424,10 +432,16 @@ public enum PSTypeEnum {
    *     table. If <code>null</code> or empty, the default guid manager key generation is used
    *     instead of the NEXTNUMBER table.
    */
+<<<<<<< HEAD
   private PSTypeEnum(int ord, Class<?> clazz, String displayName, String keyvalue) {
     this(ord, clazz.getSimpleName(), displayName, keyvalue);
   }
 
+=======
+  private PSTypeEnum(int ord, Class clazz, String displayName, String keyvalue) {
+    this(ord, clazz.getSimpleName(), displayName, keyvalue);
+  }
+>>>>>>> development-8.1.x
   /**
    * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the first
    * enum value with a matching ordinal is returned.
@@ -451,7 +465,11 @@ public enum PSTypeEnum {
    * @param clazz the class, never <code>null</code>
    * @return an enumerated value or <code>null</code> if the class isn't registered
    */
+<<<<<<< HEAD
   public static PSTypeEnum valueOf(Class<?> clazz) {
+=======
+  public static PSTypeEnum valueOf(Class clazz) {
+>>>>>>> development-8.1.x
     PSTypeEnum types[] = values();
     for (int i = 0; i < types.length; i++) {
       if (types[i].mi_className == clazz.getSimpleName()) return types[i];

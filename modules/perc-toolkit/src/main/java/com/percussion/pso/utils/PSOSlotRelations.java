@@ -192,7 +192,10 @@ public class PSOSlotRelations {
     }
     return relations;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Initialize static Java service pointers. */
   private static void initServices() {
     if (gmgr == null) {

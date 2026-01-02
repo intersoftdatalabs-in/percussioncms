@@ -24,8 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Properties;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+=======
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,12 +49,16 @@ public final class PSSecurityUtility {
   public static final String REQUIRE_CONTENT_SECURITY_POLICY_DEFAULT = "false";
   public static final String CONTENT_SECURITY_POLICY = "contentSecurityPolicy";
   public static final String CONTENT_SECURITY_POLICY_DEFAULT =
+<<<<<<< HEAD
       "default-src * data: https: *.percussion.com *.percussion.marketing *.percussion.services ;"
           + " img-src * 'self' data: https: 'unsafe-inline' 'unsafe-eval'; font-src *"
           + " 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'"
           + " *.siteimprove.net ; style-src * 'unsafe-inline' 'unsafe-eval'; frame-src * 'self'"
           + " data: https: http: *.percussion.com *.percussion.marketing *.percussion.services"
           + " 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self' ;";
+=======
+      "default-src * data: https: *.percussion.com *.percussion.marketing *.percussion.services ; img-src * 'self' data: https: 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval' *.siteimprove.net ; style-src * 'unsafe-inline' 'unsafe-eval'; frame-src * 'self' data: https: http: *.percussion.com *.percussion.marketing *.percussion.services 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self' ;";
+>>>>>>> development-8.1.x
   public static final String REQUIRE_XFRAME_OPTIONS = "requireXFrameOptions";
   public static final String REQUIRE_XFRAME_OPTIONS_DEFAULT = "true";
   public static final String XFRAME_OPTIONS = "xFrameOptions";

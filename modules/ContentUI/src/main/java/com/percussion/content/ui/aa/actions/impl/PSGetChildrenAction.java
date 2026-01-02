@@ -20,7 +20,11 @@ package com.percussion.content.ui.aa.actions.impl;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.util.Map;
 
 /** Implementation of the get folder children action. */

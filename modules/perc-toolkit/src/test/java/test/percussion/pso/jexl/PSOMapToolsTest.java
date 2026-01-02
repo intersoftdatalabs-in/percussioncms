@@ -28,8 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Before;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class PSOMapToolsTest {
 
@@ -39,7 +44,11 @@ public class PSOMapToolsTest {
   Map<String, Object> actual;
   Map<String, Object> expected;
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() {
     mapTools = new PSOMapTools();
     expected = new HashMap<String, Object>();

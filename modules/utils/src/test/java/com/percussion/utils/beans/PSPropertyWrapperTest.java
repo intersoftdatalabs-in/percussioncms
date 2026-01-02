@@ -27,22 +27,48 @@ import org.junit.jupiter.api.Test;
  *
  * @author dougrand
  */
+<<<<<<< HEAD
 public class PSPropertyWrapperTest {
+=======
+public class PSPropertyWrapperTest extends TestCase {
+>>>>>>> development-8.1.x
   static final int COUNT = 50000;
 
   PSPropertyWrapper testWrapper = null;
 
   TestPropClass testObj = null;
 
+<<<<<<< HEAD
   @BeforeEach
   protected void setUp() throws Exception {
+=======
+  /*
+   * (non-Javadoc)
+   *
+   * @see junit.framework.TestCase#setUp()
+   */
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+>>>>>>> development-8.1.x
 
     // Create instance and wrapper
     testObj = new TestPropClass("otter", 123, 3.14159);
     testWrapper = new PSPropertyWrapper(testObj);
   }
 
+<<<<<<< HEAD
   public PSPropertyWrapperTest() {}
+=======
+  /**
+   * Required ctor for JUnit
+   *
+   * @param arg0 name argument
+   */
+  public PSPropertyWrapperTest(String arg0) {
+    super(arg0);
+  }
+>>>>>>> development-8.1.x
 
   /**
    * Test class provides a number of data members to access for the tests. The three data members
@@ -68,44 +94,68 @@ public class PSPropertyWrapperTest {
       mi_ccc = c;
     }
 
+<<<<<<< HEAD
     /**
      * @return Returns the aaa.
      */
+=======
+    /** @return Returns the aaa. */
+>>>>>>> development-8.1.x
     public String getAaa() {
       return mi_aaa;
     }
 
+<<<<<<< HEAD
     /**
      * @return Returns the bbb.
      */
+=======
+    /** @return Returns the bbb. */
+>>>>>>> development-8.1.x
     public long getBbb() {
       return mi_bbb;
     }
 
+<<<<<<< HEAD
     /**
      * @return Returns the ccc.
      */
+=======
+    /** @return Returns the ccc. */
+>>>>>>> development-8.1.x
     public double getCcc() {
       return mi_ccc;
     }
 
+<<<<<<< HEAD
     /**
      * @param aaa The aaa to set.
      */
+=======
+    /** @param aaa The aaa to set. */
+>>>>>>> development-8.1.x
     public void setAaa(String aaa) {
       mi_aaa = aaa;
     }
 
+<<<<<<< HEAD
     /**
      * @param bbb The bbb to set.
      */
+=======
+    /** @param bbb The bbb to set. */
+>>>>>>> development-8.1.x
     public void setBbb(long bbb) {
       mi_bbb = bbb;
     }
 
+<<<<<<< HEAD
     /**
      * @param ccc The ccc to set.
      */
+=======
+    /** @param ccc The ccc to set. */
+>>>>>>> development-8.1.x
     public void setCcc(double ccc) {
       mi_ccc = ccc;
     }
@@ -139,7 +189,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testStringAccess() throws Exception {
     Object rval = testWrapper.getPropertyValue("aaa");
     assertEquals(rval.getClass(), String.class);
@@ -152,7 +205,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testLongAccess() throws Exception {
     Object rval = testWrapper.getPropertyValue("bbb");
     assertEquals(rval.getClass(), Long.class);
@@ -165,7 +221,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testDoubleAccess() throws Exception {
     Object rval = testWrapper.getPropertyValue("ccc");
     assertEquals(rval.getClass(), Double.class);
@@ -178,7 +237,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testAccessTime() throws Exception {
     testWrapper.getPropertyValue("aaa");
     testWrapper.getPropertyValue("bbb");
@@ -202,7 +264,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConsOverheadTime() throws Exception {
     long start = System.nanoTime();
     for (int i = 0; i < COUNT; i++) {
@@ -219,7 +284,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testPropTime() throws Exception {
     long start = System.nanoTime();
     for (int i = 0; i < COUNT; i++) {
@@ -238,7 +306,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testStringSetter() throws Exception {
     testWrapper.setProperty("aaa", "newvalue");
     assertEquals("newvalue", testObj.getAaa());
@@ -250,7 +321,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testLongSetter() throws Exception {
     testWrapper.setProperty("bbb", 159);
     assertEquals(159, testObj.getBbb());
@@ -262,7 +336,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testDoubleSetter() throws Exception {
     testWrapper.setProperty("ccc", 2.71828);
     assertEquals(2.71828, testObj.getCcc());
@@ -273,7 +350,10 @@ public class PSPropertyWrapperTest {
    *
    * @throws Exception
    */
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testLazyLoad() throws Exception {
     IPSPropertyLoader loader =
         new IPSPropertyLoader() {

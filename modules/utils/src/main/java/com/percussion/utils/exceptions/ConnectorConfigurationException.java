@@ -39,10 +39,15 @@ public class ConnectorConfigurationException extends Exception {
   public static class Errors {
     public static int DUPLICATE_PORT = 1;
   }
+<<<<<<< HEAD
 
   /** Eclipse was complaining */
   private static final long serialVersionUID = 4192931463127484706L;
 
+=======
+  /** Eclipse was complaining */
+  private static final long serialVersionUID = 4192931463127484706L;
+>>>>>>> development-8.1.x
   /**
    * Construct an exception for messages taking only a single argument.
    *
@@ -69,7 +74,10 @@ public class ConnectorConfigurationException extends Exception {
     fillInStackTrace();
     initCause(cause);
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Construct an exception for messages taking an array of arguments. Be sure to store the
    * arguments in the correct order in the array, where {0} in the string is array element 0, etc.

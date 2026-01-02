@@ -17,7 +17,11 @@
 
 package com.percussion.thumbnail;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.util.PSProperties;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.tools.IPSUtilsConstants;
@@ -26,7 +30,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

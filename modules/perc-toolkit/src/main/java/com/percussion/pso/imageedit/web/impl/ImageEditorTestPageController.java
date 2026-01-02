@@ -21,19 +21,30 @@ import com.percussion.pso.imageedit.data.OpenImageResult;
 import com.percussion.pso.imageedit.web.ImagePersistenceManager;
 import com.percussion.pso.imageedit.web.ImageUrlBuilder;
 import com.percussion.pso.utils.RxRequestUtils;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+=======
+import com.percussion.util.IPSHtmlParameters;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class ImageEditorTestPageController extends ParameterizableViewController
     implements Controller {
   private static final Logger log = LogManager.getLogger(ImageEditorTestPageController.class);
@@ -41,7 +52,10 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   private ImagePersistenceManager imagePersistenceManager;
 
   private ImageUrlBuilder urlBuilder;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Default constructor */
   public ImageEditorTestPageController() {}
 
@@ -72,6 +86,7 @@ public class ImageEditorTestPageController extends ParameterizableViewController
 
     return mav;
   }
+<<<<<<< HEAD
 
   /**
    * @return the imagePersistenceManager
@@ -97,6 +112,21 @@ public class ImageEditorTestPageController extends ParameterizableViewController
   /**
    * @param urlBuilder the urlBuilder to set
    */
+=======
+  /** @return the imagePersistenceManager */
+  public ImagePersistenceManager getImagePersistenceManager() {
+    return imagePersistenceManager;
+  }
+  /** @param imagePersistenceManager the imagePersistenceManager to set */
+  public void setImagePersistenceManager(ImagePersistenceManager imagePersistenceManager) {
+    this.imagePersistenceManager = imagePersistenceManager;
+  }
+  /** @return the urlBuilder */
+  public ImageUrlBuilder getUrlBuilder() {
+    return urlBuilder;
+  }
+  /** @param urlBuilder the urlBuilder to set */
+>>>>>>> development-8.1.x
   public void setUrlBuilder(ImageUrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
   }

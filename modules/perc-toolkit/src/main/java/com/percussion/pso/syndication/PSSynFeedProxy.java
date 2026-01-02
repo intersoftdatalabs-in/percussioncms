@@ -35,12 +35,16 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /***
  * Serves as a Velocity friendly proxy class for the underlying syndication
  * libraries.
  *
  *
  */
+=======
+/** * Serves as a Velocity friendly proxy class for the underlying syndication libraries. */
+>>>>>>> development-8.1.x
 public class PSSynFeedProxy {
 
   private static final Logger log = LogManager.getLogger(PSSynFeedProxy.class);
@@ -49,8 +53,13 @@ public class PSSynFeedProxy {
 
   private SyndFeed feed;
 
+<<<<<<< HEAD
   /***
    * Returns the name of the first feed author in the collection of authors.
+=======
+  /**
+   * * Returns the name of the first feed author in the collection of authors.
+>>>>>>> development-8.1.x
    *
    * @return
    */
@@ -58,16 +67,28 @@ public class PSSynFeedProxy {
     return feed.getAuthor();
   }
 
+<<<<<<< HEAD
   /***
    *  Returns the feed authors.
+=======
+  /**
+   * * Returns the feed authors.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public List<SyndPerson> getAuthorList() {
     return feed.getAuthors();
   }
 
+<<<<<<< HEAD
   /***
    * Convenience method that returns the list of Authors as a comma separated string.
+=======
+  /**
+   * * Convenience method that returns the list of Authors as a comma separated string.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getAuthors() {
@@ -85,16 +106,28 @@ public class PSSynFeedProxy {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed categories.
+=======
+  /**
+   * * Returns the feed categories.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public List getCategoriesList() {
     return feed.getCategories();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed categories as a comma separated string.
+=======
+  /**
+   * * Returns the feed categories as a comma separated string.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getCategories() {
@@ -110,8 +143,14 @@ public class PSSynFeedProxy {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * the feed author.
+=======
+  /**
+   * * the feed author.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getContributors() {
@@ -133,16 +172,28 @@ public class PSSynFeedProxy {
     return feed.getContributors();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed copyright.
+=======
+  /**
+   * * Returns the feed copyright.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getCopyright() {
     return feed.getCopyright();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed description.
+=======
+  /**
+   * * Returns the feed description.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getDescription() {
@@ -150,16 +201,28 @@ public class PSSynFeedProxy {
     return feed.getDescription();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the charset encoding of a the feed.
+=======
+  /**
+   * * Returns the charset encoding of a the feed.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getEncoding() {
     return feed.getEncoding();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed entries.
+=======
+  /**
+   * * Returns the feed entries.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public List<PSSynFeedEntry> getEntries() {
@@ -172,40 +235,68 @@ public class PSSynFeedProxy {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * Returns the wire feed type the feed had/will-have when coverted from/to a WireFeed.
+=======
+  /**
+   * * Returns the wire feed type the feed had/will-have when coverted from/to a WireFeed.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getFeedType() {
     return feed.getFeedType();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed image.
+=======
+  /**
+   * * Returns the feed image.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public PSSynFeedImage getImage() {
     return new PSSynFeedImage(feed.getImage());
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed language.
    * w   * @return
    */
+=======
+  /** * Returns the feed language. w * @return */
+>>>>>>> development-8.1.x
   public String getLanguage() {
     return feed.getLanguage();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed link.
+=======
+  /**
+   * * Returns the feed link.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getLink() {
     return feed.getLink();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the entry links
+=======
+  /**
+   * * Returns the entry links
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public List<String> getLinks() {
@@ -217,16 +308,28 @@ public class PSSynFeedProxy {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed published date.
+=======
+  /**
+   * * Returns the feed published date.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public Date getPublishedDate() {
     return feed.getPublishedDate();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed title.
+=======
+  /**
+   * * Returns the feed title.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getTitle() {
@@ -234,16 +337,27 @@ public class PSSynFeedProxy {
     return feed.getTitle();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the feed URI.
+=======
+  /**
+   * * Returns the feed URI.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getUri() {
     return feed.getUri();
   }
 
+<<<<<<< HEAD
   /***
    * Initializes this instances of the proxy with the specified feed url.
+=======
+  /**
+   * * Initializes this instances of the proxy with the specified feed url.
+>>>>>>> development-8.1.x
    *
    * @param urlString
    * @throws HttpException

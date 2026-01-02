@@ -17,7 +17,11 @@
 
 package com.percussion.util;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -253,10 +257,16 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   }
 
   private static Object makeTempLock = new Object();
+<<<<<<< HEAD
 
   /** The id used for serialization. */
   private static final long serialVersionUID = 5509791791093541540L;
 
+=======
+  /** The id used for serialization. */
+  private static final long serialVersionUID = 5509791791093541540L;
+
+>>>>>>> development-8.1.x
   /**
    * Closes this resource, relinquishing any underlying resources. This method is invoked
    * automatically on objects managed by the {@code try}-with-resources statement.

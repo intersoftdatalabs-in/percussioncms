@@ -41,7 +41,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+<<<<<<< HEAD
 import org.apache.commons.lang3.exception.ExceptionUtils;
+=======
+import org.apache.commons.lang.exception.ExceptionUtils;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -89,6 +93,7 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
     }
     // end of static block
   }
+<<<<<<< HEAD
 
   /*
    * Implementation of the method defined in the interface.
@@ -103,6 +108,21 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
     String rxroot =
         cfgData.getOwnerDocument().getDocumentElement().getAttribute(PSRxltConfigUtils.ATTR_RXROOT);
 
+=======
+  /*
+   * Implementation of the method defined in the interface.
+   * See {@link IPSSectionHandler#process(Element)} for
+   * details about this method.
+   */
+  public IPSTmxDocument process(Element cfgData) throws PSActionProcessingException {
+
+    if (cfgData == null) {
+      throw new IllegalArgumentException("cfgdata must not be null");
+    }
+    String rxroot =
+        cfgData.getOwnerDocument().getDocumentElement().getAttribute(PSRxltConfigUtils.ATTR_RXROOT);
+
+>>>>>>> development-8.1.x
     // override the default section name with that defined in the config document.
     ms_SectionName = cfgData.getAttribute(PSRxltConfigUtils.ATTR_NAME);
 
@@ -155,8 +175,12 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
     } catch (Exception e) // catch any exception
     {
       PSCommandLineProcessor.logMessage(
+<<<<<<< HEAD
           "processFailedError",
           e.getMessage() + " Stack: " + ExceptionUtils.getStackTrace(e).toString());
+=======
+          "processFailedError", e.getMessage() + " Stack: " + ExceptionUtils.getFullStackTrace(e));
+>>>>>>> development-8.1.x
       throw new PSSectionProcessingException(e.getMessage(), e);
     } finally {
       endDotSession();
@@ -320,7 +344,10 @@ public class PSCmsTablesSectionHandler extends PSIdleDotter implements IPSSectio
    * produced by table factory. Never <code>null</code> after this class object is initialized.
    */
   private static Document ms_XslDoc = null;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * List of table to be process for key generation. Never <code>null</code>, initially <code>empty
    * </code>, filled during construction of this class object.

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -51,251 +49,194 @@ import jakarta.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "a0",
-    "a1",
-    "a2",
-    "a3",
-    "a4",
-    "a5",
-    "a6",
-    "a7",
-    "a8"
-})
+@XmlType(
+    name = "",
+    propOrder = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"})
 @XmlRootElement(name = "GetBookingHistory")
 public class GetBookingHistory {
 
-    @XmlElement(name = "A_0")
-    protected String a0;
-    @XmlElement(name = "A_1")
-    protected String a1;
-    @XmlElement(name = "A_2", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar a2;
-    @XmlElement(name = "A_3", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar a3;
-    @XmlElement(name = "A_4")
-    protected ArrayOfInt a4;
-    @XmlElement(name = "A_5")
-    protected ArrayOfInt a5;
-    @XmlElement(name = "A_6")
-    protected ArrayOfInt a6;
-    @XmlElement(name = "A_7")
-    protected ArrayOfInt a7;
-    @XmlElement(name = "A_8")
-    protected boolean a8;
+  @XmlElement(name = "A_0")
+  protected String a0;
 
-    /**
-     * Gets the value of the a0 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getA0() {
-        return a0;
-    }
+  @XmlElement(name = "A_1")
+  protected String a1;
 
-    /**
-     * Sets the value of the a0 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setA0(String value) {
-        this.a0 = value;
-    }
+  @XmlElement(name = "A_2", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar a2;
 
-    /**
-     * Gets the value of the a1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getA1() {
-        return a1;
-    }
+  @XmlElement(name = "A_3", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar a3;
 
-    /**
-     * Sets the value of the a1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setA1(String value) {
-        this.a1 = value;
-    }
+  @XmlElement(name = "A_4")
+  protected ArrayOfInt a4;
 
-    /**
-     * Gets the value of the a2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getA2() {
-        return a2;
-    }
+  @XmlElement(name = "A_5")
+  protected ArrayOfInt a5;
 
-    /**
-     * Sets the value of the a2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setA2(XMLGregorianCalendar value) {
-        this.a2 = value;
-    }
+  @XmlElement(name = "A_6")
+  protected ArrayOfInt a6;
 
-    /**
-     * Gets the value of the a3 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getA3() {
-        return a3;
-    }
+  @XmlElement(name = "A_7")
+  protected ArrayOfInt a7;
 
-    /**
-     * Sets the value of the a3 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setA3(XMLGregorianCalendar value) {
-        this.a3 = value;
-    }
+  @XmlElement(name = "A_8")
+  protected boolean a8;
 
-    /**
-     * Gets the value of the a4 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getA4() {
-        return a4;
-    }
+  /**
+   * Gets the value of the a0 property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getA0() {
+    return a0;
+  }
 
-    /**
-     * Sets the value of the a4 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setA4(ArrayOfInt value) {
-        this.a4 = value;
-    }
+  /**
+   * Sets the value of the a0 property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setA0(String value) {
+    this.a0 = value;
+  }
 
-    /**
-     * Gets the value of the a5 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getA5() {
-        return a5;
-    }
+  /**
+   * Gets the value of the a1 property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getA1() {
+    return a1;
+  }
 
-    /**
-     * Sets the value of the a5 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setA5(ArrayOfInt value) {
-        this.a5 = value;
-    }
+  /**
+   * Sets the value of the a1 property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setA1(String value) {
+    this.a1 = value;
+  }
 
-    /**
-     * Gets the value of the a6 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getA6() {
-        return a6;
-    }
+  /**
+   * Gets the value of the a2 property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getA2() {
+    return a2;
+  }
 
-    /**
-     * Sets the value of the a6 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setA6(ArrayOfInt value) {
-        this.a6 = value;
-    }
+  /**
+   * Sets the value of the a2 property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setA2(XMLGregorianCalendar value) {
+    this.a2 = value;
+  }
 
-    /**
-     * Gets the value of the a7 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getA7() {
-        return a7;
-    }
+  /**
+   * Gets the value of the a3 property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getA3() {
+    return a3;
+  }
 
-    /**
-     * Sets the value of the a7 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setA7(ArrayOfInt value) {
-        this.a7 = value;
-    }
+  /**
+   * Sets the value of the a3 property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setA3(XMLGregorianCalendar value) {
+    this.a3 = value;
+  }
 
-    /**
-     * Gets the value of the a8 property.
-     * 
-     */
-    public boolean isA8() {
-        return a8;
-    }
+  /**
+   * Gets the value of the a4 property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getA4() {
+    return a4;
+  }
 
-    /**
-     * Sets the value of the a8 property.
-     * 
-     */
-    public void setA8(boolean value) {
-        this.a8 = value;
-    }
+  /**
+   * Sets the value of the a4 property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setA4(ArrayOfInt value) {
+    this.a4 = value;
+  }
 
+  /**
+   * Gets the value of the a5 property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getA5() {
+    return a5;
+  }
+
+  /**
+   * Sets the value of the a5 property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setA5(ArrayOfInt value) {
+    this.a5 = value;
+  }
+
+  /**
+   * Gets the value of the a6 property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getA6() {
+    return a6;
+  }
+
+  /**
+   * Sets the value of the a6 property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setA6(ArrayOfInt value) {
+    this.a6 = value;
+  }
+
+  /**
+   * Gets the value of the a7 property.
+   *
+   * @return possible object is {@link ArrayOfInt }
+   */
+  public ArrayOfInt getA7() {
+    return a7;
+  }
+
+  /**
+   * Sets the value of the a7 property.
+   *
+   * @param value allowed object is {@link ArrayOfInt }
+   */
+  public void setA7(ArrayOfInt value) {
+    this.a7 = value;
+  }
+
+  /** Gets the value of the a8 property. */
+  public boolean isA8() {
+    return a8;
+  }
+
+  /** Sets the value of the a8 property. */
+  public void setA8(boolean value) {
+    this.a8 = value;
+  }
 }

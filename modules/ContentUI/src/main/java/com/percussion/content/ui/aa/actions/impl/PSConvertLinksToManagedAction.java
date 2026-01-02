@@ -84,7 +84,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -136,8 +140,12 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
     } catch (RuntimeException e) {
       // don't want to stop server startup over this, just log
       ms_log.warn(
+<<<<<<< HEAD
           "Error occurred trying to register to watch auto-managed-link properties file. Automatic"
               + " reload disabled.",
+=======
+          "Error occurred trying to register to watch auto-managed-link properties file. Automatic reload disabled.",
+>>>>>>> development-8.1.x
           e);
     }
   }
@@ -660,11 +668,16 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
       String communityId,
       StringBuilder folderPathBuf,
       PSRequest req)
+<<<<<<< HEAD
       throws PSUnknownContentTypeException,
           PSErrorException,
           PSErrorResultsException,
           MalformedURLException,
           PSException {
+=======
+      throws PSUnknownContentTypeException, PSErrorException, PSErrorResultsException,
+          MalformedURLException, PSException {
+>>>>>>> development-8.1.x
     if (isRelative(linkHref)) {
       assert (itemFolderPath != null);
 
@@ -1214,8 +1227,12 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
           if (info == null) {
             type = LinkType.Unsupported;
             message =
+<<<<<<< HEAD
                 "Site and page relative links are not supported in a page that is in an unmanaged"
                     + " site.";
+=======
+                "Site and page relative links are not supported in a page that is in an unmanaged site.";
+>>>>>>> development-8.1.x
           } else type = LinkType.ManagedExternalLink;
         }
       }

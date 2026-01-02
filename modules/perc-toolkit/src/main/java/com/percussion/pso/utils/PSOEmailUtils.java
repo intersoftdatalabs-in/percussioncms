@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.pso.utils;
@@ -39,9 +38,15 @@ public class PSOEmailUtils {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOEmailUtils.class);
 
+<<<<<<< HEAD
   /***
    * Takes a comma seperated list of email addresses and returns a list of
    * Address instances.
+=======
+  /**
+   * * Takes a comma seperated list of email addresses and returns a list of Address instances.
+   *
+>>>>>>> development-8.1.x
    * @param list
    * @return
    * @throws AddressException
@@ -64,9 +69,15 @@ public class PSOEmailUtils {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * Sends an email using the specified parameters and the SMTP configuration
    * defined in the system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
+=======
+  /**
+   * * Sends an email using the specified parameters and the SMTP configuration defined in the
+   * system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
+>>>>>>> development-8.1.x
    *
    * @param from_line
    * @param to_line
@@ -75,7 +86,10 @@ public class PSOEmailUtils {
    * @param subject
    * @param body
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+=======
+>>>>>>> development-8.1.x
   public static void sendEmail(
       String from_line,
       String to_line,
