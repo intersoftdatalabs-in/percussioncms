@@ -5,6 +5,7 @@ This document provides a detailed mapping of PR references that need to be corre
 ## PRs That Need to be REMOVED or Marked as ROLLED BACK
 
 ### PR #405 - MyFaces Update (ROLLED BACK)
+
 - **Original claim:** "Bump myfaces.version from 1.1.8 to 3.0.3"
 - **Actual status:** ROLLED BACK
 - **Current deployed version:** 2.3.11
@@ -12,6 +13,7 @@ This document provides a detailed mapping of PR references that need to be corre
 - **Action:** Either remove this PR reference or add "ROLLED BACK" notation
 
 ### PR #412 - Shindig Update (ROLLED BACK)
+
 - **Original claim:** "Bump shindig.version from 1.1-BETA5-incubating to 3.0.0-beta4"
 - **Actual status:** ROLLED BACK
 - **Current deployed version:** 1.1-BETA5-incubating (unchanged)
@@ -21,6 +23,7 @@ This document provides a detailed mapping of PR references that need to be corre
 ## PRs That Need Version CORRECTIONS
 
 ### PR #283 - PDFBox Update (VERSION INCORRECT)
+
 - **Original claim:** "Bump pdfbox.version to 3.0.6"
 - **Actual deployed version:** 2.0.30
 - **Correct description:** "Bump pdfbox.version from 2.0.24 to 2.0.30"
@@ -28,6 +31,7 @@ This document provides a detailed mapping of PR references that need to be corre
 - **Action:** Update the version number in the PR description from "3.0.6" to "2.0.30"
 
 ### PR #63 - OWASP CSRF Guard (VERSION INCORRECT)
+
 - **Original claim:** "Update to 4.5.0-jakarta"
 - **Actual deployed version:** 4.5.0 (non-jakarta variant)
 - **Correct description:** "Update owasp.csrfguard.version to 4.5.0"
@@ -35,12 +39,14 @@ This document provides a detailed mapping of PR references that need to be corre
 - **Action:** Remove "-jakarta" suffix from version in PR description
 
 ### PR #103 - Jackson Update (NEEDS MORE PRECISION)
+
 - **Original claim:** "Update to 2.20"
 - **Actual deployed version:** 2.20.1
 - **Correct description:** "Update jackson.version to 2.20.1"
 - **Action:** Update version to be more specific: "2.20.1" instead of "2.20"
 
 ### PR #474 vs PR #511 - ICU4J (CONFLICTING INFORMATION)
+
 - **PR #474 claim:** "Update to 78.1"
 - **PR #511 claim:** "Bump com.ibm.icu:icu4j from 74.2 to 77.1"
 - **Actual deployed version:** 77.1
@@ -52,6 +58,7 @@ This document provides a detailed mapping of PR references that need to be corre
 These PRs are accurately reflected in the current release notes:
 
 ### Already Correctly Noted as Reverted:
+
 - **PR #416** - commons-digester revert ✓
 - **PR #303** - spotless-maven-plugin revert ✓
 - **PR #132** - cxf.version revert ✓
@@ -59,6 +66,7 @@ These PRs are accurately reflected in the current release notes:
 - **PR #499** - javax.jcr revert ✓
 
 ### Correctly Noted Updates:
+
 - **jetty.version:** 9.4.58.v20250814 ✓
 - **rome.version:** 2.1.0 ✓
 - **fop.version:** 2.11 ✓
@@ -91,3 +99,4 @@ were rolled back because they require Java 11 or higher. This release maintains 
 compatibility with JDK 1.8.0 while providing the latest security updates and bug fixes 
 available for Java 8-compatible versions of our dependencies.
 ```
+
