@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.7-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-system-cactus-tests</artifactId>
@@ -309,7 +309,7 @@
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-deployer</artifactId>
-            <version>8.1.7-SNAPSHOT</version>
+            <version>8.2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
