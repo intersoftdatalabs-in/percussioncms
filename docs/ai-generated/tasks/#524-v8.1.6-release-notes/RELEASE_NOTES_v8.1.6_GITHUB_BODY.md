@@ -1,9 +1,11 @@
 # PercussionCMS v8.1.6 Release Notes
 
 ## Overview
+
 This release provides security updates and bug fixes for PercussionCMS while maintaining compatibility with Java 8 (JDK 1.8.0).
 
 ## Important Note
+
 Several dependency updates were rolled back to maintain Java 8 compatibility. The versions listed below reflect what is actually deployed in this release.
 
 ## Dependency Updates
