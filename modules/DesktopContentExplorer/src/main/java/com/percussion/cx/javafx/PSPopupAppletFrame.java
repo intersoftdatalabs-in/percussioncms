@@ -26,6 +26,7 @@ import com.percussion.cx.PSContentExplorerUtils;
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
+<<<<<<< HEAD
 import javafx.application.Platform;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -33,166 +34,163 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+=======
+>>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
+import javafx.application.Platform;
+import javafx.scene.web.WebView;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import org.apache.log4j.Logger;
 
+<<<<<<< HEAD
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow
 {
    static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
+=======
+public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
+  static Logger log = Logger.getLogger(PSPopupAppletFrame.class);
+>>>>>>> development-8.1.x
 
-   PSContentExplorerAppletStub stub = new PSContentExplorerAppletStub();
+  PSContentExplorerAppletStub stub = new PSContentExplorerAppletStub();
 
-   private boolean windowLoaded;
+  private boolean windowLoaded;
 
-   private String view = null;
+  private String view = null;
 
-   public PSPopupAppletFrame()
-   {
-      super();
+  public PSPopupAppletFrame() {
+    super();
 
-      setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-      addWindowListener(new WindowAdapter()
-      {
-         @Override
-         public void windowClosing(WindowEvent e)
-         {
+    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+    addWindowListener(
+        new WindowAdapter() {
+          @Override
+          public void windowClosing(WindowEvent e) {
             setVisible(false);
-            if (PSPopupAppletFrame.this.applet != null)
-            {
-               PSPopupAppletFrame.this.applet.stop();
-               PSPopupAppletFrame.this.applet.destroy();
+            if (PSPopupAppletFrame.this.applet != null) {
+              PSPopupAppletFrame.this.applet.stop();
+              PSPopupAppletFrame.this.applet.destroy();
 
-               PSWindowManager.getInstance().close(PSPopupAppletFrame.this.target);
+              PSWindowManager.getInstance().close(PSPopupAppletFrame.this.target);
             }
-         }
-      });
+          }
+        });
+  }
 
-   }
+  private static String getView(String mi_actionurl) {
+    String view;
+    if (mi_actionurl.contains("/Rhythmyx/sys_cxDependencyTree/dependencytree.html")) view = "DT";
+    else if (mi_actionurl.contains("/sys_cxItemAssembly/itemassembly.html")) view = "IA";
+    else return null;
+    return view;
+  }
 
-   private static String getView(String mi_actionurl)
-   {
-      String view;
-      if (mi_actionurl.contains("/Rhythmyx/sys_cxDependencyTree/dependencytree.html"))
-         view = "DT";
-      else if (mi_actionurl.contains("/sys_cxItemAssembly/itemassembly.html"))
-         view = "IA";
-      else
-         return null;
-      return view;
-   }
+  @Override
+  public boolean validateOpen(
+      String mi_actionurl,
+      String mi_target,
+      String mi_style,
+      PSSelection selection,
+      PSMenuAction actiom) {
+    return getView(mi_actionurl) != null;
+  }
 
-   @Override
-   public boolean validateOpen(String mi_actionurl, String mi_target, String mi_style, PSSelection selection,
-         PSMenuAction actiom)
-   {
-      return getView(mi_actionurl) != null;
-   }
+  @Override
+  public JFrame instanceOpen() {
 
-   @Override
-   public JFrame instanceOpen()
-   {
+    this.view = getView(this.mi_actionurl);
 
-      this.view = getView(this.mi_actionurl);
-      
-      if (this.applet != null)
-      {
-   
-         this.applet.stop();
-         this.applet.destroy();
-         this.remove(this.applet);
-      }
-      
-      this.applet = new PSContentExplorerApplet(true);
-                  
-      Platform.runLater(() -> {
-         this.webView = new WebView();
-         this.engine = this.webView.getEngine();
-         this.engine.loadContent("<html></html>");
-         setJavaBridge();
-      });
-      
+    if (this.applet != null) {
 
-      SwingUtilities.invokeLater(() -> {
+      this.applet.stop();
+      this.applet.destroy();
+      this.remove(this.applet);
+    }
 
-         Map<String, String> params = buildSessionParameterMapForInnerApplet();
+    this.applet = new PSContentExplorerApplet(true);
 
-         setTitle(params.get(PSContentExplorerConstants.POPUP_TITLE));
+    Platform.runLater(
+        () -> {
+          this.webView = new WebView();
+          this.engine = this.webView.getEngine();
+          this.engine.loadContent("<html></html>");
+          setJavaBridge();
+        });
 
-         this.stub = new PSContentExplorerAppletStub();
-         this.stub.setParameters(params);
-         this.applet.setStub(this.stub);
-         this.applet.setIsApplication(true);
+    SwingUtilities.invokeLater(
+        () -> {
+          Map<String, String> params = buildSessionParameterMapForInnerApplet();
 
-         //  Need to create a webView to get javascript object for opener.
+          setTitle(params.get(PSContentExplorerConstants.POPUP_TITLE));
 
-         this.browserProps = new BrowserProps(this.mi_style);
+          this.stub = new PSContentExplorerAppletStub();
+          this.stub.setParameters(params);
+          this.applet.setStub(this.stub);
+          this.applet.setIsApplication(true);
 
-         this.add(this.applet, BorderLayout.NORTH);
+          //  Need to create a webView to get javascript object for opener.
 
-         PSContentExplorerApplet baseapplet = PSContentExplorerApplication.getApplet();
-         this.applet.init();
-         this.applet.setupApplet(baseapplet.getUserInfo());
-         this.applet.start();
+          this.browserProps = new BrowserProps(this.mi_style);
 
-         setVisible(true);
+          this.add(this.applet, BorderLayout.NORTH);
 
-      });
-      return this;
+          PSContentExplorerApplet baseapplet = PSContentExplorerApplication.getApplet();
+          this.applet.init();
+          this.applet.setupApplet(baseapplet.getUserInfo());
+          this.applet.start();
 
-   }
-   
-   private Map<String, String> buildSessionParameterMapForInnerApplet()
-   {
+          setVisible(true);
+        });
+    return this;
+  }
 
-      Map<String, String> params = PSContentExplorerHelper.initializeDefaultParameters();
-      if (this.view.equals("DT"))
-         params.putAll(PSContentExplorerHelper.initializeDTParameters(params));
-      else if (this.view.equals("IA"))
-         params.putAll(PSContentExplorerHelper.initializeIAParameters(params, this.mi_actionurl));
+  private Map<String, String> buildSessionParameterMapForInnerApplet() {
 
-      PSContentExplorerApplet baseapplet = PSContentExplorerApplication.getApplet();
+    Map<String, String> params = PSContentExplorerHelper.initializeDefaultParameters();
+    if (this.view.equals("DT"))
+      params.putAll(PSContentExplorerHelper.initializeDTParameters(params));
+    else if (this.view.equals("IA"))
+      params.putAll(PSContentExplorerHelper.initializeIAParameters(params, this.mi_actionurl));
 
-      String sessionId = baseapplet.getParameter("pssessionid");
-      String host = baseapplet.getParameter("serverName");
-      String proto = baseapplet.getParameter("protocol");
-      String port = baseapplet.getParameter("port");
+    PSContentExplorerApplet baseapplet = PSContentExplorerApplication.getApplet();
 
-      params.put("pssessionid", sessionId);
-      params.put("serverName", host);
-      params.put("protocol", proto);
-      params.put("port", port);
+    String sessionId = baseapplet.getParameter("pssessionid");
+    String host = baseapplet.getParameter("serverName");
+    String proto = baseapplet.getParameter("protocol");
+    String port = baseapplet.getParameter("port");
 
-      Map<String, String> queryParams = PSContentExplorerUtils.getQueryMap(this.mi_actionurl);
-      // add all query params to the map
-      queryParams.forEach(params::put);
+    params.put("pssessionid", sessionId);
+    params.put("serverName", host);
+    params.put("protocol", proto);
+    params.put("port", port);
 
-      params.put(PSContentExplorerConstants.PARAM_CONTENTID, queryParams.get("sys_contentid"));
-      params.put(PSContentExplorerConstants.PARAM_REVISIONID, queryParams.get("sys_revision"));
-      params.put("LABEL", this.action.getLabel());
+    Map<String, String> queryParams = PSContentExplorerUtils.getQueryMap(this.mi_actionurl);
+    // add all query params to the map
+    queryParams.forEach(params::put);
 
-      if (this.selection.getNodeList() != null && this.selection.getNodeList().hasNext())
-      {
-         PSNode node = (PSNode) this.selection.getNodeList().next();
-         params.put(PSContentExplorerConstants.PARAM_ITEM_TITLE, node.getName());
+    params.put(PSContentExplorerConstants.PARAM_CONTENTID, queryParams.get("sys_contentid"));
+    params.put(PSContentExplorerConstants.PARAM_REVISIONID, queryParams.get("sys_revision"));
+    params.put("LABEL", this.action.getLabel());
 
-      }
+    if (this.selection.getNodeList() != null && this.selection.getNodeList().hasNext()) {
+      PSNode node = (PSNode) this.selection.getNodeList().next();
+      params.put(PSContentExplorerConstants.PARAM_ITEM_TITLE, node.getName());
+    }
 
-      return params;
-   }
-   
-   @Override
-   public void reload(Map<String, String> parameters)
-   {
-      Map<String, String> params = buildSessionParameterMapForInnerApplet();
-      //Don't use specific item unless when resetting unless specified
-      params.remove(PSContentExplorerConstants.PARAM_CONTENTID);
-      params.remove(PSContentExplorerConstants.PARAM_REVISIONID);
-      
-      if (parameters!=null)
-         params.putAll(parameters);
-      reload();
-   }
+    return params;
+  }
 
+  @Override
+  public void reload(Map<String, String> parameters) {
+    Map<String, String> params = buildSessionParameterMapForInnerApplet();
+    // Don't use specific item unless when resetting unless specified
+    params.remove(PSContentExplorerConstants.PARAM_CONTENTID);
+    params.remove(PSContentExplorerConstants.PARAM_REVISIONID);
+
+    if (parameters != null) params.putAll(parameters);
+    reload();
+  }
 }

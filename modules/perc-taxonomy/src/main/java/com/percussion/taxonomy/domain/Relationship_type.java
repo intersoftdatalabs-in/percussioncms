@@ -22,6 +22,7 @@ public class Relationship_type {
 
   /** Constant to identify related node */
   public static final int RELATED = 1;
+<<<<<<< HEAD
 
   /** Constant to identify similar node */
   public static final int SIMILAR = 2;
@@ -48,6 +49,33 @@ public class Relationship_type {
   }
 
   /**
+=======
+  /** Constant to identify similar node */
+  public static final int SIMILAR = 2;
+
+  private int id;
+  private String relationship_type;
+
+  /**
+   * Returns unique relationship type id
+   *
+   * @return id - int unique id of relationship type
+   */
+  public int getId() {
+    return id;
+  }
+
+  /**
+   * Set unique relationship type id
+   *
+   * @param id - unique int value for relationship id
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Returns relationship type
    *
    * @return relationship_type - String relationship type

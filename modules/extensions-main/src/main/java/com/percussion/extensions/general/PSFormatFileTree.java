@@ -182,7 +182,10 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
       ProcessNodeList(feList, parentNode, 0, pt);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * BuildNodeList scans the result document looking for filelist nodes
    *
@@ -302,7 +305,10 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
       ProcessNodeList(childList, currNode, level + 1, pt);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This is a dummy main() for use in debugging only
    *
@@ -386,8 +392,12 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
    */
   private class ParamTracker {
     private IPSRequestContext m_req = null;
+<<<<<<< HEAD
     private String m_InputListName = "filelist";
     ;
+=======
+    private String m_InputListName = "filelist";;
+>>>>>>> development-8.1.x
     private String m_fileTreeName = "filetree";
     private String m_fileElementName = "file";
     private String m_filePathName = "fullpath";
@@ -426,11 +436,18 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
     String getFileElementName() {
       return m_fileElementName;
     }
+<<<<<<< HEAD
 
     String getFilePathName() {
       return m_filePathName;
     }
 
+=======
+
+    String getFilePathName() {
+      return m_filePathName;
+    }
+>>>>>>> development-8.1.x
     /**
      * prints a trace message if the underlying request is not null
      *

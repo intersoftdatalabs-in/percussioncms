@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,23 @@ public class PSJBossConnectorsTest {
   @BeforeEach
   public void setup() throws IOException {
     root = tempFolder.toFile();
+=======
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+public class PSJBossConnectorsTest {
+
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+
+  File root;
+
+  @Before
+  public void setup() throws IOException {
+    root = tempFolder.newFolder();
+>>>>>>> development-8.1.x
     if (!Files.exists(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"))) {
       Path p =
           Files.createDirectories(
@@ -57,7 +75,11 @@ public class PSJBossConnectorsTest {
   }
 
   @Test
+<<<<<<< HEAD
   @Disabled("TODO: This test is failing. Fix it please!")
+=======
+  @Ignore("TODO: This test is failing. Fix it please!")
+>>>>>>> development-8.1.x
   public void save() throws IOException {
 
     PSJBossConnectors c = new PSJBossConnectors(root);

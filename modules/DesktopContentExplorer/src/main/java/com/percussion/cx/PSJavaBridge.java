@@ -22,17 +22,23 @@ package com.percussion.cx;
 import com.percussion.cx.javafx.PSDesktopExplorerWindow;
 import com.percussion.cx.javafx.PSFileSaver;
 import com.percussion.cx.javafx.PSWindowManager;
+<<<<<<< HEAD
 import netscape.javascript.JSObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+=======
+>>>>>>> development-8.1.x
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
 import java.util.concurrent.CountDownLatch;
+import netscape.javascript.JSObject;
+import org.apache.log4j.Logger;
 
 public class PSJavaBridge implements ClipboardOwner {
 
+<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSJavaBridge.class);
 
    final CountDownLatch initialized = new CountDownLatch(1);
@@ -43,61 +49,63 @@ public class PSJavaBridge implements ClipboardOwner {
    {
       this.frame = frame;
    }
+=======
+  static Logger log = Logger.getLogger(PSJavaBridge.class);
 
-   public void log(String text)
-   {
-      log.debug("javascript.log: "+text);
-   }
+  CountDownLatch initialized = new CountDownLatch(1);
 
-   public void error(String text)
-   {
-      log.debug("javascript.error: "+text);
-   }
+  private PSDesktopExplorerWindow frame;
 
-   public void closeWindow()
-   {
-      frame.setClosed(true);
-      frame.closeDceWindow();
-   }
+  public PSJavaBridge(PSDesktopExplorerWindow frame) {
+    this.frame = frame;
+  }
 
-   public void closeWindow(String windowName)
-   {
-      PSDesktopExplorerWindow window = PSWindowManager.getInstance().getWindow(windowName);
-      window.setClosed(true);
-      window.closeDceWindow();
-   }
+  public void log(String text) {
+    log.debug("javascript.log: " + text);
+  }
+>>>>>>> development-8.1.x
 
-   public void saveFile(String binaryURL, String fileName) {
-      PSFileSaver fileSaver = new PSFileSaver(binaryURL, fileName);
-      fileSaver.startFileSaver();
-   }
+  public void error(String text) {
+    log.debug("javascript.error: " + text);
+  }
 
-   public JSObject openWindow(String url, String name, String specs, boolean replace)
-   {
+  public void closeWindow() {
+    frame.setClosed(true);
+    frame.closeDceWindow();
+  }
 
-      PSDesktopExplorerWindow window = frame.openChildWindow(url, name, specs, null, null);
-      return window.getJSWindow();
-   }
+  public void closeWindow(String windowName) {
+    PSDesktopExplorerWindow window = PSWindowManager.getInstance().getWindow(windowName);
+    window.setClosed(true);
+    window.closeDceWindow();
+  }
 
-   public JSObject getWindowByName(String name)
-   {
-      PSDesktopExplorerWindow window = PSWindowManager.getInstance().getWindow(name);
-      return window==null ? null : window.getJSWindow();
-   }
+  public void saveFile(String binaryURL, String fileName) {
+    PSFileSaver fileSaver = new PSFileSaver(binaryURL, fileName);
+    fileSaver.startFileSaver();
+  }
 
+  public JSObject openWindow(String url, String name, String specs, boolean replace) {
 
-   public JSClipDataBridge getClipboardData()
-   {
-      return new JSClipDataBridge();
-         }
+    PSDesktopExplorerWindow window = frame.openChildWindow(url, name, specs, null, null);
+    return window.getJSWindow();
+  }
 
-   public JSClipEventBridge getClipboardDataEvent()
-   {
-      return new JSClipEventBridge();
-   }
+  public JSObject getWindowByName(String name) {
+    PSDesktopExplorerWindow window = PSWindowManager.getInstance().getWindow(name);
+    return window == null ? null : window.getJSWindow();
+  }
 
-   @Override
-   public void lostOwnership(Clipboard clipboard, Transferable contents) {
-      log.debug("Lost clipboard ownership");
-   }
+  public JSClipDataBridge getClipboardData() {
+    return new JSClipDataBridge();
+  }
+
+  public JSClipEventBridge getClipboardDataEvent() {
+    return new JSClipEventBridge();
+  }
+
+  @Override
+  public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    log.debug("Lost clipboard ownership");
+  }
 }

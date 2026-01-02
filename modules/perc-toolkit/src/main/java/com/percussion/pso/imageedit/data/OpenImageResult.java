@@ -34,17 +34,25 @@ public class OpenImageResult {
     this.masterImage = masterImage;
     this.itemStatus = itemStatus;
   }
+<<<<<<< HEAD
 
   /**
    * @return the masterImage
    */
+=======
+  /** @return the masterImage */
+>>>>>>> development-8.1.x
   public MasterImageMetaData getMasterImage() {
     return masterImage;
   }
 
+<<<<<<< HEAD
   /**
    * @return the itemStatus
    */
+=======
+  /** @return the itemStatus */
+>>>>>>> development-8.1.x
   public PSItemStatus getItemStatus() {
     return itemStatus;
   }

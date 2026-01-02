@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.tablefactory;
 
@@ -51,7 +50,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -69,6 +72,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * @param serverProps A set of properties that provides connection and basic table information.
    *     May not be <code>null</code>. Properties expected:
    *     <table>
+<<<<<<< HEAD
    * <tr>
    * <th>Name</th>
    * <th>Description</th>
@@ -143,6 +147,76 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * <td>No</td>
    * </tr>
    * </table>
+=======
+   *        <tr>
+   *        <th>Name</th>
+   *        <th>Description</th>
+   *        <th>Required?</th>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_BACKEND</td>
+   *        <td>Name of backend alias. Used to identify the set of mappings to use from the
+   *        dataTypeMap Xml file. See DataTypeMap.dtd for more info. See
+   *        {@link #DB_BACKEND_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_DRIVER_NAME</td>
+   *        <td>Name of the Jdbc sub-protocol (e.g. inetdae7, oracle:thin). May be used to identify
+   *        the set of mappings to use from the dataTypeMap Xml file. See
+   *        {@link #DB_DRIVER_NAME_PROPERTY}</td>
+   *        <td>Yes</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_DRIVER_CLASS_NAME</td>
+   *        <td>The class name of the jdbc driver. See {@link #DB_DRIVER_CLASS_NAME_PROPERTY}</td>
+   *        <td>Yes</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_SERVER</td>
+   *        <td>The name of the database server to connect to. See {@link #DB_SERVER_PROPERTY}</td>
+   *        <td>Yes</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_NAME</td>
+   *        <td>The name of the database. May be empty. See {@link #DB_NAME_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>UID</td>
+   *        <td>The userid to use when connecting. May be empty. See {@link #UID_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>PWD</td>
+   *        <td>The password to use when connecting, may be encrypted. May be empty. See
+   *        {@link #PWD_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>PWD_ENCRYPTED</td>
+   *        <td>Specifies if the supplied password is encrypted. If "Y", then it is, if "N" it is
+   *        not. By default the password is assumed to not be encrypted, so this option property
+   *        only needs to be supplied if the password is encrypted. See
+   *        {@link #PWD_ENCRYPTED_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *
+   *        <tr>
+   *        <td>DB_SCHEMA</td>
+   *        <td>The schema or origin to use. May be empty. See {@link #DB_SCHEMA_PROPERTY}</td>
+   *        <td>No</td>
+   *        </tr>
+   *        </table>
+>>>>>>> development-8.1.x
    *
    * @throws IllegalArgumentException if serverProps is <code>null</code> or if a required property
    *     is missing.
@@ -223,12 +297,17 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * @throws IOException if an error occurs loading properties.
    * @throws PSMissingApplicationPolicyException if an error occurs loading jndi datasources
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
   public static Properties loadRxRepositoryProperties(String rxRoot)
       throws FileNotFoundException,
           PSInvalidXmlException,
           SAXException,
           IOException,
+=======
+  public static Properties loadRxRepositoryProperties(String rxRoot)
+      throws FileNotFoundException, PSInvalidXmlException, SAXException, IOException,
+>>>>>>> development-8.1.x
           PSMissingApplicationPolicyException {
     if (rxRoot == null || rxRoot.trim().length() == 0)
       throw new IllegalArgumentException("rxRoot may not be null or empty");

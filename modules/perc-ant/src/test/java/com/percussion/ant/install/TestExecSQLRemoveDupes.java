@@ -17,13 +17,18 @@
 
 package com.percussion.ant.install;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
+=======
+import static org.junit.Assert.assertEquals;
+>>>>>>> development-8.1.x
 
 import com.percussion.install.PSLogger;
 import java.io.File;
 import java.nio.file.Files;
 import java.sql.*;
 import org.junit.*;
+<<<<<<< HEAD
 
 /***
  * Test the ant task
@@ -31,16 +36,31 @@ import org.junit.*;
 public class TestExecSQLRemoveDupes {
 
   @ClassRule public static Path temporaryFolder;
+=======
+import org.junit.rules.TemporaryFolder;
+
+/** * Test the ant task */
+public class TestExecSQLRemoveDupes {
+
+  @ClassRule public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
 
   private static String repoRoot;
   private static String oldRepoRoot;
   private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
   private static final String connectionURL = "jdbc:derby:CMDB;create=true;user=CMDB;password=demo";
 
+<<<<<<< HEAD
   @BeforeAll
   public static void setup() throws Exception {
     temporaryFolder.create();
     repoRoot = temporaryFolder.getAbsolutePath() + File.separator + "Repository";
+=======
+  @BeforeClass
+  public static void setup() throws Exception {
+    temporaryFolder.create();
+    repoRoot = temporaryFolder.getRoot().getAbsolutePath() + File.separator + "Repository";
+>>>>>>> development-8.1.x
     oldRepoRoot = System.getProperty("derby.system.home");
     System.setProperty("derby.system.home", repoRoot);
 
@@ -48,6 +68,7 @@ public class TestExecSQLRemoveDupes {
     try (Connection conn = DriverManager.getConnection(connectionURL)) {
       Statement statement = conn.createStatement();
       String sql =
+<<<<<<< HEAD
           "CREATE TABLE CT_PAGE_PAGE_CATEGORIES_SET (CONTENTID int , REVISIONID int , SORTRANK int,"
               + " PAGE_CATEGORIES_TREE varchar(512))";
       statement.execute(sql);
@@ -80,6 +101,34 @@ public class TestExecSQLRemoveDupes {
   }
 
   @AfterEach
+=======
+          "CREATE TABLE CT_PAGE_PAGE_CATEGORIES_SET (CONTENTID int , REVISIONID int , SORTRANK int, PAGE_CATEGORIES_TREE varchar(512))";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 1, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 2, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 3, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 4, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 1, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+    }
+
+    Files.createDirectories(temporaryFolder.getRoot().toPath().resolve("rxconfig/Installer/"));
+    PSTaskTestUtils.copy(
+        PSTaskTestUtils.getRepositoryFileFromResources(),
+        temporaryFolder.getRoot().toPath().resolve("rxconfig/Installer/rxrepository.properties"));
+  }
+
+  @After
+>>>>>>> development-8.1.x
   public void after() throws Exception {
     // Restore system property if it had been set to not interfere with other tests
     if (oldRepoRoot != null) {
@@ -94,7 +143,11 @@ public class TestExecSQLRemoveDupes {
     PSExecSQLRemoveDupes task = new PSExecSQLRemoveDupes();
     task.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
     task.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
+<<<<<<< HEAD
     task.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
+=======
+    task.setRootDir(temporaryFolder.getRoot().getAbsolutePath() + File.separator);
+>>>>>>> development-8.1.x
     task.execute();
 
     // Now make sure that the data was updated correctly
@@ -103,8 +156,12 @@ public class TestExecSQLRemoveDupes {
     try (Connection conn = DriverManager.getConnection(connectionURL)) {
       Statement statement = conn.createStatement();
       String sql =
+<<<<<<< HEAD
           "SELECT CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE  FROM CT_PAGE_PAGE_CATEGORIES_SET"
               + " GROUP BY CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE HAVING count(*)>1";
+=======
+          "SELECT CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE  FROM CT_PAGE_PAGE_CATEGORIES_SET GROUP BY CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE HAVING count(*)>1";
+>>>>>>> development-8.1.x
       ResultSet resultSet = statement.executeQuery(sql);
       int count = 0;
       while (resultSet.next()) {
@@ -133,6 +190,7 @@ public class TestExecSQLRemoveDupes {
     try (Connection conn = DriverManager.getConnection(connectionURL)) {
       Statement statement = conn.createStatement();
       String sql =
+<<<<<<< HEAD
           "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10017, 5, null,"
               + " '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
       statement.execute(sql);
@@ -151,12 +209,31 @@ public class TestExecSQLRemoveDupes {
       sql =
           "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 1, null,"
               + " '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+=======
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10017, 5, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10017, 5, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10017, 5, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10018, 4, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+      statement.execute(sql);
+      sql =
+          "INSERT INTO CT_PAGE_PAGE_CATEGORIES_SET VALUES (10016, 1, null, '/Categories/0edc15ca-d187-28fc-95a1-9ba6ff508992')";
+>>>>>>> development-8.1.x
       statement.execute(sql);
 
       PSExecSQLRemoveDupes newTask = new PSExecSQLRemoveDupes();
       newTask.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
       newTask.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
+<<<<<<< HEAD
       newTask.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
+=======
+      newTask.setRootDir(temporaryFolder.getRoot().getAbsolutePath() + File.separator);
+>>>>>>> development-8.1.x
       newTask.execute();
     }
     System.setProperty("derby.system.home", repoRoot);
@@ -164,8 +241,12 @@ public class TestExecSQLRemoveDupes {
     try (Connection connection = DriverManager.getConnection(connectionURL)) {
       Statement statement = connection.createStatement();
       String sql =
+<<<<<<< HEAD
           "SELECT CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE  FROM CT_PAGE_PAGE_CATEGORIES_SET"
               + " GROUP BY CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE HAVING count(*)>1";
+=======
+          "SELECT CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE  FROM CT_PAGE_PAGE_CATEGORIES_SET GROUP BY CONTENTID, REVISIONID, PAGE_CATEGORIES_TREE HAVING count(*)>1";
+>>>>>>> development-8.1.x
       ResultSet resultSet = statement.executeQuery(sql);
       int count = 0;
       while (resultSet.next()) {

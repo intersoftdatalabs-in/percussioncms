@@ -157,6 +157,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
     /** Object containing role information. Not <CODE>null</CODE> once initialized. */
     public PSWorkflowRoleInfo m_wfRoleInfo = null;
+<<<<<<< HEAD
 
     /** Item's Community */
     public int m_itemCommunity = -1;
@@ -176,6 +177,26 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     if (ms_correctParamCount == IPSExtension.NOT_INITIALIZED) {
       ms_correctParamCount = 0;
 
+=======
+    /** Item's Community */
+    public int m_itemCommunity = -1;
+
+    /** user's login community */
+    public int m_userCommunity = -1;
+  }
+
+  /** The fully qualified name of this extension. */
+  private String m_fullExtensionName = "";
+
+  /* Set the parameter count to not initialized */
+  private int ms_correctParamCount = IPSExtension.NOT_INITIALIZED;
+
+  /** ************ IPSExtension Interface Implementation ************* */
+  public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
+    if (ms_correctParamCount == IPSExtension.NOT_INITIALIZED) {
+      ms_correctParamCount = 0;
+
+>>>>>>> development-8.1.x
       Iterator iter = extensionDef.getRuntimeParameterNames();
       while (iter.hasNext()) {
         iter.next();
@@ -504,6 +525,24 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         except = e;
       } catch (Exception e) {
         except = e;
+<<<<<<< HEAD
+      }
+    } finally {
+      try {
+        if (null != connectionMgr) {
+          connectionMgr.releaseConnection();
+        }
+      } catch (SQLException sqe) {
+        // Ignore since this is cleanup
+      }
+      if (null != except) {
+        PSWorkFlowUtils.printWorkflowException(request, except);
+        if (except instanceof PSException) {
+          String language = ((PSException) except).getLanguageString();
+          if (language == null) language = PSI18nUtils.DEFAULT_LANG;
+          throw new PSExtensionProcessingException(language, m_fullExtensionName, except);
+        } else throw new PSExtensionProcessingException(m_fullExtensionName, except);
+=======
       }
     } finally {
       try {
@@ -524,6 +563,363 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       PSWorkFlowUtils.printWorkflowMessage(request, "Perform Transition: exit preProcessRequest ");
     }
 
+    /*
+     * It is a real transition (not checkins or out) and failed for some
+     * reason, let others know that the action is not really performed.
+     */
+    if (localParams.m_transitionID != IPSConstants.TRANSITIONID_CHECKINOUT
+        && !localParams.b_transitionPerformed) {
+      request.setPrivateObject(IPSConstants.WF_ACTION_PERFORMED, IPSConstants.BOOLEAN_FALSE);
+    }
+    return;
+  }
+
+  /**
+   * Does the work of performing the transition, delegates work to for check in and checkout<CODE>
+   * checkInOut</CODE>.
+   *
+   * @param connection data base connection
+   * @param userRoleList comma separated list of user's roles
+   * @param localParams the local parameters object
+   *     <ul>
+   *       members used as input:
+   *       <li>m_request
+   *       <li>m_transitionComment
+   *           <ul>
+   *             members modified:
+   *             <li>m_workflowAppID
+   *             <li>m_contentID
+   *             <li>m_transitionFromStateID
+   *             <li>m_transitionToStateID
+   *             <li>m_transitionID
+   *             <li>m_checkedOutUser
+   *             <li>m_checkedOut
+   *             <li>m_checkoutStatus
+   *           </ul>
+   *       <li>m_contextRevision
+   *       <li>m_htmlRevision
+   *     </ul>
+   *
+   * @param request current request, assumed not <code>null</code>.
+   * @throws SQLException if an SQL error occurs
+   * @throws PSCheckInCheckOutException the user is not authorized to perform the checkin or
+   *     checkout
+   * @throws PSTransitionException if an error occurs
+   * @throws PSEntryNotFoundException if a data base entry is not found
+   * @throws PSORMException
+   */
+  private void performTransition(
+      String lang,
+      Connection connection,
+      String userRoleList,
+      Params localParams,
+      IPSRequestContext request)
+      throws SQLException, PSCheckInCheckOutException, PSTransitionException,
+          PSEntryNotFoundException, PSDuplicateApprovalException, PSRoleException, PSORMException {
+    PSWorkFlowUtils.printWorkflowMessage(
+        localParams.m_request, "  Entering Method performTransition");
+    //   int  approvalsRequired = 0;
+    List transitionRequiredRoles = null;
+    PSTransitionsContext tc = null;
+    List transitionActions = null;
+    PSContentStatusContext csc = new PSContentStatusContext(connection, localParams.m_contentID);
+
+    try {
+      String usercomm =
+          (String) localParams.m_request.getSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY);
+      if (usercomm != null) localParams.m_userCommunity = Integer.parseInt(usercomm);
+    } catch (Exception e) {
+      localParams.m_userCommunity = -1;
+    }
+    localParams.m_itemCommunity = csc.getCommunityID();
+
+    /**
+     * [Vitaly: Oct 27 2003]: DO NOT compare the user community and the item community. Communities
+     * were never designed to work as a server security feature. Filtering by community, if desired,
+     * should be done at the action visibility level (already in place). Filtering here makes it
+     * impossible to perform such relationships operation as a Translation of an item with new
+     * copies going into another community. For more info see bug Rx-03-10-0057.
+     */
+    PSStateRolesContext toStateSrc = null;
+    PSStateRolesContext fromStateSrc = null;
+    PSContentAdhocUsersContext toStateCauc = null;
+    PSContentAdhocUsersContext fromStateCauc = null;
+    csc.close(); // release connection
+
+    localParams.m_workflowAppID = csc.getWorkflowID();
+    localParams.m_transitionFromStateID = csc.getContentStateID();
+    localParams.m_checkedOutUser = csc.getContentCheckedOutUserName();
+
+    if (null != localParams.m_checkedOutUser) {
+      localParams.m_checkedOutUser = localParams.m_checkedOutUser.trim();
+      localParams.m_checkedOut = (!localParams.m_checkedOutUser.equals(""));
+    } else {
+      localParams.m_checkedOut = false;
+    }
+
+    if (localParams.m_checkedOut) {
+      if (localParams.m_userName.equalsIgnoreCase(localParams.m_checkedOutUser)) {
+        localParams.m_checkoutStatus = PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER;
+      } else {
+        localParams.m_checkoutStatus = PSWorkFlowUtils.CHECKOUT_STATUS_OTHER;
+      }
+    }
+
+    if (localParams.m_isCheckinOrCheckout) {
+      checkInOut(lang, csc, localParams.m_isCheckin, connection, localParams, request);
+      PSWorkFlowUtils.printWorkflowMessage(
+          localParams.m_request, "  Done with checkInOut. Exiting Method performTransition");
+      return;
+    }
+
+    localParams.m_contextRevision = csc.getCurrentRevision();
+
+    try {
+      // if the actionTrigger is a numeric, it must be a transitionId
+      // use a different constructor if that is the case
+      boolean isId = true;
+      int transitionId = -1;
+      String tmp = localParams.m_actionTrigger;
+      try {
+        transitionId = Integer.parseInt(tmp);
+      } catch (NumberFormatException e) {
+        isId = false;
+      }
+
+      if (isId && transitionId != -1) {
+        tc = new PSTransitionsContext(transitionId, localParams.m_workflowAppID, connection);
+      } else {
+        tc =
+            new PSTransitionsContext(
+                localParams.m_workflowAppID,
+                connection,
+                localParams.m_actionTrigger,
+                localParams.m_transitionFromStateID);
+      }
+      tc.close(); // release JDBC objects
+    } catch (PSEntryNotFoundException e) {
+      Object[] args = {
+        localParams.m_contentID,
+        localParams.m_workflowAppID,
+        localParams.m_transitionFromStateID,
+        localParams.m_actionTrigger
+      };
+      throw new PSTransitionException(lang, IPSExtensionErrors.MISSING_TRANSITION, args);
+    }
+
+    // The current stateid must match with from state id of the transition
+    if (localParams.m_transitionFromStateID != tc.getTransitionFromStateID()) {
+      Object[] args = {
+        localParams.m_contentID,
+        localParams.m_workflowAppID,
+        localParams.m_transitionFromStateID,
+        tc.getTransitionFromStateID(),
+        localParams.m_actionTrigger
+      };
+      throw new PSTransitionException(lang, IPSExtensionErrors.INVALID_TRANSITION, args);
+    }
+
+    /* Only an admin can transition an item that is checked out */
+    if (localParams.m_checkedOut && !localParams.m_isAdministrator) {
+      throw new PSTransitionException(lang, IPSExtensionErrors.ADMIN_CHECKOUT_ONLY);
+    }
+
+    localParams.m_transitionToStateID = tc.getTransitionToStateID();
+    //   approvalsRequired = tc.getTransitionApprovalsRequired();
+    localParams.m_transitionID = tc.getTransitionID();
+
+    /**
+     * Make transition specific checks that this user is authorized to perform this transition. Only
+     * the aging agent may perform aging transitions. Otherwise, the user must belong the
+     * transition-required role list, if one exists.
+     */
+    if (tc.isAgingTransition()) {
+      //           // check that it's  the aging agent
+      //           if (!tc.isAgingAgent(localParams.m_userName))
+      //           {
+      //              PSWorkFlowUtils.printWorkflowMessage(localParams.m_request,
+      //                 "  perform transition: only the Aging agent may perform " +
+      //                 "aging transitions. Transition ID = " +
+      //                 localParams.m_transitionID + ".");
+      //              return;
+      //           }
+    }
+    // Transition required roles are ignored for an administrator
+    else if (!localParams.m_isAdministrator) {
+      transitionRequiredRoles = tc.getTransitionRoles();
+      if (null != transitionRequiredRoles && !transitionRequiredRoles.isEmpty()) {
+        if (!PSWorkFlowUtils.compareRoleList(transitionRequiredRoles, userRoleList)) {
+          throw new PSTransitionException(lang, IPSExtensionErrors.INVALID_TRANSITION_ROLE);
+        }
+      }
+    }
+
+    /*
+     * If a transition comment is required, make sure it is present. Note,
+     * an aging transtion will never require a transition comment.
+     */
+
+    if (tc.isTransitionCommentRequired() && null == localParams.m_transitionComment) {
+      throw new PSTransitionException(lang, IPSExtensionErrors.TRANSITION_COMMENT_NOT_SPECIFIED);
+    }
+
+    toStateSrc =
+        new PSStateRolesContext(
+            localParams.m_workflowAppID,
+            connection,
+            localParams.m_transitionToStateID,
+            PSWorkFlowUtils.ASSIGNMENT_TYPE_READER);
+
+    /*
+     * Check that any proposed adhoc users can be given an assignment.
+     * Throw an exception if any proposed adhoc users have no home.
+     */
+    toStateCauc =
+        PSWorkflowRoleInfoStatic.classifyAdhocUsers(
+            localParams.m_contentID,
+            localParams.m_adhocUserList,
+            toStateSrc,
+            localParams.m_request);
+
+    /*
+     * If the content item is checked out, and is being transitioned  to a
+     * different state it must be must first be checked in.
+     * This is only allowed for admins, and under ordinary
+     * circumstances, this will only happen for aging transitions.
+     */
+    if (localParams.m_checkedOut && tc.isTransitionToDifferentState()) {
+      checkInOut(lang, csc, true, connection, localParams, request);
+    }
+    Date now = new Date(new java.util.Date().getTime());
+
+    /*
+     * Save the 'from state' adhoc context info to the role info object,
+     * then delete adhoc context from the data base, and update it with the
+     * new 'to state' adhoc context info
+     */
+    fromStateSrc =
+        new PSStateRolesContext(
+            localParams.m_workflowAppID,
+            connection,
+            localParams.m_transitionFromStateID,
+            PSWorkFlowUtils.ASSIGNMENT_TYPE_READER);
+
+    localParams.b_transitionPerformed =
+        processTransition(
+            csc,
+            tc,
+            localParams.m_userName,
+            now,
+            localParams.m_request,
+            connection,
+            fromStateSrc.getStateRoleNameMap(),
+            localParams);
+
+    /* Exit if no transition was performed */
+    if (!localParams.b_transitionPerformed) {
+      PSWorkFlowUtils.printWorkflowMessage(
+          localParams.m_request, "  No transition was performed. Exiting Method performTransition");
+      return;
+    }
+
+    /*
+     * If there are workflow transition actions put the list as a private
+     * object in the request context.
+     */
+    transitionActions = tc.getTransitionActions();
+    if (null != transitionActions) {
+      localParams.m_request.setPrivateObject(
+          IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT, transitionActions);
+    }
+
+    fromStateCauc = new PSContentAdhocUsersContext(localParams.m_contentID, connection);
+
+    localParams.m_wfRoleInfo.setFromStateCauc(fromStateCauc);
+    localParams.m_wfRoleInfo.setToStateCauc(toStateCauc);
+    localParams.m_request.setPrivateObject(
+        PSWorkflowRoleInfo.WORKFLOW_ROLE_INFO_PRIVATE_OBJECT, localParams.m_wfRoleInfo);
+
+    if (null != fromStateCauc) {
+      // clear the repository entries, but keep the in memory data to use for
+      // notifications later on
+      fromStateCauc.emptyAdhocUserEntries(connection, false);
+    }
+
+    if (null != toStateCauc) {
+      toStateCauc.commit(connection);
+    }
+
+    PSWorkFlowUtils.printWorkflowMessage(
+        localParams.m_request, "  Exiting Method performTransition");
+  }
+
+  /**
+   * Updates the checked out user name in the content status context object if the user is
+   * authorized to perform the checkin or checkout.
+   *
+   * @param csc the content status context object for the content item.
+   *     <p>the checked out user name will be updated if the action is successful
+   * @param connection data base connection
+   * @param isCheckin <CODE>true</CODE> if this a check in <CODE>false</CODE> if this a check out.
+   * @param localParams the local parameters object
+   *     <ul>
+   *       members used as input:
+   *       <li>m_request
+   *       <li>m_transitionID
+   *       <li>m_actionTrigger
+   *       <li>m_userName
+   *       <li>m_checkedOutUser
+   *       <li>m_checkedOut
+   *       <li>m_checkoutStatus
+   *     </ul>
+   *     <li>m_isAdministrator
+   *         <ul>
+   *           members modified:
+   *           <li>m_contextRevision
+   *           <li>m_htmlRevision
+   *         </ul>
+   *
+   * @param request current request, assumed not <code>null</code>.
+   * @throws SQLException if an SQL error occurs
+   * @throws PSCheckInCheckOutException if the user is not authorized to perform the checkin or
+   *     checkout
+   * @throws PSEntryNotFoundException if an expected data base entry does not exist.
+   * @throws PSORMException
+   */
+  private void checkInOut(
+      String lang,
+      PSContentStatusContext csc,
+      boolean isCheckin,
+      Connection connection,
+      Params localParams,
+      IPSRequestContext request)
+      throws SQLException, PSCheckInCheckOutException, PSEntryNotFoundException, PSORMException {
+    PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "    Enter checkInOut");
+    // Indicate this is check-in or check-out action, not a transition
+    localParams.m_transitionID = IPSConstants.TRANSITIONID_CHECKINOUT;
+
+    int editRevision = csc.getEditRevision();
+    int tipRevision = csc.getTipRevision();
+    int checkedoutRevision = 1;
+
+    // Set the tip revision if it does not yet have a meaningful value
+    if (IPSConstants.NO_CORRESPONDING_REVISION_VALUE == tipRevision) {
+      tipRevision = 1;
+      csc.setTipRevision(1);
+    }
+
+    // Checkin action
+    if (isCheckin) {
+      // Make sure the user is eligible to check in the document
+      if (!localParams.m_checkedOut) // It must be checked out
+      {
+        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.DOC_NOT_CHECKEDOUT);
+>>>>>>> development-8.1.x
+      }
+      PSWorkFlowUtils.printWorkflowMessage(request, "Perform Transition: exit preProcessRequest ");
+    }
+
+<<<<<<< HEAD
     /*
      * It is a real transition (not checkins or out) and failed for some
      * reason, let others know that the action is not really performed.
@@ -924,6 +1320,50 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           connection);
     }
 
+=======
+      // It must have an edit revision
+      else if (IPSConstants.NO_CORRESPONDING_REVISION_VALUE == editRevision) {
+        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.EDIT_REVISION_MISSING);
+      }
+
+      /*
+       * Do not allow checkin if current user is not an administrator and is
+       * not the person who has checked out the document.
+       */
+      else if (!localParams.m_isAdministrator
+          && (PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER != localParams.m_checkoutStatus)) {
+        throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKIN_NOT_ALLOWED);
+      }
+
+      /*
+       * The user is eligible to check in the document. Update the
+       * content status context.
+       */
+      csc.setContentCheckedOutUserName(""); // checked out user is now null
+
+      /*
+       * The edit revision becomes the current revision, the  workflow
+       * context revision and the html parameter revision.
+       */
+      csc.setCurrentRevision(editRevision);
+      localParams.m_contextRevision = editRevision;
+      localParams.m_htmlRevision = editRevision;
+
+      // Clear the edit revision
+      csc.setEditRevision(IPSConstants.NO_CORRESPONDING_REVISION_VALUE);
+
+      // Calculate aging data - do this each time we check-in in case a value
+      // that the next aging time is based on was modified.
+      Date now = new Date(new java.util.Date().getTime());
+      updateAgingInformation(
+          csc,
+          null, // no transition context for checkin
+          now,
+          localParams.m_request,
+          connection);
+    }
+
+>>>>>>> development-8.1.x
     // Checkout action
     else {
       /**

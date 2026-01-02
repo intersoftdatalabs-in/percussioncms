@@ -28,7 +28,11 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.server.cache.PSExitFlushCache;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,9 +41,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
+<<<<<<< HEAD
 /**
  * @author James Schultz
  */
+=======
+/** @author James Schultz */
+>>>>>>> development-8.1.x
 public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocumentProcessor {
 
   private static final Logger log = LogManager.getLogger(PSSiteFolderContentListBaseExit.class);

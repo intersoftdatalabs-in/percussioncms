@@ -37,9 +37,13 @@ public class PSCollapseHtmlParameter extends PSDefaultExtension
    * <code>IPSRequestPreProcessor</code> interface
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     handleParam(params, request);
   }

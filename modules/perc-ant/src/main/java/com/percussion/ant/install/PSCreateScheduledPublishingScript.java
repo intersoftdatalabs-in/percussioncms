@@ -53,6 +53,7 @@ public class PSCreateScheduledPublishingScript extends PSAction {
   @Override
   public void execute() {
     createScriptFile();
+<<<<<<< HEAD
   }
 
   /**************************************************************************
@@ -141,6 +142,97 @@ public class PSCreateScheduledPublishingScript extends PSAction {
     return;
   }
 
+=======
+  }
+
+  /**
+   * ************************************************************************ private function
+   * ************************************************************************
+   */
+  /** Creates either a batch or a shell script on the fly for scheduled publishing */
+  private void createScriptFile() {
+    String rootDir = getRootDir();
+    String fileName = rootDir + "/AppServer/bin/" + m_scheduledPublishingFile;
+    boolean isWinOS = PSOsTool.isWindowsPlatform();
+    if (isWinOS == true) fileName += BAT;
+    else fileName += SH;
+
+    File f = new File(fileName);
+
+    /** Make sure the directory exists */
+    if (f.getParentFile().exists() == false) {
+      f.getParentFile().mkdirs();
+      PSLogger.logWarn(
+          "CreateScheduledPublishing: ["
+              + f.getParentFile()
+              + "] does not exist. Cannot create file:"
+              + fileName);
+    }
+
+    /** Dont overwrite the existing file: e.g. during UPGRADE */
+    if (f.exists()) {
+      PSLogger.logInfo("CreateScheduledPublishing: [" + fileName + "] " + "already exists");
+    } else {
+      try {
+        /** Create the file */
+        f.createNewFile();
+      } catch (IOException e1) {
+        PSLogger.logInfo(
+            "CreateScheduledPublishing: Failed to create " + "file:[" + fileName + "]. ");
+      }
+      StringBuilder cpBuf = new StringBuilder(MAX_PATH_LENGTH);
+      /** First add the windows and unix's common path */
+      for (int i = 0; i < ms_CommonClassPath.length; i++) {
+        cpBuf.append(ms_CommonClassPath[i]);
+        cpBuf.append((isWinOS == true) ? ";" : ":");
+      }
+
+      BufferedWriter out = null;
+      FileInputStream propIS = null;
+
+      try {
+        out = new BufferedWriter(new FileWriter(fileName));
+        if (isWinOS) {
+          for (int i = 0; i < ms_Usage.length; i++) out.write("::" + ms_Usage[i]);
+          out.write("\n\ncmd /C ..\\..\\JRE\\bin\\java -cp ");
+        } else {
+          out.write("#!/bin/sh\n");
+          for (int i = 0; i < ms_Usage.length; i++) out.write("::" + ms_Usage[i]);
+
+          out.write("\n\n../../JRE/bin/java -cp ");
+        }
+        out.write(
+            cpBuf.toString() + " com.percussion.publisher.runner.PSRemotePublisher localhost ");
+        String httpPort = "9992";
+        try {
+          propIS =
+              new FileInputStream(
+                  getRootDir() + File.separator + PSConfigurePort.getServerPropsLocation());
+          Properties props = new Properties();
+          props.load(propIS);
+          String port = props.getProperty(SERVER_PORT);
+          if (port != null) httpPort = port;
+        } catch (IOException ioe) {
+          PSLogger.logError(
+              "PSCreateScheduledPublishingScript : Error "
+                  + "loading http port from server properties, using default");
+        }
+        out.write(httpPort);
+        out.write(" 301");
+      } catch (IOException e) {
+        PSLogger.logError("Could not write to file: " + fileName);
+      } finally {
+        try {
+          if (out != null) out.close();
+          if (propIS != null) propIS.close();
+        } catch (IOException ioe) {
+        }
+      }
+    }
+    return;
+  }
+
+>>>>>>> development-8.1.x
   /**
    * Sets the publishing script file name.
    *
@@ -150,6 +242,7 @@ public class PSCreateScheduledPublishingScript extends PSAction {
     m_scheduledPublishingFile = file;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
@@ -158,6 +251,17 @@ public class PSCreateScheduledPublishingScript extends PSAction {
    * A string value for the scheduled publishing file name. An extension is tagged on later based on
    * the OS: if WinOS, then .bat else .sh.
    */
+=======
+  /**
+   * ************************************************************************ Bean properties
+   * ************************************************************************
+   */
+
+  /**
+   * A string value for the scheduled publishing file name. An extension is tagged on later based on
+   * the OS: if WinOS, then .bat else .sh.
+   */
+>>>>>>> development-8.1.x
   private String m_scheduledPublishingFile = "ScheduledPublication";
 
   /** Extension for windows script file */
@@ -178,8 +282,12 @@ public class PSCreateScheduledPublishingScript extends PSAction {
     "is generated. \n",
     "You should be able to modify this file for your convenience. \n\n\n",
     "Usage: \n",
+<<<<<<< HEAD
     "\t\tAt the end of the launch command below, (after"
         + " com.percussion.publisher.runner.PSRemotePublisher),\n",
+=======
+    "\t\tAt the end of the launch command below, (after com.percussion.publisher.runner.PSRemotePublisher),\n",
+>>>>>>> development-8.1.x
     "\t\tare the following arguments:\n\n",
     "\t\t<server> <port> <editionid>\n\n",
     "\t\tModify these arguments as needed.  The last two arguments are optional."

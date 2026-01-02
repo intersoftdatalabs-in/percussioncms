@@ -279,6 +279,7 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
     }
     return res;
   }
+<<<<<<< HEAD
 
   /**
    * Helper function to return true or false based on the number of languages enabled on the system.
@@ -325,6 +326,52 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
   /** Name of the attribute/html parameter for name */
   private static final String ATTR_NAME = "name";
 
+=======
+  /**
+   * Helper function to return true or false based on the number of languages enabled on the system.
+   * Returns true if there are more than one language enabled otherwise false.
+   *
+   * @request <code>IPSRequestContext</code> object
+   * @return <code>true</code> for more than one language enabled, <code>false</code> otherwise.
+   */
+  private boolean addTranslateAction(IPSRequestContext request) {
+    Document doc = null;
+    IPSInternalRequest iReq = null;
+    NodeList nl = null;
+    try {
+      iReq = request.getInternalRequest(LOCALE_REQUEST);
+      iReq.makeRequest();
+      doc = iReq.getResultDoc();
+    } catch (Exception e) {
+      PSConsole.printMsg("Exit:" + ms_fullExtensionName, e);
+    } finally {
+      if (iReq != null) iReq.cleanUp();
+    }
+    if (doc != null) {
+      nl = doc.getElementsByTagName(ELEM_LANG);
+    }
+
+    return nl != null && nl.getLength() > 1;
+  }
+  /** The fully qualified name of this extension. */
+  private String ms_fullExtensionName = "";
+
+  /** The internal request resource name to get the child menu tree given the parent information */
+  private static final String REQUEST_NAME = "actionlistchildren";
+
+  /** Name of the Action List element */
+  private static final String ELEM_ACTION_LIST = "ActionList";
+
+  /** Name of the Action element */
+  private static final String ELEM_ACTION = "Action";
+
+  /** Name of the attribute/html parameter for actionid */
+  private static final String ATTR_ACTIONID = "actionid";
+
+  /** Name of the attribute/html parameter for name */
+  private static final String ATTR_NAME = "name";
+
+>>>>>>> development-8.1.x
   /** Name of the translate action */
   private static final String ACTION_TRANSLATE = "Translate";
 

@@ -16,8 +16,13 @@
  */
 package com.percussion.utils.tools;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+>>>>>>> development-8.1.x
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.BufferedReader;
@@ -34,8 +39,13 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

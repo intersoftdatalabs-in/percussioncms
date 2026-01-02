@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +40,13 @@ public class WrappedTrustManager implements X509TrustManager {
 
   private LinkedHashMap<String, X509TrustManager> wrappedManagers = new LinkedHashMap<>();
 
+=======
+
+public class WrappedTrustManager implements X509TrustManager {
+
+  private LinkedHashMap<String, X509TrustManager> wrappedManagers = new LinkedHashMap<>();
+
+>>>>>>> development-8.1.x
   WrappedTrustManager() {
     addKeyStore("Default Java", null);
   }
@@ -50,6 +58,7 @@ public class WrappedTrustManager implements X509TrustManager {
       throw new RuntimeException("No such algorithm", e);
     } catch (KeyStoreException e) {
       throw new RuntimeException("Not adding keystore due to error", e);
+<<<<<<< HEAD
     }
   }
 
@@ -100,8 +109,12 @@ public class WrappedTrustManager implements X509TrustManager {
       } catch (CertificateException e) {
         exception = e;
       }
+=======
+>>>>>>> development-8.1.x
     }
+  }
 
+<<<<<<< HEAD
     if (exception != null) {
       log.warn("Failed to validate client certificate with any trust manager");
       throw exception;
@@ -117,6 +130,66 @@ public class WrappedTrustManager implements X509TrustManager {
     // Using null here initialises the TMF with the default trust store.
     tmf.init(keystore);
 
+=======
+  @Override
+  public X509Certificate[] getAcceptedIssuers() {
+
+    // If you're planning to use client-cert auth,
+    // merge results from "defaultTm" and "myTm".
+    Set<X509Certificate> accepted = new HashSet<>();
+    for (Map.Entry<String, X509TrustManager> thistm : wrappedManagers.entrySet()) {
+      accepted.addAll(Arrays.asList(thistm.getValue().getAcceptedIssuers()));
+    }
+    return accepted.toArray(new X509Certificate[accepted.size()]);
+  }
+
+  @Override
+  public void checkServerTrusted(X509Certificate[] chain, String authType)
+      throws CertificateException {
+
+    CertificateException exception = null;
+    Exception ex = null;
+    for (Map.Entry<String, X509TrustManager> thistm : wrappedManagers.entrySet()) {
+      String successTm = thistm.getKey();
+      try {
+        thistm.getValue().checkServerTrusted(chain, authType);
+        System.out.println("Succss with " + successTm);
+        return;
+      } catch (CertificateException e) {
+        System.out.println("Check failed for " + thistm.getKey());
+        exception = e;
+      }
+    }
+    System.out.println("Failed to validate Server certificate");
+
+    throw exception;
+  }
+
+  @Override
+  public void checkClientTrusted(X509Certificate[] chain, String authType)
+      throws CertificateException {
+    // If you're planning to use client-cert auth,
+    // do the same as checking the server.
+    CertificateException exception = null;
+    for (Map.Entry<String, X509TrustManager> thistm : wrappedManagers.entrySet()) {
+      try {
+        thistm.getValue().checkClientTrusted(chain, authType);
+        return;
+      } catch (CertificateException e) {
+        exception = e;
+      }
+    }
+    throw exception;
+  }
+
+  private static X509TrustManager getTrustManager(KeyStore keystore)
+      throws NoSuchAlgorithmException, KeyStoreException {
+    TrustManagerFactory tmf =
+        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Using null here initialises the TMF with the default trust store.
+    tmf.init(keystore);
+
+>>>>>>> development-8.1.x
     // Get hold of the default trust manager
 
     for (TrustManager tm : tmf.getTrustManagers()) {

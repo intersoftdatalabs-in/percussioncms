@@ -28,6 +28,7 @@ import com.percussion.extension.IPSWorkflowAction;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.server.IPSRequestContext;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -36,12 +37,23 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author DavidBenua
  */
+=======
+import com.percussion.util.IPSHtmlParameters;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class PSOPublishContent extends PSDefaultExtension implements IPSWorkflowAction {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOPublishContent.class);
 
   private static PublishEditionService svc = null;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** */
   public PSOPublishContent() {
     super();
@@ -52,7 +64,10 @@ public class PSOPublishContent extends PSDefaultExtension implements IPSWorkflow
       svc = PSOPublishEditionServiceLocator.getPublishEditionService();
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * @see
    *     com.percussion.extension.IPSWorkflowAction#performAction(com.percussion.extension.IPSWorkFlowContext,

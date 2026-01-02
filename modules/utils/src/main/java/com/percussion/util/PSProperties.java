@@ -17,7 +17,11 @@
 
 package com.percussion.util;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -146,7 +150,10 @@ public class PSProperties extends java.util.Properties {
     }
     return file;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Load properties from the specified InputStream. Overload the load method in Properties so we
    * can keep comment and blank lines.

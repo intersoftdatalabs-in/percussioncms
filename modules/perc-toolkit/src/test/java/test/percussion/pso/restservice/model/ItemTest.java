@@ -21,11 +21,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+<<<<<<< HEAD
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+=======
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import org.junit.Before;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 import org.xml.sax.SAXException;
 
 /** */
@@ -33,6 +41,7 @@ public class ItemTest {
 
   /** Field xml. */
   String xml = "<p> blah&#160;isn&apos;t going to show THESE WORDS:</p> <h1>hello</h1> hello";
+<<<<<<< HEAD
 
   /** Field expectedNoXml. */
   String expectedNoXml = " blah\u00a0isn't going to show THESE WORDS: hello hello";
@@ -70,6 +79,43 @@ public class ItemTest {
     Relationships rel = new Relationships();
     testItem.setRelationships(rel);
 
+=======
+  /** Field expectedNoXml. */
+  String expectedNoXml = " blah\u00a0isn't going to show THESE WORDS: hello hello";
+  /** Field testItem. */
+  Item testItem;
+
+  /**
+   * Method setUp.
+   *
+   * @throws Exception
+   */
+  @Before
+  public void setUp() throws Exception {
+    testItem = new Item();
+    List<Field> fields = new ArrayList<Field>();
+    /*Field field = new Field();
+    field.setName("testField");
+    field.setStringValue("testFieldValue");
+    */
+
+    Field field = new Field("name", "Value");
+    fields.add(field);
+    testItem.setFields(fields);
+    XhtmlValue value1 = new XhtmlValue();
+    String s1 = "<div class=\"rxbodyfield\"><p>test</p></div>";
+    value1.setStringValue(s1);
+    StringValue value2 = new StringValue();
+    value2.setStringValue("Test");
+    List<Value> values = new ArrayList<Value>();
+    values.add((Value) value1);
+    values.add((Value) value2);
+    field.setValues(values);
+
+    Relationships rel = new Relationships();
+    testItem.setRelationships(rel);
+
+>>>>>>> development-8.1.x
     Slot slot1 = new Slot();
     slot1.setName("slotname");
     slot1.setType("SlotTyoe");

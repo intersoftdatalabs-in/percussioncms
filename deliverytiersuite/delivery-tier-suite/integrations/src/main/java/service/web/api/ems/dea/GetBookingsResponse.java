@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getBookingsResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getBookingsResult"})
 @XmlRootElement(name = "GetBookingsResponse")
 public class GetBookingsResponse {
 
-    @XmlElement(name = "GetBookingsResult")
-    protected String getBookingsResult;
+  @XmlElement(name = "GetBookingsResult")
+  protected String getBookingsResult;
 
-    /**
-     * Gets the value of the getBookingsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetBookingsResult() {
-        return getBookingsResult;
-    }
+  /**
+   * Gets the value of the getBookingsResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetBookingsResult() {
+    return getBookingsResult;
+  }
 
-    /**
-     * Sets the value of the getBookingsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetBookingsResult(String value) {
-        this.getBookingsResult = value;
-    }
-
+  /**
+   * Sets the value of the getBookingsResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetBookingsResult(String value) {
+    this.getBookingsResult = value;
+  }
 }

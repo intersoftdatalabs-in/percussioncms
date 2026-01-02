@@ -17,9 +17,15 @@
 
 package com.percussion.utils.security;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+>>>>>>> development-8.1.x
 
 import com.percussion.security.IPSDecryptor;
 import com.percussion.security.IPSEncryptor;
@@ -30,6 +36,7 @@ import com.percussion.security.PSEncryptionKeyFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.crypto.SecretKey;
+<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -37,14 +44,30 @@ import org.junit.jupiter.api.Test;
 
 // @todo: Fix it...
 @Disabled
+=======
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+// @todo: Fix it...
+@Ignore
+>>>>>>> development-8.1.x
 public class PSAESGCMTests {
 
   public PSAESGCMTests() {}
 
+<<<<<<< HEAD
   @BeforeEach
   public void setup() {}
 
   @AfterEach
+=======
+  @Before
+  public void setup() {}
+
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {}
 
   @Test

@@ -23,7 +23,11 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSDataTypeConverter;
 import java.text.ParseException;
 import java.util.Date;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * The PSSimpleJavaUdf_dateFormatEx class formats a date according to a user supplied pattern.

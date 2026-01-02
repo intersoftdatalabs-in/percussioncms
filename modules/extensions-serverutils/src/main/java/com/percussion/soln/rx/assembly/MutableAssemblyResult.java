@@ -17,7 +17,11 @@
 
 package com.percussion.soln.rx.assembly;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
@@ -36,10 +40,16 @@ import org.apache.logging.log4j.Logger;
 
 public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult {
   private static final Logger log = LogManager.getLogger();
+<<<<<<< HEAD
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
+=======
+  /** Safe to serialize */
+  private static final long serialVersionUID = 1L;
+
+>>>>>>> development-8.1.x
   private Status status = Status.SUCCESS;
   private byte[] resultData;
   private String mimeType = "text/html";

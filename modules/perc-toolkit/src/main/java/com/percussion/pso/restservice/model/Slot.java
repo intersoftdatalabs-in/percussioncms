@@ -17,9 +17,15 @@
 package com.percussion.pso.restservice.model;
 
 import java.util.List;
+<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+=======
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+>>>>>>> development-8.1.x
 
 /** */
 @XmlRootElement(name = "Slot")
@@ -27,10 +33,15 @@ public class Slot implements Comparable<Slot> {
 
   /** Field name. */
   String name;
+<<<<<<< HEAD
 
   /** Field type. */
   String type;
 
+=======
+  /** Field type. */
+  String type;
+>>>>>>> development-8.1.x
   /** Field items. */
   List<SlotItem> items;
 
@@ -43,7 +54,10 @@ public class Slot implements Comparable<Slot> {
   public List<SlotItem> getItems() {
     return items;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setItems.
    *
@@ -52,7 +66,10 @@ public class Slot implements Comparable<Slot> {
   public void setItems(List<SlotItem> items) {
     this.items = items;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getName.
    *
@@ -62,7 +79,10 @@ public class Slot implements Comparable<Slot> {
   public String getName() {
     return name;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setName.
    *
@@ -71,7 +91,10 @@ public class Slot implements Comparable<Slot> {
   public void setName(String name) {
     this.name = name;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getType.
    *
@@ -81,7 +104,10 @@ public class Slot implements Comparable<Slot> {
   public String getType() {
     return type;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setType.
    *
@@ -100,7 +126,10 @@ public class Slot implements Comparable<Slot> {
   public int compareTo(Slot o) {
     return this.name.compareTo(o.getName());
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method hashCode.
    *
@@ -113,7 +142,10 @@ public class Slot implements Comparable<Slot> {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method equals.
    *

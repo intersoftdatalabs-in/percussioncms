@@ -19,6 +19,10 @@ package com.percussion.utils.container.adapters;
 
 import static com.percussion.utils.jdbc.PSDatasourceResolver.DATASOURCE_RESOLVER_NAME;
 
+<<<<<<< HEAD
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
@@ -46,7 +50,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -316,7 +324,10 @@ public class JBossDatasourceConfigurationAdapter
       saveSecureCredentials(loginCfgFile, creds);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Saves the supplied list of credentials, replacing any application-policy elements in the
    * specified file that represent credentials for Rhythmyx datasources.

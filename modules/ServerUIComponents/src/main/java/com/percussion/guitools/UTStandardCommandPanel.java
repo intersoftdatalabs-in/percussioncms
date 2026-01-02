@@ -308,6 +308,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
    * class resources
    */
   private static ResourceBundle m_res = null;
+<<<<<<< HEAD
 
   /** the OK button */
   JButton m_okButton = null;
@@ -330,6 +331,26 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
    */
   private boolean m_showApplyButton;
 
+=======
+  /** the OK button */
+  JButton m_okButton = null;
+  /** the Cancel button */
+  private JButton m_cancelButton = null;
+  /**
+   * the help button. May be null if panel is created with the help button flag set to <code>false
+   * </code>.
+   */
+  private JButton m_helpButton = null;
+  /** the dialog which contains this */
+  private PSDialog m_dialog = null;
+
+  /**
+   * Initialized in the ctor, specifies if the <code>m_applyButton</code> is to be shown in the
+   * panel or not.
+   */
+  private boolean m_showApplyButton;
+
+>>>>>>> development-8.1.x
   /**
    * the apply button, if <code>m_showApplyButton</code> is <code>true</code> it is initialized in
    * {@link#initButtons(boolean)}, never <code>null</code> or modified after that.

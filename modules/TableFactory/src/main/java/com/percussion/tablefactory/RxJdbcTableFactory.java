@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.tablefactory;
 
@@ -298,7 +297,11 @@ public class RxJdbcTableFactory {
           }
 
           eList = xmlTableDoc.getNextElement(false);
+<<<<<<< HEAD
           Vector<RxColumns> locRxColumns = new Vector<>();
+=======
+          Vector locRxColumns = new Vector();
+>>>>>>> development-8.1.x
 
           do {
             if (eList.getTagName().equalsIgnoreCase("row")) continue;
@@ -327,7 +330,11 @@ public class RxJdbcTableFactory {
                 locColumns.setAllowNull(false);
               } else locColumns.setAllowNull(true);
 
+<<<<<<< HEAD
               if (locRxColumns == null) locRxColumns = new Vector<>();
+=======
+              if (locRxColumns == null) locRxColumns = new Vector();
+>>>>>>> development-8.1.x
 
               index++;
               locColumns.setColNo(index);
@@ -389,7 +396,11 @@ public class RxJdbcTableFactory {
       String sqlStmt = "SELECT * FROM ";
       Connection con = dbmsDef.getConnection();
       stmt = PSSQLStatement.getStatement(con);
+<<<<<<< HEAD
       Vector<String> colNames = new Vector<>();
+=======
+      Vector colNames = new Vector();
+>>>>>>> development-8.1.x
       for (Element eDef = walkerTableDef.getNextElement("table", getChild);
           eDef != null;
           eDef = walkerTableDef.getNextElement("table", getSibling)) {
@@ -434,9 +445,13 @@ public class RxJdbcTableFactory {
 
   class DbmsDefinition {
     DbmsDefinition(String srv, String db, String schema)
+<<<<<<< HEAD
         throws java.io.IOException,
             java.lang.ClassNotFoundException,
             org.xml.sax.SAXException,
+=======
+        throws java.io.IOException, java.lang.ClassNotFoundException, org.xml.sax.SAXException,
+>>>>>>> development-8.1.x
             java.sql.SQLException {
       m_sBackend = m_Props.getProperty("DB_BACKEND");
       m_driver = m_Props.getProperty("DB_DRIVER_NAME");
@@ -450,7 +465,11 @@ public class RxJdbcTableFactory {
       } else m_server = srv;
 
       if (null == db) {
+<<<<<<< HEAD
         //          m_database = m_Props.getProperty("DB_NAME", "*");
+=======
+        // m_database = m_Props.getProperty("DB_NAME", "*");
+>>>>>>> development-8.1.x
         m_database = m_Props.getProperty("DB_NAME");
         if (m_database != null && m_database.trim().length() < 1 && m_database.equals("*"))
           m_database = null;
@@ -620,7 +639,11 @@ public class RxJdbcTableFactory {
     }
 
     public String getJdbcTypeMapping(int ijdbcType) {
+<<<<<<< HEAD
       String type = m_dtJdbcInt2JdbcStr.get(Integer.valueOf(ijdbcType));
+=======
+      String type = (String) m_dtJdbcInt2JdbcStr.get(new Integer(ijdbcType));
+>>>>>>> development-8.1.x
       if (type == null) {
         throw new IllegalArgumentException("No mapping defined for " + ijdbcType);
       }
@@ -659,11 +682,10 @@ public class RxJdbcTableFactory {
         }
       }
 
-      /* if we have an origin, see if it's permitted
-       * if we've already written the catalog info to the front,
-       * we then need to add the schema, even if it's empty,
-       * to avoid catalog.table from being treated as
-       * schema.table.
+      /*
+       * if we have an origin, see if it's permitted if we've already written the catalog info to
+       * the front, we then need to add the schema, even if it's empty, to avoid catalog.table from
+       * being treated as schema.table.
        */
       String origin = m_schema;
       if (origin == null) origin = "";
@@ -685,7 +707,11 @@ public class RxJdbcTableFactory {
     private void storeDataTypeMapping(String jdbcType, String nativeType)
         throws IllegalArgumentException {
       try {
+<<<<<<< HEAD
         Integer jType = Integer.valueOf(java.sql.Types.class.getField(jdbcType).getInt(null));
+=======
+        Integer jType = new Integer(java.sql.Types.class.getField(jdbcType).getInt(null));
+>>>>>>> development-8.1.x
         m_dtJdbcStr2Native.put(jdbcType, nativeType);
         m_dtNative2JdbcStr.put(nativeType, jdbcType);
         m_dtJdbcStr2JdbcInt.put(jdbcType, jType);
@@ -707,10 +733,17 @@ public class RxJdbcTableFactory {
     private String m_version;
     private String m_uid;
     private String m_pw;
+<<<<<<< HEAD
     private HashMap<String, String> m_dtJdbcStr2Native = new HashMap<>();
     private HashMap<String, String> m_dtNative2JdbcStr = new HashMap<>();
     private HashMap<String, Integer> m_dtJdbcStr2JdbcInt = new HashMap<>();
     private HashMap<Integer, String> m_dtJdbcInt2JdbcStr = new HashMap<>();
+=======
+    private HashMap m_dtJdbcStr2Native = new HashMap();
+    private HashMap m_dtNative2JdbcStr = new HashMap();
+    private HashMap m_dtJdbcStr2JdbcInt = new HashMap();
+    private HashMap m_dtJdbcInt2JdbcStr = new HashMap();
+>>>>>>> development-8.1.x
 
     public String getBackEndDB() {
       return m_sBackend;
@@ -735,11 +768,16 @@ public class RxJdbcTableFactory {
 
   class TableDefinition {
     TableDefinition(DbmsDefinition dbmsDef, Element eTableDef)
+<<<<<<< HEAD
         throws java.io.IOException,
             java.lang.ClassNotFoundException,
             org.xml.sax.SAXException,
             java.lang.IllegalArgumentException,
             java.sql.SQLException {
+=======
+        throws java.io.IOException, java.lang.ClassNotFoundException, org.xml.sax.SAXException,
+            java.lang.IllegalArgumentException, java.sql.SQLException {
+>>>>>>> development-8.1.x
       m_dbmsDef = dbmsDef;
       PSXmlTreeWalker w = new PSXmlTreeWalker(eTableDef);
 
@@ -796,7 +834,11 @@ public class RxJdbcTableFactory {
             e = w.getNextElement("column", getSibling)) {
           ColumnDefinition colDef = new ColumnDefinition(dbmsDef, w);
           m_columns.add(colDef);
+<<<<<<< HEAD
           m_columnPos.put(colDef.getColumnName(), Integer.valueOf(++colNo));
+=======
+          m_columnPos.put(colDef.getColumnName(), new Integer(++colNo));
+>>>>>>> development-8.1.x
         }
 
         // load the primary key def (may not have one)
@@ -1079,7 +1121,11 @@ public class RxJdbcTableFactory {
     }
 
     public String getDropTableStatement() {
+<<<<<<< HEAD
       //       System.out.println("Executing: " + "DROP TABLE " + m_qualifiedName);
+=======
+      // System.out.println("Executing: " + "DROP TABLE " + m_qualifiedName);
+>>>>>>> development-8.1.x
 
       return "DROP TABLE " + m_qualifiedName;
     }
@@ -1096,10 +1142,17 @@ public class RxJdbcTableFactory {
 
     private String processTableData(
         DbmsDefinition dbmsDef, RxTables rxTable, Document docTableData, Element eList) {
+<<<<<<< HEAD
       Vector<RxTables> locRxTables = new Vector<>();
       Vector<Object> vtSqlStmt = new Vector<>();
       Vector<Object> vtSqlList = new Vector<>();
       Vector<Object> vtColumns = new Vector<>();
+=======
+      Vector locRxTables = new Vector();
+      Vector vtSqlStmt = new Vector();
+      Vector vtSqlList = new Vector();
+      Vector vtColumns = new Vector();
+>>>>>>> development-8.1.x
 
       WfSqlCreate locColumns = new WfSqlCreate();
       String sTableName = new String();
@@ -1173,7 +1226,11 @@ public class RxJdbcTableFactory {
                 eList = xmlDataDoc.getNextElement(false);
               }
               do {
+<<<<<<< HEAD
                 if (vtColumns == null) vtColumns = new Vector<>();
+=======
+                if (vtColumns == null) vtColumns = new Vector();
+>>>>>>> development-8.1.x
                 while (eList != null
                     && eList.getTagName().equalsIgnoreCase("column") == true
                     && (eList.getTagName().equalsIgnoreCase("row") == false
@@ -1198,13 +1255,21 @@ public class RxJdbcTableFactory {
                   eList = xmlDataDoc.getNextElement(false);
               } while (eList != null && eList.getTagName().equalsIgnoreCase("table") == false);
 
+<<<<<<< HEAD
               //                     return sStatus ;
+=======
+              // return sStatus ;
+>>>>>>> development-8.1.x
             }
 
             if (eList != null
                 && (eList.getTagName().equalsIgnoreCase("column")) == true
                 && sAction.equalsIgnoreCase("delete") == false) {
+<<<<<<< HEAD
               if (vtColumns == null) vtColumns = new Vector<>();
+=======
+              if (vtColumns == null) vtColumns = new Vector();
+>>>>>>> development-8.1.x
               while (eList != null
                   && (eList.getTagName().equalsIgnoreCase("table") == false)
                   && (eList.getTagName().equalsIgnoreCase("row") == false)
@@ -1229,7 +1294,11 @@ public class RxJdbcTableFactory {
                     || sAction.charAt(0) == 'r'
                     || sAction.charAt(0) == 'R') {
                   sStatus = processSqlStmt(locTable, vtColumns, sAction, dbmsDef);
+<<<<<<< HEAD
                   vtColumns = new Vector<>();
+=======
+                  vtColumns = new Vector();
+>>>>>>> development-8.1.x
                   if (sStatus != null && sStatus.length() > 0) {
                     sStatus =
                         "Error Processing SQL Statement on table " + locTable.getTableName() + "\n";
@@ -1277,7 +1346,11 @@ public class RxJdbcTableFactory {
     } // parseTableData()
 
     private String processSqlStmt(
+<<<<<<< HEAD
         RxTables wfLocalTable, Vector<Object> vtColumns, String sAction, DbmsDefinition dbmsDef) {
+=======
+        RxTables wfLocalTable, Vector vtColumns, String sAction, DbmsDefinition dbmsDef) {
+>>>>>>> development-8.1.x
       System.out.println("processSqlStmt");
       String sSqlStmt = new String();
       WfSqlCreate newColumns = new WfSqlCreate();
@@ -1479,9 +1552,14 @@ public class RxJdbcTableFactory {
         cConn = dbmsDef.getConnection();
         pStmt = PSPreparedStatement.getPreparedStatement(cConn, sSqlStmt);
         /*
+<<<<<<< HEAD
          * TODO: It is inefficient to use a prepareStatement for only
          * one row of data.  Should be re-designed to reuse this statement
          * for all rows
+=======
+         * TODO: It is inefficient to use a prepareStatement for only one row of data. Should be
+         * re-designed to reuse this statement for all rows
+>>>>>>> development-8.1.x
          */
 
         // bind columns
@@ -1884,9 +1962,15 @@ public class RxJdbcTableFactory {
       return pStmt;
     } // SetSqlStemData
 
+<<<<<<< HEAD
     private Vector<WfSqlCreate> reOrderColumns(RxTables wfLocalTable, Vector<Object> vtColumns) {
       Vector<WfSqlCreate> vtOrderedColumns = new Vector<>(); // Return Param
       Vector<RxColumns> vtTabColumns = new Vector<>();
+=======
+    private Vector reOrderColumns(RxTables wfLocalTable, Vector vtColumns) {
+      Vector vtOrderedColumns = new Vector(); // Return Param
+      Vector vtTabColumns = new Vector();
+>>>>>>> development-8.1.x
 
       vtTabColumns = wfLocalTable.vColumns;
 
@@ -1909,7 +1993,11 @@ public class RxJdbcTableFactory {
       return vtOrderedColumns;
     }
 
+<<<<<<< HEAD
     //////////// Dropping, Creating the tables  /////////
+=======
+    //////////// Dropping, Creating the tables /////////
+>>>>>>> development-8.1.x
     public String generateTable(DbmsDefinition dbmsDef, Element elementData, RxTables rxTable)
         throws SQLException {
       Connection conn = dbmsDef.getConnection();
@@ -1941,11 +2029,19 @@ public class RxJdbcTableFactory {
 
         ////////////////////////////////
         // Table works as followed :
+<<<<<<< HEAD
         //          Yes  No  No Action
         //          ===  ==  =========
         // CREATE    1    2     0
         // ALTER     1    2     0
         // DELETE    1    2     0
+=======
+        // Yes No No Action
+        // === == =========
+        // CREATE 1 2 0
+        // ALTER 1 2 0
+        // DELETE 1 2 0
+>>>>>>> development-8.1.x
         ////////////////////////////////
         if (iCreateFlag == RxTableInstallLogic.CREATE_YES
             || iCreateFlag == RxTableInstallLogic.CREATE_NODROP) {
@@ -2125,10 +2221,16 @@ public class RxJdbcTableFactory {
 
                     // now move the data from the backup
 
+<<<<<<< HEAD
                     /* we should not fail the table creation if
                      * the data from the backup can not be moved
                      * back.  This can happen if we add keys to a
                      * table.
+=======
+                    /*
+                     * we should not fail the table creation if the data from the backup can not be
+                     * moved back. This can happen if we add keys to a table.
+>>>>>>> development-8.1.x
                      */
                     try {
                       s = getCopyTableStatement(rxBackupTable, rxTable.getTableName());
@@ -2203,16 +2305,25 @@ public class RxJdbcTableFactory {
                     // check the table design
                     vDiffs = orgTable.compareTables(rxBackupTable);
                     if (vDiffs.size() > 0) {
+<<<<<<< HEAD
                       return "Table backup restoration aborted. Copying of backup failed to copy"
                           + " table design.";
+=======
+                      return "Table backup restoration aborted. Copying of backup failed to copy table design.";
+>>>>>>> development-8.1.x
                     }
 
                     // check the data
                     iBackupRows = getRowCount(dbmsDef, strQualBackupName);
                     iOrigRowCount = getRowCount(dbmsDef, m_qualifiedName);
                     if (iBackupRows != iOrigRowCount) {
+<<<<<<< HEAD
                       return "Table backup restoration aborted. Copying of backup failed to copy"
                           + " rows. Original table had "
+=======
+                      return "Table backup restoration aborted. Copying of backup failed to copy rows. "
+                          + "Original table had "
+>>>>>>> development-8.1.x
                           + new Integer(iOrigRowCount).toString()
                           + " rows but the backup row count is "
                           + new Integer(iBackupRows).toString();
@@ -2225,6 +2336,7 @@ public class RxJdbcTableFactory {
               } else System.out.println("no table changes needed for " + rxTable.getTableName());
 
               /*
+<<<<<<< HEAD
                                 // Save old Data in an XML Document
                                 sqlLog = storeOldData(dbmsDef,orgTable);
                                 if(sqlLog.errorMessage.length() == 0)
@@ -2264,6 +2376,23 @@ public class RxJdbcTableFactory {
                                                               cDB.dataDoc,
                                                               elementData);
                                 }*/
+=======
+               * // Save old Data in an XML Document sqlLog = storeOldData(dbmsDef,orgTable);
+               * if(sqlLog.errorMessage.length() == 0) { try { s = getDropTableStatement();
+               * stmt.execute(s); s = getCreateTableStatement(false); //
+               * System.out.println("Executing: " + s); stmt.execute(s); s =
+               * getGrantAccesStatement(); // System.out.println("Executing: " + s);
+               * stmt.execute(s); s = createPrimaryKey(m_pKey,stmt); if(s != null && s.length() > 0)
+               * { stmt.execute(s); } sqlLog = insertOldData(dbmsDef,m_name,iRowCount); }
+               * catch(Exception e) { // One of the SQL Statements failed. // Store Data in the XML
+               * Doc. System.out.println("Exception encountered: "+
+               * "Storing old data in XML File\n"); log.error(PSExceptionUtils.getMessageForLog(e));
+               * log.debug(PSExceptionUtils.getDebugMessageForLog(e)); } // TODO == This is other
+               * way == change later if(sqlLog.errorMessage.length() == 0) { sStatus =
+               * deleteFile(oldDataFileName,targetDir); } sStatus =
+               * processTableData(dbmsDef,tableDef, cDB.dataDoc, elementData); }
+               */
+>>>>>>> development-8.1.x
             } else if (iRowCount == 0) {
               s = getDropTableStatement();
               stmt.execute(s);
@@ -2353,7 +2482,11 @@ public class RxJdbcTableFactory {
         try {
           sStmt = getAddPrimaryKeyStatement();
           // System.out.println("Executing: " + sStmt);
+<<<<<<< HEAD
           //             stStmt.execute(sStmt);
+=======
+          // stStmt.execute(sStmt);
+>>>>>>> development-8.1.x
         } catch (Exception e) {
           log.error(PSExceptionUtils.getMessageForLog(e));
           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -2367,7 +2500,11 @@ public class RxJdbcTableFactory {
     String createPrimaryKey(RxTables rxTable, Statement stStmt) {
       String sStmt = new String();
 
+<<<<<<< HEAD
       Vector<String> vKeys = new Vector<>();
+=======
+      Vector vKeys = new Vector();
+>>>>>>> development-8.1.x
       for (int iCol = 0; iCol < rxTable.vColumns.size(); ++iCol) {
         RxColumns col = (RxColumns) rxTable.vColumns.get(iCol);
         if (col.getKey()) vKeys.add(col.getColName());
@@ -2377,7 +2514,11 @@ public class RxJdbcTableFactory {
         try {
           sStmt = getAddPrimaryKeyStatement(vKeys, rxTable);
           // System.out.println("Executing: " + sStmt);
+<<<<<<< HEAD
           //             stStmt.execute(sStmt);
+=======
+          // stStmt.execute(sStmt);
+>>>>>>> development-8.1.x
         } catch (Exception e) {
           log.error(PSExceptionUtils.getMessageForLog(e));
           log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -2407,7 +2548,11 @@ public class RxJdbcTableFactory {
     // Checking for table existance
     private RxTables checkUserTable(
         DbmsDefinition dbmsDef, String qualifiedTableName, String tableName) {
+<<<<<<< HEAD
       Vector<RxColumns> vtColumnList = new Vector<>(); // To make sure we don't delete by mistake
+=======
+      Vector vtColumnList = new Vector(); // To make sure we don't delete by mistake
+>>>>>>> development-8.1.x
       RxColumns orgColumns = new RxColumns();
       RxTables orgTable = new RxTables();
       String sqlStmt = new String();
@@ -2417,7 +2562,11 @@ public class RxJdbcTableFactory {
       ResultSet rsColumns = null;
       ResultSet rsKeys = null;
       int rowCount = 0;
+<<<<<<< HEAD
       Vector<String> vKeys = new Vector<>();
+=======
+      Vector vKeys = new Vector();
+>>>>>>> development-8.1.x
 
       orgTable.setDataBase(cDB.getDataBase());
       orgTable.setSchema(cDB.getSchema());
@@ -2516,7 +2665,11 @@ public class RxJdbcTableFactory {
           }
 
           orgColumns.setOrdinalPosition(Integer.parseInt(rsColumns.getString("ORDINAL_POSITION")));
+<<<<<<< HEAD
           //               int colOrdPosition = orgColumns.getOrdinalPosition();
+=======
+          // int colOrdPosition = orgColumns.getOrdinalPosition();
+>>>>>>> development-8.1.x
 
           String sColNullable = rsColumns.getString("IS_NULLABLE").trim();
           if (sColNullable.equalsIgnoreCase("NO") == true) {
@@ -2549,7 +2702,11 @@ public class RxJdbcTableFactory {
     // Checking for table existance
     private boolean tableExists(DbmsDefinition dbmsDef, String tableName) {
       boolean bRet = false;
+<<<<<<< HEAD
       Vector<RxColumns> vtColumnList = new Vector<>(); // To make sure we don't delete by mistake
+=======
+      Vector vtColumnList = new Vector(); // To make sure we don't delete by mistake
+>>>>>>> development-8.1.x
       RxColumns orgColumns = new RxColumns();
       RxTables orgTable = new RxTables();
       String sqlStmt = new String();
@@ -2651,7 +2808,11 @@ public class RxJdbcTableFactory {
       }
 
       String sColumn = new String();
+<<<<<<< HEAD
       Vector<RxColumns> vtColumns = new Vector<>();
+=======
+      Vector vtColumns = new Vector();
+>>>>>>> development-8.1.x
       vtColumns = orgTable.vColumns;
       for (int i = 0; i < orgTable.vColumns.size(); i++) {
         RxColumns orgColumns = new RxColumns();
@@ -2680,9 +2841,15 @@ public class RxJdbcTableFactory {
     private sqlTransactLog setColumnData(RxTables orgTable, ResultSet rsResults) {
       Vector vtOldTables = cDB.wfOldTables;
       Vector vtOrgColumns = orgTable.vColumns;
+<<<<<<< HEAD
       Vector<RxColumns> vtStoredColumns = new Vector<>();
       RxTables oldTables = new RxTables();
       Vector<Object> vtValues = new Vector<>();
+=======
+      Vector vtStoredColumns = new Vector();
+      RxTables oldTables = new RxTables();
+      Vector vtValues = new Vector();
+>>>>>>> development-8.1.x
       sqlTransactLog sqlLog = new sqlTransactLog();
       int rowCount = 0;
 
@@ -2694,7 +2861,11 @@ public class RxJdbcTableFactory {
             oldColumn = (RxColumns) vtOrgColumns.elementAt(i);
             String sColValue = rsResults.getString(oldColumn.getColName());
             if (sColValue == null) sColValue = "";
+<<<<<<< HEAD
             //                  int dataType = rsResults.getMetaData();
+=======
+            // int dataType = rsResults.getMetaData();
+>>>>>>> development-8.1.x
             oldColumn.vtOldValues.add(sColValue);
             vtOrgColumns.set(i, oldColumn);
           }
@@ -2727,7 +2898,11 @@ public class RxJdbcTableFactory {
       Element table = null;
       Element row = null;
       Document xmlDoc = null;
+<<<<<<< HEAD
       Vector<RxColumns> vtColumns = new Vector<>();
+=======
+      Vector vtColumns = new Vector();
+>>>>>>> development-8.1.x
       PSXmlTreeWalker walkerTableDef = null;
 
       xmlDoc = dataDoc;
@@ -2811,14 +2986,24 @@ public class RxJdbcTableFactory {
         }
         eTable.appendChild(eRow);
         eDtdRoot.appendChild(eTable);
+<<<<<<< HEAD
         //            xmlDoc.appendChild(eDtdRoot);
         //            cDB.eDtd = eDtdRoot ;
         //            cDB.oldDtdDoc = xmlDoc ;
+=======
+        // xmlDoc.appendChild(eDtdRoot);
+        // cDB.eDtd = eDtdRoot ;
+        // cDB.oldDtdDoc = xmlDoc ;
+>>>>>>> development-8.1.x
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
+<<<<<<< HEAD
       return xmlDoc; // TODO  == Change this later - not required
+=======
+      return xmlDoc; // TODO == Change this later - not required
+>>>>>>> development-8.1.x
     }
 
     /////// Insert old Data into table ////
@@ -2828,11 +3013,19 @@ public class RxJdbcTableFactory {
       RxTables oldTable = new RxTables();
       Connection cConn = null;
       String sPrefix = new String();
+<<<<<<< HEAD
       Vector<RxColumns> vtColumns = new Vector<>();
 
       Vector vtOldTables = cDB.wfOldTables;
 
       // TODO ==  Replace TableName with NewTableName
+=======
+      Vector vtColumns = new Vector();
+
+      Vector vtOldTables = cDB.wfOldTables;
+
+      // TODO == Replace TableName with NewTableName
+>>>>>>> development-8.1.x
       Vector vtTables = cDB.RxTables;
 
       for (int i = 0; i < vtOldTables.size(); i++) {
@@ -2878,11 +3071,19 @@ public class RxJdbcTableFactory {
             RxColumns oldDataColumn = (RxColumns) vtOldColumns.elementAt(j);
             String sOldColValue = (String) oldDataColumn.vtOldValues.elementAt(i);
             // System.out.println(oldDataColumn.getColName()+
+<<<<<<< HEAD
             //                  "[" + oldDataColumn.getColNo() +
             //                  "]= "+sOldColValue);
 
             pStmt = setOldStmtData(pStmt, oldDataColumn, sOldColValue, j + 1);
             //    oldDataColumn.getColNo());
+=======
+            // "[" + oldDataColumn.getColNo() +
+            // "]= "+sOldColValue);
+
+            pStmt = setOldStmtData(pStmt, oldDataColumn, sOldColValue, j + 1);
+            // oldDataColumn.getColNo());
+>>>>>>> development-8.1.x
             if (pStmt == null) break;
           }
           if (pStmt == null) break;
@@ -3304,9 +3505,15 @@ public class RxJdbcTableFactory {
         case Types.DOUBLE:
         case Types.NUMERIC:
         case Types.DECIMAL:
+<<<<<<< HEAD
           /* this was my first choice to avoid precision problems,
            * but various drivers choked on it. as such, we've down-graded
            * to doubles.
+=======
+          /*
+           * this was my first choice to avoid precision problems, but various drivers choked on it.
+           * as such, we've down-graded to doubles.
+>>>>>>> development-8.1.x
            *
            * rs.setObject(colNo, new java.math.BigDecimal(value), dt);
            */
@@ -3347,6 +3554,7 @@ public class RxJdbcTableFactory {
           }
           break;
           /*
+<<<<<<< HEAD
                       case Types.TIME:
                          java.sql.Time time = java.sql.Time.valueOf(value);
                          rs.setTime(colNo, time);
@@ -3369,6 +3577,20 @@ public class RxJdbcTableFactory {
                          rs.setObject(colNo, value, dt);
                          break;
           */ }
+=======
+           * case Types.TIME: java.sql.Time time = java.sql.Time.valueOf(value); rs.setTime(colNo,
+           * time); break;
+           *
+           * case Types.TIMESTAMP: java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf(value);
+           * rs.setTimestamp(colNo, timestamp); break;
+           *
+           * case Types.BINARY: case Types.VARBINARY: case Types.LONGVARBINARY: // binary data must be
+           * in Base64 format (our rule) byte[] binData = getBinaryFromBase64(value);
+           * rs.setBytes(colNo, binData); break;
+           *
+           * default: // hope this can be done rs.setObject(colNo, value, dt); break;
+           */ }
+>>>>>>> development-8.1.x
     }
 
     private void storeColumnData(
@@ -3408,6 +3630,7 @@ public class RxJdbcTableFactory {
           case Types.DOUBLE:
           case Types.NUMERIC:
           case Types.DECIMAL:
+<<<<<<< HEAD
             /* this was my first choice to avoid precision problems,
              * but various drivers choked on it. as such, we've down-graded
              * to doubles.
@@ -3416,6 +3639,16 @@ public class RxJdbcTableFactory {
              */
             stmt.setDouble(colNo, Double.parseDouble(value));
             System.out.println("Inserting " + Double.parseDouble(value));
+=======
+            /*
+             * this was my first choice to avoid precision problems, but various drivers choked on
+             * it. as such, we've down-graded to doubles.
+             *
+             * stmt.setObject(colNo, new java.math.BigDecimal(value), dt);
+             */
+            stmt.setDouble(colNo, Double.valueOf(value).doubleValue());
+            System.out.println("Inserting " + Double.valueOf(value).doubleValue());
+>>>>>>> development-8.1.x
             break;
 
           case Types.FLOAT:
@@ -3438,6 +3671,7 @@ public class RxJdbcTableFactory {
             java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf(value);
             System.out.println("Timestamp created: value is [" + timestamp.toString() + "]");
 
+<<<<<<< HEAD
             /* in order to fix bug id Rx-99-10-0209, we had to put in
              * this kludge. The basic problem is that MS SQL Server
              * is truncating the time component as the JDBC-ODBC Bridge
@@ -3449,6 +3683,16 @@ public class RxJdbcTableFactory {
              * SQL Server. For performance reasons, we need to revisit
              * this and only use setString when we're talking to
              * SQL Server.
+=======
+            /*
+             * in order to fix bug id Rx-99-10-0209, we had to put in this kludge. The basic problem
+             * is that MS SQL Server is truncating the time component as the JDBC-ODBC Bridge is
+             * sending in a fraction size beyond SQL Server's capabilities. Unfortunately, SQL
+             * Server truncates too much of the time, going all the way down to the seconds
+             * component. As such, we've decided to take the timestamp and convert it to a string.
+             * This appears to fix SQL Server. For performance reasons, we need to revisit this and
+             * only use setString when we're talking to SQL Server.
+>>>>>>> development-8.1.x
              */
             stmt.setString(colNo, timestamp.toString());
             // stmt.setTimestamp(colNo, timestamp);
@@ -3495,6 +3739,7 @@ public class RxJdbcTableFactory {
      */
     private String m_qualifiedFkeyName;
 
+<<<<<<< HEAD
     private int iCreateFlag =
         3; // 0 = Do nothing , 1=create, 2= Do not Create, 3=create, never drop
     private int iAlterFlag = 0; // 0 = Do nothing , 1=alter , 2= Do not alter
@@ -3502,6 +3747,15 @@ public class RxJdbcTableFactory {
 
     private List<ColumnDefinition> m_columns = new ArrayList<>();
     private List<String> m_pKey = new ArrayList<>();
+=======
+    private int iCreateFlag = 3; // 0 = Do nothing , 1=create, 2= Do not Create, 3=create, never
+    // drop
+    private int iAlterFlag = 0; // 0 = Do nothing , 1=alter , 2= Do not alter
+    private int iDelOldData = 2; // 0 = Do nothing , 1=Delete, 2= Do not Delete
+
+    private List m_columns = new ArrayList();
+    private List m_pKey = new ArrayList();
+>>>>>>> development-8.1.x
 
     /**
      * List of foreign key constraints. Each entry is String array containing 3 entries, where the
@@ -3510,11 +3764,19 @@ public class RxJdbcTableFactory {
      * added in the ctor, and entries are never <code>null</code>. List or its entries are never
      * modified after it is initialized in the ctor.
      */
+<<<<<<< HEAD
     private List<Object> m_fKey = new ArrayList<>();
 
     private List<Object> m_indices = new ArrayList<>();
 
     private HashMap<String, Integer> m_columnPos = new HashMap<>(); // col name to 1-based pos
+=======
+    private List m_fKey = new ArrayList();
+
+    private List m_indices = new ArrayList();
+
+    private HashMap m_columnPos = new HashMap(); // col name to 1-based pos
+>>>>>>> development-8.1.x
 
     private Element m_dataNode;
     private DbmsDefinition m_dbmsDef = null;
@@ -3535,8 +3797,13 @@ public class RxJdbcTableFactory {
     private String sServer = new String();
     private String sDataBase = new String();
     private String sSchema = new String();
+<<<<<<< HEAD
     public Vector<RxTables> RxTables = new Vector<>();
     public Vector<RxTables> wfOldTables = new Vector<>();
+=======
+    public Vector RxTables = new Vector();
+    public Vector wfOldTables = new Vector();
+>>>>>>> development-8.1.x
     public Document dataDoc = null;
     public Document dtdDoc = null;
     public Document oldDataDoc = null;
@@ -3749,8 +4016,13 @@ public class RxJdbcTableFactory {
     private String m_name;
     private String m_qualifiedName;
 
+<<<<<<< HEAD
     private List<Object> m_columns = new ArrayList<>();
     private List<Object> m_sortOrders = new ArrayList<>();
+=======
+    private List m_columns = new ArrayList();
+    private List m_sortOrders = new ArrayList();
+>>>>>>> development-8.1.x
   }
 
   public void setLogFileName(String sFileName) {
@@ -3859,8 +4131,13 @@ public class RxJdbcTableFactory {
 
         if (column != null) {
           if (column.getColAction() != RxColumns.USER_COLUMN) {
+<<<<<<< HEAD
             //                   System.out.println(" found non user action for "
             //                          + column.getColName() + " action: " + new
+=======
+            // System.out.println(" found non user action for "
+            // + column.getColName() + " action: " + new
+>>>>>>> development-8.1.x
             // Integer(column.getColAction()).toString());
             return (true);
           }
@@ -3875,9 +4152,13 @@ public class RxJdbcTableFactory {
     try {
       if (args.length < 4) {
         System.err.println(
+<<<<<<< HEAD
             "Usage: java RxJdbcTableFactory <properties_file_name> <data_type_map_file>"
                 + " <table-desc-file> <table-data-file> [SRV=<server-override>]"
                 + " [DB=<database-override>] [SCHEMA=<schema-override>]");
+=======
+            "Usage: java RxJdbcTableFactory <properties_file_name> <data_type_map_file> <table-desc-file> <table-data-file> [SRV=<server-override>] [DB=<database-override>] [SCHEMA=<schema-override>]");
+>>>>>>> development-8.1.x
         System.exit(1);
       }
 
@@ -3916,8 +4197,12 @@ public class RxJdbcTableFactory {
   private static void main2(String args[]) {
     if (args.length < 8) {
       System.err.println(
+<<<<<<< HEAD
           "Usage: java RxJdbcTableFactory -dbprops <propsFile> -typemap <typeMapFile> -def"
               + " <defFile> -data <dataFile>");
+=======
+          "Usage: java RxJdbcTableFactory -dbprops <propsFile> -typemap <typeMapFile> -def <defFile> -data <dataFile>");
+>>>>>>> development-8.1.x
       System.exit(1);
     }
 

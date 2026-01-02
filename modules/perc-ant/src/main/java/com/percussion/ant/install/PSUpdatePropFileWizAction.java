@@ -105,9 +105,16 @@ public class PSUpdatePropFileWizAction extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties Accessors
+   * and Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the absolute property file path.
@@ -195,9 +202,16 @@ public class PSUpdatePropFileWizAction extends PSAction {
     this.propertyValue = propertyValue;
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * absolute file path of the properties file, never <code>null</code>, empty until setter is

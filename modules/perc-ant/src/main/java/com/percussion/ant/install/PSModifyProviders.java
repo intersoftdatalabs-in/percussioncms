@@ -78,6 +78,7 @@ import org.w3c.dom.Document;
 public class PSModifyProviders extends PSAction {
 
   private static final Logger log = LogManager.getLogger(PSModifyProviders.class);
+<<<<<<< HEAD
 
   // see base class
   @Override
@@ -98,6 +99,27 @@ public class PSModifyProviders extends PSAction {
       // perform necessary app/def/server configuration conversions
       doConversion(configCtx, repInfo);
 
+=======
+  // see base class
+  @Override
+  public void execute() {
+    try {
+      PSLogger.logInfo("Modifying security providers");
+
+      IPSConfigFileLocator cfgFileLocator = new PSInstConfigFileLocator(m_strRxRoot);
+      PSConfigurationCtx configCtx =
+          new PSConfigurationCtx(cfgFileLocator, PSServer.getPartOneKey());
+      IPSRepositoryInfo repInfo = new PSInstRepositoryInfo(m_strRxRoot);
+      PSSecurityProviderConverter spConverter =
+          new PSSecurityProviderConverter(configCtx, repInfo, true);
+
+      // perform necessary security provider conversions
+      spConverter.convert();
+
+      // perform necessary app/def/server configuration conversions
+      doConversion(configCtx, repInfo);
+
+>>>>>>> development-8.1.x
       // save configurations
       configCtx.saveConfigs();
     } catch (Exception e) {
@@ -325,9 +347,16 @@ public class PSModifyProviders extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** The rhythmyx root directory */
   private String m_strRxRoot = getRootDir();

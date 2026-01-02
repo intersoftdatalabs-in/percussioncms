@@ -30,9 +30,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,9 +46,13 @@ import org.springframework.web.servlet.mvc.Controller;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class ActionPreviewController extends AbstractMenuController implements Controller {
 
   private static final Logger log = LogManager.getLogger(ActionPreviewController.class);
@@ -193,30 +203,46 @@ public class ActionPreviewController extends AbstractMenuController implements C
     return output;
   }
 
+<<<<<<< HEAD
   /**
    * @return the snippetTargetStyle
    */
+=======
+  /** @return the snippetTargetStyle */
+>>>>>>> development-8.1.x
   public String getSnippetTargetStyle() {
     return snippetTargetStyle;
   }
 
+<<<<<<< HEAD
   /**
    * @param snippetTargetStyle the snippetTargetStyle to set
    */
+=======
+  /** @param snippetTargetStyle the snippetTargetStyle to set */
+>>>>>>> development-8.1.x
   public void setSnippetTargetStyle(String snippetTargetStyle) {
     this.snippetTargetStyle = snippetTargetStyle;
   }
 
+<<<<<<< HEAD
   /**
    * @return the urlBuilder
    */
+=======
+  /** @return the urlBuilder */
+>>>>>>> development-8.1.x
   public UrlBuilder getUrlBuilder() {
     return urlBuilder;
   }
 
+<<<<<<< HEAD
   /**
    * @param urlBuilder the urlBuilder to set
    */
+=======
+  /** @param urlBuilder the urlBuilder to set */
+>>>>>>> development-8.1.x
   public void setUrlBuilder(UrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
   }

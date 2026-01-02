@@ -21,7 +21,11 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * Takes a set of property values and binds them into the jndi context to allow later lookups to
@@ -39,16 +43,24 @@ public class PSNamingContextHelper {
   /** The root jndi path */
   String m_root = null;
 
+<<<<<<< HEAD
   /**
    * @throws NamingException
    */
+=======
+  /** @throws NamingException */
+>>>>>>> development-8.1.x
   public PSNamingContextHelper() throws NamingException {
     m_ctx = new InitialContext();
   }
 
+<<<<<<< HEAD
   /**
    * @return Returns the props.
    */
+=======
+  /** @return Returns the props. */
+>>>>>>> development-8.1.x
   public Map getBindings() {
     return m_bindings;
   }
@@ -105,16 +117,24 @@ public class PSNamingContextHelper {
     m_ctx.bind(key, binding);
   }
 
+<<<<<<< HEAD
   /**
    * @return Returns the root.
    */
+=======
+  /** @return Returns the root. */
+>>>>>>> development-8.1.x
   public String getRoot() {
     return m_root;
   }
 
+<<<<<<< HEAD
   /**
    * @param root The root to set.
    */
+=======
+  /** @param root The root to set. */
+>>>>>>> development-8.1.x
   public void setRoot(String root) {
     if (!root.endsWith("/") && !root.isEmpty()) {
       root = root + "/";

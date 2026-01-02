@@ -16,18 +16,28 @@
  */
 package com.percussion.pso.workflow;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
 import com.percussion.services.PSBaseServiceLocator;
 
 /*
  *  PSOPublishEditionServiceLocator.java
  *
+<<<<<<< HEAD
  * @author DavidBenua
  *
  */
 /**
+=======
+>>>>>>> development-8.1.x
  * @author DavidBenua
  */
+<<<<<<< HEAD
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class PSOPublishEditionServiceLocator extends PSBaseServiceLocator {
   /** static methods only, never constructed. */
   private PSOPublishEditionServiceLocator() {}

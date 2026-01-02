@@ -16,7 +16,11 @@
  */
 package com.percussion.pso.workflow;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
@@ -144,8 +148,12 @@ public class PSOWFActionDispatcher extends PSDefaultExtension implements IPSWork
       if (actions != null) {
         for (StringTokenizer st = new StringTokenizer(sActions, ",");
             st.hasMoreTokens();
+<<<<<<< HEAD
             actions.add(st.nextToken()))
           ;
+=======
+            actions.add(st.nextToken())) ;
+>>>>>>> development-8.1.x
       } else {
         log.error(
             "Could not find property {} : {} in rxconfig/Workflow/dispatcher.properties",

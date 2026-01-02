@@ -17,46 +17,39 @@
 
 package com.percussion.cx.javafx;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 
 public class PSWebViewUtils {
 
-    private static PSWebViewUtils INSTANCE;
+  private static PSWebViewUtils INSTANCE;
 
-    public synchronized static PSWebViewUtils getInstance(){
-        if(INSTANCE==null){
-            INSTANCE = new PSWebViewUtils();
-        }
-        return INSTANCE;
+  public static synchronized PSWebViewUtils getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new PSWebViewUtils();
     }
+    return INSTANCE;
+  }
 
-    private PSWebViewUtils(){
+  private PSWebViewUtils() {}
+
+  /**
+   * Utility method to retrieve the contents of a URL.
+   *
+   * @param uri String uri
+   */
+  public String getText(String protocol, String host, String port, String uri) {
+    try {
+      if (!uri.startsWith("http")) {
+        if (!uri.startsWith("/")) uri = "/" + uri;
+        uri = protocol + "//" + host + ":" + port + uri;
+      }
+      URL url = new URL(uri);
+      return IOUtils.toString(url.openStream(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    /**
-     * Utility method to retrieve the contents of a URL.
-     *
-     * @param uri String uri
-     */
-    public String getText(String protocol, String host, String port, String uri){
-        try {
-            if(!uri.startsWith("http")) {
-                if (!uri.startsWith("/"))
-                    uri = "/" + uri;
-                uri = protocol + "//"+ host +":" +port + uri;
-            }
-            URL url = new URL(uri);
-            return IOUtils.toString(url.openStream(),
-                    StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
+  }
 }

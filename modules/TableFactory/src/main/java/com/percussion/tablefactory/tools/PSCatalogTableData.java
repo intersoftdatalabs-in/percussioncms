@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.tablefactory.tools;
 
@@ -74,6 +73,7 @@ public class PSCatalogTableData {
   public static PSJdbcDbmsDef loadProps(String propsName)
       throws PSJdbcTableFactoryException, IOException {
     if (propsName == null) throw new IllegalArgumentException("propsName may not be null");
+<<<<<<< HEAD
 
     FileInputStream in = null;
     try {
@@ -239,10 +239,33 @@ public class PSCatalogTableData {
       if (out != null)
         try {
           out.close();
+=======
+
+    FileInputStream in = null;
+    try {
+      File propsFile = new File(propsName);
+      Properties props = new Properties();
+      in = new FileInputStream(propsFile);
+      props.load(in);
+      /*
+       * This utility class is designed to be used with the workflow properties file, which should
+       * always have an encrypted password. So force that setting if the flag isn't set.
+       */
+      if (props.getProperty("PWD_ENCRYPTED") == null) {
+        props.setProperty("PWD_ENCRYPTED", "Y");
+      }
+      PSJdbcDbmsDef def = new PSJdbcDbmsDef(props);
+      return def;
+    } finally {
+      if (in != null)
+        try {
+          in.close();
+>>>>>>> development-8.1.x
         } catch (IOException e) {
         }
     }
   }
+<<<<<<< HEAD
 
   private static void generateSchemaAndDataFiles(
       File schemaFile,
@@ -394,6 +417,299 @@ public class PSCatalogTableData {
       // Props file
       dbdef = loadProps(optionsMap.get(PSJdbcImportExportHelper.OPTION_DB_PROPS));
 
+=======
+
+  /**
+   * Gets the schema and data for the specified table by connecting to the specified database using
+   * the table factory.
+   *
+   * @param def configuration for the table factory; specifies the database to connect to; not
+   *     <code>null</code>
+   * @param tableName the name of the table to be cataloged, not <code>null</code> or empty.
+   * @return the definition and data for the specified table. Will be <code>null</code> if the
+   *     specified table does not exist.
+   * @throws IOException propagated if the default data type map cannot be loaded
+   * @throws SAXException propagated if an error occurs parsing the default data type map
+   * @throws SQLException propagated if a connection could not be established to the database
+   * @throws PSJdbcTableFactoryException if the table could not be cataloged
+   */
+  public static PSJdbcTableSchema catalogTable(PSJdbcDbmsDef def, String tableName)
+      throws PSJdbcTableFactoryException, IOException, SQLException, SAXException {
+    if (def == null) throw new IllegalArgumentException("PSJdbcDbmsDef may not be null");
+
+    if (tableName == null || tableName.trim().length() == 0)
+      throw new IllegalArgumentException("tableName may not be null or empty");
+
+    PSJdbcDataTypeMap map = new PSJdbcDataTypeMap(null, def.getDriver(), null);
+
+    Connection conn = PSJdbcTableFactory.getConnection(def);
+    return PSJdbcTableFactory.catalogTable(conn, def, map, tableName, true);
+  }
+
+  /**
+   * Gets the name of the JDBC driver defined in the DB_DRIVER_NAME property within the specified
+   * properties file.
+   *
+   * @param propsName name of a properties file that provides database connection information, not
+   *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
+   *     required properties.
+   * @return the name of the JDBC driver defined in the properties file, never <code>null</code> or
+   *     empty.
+   * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
+   *     errors occur reading the file
+   * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
+   *     specified in the properties file.
+   */
+  public static String getDriver(String propsName) throws IOException, PSJdbcTableFactoryException {
+    if (propsName == null || propsName.trim().length() == 0)
+      throw new IllegalArgumentException("property file name must be not null and not empty");
+
+    PSJdbcDbmsDef def = loadProps(propsName);
+    return def.getDriver();
+  }
+
+  /**
+   * Gets the name of the database defined in the DB_NAME property within the specified properties
+   * file.
+   *
+   * @param propsName name of a properties file that provides database connection information, not
+   *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
+   *     required properties.
+   * @return the name of the database defined in the properties file, may be <code>null</code> or
+   *     empty.
+   * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
+   *     errors occur reading the file
+   * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
+   *     specified in the properties file.
+   */
+  public static String getDataBase(String propsName)
+      throws IOException, PSJdbcTableFactoryException {
+    if (propsName == null || propsName.trim().length() == 0)
+      throw new IllegalArgumentException("property file name must be not null and not empty");
+
+    PSJdbcDbmsDef def = loadProps(propsName);
+    return def.getDataBase();
+  }
+
+  /**
+   * Command line interface for this tool. For parameters see {@link PSCatalogTableData#usage()} for
+   * a list of the required properties.
+   *
+   * @param args
+   */
+  public static void main(String[] args) {
+    if (args.length > 0
+        && (PSJdbcImportExportHelper.OPTION_DB_EXPORT.equals(args[0])
+            || PSJdbcImportExportHelper.OPTION_DB_IMPPORT.equals(args[0]))) {
+      mainExport(args);
+      return;
+    }
+    if (args.length < 4) usage();
+
+    String propsName = args[0];
+    String tablesToExport = args[1];
+
+    File tablesToExportFile = new File(tablesToExport);
+    File schemaFile = new File(args[2]);
+    File dataFile = new File(args[3]);
+    BufferedWriter bo = null;
+
+    FileOutputStream out = null;
+    PSJdbcDbmsDef dbdef = null;
+    try {
+      dbdef = loadProps(propsName);
+
+      if (!tablesToExportFile.exists()) {
+        Document tablesToExportDoc = generateTablesDocument(dbdef);
+
+        bo =
+            new BufferedWriter(
+                new OutputStreamWriter(
+                    new FileOutputStream(tablesToExportFile), StandardCharsets.UTF_8));
+
+        PSXmlDocumentBuilder.write(tablesToExportDoc, bo);
+        bo.close();
+
+        System.out.println("Created tablesToExport file with a list of table names.");
+        System.out.println("Rerun this tool to catalog the actual table data.");
+
+        return;
+      }
+
+      Document docTablesToExport =
+          PSXmlDocumentBuilder.createXmlDocument(
+              new FileInputStream(new File(tablesToExport)), false);
+
+      generateSchemaAndDataFiles(schemaFile, dataFile, dbdef, docTablesToExport, false);
+      System.exit(0);
+    } catch (Exception e) {
+      System.out.println("Unexpected error: ");
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      System.exit(1);
+    } finally {
+      if (dbdef != null) {
+        Connection conn;
+        try {
+          conn = dbdef.getConnection();
+          if (conn != null) conn.close();
+        } catch (Exception e) {
+        }
+      }
+
+      if (out != null)
+        try {
+          out.close();
+        } catch (IOException e) {
+        }
+    }
+  }
+
+  private static void generateSchemaAndDataFiles(
+      File schemaFile,
+      File dataFile,
+      PSJdbcDbmsDef dbdef,
+      Document docTablesToExport,
+      boolean saveIndividual)
+      throws PSJdbcTableFactoryException, IOException, SQLException, SAXException,
+          FileNotFoundException {
+    BufferedWriter out;
+    PSXmlTreeWalker walker = new PSXmlTreeWalker(docTablesToExport);
+    int firstFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+    int nextFlags =
+        PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+
+    Element table = walker.getNextElement(PSJdbcTableSchema.NODE_NAME, firstFlags);
+    if (table == null) {
+      usage();
+      return; // must have at least one table
+    }
+
+    Document outDefDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element outDefRoot = outDefDoc.createElement("tables");
+    outDefDoc.appendChild(outDefRoot);
+
+    Document outDataDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element outDataRoot = outDataDoc.createElement("tables");
+    outDataDoc.appendChild(outDataRoot);
+
+    int count = 0;
+    List<PSJdbcTableSchema> schemas = new ArrayList<PSJdbcTableSchema>();
+    while (table != null) {
+
+      String tableName = table.getAttribute("name");
+
+      // Skip table if it is listed to skip
+      if (PSJdbcImportExportHelper.tablesToSkip.contains(tableName)) {
+        System.out.println("Skipping table " + tableName);
+        table = walker.getNextElement(PSJdbcTableSchema.NODE_NAME, nextFlags);
+        continue;
+      }
+
+      PSJdbcTableSchema schema = catalogTable(dbdef, tableName);
+      if (schema == null) {
+        System.err.println("failed to catalog table: " + tableName);
+      } else {
+        count++;
+        // if the limit size attribute value needs to be set to true.
+        if (PSJdbcImportExportHelper.limitSizeForIndexMap.containsKey(tableName)) {
+          updateSchemaLimitSize(schema, tableName);
+        }
+        schemas.add(schema);
+
+        System.out.println("Processing table " + tableName + "...");
+        PSJdbcTableData data = schema.getTableData();
+        if (data != null) {
+          if (saveIndividual) {
+            Document dataDoc = PSXmlDocumentBuilder.createXmlDocument();
+            Element dataRoot = dataDoc.createElement("tables");
+            dataDoc.appendChild(dataRoot);
+            dataRoot.appendChild(dataDoc.importNode(data.toXml(dataDoc), true));
+            File indDataFile = new File(dataFile.getParentFile(), tableName + "-data.xml");
+            out =
+                new BufferedWriter(
+                    new OutputStreamWriter(
+                        new FileOutputStream(indDataFile), StandardCharsets.UTF_8));
+
+            PSXmlDocumentBuilder.write(dataDoc, out);
+            out.close();
+          } else {
+            outDataRoot.appendChild(outDataDoc.importNode(data.toXml(outDataDoc), true));
+          }
+        }
+      }
+      table = walker.getNextElement(PSJdbcTableSchema.NODE_NAME, nextFlags);
+    }
+    Collections.sort(schemas);
+    for (PSJdbcTableSchema schema : schemas) {
+      outDefRoot.appendChild(outDefDoc.importNode(schema.toXml(outDefDoc), true));
+    }
+
+    out =
+        new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(schemaFile), StandardCharsets.UTF_8));
+    PSXmlDocumentBuilder.write(outDefDoc, out);
+    out.close();
+    if (!saveIndividual) {
+      out =
+          new BufferedWriter(
+              new OutputStreamWriter(new FileOutputStream(dataFile), StandardCharsets.UTF_8));
+      PSXmlDocumentBuilder.write(outDataDoc, out);
+      out.close();
+    }
+    System.out.println("Completed data serialization from " + count + " tables.");
+  }
+
+  /**
+   * Helper method that sets the limitSizeForIndex attribute value to true to handle MySql column
+   * index sizes. This is based on the settings.
+   *
+   * @param schema assumed not <code>null</code>
+   * @param tableName assumed not <code>null</code>
+   */
+  private static void updateSchemaLimitSize(PSJdbcTableSchema schema, String tableName) {
+    String temp = PSJdbcImportExportHelper.limitSizeForIndexMap.get(tableName);
+    String[] columns = temp.split(":");
+    for (String column : columns) {
+      PSJdbcColumnDef colDef = schema.getColumn(column);
+      colDef.setLimitSizeForIndex(true);
+    }
+  }
+
+  private static Document generateTablesDocument(PSJdbcDbmsDef dbdef)
+      throws SQLException, PSJdbcTableFactoryException {
+    // catalog all tables and output a tablesToExport xml file
+
+    // tablesToExport DTD is similar to table def / data, see example:
+    /*
+     * <?xml version="1.0" encoding="UTF-8"?> <tables> <table name="T1"/> <table name="T2"/>
+     * <tables>
+     */
+
+    Document tablesToExportDoc = PSXmlDocumentBuilder.createXmlDocument();
+    Element tablesToExportRoot = tablesToExportDoc.createElement("tables");
+    tablesToExportDoc.appendChild(tablesToExportRoot);
+
+    Collection tables = PSJdbcTableFactory.catalogTables(dbdef, "%");
+    Iterator iter = tables.iterator();
+    while (iter.hasNext()) {
+      String tName = (String) iter.next();
+      Element tn = tablesToExportDoc.createElement("table");
+      tn.setAttribute("name", tName);
+      tablesToExportRoot.appendChild(tn);
+    }
+    return tablesToExportDoc;
+  }
+
+  public static void mainExport(String[] args) {
+    Map<String, String> optionsMap = PSJdbcImportExportHelper.getOptions(args);
+    PSJdbcDbmsDef dbdef = null;
+    try {
+      // Props file
+      dbdef = loadProps(optionsMap.get(PSJdbcImportExportHelper.OPTION_DB_PROPS));
+
+>>>>>>> development-8.1.x
       // Storage location
       String storagePath = optionsMap.get(PSJdbcImportExportHelper.OPTION_STORAGE_PATH);
       File binaryStorageFolder =
@@ -431,6 +747,7 @@ public class PSCatalogTableData {
   private static void usage() {
     System.out.println("Usage:");
     System.out.println(
+<<<<<<< HEAD
         "java com.percussion.tablefactory.toos.PSCatalogTableData <props> <tablesToExport>"
             + " <schemaFile> <dataFile>");
     System.out.println("where:");
@@ -442,6 +759,16 @@ public class PSCatalogTableData {
     System.out.println(
         "note: if this file doesn't exist it creates it by cataloging all the table names in a"
             + " given schema and exits.");
+=======
+        "java com.percussion.tablefactory.toos.PSCatalogTableData <props> <tablesToExport> <schemaFile> <dataFile>");
+    System.out.println("where:");
+    System.out.println("props - path to dbms props file");
+    System.out.println(
+        "tablesToExport - path to xml file that contains table names to export; simple dtd similar to the table def;");
+    System.out.println("i.e.: <tables><table name='tableName'/></tables> ");
+    System.out.println(
+        "note: if this file doesn't exist it creates it by cataloging all the table names in a given schema and exits.");
+>>>>>>> development-8.1.x
     System.out.println("schemaFile - path to xml file to which schema results are written");
     System.out.println("dataFile - path to xml file to which data results are written");
     System.exit(1);

@@ -328,7 +328,10 @@ public class ErrorDialogs {
 
   /** Constant for html close tag */
   public static final String HTML_CLOSE_TAG = "</html>";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Constant for content type text/html */
   public static final String TEXT_BY_HTML = "text/html";
 

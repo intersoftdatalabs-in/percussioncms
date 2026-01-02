@@ -36,12 +36,20 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
 
   /** Scheme constant for the "http" protocol. */
   public static final String SCHEME_HTTP = "http";
+<<<<<<< HEAD
 
   /** Scheme constant for the "https" protocol. */
   public static final String SCHEME_HTTPS = "https";
 
   private static Pattern EXTRACT_PROPNAME = Pattern.compile("\\$\\{([^}]*)}");
 
+=======
+  /** Scheme constant for the "https" protocol. */
+  public static final String SCHEME_HTTPS = "https";
+
+  private static Pattern EXTRACT_PROPNAME = Pattern.compile("\\$\\{([^}]*)}");
+
+>>>>>>> development-8.1.x
   private Path connectorFileContext = Paths.get(".");
 
   public Map<String, String> getProperties() {

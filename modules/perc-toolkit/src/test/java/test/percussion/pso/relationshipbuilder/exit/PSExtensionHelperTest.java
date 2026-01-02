@@ -34,18 +34,31 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.custommonkey.xmlunit.XMLUnit;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 
 public class PSExtensionHelperTest {
 
   private Set<Integer> m_output;
 
+<<<<<<< HEAD
   // JUnit 5 setup
   // ...existing code...
   @BeforeEach
+=======
+  /* (non-Javadoc)
+   * @see junit.framework.TestCase#setUp()
+   */
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     m_output = new HashSet<Integer>();
     XMLUnit.setControlParser("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
@@ -56,7 +69,10 @@ public class PSExtensionHelperTest {
     XMLUnit.setIgnoreWhitespace(true);
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertRejectsNullOutput() {
     boolean threw = false;
     try {
@@ -67,14 +83,20 @@ public class PSExtensionHelperTest {
     assertTrue(threw);
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertHandlesNullInput() {
     Collection<Object> invalids = PSExtensionHelper.convert(null, m_output);
     assertNotNull(invalids);
     assertEquals(0, invalids.size());
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertHandlesAllNullsInInput() {
     Object[] input = new Object[] {null, null};
     Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -82,7 +104,10 @@ public class PSExtensionHelperTest {
     assertEquals(2, invalids.size());
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertHandlesNullsInInput() {
     Object[] input = new Object[] {"700", null, 301};
     Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -91,7 +116,10 @@ public class PSExtensionHelperTest {
     assertEquals(2, m_output.size());
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertHandlesEmptysInInput() {
     Object[] input = new Object[] {"700", "", 301};
     Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -100,7 +128,10 @@ public class PSExtensionHelperTest {
     assertEquals(2, m_output.size());
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testConvertSingleEmptyString() {
     Object[] input = new Object[] {""};
     Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
@@ -115,7 +146,11 @@ public class PSExtensionHelperTest {
   }
 
   @Test
+<<<<<<< HEAD
   @Disabled("Test is failing") // TODO: Fix me
+=======
+  @Ignore("Test is failing") // TODO: Fix me
+>>>>>>> development-8.1.x
   public void testUpdateDisplayChoicesSelectAll() throws Exception {
     Map<String, String> params = new HashMap<String, String>();
     params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
@@ -146,7 +181,11 @@ public class PSExtensionHelperTest {
   }
 
   @Test
+<<<<<<< HEAD
   @Disabled("Test is failing") // TODO: Fix me
+=======
+  @Ignore("Test is failing") // TODO: Fix me
+>>>>>>> development-8.1.x
   public void testUpdateDisplayChoices() throws Exception {
     Map<String, String> params = new HashMap<String, String>();
     params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");

@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 
 /**
+<<<<<<< HEAD
  * A utility class with static methods for Active Assembly operations. This class is exposed to
  * Velocity macros and provides object identification functionality for pages, slots, and snippets.
  *
@@ -62,10 +63,60 @@ public final class PSAAUtils {
    */
   @IPSJexlMethod(
       description = "Creates active assembly object id for page and returns JSON string",
+=======
+ * A utility class with static methods. This will be exposed to velocity macros. Only the methods
+ * that are needed
+ */
+public class PSAAUtils {
+  /** The logger to use in this class */
+  private static Log ms_logger = LogFactory.getLog(PSAAUtils.class);
+
+  /**
+   * Gets the page active assembly object id
+   *
+   * @see PSAAObjectId for further details.
+   * @param item The current working item, must not be <code>null</code>.
+   * @return String representaion of JSONArray object id.
+   * @throws PSAssemblyException
+   * @throws PSMissingBeanConfigurationException
+   * @throws JSONException
+   */
+  @IPSJexlMethod(
+      description = "Creates active assembly object id for page and returns JSON string",
       params = {
         @IPSJexlParam(
             name = "item",
             type = "PSAssemblyWorkItem",
+            description = "Current assembly item to look for the assembly parameters")
+      },
+      returns = "JSONArray string to uniquely identify the parent page")
+  public static String getPageObjectId(IPSAssemblyItem item)
+      throws PSAssemblyException, PSMissingBeanConfigurationException, JSONException {
+    if (item == null) throw new IllegalArgumentException("item must not be null");
+    PSAAObjectId objid = new PSAAObjectId(item);
+    return objid.toString();
+  }
+
+  /**
+   * Gets the slot active assembly object id
+   *
+   * @see PSAAObjectId for further details.
+   * @param item The current working item, must not be <code>null</code>.
+   * @param slotname The name of the slot must not be <code>null</code>.
+   * @return objectid as a string, never <code>null</code> or empty.
+   * @throws PSAssemblyException
+   * @throws PSMissingBeanConfigurationException
+   * @throws IllegalArgumentException
+   * @throws JSONException
+   */
+  @IPSJexlMethod(
+      description = "Creates active assembly object id for slot and returns JSON string",
+>>>>>>> development-8.1.x
+      params = {
+        @IPSJexlParam(
+            name = "item",
+            type = "PSAssemblyWorkItem",
+<<<<<<< HEAD
             description = "Current assembly item to look for the assembly parameters")
       },
       returns = "JSONArray string to uniquely identify the parent page")
@@ -173,6 +224,61 @@ public final class PSAAUtils {
         item,
         slotname,
         sortrank);
+=======
+            description = "Current assembly item to look for the assembly parameters"),
+        @IPSJexlParam(name = "slotName", type = "String", description = "Slot name")
+      },
+      returns = "JSON object string to uniquely identify the slot on the page/snippet")
+  public static String getSlotObjectId(IPSAssemblyItem item, String slotname)
+      throws PSAssemblyException, PSMissingBeanConfigurationException, IllegalArgumentException,
+          JSONException {
+    if (item == null) throw new IllegalArgumentException("item must not be null");
+    if (slotname == null) throw new IllegalArgumentException("slotname must not be null");
+    PSAAObjectId objid = new PSAAObjectId(PSAANodeType.valueOf(1), item, slotname, null);
+    return objid.toString();
+  }
+
+  /**
+   * Gets the snippet active assembly object id.
+   *
+   * @see PSAAObjectId for further details.
+   * @param item The current working item, must not be <code>null</code>.
+   * @param slotname The name of the slot must not be <code>null</code>.
+   * @return objectid as a string, never <code>null</code> or empty.
+   * @throws PSAssemblyException
+   * @throws PSMissingBeanConfigurationException
+   * @throws IllegalArgumentException
+   * @throws JSONException
+   */
+  @IPSJexlMethod(
+      description = "Creates active assembly object id for snippet and returns JSON string",
+      params = {
+        @IPSJexlParam(
+            name = "item",
+            type = "PSAssemblyWorkItem",
+            description = "Current assembly item to look for the assembly parameters"),
+        @IPSJexlParam(name = "slotName", type = "String", description = "Slot name")
+      },
+      returns = "JSON object string to uniquely identify the snippet in a page")
+  public static String getSnippetObjectId(IPSAssemblyItem item, String slotname)
+      throws PSAssemblyException, PSMissingBeanConfigurationException, IllegalArgumentException,
+          JSONException {
+    if (item == null) throw new IllegalArgumentException("item must not be null");
+    if (slotname == null) throw new IllegalArgumentException("slotname must not be null");
+
+    String sortrank = "0";
+
+    try {
+      sortrank = getSortRank(item);
+    } catch (NumberFormatException e) {
+      ms_logger.debug(e);
+      ms_logger.debug("Defaulting to 0");
+    } catch (PSException e) {
+      ms_logger.debug(e);
+      ms_logger.debug("Defaulting to 0");
+    }
+
+>>>>>>> development-8.1.x
     PSAAObjectId objid = new PSAAObjectId(PSAANodeType.valueOf(2), item, slotname, sortrank);
     return objid.toString();
   }
@@ -180,17 +286,26 @@ public final class PSAAUtils {
   /**
    * Extract the sort rank for the assembly item.
    *
+<<<<<<< HEAD
    * @param item assembly item, must not be {@code null}.
    * @return sort rank of the assembly item as string, may be {@code null}.
    * @throws PSMissingBeanConfigurationException if relationship service could not be loaded.
    * @throws NumberFormatException if the relationshipid is not parsable as a number.
    * @throws PSException if relationship could not be loaded for any other reason.
+=======
+   * @param item assembly item must not be <code>null</code>.
+   * @return sort rank of the assembly itemn as string, may be <code>null</code>.
+   * @throws PSMissingBeanConfigurationException if relationship service could not be loaded.
+   * @throws NumberFormatException if the relationshipid is not parsable as a number.
+   * @throws PSException relationship could not be loaded for any othe reason.
+>>>>>>> development-8.1.x
    */
   private static String getSortRank(IPSAssemblyItem item)
       throws PSMissingBeanConfigurationException, PSException {
     if (item == null) {
       throw new IllegalArgumentException("item must not be null");
     }
+<<<<<<< HEAD
 
     String sortrank = null;
     IPSRelationshipService relsvc = PSRelationshipServiceLocator.getRelationshipService();
@@ -208,10 +323,24 @@ public final class PSAAUtils {
       }
     }
 
+=======
+    String sortrank = null;
+    IPSRelationshipService relsvc = PSRelationshipServiceLocator.getRelationshipService();
+    String relationshipId = item.getParameterValue(IPSHtmlParameters.SYS_RELATIONSHIPID, "");
+    int relid = -1;
+    if (!StringUtils.isBlank(relationshipId)) {
+      relid = Integer.parseInt(relationshipId);
+      final PSRelationship rel = relsvc.loadRelationship(relid);
+      sortrank = rel.getProperty(IPSHtmlParameters.SYS_SORTRANK);
+      if (StringUtils.isBlank(sortrank)) sortrank = "0";
+      else sortrank = sortrank.trim();
+    }
+>>>>>>> development-8.1.x
     return sortrank;
   }
 
   /**
+<<<<<<< HEAD
    * Gets the field active assembly object id
    *
    * @see PSAAObjectId for further details.
@@ -222,6 +351,16 @@ public final class PSAAUtils {
    * @throws PSMissingBeanConfigurationException if required beans are not configured
    * @throws JSONException if JSON processing fails
    * @throws IllegalArgumentException if parameters are invalid
+=======
+   * Gets the page active assembly object id
+   *
+   * @see PSAAObjectId for further details.
+   * @param item The current working item, must not be <code>null</code>.
+   * @return String representaion of JSONArray object id.
+   * @throws PSAssemblyException
+   * @throws PSMissingBeanConfigurationException
+   * @throws JSONException
+>>>>>>> development-8.1.x
    */
   @IPSJexlMethod(
       description = "Creates active assembly object id for field and returns JSON string",
@@ -232,6 +371,7 @@ public final class PSAAUtils {
             description = "Current assembly item to look for the assembly parameters"),
         @IPSJexlParam(name = "fieldName", type = "String", description = "Field name")
       },
+<<<<<<< HEAD
       returns = "JSONArray string to uniquely identify the field")
   public static String getFieldObjectId(IPSAssemblyItem item, String fieldName)
       throws PSAssemblyException,
@@ -248,6 +388,13 @@ public final class PSAAUtils {
     }
 
     logger.debug("Creating field object ID for item: {} and field: {}", item, fieldName);
+=======
+      returns = "JSONArray string to uniquely identify the parent page")
+  public static String getFieldObjectId(IPSAssemblyItem item, String fieldName)
+      throws PSAssemblyException, PSMissingBeanConfigurationException, IllegalArgumentException,
+          JSONException {
+    if (item == null) throw new IllegalArgumentException("item must not be null");
+>>>>>>> development-8.1.x
     PSAAObjectId objid = new PSAAObjectId(PSAANodeType.valueOf(3), item, fieldName, null);
     return objid.toString();
   }

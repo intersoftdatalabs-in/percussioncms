@@ -50,7 +50,10 @@ public abstract class PSUtf8ResourceBundle {
   public static final ResourceBundle getBundle(String baseName, Locale loc) {
     return createUtf8PropertyResourceBundle(ResourceBundle.getBundle(baseName, loc));
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Creates unicode friendly {@link PropertyResourceBundle} if possible.
    *
@@ -81,7 +84,11 @@ public abstract class PSUtf8ResourceBundle {
 
     @Override
     @SuppressWarnings("unchecked")
+<<<<<<< HEAD
     public Enumeration<String> getKeys() {
+=======
+    public Enumeration getKeys() {
+>>>>>>> development-8.1.x
       return bundle.getKeys();
     }
 

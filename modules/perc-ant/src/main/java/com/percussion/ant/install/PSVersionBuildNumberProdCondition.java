@@ -77,9 +77,16 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
     return "Rx Version Build Number Product Condition";
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * private functions
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ private functions
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the value of the specified property <code>propName</code>, -1 if the property does not
@@ -91,6 +98,7 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    *     obtained, may not be <code>null</code>
    * @return the value of the specifed property, -1 if the specified property does not exist or if
    *     any error occurs converting the property value to integer.
+<<<<<<< HEAD
    */
   private int getRequiredProperty(String propName, Properties prop) {
     if ((propName == null) || (propName.trim().length() < 1))
@@ -225,6 +233,143 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
     return majorVersionFrom;
   }
 
+=======
+   */
+  private int getRequiredProperty(String propName, Properties prop) {
+    if ((propName == null) || (propName.trim().length() < 1))
+      throw new IllegalArgumentException("propName may not be null or empty");
+    if (prop == null) throw new IllegalArgumentException("prop may not be null");
+
+    String strValue = prop.getProperty(propName);
+    if ((strValue == null) || (strValue.trim().length() < 1)) {
+      PSLogger.logInfo("Value of property : " + propName + " is null or empty.");
+      return -1;
+    }
+
+    int value = -1;
+    try {
+      value = Integer.parseInt(strValue);
+    } catch (Throwable t) {
+      PSLogger.logInfo("Value of property : " + propName + " is invalid.");
+      PSLogger.logInfo(t.getLocalizedMessage());
+      return -1;
+    }
+    return value;
+  }
+
+  /**
+   * Checks if the installed build on the system lies between the specified builds.
+   *
+   * @param strInstallDir the install directory, may be <code>null</code>.
+   * @return <code>true</code> if the installed build on the system lies between the specified
+   *     builds, <code>false</code> otherwise.
+   */
+  public synchronized boolean checkVersion(String strInstallDir) {
+    int installMajorVersion = -1;
+    int installMinorVersion = -1;
+    int installMicroVersion = -1;
+    int installBuild = -1;
+
+    if (m_versionProps == null) {
+      InputStream ins = null;
+      try {
+        if (strInstallDir == null) return false;
+
+        if (!strInstallDir.endsWith(File.separator)) strInstallDir += File.separator;
+
+        // check if the "version.properties" file exists under the Rhythmyx
+        // root directory
+        File propFile = new File(strInstallDir + RxFileManager.PREVIOUS_VERSION_PROPS_FILE);
+        if (propFile.exists() && propFile.isFile()) {
+          // load the version.properties file
+          ins = new FileInputStream(propFile);
+          m_versionProps = new Properties();
+          m_versionProps.load(ins);
+        }
+      } catch (Exception e) {
+        PSLogger.logInfo("ERROR : " + e.getMessage());
+        PSLogger.logInfo(e);
+        return false;
+      } finally {
+        if (ins != null) {
+          try {
+            ins.close();
+          } catch (IOException e) {
+          }
+        }
+      }
+    }
+
+    if (m_versionProps != null) {
+      installMajorVersion = getRequiredProperty("majorVersion", m_versionProps);
+
+      installMinorVersion = getRequiredProperty("minorVersion", m_versionProps);
+
+      installMicroVersion = getRequiredProperty("microVersion", m_versionProps);
+
+      installBuild = getRequiredProperty("buildNumber", m_versionProps);
+    }
+
+    if ((installMajorVersion == -1) || (installMinorVersion == -1) || (installBuild == -1))
+      return false;
+
+    if (installMajorVersion < majorVersionFrom) return false;
+
+    if (installMajorVersion == majorVersionFrom) {
+      // check the minor version in this case
+      if (installMinorVersion < minorVersionFrom) return false;
+
+      if (installMinorVersion == minorVersionFrom) {
+
+        if (installMicroVersion < microVersionFrom) return false;
+
+        if (microVersionFrom <= 0 || installMicroVersion == microVersionFrom) {
+
+          // check the build number in this case
+          if (installBuild < buildFrom) return false;
+        }
+      }
+    }
+
+    if (installMajorVersion > majorVersionTo) return false;
+
+    if (installMajorVersion == majorVersionTo) {
+      // check the minor version in this case
+      if (installMinorVersion > minorVersionTo) return false;
+
+      if (installMinorVersion == minorVersionTo) {
+
+        // check the minor version in this case
+        if (installMicroVersion > microVersionTo) return false;
+
+        if (installMinorVersion == microVersionTo) {
+
+          if (microVersionTo == -1 || installMinorVersion > microVersionTo)
+            // check the build number in this case
+            if ((buildTo != -1) && (installBuild > buildTo)) return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * ************************************************************************ Bean property
+   * Accessors and Mutators ************************************************************************
+   */
+
+  /**
+   * The minimum major version number which can be upgraded by the build currently being installed.
+   *
+   * @return the minimum major version number which can be upgraded by the build currently being
+   *     installed.
+   */
+  public synchronized int getMajorVersionFrom() {
+    return majorVersionFrom;
+  }
+
+>>>>>>> development-8.1.x
   /**
    * Sets the minimum major version number which can be upgraded by the build currently being
    * installed.
@@ -342,6 +487,7 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   public synchronized int getBuildTo() {
     return buildTo;
   }
+<<<<<<< HEAD
 
   /**
    * Sets the build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo
@@ -400,6 +546,68 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    **************************************************************************/
 
   /**
+=======
+
+  /**
+   * Sets the build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo
+   * </code>
+   *
+   * @param aBuildTo the build number corresponding to <code>majorVersionTo</code> and <code>
+   *     minorVersionTo</code>
+   */
+  public synchronized void setBuildTo(int aBuildTo) {
+    buildTo = aBuildTo;
+  }
+
+  /**
+   * ************************************************************************ Bean properties
+   * ************************************************************************
+   */
+
+  /**
+   * The minimum major version number which can be upgraded by the build currently being installed.
+   */
+  private int majorVersionFrom = 4;
+
+  /** The minor version corresponding to <code>majorVersionFrom</code>. */
+  private int minorVersionFrom = 0;
+
+  /**
+   * The minimum micro version number which can be upgraded by the build currently being installed.
+   */
+  private int microVersionFrom = 0;
+
+  /**
+   * The build number corresponding to <code>majorVersionFrom</code> and <code>minorVersionFrom
+   * </code>
+   */
+  private int buildFrom = 20011114;
+
+  /**
+   * The maximum major version number which can be upgraded by the build currently being installed.
+   */
+  private int majorVersionTo = 4;
+
+  /** The micro version corresponding to <code>majorVersionTo</code>. */
+  private int minorVersionTo = 51;
+
+  /**
+   * The maximum major version number which can be upgraded by the build currently being installed.
+   */
+  private int microVersionTo = -1;
+
+  /**
+   * The build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo</code>
+   */
+  private int buildTo = -1;
+
+  /**
+   * ************************************************************************ member variables
+   * ************************************************************************
+   */
+
+  /**
+>>>>>>> development-8.1.x
    * In memory representation of "version.properties" file under the Rhythmyx root directory. May be
    * <code>null</code>.
    */

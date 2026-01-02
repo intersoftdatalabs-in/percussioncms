@@ -21,7 +21,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+<<<<<<< HEAD
 import jakarta.activation.DataSource;
+=======
+import javax.activation.DataSource;
+>>>>>>> development-8.1.x
 
 /**
  * A simple in-memory datasource.
@@ -49,6 +53,7 @@ public class ByteArrayDataSource implements DataSource {
     this(name, contentType);
     store = new ByteArrayOutputStream(size);
   }
+<<<<<<< HEAD
 
   /**
    * @see DataSource#getContentType()
@@ -60,10 +65,18 @@ public class ByteArrayDataSource implements DataSource {
   /**
    * @see DataSource#getInputStream()
    */
+=======
+  /** @see DataSource#getContentType() */
+  public String getContentType() {
+    return contentType;
+  }
+  /** @see DataSource#getInputStream() */
+>>>>>>> development-8.1.x
   public InputStream getInputStream() throws IOException {
     ByteArrayInputStream bis = new ByteArrayInputStream(store.toByteArray());
     return bis;
   }
+<<<<<<< HEAD
 
   /**
    * @see DataSource#getName()
@@ -75,6 +88,13 @@ public class ByteArrayDataSource implements DataSource {
   /**
    * @see DataSource#getOutputStream()
    */
+=======
+  /** @see DataSource#getName() */
+  public String getName() {
+    return name;
+  }
+  /** @see DataSource#getOutputStream() */
+>>>>>>> development-8.1.x
   public OutputStream getOutputStream() throws IOException {
     return store;
   }

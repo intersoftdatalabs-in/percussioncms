@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("unchecked")
 public class PSBrandCodeMap implements IPSBrandCodeMap {
 
+<<<<<<< HEAD
   /*************************************************************************
    * IPSBrandCodeMap functions
    *************************************************************************/
@@ -44,6 +45,14 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
+=======
+  /**
+   * *********************************************************************** IPSBrandCodeMap
+   * functions ***********************************************************************
+   */
+
+  /** @see com.percussion.install.IPSBrandCodeMap */
+>>>>>>> development-8.1.x
   public boolean isValidBrandCodeMapVersion(int bcmv) {
     return m_brandCodeMapVersions.containsKey(new Integer(bcmv));
   }
@@ -55,16 +64,24 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     return bcmv.supportsExtendedProductInfo();
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+>>>>>>> development-8.1.x
   public Iterator<PSBrandCodeMapVersion> getBrandCodeMapVersions() {
     return m_brandCodeMapVersions.values().iterator();
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+>>>>>>> development-8.1.x
   public int getBrandCodeMapVersion(String rxVersion, int buildFrom, int buildTo)
       throws CodeException {
     if ((rxVersion == null) || (rxVersion.trim().length() < 1))
@@ -93,19 +110,28 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     return bcmVer;
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
   @Override
   public Map<String, String> getLicenses(int brandCodeMapVersion) throws CodeException {
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public Map getLicenses(int brandCodeMapVersion) throws CodeException {
+>>>>>>> development-8.1.x
     Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
     PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
     return bcmv.getLicenses();
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+>>>>>>> development-8.1.x
   public String getLicenseName(int brandCodeMapVersion, int licenseId) throws CodeException {
     Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
     PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
@@ -119,38 +145,53 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     return bcmv.getLicenseServerTypes(licenseId);
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+>>>>>>> development-8.1.x
   public String getPartName(int brandCodeMapVersion, int partId) throws CodeException {
     Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
     PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
     return bcmv.getPartName(partId);
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
   @Override
   public Map<String, String> getComponents(int brandCodeMapVersion, List<String> partsIdList)
       throws CodeException {
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public Map getComponents(int brandCodeMapVersion, List partsIdList) throws CodeException {
+>>>>>>> development-8.1.x
     if (partsIdList == null) throw new IllegalArgumentException("partsIdList may not be null");
     Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
     PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
     return bcmv.getComponents(partsIdList, m_componentList);
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
   @Override
   public Map<String, String> getParts(int brandCodeMapVersion, int licenseId, int partsType)
       throws CodeException {
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public Map getParts(int brandCodeMapVersion, int licenseId, int partsType) throws CodeException {
+>>>>>>> development-8.1.x
     Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
     PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
     return bcmv.getParts(licenseId, partsType);
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
@@ -161,11 +202,21 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     Map<String, String> propertiesMap = new HashMap<>();
     for (int i = 0; i < attrValuesList.size(); i++) {
       String[] attrValues = attrValuesList.get(i);
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public Map<String, String> getProperties() throws CodeException {
+    String[] attrNames = new String[] {IPSBrandCodeMap.ATTR_ID, IPSBrandCodeMap.ATTR_NAME};
+    List attrValuesList = m_propertiesList.getAttributeList(attrNames, true);
+    Map<String, String> propertiesMap = new HashMap<String, String>();
+    for (int i = 0; i < attrValuesList.size(); i++) {
+      String[] attrValues = (String[]) attrValuesList.get(i);
+>>>>>>> development-8.1.x
       propertiesMap.put(attrValues[0], attrValues[1]);
     }
     return propertiesMap;
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.install.IPSBrandCodeMap
    */
@@ -189,6 +240,25 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
   /*************************************************************************
    * PSBrandCodeMap functions
    *************************************************************************/
+=======
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public List getLicenseProperties(int brandCodeMapVersion, int licenseId) throws CodeException {
+    Integer ver = verifyBrandCodeMapVersion(brandCodeMapVersion);
+    PSBrandCodeMapVersion bcmv = m_brandCodeMapVersions.get(ver);
+    List<String> allProperties = new ArrayList<String>(getProperties().keySet());
+    return bcmv.getLicenseProperties(licenseId, allProperties);
+  }
+
+  /** @see com.percussion.install.IPSBrandCodeMap */
+  public List getRhythmyxVersions() throws CodeException {
+    return m_currentVersionsList.getAttributeList(IPSBrandCodeMap.ATTR_RHYTHMYX_VERSION);
+  }
+
+  /**
+   * *********************************************************************** PSBrandCodeMap
+   * functions ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the singleton instance of the <code>PSBrandCodeMap</code> object.
@@ -335,11 +405,18 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     root.appendChild(el);
 
     // brand code map versions
+<<<<<<< HEAD
     Iterator<Map.Entry<Integer, PSBrandCodeMapVersion>> it =
         m_brandCodeMapVersions.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry<Integer, PSBrandCodeMapVersion> item = it.next();
       PSBrandCodeMapVersion bcmv = item.getValue();
+=======
+    Iterator it = m_brandCodeMapVersions.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry item = (Map.Entry) it.next();
+      PSBrandCodeMapVersion bcmv = (PSBrandCodeMapVersion) item.getValue();
+>>>>>>> development-8.1.x
       el = bcmv.toXml(doc);
       root.appendChild(el);
     }

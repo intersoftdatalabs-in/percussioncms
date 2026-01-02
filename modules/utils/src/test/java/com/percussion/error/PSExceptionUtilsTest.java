@@ -16,6 +16,7 @@
  */
 package com.percussion.error;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.security.error.PSExceptionUtils;
@@ -23,6 +24,14 @@ import com.percussion.utils.tools.IPSUtilsConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
+=======
+import static org.junit.Assert.assertNotNull;
+
+import com.percussion.utils.tools.IPSUtilsConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class PSExceptionUtilsTest {
 

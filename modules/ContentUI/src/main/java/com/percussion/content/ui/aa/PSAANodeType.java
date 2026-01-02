@@ -26,6 +26,7 @@ public enum PSAANodeType {
   AA_NODE_TYPE_SNIPPET(2, "/Rhythmyx/sys_resources/images/snippet.gif"),
   /** CE Field */
   AA_NODE_TYPE_FIELD(3, "/Rhythmyx/sys_resources/images/field.gif");
+<<<<<<< HEAD
 
   /**
    * Construct a type enum.
@@ -62,6 +63,43 @@ public enum PSAANodeType {
   }
 
   /**
+=======
+  /**
+   * Construct a type enum.
+   *
+   * @param ord The ordinal value to use
+   * @param iconUrl The icon URL for the node, may be <code>null</code> or empty.
+   */
+  private PSAANodeType(int ord, String iconUrl) {
+    if (ord > Short.MAX_VALUE) {
+      throw new IllegalArgumentException("Ordinal value too large");
+    }
+
+    mi_ordinal = (short) ord;
+
+    mi_iconUrl = iconUrl;
+  }
+
+  /**
+   * Returns the ordinal value for the enumeration.
+   *
+   * @return the ordinal
+   */
+  public short getOrdinal() {
+    return mi_ordinal;
+  }
+
+  /**
+   * Get the icon url associated with the enumeration.
+   *
+   * @return the icon url, may be <code>null</code> or empty.
+   */
+  public String getIconUrl() {
+    return mi_iconUrl;
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the first
    * enum value with a matching ordinal is returned.
    *

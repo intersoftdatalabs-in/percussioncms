@@ -22,7 +22,11 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.tools.ant.BuildException;
 
 /**
@@ -86,9 +90,16 @@ public class PSBackupFiles extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties Accessors
+   * and Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the files and directories which will be backed up.
@@ -110,9 +121,16 @@ public class PSBackupFiles extends PSAction {
     this.backupFiles = convertToArray(backupFiles);
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Public functions
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Public functions
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Creates name of backup file/directory by appending current month, date, hour and min to the
@@ -140,9 +158,16 @@ public class PSBackupFiles extends PSAction {
     return (fileName + suffix);
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Private functions
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Private functions
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the string value of the specified integer. If integer value is less than 10, then
@@ -158,9 +183,16 @@ public class PSBackupFiles extends PSAction {
     return ret;
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * stores the files and directories under the Rx install directory which need to be backed up,

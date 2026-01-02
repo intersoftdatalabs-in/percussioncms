@@ -22,6 +22,7 @@
  */
 package test.percussion.pso.preview;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.PSOAction;
@@ -39,6 +40,25 @@ public class PSOActionTest {
   private static final Logger log = LogManager.getLogger(PSOActionTest.class);
 
   @BeforeEach
+=======
+import static org.junit.Assert.*;
+
+import com.percussion.pso.preview.PSOAction;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.xml.PSXmlTreeWalker;
+import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class PSOActionTest {
+  private static final Logger log = LogManager.getLogger(PSOActionTest.class);
+
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {}
 
   @Test

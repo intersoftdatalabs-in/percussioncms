@@ -70,7 +70,10 @@ import java.util.List;
  * @see PSOWFActionServiceLocator
  */
 public interface IPSOWFActionService {
+<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
   /**
    * Get the list of workflow actions configured for this workflow id and transition id.
    *
@@ -80,7 +83,10 @@ public interface IPSOWFActionService {
    * @throws Exception
    */
   public List<IPSWorkflowAction> getActions(int workflowid, int transitionid) throws Exception;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Get and load the desired workflow action.
    *

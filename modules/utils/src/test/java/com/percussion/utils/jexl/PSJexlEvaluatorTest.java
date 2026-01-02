@@ -1,21 +1,21 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.utils.jexl;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -27,14 +27,32 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+=======
+import static org.junit.Assert.assertEquals;
+
+import com.percussion.utils.testing.UnitTest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runners.MethodSorters;
+
+>>>>>>> development-8.1.x
 /**
  * Test evaluator for valid and invalid case handling
  *
  * @author dougrand
  */
 @SuppressWarnings(value = "unchecked")
+<<<<<<< HEAD
 @TestMethodOrder(MethodName.class)
 @Tag("UnitTest")
+=======
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Category(UnitTest.class)
+>>>>>>> development-8.1.x
 public class PSJexlEvaluatorTest {
 
   public PSJexlEvaluatorTest() {}
@@ -74,6 +92,7 @@ public class PSJexlEvaluatorTest {
     assertEquals("n3", z_a_c.get(0));
     assertEquals("n2", z_a_c.get(1));
     assertEquals("n1", z_a_b.get("c"));
+<<<<<<< HEAD
     assertEquals(Integer.valueOf(2), y.get(2));
     assertEquals(Integer.valueOf(3), y.get(5));
     assertEquals(null, y.get(0));
@@ -82,6 +101,16 @@ public class PSJexlEvaluatorTest {
     assertEquals(Integer.valueOf(5), (vars.get("$c")));
     assertEquals(Integer.valueOf(3), (vars.get("$d")));
     assertEquals(Integer.valueOf(3), (vars.get("$d")));
+=======
+    assertEquals(new Integer(2), y.get(2));
+    assertEquals(new Integer(3), y.get(5));
+    assertEquals(null, y.get(0));
+    assertEquals("a", y_0.get("w"));
+    assertEquals(new Integer(123), z.get("x"));
+    assertEquals(new Integer(5), (vars.get("$c")));
+    assertEquals(new Integer(3), (vars.get("$d")));
+    assertEquals(new Integer(3), (vars.get("$d")));
+>>>>>>> development-8.1.x
   }
 
   /**
@@ -166,6 +195,7 @@ public class PSJexlEvaluatorTest {
 
     PSJexlEvaluator eval = new PSJexlEvaluator(initial);
     IPSScript exp = eval.createScript("$c");
+<<<<<<< HEAD
     assertEquals(Integer.valueOf(2147483647), eval.evaluate(exp));
     exp = eval.createScript("$c * $a");
     Object result = eval.evaluate(exp);
@@ -174,6 +204,19 @@ public class PSJexlEvaluatorTest {
 
   /**
    * Test various exception cases with the uberspect
+=======
+    assertEquals(new Integer(2147483647), eval.evaluate(exp));
+    exp = eval.createScript("$c * $a");
+    Object result = eval.evaluate(exp);
+    assertEquals(new Long(8589934588l), result);
+  }
+
+  /**
+   * Test various exception cases with the uberspect. Note: PSScript uses a shared singleton JEXL
+   * engine controlled by static flags. Instance-level flags like setUseStrictMode() do not directly
+   * affect script compilation. This test verifies the default non-strict behavior where undefined
+   * methods return null gracefully rather than throwing exceptions.
+>>>>>>> development-8.1.x
    *
    * @throws Exception
    */
@@ -186,6 +229,7 @@ public class PSJexlEvaluatorTest {
 
     PSJexlEvaluator eval = new PSJexlEvaluator(initial);
 
+<<<<<<< HEAD
     doExceptionTest(eval, "$c.foo()");
     doExceptionTest(eval, "$c.xyz");
   }
@@ -212,5 +256,18 @@ public class PSJexlEvaluatorTest {
       // OK
       System.out.println(t.getLocalizedMessage());
     }
+=======
+    // With default strict=false, these should not throw but return null/empty
+    // This is backward-compatible behavior for legacy scripts
+    IPSScript exp1 = eval.createExpression("$c.foo()");
+    Object ret1 = exp1.eval(eval.getVars());
+    // In non-strict mode, undefined method returns null instead of throwing
+    assertEquals("Undefined method should return null in non-strict mode", null, ret1);
+
+    IPSScript exp2 = eval.createExpression("$c.xyz");
+    Object ret2 = exp2.eval(eval.getVars());
+    // In non-strict mode, undefined property returns null
+    assertEquals("Undefined property should return null in non-strict mode", null, ret2);
+>>>>>>> development-8.1.x
   }
 }

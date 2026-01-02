@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 
 public class FederatedCredentialTest {
@@ -45,6 +46,27 @@ public class FederatedCredentialTest {
   @Test
   public void testCredentialNegative() throws CADFException, IOException {
 
+=======
+import org.junit.Test;
+
+public class FederatedCredentialTest {
+
+  @Test
+  public void testFederatedCredentialPositive() throws CADFException, IOException {
+    String type = "http://docs.oasis-open.org/security/saml/v2.0";
+    String token = Identifier.generateUniqueId();
+    String identity_provider = Identifier.generateUniqueId();
+    String user = Identifier.generateUniqueId();
+    List<String> groups = new ArrayList<String>();
+    groups.add(Identifier.generateUniqueId());
+    FederatedCredential fd = new FederatedCredential(type, token, identity_provider, user, groups);
+    assertEquals(true, fd.isValid());
+  }
+
+  @Test
+  public void testCredentialNegative() throws CADFException, IOException {
+
+>>>>>>> development-8.1.x
     try {
       String type = "http://docs.oasis-open.org/security/saml/v2.0";
       String token = Identifier.generateUniqueId();
@@ -56,8 +78,12 @@ public class FederatedCredentialTest {
           new FederatedCredential(type, token, identity_provider, user, groups);
       fd.isValid();
       fail(
+<<<<<<< HEAD
           "FederatedCredential object creation should fail as mandatory field"
               + " identity_provider,user is not passed");
+=======
+          "FederatedCredential object creation should fail as mandatory field identity_provider,user is not passed");
+>>>>>>> development-8.1.x
     } catch (CADFException ex) {
       String message =
           MessageFormat.format(Messages.MISSING_MANDATORY_FIELDS, "identity_provider,user");

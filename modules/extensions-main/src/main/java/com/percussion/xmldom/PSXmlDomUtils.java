@@ -262,8 +262,12 @@ public class PSXmlDomUtils {
     elementNode.appendChild(newText);
 
     return elementNode;
+<<<<<<< HEAD
   }
   ;
+=======
+  };
+>>>>>>> development-8.1.x
 
   /**
    * Copy the text from a specified document or node into a String. If the source is a document, the

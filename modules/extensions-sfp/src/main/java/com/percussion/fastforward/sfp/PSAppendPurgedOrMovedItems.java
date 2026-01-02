@@ -34,7 +34,11 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.webservices.PSServerFolderProcessor;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -222,7 +226,11 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * Get the root locator of the site.
    *
    * @param request the request context, the site id is specified by {@link
+<<<<<<< HEAD
    *     com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}. Assumed not <code>null</code>.
+=======
+   *     com.percussion.util.IPSHtmlParameters#SYS_SITEID}. Assumed not <code>null</code>.
+>>>>>>> development-8.1.x
    * @return the root locator of the site, never <code>null</code>.
    * @throws PSExtensionProcessingException if error occurs.
    */
@@ -354,9 +362,15 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   /**
    * Get all site items that have been successfully published and not successfully unpublished as
    * result set by making an internal request to a Rhythmyx resource. The resource expects two
+<<<<<<< HEAD
    * parameters - {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}and {@link
    * com.percussion.system.utils.IPSHtmlParameters#SYS_CONTEXT}which are assumed to exist in the
    * original request context.
+=======
+   * parameters - {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID}and {@link
+   * com.percussion.util.IPSHtmlParameters#SYS_CONTEXT}which are assumed to exist in the original
+   * request context.
+>>>>>>> development-8.1.x
    *
    * @param request request context, assumed not <code>null</code>.
    * @return list of <code>PageData</code> objects representing the site items which need to be

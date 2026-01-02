@@ -1,27 +1,33 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.pso.utils;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import jakarta.activation.DataSource;
+=======
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.activation.DataSource;
+>>>>>>> development-8.1.x
 import org.apache.commons.fileupload.FileItem;
 
 /**
@@ -48,7 +54,11 @@ public class FileItemDataSource implements DataSource {
    * Gets the file data as a stream.
    *
    * @return the stream
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getInputStream()
+=======
+   * @see javax.activation.DataSource#getInputStream()
+>>>>>>> development-8.1.x
    */
   public InputStream getInputStream() throws IOException {
     return item.getInputStream();
@@ -58,7 +68,11 @@ public class FileItemDataSource implements DataSource {
    * Gets a stream for writing the data.
    *
    * @return the stream.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getOutputStream()
+=======
+   * @see javax.activation.DataSource#getOutputStream()
+>>>>>>> development-8.1.x
    */
   public OutputStream getOutputStream() throws IOException {
     return item.getOutputStream();
@@ -68,7 +82,11 @@ public class FileItemDataSource implements DataSource {
    * Gets the MIME content type of this file.
    *
    * @return the content type.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getContentType()
+=======
+   * @see javax.activation.DataSource#getContentType()
+>>>>>>> development-8.1.x
    */
   public String getContentType() {
     return item.getContentType();
@@ -78,9 +96,14 @@ public class FileItemDataSource implements DataSource {
    * Gets the file name.
    *
    * @return the file name.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getName()
    */
   // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
+=======
+   * @see javax.activation.DataSource#getName()
+   */
+>>>>>>> development-8.1.x
   public String getName() {
     return item.getName();
   }

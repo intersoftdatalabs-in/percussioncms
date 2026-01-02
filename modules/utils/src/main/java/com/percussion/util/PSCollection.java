@@ -259,6 +259,7 @@ public class PSCollection extends PSConcurrentList {
                 + m_memberClass.getName());
     }
   }
+<<<<<<< HEAD
 
   /**
    * Creates a deep copy of PSCollection object. First clear the clone collection, then check if the
@@ -299,11 +300,55 @@ public class PSCollection extends PSConcurrentList {
     return this.get(index);
   }
 
+=======
+  /**
+   * Creates a deep copy of PSCollection object. First clear the clone collection, then check if the
+   * objects inside the collection is immutable if so the method just add to the clone. If not call
+   * the corresponding clone method for each of the object. The caller must perform their own clone
+   * of this object if the member of the collection are resources such as inputstream, database
+   * connection etc. 'String' and 'File' are the only classes considered immutable. Each object
+   * inside the collection has to have clone() method.
+   *
+   * @return A new collection with each mutable member cloned and a reference copy of each immutable
+   *     member.
+   * @throws InternalError If any mutable member doesn't implement the clone method or there are any
+   *     problems executing that method.
+   */
+  public Object clone() {
+    Object copy = null;
+    try {
+      copy = super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new InternalError(e.toString());
+    }
+    return copy;
+  }
+
+  public Object lastElement() {
+    if (this.size() > 0) {
+      return this.get(this.size() - 1);
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  public void removeAllElements() {
+    this.clear();
+  }
+
+  public Object elementAt(int index) {
+    return this.get(index);
+  }
+
+>>>>>>> development-8.1.x
   public Object firstElement() {
     if (this.size() > 0) return this.get(0);
     else throw new NoSuchElementException();
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** The one and only valid class type for this collection. */
   private Class m_memberClass;
 }

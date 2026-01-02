@@ -86,7 +86,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.MapUtils;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -903,9 +907,13 @@ public class PSGetUrlAction extends PSAAActionBase {
 
   /** Simple class used to assemble a url */
   class SimpleURL {
+<<<<<<< HEAD
     /**
      * @param urlbase contains the path and optional query part.
      */
+=======
+    /** @param urlbase contains the path and optional query part. */
+>>>>>>> development-8.1.x
     public SimpleURL(String urlbase) {
       // normalize it
       urlbase = urlbase.trim();

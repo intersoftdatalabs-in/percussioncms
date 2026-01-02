@@ -164,9 +164,16 @@ public class PSConfigureDatasource extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Property Accessors and
+   * Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Accessor for the repository location */
   public String getRepositoryLocation() {
@@ -198,9 +205,16 @@ public class PSConfigureDatasource extends PSAction {
     m_strName = dsConfig;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** The repository location, relative to the Rhythmyx root. */
   private String m_strRepositoryLocation = "rxconfig/Installer/rxrepository.properties";

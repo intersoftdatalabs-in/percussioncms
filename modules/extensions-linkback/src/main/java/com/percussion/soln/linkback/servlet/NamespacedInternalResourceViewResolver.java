@@ -44,16 +44,24 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
     return null;
   }
 
+<<<<<<< HEAD
   /**
    * @return the namespace
    */
+=======
+  /** @return the namespace */
+>>>>>>> development-8.1.x
   public String getNamespace() {
     return m_namespace;
   }
 
+<<<<<<< HEAD
   /**
    * @param namespace the namespace to set
    */
+=======
+  /** @param namespace the namespace to set */
+>>>>>>> development-8.1.x
   public void setNamespace(String namespace) {
     m_namespace = namespace;
   }

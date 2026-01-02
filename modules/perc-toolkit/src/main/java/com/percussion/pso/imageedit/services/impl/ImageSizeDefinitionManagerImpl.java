@@ -20,7 +20,11 @@ import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,6 +51,7 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
     sizes = new ArrayList<ImageSizeDefinition>();
   }
 
+<<<<<<< HEAD
   /**
    * @see ImageSizeDefinitionManager#getAllImageSizes()
    */
@@ -57,6 +62,13 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
   /**
    * @see ImageSizeDefinitionManager#getImageSize(String)
    */
+=======
+  /** @see ImageSizeDefinitionManager#getAllImageSizes() */
+  public List<ImageSizeDefinition> getAllImageSizes() {
+    return sizes;
+  }
+  /** @see ImageSizeDefinitionManager#getImageSize(String) */
+>>>>>>> development-8.1.x
   public ImageSizeDefinition getImageSize(String code) {
     if (StringUtils.isEmpty(code)) {
       throw new IllegalArgumentException("image size code must not be null");
@@ -70,58 +82,90 @@ public class ImageSizeDefinitionManagerImpl implements ImageSizeDefinitionManage
     return null;
   }
 
+<<<<<<< HEAD
   /**
    * @return the sizes
    */
+=======
+  /** @return the sizes */
+>>>>>>> development-8.1.x
   public List<ImageSizeDefinition> getSizes() {
     return sizes;
   }
 
+<<<<<<< HEAD
   /**
    * @param sizes the sizes to set
    */
+=======
+  /** @param sizes the sizes to set */
+>>>>>>> development-8.1.x
   public void setSizes(List<ImageSizeDefinition> sizes) {
     this.sizes = sizes;
   }
 
+<<<<<<< HEAD
   /**
    * @return the sizedImageNodeName
    */
+=======
+  /** @return the sizedImageNodeName */
+>>>>>>> development-8.1.x
   public String getSizedImageNodeName() {
     return sizedImageNodeName;
   }
 
+<<<<<<< HEAD
   /**
    * @param sizedImageNodeName the sizedImageNodeName to set
    */
+=======
+  /** @param sizedImageNodeName the sizedImageNodeName to set */
+>>>>>>> development-8.1.x
   public void setSizedImageNodeName(String sizedImageNodeName) {
     this.sizedImageNodeName = sizedImageNodeName;
   }
 
+<<<<<<< HEAD
   /**
    * @return the sizedImagePropertyName
    */
+=======
+  /** @return the sizedImagePropertyName */
+>>>>>>> development-8.1.x
   public String getSizedImagePropertyName() {
     return sizedImagePropertyName;
   }
 
+<<<<<<< HEAD
   /**
    * @param sizedImagePropertyName the sizedImagePropertyName to set
    */
+=======
+  /** @param sizedImagePropertyName the sizedImagePropertyName to set */
+>>>>>>> development-8.1.x
   public void setSizedImagePropertyName(String sizedImagePropertyName) {
     this.sizedImagePropertyName = sizedImagePropertyName;
   }
 
+<<<<<<< HEAD
   /**
    * @return the failureImagePath
    */
+=======
+  /** @return the failureImagePath */
+>>>>>>> development-8.1.x
   public String getFailureImagePath() {
     return failureImagePath;
   }
 
+<<<<<<< HEAD
   /**
    * @param failureImagePath the failureImagePath to set
    */
+=======
+  /** @param failureImagePath the failureImagePath to set */
+>>>>>>> development-8.1.x
   public void setFailureImagePath(String failureImagePath) {
     this.failureImagePath = failureImagePath;
   }

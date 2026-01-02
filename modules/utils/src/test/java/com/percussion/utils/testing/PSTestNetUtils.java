@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.utils.testing;
@@ -20,7 +19,10 @@ package com.percussion.utils.testing;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+<<<<<<< HEAD
 // TODO: Remove me @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET")
+=======
+>>>>>>> development-8.1.x
 public class PSTestNetUtils {
 
   /**
@@ -34,8 +36,11 @@ public class PSTestNetUtils {
    * @return a free port number on localhost
    * @throws IllegalStateException if unable to find a free port
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") //Is just a port check no TLS
   // required
+=======
+>>>>>>> development-8.1.x
   public static int findFreePort() {
     ServerSocket socket = null;
     try {

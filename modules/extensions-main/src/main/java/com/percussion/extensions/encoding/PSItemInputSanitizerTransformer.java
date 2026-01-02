@@ -28,7 +28,11 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import java.io.File;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 
@@ -70,16 +74,24 @@ import org.jsoup.safety.Safelist;
  */
 public class PSItemInputSanitizerTransformer implements IPSItemInputTransformer {
 
+<<<<<<< HEAD
   /***
    * Default public constructor
    */
+=======
+  /** * Default public constructor */
+>>>>>>> development-8.1.x
   public PSItemInputSanitizerTransformer() {}
 
   @Override
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
 
     // expects one comma separated string parameter

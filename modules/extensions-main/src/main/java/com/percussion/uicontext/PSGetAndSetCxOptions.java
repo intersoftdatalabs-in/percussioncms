@@ -51,9 +51,13 @@ import org.xml.sax.SAXException;
  * any problems and we won't be storing bad data.
  */
 public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
+<<<<<<< HEAD
   /**
    * @see IPSResultDocumentProcessor *
    */
+=======
+  /** @see IPSResultDocumentProcessor * */
+>>>>>>> development-8.1.x
   public boolean canModifyStyleSheet() {
     return false;
   }

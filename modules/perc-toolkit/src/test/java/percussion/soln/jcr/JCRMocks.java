@@ -18,6 +18,7 @@ package percussion.soln.jcr;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+<<<<<<< HEAD
 import org.mockito.Mockito;
 
 /** // REFACTORED: CP-JAVA11 */
@@ -35,6 +36,51 @@ public class JCRMocks {
     var property = Mockito.mock(Property.class, mockName);
     Mockito.when(node.getProperty(name)).thenReturn(property);
     Mockito.when(property.getLong()).thenReturn(value);
+=======
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+
+public class JCRMocks {
+
+  Mockery mockery;
+
+  public JCRMocks(Mockery mockery) {
+    super();
+    this.mockery = mockery;
+  }
+
+  public Property expectProperty(
+      String mockName, final Node node, final String name, final String value) throws Exception {
+    final Property property = mockery.mock(Property.class, mockName);
+    mockery.checking(
+        new Expectations() {
+          {
+            allowing(node).getProperty(name);
+            will(returnValue(property));
+
+            allowing(property).getString();
+            will(returnValue(value));
+          }
+        });
+
+    return property;
+  }
+
+  public Property expectProperty(
+      String mockName, final Node node, final String name, final long value) throws Exception {
+    final Property property = mockery.mock(Property.class, mockName);
+    mockery.checking(
+        new Expectations() {
+          {
+            allowing(node).getProperty(name);
+            will(returnValue(property));
+
+            allowing(property).getLong();
+            will(returnValue(value));
+          }
+        });
+
+>>>>>>> development-8.1.x
     return property;
   }
 }

@@ -73,9 +73,16 @@ public class PSUpdateWebApps extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * private functions
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* private functions
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Deploys all non-system webapps into the new deploy directory. Adds appropriate classloader
@@ -173,9 +180,16 @@ public class PSUpdateWebApps extends PSAction {
     fwriter.close();
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Bean properties
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the names of the pre-6.0 system webapps.
@@ -195,9 +209,16 @@ public class PSUpdateWebApps extends PSAction {
     this.sysWebapps = convertToArray(sysWebapps);
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * properties
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ properties
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Path of the pre-6.0 webapps directory */
   private String m_webappsDir = getRootDir() + File.separator + "AppServer.bak/webapps";

@@ -50,9 +50,13 @@ public class JexlScriptFixes {
                 + "\n"
                 + "Name: "
                 + ownerName
+<<<<<<< HEAD
                 + "\n"
                 + "$ref=$ref2 syntax probably needs fixing.  =$ is special operator 'Ends With'"
                 + " now.  If attempting assignment add space eg. $ref = $ref");
+=======
+                + "\n$ref=$ref2 syntax probably needs fixing.  =$ is special operator 'Ends With' now.  If attempting assignment add space eg. $ref = $ref");
+>>>>>>> development-8.1.x
 
     scriptText =
         replace(
@@ -64,9 +68,13 @@ public class JexlScriptFixes {
                 + "\n"
                 + "Name: "
                 + ownerName
+<<<<<<< HEAD
                 + "\n"
                 + "!$ref syntax in jexl probably needs fixing.  !$ is a special operator 'Not Ends"
                 + " With' now, if testing negation should add space  e.g. if( ! $ref ) ");
+=======
+                + "\n!$ref syntax in jexl probably needs fixing.  !$ is a special operator 'Not Ends With' now, if testing negation should add space  e.g. if( ! $ref ) ");
+>>>>>>> development-8.1.x
 
     scriptText =
         replace(

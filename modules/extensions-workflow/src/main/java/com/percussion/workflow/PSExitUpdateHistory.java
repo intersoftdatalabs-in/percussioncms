@@ -60,7 +60,11 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
   /* Set the parameter count to not initialized */
   private int ms_correctParamCount = IPSExtension.NOT_INITIALIZED;
 
+<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
+=======
+  /** ************ IPSExtension Interface Implementation ************* */
+>>>>>>> development-8.1.x
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     ms_actionTriggerName =
         PSWorkFlowUtils.properties.getProperty(

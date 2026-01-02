@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -56,16 +55,29 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSTableViewExistsWizCondition extends PSAction implements Condition {
+<<<<<<< HEAD
   /* (non-Javadoc)
+=======
+  /*
+   * (non-Javadoc)
+   *
+>>>>>>> development-8.1.x
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */
   public boolean eval() {
     return checkExists();
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * private functions
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ private functions
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Checks if the database object specified by <code>objectName</code> already exists in the
@@ -134,9 +146,16 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
     return exists;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ Bean property
+   * Accessors and Mutators ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Name of the table or view whose existence in the database is to be verified.
@@ -181,9 +200,16 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
     isView = aIsView;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ Bean properties
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Name of the table or view whose existence in the database is to be verified, may not be <code>

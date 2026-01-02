@@ -28,7 +28,11 @@ import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManagerLocator;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManagerLocator;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -38,10 +42,17 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.ui.ModelMap;
@@ -83,8 +94,12 @@ public class ImageEditorWizard {
     Validate.notNull(imagePersistenceManager);
 
     log.debug(
+<<<<<<< HEAD
         "ImageEditorWizard: ----------------------------  Starting the ImageEditorWizard"
             + " controller....----------------------------");
+=======
+        "ImageEditorWizard: ----------------------------  Starting the ImageEditorWizard controller....----------------------------");
+>>>>>>> development-8.1.x
     // Most pages possible for the wizard:
 
     int maxSize = 2 + imageSizeDefMgr.getAllImageSizes().size();
@@ -467,8 +482,12 @@ public class ImageEditorWizard {
     } else {
       if (simds.size() > 0) {
         log.debug(
+<<<<<<< HEAD
             "setupSizedImages: There were sized images selected, but none have been selected now,"
                 + " so clearing out sized images");
+=======
+            "setupSizedImages: There were sized images selected, but none have been selected now, so clearing out sized images");
+>>>>>>> development-8.1.x
         mimd.setSizedImages(new LinkedHashMap<String, SizedImageMetaData>());
         usd.setDirty(true);
       }
@@ -603,8 +622,12 @@ public class ImageEditorWizard {
       mimd.setMetaData(imageData);
     } catch (Exception e) {
       log.debug(
+<<<<<<< HEAD
           "storeImage: An exception was caught in storeImage: No inputStream found because no file"
               + " was uploaded.",
+=======
+          "storeImage: An exception was caught in storeImage: No inputStream found because no file was uploaded.",
+>>>>>>> development-8.1.x
           e.fillInStackTrace());
     }
   }
@@ -631,8 +654,12 @@ public class ImageEditorWizard {
       return wizardPages[page];
     }
     log.debug(
+<<<<<<< HEAD
         "getViewName: wizardPages[{}] does not have as many entries as the current page number [{}]"
             + " expected",
+=======
+        "getViewName: wizardPages[{}] does not have as many entries as the current page number [{}] expected",
+>>>>>>> development-8.1.x
         wizardPages.length,
         page);
     return MAIN_PAGE;
@@ -1020,30 +1047,46 @@ public class ImageEditorWizard {
     SIZE_PAGE = size_page;
   }
 
+<<<<<<< HEAD
   /**
    * @return the maxDisplayHeight
    */
+=======
+  /** @return the maxDisplayHeight */
+>>>>>>> development-8.1.x
   public int getMaxDisplayHeight() {
     return maxDisplayHeight;
   }
 
+<<<<<<< HEAD
   /**
    * @param maxDisplayHeight the maxDisplayHeight to set
    */
+=======
+  /** @param maxDisplayHeight the maxDisplayHeight to set */
+>>>>>>> development-8.1.x
   public void setMaxDisplayHeight(int maxDisplayHeight) {
     this.maxDisplayHeight = maxDisplayHeight;
   }
 
+<<<<<<< HEAD
   /**
    * @return the maxDisplayWidth
    */
+=======
+  /** @return the maxDisplayWidth */
+>>>>>>> development-8.1.x
   public int getMaxDisplayWidth() {
     return maxDisplayWidth;
   }
 
+<<<<<<< HEAD
   /**
    * @param maxDisplayWidth the maxDisplayWidth to set
    */
+=======
+  /** @param maxDisplayWidth the maxDisplayWidth to set */
+>>>>>>> development-8.1.x
   public void setMaxDisplayWidth(int maxDisplayWidth) {
     this.maxDisplayWidth = maxDisplayWidth;
   }
@@ -1061,16 +1104,24 @@ public class ImageEditorWizard {
   private String CONFIRM_PAGE = "confirm";
   private String SIZE_PAGE = "sizeimage";
 
+<<<<<<< HEAD
   /**
    * @return the imageResizeMgr
    */
+=======
+  /** @return the imageResizeMgr */
+>>>>>>> development-8.1.x
   public ImageResizeManager getImageResizeMgr() {
     return imageResizeMgr;
   }
 
+<<<<<<< HEAD
   /**
    * @param imageResizeMgr the imageResizeMgr to set
    */
+=======
+  /** @param imageResizeMgr the imageResizeMgr to set */
+>>>>>>> development-8.1.x
   public void setImageResizeMgr(ImageResizeManager imageResizeMgr) {
     this.imageResizeMgr = imageResizeMgr;
   }
@@ -1083,16 +1134,24 @@ public class ImageEditorWizard {
     this.imagePersistenceManager = imagePersistenceManager;
   }
 
+<<<<<<< HEAD
   /**
    * @param imageCacheManager the imageCacheManager to set
    */
+=======
+  /** @param imageCacheManager the imageCacheManager to set */
+>>>>>>> development-8.1.x
   protected void setImageCacheManager(ImageCacheManager imageCacheManager) {
     this.imageCacheManager = imageCacheManager;
   }
 
+<<<<<<< HEAD
   /**
    * @param imageSizeDefMgr the imageSizeDefMgr to set
    */
+=======
+  /** @param imageSizeDefMgr the imageSizeDefMgr to set */
+>>>>>>> development-8.1.x
   protected void setImageSizeDefMgr(ImageSizeDefinitionManager imageSizeDefMgr) {
     this.imageSizeDefMgr = imageSizeDefMgr;
   }

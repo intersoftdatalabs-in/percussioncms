@@ -27,6 +27,7 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import java.io.File;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +41,20 @@ import org.apache.logging.log4j.Logger;
  * for fields where the destination is smaller than the source.
  *
  * @author stephenbolton
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * * A field input transform for copying one field to another This is an extended version of the
+ * sys_copyParameter extension that allows conditional copy. This way you can copy an uploaded
+ * filename to one used in the location field only if one has not been manually entered. This can
+ * also concatenate the value if too large for fields where the destination is smaller than the
+ * source.
+>>>>>>> development-8.1.x
  *
+ * @author stephenbolton
  */
 public class PSOCopyParameter implements IPSItemInputTransformer, IPSRequestPreProcessor {
 
@@ -52,9 +66,13 @@ public class PSOCopyParameter implements IPSItemInputTransformer, IPSRequestPreP
 
   // see IPSRequestPreProcessor
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     String emsg = "";
     if (params == null || params.length < 4) {

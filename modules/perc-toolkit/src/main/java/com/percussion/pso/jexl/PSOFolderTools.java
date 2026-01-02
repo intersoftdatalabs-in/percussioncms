@@ -161,9 +161,13 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
       params = {@IPSJexlParam(name = "assemblyItem", description = "$sys.assemblyItem")},
       returns = "the path of the folder that contains this item")
   public String getParentFolderPath(IPSAssemblyItem assemblyItem)
+<<<<<<< HEAD
       throws PSErrorResultsException,
           PSExtensionProcessingException,
           PSErrorException,
+=======
+      throws PSErrorResultsException, PSExtensionProcessingException, PSErrorException,
+>>>>>>> development-8.1.x
           PSCmsException {
     int id = assemblyItem.getFolderId();
     String path = null;
@@ -241,7 +245,10 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
       throw new RuntimeException(e);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Get the folder paths Given a FolderID.
    *
@@ -278,9 +285,13 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
     return PSOItemFolderUtilities.getFolderPathsForItem(guid);
   }
 
+<<<<<<< HEAD
   /***
    * Returns a lightweight list of the child items and folders of this item.
    */
+=======
+  /** * Returns a lightweight list of the child items and folders of this item. */
+>>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the child folders & items for this item",
       params = {@IPSJexlParam(name = "folderId", description = "the folderid")})

@@ -19,6 +19,10 @@ package com.percussion.share.validation;
 import static org.apache.commons.lang3.Validate.*;
 
 import com.percussion.share.service.exception.PSPropertiesValidationException;
+<<<<<<< HEAD
+=======
+import org.apache.commons.lang3.Validate;
+>>>>>>> development-8.1.x
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -40,8 +44,13 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
   }
 
   @SuppressWarnings("unchecked")
+<<<<<<< HEAD
   public boolean supports(Class<?> klass) {
     notNull(getType(), "getType() cannot return null");
+=======
+  public boolean supports(Class klass) {
+    Validate.notNull(getType());
+>>>>>>> development-8.1.x
     if (klass == getType()) return true;
     return false;
   }

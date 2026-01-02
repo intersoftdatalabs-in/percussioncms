@@ -22,7 +22,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /** This class provides utilities for loading jdbc drivers. */
 public class PSDriverHelper {
@@ -42,9 +46,13 @@ public class PSDriverHelper {
    */
   @SuppressWarnings("unchecked")
   public static Driver getDriver(String driverClass, String driverPath)
+<<<<<<< HEAD
       throws MalformedURLException,
           ClassNotFoundException,
           InstantiationException,
+=======
+      throws MalformedURLException, ClassNotFoundException, InstantiationException,
+>>>>>>> development-8.1.x
           IllegalAccessException {
     if (StringUtils.isBlank(driverClass)) {
       throw new IllegalArgumentException("driverClass may not be blank");

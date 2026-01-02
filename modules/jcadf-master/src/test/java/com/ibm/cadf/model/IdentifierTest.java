@@ -19,6 +19,7 @@ package com.ibm.cadf.model;
 
 import com.ibm.cadf.cfg.Config;
 import com.ibm.cadf.util.Constants;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,15 @@ import org.junit.jupiter.api.Test;
 public class IdentifierTest {
 
   @BeforeEach
+=======
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class IdentifierTest {
+
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() {
     System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
   }
@@ -35,6 +45,10 @@ public class IdentifierTest {
     Config.getInstance().registerProperty("namespace", "jcloud");
     String uid = Identifier.generateUniqueId();
     boolean b = uid.startsWith("jcloud");
+<<<<<<< HEAD
     Assertions.assertTrue(b, "Wrong prefix");
+=======
+    Assert.assertTrue("Wrong prefix", b);
+>>>>>>> development-8.1.x
   }
 }

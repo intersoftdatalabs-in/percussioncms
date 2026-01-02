@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "addServiceOrderResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"addServiceOrderResult"})
 @XmlRootElement(name = "AddServiceOrderResponse")
 public class AddServiceOrderResponse {
 
-    @XmlElement(name = "AddServiceOrderResult")
-    protected String addServiceOrderResult;
+  @XmlElement(name = "AddServiceOrderResult")
+  protected String addServiceOrderResult;
 
-    /**
-     * Gets the value of the addServiceOrderResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddServiceOrderResult() {
-        return addServiceOrderResult;
-    }
+  /**
+   * Gets the value of the addServiceOrderResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddServiceOrderResult() {
+    return addServiceOrderResult;
+  }
 
-    /**
-     * Sets the value of the addServiceOrderResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddServiceOrderResult(String value) {
-        this.addServiceOrderResult = value;
-    }
-
+  /**
+   * Sets the value of the addServiceOrderResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddServiceOrderResult(String value) {
+    this.addServiceOrderResult = value;
+  }
 }

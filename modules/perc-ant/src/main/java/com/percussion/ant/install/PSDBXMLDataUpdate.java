@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -76,6 +75,7 @@ import java.util.Properties;
  * </pre>
  */
 public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
+<<<<<<< HEAD
   // see base class
 
   @Override
@@ -109,6 +109,39 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
       PSJdbcTableSchema tableSchema =
           PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, tableName, false);
 
+=======
+  @Override
+  public void execute() {
+    String installLoc = getRootDir();
+
+    FileInputStream in = null;
+    Connection conn = null;
+    try {
+      String tempDir = installLoc;
+      if (!tempDir.endsWith(File.separator)) tempDir += File.separator;
+
+      in = new FileInputStream(new File(tempDir + "rxconfig/Installer/rxrepository.properties"));
+
+      tempDir += TEMP_DIR;
+      File fTempDir = new File(tempDir);
+      fTempDir.mkdirs();
+      fTempDir.deleteOnExit();
+
+      // get database connection
+      Properties props = new Properties();
+      props.load(in);
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      PSJdbcDataTypeMap dataTypeMap =
+          new PSJdbcDataTypeMap(
+              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
+      conn = RxLogTables.createConnection(props);
+
+      // catalog the table schema
+      PSJdbcTableSchema tableSchema =
+          PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, tableName, false);
+
+>>>>>>> development-8.1.x
       if (tableSchema == null) {
         // table does not exist
         return;
@@ -195,9 +228,16 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
     }
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Private Functions
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Private Functions
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** directory to use for creating temporary XML files. */
   private static final String TEMP_DIR = "rxconfig/Installer/tempXml";
@@ -309,9 +349,16 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
     return columnData;
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Bean Properties
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Bean Properties
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the name of the table which contains a column with XML data which needs to be updated
@@ -406,9 +453,16 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
     this.backupTableName = backupTableName.trim();
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Properties
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Properties
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * The name of the table which contains a column with XML data which needs to be updated by

@@ -17,23 +17,39 @@
 
 package com.percussion.utils.security;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+>>>>>>> development-8.1.x
 
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.StringPrep;
 import com.ibm.icu.text.StringPrepParseException;
 import com.percussion.security.SecureStringUtils;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Ignore;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class SecureStringUtilsTests {
 
   // TODO: Fix Me
   @Test
+<<<<<<< HEAD
   @Disabled
+=======
+  @Ignore
+>>>>>>> development-8.1.x
   public void testHeaderValidation() {
     String cleaned =
         SecureStringUtils.stripAllLineBreaks(

@@ -24,7 +24,11 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

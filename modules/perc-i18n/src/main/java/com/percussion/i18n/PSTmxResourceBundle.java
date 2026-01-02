@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.i18n;
@@ -62,12 +61,19 @@ import org.xml.sax.SAXException;
  * meaningful value.
  */
 /*
+<<<<<<< HEAD
  * Note: right now loading the document into cache is fairly quick process.
  * However, when several languages are deployed and the resource bundle grows
  * to a size to slowdown loading resources significantly, we may have to
  * consider reading resources in a separate thread.
  */
 // TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
+=======
+ * Note: right now loading the document into cache is fairly quick process. However, when several
+ * languages are deployed and the resource bundle grows to a size to slowdown loading resources
+ * significantly, we may have to consider reading resources in a separate thread.
+ */
+>>>>>>> development-8.1.x
 public class PSTmxResourceBundle implements IPSTmxDtdConstants {
 
   private static PSTmxResourceBundle INSTANCE;
@@ -249,8 +255,12 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
 
     if (map == null) {
       log.info(
+<<<<<<< HEAD
           "TMX Resource Bundle does not contain any deployed language resources  Check"
               + " ResourceBundle.tmx file");
+=======
+          "TMX Resource Bundle does not contain any deployed language resources  Check ResourceBundle.tmx file");
+>>>>>>> development-8.1.x
       return null;
     } else {
       // get the keys set and iterator here
@@ -308,7 +318,10 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   /** String constant specifying the location path of the TMX resource bundle. */
   public static final String MASTER_RESOURCE_FILEPATH =
       "rxconfig" + File.separator + "I18n" + File.separator + "ResourceBundle.tmx";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Map storing all language resources. Never <code>null</code>. <code>Empty</code> until
    * loadResources() is called successfully.

@@ -47,7 +47,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.naming.NamingException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -566,9 +570,15 @@ public class PSSqlHelper {
 
             break;
 
+<<<<<<< HEAD
           // case Types.BINARY:
           // case Types.VARBINARY:
           // case Types.LONGVARBINARY:
+=======
+            // case Types.BINARY:
+            // case Types.VARBINARY:
+            // case Types.LONGVARBINARY:
+>>>>>>> development-8.1.x
           default:
             /* if it's a binary data type it must be a binary stream.
              * For any other data type, we'll also treat the file as a
@@ -643,8 +653,12 @@ public class PSSqlHelper {
           | InvocationTargetException
           | ClassNotFoundException e) {
         log.error(
+<<<<<<< HEAD
             "reflection to call {}.getUnderlyingStatement() failed assuming not an Jboss wrapped"
                 + " oracle prepared statment, Error: {}",
+=======
+            "reflection to call {}.getUnderlyingStatement() failed assuming not an Jboss wrapped oracle prepared statment, Error: {}",
+>>>>>>> development-8.1.x
             JBOSS_WRAPPED_CLASS,
             PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));

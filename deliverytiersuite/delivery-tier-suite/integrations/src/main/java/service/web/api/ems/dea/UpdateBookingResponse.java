@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "updateBookingResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"updateBookingResult"})
 @XmlRootElement(name = "UpdateBookingResponse")
 public class UpdateBookingResponse {
 
-    @XmlElement(name = "UpdateBookingResult")
-    protected String updateBookingResult;
+  @XmlElement(name = "UpdateBookingResult")
+  protected String updateBookingResult;
 
-    /**
-     * Gets the value of the updateBookingResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUpdateBookingResult() {
-        return updateBookingResult;
-    }
+  /**
+   * Gets the value of the updateBookingResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUpdateBookingResult() {
+    return updateBookingResult;
+  }
 
-    /**
-     * Sets the value of the updateBookingResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUpdateBookingResult(String value) {
-        this.updateBookingResult = value;
-    }
-
+  /**
+   * Sets the value of the updateBookingResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUpdateBookingResult(String value) {
+    this.updateBookingResult = value;
+  }
 }

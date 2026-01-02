@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -60,6 +59,7 @@ import java.util.Properties;
  * </pre>
  */
 public class PSUpdateRepoProps extends PSAction {
+<<<<<<< HEAD
 
   public void execute() {
     File root = new File(getRootDir());
@@ -128,6 +128,77 @@ public class PSUpdateRepoProps extends PSAction {
   /**************************************************************************
    * Properties
    *************************************************************************/
+=======
+  public void execute() {
+    File root = new File(getRootDir());
+    IPSContainerUtils jetty =
+        PSContainerUtilsFactory.getConfigurationContextInstance(root.toPath()).getConfig();
+
+    Properties props = new Properties();
+    try {
+      IPSDatasourceResolver resolver = jetty.getDatasourceResolver();
+
+      IPSDatasourceConfig ds_config = resolver.getRepositoryDatasourceConfig();
+      String datasourceName = ds_config.getDataSource();
+
+      props.put("DB_SCHEMA", ds_config.getOrigin());
+      props.put("DB_NAME", ds_config.getDatabase());
+      props.put("DSCONFIG_NAME", datasourceName);
+
+      List<IPSJndiDatasource> datasources = jetty.getDatasources();
+      for (IPSJndiDatasource datasource : datasources) {
+        if (datasource.getName().equals(datasourceName)) {
+
+          String pwd = datasource.getPassword();
+          if (!datasource.isEncrypted()) {
+            pwd =
+                PSEncryptor.encryptProperty(
+                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+                    m_strRepositoryLocation,
+                    "PWD",
+                    pwd);
+          }
+          props.put("PWD", pwd);
+          props.put("PWD_ENCRYPTED", "Y");
+          props.put("UID", datasource.getUserId());
+          props.put("DB_SERVER", datasource.getServer());
+          props.put("DB_BACKEND", PSJdbcUtils.getDBBackendForDriver(datasource.getDriverName()));
+          props.put("DB_DRIVER_NAME", datasource.getDriverName());
+          props.put("DB_DRIVER_CLASS_NAME", datasource.getDriverClassName());
+        }
+      }
+
+      File propfile = new File(root, m_strRepositoryLocation);
+
+      try (PrintWriter pw = new PrintWriter(propfile)) {
+        props.store(pw, null);
+      }
+
+    } catch (Exception e) {
+
+      PSLogger.logError("Failed to update jetty configuration from jboss" + e.getMessage());
+    }
+  }
+
+  /**
+   * *********************************************************************** Property Accessors and
+   * Mutators ***********************************************************************
+   */
+
+  /** Accessor for the repository location */
+  public String getRepositoryLocation() {
+    return m_strRepositoryLocation;
+  }
+
+  public void setRepositoryLocation(String repositoryLocation) {
+    m_strRepositoryLocation = repositoryLocation;
+  }
+
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** The repository location, relative to the Rhythmyx root. */
   private String m_strRepositoryLocation = "rxconfig/Installer/rxrepository.properties";

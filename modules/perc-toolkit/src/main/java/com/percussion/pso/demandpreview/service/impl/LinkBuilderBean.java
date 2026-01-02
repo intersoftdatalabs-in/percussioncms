@@ -38,7 +38,13 @@ public class LinkBuilderBean implements LinkBuilderService {
 
   public LinkBuilderBean() {}
 
+<<<<<<< HEAD
   /***
+=======
+  /**
+   * *
+   *
+>>>>>>> development-8.1.x
    * @see LinkBuilderService
    */
   public String buildLinkUrl(

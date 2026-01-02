@@ -16,10 +16,18 @@
  */
 package test.percussion.pso.demandpreview.service.impl;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.pso.demandpreview.service.impl.DemandPublisherBean;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
 import com.percussion.rx.publisher.IPSRxPublisherService;
@@ -44,7 +52,11 @@ public class DemandPublisherBeanTest {
   TestableDemandPublisherBean cut;
   IPSRxPublisherService rxPubSvc;
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new TestableDemandPublisherBean();

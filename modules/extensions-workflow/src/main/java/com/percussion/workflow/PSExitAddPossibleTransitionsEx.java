@@ -44,7 +44,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -106,26 +110,38 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * will be set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String CHECKIN_BUTTON_NAME = "checkin";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * The internal name of the Check-out button. Will not change. The name is 'checkout'. This name
    * will be set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String CHECKOUT_BUTTON_NAME = "checkout";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * The internal name of the Force Check-in button. Will not change. The name is 'forcecheckin'.
    * This name will be set as the name attribute of the ActionLink for this button in the output
    * doc.
    */
   public static final String FORCE_CHECKIN_BUTTON_NAME = "forcecheckin";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * The internal name of the Edit button. Will not change. The name is 'edit'. This name will be
    * set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String EDIT_BUTTON_NAME = "edit";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * The internal name of the Preview button. Will not change. The name is 'preview'. This name will
    * be set as the name attribute of the ActionLink for this button in the output doc.
@@ -1126,10 +1142,15 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
 
   /** XML attribute value that represents true */
   private static final String ATTRIB_BOOLEAN_TRUE = "yes";
+<<<<<<< HEAD
 
   /** XML attribute value that represents false */
   private static final String ATTRIB_BOOLEAN_FALSE = "no";
 
+=======
+  /** XML attribute value that represents false */
+  private static final String ATTRIB_BOOLEAN_FALSE = "no";
+>>>>>>> development-8.1.x
   /** XML attribute value that represents false */
   private static final String ATTRIB_HIDE = "hide";
 

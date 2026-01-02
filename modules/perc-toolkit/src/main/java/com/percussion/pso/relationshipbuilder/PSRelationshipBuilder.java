@@ -55,6 +55,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   private boolean cleanupBrokenRels = true;
   private boolean init = false;
   private PSRelationshipFilter filter;
+<<<<<<< HEAD
 
   /** Wires up all the service components when in Rhythmyx. */
   public void init() {
@@ -66,6 +67,18 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     init = true;
   }
 
+=======
+  /** Wires up all the service components when in Rhythmyx. */
+  public void init() {
+    if (m_assemblyService == null)
+      m_assemblyService = PSAssemblyServiceLocator.getAssemblyService();
+    if (m_relationshipService == null)
+      m_relationshipService = PSRelationshipServiceLocator.getRelationshipService();
+    if (m_cmsObjectManager == null) m_cmsObjectManager = PSCmsObjectMgrLocator.getObjectManager();
+    init = true;
+  }
+
+>>>>>>> development-8.1.x
   public PSRelationshipBuilder() {
     filter = new PSRelationshipFilter();
   }
@@ -107,10 +120,14 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
     setRelationships(filterRelationships(relationships));
   }
+<<<<<<< HEAD
 
   /**
    * @param relationships
    */
+=======
+  /** @param relationships */
+>>>>>>> development-8.1.x
   @SuppressWarnings("unchecked")
   private Collection<PSRelationship> filterRelationships(Collection<PSRelationship> relationships)
       throws PSAssemblyException, PSException {
@@ -153,8 +170,12 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
       if (id == relSourceId
           && (relSourceRevision == -1 || relSourceRevision == tipRevisionMap.get(relSourceId))) {
         log.debug(
+<<<<<<< HEAD
             "found relationship result {}, source id={}, source revision = {} with contentid = {}"
                 + " and revision {}",
+=======
+            "found relationship result {}, source id={}, source revision = {} with contentid = {} and revision {}",
+>>>>>>> development-8.1.x
             relationship.getId(),
             relSourceId,
             relSourceRevision,
@@ -179,8 +200,12 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
       } else {
         log.debug(
+<<<<<<< HEAD
             "Source id = {} with tip revision {} does not match relationship with id={} revision {}"
                 + " or id not expected Skipping",
+=======
+            "Source id = {} with tip revision {} does not match relationship with id={} revision {} or id not expected Skipping",
+>>>>>>> development-8.1.x
             relSourceId,
             tipRevisionMap.get(relSourceId),
             relSourceId,
@@ -237,7 +262,10 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
 
     log.debug("Calling Abstract PSRelationship:addRelationship doing nothing");
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /* (non-Javadoc)
    * @see com.percussion.pso.relationshipbuilder.IPSRelationshipHelperService#createEmptyRelationshipCollection()
    */
@@ -277,6 +305,7 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     }
     return idLocators;
   }
+<<<<<<< HEAD
 
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSRelationshipBuilder.class);
@@ -317,6 +346,47 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
     m_relationshipService = service;
   }
 
+=======
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSRelationshipBuilder.class);
+
+  public Collection<PSRelationship> getRelationships() {
+    return relationships;
+  }
+
+  public void setRelationships(Collection<PSRelationship> relationships) {
+    this.relationships = relationships;
+  }
+
+  public Collection<Integer> getResultIds() {
+    return resultIds;
+  }
+
+  public void setResultIds(Collection<Integer> resultIds) {
+    this.resultIds = resultIds;
+  }
+
+  public boolean isCleanupBrokenRels() {
+    return cleanupBrokenRels;
+  }
+
+  public void setCleanupBrokenRels(boolean cleanupBrokenRels) {
+    this.cleanupBrokenRels = cleanupBrokenRels;
+  }
+
+  public IPSAssemblyService getM_assemblyService() {
+    return m_assemblyService;
+  }
+
+  public void setM_assemblyService(IPSAssemblyService service) {
+    m_assemblyService = service;
+  }
+
+  public void setRelationshipService(IPSRelationshipService service) {
+    m_relationshipService = service;
+  }
+
+>>>>>>> development-8.1.x
   public void setCmsObjectManager(IPSCmsObjectMgr objectManager) {
     m_cmsObjectManager = objectManager;
   }

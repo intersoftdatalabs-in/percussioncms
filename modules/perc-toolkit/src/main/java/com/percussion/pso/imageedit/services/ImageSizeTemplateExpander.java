@@ -29,7 +29,11 @@ import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,12 +49,20 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
 
   private ImageSizeDefinitionManager isdm = null;
   private IPSAssemblyService asm = null;
+<<<<<<< HEAD
 
   /** Default constructor. */
   public ImageSizeTemplateExpander() {
     super.setNeedsContentNode(true);
   }
 
+=======
+  /** Default constructor. */
+  public ImageSizeTemplateExpander() {
+    super.setNeedsContentNode(true);
+  }
+
+>>>>>>> development-8.1.x
   private void initServices() {
     if (isdm == null) {
       isdm = ImageSizeDefinitionManagerLocator.getImageSizeDefinitionManager();
@@ -59,7 +71,10 @@ public class ImageSizeTemplateExpander extends AbstractTemplateExpanderAdaptor
       asm = PSAssemblyServiceLocator.getAssemblyService();
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the templates for an image item. Only the contentNode parameter is examined, and it must
    * not be <code>null</code>.
