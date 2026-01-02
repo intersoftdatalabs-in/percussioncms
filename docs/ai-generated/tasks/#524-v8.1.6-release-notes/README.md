@@ -5,6 +5,7 @@ This directory contains AI-generated documentation for the v8.1.6 release, speci
 ## Files in This Directory
 
 ### 1. RELEASE_NOTES_v8.1.6_CORRECTED.md
+
 **Purpose:** Comprehensive corrected release notes with full details
 - Complete overview of all dependency updates
 - Detailed explanations of rolled back updates
@@ -16,6 +17,7 @@ This directory contains AI-generated documentation for the v8.1.6 release, speci
 ---
 
 ### 2. RELEASE_NOTES_v8.1.6_GITHUB_BODY.md
+
 **Purpose:** Concise release notes suitable for GitHub release body
 - Clean, user-facing format
 - Summary of key updates
@@ -26,6 +28,7 @@ This directory contains AI-generated documentation for the v8.1.6 release, speci
 ---
 
 ### 3. PR_REFERENCE_CORRECTIONS.md
+
 **Purpose:** Detailed mapping of PR corrections needed
 - Specific PRs that need to be removed/updated
 - Original claims vs. actual deployed versions
@@ -37,6 +40,7 @@ This directory contains AI-generated documentation for the v8.1.6 release, speci
 ---
 
 ### 4. QUICK_REFERENCE_v8.1.6.md
+
 **Purpose:** Quick lookup table for release manager
 - At-a-glance version comparison
 - Copy-paste friendly corrections
@@ -47,6 +51,7 @@ This directory contains AI-generated documentation for the v8.1.6 release, speci
 ---
 
 ### 5. README.md (this file)
+
 **Purpose:** Documentation of documentation
 - Explains the purpose of each file
 - Provides context for the documentation set

@@ -19,22 +19,20 @@ Created comprehensive documentation in `/docs/ai-generated/` to correct the rele
 ## Key Corrections Identified
 
 ### Dependencies Rolled Back (Need Removal/Notation in Release Notes)
+
 1. **Apache MyFaces** - Remains at 2.3.11 (not upgraded to 3.0.3)
    - PR #405 needs to be removed or marked as rolled back
-   
 2. **Apache Shindig** - Remains at 1.1-BETA5-incubating (not upgraded to 3.0.0-beta4)
    - PR #412 needs to be removed or marked as rolled back
 
 ### Dependencies with Incorrect Versions (Need Correction)
+
 3. **Apache PDFBox** - Updated to 2.0.30 (not 3.0.6)
    - PR #283 needs version correction
-   
 4. **OWASP CSRF Guard** - Updated to 4.5.0 (not 4.5.0-jakarta)
    - PR #63 needs version correction
-   
 5. **Jackson** - Updated to 2.20.1 (not just 2.20)
    - PR #103 needs more specific version
-   
 6. **ICU4J** - Updated to 77.1 (not 78.1)
    - PR #511 is correct, PR #474 should be removed/superseded
 
@@ -46,6 +44,7 @@ All versions verified against:
 - **Files:** /pom.xml (lines 72-218) and /modules/perc-security-utils/pom.xml
 
 ### Actual Deployed Versions:
+
 ```
 myfaces.version=2.3.11
 shindig.version=1.1-BETA5-incubating
@@ -73,16 +72,16 @@ Several dependency updates were attempted but rolled back because:
 1. Access the draft release at: https://github.com/intersoftdatalabs-in/percussioncms/releases/tag/untagged-4aa88975603d6010e701
 
 2. Use the documentation in `/docs/ai-generated/` to update the release body:
+
    - Start with `QUICK_REFERENCE_v8.1.6.md` for quick lookup
    - Use `RELEASE_NOTES_v8.1.6_GITHUB_BODY.md` as template for the release body
    - Refer to `PR_REFERENCE_CORRECTIONS.md` for specific PR updates
-
 3. Update/remove the incorrect PR references:
    - Remove or mark as rolled back: PR #405, PR #412
    - Correct version numbers: PR #283, PR #63, PR #103
    - Clarify ICU4J: Use PR #511, remove/supersede PR #474
-
 4. Add compatibility note:
+
    ```
    **Note on Java 8 Compatibility:** Several attempted dependency upgrades to 
    version 3.x were rolled back because they require Java 11 or higher. This 

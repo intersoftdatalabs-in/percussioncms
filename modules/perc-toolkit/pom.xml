@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.6-SNAPSHOT</version>
+        <version>8.1.6</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-toolkit</artifactId>
-    <version>8.1.6-SNAPSHOT</version>
+    <version>8.1.6</version>
     <packaging>jar</packaging>
     <name>perc-toolkit</name>
     <properties>

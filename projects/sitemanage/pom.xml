@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.6-SNAPSHOT</version>
+        <version>8.1.6</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>sitemanage</artifactId>
@@ -608,7 +608,7 @@
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>extensions-main</artifactId>
-            <version>8.1.6-SNAPSHOT</version>
+            <version>8.1.6</version>
         </dependency>
     </dependencies>
     <build>
