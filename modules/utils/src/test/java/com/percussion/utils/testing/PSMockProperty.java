@@ -42,91 +42,131 @@ public class PSMockProperty implements Property {
   private Value m_value = null;
 
   public void setValue(Value arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = arg0;
   }
 
   public void setValue(Value[] arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new ValueFormatException("This is a single valued property");
   }
 
   public void setValue(String arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(String[] arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new ValueFormatException("This is a single valued property");
   }
 
   public void setValue(InputStream arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(long arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(double arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(Calendar arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(boolean arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
   public void setValue(Node arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
@@ -229,6 +269,7 @@ public class PSMockProperty implements Property {
   }
 
   public void save()
+<<<<<<< HEAD
       throws AccessDeniedException,
           ItemExistsException,
           ConstraintViolationException,
@@ -238,6 +279,11 @@ public class PSMockProperty implements Property {
           LockException,
           NoSuchNodeTypeException,
           RepositoryException {
+=======
+      throws AccessDeniedException, ItemExistsException, ConstraintViolationException,
+          InvalidItemStateException, ReferentialIntegrityException, VersionException, LockException,
+          NoSuchNodeTypeException, RepositoryException {
+>>>>>>> development-8.1.x
     throw new RepositoryException("Not supported: save()");
   }
 

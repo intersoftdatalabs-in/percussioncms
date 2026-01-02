@@ -33,6 +33,7 @@ public class ValueData implements Serializable {
   Double doubleData;
   Long longData;
   String stringData;
+<<<<<<< HEAD
 
   /** JCR property type. */
   int type;
@@ -53,6 +54,27 @@ public class ValueData implements Serializable {
     type = PropertyType.STRING;
   }
 
+=======
+  /** JCR property type. */
+  int type;
+
+  public ValueData() {
+    // For general serializers that use the setters and getters.
+    type = PropertyType.STRING;
+    stringData = "";
+  }
+
+  public ValueData(boolean data) {
+    booleanData = data;
+    type = PropertyType.BOOLEAN;
+  }
+
+  public ValueData(String data) {
+    stringData = data;
+    type = PropertyType.STRING;
+  }
+
+>>>>>>> development-8.1.x
   public ValueData(Calendar data) {
     dateData = data;
     type = PropertyType.DATE;

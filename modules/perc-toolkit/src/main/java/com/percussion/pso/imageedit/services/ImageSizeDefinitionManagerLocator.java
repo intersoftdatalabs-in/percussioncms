@@ -18,9 +18,13 @@ package com.percussion.pso.imageedit.services;
 
 import com.percussion.services.PSBaseServiceLocator;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class ImageSizeDefinitionManagerLocator extends PSBaseServiceLocator {
   /** Static methods only */
   private ImageSizeDefinitionManagerLocator() {}

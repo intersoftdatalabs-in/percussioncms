@@ -402,6 +402,291 @@ public class PSJdbcTableFactory {
    * PrintStream, boolean).
    */
   public static void processTable(
+<<<<<<< HEAD
+=======
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcTableSchema tableSchema,
+      PrintStream logOut,
+      boolean logDebug)
+      throws PSJdbcTableFactoryException {
+    processTable(conn, dbmsDef, null, tableSchema, logOut, logDebug);
+  }
+
+  /**
+   * Creates or modifies each table in the supplied collection, processing data definitions if they
+   * have been provided. See {@link #processTable( Connection, PSJdbcDbmsDef, PSJdbcTableSchema,
+   * PrintStream, boolean)} for more info.
+   *
+   * @param conn The connection to use, must connect to the database server specified in dbmsDef.
+   *     May not be <code>null</code>. Connection is not closed by this method.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param tableMetaMap Used to cache the table meta data. The meta data will be created and added
+   *     to the map if the processed table does not exist in the map. The map key is the table name
+   *     in <code>String</code>; the map value is <code>PSJdbcTableMetaData</code> object of the
+   *     related talbe. It may be <code>null</code> if no need to cache the meta data.
+   * @param tables A collection of table schema objects, each containing at least one
+   *     PSJdbcColumnDef, and possibly a PSJdbcTableData object.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @throws IllegalArgumentException if tables is <code>null</code> or does not contain at least
+   *     one table schema object, or if any PSJdbcTableSchema object defined therein does not
+   *     contain at least one PSJdbcColumnDef.
+   * @throws PSJdbcTableFactoryException if there are any errors.
+   */
+  public static void processTables(
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      Map<String, PSJdbcTableMetaData> tableMetaMap,
+      PSJdbcTableSchemaCollection tables,
+      PrintStream logOut,
+      boolean logDebug)
+      throws PSJdbcTableFactoryException {
+    if (conn == null) throw new IllegalArgumentException("conn may not be null");
+
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tables == null) throw new IllegalArgumentException("tables may not be null");
+
+    ms_planLogsContainer.clearPlanLogs();
+    for (Object table : tables) {
+      processTable(conn, dbmsDef, tableMetaMap, (PSJdbcTableSchema) table, logOut, logDebug);
+    }
+  }
+
+  /**
+   * Convenient method, calls processTables(Connection,PSJdbcDbmsDef,
+   * null,PSJdbcTableSchemaCollection,PrintStream,boolean).
+   */
+  public static void processTables(
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcTableSchemaCollection tables,
+      PrintStream logOut,
+      boolean logDebug)
+      throws PSJdbcTableFactoryException {
+    processTables(conn, dbmsDef, null, tables, logOut, logDebug);
+  }
+
+  /**
+   * Convenience version of {@link #processTables(Connection, PSJdbcDbmsDef,
+   * PSJdbcTableSchemaCollection, PrintStream, boolean)} that creates all required objects from the
+   * source files.
+   *
+   * @param serverProps A set of properties that provides connection and basic table information.
+   *     May not be <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)
+   *     PSJdbcDbmsDef ctor} for a description of the properties expected.
+   * @param dataTypeMap An Xml document conforming to the DataTypeMaps DTD defined in
+   *     datatypemap.dtd. Must include a set of mappings referred to by the DB_BACKEND and
+   *     DB_DRIVER_NAME properties in the serverProps properties. May be <code>
+   * null</code>, in which case the default datatype map xml resource file is used. The first set of
+   *     mappings matching the DB_BACKEND and DB_DRIVER_NAME properties are used. Only one of the
+   *     two properties must be supplied, and if both are supplied, an attempt will be made to match
+   *     on both properties.
+   * @param tableDef An Xml document conforming to the tables DTD defined in tabledef.dtd. May not
+   *     be <code>null</code>. Provides all table schema information and any options for processing
+   *     the table.
+   * @param tableData An Xml document conforming to the tables DTD defined in the tabledata.dtd. May
+   *     be <code>null</code>. If provided, will be used to insert/modify data. Each table defined
+   *     in this document must conform the schema of a table defined in the tableDef document with
+   *     the same name.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @throws IllegalArgumentException if serverProps, or tableDef are <code>null</code> or if a
+   *     required property is missing.
+   * @throws PSJdbcTableFactoryException if any other errors occur.
+   */
+  public static void processTables(
+      Properties serverProps,
+      Document dataTypeMap,
+      Document tableDef,
+      Document tableData,
+      PrintStream logOut,
+      boolean logDebug)
+      throws PSJdbcTableFactoryException {
+    if (serverProps == null) throw new IllegalArgumentException("serverProps may not be null");
+
+    PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(serverProps);
+    processTables(dbmsDef, dataTypeMap, tableDef, tableData, logOut, logDebug);
+  }
+
+  /** Convenience method, calls . */
+  public static void processTables(
+      PSJdbcDbmsDef dbmsDef,
+      Document dataTypeMap,
+      Document doc,
+      PrintStream logOut,
+      boolean logDebug,
+      boolean transactionSupport)
+      throws PSJdbcTableFactoryException {
+    processTables(null, dbmsDef, null, dataTypeMap, doc, logOut, logDebug, transactionSupport);
+  }
+
+  /**
+   * Convenience version of that creates the tabledef and tabledata from a document conforming to
+   * the sys_DatabasePublisher.dtd.
+   *
+   * @param conn The connection to the database. It may be <code>null</code>; otherwise it will be
+   *     left open afterwards.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param tableMetaMap Used to cache the table meta data. The meta data will be created and added
+   *     to the map if the processed table does not exist in the map. The map key is the table name
+   *     in <code>String</code>; the map value is <code>PSJdbcTableMetaData</code> object of the
+   *     related talbe. It may be <code>null</code> if no need to cache the meta data.
+   * @param dataTypeMap An Xml document conforming to the DataTypeMaps DTD defined in
+   *     datatypemap.dtd, may be <code>null</code>.
+   * @param doc an Xml document conforming to the sys_DatabasePublisher.dtd, not <code>null</code>.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @param transactionSupport this flag is currently only supported if "allowSchemaChanges" in the
+   *     provided tabledef is disabled. If <code>true</code> and "allowSchemaChanges" is disabled,
+   *     tranasaction support for data changes will be used. If <code>true</code> and
+   *     "allowSchemaChanges" is enabled, an UnsupportedOperationException will be thrown. If <code>
+   *     false</code>, no transaction support is provided.
+   * @throws IllegalArgumentException if the supplied dbmsDef is <code>null</code> or the publisher
+   *     document is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if any errors occur.
+   */
+  public static void processTables(
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      Map tableMetaMap,
+      Document dataTypeMap,
+      Document doc,
+      PrintStream logOut,
+      boolean logDebug,
+      boolean transactionSupport)
+      throws PSJdbcTableFactoryException {
+    Document tableDef = transform(doc, TO_TABLEDEF);
+    Document tableData = transform(doc, TO_TABLEDATA);
+
+    // tableDef and tableData here are instances of com.icl.saxon.tinytree.TinyDocumentImpl
+    // and not of org.apache.xerces.dom.DocumentImpl, so tablefactory
+    // should avoid using any xerces specific classes or methods
+    processTables(
+        conn,
+        dbmsDef,
+        tableMetaMap,
+        dataTypeMap,
+        tableDef,
+        tableData,
+        logOut,
+        logDebug,
+        transactionSupport);
+  }
+
+  /**
+   * Creates or modifies each table in the supplied collection, processing data definitions if they
+   * have been provided. See {@link #processTable( Connection, PSJdbcDbmsDef, PSJdbcTableSchema,
+   * PrintStream, boolean)} for more info.
+   *
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param dataTypeMap An Xml document conforming to the DataTypeMaps DTD defined in
+   *     datatypemap.dtd, may be <code>null</code>
+   * @param tableDef An Xml document conforming to the tables DTD defined in tabledef.dtd. May not
+   *     be <code>null</code>. Provides all table schema information and any options for processing
+   *     the table.
+   * @param tableData An Xml document conforming to the tables DTD defined in the tabledata.dtd. May
+   *     be <code>null</code>. If provided, will be used to insert/modify data. Each table defined
+   *     in this document must conform the schema of a table defined in the tableDef document with
+   *     the same name.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @throws IllegalArgumentException if dbmsDef is <code>null</code> or if tableDef is <code>null
+   *     </code>
+   * @throws PSJdbcTableFactoryException if there are any errors.
+   */
+  public static void processTables(
+      PSJdbcDbmsDef dbmsDef,
+      Document dataTypeMap,
+      Document tableDef,
+      Document tableData,
+      PrintStream logOut,
+      boolean logDebug)
+      throws PSJdbcTableFactoryException {
+    processTables(dbmsDef, dataTypeMap, tableDef, tableData, logOut, logDebug, false);
+  }
+
+  /** Convenient method. */
+  public static void processTables(
+      PSJdbcDbmsDef dbmsDef,
+      Document dataTypeMap,
+      Document tableDef,
+      Document tableData,
+      PrintStream logOut,
+      boolean logDebug,
+      boolean transactionSupport)
+      throws PSJdbcTableFactoryException {
+    processTables(
+        null,
+        dbmsDef,
+        null,
+        dataTypeMap,
+        tableDef,
+        tableData,
+        logOut,
+        logDebug,
+        transactionSupport);
+  }
+
+  /**
+   * Creates or modifies each table in the supplied collection, processing data definitions if they
+   * have been provided. See {@link #processTable( Connection, PSJdbcDbmsDef, PSJdbcTableSchema,
+   * PrintStream, boolean)} for more info.
+   *
+   * @param conn The connection to the database. It may be <code>null</code>; otherwise it will be
+   *     left open afterwards.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param tableMetaMap Used to cache the table meta data. The meta data will be created and added
+   *     to the map if the processed table does not exist in the map. The map key is the table name
+   *     in <code>String</code>; the map value is <code>PSJdbcTableMetaData</code> object of the
+   *     related talbe. It may be <code>null</code> if no need to cache the meta data.
+   * @param dataTypeMap An Xml document conforming to the DataTypeMaps DTD defined in
+   *     datatypemap.dtd, may be <code>null</code>
+   * @param tableDef An Xml document conforming to the tables DTD defined in tabledef.dtd. May not
+   *     be <code>null</code>. Provides all table schema information and any options for processing
+   *     the table.
+   * @param tableData An Xml document conforming to the tables DTD defined in the tabledata.dtd. May
+   *     be <code>null</code>. If provided, will be used to insert/modify data. Each table defined
+   *     in this document must conform the schema of a table defined in the tableDef document with
+   *     the same name.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @param transactionSupport this flag is currently only supported if "allowSchemaChanges" in the
+   *     provided tabledef is disabled. If <code>true</code> and "allowSchemaChanges" is disabled,
+   *     tranasaction support for data changes will be used. If <code>true</code> and
+   *     "allowSchemaChanges" is enabled, an UnsupportedOperationException will be thrown. If <code>
+   *     false</code>, no transaction support is provided.
+   * @throws IllegalArgumentException if dbmsDef is <code>null</code> or if tableDef is <code>null
+   *     </code>
+   * @throws PSJdbcTableFactoryException if there are any errors.
+   */
+  public static synchronized void processTables(
+>>>>>>> development-8.1.x
       Connection conn,
       PSJdbcDbmsDef dbmsDef,
       PSJdbcTableSchema tableSchema,
@@ -634,6 +919,7 @@ public class PSJdbcTableFactory {
       boolean logDebug,
       boolean transactionSupport)
       throws PSJdbcTableFactoryException {
+<<<<<<< HEAD
     processTables(
         null,
         dbmsDef,
@@ -698,6 +984,12 @@ public class PSJdbcTableFactory {
 
     if (tableDef == null) throw new IllegalArgumentException("tableDef may not be null");
 
+=======
+    if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
+
+    if (tableDef == null) throw new IllegalArgumentException("tableDef may not be null");
+
+>>>>>>> development-8.1.x
     PSJdbcDataTypeMap dataTypeMapObj;
     if (dataTypeMap == null) {
       try {

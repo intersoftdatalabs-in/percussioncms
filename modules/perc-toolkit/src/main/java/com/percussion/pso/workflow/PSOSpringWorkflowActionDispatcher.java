@@ -16,7 +16,10 @@
  */
 package com.percussion.pso.workflow;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
@@ -83,9 +86,13 @@ public class PSOSpringWorkflowActionDispatcher extends PSDefaultExtension
     }
   }
 
+<<<<<<< HEAD
   /**
    * @param asvc the asvc to set. Used for unit test only.
    */
+=======
+  /** @param asvc the asvc to set. Used for unit test only. */
+>>>>>>> development-8.1.x
   protected void setAsvc(IPSOWFActionService asvc) {
     this.asvc = asvc;
   }

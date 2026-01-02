@@ -22,11 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
+=======
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for PSJdbcUpdateKey. */
+<<<<<<< HEAD
 public class PSJdbcUpdateKeyTest {
 
   /** Test the def */
@@ -34,6 +41,17 @@ public class PSJdbcUpdateKeyTest {
   public void testDef() throws Exception {
     // build a def with a dupe name
     List<String> cols = new ArrayList<>();
+=======
+public class PSJdbcUpdateKeyTest extends TestCase {
+  public PSJdbcUpdateKeyTest(String name) {
+    super(name);
+  }
+
+  /** Test the def */
+  public void testDef() throws Exception {
+    // build a def with a dupe name
+    List cols = new ArrayList();
+>>>>>>> development-8.1.x
     cols.add("col1");
     cols.add("col2");
     cols.add("col1");
@@ -47,7 +65,11 @@ public class PSJdbcUpdateKeyTest {
     assertTrue(caught);
 
     // build def with null name
+<<<<<<< HEAD
     cols = new ArrayList<>();
+=======
+    cols = new ArrayList();
+>>>>>>> development-8.1.x
     cols.add("col1");
     cols.add(null);
 
@@ -60,7 +82,11 @@ public class PSJdbcUpdateKeyTest {
     assertTrue(caught);
 
     // build def with empty name
+<<<<<<< HEAD
     cols = new ArrayList<>();
+=======
+    cols = new ArrayList();
+>>>>>>> development-8.1.x
     cols.add("col1");
     cols.add("");
 
@@ -73,7 +99,11 @@ public class PSJdbcUpdateKeyTest {
     assertTrue(caught);
 
     // build def with empty list
+<<<<<<< HEAD
     cols = new ArrayList<>();
+=======
+    cols = new ArrayList();
+>>>>>>> development-8.1.x
 
     caught = false;
     try {
@@ -84,7 +114,11 @@ public class PSJdbcUpdateKeyTest {
     assertTrue(caught);
 
     // build valid def
+<<<<<<< HEAD
     cols = new ArrayList<>();
+=======
+    cols = new ArrayList();
+>>>>>>> development-8.1.x
     cols.add("col1");
     cols.add("col2");
     cols.add("col3");
@@ -97,4 +131,14 @@ public class PSJdbcUpdateKeyTest {
     PSJdbcUpdateKey uc2 = new PSJdbcUpdateKey(el);
     assertEquals(uc, uc2);
   }
+<<<<<<< HEAD
+=======
+
+  // collect all tests into a TestSuite and return it
+  public static Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTest(new PSJdbcUpdateKeyTest("testDef"));
+    return suite;
+  }
+>>>>>>> development-8.1.x
 }

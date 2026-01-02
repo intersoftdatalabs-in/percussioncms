@@ -153,6 +153,7 @@ public class PSWorkflowUtilsBase {
    * this to the list and performTransition may modify, if required.
    */
   public static final String ASSIGNMENT_TYPE_CURRENT_USER = "assignmenttypecurrentuser";
+<<<<<<< HEAD
 
   /**
    * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
@@ -254,6 +255,106 @@ public class PSWorkflowUtilsBase {
   /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to the PSConsole. */
   public static boolean m_bPSConsoleTraceMessages = false;
 
+=======
+  /**
+   * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
+   * 2 - Checked out by some body else
+   */
+  public static final int CHECKOUT_STATUS_NONE = 0;
+
+  public static final int CHECKOUT_STATUS_CURRENT_USER = 1;
+  public static final int CHECKOUT_STATUS_OTHER = 2;
+
+  /**
+   * HTML Parameter name that stores the current document's checkout status. authenticateUser exit
+   * adds this to the list and performTransition may modify, if required.
+   */
+  public static final String CHECKOUT_STATUS_CURRENT_DOCUMENT = "checkoutstatuscurrentdocument";
+  /**
+   * HTML Parameter name that stores the current document's checkout user . name authenticateUser
+   * exit adds this to the list and performTransition may modify, if required.
+   */
+  public static final String CHECKOUT_USER_NAME = "checkoutusername";
+
+  /** HTML Parameter name that stores the content status history id after writing the history. */
+  public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
+
+  /**
+   * Default HTML Parameter name used to access the transition comment if a value is not assigned to
+   * property HTML_PARAM_TRANSITION_COMMENT in the property file
+   * PSWorkFlowUtilsResources.properties. This is used by the exits performTransition and
+   * updateHistory.
+   */
+  public static final String TRANSITION_COMMENT = "commenttext";
+
+  /** Ad-hoc options: 0 - No Ad-Hoc 1 - Ad-Hoc enabled 2 - Anonymous Ad-Hoc */
+  public static final int ADHOC_DISABLED = 0;
+
+  public static final int ADHOC_ENABLED = 1;
+  public static final int ADHOC_ANONYMOUS = 2;
+
+  public static final String SNEWSTATEIDKEY = "sNewStateIDKey";
+
+  public static final String ACTION_TRIGGER_NAME = "ACTION_TRIGGER_NAME";
+  public static final String DEFAULT_ACTION_TRIGGER_NAME = "WFAction";
+
+  public static final String REQUEST_NAME = "REQUEST_NAME";
+  public static final String DEFAULT_REQUEST_NAME = "request";
+
+  public static final String ACTION_LIST_ELEMENT_NAME = "ACTION_LIST_ELEMENT_NAME";
+  public static final String DEFAULT_ACTION_LIST_ELEMENT_NAME = "ActionList";
+
+  public static final String ACTION_ELEMENT_NAME = "ACTION_ELEMENT_NAME";
+  public static final String DEFAULT_ACTION_ELEMENT_NAME = "Action";
+
+  public static final String CONTENT_HISTORY_REQUEST = "CONTENT_HISTORY_REQUEST";
+  public static final String HISTORY_ACTION_ELEMENT_NAME = "HistoryAction";
+  public static final String VIEW_ACTION_ELEMENT_NAME = "ViewAction";
+  public static final String EDIT_ACTION_ELEMENT_NAME = "EditAction";
+  public static final String CHECKINOUT_ACTION_ELEMENT_NAME = "CheckInOutAction";
+
+  public static final String TRIGGER_CHECK_IN = "TRIGGER_CHECK_IN";
+  public static final String DEFAULT_TRIGGER_CHECK_IN = "CheckIn";
+
+  public static final String TRIGGER_CHECK_OUT = "TRIGGER_CHECK_OUT";
+  public static final String DEFAULT_TRIGGER_CHECK_OUT = "CheckOut";
+
+  public static final String TRIGGER_FORCE_CHECK_IN = "TRIGGER_FORCE_CHECK_IN";
+  public static final String DEFAULT_TRIGGER_FORCE_CHECK_IN = "forcecheckin";
+
+  public static final String CHECKINOUT_CONDITION_IGNORE = "ignore";
+  public static final String CHECKINOUT_CONDITION_CHECKIN = "checkin";
+  public static final String CHECKINOUT_CONDITION_CHECKOUT = "checkout";
+
+  private static volatile ResourceBundle m_ResourceBundle = null;
+
+  /** Name of the user global attribute for the email address */
+  public static final String USER_EMAIL_ATTRIBUTE = "sys_email";
+
+  /**
+   * An optional property that stores the atribute name for the attribute that holds the user's
+   * email address.
+   */
+  public static final String USER_EMAIL_ATTRIBUTE_PROPERTY = "MAIL_ATTRIBUTE_NAME";
+
+  /** Constant for the name of the entry that reperesents workflow's name/value pair. */
+  private static final String ENTRY_NAME = "workflow_config_base_dir";
+
+  /**
+   * Constant for the directory containing workflow configs. Assumed to be relative to the Rx
+   * directory.
+   */
+  public static final String WORKFLOW_DIR = "rxconfig/Workflow";
+  /**
+   * Debug flag, set to <CODE>true</CODE> when running tests for which the server is not used, else
+   * <CODE>false</CODE>.
+   */
+  public static boolean m_bTestWithoutServer = false;
+
+  /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to the PSConsole. */
+  public static boolean m_bPSConsoleTraceMessages = false;
+
+>>>>>>> development-8.1.x
   /** Debug flag, when set to <CODE>true</CODE> stack trace output is sent to the PSConsole. */
   public static boolean m_bPSConsoleStackTrace = false;
 
@@ -594,9 +695,16 @@ public class PSWorkflowUtilsBase {
    * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a <CODE>null</CODE>
    * value.
    *
+<<<<<<< HEAD
    * @param date The<CODE>java.util.Date</CODE to convert to a Timestamp
    *              or <CODE>
    *     null</CODE> if the date is <CODE>null</CODE>
+=======
+   * @param date The<CODE>java.util.Date
+   *     </CODE to convert to a Timestamp
+   *              or <CODE>null</CODE> if the date is
+   *     <CODE>null</CODE>
+>>>>>>> development-8.1.x
    * @return corresponding Timestamp or <CODE>null</CODE>
    */
   public static Timestamp timestampFromDate(java.util.Date date) {

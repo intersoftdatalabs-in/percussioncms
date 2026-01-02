@@ -18,6 +18,7 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Category;
 
+<<<<<<< HEAD
 /***
  * For Media RSS:
  * <media:category>
@@ -38,7 +39,28 @@ import com.rometools.modules.mediarss.types.Category;
  * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
  *
  * @author natechadwick
+=======
+/**
+ * * For Media RSS: <media:category>
+>>>>>>> development-8.1.x
  *
+ * <p>Allows a taxonomy to be set that gives an indication of the type of media content, and its
+ * particular contents. It has 2 optional attributes.
+ *
+ * <p><media:category scheme="http://search.yahoo.com/mrss/category_
+ * schema">music/artist/album/song</media:category>
+ *
+ * <p><media:category scheme="http://dmoz.org" label="Ace Ventura - Pet
+ * Detective">Arts/Movies/Titles/A/Ace_Ventura_Series/Ace_Ventura_ -_Pet_Detective</media:category>
+ *
+ * <p><media:category scheme="urn:flickr:tags">ycantpark mobile</media:category> scheme is the URI
+ * that identifies the categorization scheme. It is an optional attribute. If this attribute is not
+ * included, the default scheme is 'http://search.yahoo.com/mrss/category_schema'.
+ *
+ * <p>label is the human readable label that can be displayed in end user applications. It is an
+ * optional attribute.
+ *
+ * @author natechadwick
  */
 public class PSSynFeedCategory {
 
@@ -50,9 +72,13 @@ public class PSSynFeedCategory {
     this.category = arg;
   }
 
+<<<<<<< HEAD
   /**
    * @return
    */
+=======
+  /** @return */
+>>>>>>> development-8.1.x
   public String getScheme() {
     return category.getScheme();
   }
@@ -61,8 +87,15 @@ public class PSSynFeedCategory {
     return category.getValue();
   }
 
+<<<<<<< HEAD
   /***
    * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
+=======
+  /**
+   * * label is the human readable label that can be displayed in end user applications. It is an
+   * optional attribute.
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public String getLabel() {

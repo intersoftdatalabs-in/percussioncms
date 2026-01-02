@@ -39,7 +39,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.jcr.RepositoryException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

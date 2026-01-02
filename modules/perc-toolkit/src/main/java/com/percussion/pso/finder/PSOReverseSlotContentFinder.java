@@ -42,7 +42,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.jcr.RepositoryException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -70,6 +74,7 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
 
   /** GUID Manager Service */
   private static IPSGuidManager gmgr = null;
+<<<<<<< HEAD
 
   /** Assembly Service */
   private static IPSAssemblyService asm = null;
@@ -85,11 +90,30 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
     }
   }
 
+=======
+  /** Assembly Service */
+  private static IPSAssemblyService asm = null;
+
+  /**
+   * Initializes the Percussion CMS services pointers. Used to prevent calls to these services
+   * during extension registration.
+   */
+  private static void initServices() {
+    if (gmgr == null) {
+      asm = PSAssemblyServiceLocator.getAssemblyService();
+      gmgr = PSGuidManagerLocator.getGuidMgr();
+    }
+  }
+
+>>>>>>> development-8.1.x
   /** Default Constructor. */
   public PSOReverseSlotContentFinder() {
     super();
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * @see
    *     com.percussion.services.assembly.impl.finder.PSBaseSlotContentFinder#getSlotItems(com.percussion.services.assembly.IPSAssemblyItem,
@@ -191,6 +215,7 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
     String ourSlotId = String.valueOf(slot.getGUID().getUUID());
     return ourSlotId.equals(relSlotId);
   }
+<<<<<<< HEAD
 
   /**
    * Returns the slot type. Reverse slots are Computed slots.
@@ -216,13 +241,39 @@ public class PSOReverseSlotContentFinder extends PSBaseSlotContentFinder
   /**
    * @param asm The asm to set. Only for use in Unit Tests
    */
+=======
+  /**
+   * Returns the slot type. Reverse slots are Computed slots.
+   *
+   * @see com.percussion.services.assembly.IPSSlotContentFinder#getType()
+   */
+  public Type getType() {
+    return com.percussion.services.assembly.IPSSlotContentFinder.Type.COMPUTED;
+  }
+
+  /** Order By Parameter */
+  public static final String PARAM_ORDERBY = "order_by";
+  /** Source Slot Parameter. */
+  public static final String PARAM_SOURCESLOT = "source_slot";
+  /**
+   * Limit to Public Revision. Any non-empty value will cause the finder to return only items whose
+   * public revision contains a relationship to the current item.
+   */
+  public static final String PARAM_LIMITPUBLIC = "limit_public";
+
+  /** @param asm The asm to set. Only for use in Unit Tests */
+>>>>>>> development-8.1.x
   public static void setAsm(IPSAssemblyService asm) {
     PSOReverseSlotContentFinder.asm = asm;
   }
 
+<<<<<<< HEAD
   /**
    * @param gmgr The gmgr to set. Only for use in Unit Tests
    */
+=======
+  /** @param gmgr The gmgr to set. Only for use in Unit Tests */
+>>>>>>> development-8.1.x
   public static void setGmgr(IPSGuidManager gmgr) {
     PSOReverseSlotContentFinder.gmgr = gmgr;
   }

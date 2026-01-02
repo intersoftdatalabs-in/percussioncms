@@ -17,7 +17,11 @@
 
 package com.percussion.utils.container.adapters;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
+=======
+import static junit.framework.TestCase.assertEquals;
+>>>>>>> development-8.1.x
 
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
@@ -31,6 +35,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +54,27 @@ public class JBossConnectorConfigurationAdapterTest {
   }
 
   @AfterEach
+=======
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+public class JBossConnectorConfigurationAdapterTest {
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private String rxdeploydir;
+
+  @Before
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
+
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
@@ -57,7 +83,11 @@ public class JBossConnectorConfigurationAdapterTest {
   @Test
   public void load() throws IOException {
 
+<<<<<<< HEAD
     Path root = temporaryFolder;
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         PSJettyConnectorsTest.class.getResourceAsStream(
@@ -84,6 +114,7 @@ public class JBossConnectorConfigurationAdapterTest {
         PSJettyConnectorsTest.class.getResourceAsStream(
             "/com/percussion/utils/container/AppServer/server/rx/deploy/rx-ds.xml");
 
+<<<<<<< HEAD
     Files.createDirectories(temporaryFolder.resolve("jetty").resolve("base").resolve("etc"));
     Files.createDirectories(
         temporaryFolder.resolve("AppServer").resolve("server").resolve("rx").resolve("conf"));
@@ -117,6 +148,32 @@ public class JBossConnectorConfigurationAdapterTest {
             .resolve("config")
             .resolve("user")
             .resolve("spring"));
+=======
+    temporaryFolder.newFolder("jetty", "base", "etc");
+    temporaryFolder.newFolder("AppServer", "server", "rx", "conf");
+    temporaryFolder.newFolder("AppServer", "server", "rx", "deploy", "jboss-web.deployer");
+    temporaryFolder.newFolder(
+        "AppServer",
+        "server",
+        "rx",
+        "deploy",
+        "rxapp.ear",
+        "rxapp.war",
+        "WEB-INF",
+        "config",
+        "spring");
+    temporaryFolder.newFolder(
+        "AppServer",
+        "server",
+        "rx",
+        "deploy",
+        "rxapp.ear",
+        "rxapp.war",
+        "WEB-INF",
+        "config",
+        "user",
+        "spring");
+>>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
@@ -166,5 +223,13 @@ public class JBossConnectorConfigurationAdapterTest {
     assertEquals("support", repConnection.getPassword());
     IPSJndiDatasource repConnection2 = datasources.get(1);
     assertEquals("support", repConnection2.getPassword());
+<<<<<<< HEAD
+=======
+    // @TODO:  Should be testing if the expected values are loaded and saved after load and save
+    // @TODO:  <!-- <security-domain>rx.datasource.jdbc_database_-_300</security-domain> -->
+    //  uncommenting this in rs-ds.xml throws Exception this needs to be looked at:-
+    // javax.crypto.BadPaddingException: Given final block not properly padded. Such issues can
+    // arise if a bad key is used during decryption.
+>>>>>>> development-8.1.x
   }
 }

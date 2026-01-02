@@ -33,8 +33,14 @@ public class HttpHtmlResponse extends BaseHttpResponse {
     return document;
   }
 
+<<<<<<< HEAD
   /***
    * Single Shot Constructor
+=======
+  /**
+   * * Single Shot Constructor
+   *
+>>>>>>> development-8.1.x
    * @param doc
    * @param head
    */

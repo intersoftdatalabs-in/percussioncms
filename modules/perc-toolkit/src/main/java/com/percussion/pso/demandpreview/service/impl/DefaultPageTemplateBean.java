@@ -30,7 +30,11 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.Validate;
+=======
+import org.apache.commons.lang.Validate;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,7 +58,10 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
       objFinder = new PSOObjectFinder();
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the first default page (or binary) template for the content type of the indicated content
    * item that is available on the site.
@@ -117,9 +124,13 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
     return results;
   }
 
+<<<<<<< HEAD
   /**
    * @param tempSvc the tempSvc to set
    */
+=======
+  /** @param tempSvc the tempSvc to set */
+>>>>>>> development-8.1.x
   protected void setTempSvc(IPSTemplateService tempSvc) {
     this.tempSvc = tempSvc;
   }

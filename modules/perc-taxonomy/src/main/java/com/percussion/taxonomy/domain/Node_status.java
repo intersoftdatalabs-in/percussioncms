@@ -22,6 +22,7 @@ public class Node_status {
 
   /** Constant to set active status of the node */
   public static int ACTIVE = 1;
+<<<<<<< HEAD
 
   /** Constant to set disabled status of the node */
   public static int DISABLED = 2;
@@ -48,6 +49,33 @@ public class Node_status {
   }
 
   /**
+=======
+  /** Constant to set disabled status of the node */
+  public static int DISABLED = 2;
+
+  private int id;
+  private String name;
+
+  /**
+   * Returns unique id of the node_status
+   *
+   * @return id - unique int value as node id
+   */
+  public int getId() {
+    return id;
+  }
+
+  /**
+   * Set unique node_status id
+   *
+   * @param id - unique int node_status id
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Return name of node_status
    *
    * @return name - String name of node_status

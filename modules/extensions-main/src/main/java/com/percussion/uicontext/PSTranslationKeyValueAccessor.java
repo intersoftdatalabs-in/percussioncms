@@ -45,9 +45,13 @@ import org.w3c.dom.Document;
  * processResultDocument(Object[], IPSRequestContext, Document)}
  */
 public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor {
+<<<<<<< HEAD
   /**
    * @see IPSResultDocumentProcessor *
    */
+=======
+  /** @see IPSResultDocumentProcessor * */
+>>>>>>> development-8.1.x
   public boolean canModifyStyleSheet() {
     return false;
   }
@@ -56,7 +60,11 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
    * Returns a XML document constrained to the dtd specified here: {@link
    * com.percussion.i18n.PSI18NTranslationKeyValues#toXml(Document doc)
    * PSI18NTranslationKeyValues.toXml(Document doc)} that is based on the {@link
+<<<<<<< HEAD
    * com.percussion.system.utils.IPSHtmlParameters#SYS_LANG IPSHtmlParameters.SYS_LANG}
+=======
+   * com.percussion.util.IPSHtmlParameters#SYS_LANG IPSHtmlParameters.SYS_LANG}
+>>>>>>> development-8.1.x
    *
    * @see IPSResultDocumentProcessor *
    */
@@ -161,8 +169,12 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
     return PSI18nUtils.DEFAULT_LANG;
   }
 
+<<<<<<< HEAD
   /**
    * @see IPSResultDocumentProcessor *
    */
+=======
+  /** @see IPSResultDocumentProcessor * */
+>>>>>>> development-8.1.x
   public void init(IPSExtensionDef parm1, File parm2) throws PSExtensionException {}
 }

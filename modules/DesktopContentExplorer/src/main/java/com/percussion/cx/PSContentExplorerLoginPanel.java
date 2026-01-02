@@ -17,7 +17,6 @@
 
 package com.percussion.cx;
 
-
 import com.percussion.border.PSFocusBorder;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cx.guitools.UTMnemonicLabel;
@@ -27,6 +26,7 @@ import com.percussion.util.PSProperties;
 import com.percussion.webservices.faults.PSContractViolationFault;
 import com.percussion.webservices.faults.PSNotAuthenticatedFault;
 import com.percussion.webservices.security.data.PSLocale;
+<<<<<<< HEAD
 import org.apache.axis.AxisFault;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +51,8 @@ import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+=======
+>>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -82,804 +84,747 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import org.apache.axis.AxisFault;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
- * The LoginPanel creates the applets/applications first dialog shown to the
- * user. It askes for server name, user Id and password and provides a login
- * button. AppletMainDialog will be started on successful login.
+ * The LoginPanel creates the applets/applications first dialog shown to the user. It askes for
+ * server name, user Id and password and provides a login button. AppletMainDialog will be started
+ * on successful login.
  */
 ////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 public class PSContentExplorerLoginPanel extends JFrame
 {
    static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
+=======
+public class PSContentExplorerLoginPanel extends JFrame {
+  static Logger log = Logger.getLogger(PSContentExplorerLoginPanel.class);
+>>>>>>> development-8.1.x
 
-   /**
-    * The name of the file where various properties are stored, such as the last
-    * server name, port #, etc.
-    **/
-   public static final String PROPERTIES_FILENAME = "admin.properties";
-   public final static String LAST_USER = "last_user_name";
+  /**
+   * The name of the file where various properties are stored, such as the last server name, port #,
+   * etc.
+   */
+  public static final String PROPERTIES_FILENAME = "admin.properties";
 
-   public PSContentExplorerApplet applet;
-   Font boldTextFont = new Font("Arial", Font.BOLD, 18);
-   Font plainTextFont = new Font("Arial", Font.PLAIN, 18);
+  public static final String LAST_USER = "last_user_name";
 
-   public PSContentExplorerLoginPanel(PSContentExplorerFrame parent, PSContentExplorerApplet applet)
-   {
-      // blank constructor in case you already have a session
+  public PSContentExplorerApplet applet;
+  Font boldTextFont = new Font("Arial", Font.BOLD, 18);
+  Font plainTextFont = new Font("Arial", Font.PLAIN, 18);
 
-      super(PSContentExplorerHelper.getResources().getString("titlelogin"));
+  public PSContentExplorerLoginPanel(
+      PSContentExplorerFrame parent, PSContentExplorerApplet applet) {
+    // blank constructor in case you already have a session
 
-      m_parent = parent;
-      this.applet = applet;
+    super(PSContentExplorerHelper.getResources().getString("titlelogin"));
 
-      // add the applet as the child, so when the applet ref is called it will
-      // be there
-      // add the applet as the child, so when the applet ref is called it will
-      // be there
-      m_res = applet.getResources();
-      m_login = new JButton(m_res.getString("login"));
-      m_login.setFont(boldTextFont);
-      FontMetrics metrics = getFontMetrics(m_login.getFont());
-      int width = metrics.stringWidth(m_login.getText());
-      int height = metrics.getHeight();
-      Dimension newDimension = new Dimension(width + 100, height + 100);
-      m_login.setSize(newDimension);
-      m_login.setMinimumSize(newDimension);
+    m_parent = parent;
+    this.applet = applet;
 
-      m_login.addActionListener(e -> onOk());
+    // add the applet as the child, so when the applet ref is called it will
+    // be there
+    // add the applet as the child, so when the applet ref is called it will
+    // be there
+    m_res = applet.getResources();
+    m_login = new JButton(m_res.getString("login"));
+    m_login.setFont(boldTextFont);
+    FontMetrics metrics = getFontMetrics(m_login.getFont());
+    int width = metrics.stringWidth(m_login.getText());
+    int height = metrics.getHeight();
+    Dimension newDimension = new Dimension(width + 100, height + 100);
+    m_login.setSize(newDimension);
+    m_login.setMinimumSize(newDimension);
 
-      m_statusBar = new JLabel();
-      m_statusBar.setText(m_res.getString("disconnectedStatus"));
-      for (Component comp : m_statusBar.getComponents())
-      {
-         comp.setFont(boldTextFont);
-      }
+    m_login.addActionListener(e -> onOk());
 
-      this.setMinimumSize(new Dimension(400, 200));
-      try
-      {
-         initData();
-         initPanel();
-      }
-      catch (Exception e)
-      {
-         JOptionPane.showMessageDialog(this, ErrorDialogs.cropErrorMessage(e.getMessage()), m_res.getString("error"),
-               JOptionPane.ERROR_MESSAGE);
-      }
+    m_statusBar = new JLabel();
+    m_statusBar.setText(m_res.getString("disconnectedStatus"));
+    for (Component comp : m_statusBar.getComponents()) {
+      comp.setFont(boldTextFont);
+    }
 
-   }
+    this.setMinimumSize(new Dimension(400, 200));
+    try {
+      initData();
+      initPanel();
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(
+          this,
+          ErrorDialogs.cropErrorMessage(e.getMessage()),
+          m_res.getString("error"),
+          JOptionPane.ERROR_MESSAGE);
+    }
+  }
 
-   /**
-    * Create and initialize all GUI elements.
-    *
-    */
-   private void initPanel()
-   {
-      PSFocusBorder focusBorder = new PSFocusBorder(1, Color.RED);
+  /** Create and initialize all GUI elements. */
+  private void initPanel() {
+    PSFocusBorder focusBorder = new PSFocusBorder(1, Color.RED);
 
-      this.setLayout(new BorderLayout());
+    this.setLayout(new BorderLayout());
 
-      JPanel panel = new JPanel();
+    JPanel panel = new JPanel();
 
-      panel.setLayout(new GridBagLayout());
-      GridBagConstraints c = new GridBagConstraints();
-      c.weighty = 0;
-      c.weightx = 0.2;
-      c.gridx = 0;
-      c.ipadx = 10;
-      c.ipady = 10;
-      c.gridy = 0;
-      c.insets = new Insets(5, 20, 0, 50); // top padding
-      c.anchor = GridBagConstraints.LINE_START;
-      c.fill = 0;
+    panel.setLayout(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.weighty = 0;
+    c.weightx = 0.2;
+    c.gridx = 0;
+    c.ipadx = 10;
+    c.ipady = 10;
+    c.gridy = 0;
+    c.insets = new Insets(5, 20, 0, 50); // top padding
+    c.anchor = GridBagConstraints.LINE_START;
+    c.fill = 0;
 
+    UTMnemonicLabel p1alabel = new UTMnemonicLabel(m_res, "serverurl", m_url);
+    p1alabel.setMinimumSize(new Dimension(150, 60));
+    p1alabel.setFont(boldTextFont);
+    p1alabel.setLabelFor(m_url);
+    panel.add(p1alabel, c);
+    c.weightx = 1.0;
+    c.gridx = 1;
+    c.gridy = 0;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.insets = new Insets(5, 0, 0, 20); // top padding
+    m_url.setFont(plainTextFont);
 
-      UTMnemonicLabel p1alabel = new UTMnemonicLabel(m_res, "serverurl", m_url);
-      p1alabel.setMinimumSize(new Dimension(150, 60));
-      p1alabel.setFont(boldTextFont);
-      p1alabel.setLabelFor(m_url);
-      panel.add(p1alabel, c);
-      c.weightx = 1.0;
-      c.gridx = 1;
-      c.gridy = 0;
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.insets = new Insets(5, 0, 0, 20); // top padding
-      m_url.setFont(plainTextFont);
+    FontMetrics metrics = getFontMetrics(m_url.getFont());
+    int width = metrics.stringWidth(m_url.getText());
+    int height = metrics.getHeight();
+    Dimension newDimension = new Dimension(width + 40, height + 10);
 
-      FontMetrics metrics = getFontMetrics(m_url.getFont());
-      int width = metrics.stringWidth(m_url.getText());
-      int height = metrics.getHeight();
-      Dimension newDimension = new Dimension(width + 40, height + 10);
+    m_url.setMinimumSize(newDimension);
+    panel.add(m_url, c);
 
-      m_url.setMinimumSize(newDimension);
-      panel.add(m_url, c);
-
-      //Rebuild the locale list when the server url is changed.
-      m_url.addFocusListener(new FocusAdapter()
-      {
-         @Override
-         public void focusLost(FocusEvent e) {
-          SwingUtilities.invokeLater(new Runnable() {
-               @Override
-               public void run() {
-                 refreshLocalCombo();
-               }
-            });
+    // Rebuild the locale list when the server url is changed.
+    m_url.addFocusListener(
+        new FocusAdapter() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            SwingUtilities.invokeLater(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    refreshLocalCombo();
+                  }
+                });
 
             m_locale.removeAllItems();
+          }
+        });
 
-         }
-      });
+    UTMnemonicLabel p2label = new UTMnemonicLabel(m_res, "userId", m_userId);
+    p2label.setLabelFor(m_userId);
+    p2label.setMinimumSize(new Dimension(150, 60));
+    p2label.setFont(boldTextFont);
+    c.fill = GridBagConstraints.NONE;
+    c.gridx = 0;
+    c.gridy = 1;
+    c.weightx = 0.2;
+    c.insets = new Insets(5, 20, 0, 50); // top padding
+    panel.add(p2label, c);
+    c.gridx = 1;
+    c.gridy = 1;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    m_userId.setMinimumSize(new Dimension(300, 60));
+    m_userId.setFont(plainTextFont);
+    c.insets = new Insets(5, 0, 0, 20); // top padding
+    panel.add(m_userId, c);
 
-      UTMnemonicLabel p2label = new UTMnemonicLabel(m_res, "userId", m_userId);
-      p2label.setLabelFor(m_userId);
-      p2label.setMinimumSize(new Dimension(150, 60));
-      p2label.setFont(boldTextFont);
-      c.fill = GridBagConstraints.NONE;
-      c.gridx = 0;
-      c.gridy = 1;
-      c.weightx = 0.2;
-      c.insets = new Insets(5, 20, 0, 50); // top padding
-      panel.add(p2label, c);
-      c.gridx = 1;
-      c.gridy = 1;
-      c.fill = GridBagConstraints.HORIZONTAL;
-      m_userId.setMinimumSize(new Dimension(300, 60));
-      m_userId.setFont(plainTextFont);
-      c.insets = new Insets(5, 0, 0, 20); // top padding
-      panel.add(m_userId, c);
+    UTMnemonicLabel p3Label = new UTMnemonicLabel(m_res, "password", m_password);
+    p3Label.setLabelFor(m_password);
+    p3Label.setMinimumSize(new Dimension(150, 60));
+    p3Label.setFont(boldTextFont);
+    c.weightx = 0.2;
+    c.fill = 0;
+    c.gridx = 0;
+    c.gridy = 2;
+    c.fill = GridBagConstraints.NONE;
+    c.insets = new Insets(5, 20, 0, 50); // top padding
+    panel.add(p3Label, c);
+    c.gridx = 1;
+    c.gridy = 2;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.insets = new Insets(5, 0, 0, 20); // top padding
+    panel.add(m_password, c);
+    m_password.setMinimumSize(new Dimension(300, 60));
+    m_password.setFont(plainTextFont);
+    m_password.enableInputMethods(true);
 
-      UTMnemonicLabel p3Label = new UTMnemonicLabel(m_res, "password", m_password);
-      p3Label.setLabelFor(m_password);
-      p3Label.setMinimumSize(new Dimension(150, 60));
-      p3Label.setFont(boldTextFont);
-      c.weightx = 0.2;
-      c.fill = 0;
-      c.gridx = 0;
-      c.gridy = 2;
-      c.fill = GridBagConstraints.NONE;
-      c.insets = new Insets(5, 20, 0, 50); // top padding
-      panel.add(p3Label, c);
-      c.gridx = 1;
-      c.gridy = 2;
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.insets = new Insets(5, 0, 0, 20); // top padding
-      panel.add(m_password, c);
-      m_password.setMinimumSize(new Dimension(300, 60));
-      m_password.setFont(plainTextFont);
-      m_password.enableInputMethods(true);
+    m_locale = createLocaleComboBox();
+    refreshLocalCombo();
+    UTMnemonicLabel p4Label = new UTMnemonicLabel(m_res, "locale", m_locale);
+    p4Label.setLabelFor(m_locale);
+    p4Label.setMinimumSize(new Dimension(150, 60));
+    p4Label.setFont(boldTextFont);
+    c.weightx = 0.2;
+    c.fill = 0;
+    c.gridx = 0;
+    c.gridy = 3;
+    c.fill = GridBagConstraints.NONE;
+    c.insets = new Insets(5, 20, 0, 50); // top padding
+    panel.add(p4Label, c);
+    c.gridx = 1;
+    c.gridy = 3;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.insets = new Insets(5, 0, 0, 20); // top padding
+    panel.add(m_locale, c);
+    m_locale.setMinimumSize(new Dimension(300, 60));
+    m_locale.setFont(plainTextFont);
+    m_locale.enableInputMethods(false);
 
-      m_locale = createLocaleComboBox();
-      refreshLocalCombo();
-      UTMnemonicLabel p4Label = new UTMnemonicLabel(m_res, "locale", m_locale);
-      p4Label.setLabelFor(m_locale);
-      p4Label.setMinimumSize(new Dimension(150, 60));
-      p4Label.setFont(boldTextFont);
-      c.weightx = 0.2;
-      c.fill = 0;
-      c.gridx = 0;
-      c.gridy = 3;
-      c.fill = GridBagConstraints.NONE;
-      c.insets = new Insets(5, 20, 0, 50); // top padding
-      panel.add(p4Label, c);
-      c.gridx = 1;
-      c.gridy = 3;
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.insets = new Insets(5, 0, 0, 20); // top padding
-      panel.add(m_locale, c);
-      m_locale.setMinimumSize(new Dimension(300, 60));
-      m_locale.setFont(plainTextFont);
-      m_locale.enableInputMethods(false);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 0;
+    c.gridy = 4;
+    c.weighty = 1.0;
+    c.gridwidth = 2;
+    c.anchor = GridBagConstraints.SOUTH;
+    c.fill = GridBagConstraints.HORIZONTAL;
 
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.gridx = 0;
-      c.gridy = 4;
-      c.weighty = 1.0;
-      c.gridwidth = 2;
-      c.anchor = GridBagConstraints.SOUTH;
-      c.fill = GridBagConstraints.HORIZONTAL;
+    panel.add(Box.createVerticalStrut(30), c);
 
-      panel.add(Box.createVerticalStrut(30), c);
+    c.gridx = 1;
+    c.gridy = 4;
+    c.fill = GridBagConstraints.NONE;
+    c.weightx = 0;
+    c.weighty = 0;
+    c.gridwidth = 2;
+    c.anchor = GridBagConstraints.EAST;
+    c.insets = new Insets(10, 0, 0, 20); // top padding
+    panel.add(m_login, c);
 
-      c.gridx = 1;
-      c.gridy = 4;
-      c.fill = GridBagConstraints.NONE;
-      c.weightx = 0;
-      c.weighty = 0;
-      c.gridwidth = 2;
-      c.anchor = GridBagConstraints.EAST;
-      c.insets = new Insets(10, 0, 0, 20); // top padding
-      panel.add(m_login, c);
+    JPanel statusPanel = new JPanel();
+    statusPanel.setLayout(new BorderLayout());
+    statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 0;
+    c.gridy = 5;
+    c.weighty = 0;
+    c.gridwidth = 2;
+    c.insets = new Insets(10, 0, 0, 0); // top padding
+    c.anchor = GridBagConstraints.SOUTH;
+    m_statusBar.setFont(boldTextFont);
+    statusPanel.add(m_statusBar, BorderLayout.SOUTH);
 
-      JPanel statusPanel = new JPanel();
-      statusPanel.setLayout(new BorderLayout());
-      statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.gridx = 0;
-      c.gridy = 5;
-      c.weighty = 0;
-      c.gridwidth = 2;
-      c.insets = new Insets(10, 0, 0, 0); // top padding
-      c.anchor = GridBagConstraints.SOUTH;
-      m_statusBar.setFont(boldTextFont);
-      statusPanel.add(m_statusBar,BorderLayout.SOUTH);
+    panel.add(statusPanel, c);
 
-      panel.add(statusPanel, c);
+    panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 
-      panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+    focusBorder.addToAllNavigable(panel);
+    add(panel, BorderLayout.CENTER);
 
-      focusBorder.addToAllNavigable(panel);
-      add(panel, BorderLayout.CENTER);
+    this.pack();
+    this.setMinimumSize(this.getSize());
 
-      this.pack();
-      this.setMinimumSize(this.getSize());
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-      this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation(
+        dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
 
-      Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-     this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+    m_password.requestFocusInWindow();
+  }
 
-     m_password.requestFocusInWindow();
-   }
+  private JButton createEditButton(String key, String value, ActionListener al) {
+    JButton button = new JButton(value);
+    button.setToolTipText(value);
+    button
+        .getAccessibleContext()
+        .setAccessibleDescription(
+            m_res.getString("headerinfo.edittext") + " " + m_res.getString(key));
+    button.setIcon(PSImageIconLoader.loadIcon("update"));
+    button.setContentAreaFilled(false);
+    button.setBorder(null);
+    button.setHorizontalAlignment(SwingConstants.LEFT);
+    button.addActionListener(al);
+    return button;
+  }
 
+  /** Initializes the login panel with data */
+  private void initData() {
 
-   private JButton createEditButton(String key, String value, ActionListener al)
-   {
-      JButton button = new JButton(value);
-      button.setToolTipText(value);
-      button.getAccessibleContext().setAccessibleDescription(m_res.getString("headerinfo.edittext") +" "+ m_res.getString(key));
-      button.setIcon(PSImageIconLoader.loadIcon("update"));
-      button.setContentAreaFilled(false);
-      button.setBorder(null);
-      button.setHorizontalAlignment(SwingConstants.LEFT);
-      button.addActionListener(al);
-      return button;
-   }
+    m_userId.addActionListener(new LoginHandler());
+    m_password.addActionListener(new LoginHandler());
 
-   /**
-    * Initializes the login panel with data
-    *
-    */
-   private void initData()
-   {
+    File file = null;
+    try {
+      file = new File(PSContentExplorerApplication.getConfigDir(), PROPERTIES_FILENAME);
 
-      m_userId.addActionListener(new LoginHandler());
-      m_password.addActionListener(new LoginHandler());
+      if (file.exists()) m_adminProps = new PSProperties(file.getAbsolutePath());
+      else m_adminProps = new PSProperties();
 
-      File file = null;
-      try
-      {
-         file = new File(PSContentExplorerApplication.getConfigDir(), PROPERTIES_FILENAME);
+      String server = m_parent.getParameter("serverName");
 
-         if (file.exists())
-            m_adminProps = new PSProperties(file.getAbsolutePath());
-         else
-            m_adminProps = new PSProperties();
+      String prot = m_parent.getParameter("protocol");
+      String prt = m_parent.getParameter("port");
 
-         String server = m_parent.getParameter("serverName");
+      m_url.setEditable(true);
+      m_url.setBorder(m_password.getBorder());
 
-         String prot = m_parent.getParameter("protocol");
-         String prt = m_parent.getParameter("port");
+      String user = m_adminProps.getProperty(LAST_USER);
+      if (user != null && user.trim().length() > 0) m_userId.setText(user);
+      else m_userId.setText(System.getProperty("user.name"));
 
-         m_url.setEditable(true);
-         m_url.setBorder(m_password.getBorder());
+      if (server == null || prot == null) {
+        m_url.setText("http://localhost:9992");
+        m_url.setEditable(true);
+      } else {
+        String url = prot + "://" + server;
 
-         String user = m_adminProps.getProperty(LAST_USER);
-         if (user != null && user.trim().length() > 0)
-            m_userId.setText(user);
-         else
-            m_userId.setText(System.getProperty("user.name"));
-
-        if (server == null || prot == null)
-        {
-            m_url.setText("http://localhost:9992");
-            m_url.setEditable(true);
+        if (!((prot.equalsIgnoreCase("https") && prt.equals("443"))
+            || (prot.equalsIgnoreCase("http") && prt.equals("80")))) {
+          url += ":" + prt;
         }
-         else
-         {
-            String url = prot + "://" + server;
-
-            if (!((prot.equalsIgnoreCase("https") && prt.equals("443"))
-                  || (prot.equalsIgnoreCase("http") && prt.equals("80"))))
-            {
-               url += ":" + prt;
-            }
-            m_url.setText(url);
-         }
-
-      }
-      catch (IOException e) // I don't want to show any dialog here
-      {
-         log.error("Couldn't find properties file: " + file.getPath());
+        m_url.setText(url);
       }
 
-   }
+    } catch (IOException e) // I don't want to show any dialog here
+    {
+      log.error("Couldn't find properties file: " + file.getPath());
+    }
+  }
 
-   /**
-    * @return JButton The login button for the applet to give the DefaultButton
-    *         access.
-    */
-   public JButton getLoginButton()
-   {
+  /** @return JButton The login button for the applet to give the DefaultButton access. */
+  public JButton getLoginButton() {
 
-      return m_login;
-   }
+    return m_login;
+  }
 
-   /**
-    * Implements the ActionListener for the login button. Since we will connect
-    * to the server, the action will be handled in a worker thread to give the
-    * system the possibility to update the GUIs while waiting for th
-    * econnection.
-    */
-   public void onOk()
-   {
+  /**
+   * Implements the ActionListener for the login button. Since we will connect to the server, the
+   * action will be handled in a worker thread to give the system the possibility to update the GUIs
+   * while waiting for th econnection.
+   */
+  public void onOk() {
 
-      this.setCursor(getCursor().getPredefinedCursor(Cursor.WAIT_CURSOR));
-      this.m_login.setEnabled(false);
-      if (m_userId.getText() == null || m_userId.getText().trim().length() == 0)
-      {
-         JOptionPane.showMessageDialog(this, ErrorDialogs.cropErrorMessage(m_res.getString("missUserId")),
-               m_res.getString("error"), JOptionPane.ERROR_MESSAGE);
-         this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-         m_statusBar.setText(m_res.getString("disconnectedStatus"));
-         m_userId.requestFocus();
-         this.m_login.setEnabled(true);
-         return;
-      }
-      
-      if (m_password.getText() == null || m_password.getText().trim().length() == 0)
-      {
-         JOptionPane.showMessageDialog(this, ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
-               m_res.getString("error"), JOptionPane.ERROR_MESSAGE);
-         this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-         m_statusBar.setText(m_res.getString("disconnectedStatus"));
-         m_password.requestFocus();
-         this.m_login.setEnabled(true);
-         return;
-      }
+    this.setCursor(getCursor().getPredefinedCursor(Cursor.WAIT_CURSOR));
+    this.m_login.setEnabled(false);
+    if (m_userId.getText() == null || m_userId.getText().trim().length() == 0) {
+      JOptionPane.showMessageDialog(
+          this,
+          ErrorDialogs.cropErrorMessage(m_res.getString("missUserId")),
+          m_res.getString("error"),
+          JOptionPane.ERROR_MESSAGE);
+      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      m_statusBar.setText(m_res.getString("disconnectedStatus"));
+      m_userId.requestFocus();
+      this.m_login.setEnabled(true);
+      return;
+    }
 
-      if (m_locale.getSelectedItem() == null)
-      {
-         JOptionPane.showMessageDialog(this, ErrorDialogs.cropErrorMessage(m_res.getString("missLocale")),
-                 m_res.getString("error"), JOptionPane.ERROR_MESSAGE);
-         this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-         m_statusBar.setText(m_res.getString("disconnectedStatus"));
-         m_locale.requestFocus();
-         this.m_login.setEnabled(true);
-         return;
-      }
-      
-      m_statusBar.setText(m_res.getString("connectingStatus"));
+    if (m_password.getText() == null || m_password.getText().trim().length() == 0) {
+      JOptionPane.showMessageDialog(
+          this,
+          ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
+          m_res.getString("error"),
+          JOptionPane.ERROR_MESSAGE);
+      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      m_statusBar.setText(m_res.getString("disconnectedStatus"));
+      m_password.requestFocus();
+      this.m_login.setEnabled(true);
+      return;
+    }
 
-      String protocol = null;
-      String host = null;
-      String port = null;
+    if (m_locale.getSelectedItem() == null) {
+      JOptionPane.showMessageDialog(
+          this,
+          ErrorDialogs.cropErrorMessage(m_res.getString("missLocale")),
+          m_res.getString("error"),
+          JOptionPane.ERROR_MESSAGE);
+      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      m_statusBar.setText(m_res.getString("disconnectedStatus"));
+      m_locale.requestFocus();
+      this.m_login.setEnabled(true);
+      return;
+    }
 
-      try
-      {
-         if (StringUtils.isNotEmpty(m_url.getText()))
-         {
-            URI uri = new URI(m_url.getText());
-            if(uri != null) {
-               protocol = uri.getScheme();
-               host = uri.getHost();
-               int prt = uri.getPort();
-               if (prt == -1 && protocol != null) {
-                  port = protocol.equalsIgnoreCase("https") ? "443" : "80";
-               } else {
-                  port = String.valueOf(prt);
-               }
-            }
+    m_statusBar.setText(m_res.getString("connectingStatus"));
 
-         }
+    String protocol = null;
+    String host = null;
+    String port = null;
 
-      }
-      catch (URISyntaxException e)
-      {
-         JOptionPane.showMessageDialog(this,  ErrorDialogs.cropErrorMessage("Invalid URI. Please correct URI"),
-                 m_res.getString("error"), JOptionPane.ERROR_MESSAGE);
-         this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-         this.m_login.setEnabled(true);
-        return;
+    try {
+      if (StringUtils.isNotEmpty(m_url.getText())) {
+        URI uri = new URI(m_url.getText());
+        if (uri != null) {
+          protocol = uri.getScheme();
+          host = uri.getHost();
+          int prt = uri.getPort();
+          if (prt == -1 && protocol != null) {
+            port = protocol.equalsIgnoreCase("https") ? "443" : "80";
+          } else {
+            port = String.valueOf(prt);
+          }
+        }
       }
 
-      m_parent.setParameter("serverName", host);
-      m_parent.setParameter("protocol", protocol);
-      m_parent.setParameter("port", port);
+    } catch (URISyntaxException e) {
+      JOptionPane.showMessageDialog(
+          this,
+          ErrorDialogs.cropErrorMessage("Invalid URI. Please correct URI"),
+          m_res.getString("error"),
+          JOptionPane.ERROR_MESSAGE);
+      this.setCursor(getCursor().getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      this.m_login.setEnabled(true);
+      return;
+    }
 
-      backgroundLogin();
+    m_parent.setParameter("serverName", host);
+    m_parent.setParameter("protocol", protocol);
+    m_parent.setParameter("port", port);
 
-   }
+    backgroundLogin();
+  }
 
-   /**
-    * The browser is being destroyed. Cleanup the applet.
-    */
-   //////////////////////////////////////////////////////////////////////////////
-   public void onDestroy()
-   {
-      if (m_mainDialog != null)
-      {
-         m_mainDialog = null;
-      }
+  /** The browser is being destroyed. Cleanup the applet. */
+  //////////////////////////////////////////////////////////////////////////////
+  public void onDestroy() {
+    if (m_mainDialog != null) {
+      m_mainDialog = null;
+    }
 
-      PSCESessionManager.getInstance().shutdown();
-   }
+    PSCESessionManager.getInstance().shutdown();
+  }
 
-   /**
-    * Simply accepts <CODE>ENTER</CODE> key press as a "Login" button push.
-    */
-   private class LoginHandler implements ActionListener
-   {
-      public void actionPerformed(@SuppressWarnings("unused") ActionEvent e)
-      {
-         m_login.doClick();
-      }
-   }
+  /** Simply accepts <CODE>ENTER</CODE> key press as a "Login" button push. */
+  private class LoginHandler implements ActionListener {
+    public void actionPerformed(@SuppressWarnings("unused") ActionEvent e) {
+      m_login.doClick();
+    }
+  }
 
-   /**
-    * Updates the admin properties
-    *
-    */
-   private void updateAdminProperties()
-   {
-      if (m_adminProps == null)
-      {
-    	 m_adminProps = new PSProperties();
-      }
-      m_adminProps.setProperty(LAST_USER, m_userId.getText());
-      saveAdminProperties();
-   }
+  /** Updates the admin properties */
+  private void updateAdminProperties() {
+    if (m_adminProps == null) {
+      m_adminProps = new PSProperties();
+    }
+    m_adminProps.setProperty(LAST_USER, m_userId.getText());
+    saveAdminProperties();
+  }
 
-   private void backgroundLogin()
-   {
-      SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>()
-      {
+  private void backgroundLogin() {
+    SwingWorker<Boolean, Void> worker =
+        new SwingWorker<Boolean, Void>() {
 
-         private volatile String errorMessage = "";
+          private volatile String errorMessage = "";
 
-         @Override
-         protected Boolean doInBackground()
-         {
-            try
-            {
-               String host = m_parent.getParameter("serverName");
-               String protocol = m_parent.getParameter("protocol");
-               String port = m_parent.getParameter("port");
+          @Override
+          protected Boolean doInBackground() {
+            try {
+              String host = m_parent.getParameter("serverName");
+              String protocol = m_parent.getParameter("protocol");
+              String port = m_parent.getParameter("port");
 
-               PSCESessionManager.getInstance().login(protocol, host, port, m_userId.getText(),
-                       m_password.getText(),
-                       ((PSLocale)m_locale.getSelectedItem()).getCode());
-               
-               m_statusBar.setText(m_res.getString("connectedStatus") + host);
+              PSCESessionManager.getInstance()
+                  .login(
+                      protocol,
+                      host,
+                      port,
+                      m_userId.getText(),
+                      m_password.getText(),
+                      ((PSLocale) m_locale.getSelectedItem()).getCode());
 
-               // get the jsession from the connection and set it back in the
-               // applet
-               m_parent.setParameter("pssessionid", PSCESessionManager.getInstance().getLoginInfo().getSessionId());
-               m_parent.setParameter("serverName", host);
-               m_parent.setParameter("protocol", protocol);
-               m_parent.setParameter("port", port);
-               m_parent.setParameter("userId", m_userId.getText());
-               m_parent.setParameter("password", m_password.getText());
-               m_parent.setParameter("locale", getDefaultLocale());
-            }
-            catch (PSNotAuthenticatedFault e)
-            {
-               errorMessage = "Failed to authenticate with username and password.";
-               return false;
-            }
-            catch (PSContractViolationFault e)
-            {
-               errorMessage = "Login details are invalid.";
-               return false;
-            }
-            catch (AxisFault f)
-            {
-               errorMessage = f.getFaultString();
-               if (StringUtils.contains(errorMessage, "Connection refused: connect"))
-                  errorMessage = "The service is down or port is incorrect.";
-               if (StringUtils.contains(errorMessage, "java.net.UnknownHostException:"))
-                  errorMessage = errorMessage.replace("java.net.UnknownHostException:", "Unknown Hostname");
+              m_statusBar.setText(m_res.getString("connectedStatus") + host);
 
-               return false;
-            }
-            catch (Exception e)
-            {
-               errorMessage = e.getMessage();
-               PSContentExplorerApplication.logout();
-               return false;
+              // get the jsession from the connection and set it back in the
+              // applet
+              m_parent.setParameter(
+                  "pssessionid", PSCESessionManager.getInstance().getLoginInfo().getSessionId());
+              m_parent.setParameter("serverName", host);
+              m_parent.setParameter("protocol", protocol);
+              m_parent.setParameter("port", port);
+              m_parent.setParameter("userId", m_userId.getText());
+              m_parent.setParameter("password", m_password.getText());
+              m_parent.setParameter("locale", getDefaultLocale());
+            } catch (PSNotAuthenticatedFault e) {
+              errorMessage = "Failed to authenticate with username and password.";
+              return false;
+            } catch (PSContractViolationFault e) {
+              errorMessage = "Login details are invalid.";
+              return false;
+            } catch (AxisFault f) {
+              errorMessage = f.getFaultString();
+              if (StringUtils.contains(errorMessage, "Connection refused: connect"))
+                errorMessage = "The service is down or port is incorrect.";
+              if (StringUtils.contains(errorMessage, "java.net.UnknownHostException:"))
+                errorMessage =
+                    errorMessage.replace("java.net.UnknownHostException:", "Unknown Hostname");
+
+              return false;
+            } catch (Exception e) {
+              errorMessage = e.getMessage();
+              PSContentExplorerApplication.logout();
+              return false;
             }
             updateAdminProperties();
             return true;
-         }
+          }
 
-         // Can safely update the GUI from this method.
-         @Override
-         protected void done()
-         {
+          // Can safely update the GUI from this method.
+          @Override
+          protected void done() {
 
             log.debug("done");
             boolean status;
-            try
-            {
-               // Retrieve the return value of doInBackground.
-               status = get();
-               if (status)
-               {
-                  log.debug("good");
-                  m_parent.initCESession();
+            try {
+              // Retrieve the return value of doInBackground.
+              status = get();
+              if (status) {
+                log.debug("good");
+                m_parent.initCESession();
 
-               }
-               else
-               {
-                  m_statusBar.setText(m_res.getString("failedStatus"));
+              } else {
+                m_statusBar.setText(m_res.getString("failedStatus"));
 
-                  JOptionPane.showMessageDialog(PSContentExplorerLoginPanel.this, ErrorDialogs.cropErrorMessage(errorMessage),
-                        m_res.getString("error"), JOptionPane.ERROR_MESSAGE);
-                  m_login.setEnabled(true);
-               }
+                JOptionPane.showMessageDialog(
+                    PSContentExplorerLoginPanel.this,
+                    ErrorDialogs.cropErrorMessage(errorMessage),
+                    m_res.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
+                m_login.setEnabled(true);
+              }
 
+            } catch (InterruptedException | ExecutionException | PSCmsException e) {
+              // This is thrown if the thread's interrupted.
+              log.error(PSExceptionUtils.getMessageForLog(e));
+
+              Thread.currentThread().interrupt();
             }
-            catch (InterruptedException | ExecutionException | PSCmsException e)
-            {
-               // This is thrown if the thread's interrupted.
-               log.error(PSExceptionUtils.getMessageForLog(e));
-
-               Thread.currentThread().interrupt();
-            }
-
 
             PSContentExplorerLoginPanel.this.setCursor(Cursor.getDefaultCursor());
             PSContentExplorerLoginPanel.this.repaint();
             PSContentExplorerLoginPanel.this.setFocusable(true);
             m_statusBar.repaint();
-         }
+          }
+        };
 
-      };
+    worker.execute();
+  }
 
-      worker.execute();
-   }
-
-   /**
-    * Saves the admin.properties file
-    */
-   private void saveAdminProperties()
-   {
-      if (m_adminProps != null)
-      {
-         File file = null;
-         try
-         {
-            file = new File(PSContentExplorerApplication.getConfigDir(), PROPERTIES_FILENAME);
-            /*
-             * get the admin.properties file where properties were loaded from
-             * and save changes to it
-             */
-            m_adminProps.store(new FileOutputStream(file.getAbsolutePath()), null);
-         }
-         catch (IOException e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-   }
-
-   public PSContentExplorerApplet getApplet()
-   {
-      return applet;
-   }
-
-   public void setApplet(PSContentExplorerApplet applet)
-   {
-      this.applet = applet;
-      m_login.setEnabled(true);
-   }
-
-   private static String getDefaultLocale(){
-      Locale current = Locale.getDefault();
-
-      return current.getLanguage().concat("_").concat(current.getCountry());
-   }
-
-   private List<PSLocale> getLocaleList(String serverUrl){
-
-      List<PSLocale> locales = new ArrayList<>();
-
-      URL localeUrl = null;
-
-      String localeURLString ="";
-
+  /** Saves the admin.properties file */
+  private void saveAdminProperties() {
+    if (m_adminProps != null) {
+      File file = null;
       try {
-         if(serverUrl.endsWith("/")){
-            localeURLString = serverUrl + "locale.jsp";
-         }else{
-            localeURLString = serverUrl + "/locale.jsp";
-         }
-         localeUrl = new URL(localeURLString);
-      } catch (MalformedURLException e) {
-         log.warn(PSExceptionUtils.getMessageForLog(e));
-         return locales;
+        file = new File(PSContentExplorerApplication.getConfigDir(), PROPERTIES_FILENAME);
+        /*
+         * get the admin.properties file where properties were loaded from
+         * and save changes to it
+         */
+        m_adminProps.store(new FileOutputStream(file.getAbsolutePath()), null);
+      } catch (IOException e) {
+        e.printStackTrace();
       }
+    }
+  }
 
-      HttpURLConnection connection = null;
-      int responseCode = 0;
-         try {
-            connection = (HttpURLConnection) localeUrl.openConnection();
-            connection.setUseCaches(false);
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
-            responseCode = connection.getResponseCode();
+  public PSContentExplorerApplet getApplet() {
+    return applet;
+  }
 
-            String localeJsonString = "{}";
-            BufferedReader br = null;
-            String strCurrentLine;
-            if (responseCode == 200) {
-               br = new BufferedReader(
-                       new InputStreamReader(connection.getInputStream(),
-                               StandardCharsets.UTF_8));
+  public void setApplet(PSContentExplorerApplet applet) {
+    this.applet = applet;
+    m_login.setEnabled(true);
+  }
 
-               while ((strCurrentLine = br.readLine()) != null) {
-                  if (!strCurrentLine.equalsIgnoreCase(""))
-                     localeJsonString = strCurrentLine;
-               }
-               try {
-                  JSONObject obj = new JSONObject(localeJsonString);
-                  JSONArray activelocales = obj.getJSONArray("activelocales");
-                  for (int i = 0; i < activelocales.length(); i++) {
-                     JSONObject activeLoale = activelocales.getJSONObject(i);
-                     PSLocale psl = new PSLocale();
-                     psl.setCode(activeLoale.getString("localecode"));
-                     psl.setLabel(activeLoale.getString("localedisplayname"));
-                     locales.add(psl);
-                  }
-               }catch (JSONException je){
-                  log.error(je);
-               }
-            } else {
-               br = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-               while ((strCurrentLine = br.readLine()) != null) {
-                  log.info(strCurrentLine);
-               }
-            }
-         } catch (IOException e) {
-            log.error(e);
-         }
+  private static String getDefaultLocale() {
+    Locale current = Locale.getDefault();
+
+    return current.getLanguage().concat("_").concat(current.getCountry());
+  }
+
+  private List<PSLocale> getLocaleList(String serverUrl) {
+
+    List<PSLocale> locales = new ArrayList<>();
+
+    URL localeUrl = null;
+
+    String localeURLString = "";
+
+    try {
+      if (serverUrl.endsWith("/")) {
+        localeURLString = serverUrl + "locale.jsp";
+      } else {
+        localeURLString = serverUrl + "/locale.jsp";
+      }
+      localeUrl = new URL(localeURLString);
+    } catch (MalformedURLException e) {
+      log.warn(PSExceptionUtils.getMessageForLog(e));
       return locales;
-   }
+    }
 
-   class PSLocaleRenderer extends BasicComboBoxRenderer {
-      public Component getListCellRendererComponent(JList list, Object value,
-                                                    int index, boolean isSelected, boolean cellHasFocus) {
-         super.getListCellRendererComponent(list, value, index, isSelected,
-                 cellHasFocus);
+    HttpURLConnection connection = null;
+    int responseCode = 0;
+    try {
+      connection = (HttpURLConnection) localeUrl.openConnection();
+      connection.setUseCaches(false);
+      connection.setRequestProperty("Content-Type", "application/json");
+      connection.setDoOutput(true);
+      responseCode = connection.getResponseCode();
 
-         if(value != null) {
-            PSLocale item = (PSLocale) value;
+      String localeJsonString = "{}";
+      BufferedReader br = null;
+      String strCurrentLine;
+      if (responseCode == 200) {
+        br =
+            new BufferedReader(
+                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
 
-            setText(item.getLabel());
-         }
-         return this;
+        while ((strCurrentLine = br.readLine()) != null) {
+          if (!strCurrentLine.equalsIgnoreCase("")) localeJsonString = strCurrentLine;
+        }
+        try {
+          JSONObject obj = new JSONObject(localeJsonString);
+          JSONArray activelocales = obj.getJSONArray("activelocales");
+          for (int i = 0; i < activelocales.length(); i++) {
+            JSONObject activeLoale = activelocales.getJSONObject(i);
+            PSLocale psl = new PSLocale();
+            psl.setCode(activeLoale.getString("localecode"));
+            psl.setLabel(activeLoale.getString("localedisplayname"));
+            locales.add(psl);
+          }
+        } catch (JSONException je) {
+          log.error(je);
+        }
+      } else {
+        br = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+        while ((strCurrentLine = br.readLine()) != null) {
+          log.info(strCurrentLine);
+        }
       }
-   }
-   private JComboBox createLocaleComboBox() {
-      final JComboBox cbox = new JComboBox();
+    } catch (IOException e) {
+      log.error(e);
+    }
+    return locales;
+  }
 
-      cbox.setRenderer(new PSLocaleRenderer());
+  class PSLocaleRenderer extends BasicComboBoxRenderer {
+    public Component getListCellRendererComponent(
+        JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+      super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-      cbox.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
+      if (value != null) {
+        PSLocale item = (PSLocale) value;
+
+        setText(item.getLabel());
+      }
+      return this;
+    }
+  }
+
+  private JComboBox createLocaleComboBox() {
+    final JComboBox cbox = new JComboBox();
+
+    cbox.setRenderer(new PSLocaleRenderer());
+
+    cbox.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
             selectedLocale = (PSLocale) cbox.getSelectedItem();
-         }
-      });
+          }
+        });
 
-      return cbox;
-   }
+    return cbox;
+  }
 
+  private void addDefaultLocale() {
+    Locale current = Locale.getDefault();
+    if (m_locale != null) {
+      m_locale.addItem(current);
+      m_locale.setSelectedItem(current);
+    }
+  }
 
-   private void addDefaultLocale(){
-      Locale current = Locale.getDefault();
-      if(m_locale != null) {
-         m_locale.addItem(current);
-         m_locale.setSelectedItem(current);
+  private void refreshLocalCombo() {
+    String url = m_url.getText();
+    if (StringUtils.isEmpty(url)) {
+      addDefaultLocale();
+    } else {
+      List<PSLocale> locs = getLocaleList(url);
+      if (locs.isEmpty()) {
+
+      } else {
+        for (PSLocale l : locs) {
+          m_locale.addItem(l);
+          if (l.getCode().equalsIgnoreCase("en-us")) m_locale.setSelectedItem(l);
+        }
       }
-   }
+      PSContentExplorerLoginPanel.this.pack();
+    }
+  }
+  //////////////////////////////////////////////////////////////////////////////
+  /** the parent frame */
+  private PSContentExplorerFrame m_parent = null;
 
-   private void refreshLocalCombo(){
-      String url = m_url.getText();
-      if(StringUtils.isEmpty(url)){
-         addDefaultLocale();
-      }else {
-         List<PSLocale> locs = getLocaleList(url);
-         if (locs.isEmpty()) {
+  /** editable text field for server url */
+  private JTextField m_url = new JTextField("");
 
-         } else {
-            for (PSLocale l : locs) {
-               m_locale.addItem(l);
-               if (l.getCode().equalsIgnoreCase("en-us"))
-                  m_locale.setSelectedItem(l);
-            }
-         }
-         PSContentExplorerLoginPanel.this.pack();
-      }
-   }
-   //////////////////////////////////////////////////////////////////////////////
-   /**
-    * the parent frame
-    */
-   private PSContentExplorerFrame m_parent = null;
+  /** editable text field for user identification */
+  private JTextField m_userId = new JTextField("", 60);
 
-   /**
-    * editable text field for server url
-    */
-   private JTextField m_url = new JTextField("");
+  /** editable password field for user password */
+  private JPasswordField m_password = new JPasswordField("");
 
+  /** the login button */
+  private JButton m_login = null;
 
-   /**
-    * editable text field for user identification
-    */
-   private JTextField m_userId = new JTextField("",60);
+  /** the locale */
+  private JComboBox m_locale = null;
 
-   /**
-    * editable password field for user password
-    */
-   private JPasswordField m_password = new JPasswordField("");
+  /** THe currently selected locale */
+  private PSLocale selectedLocale = null;
 
-   /**
-    * the login button
-    */
-   private JButton m_login = null;
+  /** status bar, informing the user about the applets/applications state */
+  private JLabel m_statusBar = null;
 
-   /**
-    * the locale
-    */
-   private JComboBox m_locale = null;
+  /** Admin properties gets initialized in <code>initPanel</code> */
+  private PSProperties m_adminProps = null;
 
-   /**
-    * THe currently selected locale
-    */
-   private PSLocale selectedLocale = null;
+  /** Resources */
+  private ResourceBundle m_res = null;
 
-   /**
-    * status bar, informing the user about the applets/applications state
-    */
-   private JLabel m_statusBar = null;
+  /**
+   * The main application. It is created after a successful login. Its valid until the user quits
+   * the application or the browser receives a destroy message, which closes this dialog too.
+   */
+  private JFrame m_mainDialog = null;
 
-   /** Admin properties gets initialized in <code>initPanel</code> */
-   private PSProperties m_adminProps = null;
+  /** Constant for the name of the entry that reperesents admin's name/value pair. */
+  public static final String ENTRY_NAME = "admin_config_base_dir";
 
-   /**
-    * Resources
-    */
-   private ResourceBundle m_res = null;
+  /**
+   * Constant for the directory containing admin client configs. Assumed to be relative to the Rx
+   * directory.
+   */
+  public static final String ADMIN_DIR = "rxconfig/Administrator";
 
-   /**
-    * The main application. It is created after a successful login. Its valid
-    * until the user quits the application or the browser receives a destroy
-    * message, which closes this dialog too.
-    */
-   private JFrame m_mainDialog = null;
+  /** Constant for default port number '9992'. */
+  public static final String DEFAULT_PORT = "9992";
 
-   /**
-    * Constant for the name of the entry that reperesents admin's name/value
-    * pair.
-    */
-   public static final String ENTRY_NAME = "admin_config_base_dir";
-
-   /**
-    * Constant for the directory containing admin client configs. Assumed to be
-    * relative to the Rx directory.
-    */
-   public static final String ADMIN_DIR = "rxconfig/Administrator";
-
-   /**
-    * Constant for default port number '9992'.
-    */
-   public static final String DEFAULT_PORT = "9992";
-
-   /**
-    * Constant for default SSL port number '9443'.
-    */
-   public static final String DEFAULT_SSL_PORT = "9443";
+  /** Constant for default SSL port number '9443'. */
+  public static final String DEFAULT_SSL_PORT = "9443";
 }

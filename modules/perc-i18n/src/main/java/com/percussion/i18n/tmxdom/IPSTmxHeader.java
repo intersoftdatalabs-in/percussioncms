@@ -55,6 +55,7 @@ public interface IPSTmxHeader extends IPSTmxNode {
 
   /** Property Type for creationtool */
   static final int PROP_CREATION_TOOL = 0;
+<<<<<<< HEAD
 
   /** Property Type for creationtool */
   static final int PROP_CREATION_TOOL_VERSION = 1;
@@ -74,6 +75,21 @@ public interface IPSTmxHeader extends IPSTmxNode {
   /** Property Type for creationtool */
   static final int PROP_DATA_TYPE = 6;
 
+=======
+  /** Property Type for creationtool */
+  static final int PROP_CREATION_TOOL_VERSION = 1;
+  /** Property Type for creationtool */
+  static final int PROP_SEG_TYPE = 2;
+  /** Property Type for creationtool */
+  static final int PROP_O_TMF = 3;
+  /** Property Type for creationtool */
+  static final int PROP_ADMIN_LANG = 4;
+  /** Property Type for creationtool */
+  static final int PROP_SRC_LANG = 5;
+  /** Property Type for creationtool */
+  static final int PROP_DATA_TYPE = 6;
+
+>>>>>>> development-8.1.x
   /**
    * Property type string map for the TMX header. These are actually attributes of the hedaer
    * element of the TMX document. These are the required attributes as per the TMX 1.4 DTD.

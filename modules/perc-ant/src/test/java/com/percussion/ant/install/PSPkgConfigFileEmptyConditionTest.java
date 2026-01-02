@@ -16,6 +16,7 @@
  */
 package com.percussion.ant.install;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,6 +33,26 @@ import org.junit.jupiter.api.Test;
 public class PSPkgConfigFileEmptyConditionTest {
   @Rule public Path temporaryFolder;
 
+=======
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.utils.testing.UnitTest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
+
+@Category(UnitTest.class)
+public class PSPkgConfigFileEmptyConditionTest {
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
   /** Constant for the non-empty package configuration file location. */
   private static final String TEST_CFG_FILE_NONEMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig.xml";
@@ -40,14 +61,22 @@ public class PSPkgConfigFileEmptyConditionTest {
   private static final String TEST_CFG_FILE_EMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig_Empty.xml";
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setup() {
     PSSecureXMLUtils.setupJAXPDefaults();
   }
 
   @Test
   public void testEval() throws IOException {
+<<<<<<< HEAD
     Path root = temporaryFolder.toPath();
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     PSPkgConfigFileEmptyCondition p = new PSPkgConfigFileEmptyCondition();
     p.setRootDir(root.toAbsolutePath().toString());

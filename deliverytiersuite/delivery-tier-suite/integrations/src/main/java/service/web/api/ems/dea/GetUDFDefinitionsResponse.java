@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getUDFDefinitionsResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getUDFDefinitionsResult"})
 @XmlRootElement(name = "GetUDFDefinitionsResponse")
 public class GetUDFDefinitionsResponse {
 
-    @XmlElement(name = "GetUDFDefinitionsResult")
-    protected String getUDFDefinitionsResult;
+  @XmlElement(name = "GetUDFDefinitionsResult")
+  protected String getUDFDefinitionsResult;
 
-    /**
-     * Gets the value of the getUDFDefinitionsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetUDFDefinitionsResult() {
-        return getUDFDefinitionsResult;
-    }
+  /**
+   * Gets the value of the getUDFDefinitionsResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetUDFDefinitionsResult() {
+    return getUDFDefinitionsResult;
+  }
 
-    /**
-     * Sets the value of the getUDFDefinitionsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetUDFDefinitionsResult(String value) {
-        this.getUDFDefinitionsResult = value;
-    }
-
+  /**
+   * Sets the value of the getUDFDefinitionsResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetUDFDefinitionsResult(String value) {
+    this.getUDFDefinitionsResult = value;
+  }
 }

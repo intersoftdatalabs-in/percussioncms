@@ -22,8 +22,11 @@
  */
 package com.percussion.pso.workflow;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 
+=======
+>>>>>>> development-8.1.x
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.extension.IPSWorkFlowContext;
@@ -55,10 +58,15 @@ public class PSOSetRevisionLock extends PSDefaultExtension implements IPSWorkflo
   private static IPSWorkflowService work = null;
   private static IPSGuidManager gmgr = null;
   private static IPSCmsContentSummaries summ = null;
+<<<<<<< HEAD
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOSetRevisionLock.class);
 
+=======
+  /** Logger for this class */
+  private static final Logger log = LogManager.getLogger(PSOSetRevisionLock.class);
+>>>>>>> development-8.1.x
   /** */
 
   /**
@@ -76,7 +84,10 @@ public class PSOSetRevisionLock extends PSDefaultExtension implements IPSWorkflo
   public PSOSetRevisionLock() {
     super();
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Sets the revision lock for the current item. Once the lock has been set, it cannot be reset.
    *

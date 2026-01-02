@@ -32,7 +32,10 @@ public interface IPSOWorkflowInfoFinder {
    * @return the workflow or <code>null</code> if not found.
    */
   public PSWorkflow findWorkflow(int id);
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the workflow state.
    *
@@ -41,7 +44,10 @@ public interface IPSOWorkflowInfoFinder {
    * @return the workflow state or <code>null</code> if not found.
    */
   public PSState findWorkflowState(PSWorkflow wf, int state);
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * finds the workflow state by Id.
    *
@@ -51,7 +57,10 @@ public interface IPSOWorkflowInfoFinder {
    * @throws IllegalArgumentException if the workflow does not exist.
    */
   public PSState findWorkflowState(int workflow, int state);
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the workflow state for a content item.
    *
@@ -62,7 +71,10 @@ public interface IPSOWorkflowInfoFinder {
    *     the item is invalid.
    */
   public PSState findWorkflowState(String contentId) throws PSException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Find the workflow state name
    *
@@ -123,7 +135,10 @@ public interface IPSOWorkflowInfoFinder {
    */
   public boolean IsWorkflowValid(String contentId, Collection<String> validFlags)
       throws PSException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Find the destination state for a particular workflow transition. Convenience method for
    * findDestinationState(String, String).
@@ -135,7 +150,10 @@ public interface IPSOWorkflowInfoFinder {
    * @throws PSException
    */
   public PSState findDestinationState(String contentId, String transitionId) throws PSException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Find the destination state for a workflow transition. This method supports aging transitions as
    * well as regular transitions.

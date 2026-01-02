@@ -42,6 +42,7 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
   // private XML constants
   private static final String SERVER_NODE_NAME = "Server";
   private static final String SERVICE_NODE_NAME = "Service";
+<<<<<<< HEAD
 
   /** Xml node name of the Connector element. */
   public static final String CONNECTOR_NODE_NAME = "Connector";
@@ -75,6 +76,40 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
 
       String argsLine = laxProperties.getProperty("lax.command.line.args");
 
+=======
+  /** Xml node name of the Connector element. */
+  public static final String CONNECTOR_NODE_NAME = "Connector";
+
+  /**
+   * Name of the JBoss property used in configuration files to specify the address of the local
+   * host.
+   */
+  public static final String ADDRESS_PROP = "jboss.bind.address";
+
+  private static final Pattern ADDRESS_PATTERN =
+      Pattern.compile("-b (\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
+
+  protected Map<String, String> properties = new HashMap<>();
+
+  public PSAbstractXmlConnectors(Path connectorFileContet) {
+    super(connectorFileContet);
+  }
+
+  protected Map<String, String> loadLaxProperties(Path rxRootDir) {
+    HashMap<String, String> returnProps = new HashMap<>();
+
+    Path laxFile = rxRootDir.resolve("PercussionServer.lax");
+
+    Properties laxProperties = null;
+
+    String address = "0.0.0.0";
+
+    try {
+      laxProperties = loadPropertiesFile(laxFile);
+
+      String argsLine = laxProperties.getProperty("lax.command.line.args");
+
+>>>>>>> development-8.1.x
       if (argsLine != null && argsLine.contains("-b")) {
         Matcher matcher = ADDRESS_PATTERN.matcher(argsLine);
         while (matcher.find()) {

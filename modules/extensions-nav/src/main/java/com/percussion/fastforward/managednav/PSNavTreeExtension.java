@@ -24,7 +24,11 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

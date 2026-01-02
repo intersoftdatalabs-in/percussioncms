@@ -380,9 +380,13 @@ public class PSRecurringEvent {
     return new PSRecurrenceIterator(this);
   }
 
+<<<<<<< HEAD
   /**
    * @return start date of the event.
    */
+=======
+  /** @return start date of the event. */
+>>>>>>> development-8.1.x
   public Date getStartDate() {
     return m_startDate;
   }
@@ -475,8 +479,12 @@ public class PSRecurringEvent {
     public UnknownNodeTypeException(String s) {
       super(s);
     }
+<<<<<<< HEAD
   }
   ;
+=======
+  };
+>>>>>>> development-8.1.x
 
   /**
    * An internal exception to indicate that the supplied XML representation contains illegal values.
@@ -490,6 +498,10 @@ public class PSRecurringEvent {
     public IllegalValueException(String s) {
       super(s);
     }
+<<<<<<< HEAD
   }
   ;
+=======
+  };
+>>>>>>> development-8.1.x
 }

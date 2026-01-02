@@ -48,9 +48,13 @@ import org.w3c.dom.NodeList;
 public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     Document tempXMLDocument = null;
 
@@ -170,6 +174,7 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
 
   /** The name of the content id HTML parameter */
   private static final String CONTENTID = "sys_contentid";
+<<<<<<< HEAD
 
   /** The name of the variant id HTML parameter */
   private static final String VARIANTID = "sys_variantid";
@@ -177,6 +182,13 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
   /** The allowable delimiters when scanning an <code>href</code> or <code>src</code> attribute. */
   private static final String DELIMS = "?&=";
 
+=======
+  /** The name of the variant id HTML parameter */
+  private static final String VARIANTID = "sys_variantid";
+  /** The allowable delimiters when scanning an <code>href</code> or <code>src</code> attribute. */
+  private static final String DELIMS = "?&=";
+
+>>>>>>> development-8.1.x
   /** the class name used for error reporting */
   private static final String ms_className = "PSXdProcessRelatedLinks";
 }

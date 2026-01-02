@@ -45,11 +45,19 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
+<<<<<<< HEAD
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.*;
+=======
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.fop.apps.*;
+import org.apache.fop.configuration.Configuration;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
@@ -98,6 +106,7 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
 
   private final TransformerFactory xfactory;
   private FopFactory fopFactory = null;
+<<<<<<< HEAD
 
   /** */
   public FopAssembler() {
@@ -126,6 +135,33 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
   /**
    * @see PSVelocityAssembler#init(IPSExtensionDef, File)
    */
+=======
+  /** */
+  public FopAssembler() {
+    super();
+    xfactory = TransformerFactory.newInstance();
+
+    try {
+      String rxRootDir =
+          (String)
+              PSRhythmyxInfoLocator.getRhythmyxInfo()
+                  .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
+      String fopConfigFilename = rxRootDir + "/rxconfig/Server/fop.config";
+
+      DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
+      Configuration cfg = cfgBuilder.buildFromFile(new File(fopConfigFilename));
+      FopFactoryBuilder fopFactoryBuilder =
+          new FopFactoryBuilder(new File(".").toURI()).setConfiguration(cfg);
+      fopFactory = fopFactoryBuilder.build();
+
+    } catch (Exception ex) {
+      log.error("Error Reading configuration file: {}", ex.getMessage());
+      log.debug(ex.getMessage(), ex);
+    }
+  }
+
+  /** @see PSVelocityAssembler#init(IPSExtensionDef, File) */
+>>>>>>> development-8.1.x
   @Override
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     super.init(def, codeRoot);

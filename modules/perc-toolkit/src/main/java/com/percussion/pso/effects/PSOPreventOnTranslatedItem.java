@@ -39,11 +39,18 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import java.io.File;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // ...existing code...
 
+=======
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+>>>>>>> development-8.1.x
 /**
  * A Percussion CMS relationship effects that prevents operations on content items which are
  * Translated.
@@ -52,7 +59,11 @@ import org.apache.logging.log4j.Logger;
  * it is intended to prevent creating a Translation of a Translation or a Promotable Version of a
  * Translation.
  *
+<<<<<<< HEAD
  * @author DavidBenua // REFACTORED: CP-JAVA11
+=======
+ * @author DavidBenua
+>>>>>>> development-8.1.x
  */
 @PSHandlesEffectContext(
     optional = {
@@ -66,7 +77,11 @@ import org.apache.logging.log4j.Logger;
 public class PSOPreventOnTranslatedItem implements IPSEffect {
 
   /** Logger for this class */
+<<<<<<< HEAD
   private static final Logger log = LogManager.getLogger(PSOPreventOnTranslatedItem.class);
+=======
+  private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
+>>>>>>> development-8.1.x
 
   protected static IPSContentWs cws = null;
   protected static IPSSystemWs sws = null;
@@ -87,6 +102,7 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
       throws PSExtensionProcessingException, PSParameterMismatchException {
     initServices();
 
+<<<<<<< HEAD
     // TODO: Replace deprecated isConstruction()/isDestruction() with context type check when
     // available
     // For now, always run effect for backward compatibility
@@ -140,6 +156,65 @@ public class PSOPreventOnTranslatedItem implements IPSEffect {
     filter.limitToEditOrCurrentOwnerRevision(true);
     var parents = sws.findOwners(guid, filter);
 
+=======
+    if (!exCtx.isConstruction() && !exCtx.isDestruction()) {
+      return;
+    }
+    try {
+
+      int owner = exCtx.getCurrentRelationship().getOwner().getId();
+
+      int transownerId = findTranslationOwner(owner);
+
+      if (transownerId > 1) {
+        log.debug("Item is a translation of {} preventing relationship", transownerId);
+        result.setError(MSG_TRANSLATED_ITEM);
+        return;
+      }
+
+    } catch (Exception e) {
+      log.error("unexpected exception, Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSExtensionProcessingException(this.getClass().getName(), e);
+    }
+
+    result.setSuccess();
+  }
+
+  private static final String MSG_TRANSLATED_ITEM =
+      "This operation is not valid on translated items";
+
+  public void attempt(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+    result.setSuccess();
+  }
+
+  public void recover(
+      Object[] params,
+      IPSRequestContext request,
+      IPSExecutionContext context,
+      PSExtensionProcessingException e,
+      PSEffectResult result)
+      throws PSExtensionProcessingException {
+    result.setSuccess();
+  }
+
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
+
+  public int findTranslationOwner(int id) throws PSErrorException {
+
+    PSRelationshipFilter filter = new PSRelationshipFilter();
+    filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION);
+    PSLocator dependent = new PSLocator(id, -1);
+    IPSGuid guid = gmgr.makeGuid(dependent);
+    filter.limitToEditOrCurrentOwnerRevision(true);
+    List<IPSGuid> parents = sws.findOwners(guid, filter);
+
+>>>>>>> development-8.1.x
     if (parents.size() > 1) {
       log.error("Item {} has more than one translation parent", id);
       return -1;

@@ -17,12 +17,20 @@
 
 package com.percussion.utils.tomcat;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
+=======
+import static org.junit.Assert.assertEquals;
+>>>>>>> development-8.1.x
 
 import com.percussion.utils.container.PSAbstractConnector;
 import java.util.HashMap;
 import java.util.Map;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class PSTomcatConnectorTest {
 

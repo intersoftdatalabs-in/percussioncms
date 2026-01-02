@@ -19,6 +19,10 @@ package com.percussion.pso.legacy;
 import static com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument;
 import static java.util.Arrays.asList;
 
+<<<<<<< HEAD
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -34,9 +38,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+<<<<<<< HEAD
 import jakarta.servlet.ServletException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang3.StringUtils;
+=======
+import javax.servlet.ServletException;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

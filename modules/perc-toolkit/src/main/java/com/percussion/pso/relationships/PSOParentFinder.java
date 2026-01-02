@@ -16,7 +16,10 @@
  */
 package com.percussion.pso.relationships;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.PSRelationshipProcessorProxy;
@@ -35,7 +38,11 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +54,10 @@ import org.apache.logging.log4j.Logger;
  * @author DavidBenua
  */
 public class PSOParentFinder implements IPSOParentFinder {
+<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
 
   private IPSRequestContext requestContext = null;
   private PSRelationshipProcessorProxy proxy = null;
@@ -181,23 +191,35 @@ public class PSOParentFinder implements IPSOParentFinder {
     }
   }
 
+<<<<<<< HEAD
   /**
    * @param proxy the proxy to set
    */
+=======
+  /** @param proxy the proxy to set */
+>>>>>>> development-8.1.x
   public void setProxy(PSRelationshipProcessorProxy proxy) {
     this.proxy = proxy;
   }
 
+<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set
    */
+=======
+  /** @param gmgr the gmgr to set */
+>>>>>>> development-8.1.x
   public void setGmgr(IPSGuidManager gmgr) {
     this.gmgr = gmgr;
   }
 
+<<<<<<< HEAD
   /**
    * @param asm the asm to set
    */
+=======
+  /** @param asm the asm to set */
+>>>>>>> development-8.1.x
   public void setAsm(IPSAssemblyService asm) {
     this.asm = asm;
   }

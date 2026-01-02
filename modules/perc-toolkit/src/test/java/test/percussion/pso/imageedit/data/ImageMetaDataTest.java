@@ -33,7 +33,11 @@ public class ImageMetaDataTest {
 
   ImageMetaData cut;
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new ImageMetaData();
   }

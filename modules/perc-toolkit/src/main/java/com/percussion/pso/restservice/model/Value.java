@@ -26,7 +26,10 @@ public interface Value {
   public static final int TYPE = -1;
 
   public String getStringValue();
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setStringValue.
    *

@@ -17,6 +17,7 @@
 
 package com.percussion.utils.security;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,6 +31,19 @@ import org.junit.jupiter.api.Test;
  * @todo Fix it... fails on Linux buildServer
  */
 @Disabled
+=======
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import com.percussion.security.PSEncryptionException;
+import com.percussion.security.PSPasswordHandler;
+import org.junit.Ignore;
+import org.junit.Test;
+
+/** @todo Fix it... fails on Linux buildServer */
+@Ignore
+>>>>>>> development-8.1.x
 public class PSPasswordHandlerTests {
 
   private static String savedEncPass;

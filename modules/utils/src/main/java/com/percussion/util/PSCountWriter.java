@@ -86,9 +86,13 @@ public class PSCountWriter extends Writer {
     m_numChars += len; // keep track of the number of chars written
   }
 
+<<<<<<< HEAD
   /**
    * @return The number of characters that were written to the writer.
    */
+=======
+  /** @return The number of characters that were written to the writer. */
+>>>>>>> development-8.1.x
   public long getNumChars() {
     return m_numChars;
   }

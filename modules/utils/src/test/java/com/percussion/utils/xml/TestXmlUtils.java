@@ -17,11 +17,19 @@
 
 package com.percussion.utils.xml;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
+=======
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 /** Unit tests for the xml utils class */
 public class TestXmlUtils {

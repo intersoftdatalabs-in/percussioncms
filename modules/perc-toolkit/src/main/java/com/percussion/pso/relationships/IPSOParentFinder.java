@@ -36,7 +36,10 @@ public interface IPSOParentFinder {
    */
   public Set<PSLocator> findAllParents(String contentid, String slotName)
       throws PSAssemblyException, PSCmsException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds all parents for an item. Includes both parents with the current owner revision, the edit
    * owner revision, and the last public revision.
@@ -49,7 +52,10 @@ public interface IPSOParentFinder {
    */
   public Set<PSLocator> findAllParents(PSLocator dependent, String slotName)
       throws PSAssemblyException, PSCmsException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Find parents for an item. Convenience method for {@link #findParents(PSLocator, String,
    * boolean)}.
@@ -63,7 +69,10 @@ public interface IPSOParentFinder {
    */
   public Set<PSLocator> findParents(String contentid, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the
    *
@@ -78,7 +87,10 @@ public interface IPSOParentFinder {
    */
   public Set<PSLocator> findParents(PSLocator dependent, String slotName, boolean usePublic)
       throws PSAssemblyException, PSCmsException;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Determines if this item has any non-public ancestors in the given slot name. Will return <code>
    * false</code> if any direct or indirect ancestor item (in the given slot) is in a workflow state

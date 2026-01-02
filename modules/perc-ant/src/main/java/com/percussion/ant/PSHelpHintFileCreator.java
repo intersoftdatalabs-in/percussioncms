@@ -95,9 +95,13 @@ public class PSHelpHintFileCreator {
     m_debug = on;
   }
 
+<<<<<<< HEAD
   /**
    * @return iterator of all unique parsed images. Never <code>null</code>, may be empty.
    */
+=======
+  /** @return iterator of all unique parsed images. Never <code>null</code>, may be empty. */
+>>>>>>> development-8.1.x
   public Iterator getImages() {
     return m_images.keySet().iterator();
   }
@@ -454,8 +458,12 @@ public class PSHelpHintFileCreator {
   public static void main(String[] args) throws Exception {
     String base = "E:\\rxMain\\Designer\\ui\\default-config\\rxconfig\\Workbench\\";
     String helppath =
+<<<<<<< HEAD
         "P:\\Documentation\\Released"
             + " Documents\\Rhythmyx\\6.0\\Online\\com.percussion.doc.workbench";
+=======
+        "P:\\Documentation\\Released Documents\\Rhythmyx\\6.0\\Online\\com.percussion.doc.workbench";
+>>>>>>> development-8.1.x
     String mappings = base + "WorkbenchHelpMappings.properties";
     String target = base + "PSXEditorHelpHints.xml";
     PSHelpHintFileCreator creator =

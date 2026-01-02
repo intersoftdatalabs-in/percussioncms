@@ -50,16 +50,24 @@ public class PSOMutableUrl {
     this.m_param = new HashMap<String, Object>(PSOParseUrlQueryString.parseParameters(queryString));
   }
 
+<<<<<<< HEAD
   /**
    * @return Returns the m_base.
    */
+=======
+  /** @return Returns the m_base. */
+>>>>>>> development-8.1.x
   public String getBase() {
     return m_base;
   }
 
+<<<<<<< HEAD
   /**
    * @param base The base to set.
    */
+=======
+  /** @param base The base to set. */
+>>>>>>> development-8.1.x
   public void setBase(String base) {
     this.m_base = base;
   }

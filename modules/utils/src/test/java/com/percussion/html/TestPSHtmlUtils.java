@@ -1,10 +1,18 @@
 package com.percussion.html;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+=======
+import static org.junit.Assert.assertEquals;
+>>>>>>> development-8.1.x
+
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
+import org.junit.Test;
 
 public class TestPSHtmlUtils {
 

@@ -82,8 +82,13 @@ public class RxServerUtils {
   private static final long LOCK_FILE_INTERVAL = 10000L;
   private static final String PERCUSSION_HOME = "PERCUSSION_HOME";
 
+<<<<<<< HEAD
   /***
    * Get the value of the PERCUSSION_HOME environment variable or null if it is not set.
+=======
+  /**
+   * * Get the value of the PERCUSSION_HOME environment variable or null if it is not set.
+>>>>>>> development-8.1.x
    *
    * @author natechadwick
    * @return

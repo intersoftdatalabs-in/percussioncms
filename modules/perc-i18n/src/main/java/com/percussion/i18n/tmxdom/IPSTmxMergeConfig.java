@@ -129,7 +129,10 @@ public interface IPSTmxMergeConfig {
 
   /** One of the two possible values for any merge option liste above. */
   static final String YES = "yes";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** One of the two possible values for any merge option liste above. */
   static final String NO = "no";
 }

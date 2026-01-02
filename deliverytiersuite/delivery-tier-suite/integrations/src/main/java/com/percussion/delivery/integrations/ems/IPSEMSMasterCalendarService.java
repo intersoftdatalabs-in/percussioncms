@@ -17,20 +17,21 @@
 
 package com.percussion.delivery.integrations.ems;
 
-import java.util.List;
-
 import com.percussion.delivery.integrations.ems.model.MCCalendar;
 import com.percussion.delivery.integrations.ems.model.MCEventDetail;
 import com.percussion.delivery.integrations.ems.model.MCEventType;
 import com.percussion.delivery.integrations.ems.model.MCLocation;
+import java.util.List;
 
 public interface IPSEMSMasterCalendarService {
-	
-	public List<MCEventDetail>getMasterCalendarEvents(PSEventQuery query);
-	public List<MCEventDetail>getMasterCalendarFeaturedEvents(PSFeaturedEventsQuery query);
-	public List<MCEventType>getMasterCalendarEventTypes();
-	public List<MCLocation>getMasterCalendarLocations();
-	public List<MCCalendar>getMasterCalendarCalendars();
-	
 
+  public List<MCEventDetail> getMasterCalendarEvents(PSEventQuery query);
+
+  public List<MCEventDetail> getMasterCalendarFeaturedEvents(PSFeaturedEventsQuery query);
+
+  public List<MCEventType> getMasterCalendarEventTypes();
+
+  public List<MCLocation> getMasterCalendarLocations();
+
+  public List<MCCalendar> getMasterCalendarCalendars();
 }

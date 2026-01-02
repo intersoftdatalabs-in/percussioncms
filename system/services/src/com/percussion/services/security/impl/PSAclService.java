@@ -33,7 +33,7 @@ import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.IPSSecurityErrors;
 import com.percussion.services.security.PSPermissions;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
@@ -271,12 +271,12 @@ public class PSAclService implements IPSAclService
    }
    // @see IPSAclService#loadModifiableAcls(List)
    @Transactional
-   public List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids) throws PSSecurityException
+   public List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids) throws PSServiceSecurityException
    {
       List<IPSAcl> results = doLoadModifiableAcls(aclGuids, false);
       if (aclGuids != null && results.size() != aclGuids.size())
       {
-         throw new PSSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuids);
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuids);
       }
 
       return results;
@@ -419,7 +419,7 @@ public class PSAclService implements IPSAclService
     * @see com.percussion.security.acl.IPSAclService#loadAcls(java.util.Set)
     */
    @Transactional
-   public List<IPSAcl> loadAcls(List<IPSGuid> aclGuids) throws PSSecurityException
+   public List<IPSAcl> loadAcls(List<IPSGuid> aclGuids) throws PSServiceSecurityException
    {
       if (aclGuids != null && aclGuids.isEmpty())
          throw new IllegalArgumentException("ids cannot be empty");
@@ -430,7 +430,7 @@ public class PSAclService implements IPSAclService
 
       if (aclGuids != null && aclList.size() != aclGuids.size())
       {
-         throw new PSSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, -1);
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, -1);
       }
       return aclList;
    }
@@ -535,12 +535,12 @@ public class PSAclService implements IPSAclService
 
    // see IPSAclService
    @Transactional
-   public IPSAcl loadAcl(IPSGuid aclGuid) throws PSSecurityException
+   public IPSAcl loadAcl(IPSGuid aclGuid) throws PSServiceSecurityException
    {
       List<IPSAcl> result = loadAcls(Collections.singletonList(aclGuid));
       if (result == null)
       {
-         throw new PSSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuid.toString());
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_NOT_FOUND, aclGuid.toString());
       }
       return result.get(0);
    }
@@ -587,7 +587,7 @@ public class PSAclService implements IPSAclService
     * @see com.percussion.security.acl.IPSAclService#saveAcls(java.util.Set)
     */
    @Transactional
-   public List<IPSAcl> saveAcls(List<IPSAcl> aclList) throws PSSecurityException
+   public List<IPSAcl> saveAcls(List<IPSAcl> aclList) throws PSServiceSecurityException
    {
          List<IPSAcl> result = internalPersist(aclList);
          // need to really pass back aclList as return but not changing interface at this time.
@@ -608,7 +608,7 @@ public class PSAclService implements IPSAclService
     * @see com.percussion.security.acl.IPSAclService#saveAcls(java.util.Set)
     */
    @Transactional
-   public List<IPSAcl> internalPersist(List<IPSAcl> aclList) throws PSSecurityException
+   public List<IPSAcl> internalPersist(List<IPSAcl> aclList) throws PSServiceSecurityException
    {
       List<IPSAcl> updatedList = new ArrayList<>();
 
@@ -636,7 +636,7 @@ public class PSAclService implements IPSAclService
    }
 
    @Transactional
-   public void deleteAcl(IPSGuid aclGuid) throws PSSecurityException
+   public void deleteAcl(IPSGuid aclGuid) throws PSServiceSecurityException
    {
 
          try {
@@ -647,7 +647,7 @@ public class PSAclService implements IPSAclService
                getSession().delete(acl);
             }
          } catch (DataAccessException e) {
-            throw new PSSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
+            throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
                     e.getLocalizedMessage());
          }
 

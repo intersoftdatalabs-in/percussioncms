@@ -16,6 +16,7 @@
  */
 package test.percussion.pso.imageedit.data;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ByteArrayDataSource;
@@ -30,6 +31,22 @@ public class ByteArrayDataSourceTest {
   ByteArrayDataSource cut;
 
   @BeforeEach
+=======
+import static org.junit.Assert.*;
+
+import com.percussion.pso.imageedit.data.ByteArrayDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ByteArrayDataSourceTest {
+  private static final Logger log = LogManager.getLogger(ByteArrayDataSourceTest.class);
+
+  ByteArrayDataSource cut;
+
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {}
 
   @Test

@@ -92,6 +92,7 @@ public class RxFileManager {
   /** System installation file name */
   public static final String SYS_INSTALL_FILE = "cm1install.properties";
 
+<<<<<<< HEAD
   /***
    * DTS system installation file name
    */
@@ -100,6 +101,12 @@ public class RxFileManager {
   /***
    * SDK system installation file name
    */
+=======
+  /** * DTS system installation file name */
+  public static final String DTS_SYS_INSTALL_PROP = "dtsinstall.properties";
+
+  /** * SDK system installation file name */
+>>>>>>> development-8.1.x
   public static final String SDK_SYS_INSTALL_PROP = "sdkinstall.properties";
 
   /** Rhythmyx directory name */
@@ -245,9 +252,15 @@ public class RxFileManager {
    */
   public static final String JETTY_CM_WEBAPP_DIR = "Rhythmyx/cm";
 
+<<<<<<< HEAD
   /***
    * The filename of the installation.properties file that
    * contains the location of product installations.
+=======
+  /**
+   * * The filename of the installation.properties file that contains the location of product
+   * installations.
+>>>>>>> development-8.1.x
    */
   private static String systemInstallationPropertiesFile = SYS_INSTALL_FILE;
 
@@ -261,9 +274,16 @@ public class RxFileManager {
     setRootDir(strRootDir);
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Utility functions.
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Utility functions.
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the installation.properties file.
@@ -287,8 +307,14 @@ public class RxFileManager {
     systemInstallationPropertiesFile = arg.trim();
   }
 
+<<<<<<< HEAD
   /***
    * Returns the absolute path to the installation properties file.
+=======
+  /**
+   * * Returns the absolute path to the installation properties file.
+   *
+>>>>>>> development-8.1.x
    * @param os Specifies the OS that we are returning props for.
    * @return
    */
@@ -350,12 +376,23 @@ public class RxFileManager {
     return false;
   }
 
+<<<<<<< HEAD
   /***
    * Determine if the specified directory is a valid DTS installation directory.  If the
    * <Root>/Deployment/Server/bin/tomcat6.exe file exists, then it is assumed to be a valid directory.
    *
    * @param dir  The directory to check for a DTS installation
    * @return <code>true</code> if the specified directory is a valid DTS root. <code>false</code> if it is not.
+=======
+  /**
+   * * Determine if the specified directory is a valid DTS installation directory. If the
+   * <Root>/Deployment/Server/bin/tomcat6.exe file exists, then it is assumed to be a valid
+   * directory.
+   *
+   * @param dir The directory to check for a DTS installation
+   * @return <code>true</code> if the specified directory is a valid DTS root. <code>false</code> if
+   *     it is not.
+>>>>>>> development-8.1.x
    */
   public static boolean isDTSDir(String dir) {
 
@@ -367,7 +404,10 @@ public class RxFileManager {
     File f2 = new File(dir, DTS_APP_CHECK_FILE7);
     return (f1.exists() || f2.exists());
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Returns the location for installer configuration files. */
   public String getInstallerConfigLocation() {
     String strRet = CONFIG_DIR + File.separator + INSTALLER_DIR;
@@ -516,9 +556,15 @@ public class RxFileManager {
     return strHomeDirName;
   }
 
+<<<<<<< HEAD
   /***
    * Retrieve the DTS System file properties.  Will first attempt
    * to use dtsinstall.properties and will fail back to cm1install.properties
+=======
+  /**
+   * * Retrieve the DTS System file properties. Will first attempt to use dtsinstall.properties and
+   * will fail back to cm1install.properties
+>>>>>>> development-8.1.x
    *
    * @param file The File
    * @param os The Operating System

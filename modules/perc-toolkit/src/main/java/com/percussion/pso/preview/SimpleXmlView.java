@@ -19,8 +19,13 @@ package com.percussion.pso.preview;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.Writer;
 import java.util.Map;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.View;
@@ -39,6 +44,7 @@ public class SimpleXmlView extends AbstractView implements View {
   private String encoding = "UTF-8";
 
   private String resultKey = "result";
+<<<<<<< HEAD
 
   /** Default constructor */
   public SimpleXmlView() {}
@@ -46,6 +52,12 @@ public class SimpleXmlView extends AbstractView implements View {
   /**
    * @see AbstractView#renderMergedOutputModel(Map, HttpServletRequest, HttpServletResponse)
    */
+=======
+  /** Default constructor */
+  public SimpleXmlView() {}
+
+  /** @see AbstractView#renderMergedOutputModel(Map, HttpServletRequest, HttpServletResponse) */
+>>>>>>> development-8.1.x
   @Override
   @SuppressWarnings({"rawtypes"})
   protected void renderMergedOutputModel(
@@ -82,6 +94,7 @@ public class SimpleXmlView extends AbstractView implements View {
     }
     return (Document) result;
   }
+<<<<<<< HEAD
 
   /**
    * @return the encoding
@@ -107,6 +120,21 @@ public class SimpleXmlView extends AbstractView implements View {
   /**
    * @param resultKey the resultKey to set
    */
+=======
+  /** @return the encoding */
+  public String getEncoding() {
+    return encoding;
+  }
+  /** @param encoding the encoding to set */
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+  /** @return the resultKey */
+  public String getResultKey() {
+    return resultKey;
+  }
+  /** @param resultKey the resultKey to set */
+>>>>>>> development-8.1.x
   public void setResultKey(String resultKey) {
     this.resultKey = resultKey;
   }

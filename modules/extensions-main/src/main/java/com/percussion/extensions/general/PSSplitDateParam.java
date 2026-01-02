@@ -57,9 +57,13 @@ public class PSSplitDateParam implements IPSRequestPreProcessor {
    */
   @SuppressWarnings("unused")
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // get the source date to parse
     if (params.length < 1 || params[0] == null || params[0].toString().trim().length() == 0) {

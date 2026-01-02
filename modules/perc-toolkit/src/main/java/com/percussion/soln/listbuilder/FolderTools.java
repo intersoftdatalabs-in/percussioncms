@@ -60,7 +60,10 @@ import org.apache.logging.log4j.Logger;
  * @author AdamGent
  */
 public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
+<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(FolderTools.class);
 

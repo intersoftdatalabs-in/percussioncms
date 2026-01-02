@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -59,6 +58,7 @@ import java.util.Properties;
  * </pre>
  */
 public class PSCreateTableBackupAction extends PSAction {
+<<<<<<< HEAD
   // see base class
 
   @Override
@@ -106,6 +106,53 @@ public class PSCreateTableBackupAction extends PSAction {
 
           PSLogger.logInfo(baos.toString());
 
+=======
+  @Override
+  public void execute() {
+    FileInputStream in = null;
+    Connection conn = null;
+
+    try {
+      String propFile =
+          getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
+
+      File f = new File(propFile);
+      if (!(f.exists() && f.isFile())) return;
+
+      in = new FileInputStream(f);
+      Properties props = new Properties();
+      props.load(in);
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+      PSJdbcDataTypeMap dataTypeMap =
+          new PSJdbcDataTypeMap(
+              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
+      conn = RxLogTables.createConnection(props);
+
+      int maxTblNameLen = MAX_TABLE_NAME_LENGTH - (getSuffix().length() + 1);
+      for (int i = 0; i < tables.length; i++) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+
+        try {
+          String tblName = tables[i].trim();
+          String backupTblName = tblName;
+          if ((tblName.length() > maxTblNameLen))
+            backupTblName = tblName.substring(0, maxTblNameLen - 1);
+          backupTblName += getSuffix();
+
+          PSLogger.logInfo(
+              "Creating backup of table : " + tblName + " into table : " + backupTblName);
+
+          boolean success =
+              DbUtils.backupTable(conn, dbmsDef, dataTypeMap, tblName, backupTblName, ps, true);
+
+          if (success) PSLogger.logInfo("Successfully created backup of table : " + tblName);
+          else PSLogger.logInfo("Failed to create backup of table : " + tblName);
+
+          PSLogger.logInfo(baos.toString());
+
+>>>>>>> development-8.1.x
           if (success && dropTables) {
             PSLogger.logInfo("Dropping table : " + tblName);
             PSJdbcExecutionStep step =
@@ -144,9 +191,16 @@ public class PSCreateTableBackupAction extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
+=======
+  /**
+   * ************************************************************************* Bean properties
+   * *************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the name of tables whose backup is to be created.
@@ -204,9 +258,16 @@ public class PSCreateTableBackupAction extends PSAction {
     if (newSuffix != null && newSuffix.trim().length() > 0) suffix = newSuffix;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * properties
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ properties
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String[] tables = new String[] {};
@@ -221,9 +282,16 @@ public class PSCreateTableBackupAction extends PSAction {
   /** Suffix to be added to the table to obtain the name of backup tables. */
   private String suffix = "_UPG";
 
+<<<<<<< HEAD
   /**************************************************************************
    * member variables
    **************************************************************************/
+=======
+  /**
+   * ************************************************************************ member variables
+   * ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * maximum number of characters that the table name can contain. Oracle does not permit table

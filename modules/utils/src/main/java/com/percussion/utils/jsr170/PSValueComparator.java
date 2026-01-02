@@ -104,9 +104,13 @@ public class PSValueComparator implements Comparator<Value> {
     return result;
   }
 
+<<<<<<< HEAD
   /**
    * @return the locale
    */
+=======
+  /** @return the locale */
+>>>>>>> development-8.1.x
   public Locale getLocale() {
     return m_locale;
   }

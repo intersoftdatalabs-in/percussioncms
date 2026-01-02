@@ -16,10 +16,18 @@
  */
 package test.percussion.pso.preview;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import com.percussion.pso.preview.ConfigurableSiteLoaderImpl;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.sitemgr.IPSSite;
@@ -31,8 +39,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Before;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class ConfigurableSiteLoaderImplTest {
 
@@ -45,7 +58,11 @@ public class ConfigurableSiteLoaderImplTest {
   IPSSiteManager siteMgr;
 
   @SuppressWarnings("static-access")
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new ConfigurableSiteLoaderImpl();

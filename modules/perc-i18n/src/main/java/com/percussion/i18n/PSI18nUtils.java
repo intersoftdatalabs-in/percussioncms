@@ -30,7 +30,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +49,51 @@ import org.apache.logging.log4j.Logger;
 public class PSI18nUtils implements IPSI18nUtils {
 
   private static final Logger log = LogManager.getLogger(PSI18nUtils.class);
+<<<<<<< HEAD
 
+  /**
+   * Utility method that returns the last part of the lookup key.
+   *
+   * @param key the key from which the last part is to be extracted. An empty string is returned if
+   *     key is <code>null</code> or <code>empty</code>.
+   * @return the part of the key after {@link #LOOKUP_KEY_SEPARATOR_LAST} character. Never <code>
+   *     null</code> may be <code>empty</code>.
+   * @see #makeLookupKey
+   */
+  public static String getLastSubKey(String key) {
+    if (key == null || key.length() < 1) return "";
+    int loc = key.indexOf(LOOKUP_KEY_SEPARATOR_LAST);
+    if (loc > -1) key = key.substring(loc + 1);
+    return key;
+  }
+
+  /**
+   * Get the value for the given key using the default language.
+   *
+   * @param key lookup key string
+   * @return lookup value for the given key.
+   * @see PSTmxResourceBundle
+   */
+  public static String getString(String key) {
+    return PSTmxResourceBundle.getInstance().getString(key);
+  }
+
+  /**
+   * Gets a list of all the keys for the provided language.
+   *
+   * @param language string, if <code>null</code> or <code>empty</code>, default language is
+   *     assumed.
+   * @return all of the keys as <code>Strings</code>. May be <code>null</code> if language is not
+   *     supported.
+   * @see PSTmxResourceBundle
+   */
+  public static Iterator getKeys(String language) {
+    return PSTmxResourceBundle.getInstance().getKeys(language);
+  }
+
+  /**
+   * Get the value for the given key and language string.
+=======
   /**
    * Utility method that returns the last part of the lookup key.
    *
@@ -101,6 +149,21 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Gets the string, with the appropriate character underlined for any registered mnemonic
+>>>>>>> development-8.1.x
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
+   * @return lookup value for the given key. Not <code>null</code>, may be <code>empty</code>.
+   * @see PSTmxResourceBundle
+   */
+<<<<<<< HEAD
+  public static String getString(String key, String language) {
+    return PSTmxResourceBundle.getInstance().getString(key, language);
+  }
+
+  /**
+   * Gets the string, with the appropriate character underlined for any registered mnemonic
    *
    * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
    * @param language language string, may be <code>null</code> or <code>empty</code> in which case
@@ -112,6 +175,12 @@ public class PSI18nUtils implements IPSI18nUtils {
     String localizedString = getString(key, language);
     String mnemonic = getMnemonic(key, language);
 
+=======
+  public static String getHtmlString(String key, String language) {
+    String localizedString = getString(key, language);
+    String mnemonic = getMnemonic(key, language);
+
+>>>>>>> development-8.1.x
     if (StringUtils.isNotBlank(mnemonic)) {
       int i = localizedString.toUpperCase().indexOf(mnemonic.toUpperCase());
       if (i >= 0) {

@@ -40,7 +40,11 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.jcr.RepositoryException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,9 +59,13 @@ import org.apache.logging.log4j.Logger;
 public class PSExitDeleteWfCtypeAssociations implements IPSRequestPreProcessor {
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     String wfid = request.getParameter("workflowid");
     if (StringUtils.isBlank(wfid)) {

@@ -20,14 +20,27 @@ package com.percussion.cx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+public class PSAjaxSwingWrapperLocator {
+  private static volatile IPSAjaxSwingWrapper wrapperClass;
 
+  private static final Object lock = new Object();
 
-public class PSAjaxSwingWrapperLocator
-{
-   private static volatile IPSAjaxSwingWrapper wrapperClass;
+  static Logger log = Logger.getLogger(PSAjaxSwingWrapperLocator.class);
 
-   private static final Object lock = new Object();
+  public static IPSAjaxSwingWrapper getInstance() {
+    if (wrapperClass == null) {
+      synchronized (lock) {
+        if (wrapperClass == null && isAjaxSwingApplet()) {
+          try {
+            Class<?> c = Class.forName("com.percussion.ajaxswing.PSAjaxSwingWrapper");
+            wrapperClass = (IPSAjaxSwingWrapper) c.newInstance();
+            log.info("Running Applet in AjaxSwing context");
+          } catch (ClassNotFoundException e) {
+            log.error(
+                "Running with AjaxSwing but com.percussion.ajaxswing.PSAjaxSwingWrapper not compiled with rxcx.",
+                e);
 
+<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSAjaxSwingWrapperLocator.class);
    
    public static IPSAjaxSwingWrapper getInstance()
@@ -52,51 +65,47 @@ public class PSAjaxSwingWrapperLocator
                catch (InstantiationException e)
                {
                   log.error("Running with AjaxSwing but Cannot instantiate com.percussion.ajaxswing.PSAjaxSwingWrapper",e);
+=======
+          } catch (InstantiationException e) {
+            log.error(
+                "Running with AjaxSwing but Cannot instantiate com.percussion.ajaxswing.PSAjaxSwingWrapper",
+                e);
+>>>>>>> development-8.1.x
 
-               }
-               catch (IllegalAccessException e)
-               {
-                  log.error("Running with AjaxSwing but IllegalAccess creating instance com.percussion.ajaxswing.PSAjaxSwingWrapper",e);
-               
-               }
-               if (wrapperClass == null)
-               {
-                  wrapperClass = new PSDefaultAjaxSwingWrapper();
-                  log.info("Running Applet in Browser context");
-               }
-            }
-            else {
-               if (wrapperClass == null)
-               {
-                  wrapperClass = new PSDefaultAjaxSwingWrapper();
-                  log.info("Running Applet in Browser context");
-               }
-            }
+          } catch (IllegalAccessException e) {
+            log.error(
+                "Running with AjaxSwing but IllegalAccess creating instance com.percussion.ajaxswing.PSAjaxSwingWrapper",
+                e);
+          }
+          if (wrapperClass == null) {
+            wrapperClass = new PSDefaultAjaxSwingWrapper();
+            log.info("Running Applet in Browser context");
+          }
+        } else {
+          if (wrapperClass == null) {
+            wrapperClass = new PSDefaultAjaxSwingWrapper();
+            log.info("Running Applet in Browser context");
+          }
+        }
+      }
+    }
+    return wrapperClass;
+  }
 
-         }
-      }
-      return wrapperClass;
-   }
+  private static boolean isAjaxSwingApplet() {
+    boolean exist = true;
 
-   private static boolean isAjaxSwingApplet()
-   {
-      boolean exist = true;
-      
-      try
-      {
-    	  //if the class has a PSContentExplorerFrame then it is launched as an application
-    	  Class<?> c = Class.forName("com.percussion.cx.PSContentExplorerFrame");
-    	  if(c!= null){
-    		  exist = false;
-    	  }
-    	 
-    	  
-         Class.forName("com.creamtec.ajaxswing.AjaxSwingManager");
+    try {
+      // if the class has a PSContentExplorerFrame then it is launched as an application
+      Class<?> c = Class.forName("com.percussion.cx.PSContentExplorerFrame");
+      if (c != null) {
+        exist = false;
       }
-      catch (ClassNotFoundException e)
-      {
-         exist = false;
-      }
-      return exist;
-   }
+
+      Class.forName("com.creamtec.ajaxswing.AjaxSwingManager");
+    } catch (ClassNotFoundException e) {
+      exist = false;
+    }
+    return exist;
+  }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "addBookingResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"addBookingResult"})
 @XmlRootElement(name = "AddBookingResponse")
 public class AddBookingResponse {
 
-    @XmlElement(name = "AddBookingResult")
-    protected String addBookingResult;
+  @XmlElement(name = "AddBookingResult")
+  protected String addBookingResult;
 
-    /**
-     * Gets the value of the addBookingResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddBookingResult() {
-        return addBookingResult;
-    }
+  /**
+   * Gets the value of the addBookingResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getAddBookingResult() {
+    return addBookingResult;
+  }
 
-    /**
-     * Sets the value of the addBookingResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddBookingResult(String value) {
-        this.addBookingResult = value;
-    }
-
+  /**
+   * Sets the value of the addBookingResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setAddBookingResult(String value) {
+    this.addBookingResult = value;
+  }
 }

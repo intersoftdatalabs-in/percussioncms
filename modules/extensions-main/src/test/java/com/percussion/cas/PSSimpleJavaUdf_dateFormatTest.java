@@ -29,7 +29,11 @@ import org.junit.jupiter.api.Test;
  *
  * @author DougRand
  */
+<<<<<<< HEAD
 @Tag("UnitTest")
+=======
+@Category(UnitTest.class)
+>>>>>>> development-8.1.x
 public class PSSimpleJavaUdf_dateFormatTest extends PSSimpleJavaUdfBaseTest {
   @Test
   public void testDateFormat() throws Exception {

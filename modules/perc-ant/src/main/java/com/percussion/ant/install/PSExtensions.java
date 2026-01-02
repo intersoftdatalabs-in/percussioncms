@@ -17,6 +17,7 @@
 
 package com.percussion.ant.install;
 
+import com.percussion.error.PSExceptionUtils;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionHandler;
@@ -154,6 +155,7 @@ public class PSExtensions extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /***********************************************************************
    * Property accessors and mutators
    ***********************************************************************/
@@ -176,6 +178,30 @@ public class PSExtensions extends PSAction {
   /** Extension tool. */
   private PSExtensionInstallTool m_tool = null;
 
+=======
+  /**
+   * ********************************************************************* Property accessors and
+   * mutators *********************************************************************
+   */
+  public String getInstallLocation() {
+    return m_strInstallLoc;
+  }
+
+  public void setInstallLocation(String strInstallLoc) {
+    m_strInstallLoc = strInstallLoc;
+  }
+
+  /*
+   * Variables
+   */
+
+  /** The root installation directory. */
+  private String m_strRootDir = null;
+
+  /** Extension tool. */
+  private PSExtensionInstallTool m_tool = null;
+
+>>>>>>> development-8.1.x
   /** The install location relative to the root. */
   private String m_strInstallLoc = null;
 }

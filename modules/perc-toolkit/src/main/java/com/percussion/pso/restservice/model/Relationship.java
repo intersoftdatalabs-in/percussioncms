@@ -33,7 +33,10 @@ public class Relationship extends ItemRef {
   public int getRelId() {
     return relId;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setRelId.
    *

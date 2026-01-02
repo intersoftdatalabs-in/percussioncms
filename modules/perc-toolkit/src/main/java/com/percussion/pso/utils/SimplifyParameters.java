@@ -30,9 +30,13 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class SimplifyParameters {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(SimplifyParameters.class);

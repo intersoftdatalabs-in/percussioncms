@@ -16,7 +16,11 @@
  */
 package com.percussion.taxonomy.web;
 
+<<<<<<< HEAD
 import static org.apache.commons.lang3.Validate.notEmpty;
+=======
+import static org.apache.commons.lang.Validate.notEmpty;
+>>>>>>> development-8.1.x
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -43,9 +47,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -389,9 +399,13 @@ public class TaxonomyController extends AbstractControllerWithSecurityChecks {
       buffer.append(", ");
     }
     buffer.append(
+<<<<<<< HEAD
         "use the taxonomy you are trying to delete. If you really want to delete this taxonomy you"
             + " must first remove these fields. After the taxonomy fields are removed, the related"
             + " data will not be recoverable.");
+=======
+        "use the taxonomy you are trying to delete. If you really want to delete this taxonomy you must first remove these fields. After the taxonomy fields are removed, the related data will not be recoverable.");
+>>>>>>> development-8.1.x
     return buffer.toString();
   }
 

@@ -16,15 +16,27 @@
  */
 package com.percussion.workflow;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+import com.percussion.utils.testing.IntegrationTest;
+>>>>>>> development-8.1.x
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Tag;
 
 /** The PSStateRolesContextTest class is a test class for the class StateRolesContext. */
 @Tag("IntegrationTest")
+=======
+import org.junit.experimental.categories.Category;
+
+/** The PSStateRolesContextTest class is a test class for the class StateRolesContext. */
+@Category(IntegrationTest.class)
+>>>>>>> development-8.1.x
 public class PSStateRolesContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSStateRolesContextTest.class);

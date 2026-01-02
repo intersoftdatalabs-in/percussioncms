@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.validation;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 import com.percussion.extension.IPSItemValidator;
 import com.percussion.server.IPSRequestContext;
@@ -24,6 +25,15 @@ import com.percussion.system.utils.PSItemErrorDoc;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+=======
+import com.percussion.extension.IPSItemValidator;
+import com.percussion.server.IPSRequestContext;
+import com.percussion.util.IPSHtmlParameters;
+import com.percussion.util.PSItemErrorDoc;
+import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -47,6 +57,7 @@ import org.w3c.dom.Element;
  */
 public class PSORequiredFieldsItemValidation extends PSOAbstractItemValidationExit
     implements IPSItemValidator {
+<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
   private static final Logger log = LogManager.getLogger(PSORequiredFieldsItemValidation.class);
 
@@ -68,6 +79,26 @@ public class PSORequiredFieldsItemValidation extends PSOAbstractItemValidationEx
     Validate.notEmpty(contentid);
     String transitionid = req.getParameter(IPSHtmlParameters.SYS_TRANSITIONID);
 
+=======
+  private static final Logger log = LogManager.getLogger(PSORequiredFieldsItemValidation.class);
+  /** */
+  public PSORequiredFieldsItemValidation() {
+    super();
+  }
+  /**
+   * @see
+   *     com.percussion.pso.validation.PSOAbstractItemValidationExit#validateDocs(org.w3c.dom.Document,
+   *     org.w3c.dom.Document, com.percussion.server.IPSRequestContext, java.lang.Object[])
+   */
+  @Override
+  protected void validateDocs(
+      Document inputDoc, Document errorDoc, IPSRequestContext req, Object[] params)
+      throws Exception {
+    String contentid = req.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    Validate.notEmpty(contentid);
+    String transitionid = req.getParameter(IPSHtmlParameters.SYS_TRANSITIONID);
+
+>>>>>>> development-8.1.x
     if (transitionid == null || transitionid == "") {
       transitionid = "123455";
     }

@@ -26,7 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 public class PSJdbcImportExportHelper {
   public static String OPTION_DB_EXPORT = "-dbexport";
@@ -133,9 +137,13 @@ public class PSJdbcImportExportHelper {
     return newBucket;
   }
 
+<<<<<<< HEAD
   /**
    * @param dboption assumed to be either -dbexport or -dbimport.
    */
+=======
+  /** @param dboption assumed to be either -dbexport or -dbimport. */
+>>>>>>> development-8.1.x
   private static void usage(String dboption) {
     if (OPTION_DB_EXPORT.equals(dboption)) {
       out(
@@ -159,6 +167,7 @@ public class PSJdbcImportExportHelper {
     out("properties_file_name - path to the properties file defining the");
     out("    backend database server.  Required.");
     out(
+<<<<<<< HEAD
         "storage_folder_location - path to folder under which the data, def and binary files are"
             + " stored");
     out("    Required.");
@@ -171,6 +180,17 @@ public class PSJdbcImportExportHelper {
           "com.percussion.tablefactory.tools.PSCatalogTableData -dbprops serverProps.properties"
               + " -storagepath e:/Rhythmyx/dataexport -tablestoskip"
               + " PSX_EDITION_TASK_PARAM|PSX_PUBSERVER_PROPERTIES");
+=======
+        "storage_folder_location - path to folder under which the data, def and binary files are stored");
+    out("    Required.");
+    if (OPTION_DB_EXPORT.equals(dboption)) {
+      out(
+          "tables_to_skip_options - pipe (|) seperated list of tables to skip, <tablename>-data.sql files are created for these tables.");
+      out("Example:");
+      out(
+          "com.percussion.tablefactory.tools.PSCatalogTableData "
+              + "-dbprops serverProps.properties -storagepath e:/Rhythmyx/dataexport -tablestoskip PSX_EDITION_TASK_PARAM|PSX_PUBSERVER_PROPERTIES");
+>>>>>>> development-8.1.x
     } else {
       out("Example:");
       out(

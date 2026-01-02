@@ -140,7 +140,10 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
     }
     return list;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This method retrieves the default community from the first role that belongs to the user. If
    * user belongs to multiple roles, the first non-empty value is considered.
@@ -241,7 +244,10 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
    * parameter communityname=value, where value is a valid community name.
    */
   public static final String IREQ_COMMUNITYLOOKUP = "sys_commSupport/communityidlookup";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Name of the parameter requires for community id lookup. This paremeter is added when we lookup
    * the community id.

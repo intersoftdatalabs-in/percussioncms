@@ -27,8 +27,13 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
+=======
+import com.percussion.util.IPSHtmlParameters;
+import com.percussion.util.PSCms;
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -277,6 +282,7 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
   private static class AuthParams {
     /** The content id of the active item */
     public int m_contentID = 0;
+<<<<<<< HEAD
 
     /** The revision number of the active item */
     public int m_revision = 0;
@@ -312,6 +318,37 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
   /** The edit authorization XML attribute. */
   private static final String XML_ATTRIB_EDIT_AUTH = "editauthorized";
 
+=======
+    /** The revision number of the active item */
+    public int m_revision = 0;
+    /** The current users' username */
+    public String m_userName = null;
+    /** The list of roles this user is in */
+    public String m_roleNameList = null;
+    /** The access level required to edit content */
+    public int m_requiredAccessLevel = PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE;
+    /** The assignment type for this content */
+    public int m_assignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
+    /** The request context passed in */
+    public IPSRequestContext m_request = null;
+  }
+
+  /** The fully qualified name of this extension. */
+  private static String ms_fullExtensionName = "";
+
+  /** The content id XML attribute. */
+  private static final String XML_ATTRIB_CONTENTID = "contentid";
+
+  /** The revision id XML attribute. */
+  private static final String XML_ATTRIB_REVISION = "revision";
+
+  /** The parent content id XML attribute. */
+  private static final String XML_ATTRIB_PARENTCONTENTID = "parentcontentid";
+
+  /** The edit authorization XML attribute. */
+  private static final String XML_ATTRIB_EDIT_AUTH = "editauthorized";
+
+>>>>>>> development-8.1.x
   /** The edit authorization XML attribute. */
   private static final String XML_ATTRIB_PARENT_EDIT_AUTH = "parenteditauthorized";
 }

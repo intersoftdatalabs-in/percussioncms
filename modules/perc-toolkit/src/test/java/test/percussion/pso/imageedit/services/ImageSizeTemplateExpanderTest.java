@@ -16,6 +16,7 @@
  */
 package test.percussion.pso.imageedit.services;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -53,6 +54,45 @@ public class ImageSizeTemplateExpanderTest {
     cut.setAsm(asm);
   }
 
+=======
+import static org.junit.Assert.*;
+
+import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
+import com.percussion.pso.imageedit.services.ImageSizeTemplateExpander;
+import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.contentmgr.IPSNode;
+import com.percussion.utils.guid.IPSGuid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.jcr.Node;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jmock.Mockery;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ImageSizeTemplateExpanderTest {
+  private static final Logger log = LogManager.getLogger(ImageSizeTemplateExpanderTest.class);
+
+  Mockery context;
+  TestableImageSizeTemplateExpander cut;
+  ImageSizeDefinitionManager isdm;
+  IPSAssemblyService asm;
+
+  @Before
+  public void setUp() throws Exception {
+    context = new Mockery();
+    cut = new TestableImageSizeTemplateExpander();
+
+    isdm = context.mock(ImageSizeDefinitionManager.class, "isdm");
+    cut.setIsdm(isdm);
+    asm = context.mock(IPSAssemblyService.class, "asm");
+    cut.setAsm(asm);
+  }
+
+>>>>>>> development-8.1.x
   @Test
   public final void testFindTemplates() {
     final IPSNode contentNode = context.mock(IPSNode.class);
@@ -136,17 +176,25 @@ public class ImageSizeTemplateExpanderTest {
           itemGuid, folderGuid, siteGuid, context, summary, contentNode, parameters);
     }
 
+<<<<<<< HEAD
     /**
      * @see ImageSizeTemplateExpander#setAsm(IPSAssemblyService)
      */
+=======
+    /** @see ImageSizeTemplateExpander#setAsm(IPSAssemblyService) */
+>>>>>>> development-8.1.x
     @Override
     public void setAsm(IPSAssemblyService asm) {
       super.setAsm(asm);
     }
 
+<<<<<<< HEAD
     /**
      * @see ImageSizeTemplateExpander#setIsdm(ImageSizeDefinitionManager)
      */
+=======
+    /** @see ImageSizeTemplateExpander#setIsdm(ImageSizeDefinitionManager) */
+>>>>>>> development-8.1.x
     @Override
     public void setIsdm(ImageSizeDefinitionManager isdm) {
       super.setIsdm(isdm);

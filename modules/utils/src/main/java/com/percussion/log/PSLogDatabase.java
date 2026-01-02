@@ -48,6 +48,7 @@ public class PSLogDatabase {
 
   /** the main log table. */
   public static final String TABLE_PSLOG = "pslog";
+<<<<<<< HEAD
 
   /** the log data table. */
   public static final String TABLE_PSLOGDAT = "pslogdat";
@@ -79,6 +80,28 @@ public class PSLogDatabase {
   /** the log table data field */
   public static final String COL_LOG_DATA = "log_data";
 
+=======
+  /** the log data table. */
+  public static final String TABLE_PSLOGDAT = "pslogdat";
+  /** the log table id field. */
+  public static final String COL_LOG_ID_HIGH = "log_id_high";
+  /** the log table id field. */
+  public static final String COL_LOG_ID_LOW = "log_id_low";
+  /** the log table type field. */
+  public static final String COL_LOG_TYPE = "log_type";
+  /** the log table application field. */
+  public static final String COL_LOG_APPL = "log_appl";
+  /** the log main table primary key field. */
+  public static final String COL_PSLOG_PKEY = "pslog_pkey";
+  /** the log table sequence field. */
+  public static final String COL_LOG_SEQ = "log_seq";
+  /** the log table subtable field. */
+  public static final String COL_LOG_SUBT = "log_subt";
+  /** the log table subsequence field */
+  public static final String COL_LOG_SUBSEQ = "log_subseq";
+  /** the log table data field */
+  public static final String COL_LOG_DATA = "log_data";
+>>>>>>> development-8.1.x
   /** the log data table primary key field. */
   public static final String COL_PSLOGDAT_PKEY = "pslogdat_pkey";
 }

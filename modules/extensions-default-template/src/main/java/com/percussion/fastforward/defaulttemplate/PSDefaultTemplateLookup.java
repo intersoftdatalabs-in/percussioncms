@@ -42,9 +42,13 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /**
  * @author adamgent
  */
+=======
+/** @author adamgent */
+>>>>>>> development-8.1.x
 public class PSDefaultTemplateLookup extends PSJexlUtilBase {
 
   @IPSJexlMethod(

@@ -18,7 +18,11 @@ package com.percussion.taxonomy.jexl;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * A List of TaxNode objects that provides methods for formatting the contained information.

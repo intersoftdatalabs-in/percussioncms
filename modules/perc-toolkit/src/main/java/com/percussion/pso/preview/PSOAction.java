@@ -19,7 +19,11 @@ package com.percussion.pso.preview;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.Iterator;
 import java.util.Properties;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,17 +46,25 @@ public class PSOAction implements Comparable<PSOAction> {
   /** Default constructor */
   public PSOAction() {}
 
+<<<<<<< HEAD
   /**
    * @see Comparable#compareTo(Object)
    */
+=======
+  /** @see Comparable#compareTo(Object) */
+>>>>>>> development-8.1.x
   public int compareTo(PSOAction other) {
     if (this == other) return 0;
     return this.label.compareTo(other.label);
   }
 
+<<<<<<< HEAD
   /**
    * @see Object#equals(Object)
    */
+=======
+  /** @see Object#equals(Object) */
+>>>>>>> development-8.1.x
   @Override
   public boolean equals(Object obj) {
     return super.equals(obj);
@@ -88,6 +100,7 @@ public class PSOAction implements Comparable<PSOAction> {
 
     return root;
   }
+<<<<<<< HEAD
 
   /**
    * @return the handler
@@ -176,27 +189,102 @@ public class PSOAction implements Comparable<PSOAction> {
   /**
    * @return the description
    */
+=======
+  /** @return the handler */
+  public String getHandler() {
+    return handler;
+  }
+
+  /** @param handler the handler to set */
+  public void setHandler(String handler) {
+    this.handler = handler;
+  }
+
+  /** @return the label */
+  public String getLabel() {
+    return label;
+  }
+
+  /** @param label the label to set */
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  /** @return the name */
+  public String getName() {
+    return name;
+  }
+
+  /** @param name the name to set */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /** @return the url */
+  public String getUrl() {
+    return url;
+  }
+
+  /** @param url the url to set */
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  /** @return the type */
+  public String getType() {
+    return type;
+  }
+
+  /** @param type the type to set */
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  /** @return the sortrank */
+  public int getSortrank() {
+    return sortrank;
+  }
+
+  /** @param sortrank the sortrank to set */
+  public void setSortrank(int sortrank) {
+    this.sortrank = sortrank;
+  }
+
+  /** @return the description */
+>>>>>>> development-8.1.x
   public String getDescription() {
     return description;
   }
 
+<<<<<<< HEAD
   /**
    * @param description the description to set
    */
+=======
+  /** @param description the description to set */
+>>>>>>> development-8.1.x
   public void setDescription(String description) {
     this.description = description;
   }
 
+<<<<<<< HEAD
   /**
    * @return the properties
    */
+=======
+  /** @return the properties */
+>>>>>>> development-8.1.x
   public Properties getProperties() {
     return properties;
   }
 
+<<<<<<< HEAD
   /**
    * @param properties the properties to set
    */
+=======
+  /** @param properties the properties to set */
+>>>>>>> development-8.1.x
   public void setProperties(Properties properties) {
     this.properties = properties;
   }

@@ -29,14 +29,20 @@ public class FileValue implements Value {
 
   /** Field href. */
   private String href;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Field type. */
   public static final int TYPE = 3;
 
   private String mimeType;
   private String lastModified;
   private String ETag;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getStringValue.
    *
@@ -47,7 +53,10 @@ public class FileValue implements Value {
   public String getStringValue() {
     return stringValue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setStringValue.
    *
@@ -57,7 +66,10 @@ public class FileValue implements Value {
   public void setStringValue(String stringValue) {
     this.stringValue = stringValue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method setHref.
    *
@@ -66,7 +78,10 @@ public class FileValue implements Value {
   public void setHref(String href) {
     this.href = href;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Method getHref.
    *

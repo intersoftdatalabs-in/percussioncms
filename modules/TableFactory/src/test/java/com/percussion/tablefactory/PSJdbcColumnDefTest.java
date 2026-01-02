@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,11 +30,31 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.sql.Types;
+import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for PSJdbcColumnDef. */
 public class PSJdbcColumnDefTest {
+<<<<<<< HEAD
+=======
+  public PSJdbcColumnDefTest() {
+    super();
+  }
+>>>>>>> development-8.1.x
 
   /** Test the def */
   @Test
@@ -45,13 +66,21 @@ public class PSJdbcColumnDefTest {
     columnDef =
         new PSJdbcColumnDef(
             m_map, "test", PSJdbcTableComponent.ACTION_CREATE, Types.VARCHAR, "255", false, "foo");
+<<<<<<< HEAD
     assertTrue(xmlRoundTripIsEqual(columnDef), "XML serialization");
+=======
+    assertTrue("XML serialization", xmlRoundTripIsEqual(columnDef));
+>>>>>>> development-8.1.x
 
     // ctor #1 (no default value)
     columnDef =
         new PSJdbcColumnDef(
             m_map, "test", PSJdbcTableComponent.ACTION_CREATE, Types.VARCHAR, "255", true, null);
+<<<<<<< HEAD
     assertTrue(xmlRoundTripIsEqual(columnDef), "XML serialization");
+=======
+    assertTrue("XML serialization", xmlRoundTripIsEqual(columnDef));
+>>>>>>> development-8.1.x
 
     // ctor #2 (with scale)
     columnDef =
@@ -64,11 +93,19 @@ public class PSJdbcColumnDefTest {
             "3",
             true,
             null);
+<<<<<<< HEAD
     assertTrue(xmlRoundTripIsEqual(columnDef), "XML serialization");
 
     // ctor #3 (shallow copy)
     PSJdbcColumnDef def2 = new PSJdbcColumnDef(columnDef);
     assertEquals(def2, columnDef, "shallow copy ctor is not equal");
+=======
+    assertTrue("XML serialization", xmlRoundTripIsEqual(columnDef));
+
+    // ctor #3 (shallow copy)
+    PSJdbcColumnDef def2 = new PSJdbcColumnDef(columnDef);
+    assertEquals("shallow copy ctor is not equal", def2, columnDef);
+>>>>>>> development-8.1.x
 
     // make sure empty size is rejected
     didThrow = false;
@@ -79,7 +116,11 @@ public class PSJdbcColumnDefTest {
     } catch (IllegalArgumentException e) {
       didThrow = true;
     }
+<<<<<<< HEAD
     assertTrue(didThrow, "Rejected empty size");
+=======
+    assertTrue("Rejected empty size", didThrow);
+>>>>>>> development-8.1.x
 
     // make sure empty scale is rejected
     didThrow = false;
@@ -97,7 +138,11 @@ public class PSJdbcColumnDefTest {
     } catch (IllegalArgumentException e) {
       didThrow = true;
     }
+<<<<<<< HEAD
     assertTrue(didThrow, "Rejected empty scale");
+=======
+    assertTrue("Rejected empty scale", didThrow);
+>>>>>>> development-8.1.x
   }
 
   /** Tests that the values assigned in the ctors are available through the getter methods. */
@@ -219,9 +264,15 @@ public class PSJdbcColumnDefTest {
    * considered changed.
    */
   private void assertReallyNotEquals(PSJdbcColumnDef oldDef, PSJdbcColumnDef newDef) {
+<<<<<<< HEAD
     assertTrue(!oldDef.equals(newDef), "different columns are equal");
     assertTrue(newDef.hashCode() != oldDef.hashCode(), "different columns have the same hashcode");
     assertTrue(newDef.isChanged(oldDef), "different columns are not considered changed");
+=======
+    assertTrue("different columns are equal", !oldDef.equals(newDef));
+    assertTrue("different columns have the same hashcode", newDef.hashCode() != oldDef.hashCode());
+    assertTrue("different columns are not considered changed", newDef.isChanged(oldDef));
+>>>>>>> development-8.1.x
   }
 
   /**
@@ -689,7 +740,10 @@ public class PSJdbcColumnDefTest {
             map, "testBigInt", PSJdbcTableComponent.ACTION_CREATE, Types.BIGINT, null, true, null);
     assertEquals(expected[testnum++], columnDef.getSqlDef(dbDef));
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Tests if LimitSizeForIndex flag is set, if it is, it should limit the column width to 255. If
    * not, it will be 1000.
@@ -717,11 +771,16 @@ public class PSJdbcColumnDefTest {
     assertTrue(size.equals("1000"));
   }
 
+<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
+=======
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
 
   private String rxdeploydir;
 
   /** Performs the setup required by the tests: creating a datatypemap. */
+<<<<<<< HEAD
   @BeforeEach
   public void setUp() throws Exception {
     m_map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -730,6 +789,16 @@ public class PSJdbcColumnDefTest {
   }
 
   @AfterEach
+=======
+  @Before
+  public void setUp() throws Exception {
+    m_map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
+
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);

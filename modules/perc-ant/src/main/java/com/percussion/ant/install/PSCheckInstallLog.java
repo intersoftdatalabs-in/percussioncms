@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.tools.ant.BuildException;
 
 /**

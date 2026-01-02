@@ -82,9 +82,13 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
     m_schemaHandler = schemaHandler;
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.PSJdbcExecutionStep
    */
+=======
+  /** @see com.percussion.tablefactory.PSJdbcExecutionStep */
+>>>>>>> development-8.1.x
   public int execute(Connection conn) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("connection may not be null");
 
@@ -193,7 +197,11 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
    * @return modified row data, never <code>null</code>
    */
   private PSJdbcRowData processRow(PSJdbcRowData srcRow) {
+<<<<<<< HEAD
     Iterator<?> srcColumns = m_srcTableSchema.getColumns();
+=======
+    Iterator srcColumns = m_srcTableSchema.getColumns();
+>>>>>>> development-8.1.x
     while (srcColumns.hasNext()) {
       // first check to see if it's in the target
       PSJdbcColumnDef sCol = (PSJdbcColumnDef) srcColumns.next();
@@ -202,7 +210,11 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
       if (!inTarget) srcRow.removeColumn(sCol.getName());
     }
 
+<<<<<<< HEAD
     Iterator<?> targetColumns = m_destTableSchema.getColumns();
+=======
+    Iterator targetColumns = m_destTableSchema.getColumns();
+>>>>>>> development-8.1.x
     while (targetColumns.hasNext()) {
       // first check to see if it's in the source
       PSJdbcColumnDef tCol = (PSJdbcColumnDef) targetColumns.next();

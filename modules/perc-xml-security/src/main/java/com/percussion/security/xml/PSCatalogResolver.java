@@ -19,7 +19,11 @@ package com.percussion.security.xml;
 
 import static com.percussion.security.xml.PSSecureXMLUtils.getNoOpSource;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import org.apache.logging.log4j.LogManager;
@@ -179,8 +183,12 @@ public class PSCatalogResolver extends CatalogResolver {
           href,
           base);
       throw new TransformerException(
+<<<<<<< HEAD
           "Resource was not resolved in the local XML catalog. Un-trusted external references are"
               + " not allowed. href:"
+=======
+          "Resource was not resolved in the local XML catalog. Un-trusted external references are not allowed. href:"
+>>>>>>> development-8.1.x
               + href
               + " base:"
               + base);

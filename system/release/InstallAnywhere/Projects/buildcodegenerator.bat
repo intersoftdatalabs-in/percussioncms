@@ -1,1 +1,0 @@
-ismp %1\%2\release\installshield\projects\brandCode\brandCode.xml -build -is:log log.txt

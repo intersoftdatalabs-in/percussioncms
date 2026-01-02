@@ -39,10 +39,17 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+>>>>>>> development-8.1.x
 
 /**
  * Represents JSR-170 properties that can contain a set of values
@@ -110,82 +117,118 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
   }
 
   public void setValue(Value[] arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(String arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(String[] arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(InputStream arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(long arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(double arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(Calendar arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(boolean arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }
 
   public void setValue(Node arg0)
+<<<<<<< HEAD
       throws ValueFormatException,
           VersionException,
           LockException,
           ConstraintViolationException,
+=======
+      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
+>>>>>>> development-8.1.x
           RepositoryException {
     throw new RepositoryException("Set is not supported");
   }

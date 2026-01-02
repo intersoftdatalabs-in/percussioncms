@@ -42,6 +42,7 @@ import org.w3c.dom.Text;
  */
 public class PSHtmlParamDocument {
   private static final Logger log = LogManager.getLogger(PSHtmlParamDocument.class);
+<<<<<<< HEAD
 
   /** Default Constructor. */
   public PSHtmlParamDocument() {}
@@ -58,6 +59,23 @@ public class PSHtmlParamDocument {
   }
 
   /**
+=======
+  /** Default Constructor. */
+  public PSHtmlParamDocument() {}
+
+  /**
+   * Constructor that takes a map of name-value pairs.
+   *
+   * @param params must not be <code>null</code>.
+   * @see setParams
+   * @throws IllegalArgumentException if the paarameter supplied is <code>null</code>.
+   */
+  public PSHtmlParamDocument(Map params) {
+    setParams(params);
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Builds a fresh object from the given XML document element. The source node must conform to the
    * DTD defined in the class description.
    *

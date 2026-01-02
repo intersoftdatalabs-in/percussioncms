@@ -27,7 +27,11 @@ import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,12 +39,21 @@ import org.w3c.dom.Document;
 
 /**
  * Generates the file name for the content item specified by the the HTML parameters {@link
+<<<<<<< HEAD
  * com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTID contentid}and {@link
  * com.percussion.system.utils.IPSHtmlParameters#SYS_REVISION revision}in the request context. This
  * is done by executing an internal request to the Rhythmyx resource specified by the third
  * parameter to the exit. Nothing will be done if the second parameter is non-empty or if the html
  * parameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is not
  * {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
+=======
+ * com.percussion.util.IPSHtmlParameters#SYS_CONTENTID contentid}and {@link
+ * com.percussion.util.IPSHtmlParameters#SYS_REVISION revision}in the request context. This is done
+ * by executing an internal request to the Rhythmyx resource specified by the third parameter to the
+ * exit. Nothing will be done if the second parameter is non-empty or if the html parameter {@link
+ * com.percussion.util.IPSHtmlParameters#SYS_COMMAND} in the request is not {@link
+ * com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
+>>>>>>> development-8.1.x
  */
 public class PSAutoGenerateFileName extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
