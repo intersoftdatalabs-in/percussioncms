@@ -69,6 +69,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author natechadwick
  *
+ * @author natechadwick
  */
 public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
 

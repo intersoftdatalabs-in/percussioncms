@@ -17,10 +17,11 @@
 package com.percussion.rx.config.test;
 
 import com.percussion.rx.config.impl.PSConfigDeltaFinder;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSConfigDeltaFinderTest extends TestCase {
+public class PSConfigDeltaFinderTest {
   public void testDeltaFinder() {
     Map<String, Object> newProps = new HashMap<String, Object>();
     newProps.put("name1", "value1");

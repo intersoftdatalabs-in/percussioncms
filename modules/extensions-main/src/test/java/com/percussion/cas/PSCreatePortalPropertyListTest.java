@@ -69,7 +69,6 @@ public class PSCreatePortalPropertyListTest {
     "",
     "123"
   };
-
   String resultDoc =
       "<METADATA>"
           + "<Property name=\"searchKeywords\" pattern=\"\" type=\"string\">foo, bar</Property>"

@@ -35,16 +35,16 @@ import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Tests generating links.
  *
  * @author adamgent
  */
-@Category(IntegrationTest.class)
+
 public class PSRenderLinkServiceTest {
   private static PSRenderLinkServiceClient renderClient;
 
@@ -118,7 +118,7 @@ public class PSRenderLinkServiceTest {
   }
 
   @SuppressWarnings("deprecation")
-  @Ignore("Cannot create image asset with rest yet.")
+  @Disabled("Cannot create image asset with rest yet.")
   @Test
   public void testImagePreviewLink() throws Exception {
     PSInlineLinkRequest link = new PSInlineLinkRequest();

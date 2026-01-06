@@ -20,7 +20,7 @@ import org.apache.tools.ant.BuildException;
 import org.junit.jupiter.api.Tag;
 
 @Tag("UnitTest")
-public class PSTruncateDirectoryMapperTest extends TestCase {
+public class PSTruncateDirectoryMapperTest {
   public void testSetTo() {
     final PSTruncateDirectoryMapper mapper = new PSTruncateDirectoryMapper();
     mapper.setTo("abc/");

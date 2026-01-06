@@ -56,6 +56,28 @@ import com.rometools.modules.mediarss.types.Credit;
  *
  * @author natechadwick
  *
+ * <p><media:credit>
+ *
+ * <p>Notable entity and the contribution to the creation of the media object. Current entities can
+ * include people, companies, locations, etc. Specific entities can have multiple roles, and several
+ * entities can have the same role. These should appear as distinct <media:credit> elements. It has
+ * 2 optional attributes.
+ *
+ * <p><media:credit role="producer" scheme="urn:ebu">entity name</media:credit>
+ *
+ * <p>role specifies the role the entity played. Must be lowercase. It is an optional attribute.
+ *
+ * <p>scheme is the URI that identifies the role scheme. It is an optional attribute. If this
+ * attribute is not included, the default scheme is 'urn:ebu'. See: European Broadcasting Union Role
+ * Codes.
+ *
+ * <p>Example roles:
+ *
+ * <p>actor anchor person author choreographer composer conductor director editor graphic designer
+ * grip illustrator lyricist music arranger music group musician orchestra performer photographer
+ * producer reporter vocalist
+ *
+ * @author natechadwick
  */
 public class PSSynFeedCredit {
 

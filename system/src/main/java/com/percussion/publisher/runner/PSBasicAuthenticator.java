@@ -25,9 +25,7 @@ import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
 
-/***
- * Provides a handler for basic authentication in the cxf client.
- */
+/** * Provides a handler for basic authentication in the cxf client. */
 @Provider
 public class PSBasicAuthenticator implements ClientRequestFilter {
 

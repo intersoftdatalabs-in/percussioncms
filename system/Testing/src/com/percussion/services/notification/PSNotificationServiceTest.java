@@ -21,7 +21,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
 import java.io.File;

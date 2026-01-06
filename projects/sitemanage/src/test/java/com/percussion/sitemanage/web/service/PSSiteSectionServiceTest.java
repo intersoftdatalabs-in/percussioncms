@@ -49,8 +49,8 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 
 /**
@@ -98,7 +98,7 @@ public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestCl
    *
    * <p>DO NOT checkin these changes!! (feel free to make improvements)
    */
-  @Ignore
+  @Disabled
   @Test
   public void test10CreateLargeNavigationTree() {
     PSSite site = testSiteData.site1;

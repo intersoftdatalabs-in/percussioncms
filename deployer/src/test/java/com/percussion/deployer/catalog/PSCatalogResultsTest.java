@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSDbmsInfo</code> class. */
-public class PSCatalogResultsTest extends TestCase {
+public class PSCatalogResultsTest {
   /**
    * Construct this unit test
    *

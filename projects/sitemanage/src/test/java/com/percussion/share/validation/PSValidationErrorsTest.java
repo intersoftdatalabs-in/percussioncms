@@ -18,10 +18,10 @@
 
 package com.percussion.share.validation;
 
-import java.io.StringWriter;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import java.io.StringWriter;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link PSValidationErrors}. */

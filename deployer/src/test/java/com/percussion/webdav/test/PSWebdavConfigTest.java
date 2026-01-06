@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSWebdavConfig</code> class. */
-public class PSWebdavConfigTest extends TestCase {
+public class PSWebdavConfigTest {
   /**
    * Construct this unit test
    *

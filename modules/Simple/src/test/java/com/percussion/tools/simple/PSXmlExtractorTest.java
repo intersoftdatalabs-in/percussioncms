@@ -123,7 +123,6 @@ public class PSXmlExtractorTest {
     source.deleteOnExit();
     FileUtils.copyInputStreamToFile(
         PSXmlExtractorTest.class.getResourceAsStream(TEST_EDITOR), source);
-
     File target = File.createTempFile("testb", ".xml");
     target.deleteOnExit();
     URL dtd =

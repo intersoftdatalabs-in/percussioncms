@@ -7,7 +7,7 @@
 		 import="com.percussion.services.contentmgr.IPSNode"
 		 import="com.percussion.services.contentmgr.PSContentMgrConfig"
 		 import="com.percussion.services.contentmgr.PSContentMgrLocator, com.percussion.services.guidmgr.IPSGuidManager, com.percussion.services.guidmgr.PSGuidManagerLocator, com.percussion.services.guidmgr.PSGuidUtils, com.percussion.services.legacy.IPSCmsObjectMgr, com.percussion.services.legacy.PSCmsObjectMgrLocator, com.percussion.utils.guid.IPSGuid, com.percussion.webservices.content.IPSContentWs, com.percussion.webservices.content.PSContentWsLocator, com.percussion.webservices.security.IPSSecurityWs, com.percussion.webservices.security.PSSecurityWsLocator"
-		 import="javax.servlet.jsp.JspWriter"
+		 import="jakarta.servlet.jsp.JspWriter"
 %>
 <%@ page import="java.util.List" %>
 <%@ taglib uri="/WEB-INF/tmxtags.tld" prefix="i18n" %>

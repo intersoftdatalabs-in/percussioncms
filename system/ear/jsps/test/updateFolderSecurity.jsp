@@ -10,7 +10,7 @@
     import="com.percussion.services.guidmgr.data.PSLegacyGuid, com.percussion.services.security.data.PSCommunity"
     import="com.percussion.cms.PSCmsException, com.percussion.webservices.PSErrorResultsException"
     import="com.percussion.cms.objectstore.PSObjectAclEntry, com.percussion.cms.objectstore.IPSDbComponent, com.percussion.cms.objectstore.PSObjectAcl, com.percussion.cms.objectstore.PSFolder"
-    import="java.util.Map, java.util.Set, java.util.Collections, java.util.Map.Entry, java.util.Iterator, java.util.HashMap, java.util.Arrays, java.util.ArrayList, java.util.List, org.apache.commons.lang.StringUtils, javax.servlet.jsp.JspWriter"
+    import="java.util.Map, java.util.Set, java.util.Collections, java.util.Map.Entry, java.util.Iterator, java.util.HashMap, java.util.Arrays, java.util.ArrayList, java.util.List, org.apache.commons.lang.StringUtils, jakarta.servlet.jsp.JspWriter"
     import="org.apache.logging.log4j.Logger"
     import="com.percussion.services.utils.jspel.PSRoleUtilities"
     import="com.percussion.server.PSServer"
@@ -438,7 +438,7 @@ Role Permissions
       return outParam;
    }
    
-   private void handleException(Exception ex, javax.servlet.jsp.JspWriter out)
+   private void handleException(Exception ex, jakarta.servlet.jsp.JspWriter out)
       throws java.io.IOException
    {
       out.println("<pre> Unexpected Exception \n");
@@ -452,7 +452,7 @@ Role Permissions
    }
    
    private Map buildParamMap(String[] allNames, String[] allValues,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException
    {
       Map pmap = new HashMap();
@@ -469,7 +469,7 @@ Role Permissions
       return pmap;
    }
    private void printTableHeader(String[] columns,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException
    {
       out.println("<thead><tr>");
@@ -480,7 +480,7 @@ Role Permissions
       out.println("</tr></thead>");
    }
    private void printTableRows(QueryResult qresults,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException, javax.jcr.RepositoryException
    {
       RowIterator rows = qresults.getRows();

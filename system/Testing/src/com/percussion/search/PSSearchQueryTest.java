@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Tag;
  * @author paulhoward
  */
 @Tag("IntegrationTest")
-public class PSSearchQueryTest extends TestCase 
+public class PSSearchQueryTest 
    implements IPSServerBasedJunitTest
 {
    /**

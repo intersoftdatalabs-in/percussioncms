@@ -93,8 +93,8 @@ public class ActionSiteForwardingControllerTest {
 
   /**
    * Test method for {@link
-   * ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)}.
+   * ActionSiteForwardingController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
   @Disabled("Test is failing") // TODO: Fix me
@@ -112,8 +112,8 @@ public class ActionSiteForwardingControllerTest {
 
   /**
    * Test method for {@link
-   * ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)}.
+   * ActionSiteForwardingController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
   @Disabled("Test is failing") // TODO: Fix me
@@ -158,8 +158,8 @@ public class ActionSiteForwardingControllerTest {
 
   /**
    * Test method for {@link
-   * ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)}.
+   * ActionSiteForwardingController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
   @Disabled("Test is failing") // TODO: Fix me

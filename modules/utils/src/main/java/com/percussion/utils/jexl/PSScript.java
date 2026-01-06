@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.utils.jexl;
@@ -54,6 +53,11 @@ public class PSScript implements IPSScript {
   private boolean compilable = false;
 
   private JexlScript compiledScript = null;
+  private String fixedScriptText = null;
+  // Per-instance JEXL mode flags to avoid cross-test/global state pollution
+  private boolean useStrictMode = jexlUseStrict;
+  private boolean useDebugMode = jexlUseDebug;
+  private boolean useSilentMode = jexlUseSilent;
 
   public PSScript(String scriptText) {
     this.scriptText = scriptText;
@@ -123,12 +127,45 @@ public class PSScript implements IPSScript {
     JexlContext context = new MapContext(bindingsMap);
 
     if (compiledScript == null) {
-      String fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
+      this.fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
 
-      compiledScript = EngineSingletonHolder.DEFAULT_ENGINE.createScript(fixedScriptText);
+      // Use the shared engine if instance flags match defaults; otherwise create an
+      // engine configured for this instance so mode changes don't affect other instances/tests.
+      if (useStrictMode == jexlUseStrict
+          && useDebugMode == jexlUseDebug
+          && useSilentMode == jexlUseSilent) {
+        compiledScript = EngineSingletonHolder.DEFAULT_ENGINE.createScript(this.fixedScriptText);
+      } else {
+        JexlEngine engine =
+            new JexlBuilder()
+                .strict(useStrictMode)
+                .silent(useSilentMode)
+                .debug(useDebugMode)
+                .logger(LOG)
+                .cache(CACHE_SIZE)
+                .create();
+        compiledScript = engine.createScript(this.fixedScriptText);
+      }
+    }
+    if (ownerName == null) {
+      this.ownerName = "";
+    } else {
+      this.ownerName = ownerName.trim();
     }
 
-    return compiledScript.execute(context);
+    Object result = compiledScript.execute(context);
+
+    // Enforce strict-mode behavior: if strict is enabled and silent is disabled,
+    // a top-level $ expression that evaluates to null should throw an exception
+    // (matches legacy expectations/tests).
+    if (useStrictMode && !useSilentMode) {
+      String src = this.fixedScriptText != null ? this.fixedScriptText : this.scriptText;
+      if (src != null && src.trim().startsWith("$") && result == null) {
+        throw new RuntimeException("JEXL evaluation returned null in strict mode for: " + src);
+      }
+    }
+    this.ownerName = ownerName.trim();
+    return result;
   }
 
   @Override
@@ -138,32 +175,32 @@ public class PSScript implements IPSScript {
 
   @Override
   public boolean getUseStrictMode() {
-    return jexlUseStrict;
+    return useStrictMode;
   }
 
   @Override
   public void setUseStrictMode(boolean useStrictMode) {
-    jexlUseStrict = useStrictMode;
+    this.useStrictMode = useStrictMode;
   }
 
   @Override
   public boolean getUseDebugMode() {
-    return jexlUseDebug;
+    return useDebugMode;
   }
 
   @Override
   public void setUseDebugMode(boolean useDebugMode) {
-    jexlUseDebug = useDebugMode;
+    this.useDebugMode = useDebugMode;
   }
 
   @Override
   public boolean getSilentMode() {
-    return jexlUseSilent;
+    return useSilentMode;
   }
 
   @Override
   public void setUseSilentMode(boolean useSilentMode) {
-    jexlUseSilent = useSilentMode;
+    this.useSilentMode = useSilentMode;
   }
 
   /***

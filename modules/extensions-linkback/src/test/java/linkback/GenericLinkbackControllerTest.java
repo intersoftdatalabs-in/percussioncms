@@ -70,8 +70,8 @@ public class GenericLinkbackControllerTest {
 
   /**
    * Test method for {@link
-   * com.percussion.soln.linkback.servlet.GenericLinkbackController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)} .
+   * com.percussion.soln.linkback.servlet.GenericLinkbackController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse)} .
    */
   @Test
   public final void testHandleRequestPositive() {

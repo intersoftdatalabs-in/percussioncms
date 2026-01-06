@@ -20,10 +20,10 @@ package com.percussion.widgetbuilder.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractDataObject;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Container object for the list of widget fields. */
 @XmlRootElement(name = "WidgetBuilderFieldsListData")

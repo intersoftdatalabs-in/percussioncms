@@ -18,12 +18,12 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.servlet;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 
 /** A mutable HTTP servlet request wrapper. Refactored for Java 11 and Google Java Style. */
 public class PSServletRequestWrapper extends HttpServletRequestWrapper {

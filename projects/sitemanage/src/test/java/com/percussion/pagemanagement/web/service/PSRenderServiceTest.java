@@ -51,16 +51,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Tests render a page and a template.
  *
  * @author adamgent
  */
-@Category(IntegrationTest.class)
+
 public class PSRenderServiceTest {
   private static final String HTML_CONTENT = "TestHTML";
   private static final String HTML_CONTENT_2 = "TestHTML_2";
@@ -360,7 +360,7 @@ public class PSRenderServiceTest {
     return pair;
   }
 
-  @Ignore("The default CSS is no longer valid")
+  @Disabled("The default CSS is no longer valid")
   public void testRenderCss() throws Exception {
     String actual = renderClient.renderTemplate(template3.getId());
 
@@ -396,7 +396,7 @@ public class PSRenderServiceTest {
     return awr;
   }
 
-  @Ignore("This test is not really needed because templates override pages")
+  @Disabled("This test is not really needed because templates override pages")
   @Test
   public void testRenderPageOverrides() throws Exception {
     log.info("testRenderPageOverrides");

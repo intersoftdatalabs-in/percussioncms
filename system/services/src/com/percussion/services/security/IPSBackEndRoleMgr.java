@@ -251,9 +251,9 @@ public interface IPSBackEndRoleMgr
     * @param id the id of the community to find, not <code>null</code>. Must
     *    be the id of an existing community.
     * @return the loaded community, never <code>null</code>.
-    * @throws PSSecurityException if no community exists for the supplied id.
+    * @throws PSServiceSecurityException if no community exists for the supplied id.
     */
-   public PSCommunity loadCommunity(IPSGuid id) throws PSSecurityException;
+   public PSCommunity loadCommunity(IPSGuid id) throws PSServiceSecurityException;
    
    /**
     * Save the supplied community.

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getBookings2Result"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getBookings2Result"})
 @XmlRootElement(name = "GetBookings2Response")
 public class GetBookings2Response {
 
-    @XmlElement(name = "GetBookings2Result")
-    protected String getBookings2Result;
+  @XmlElement(name = "GetBookings2Result")
+  protected String getBookings2Result;
 
-    /**
-     * Gets the value of the getBookings2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetBookings2Result() {
-        return getBookings2Result;
-    }
+  /**
+   * Gets the value of the getBookings2Result property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetBookings2Result() {
+    return getBookings2Result;
+  }
 
-    /**
-     * Sets the value of the getBookings2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetBookings2Result(String value) {
-        this.getBookings2Result = value;
-    }
-
+  /**
+   * Sets the value of the getBookings2Result property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetBookings2Result(String value) {
+    this.getBookings2Result = value;
+  }
 }

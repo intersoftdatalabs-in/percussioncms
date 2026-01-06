@@ -42,6 +42,11 @@ import org.w3c.dom.Element;
  *
  * @author natechadwick
  *
+ * <p>Will trim whitespace.
+ *
+ * <p>Returns an empty string for all other values.
+ *
+ * @author natechadwick
  */
 public class PSAllowOnlyBooleanValues
     implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {

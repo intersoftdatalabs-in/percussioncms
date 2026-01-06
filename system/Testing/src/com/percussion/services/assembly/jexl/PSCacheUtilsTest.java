@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Tag;
 import java.util.concurrent.TimeUnit;
 
 @Tag("IntegrationTest")
-public class PSCacheUtilsTest extends TestCase {
+public class PSCacheUtilsTest {
 	
 	private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());
 	private static final PSCacheUtils cache_utils = new PSCacheUtils();

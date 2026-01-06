@@ -77,8 +77,8 @@ import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
 
@@ -385,7 +385,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void testCopy() throws Exception {
     log.debug("testCopy");
 

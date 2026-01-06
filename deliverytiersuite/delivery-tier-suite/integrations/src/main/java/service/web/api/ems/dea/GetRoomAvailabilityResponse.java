@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getRoomAvailabilityResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getRoomAvailabilityResult"})
 @XmlRootElement(name = "GetRoomAvailabilityResponse")
 public class GetRoomAvailabilityResponse {
 
-    @XmlElement(name = "GetRoomAvailabilityResult")
-    protected String getRoomAvailabilityResult;
+  @XmlElement(name = "GetRoomAvailabilityResult")
+  protected String getRoomAvailabilityResult;
 
-    /**
-     * Gets the value of the getRoomAvailabilityResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetRoomAvailabilityResult() {
-        return getRoomAvailabilityResult;
-    }
+  /**
+   * Gets the value of the getRoomAvailabilityResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetRoomAvailabilityResult() {
+    return getRoomAvailabilityResult;
+  }
 
-    /**
-     * Sets the value of the getRoomAvailabilityResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetRoomAvailabilityResult(String value) {
-        this.getRoomAvailabilityResult = value;
-    }
-
+  /**
+   * Sets the value of the getRoomAvailabilityResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetRoomAvailabilityResult(String value) {
+    this.getRoomAvailabilityResult = value;
+  }
 }

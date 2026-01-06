@@ -34,6 +34,19 @@ import com.rometools.modules.mediarss.types.Rating;
  *
  * @author natechadwick
  *
+ * <p>This allows the permissible audience to be declared. If this element is not included, it
+ * assumes that no restrictions are necessary. It has one optional attribute.
+ *
+ * <p><media:rating scheme="urn:simple">adult</media:rating> <media:rating scheme="urn:icra">r (cz 1
+ * lz 1 nz 1 oz 1 vz 1)</media:rating> <media:rating scheme="urn:mpaa">pg</media:rating>
+ *
+ * <p><media:rating scheme="urn:v-chip">tv-y7-fv</media:rating> scheme is the URI that identifies
+ * the rating scheme. It is an optional attribute. If this attribute is not included, the default
+ * scheme is urn:simple (adult | nonadult).
+ *
+ * <p>For compatibility, a medai:adult tag will appear in the ratings as a urn:simple equiv.
+ *
+ * @author natechadwick
  */
 public class PSSynFeedRating {
 
