@@ -67,12 +67,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.2.220</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
@@ -270,7 +264,17 @@
                             <value>${project.build.directory}</value>
                         </property>
                     </systemProperties>
+                    <classpathDependencyExcludes>
+                        <!-- Ensure Derby is loaded from our explicit dependency -->
+                    </classpathDependencyExcludes>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.derby</groupId>
+                        <artifactId>derby</artifactId>
+                        <version>10.17.1.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

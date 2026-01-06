@@ -11,12 +11,18 @@
 
    <!-- This file contains database-specific beans -->
 
-   <!-- Simple DataSource for testing -->
-   <bean id="percDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-      <property name="driverClassName" value="${jdbcDriver}" />
-      <property name="url" value="${jdbcUrl}" />
+   <!-- This file contains database-specific beans -->
+   <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+      <property name="jdbcUrl" value="${jdbcUrl}" />
       <property name="username" value="${db.username}" />
       <property name="password" value="${db.password}" />
+      <property name="driverClassName" value="${jdbcDriver}" />
+      <property name="maximumPoolSize" value="50" />
+   </bean>
+
+   <!-- DataSource -->
+   <bean id="percDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+      <constructor-arg ref="hikariConfig" />
    </bean>
 
 
