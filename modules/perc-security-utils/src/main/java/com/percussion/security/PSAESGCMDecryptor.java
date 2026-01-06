@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.security;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -96,7 +96,6 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
       throw new PSEncryptionException(
           "Input too short for AES-GCM decryption (minimum " + minLength + " bytes required)");
     }
-  }
 
     try {
       byte[] iv = new byte[ivLength];
@@ -120,37 +119,6 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
     }
   }
 
-  @Override
-  public String decryptWithPassword(String in, String password) throws PSEncryptionException {
-    try {
-      byte[] decoded = Base64.getDecoder().decode(in.getBytes(StandardCharsets.UTF_8));
-      final int ivLength = 12;
-      final int saltLength = 16;
-      if (decoded.length <= ivLength + saltLength) {
-        throw new PSEncryptionException("Input too short for AES-GCM decryption with password");
-      }
-      byte[] iv = new byte[ivLength];
-      System.arraycopy(decoded, 0, iv, 0, ivLength);
-      byte[] salt = new byte[saltLength];
-      System.arraycopy(decoded, ivLength, salt, 0, saltLength);
-      byte[] encryptedText = new byte[decoded.length - ivLength - saltLength];
-      System.arraycopy(decoded, ivLength + saltLength, encryptedText, 0, encryptedText.length);
-      SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-      KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 256);
-      SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      cipher.init(Cipher.DECRYPT_MODE, secret, new GCMParameterSpec(128, iv));
-      return new String(cipher.doFinal(encryptedText), StandardCharsets.UTF_8);
-    } catch (InvalidKeySpecException
-        | NoSuchAlgorithmException
-        | BadPaddingException
-        | InvalidKeyException
-        | InvalidAlgorithmParameterException
-        | NoSuchPaddingException
-        | IllegalBlockSizeException e) {
-      throw new PSEncryptionException(e.getMessage(), e);
-    }
-  }
   @Override
   public String decryptWithPassword(String in, String password) throws PSEncryptionException {
 
