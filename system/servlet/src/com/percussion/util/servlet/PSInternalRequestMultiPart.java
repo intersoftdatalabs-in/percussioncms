@@ -77,7 +77,7 @@ class PSInternalRequestMultiPart extends PSInternalRequest
    /**
     * Prepare the body and/or header of the current parameters. This method
     * must be called before pass this object to another servlet, for example
-    * through {@link javax.servlet.RequestDispatcher}.
+    * through {@link jakarta.servlet.RequestDispatcher}.
     */
    public void prepareBody()
    {
@@ -142,7 +142,7 @@ class PSInternalRequestMultiPart extends PSInternalRequest
       }
    }
 
-   // see javax.servlet.ServletRequest#getInputStream()
+   // see jakarta.servlet.ServletRequest#getInputStream()
    public ServletInputStream getInputStream()
    {
       if (!m_prepared)
@@ -220,7 +220,7 @@ class PSInternalRequestMultiPart extends PSInternalRequest
       setHeader("content-length", String.valueOf(getContentLength()));
    }
 
-   // see javax.servlet.ServletRequest#getContentType()
+   // see jakarta.servlet.ServletRequest#getContentType()
    public String getContentType()
    {
       if (m_contentType == null)
@@ -229,7 +229,7 @@ class PSInternalRequestMultiPart extends PSInternalRequest
          return m_contentType;
    }
 
-   // see javax.servlet.ServletRequest#getContentLength()
+   // see jakarta.servlet.ServletRequest#getContentLength()
    public int getContentLength()
    {
       if (!m_prepared)
@@ -239,7 +239,7 @@ class PSInternalRequestMultiPart extends PSInternalRequest
       return m_bos.size();
    }
 
-   // see javax.servlet.ServletRequest#getReader()
+   // see jakarta.servlet.ServletRequest#getReader()
    public BufferedReader getReader() throws IOException
    {
       if (!m_prepared)

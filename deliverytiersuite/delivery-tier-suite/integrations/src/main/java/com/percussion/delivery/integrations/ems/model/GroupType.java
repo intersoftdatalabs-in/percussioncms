@@ -84,31 +84,32 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GroupType {
-	
-	private int id;
-	private String description;
-	private boolean availableOnWeb;
 
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public String getDescription() {
-		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public boolean isAvailableOnWeb() {
-		return availableOnWeb;
-	}
-	
-	public void setAvailableOnWeb(boolean availableOnWeb) {
-		this.availableOnWeb = availableOnWeb;
-	}
-	
+  private int id;
+  private String description;
+  private boolean availableOnWeb;
 
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public boolean isAvailableOnWeb() {
+    return availableOnWeb;
+  }
+
+  public void setAvailableOnWeb(boolean availableOnWeb) {
+    this.availableOnWeb = availableOnWeb;
+  }
 }

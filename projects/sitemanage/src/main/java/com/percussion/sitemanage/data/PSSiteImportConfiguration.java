@@ -1,8 +1,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Configuration for site import operations. */
 @XmlRootElement(name = "SiteImportConfiguration")

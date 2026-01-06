@@ -19,8 +19,8 @@ package com.percussion.share.data;
 
 import static java.util.Arrays.asList;
 
-import java.util.ArrayList;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 
 /**
  * Data summary for items with a single folder path. Sunny Sal says: "Single folder, single focus,

@@ -21,7 +21,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 
 /** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
-public class PSParamStringListToMultiParamsTest extends TestCase {
+public class PSParamStringListToMultiParamsTest {
   /** Tets all exit contracts and functionality. */
   public void testExit() throws Exception {
     PSParamStringListToMultiParams test = new PSParamStringListToMultiParams();

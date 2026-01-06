@@ -39,6 +39,8 @@ import com.percussion.pathmanagement.web.service.PSPathServiceRestClient;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.web.service.PSSiteRestClient;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,8 +55,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
 
 /**
  * This class takes an xml file that conforms to the CM1DataDef schema and generates all the design

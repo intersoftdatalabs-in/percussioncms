@@ -77,7 +77,7 @@ public class PSLoginServlet extends HttpServlet {
    * requested page as specified by the "RX_REDIRECT_URL" session attribute. Authentication failures
    * will return an include of either the custom error page if defined, or else the appropriate
    * login form again. Requests to "/logout" will call {@link
-   * javax.servlet.http.HttpSession#invalidate()} and redirect the user to the appropriate logout
+   * jakarta.servlet.http.HttpSession#invalidate()} and redirect the user to the appropriate logout
    * page ((standard or custom if defined).
    *
    * @see HttpServlet#service(HttpServletRequest, HttpServletResponse) for other details.

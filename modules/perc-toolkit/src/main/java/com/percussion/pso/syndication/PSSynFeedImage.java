@@ -18,9 +18,7 @@ package com.percussion.pso.syndication;
 
 import com.rometools.rome.feed.synd.SyndImage;
 
-/***
- * A Velocity friendly class for a syndication image.
- */
+/** * A Velocity friendly class for a syndication image. */
 public class PSSynFeedImage {
 
   private SyndImage image;

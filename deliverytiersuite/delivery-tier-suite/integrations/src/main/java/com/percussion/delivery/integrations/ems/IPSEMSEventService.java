@@ -17,33 +17,26 @@
 
 package com.percussion.delivery.integrations.ems;
 
-import java.util.List;
-
 import com.percussion.delivery.integrations.ems.model.Booking;
 import com.percussion.delivery.integrations.ems.model.Building;
 import com.percussion.delivery.integrations.ems.model.EventType;
 import com.percussion.delivery.integrations.ems.model.GroupType;
-import com.percussion.delivery.integrations.ems.model.MCCalendar;
-import com.percussion.delivery.integrations.ems.model.MCEventDetail;
-import com.percussion.delivery.integrations.ems.model.MCEventType;
-import com.percussion.delivery.integrations.ems.model.MCLocation;
+import java.util.List;
 
 public interface IPSEMSEventService {
-	
-	public static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-	public static String TIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-	public static String DATETIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-	
-	/***
-	 * Specifies the default cache timeout for remote method calls
-	 * that are cache-able
-	 */
-	public static final int DEFAULT_CACHE_TIMEOUT=60000;
-	
-    public List<Booking>getBookings(PSBookingsQuery query);
-    
-	public List<EventType>getEventTypes();
-	public List<Building>getBuildings();
-	public List<GroupType>getGroupTypes();
-	
+
+  public static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+  public static String TIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+  public static String DATETIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+
+  /** * Specifies the default cache timeout for remote method calls that are cache-able */
+  public static final int DEFAULT_CACHE_TIMEOUT = 60000;
+
+  public List<Booking> getBookings(PSBookingsQuery query);
+
+  public List<EventType> getEventTypes();
+
+  public List<Building> getBuildings();
+
+  public List<GroupType> getGroupTypes();
 }

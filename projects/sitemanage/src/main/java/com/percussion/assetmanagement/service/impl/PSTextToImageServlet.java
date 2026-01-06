@@ -17,6 +17,9 @@
  */
 package com.percussion.assetmanagement.service.impl;
 
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
@@ -25,9 +28,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Optional;
 import javax.imageio.ImageIO;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -84,7 +84,6 @@ public class PSSecureXMLUtils {
     dbf.setXIncludeAware(XINCLUDE_AWARE);
     dbf.setExpandEntityReferences(EXPAND_ENTITY_REFERENCES);
     PSXMLEntityResolverWrapper resolver = new PSXMLEntityResolverWrapper();
-
     // Set each feature logging any errors as warnings for unsupported features.
     try {
       dbf.setAttribute("http://apache.org/xml/properties/internal/entity-resolver", resolver);

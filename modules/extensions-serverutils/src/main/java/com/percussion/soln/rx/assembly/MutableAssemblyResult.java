@@ -17,7 +17,7 @@
 
 package com.percussion.soln.rx.assembly;
 
-import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
@@ -39,7 +39,6 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;
-
   private Status status = Status.SUCCESS;
   private byte[] resultData;
   private String mimeType = "text/html";

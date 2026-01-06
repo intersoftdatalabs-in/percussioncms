@@ -41,6 +41,11 @@ import java.util.List;
  *
  * @author natechadwick
  *
+ * <p><media:content url="http://www.foo.com/movie.mov" fileSize="12216320" type="video/quicktime"
+ * medium="video" isDefault="true" expression="full" bitrate="128" framerate="25"
+ * samplingrate="44.1" channels="2" duration="185" height="200" width="300" lang="en" />
+ *
+ * @author natechadwick
  */
 public class PSSynFeedMediaContent {
 

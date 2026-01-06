@@ -69,8 +69,8 @@ public class PSActionPanelServlet extends HttpServlet {
   /**
    * (non-Javadoc)
    *
-   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
-   *     javax.servlet.http.HttpServletResponse)
+   * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
+   *     jakarta.servlet.http.HttpServletResponse)
    */
   @SuppressWarnings("unchecked")
   @Override

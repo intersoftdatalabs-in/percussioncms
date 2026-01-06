@@ -90,8 +90,8 @@ public class MultiSiteResolutionControllerTest {
 
   /**
    * Test method for {@link
-   * MultiSiteResolutionController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)}.
+   * MultiSiteResolutionController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
   @SuppressWarnings("unchecked")

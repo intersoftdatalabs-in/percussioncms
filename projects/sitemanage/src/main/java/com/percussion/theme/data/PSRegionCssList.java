@@ -21,9 +21,9 @@ package com.percussion.theme.data;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.data.PSAbstractDataObject;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a list of region CSS objects. */
 @XmlRootElement(name = "RegionCssList")

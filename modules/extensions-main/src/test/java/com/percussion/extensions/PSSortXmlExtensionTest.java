@@ -16,21 +16,25 @@
  */
 package com.percussion.extensions;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.testing.PSMockRequestContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.StringReader;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class PSSortXmlExtensionTest extends TestCase {
+public class PSSortXmlExtensionTest {
 
   PSSortXmlExtension e = new PSSortXmlExtension();
 
-  protected void setUp() throws Exception {
-    super.setUp();
-  }
+  @BeforeEach
+  public void setUp() throws Exception {}
 
+  @Test
   public void testProcessResultDocument() throws Exception {
     StringReader sr =
         new StringReader(
@@ -38,43 +42,37 @@ public class PSSortXmlExtensionTest extends TestCase {
                 + "<VariantList contentid=\"665\">\r\n"
                 + "   <Variant outputformat=\"2\" type=\"0\" variantId=\"501\">\r\n"
                 + "      <DisplayName>S - Callout</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"
                 + "   <Variant outputformat=\"2\" type=\"0\" variantId=\"502\">\r\n"
                 + "      <DisplayName>S - Image Link</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"
                 + "   <Variant outputformat=\"2\" type=\"0\" variantId=\"503\">\r\n"
                 + "      <DisplayName>S - Title Callout Link</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"
                 + "   <Variant outputformat=\"2\" type=\"0\" variantId=\"504\">\r\n"
                 + "      <DisplayName>S - Title Link</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"
                 + "   <Variant outputformat=\"2\" type=\"0\" variantId=\"537\">\r\n"
                 + "      <DisplayName>S - Title Callout and More Link</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"
                 + "   <Variant outputformat=\"1\" type=\"0\" variantId=\"543\">\r\n"
                 + "      <DisplayName>P - CI Generic</DisplayName>\r\n"
-                + "     "
-                + " <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
+                + "      <AssemblyUrl>http://localhost:9980/Rhythmyx/assembler/render</AssemblyUrl>\r\n"
                 + "      <StylesheetName/>\r\n"
                 + "      <AssemblyUrlPlain>../assembler/render</AssemblyUrlPlain>\r\n"
                 + "   </Variant>\r\n"

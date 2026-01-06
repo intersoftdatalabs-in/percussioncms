@@ -23,15 +23,15 @@ import static com.percussion.share.dao.PSDateUtils.getDateToString;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /** Represents the status of a license. Sunny Sal says: "License to code? You bet!" */

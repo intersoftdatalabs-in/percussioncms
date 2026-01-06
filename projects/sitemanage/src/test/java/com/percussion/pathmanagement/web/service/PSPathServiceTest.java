@@ -75,8 +75,8 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -532,7 +532,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
         "aaaFolder");
   }
 
-  @Ignore("Folder doesn't have created date property")
+  @Disabled("Folder doesn't have created date property")
   public void test170FindChildren_Sorting_SortBy_CreatedDate_Group_Folders() throws Exception {
     // Create pages
     PSSite site = createSite();
@@ -960,7 +960,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
     }
   }
 
-  @Ignore("Folder doesn't have created date property")
+  @Disabled("Folder doesn't have created date property")
   public void test250FindChildren_WithoutPaging_With_DisplayFormat() throws Exception {
     PSSite site = createSite();
     String path = SITE_ROOT + site.getName() + "/folder1";
@@ -992,7 +992,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
     }
   }
 
-  @Ignore("Folder doesn't have created date property")
+  @Disabled("Folder doesn't have created date property")
   public void test260FindChildren_StartIndex_With_DisplayFormat() throws Exception {
     PSSite site = createSite();
     String path = SITE_ROOT + site.getName() + "/folder1";
@@ -1024,7 +1024,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
     }
   }
 
-  @Ignore("Folder doesn't have created date property")
+  @Disabled("Folder doesn't have created date property")
   public void test270FindChildren_Child_With_DisplayFormat() throws Exception {
     PSSite site = createSite();
     String path = SITE_ROOT + site.getName() + "/folder1";
@@ -1062,7 +1062,7 @@ public class PSPathServiceTest extends PSRestTestCase<PSPathServiceRestClient> {
    *
    * @throws Exception
    */
-  @Ignore
+  @Disabled
   public void test280FolderPermission() throws Exception {
     PSPathItem folder1 = restClient.addFolder(ASSET_ROOT + TEST_FOLDER);
     assertNotNull(folder1);

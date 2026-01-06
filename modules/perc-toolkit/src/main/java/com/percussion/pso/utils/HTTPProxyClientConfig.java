@@ -34,6 +34,9 @@ import org.apache.logging.log4j.Logger;
  *
  * @author natechadwick
  *
+ * <p>This file is read from rxconfig/Server/clientproxy.properties proxyserver= proxyport=
+ *
+ * @author natechadwick
  */
 public class HTTPProxyClientConfig {
 

@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSApplicationIDTypeMapping</code> class. */
-public class PSApplicationIDTypeMappingTest extends TestCase {
+public class PSApplicationIDTypeMappingTest {
   /**
    * Construct this unit test
    *

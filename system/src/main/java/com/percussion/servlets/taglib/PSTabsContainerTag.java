@@ -84,7 +84,7 @@ public class PSTabsContainerTag extends BodyTagSupport {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.jsp.tagext.TagSupport#setPageContext(javax.servlet.jsp.PageContext)
+   * @see jakarta.servlet.jsp.tagext.TagSupport#setPageContext(jakarta.servlet.jsp.PageContext)
    */
   @Override
   public void setPageContext(PageContext pageContext) {
@@ -94,7 +94,7 @@ public class PSTabsContainerTag extends BodyTagSupport {
 
   /*
    * (non-Javadoc)
-   * @see javax.servlet.jsp.tagext.BodyTagSupport#doStartTag()
+   * @see jakarta.servlet.jsp.tagext.BodyTagSupport#doStartTag()
    */
   @Override
   public int doStartTag() throws JspException {
@@ -116,7 +116,7 @@ public class PSTabsContainerTag extends BodyTagSupport {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.jsp.tagext.BodyTagSupport#doInitBody()
+   * @see jakarta.servlet.jsp.tagext.BodyTagSupport#doInitBody()
    */
   @Override
   public void doInitBody() {
@@ -148,7 +148,7 @@ public class PSTabsContainerTag extends BodyTagSupport {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.jsp.tagext.BodyTagSupport#doAfterBody()
+   * @see jakarta.servlet.jsp.tagext.BodyTagSupport#doAfterBody()
    */
   @Override
   public int doAfterBody() {
@@ -167,7 +167,7 @@ public class PSTabsContainerTag extends BodyTagSupport {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.jsp.tagext.BodyTagSupport#doEndTag()
+   * @see jakarta.servlet.jsp.tagext.BodyTagSupport#doEndTag()
    */
   @Override
   public int doEndTag() throws JspException {

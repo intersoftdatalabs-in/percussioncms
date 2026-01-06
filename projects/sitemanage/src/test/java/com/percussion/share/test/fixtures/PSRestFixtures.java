@@ -23,6 +23,7 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.IPSSitemanageConstants;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.system.utils.IPSHtmlParameters;
+import jakarta.xml.bind.JAXB;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,6 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
 
 /**

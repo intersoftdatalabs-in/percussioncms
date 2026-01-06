@@ -41,7 +41,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.IPSSecurityErrors;
 import com.percussion.services.security.PSJaasUtils;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.security.data.PSBackEndSubject;
 import com.percussion.services.security.data.PSCommunity;
@@ -720,7 +720,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
             ms_log.error("Couldn't save community", e);
         } catch (NamingException e) {
             ms_log.error("Couldn't save community", e);
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             // ignore non existing community
         }
     }
@@ -756,7 +756,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      *
      * @see IPSBackendRoleMgr#loadCommunity(IPSGuid)
      */
-    public PSCommunity loadCommunity(IPSGuid id) throws PSSecurityException {
+    public PSCommunity loadCommunity(IPSGuid id) throws PSServiceSecurityException {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
         }
@@ -766,7 +766,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
          PSCommunity community = session.get(PSCommunity.class,id.longValue());
 
          if (community==null)
-            throw new PSSecurityException(IPSSecurityErrors.MISSING_COMMUNITY,
+            throw new PSServiceSecurityException(IPSSecurityErrors.MISSING_COMMUNITY,
                 id);
 
          return community;
@@ -809,7 +809,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
                 try {
                     current = loadCommunity(community.getGUID());
-                } catch (PSSecurityException e) {
+                } catch (PSServiceSecurityException e) {
                     // ignore, should never happen
                 }
 

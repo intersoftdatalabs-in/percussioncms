@@ -50,15 +50,15 @@ import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Saves a page with the rest service.
  *
  * @author adamgent
  */
-@Category(IntegrationTest.class)
+
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
   private static PSTestSiteData testSiteData;
 

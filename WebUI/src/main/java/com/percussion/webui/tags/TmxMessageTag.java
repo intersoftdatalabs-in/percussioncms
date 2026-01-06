@@ -16,9 +16,9 @@
  */
 package com.percussion.webui.tags;
 
-import java.io.IOException;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.TagSupport;
+import java.io.IOException;
 
 public class TmxMessageTag extends TagSupport {
   private String key;

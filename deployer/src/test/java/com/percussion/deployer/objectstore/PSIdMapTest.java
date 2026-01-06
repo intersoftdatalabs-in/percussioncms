@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSIdMap</code> class. */
-public class PSIdMapTest extends TestCase {
+public class PSIdMapTest {
   /**
    * Construct this unit test
    *

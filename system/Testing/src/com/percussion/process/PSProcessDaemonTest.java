@@ -65,7 +65,7 @@ import java.util.Map;
  * @author paulhoward
  */
 @Tag("IntegrationTest")
-public class PSProcessDaemonTest extends TestCase implements IPSCustomJunitTest
+public class PSProcessDaemonTest implements IPSCustomJunitTest
 {
 
    /**

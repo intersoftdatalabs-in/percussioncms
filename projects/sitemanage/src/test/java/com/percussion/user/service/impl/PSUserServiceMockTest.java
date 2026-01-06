@@ -63,10 +63,10 @@ import org.hamcrest.core.CombinableMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
+@Disabled
 public class PSUserServiceMockTest {
   private static final Logger log = LogManager.getLogger(PSUserServiceMockTest.class);
 

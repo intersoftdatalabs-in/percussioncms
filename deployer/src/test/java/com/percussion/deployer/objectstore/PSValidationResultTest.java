@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the <code>PSValidationResult</code> class. */
-public class PSValidationResultTest extends TestCase {
+public class PSValidationResultTest {
   /**
    * Construct this unit test
    *

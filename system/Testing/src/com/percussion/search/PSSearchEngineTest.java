@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
  * @author paulhoward
  */
 @Tag("IntegrationTest")
-public class PSSearchEngineTest extends TestCase 
+public class PSSearchEngineTest 
    implements IPSServerBasedJunitTest
 {
    /**

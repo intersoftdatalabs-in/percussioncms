@@ -450,6 +450,24 @@ public class PSNodeBase implements RowKeyIndex
             "getRowCount not implemented for this node type");
    }
 
+   @Override
+   public boolean areRowsAvailable(Object range, int rows)
+   {
+      return isRowAvailable();
+   }
+
+   // Compatibility with alternate RowKeyIndex signature
+   public boolean areRowsAvailable(int range, int rows)
+   {
+      return isRowAvailable();
+   }
+
+   // Compatibility with RowKeyIndex signature
+   public boolean areRowsAvailable(int rows)
+   {
+      return isRowAvailable();
+   }
+
    public Object getRowData()
    {
       throw new UnsupportedOperationException(
@@ -460,6 +478,12 @@ public class PSNodeBase implements RowKeyIndex
    {
       throw new UnsupportedOperationException(
             "getRowData(int) not implemented for this node type");
+   }
+
+   public Object getRowData(@SuppressWarnings("unused") Object key)
+   {
+      throw new UnsupportedOperationException(
+            "getRowData(Object) not implemented for this node type");
    }
 
    public int getRowIndex()
@@ -484,6 +508,12 @@ public class PSNodeBase implements RowKeyIndex
    {
       throw new UnsupportedOperationException(
             "isRowAvailable not implemented for this node type");
+   }
+
+   public boolean isRowAvailable(@SuppressWarnings("unused") Object key)
+   {
+      throw new UnsupportedOperationException(
+            "isRowAvailable(Object) not implemented for this node type");
    }
 
    public void setRowIndex(@SuppressWarnings("unused") int arg0)
