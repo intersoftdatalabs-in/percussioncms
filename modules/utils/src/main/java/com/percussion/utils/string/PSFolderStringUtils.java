@@ -18,11 +18,7 @@ package com.percussion.utils.string;
 
 import com.percussion.utils.jsr170.PSPath;
 import java.util.regex.Pattern;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * Methods to manipulate strings that express folder paths

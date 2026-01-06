@@ -57,7 +57,6 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.StartTagType;
 import net.htmlparser.jericho.Tag;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -94,44 +93,6 @@ public abstract class PSActionUtil {
     temp = objectId.getSlotId();
     if (temp != null) params.put(IPSHtmlParameters.SYS_SLOTID, new String[] {temp.toString()});
 
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-/** Various utility methods that are used by one or more client actions. */
-public abstract class PSActionUtil {
-
-  static Logger log = Logger.getLogger(PSActionUtil.class);
-
-  /** Private ctor to not allow instantiation */
-  private PSActionUtil() {}
-
-  /**
-   * Helper method to retrieve the the assembly parameters from an object id and place them in a map
-   * for use with the assembly service. Use component summary as backup for the values if not
-   * present in the object id.
-   *
-   * @param objectId cannot be <code>null</code>.
-   * @param currentUser the current user, used to get the appropriate revision. May be <code> null
-   *     </code> or empty. If so then just uses the summary revision.
-   * @return map objectId, never <code>null</code>.
-   */
-  protected static Map<String, String[]> getAssemblyParams(
-      PSAAObjectId objectId, String currentUser) {
-    if (objectId == null) throw new IllegalArgumentException("objectId cannot be null.");
-    Map<String, String[]> params = new HashMap<String, String[]>();
-    Object temp = objectId.getContentId();
-    params.put(IPSHtmlParameters.SYS_CONTENTID, new String[] {temp.toString()});
-
-    params.put(IPSHtmlParameters.SYS_USER, new String[] {currentUser});
-
-    temp = objectId.getVariantId();
-    if (temp != null) params.put(IPSHtmlParameters.SYS_VARIANTID, new String[] {temp.toString()});
-
-    temp = objectId.getSlotId();
-    if (temp != null) params.put(IPSHtmlParameters.SYS_SLOTID, new String[] {temp.toString()});
-
->>>>>>> development-8.1.x
     temp = objectId.getSiteId();
     if (temp != null) params.put(IPSHtmlParameters.SYS_SITEID, new String[] {temp.toString()});
 

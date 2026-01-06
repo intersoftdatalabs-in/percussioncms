@@ -46,7 +46,6 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
   private static final Logger log = LogManager.getLogger(PSExpandRecurringEvents.class);
-<<<<<<< HEAD
 
   /**
    * Always <code>false</code>, as the stylesheet is never modified.
@@ -58,18 +57,6 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
   }
 
   /**
-=======
-  /**
-   * Always <code>false</code>, as the stylesheet is never modified.
-   *
-   * @return always <code>false</code>
-   */
-  public boolean canModifyStyleSheet() {
-    return false;
-  }
-
-  /**
->>>>>>> development-8.1.x
    * Parses the required parameters. Expects the parameter object (array) to contain two memebrs.
    * The first one is treated as the calendar start date string and the second one as the calendar
    * end date string. Both will be parsed as Date objects and return as a new object array.

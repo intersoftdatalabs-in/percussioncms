@@ -81,7 +81,6 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.wizard.PSWizardStartFinishPanel;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-<<<<<<< HEAD
 import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -108,8 +107,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -5837,7 +5834,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
   }
 
-<<<<<<< HEAD
    /**
     * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
     * This provides better integration with the JavaFX-based application.

@@ -17,10 +17,7 @@
 package com.percussion.utils.xml;
 
 import static com.percussion.util.PSResourceUtils.getResourcePath;
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
-=======
->>>>>>> development-8.1.x
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
@@ -36,12 +33,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-=======
-import junit.framework.TestCase;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 
 /**
@@ -58,11 +51,7 @@ import org.w3c.dom.Document;
  *
  * @author dougrand
  */
-<<<<<<< HEAD
 public class PSSaxCopierTest {
-=======
-public class PSSaxCopierTest extends TestCase {
->>>>>>> development-8.1.x
   /** Test file in the unit resources tree */
   public static final File ms_testFile =
       new File(
@@ -73,11 +62,8 @@ public class PSSaxCopierTest extends TestCase {
    *
    * @throws Exception
    */
-<<<<<<< HEAD
   @Test
   @Disabled("Disabled until we can fix the test to work with the new XML security options")
-=======
->>>>>>> development-8.1.x
   public void testCopier() throws Exception {
     DocumentBuilderFactory dbf =
         PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -114,10 +100,7 @@ public class PSSaxCopierTest extends TestCase {
    *
    * @throws Exception
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testHelper() throws Exception {
     Map<String, String> renames = new HashMap<String, String>();
     String output = PSSaxHelper.parseWithXMLWriter(ms_tcomments, PSSaxCopier.class, renames, true);

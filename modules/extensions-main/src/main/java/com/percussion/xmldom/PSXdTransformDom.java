@@ -118,13 +118,9 @@ public class PSXdTransformDom extends PSDefaultExtension
    * @throws PSExtensionProcessingException when a run time error is detected.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     PSXmlDomContext cx = new PSXmlDomContext(ms_extname, request);
 

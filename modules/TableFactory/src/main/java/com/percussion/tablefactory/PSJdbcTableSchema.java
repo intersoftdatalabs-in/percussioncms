@@ -24,11 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -816,13 +812,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     m_name = name;
   }
 
-<<<<<<< HEAD
   /**
    * @return The name of this table, never <code>null</code> or empty.
    */
-=======
-  /** @return The name of this table, never <code>null</code> or empty. */
->>>>>>> development-8.1.x
   public String getName() {
     return m_name;
   }
@@ -841,13 +833,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     m_create = isCreate;
   }
 
-<<<<<<< HEAD
   /**
    * @return The create flag value. See {@link #setCreate(boolean) setCreate} for more info.
    */
-=======
-  /** @return The create flag value. See {@link #setCreate(boolean) setCreate} for more info. */
->>>>>>> development-8.1.x
   public boolean isCreate() {
     return m_create;
   }
@@ -899,13 +887,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     m_alter = isAlter;
   }
 
-<<<<<<< HEAD
   /**
    * @return The alter flag value. See {@link #setAlter(boolean) setAlter} for more info.
    */
-=======
-  /** @return The alter flag value. See {@link #setAlter(boolean) setAlter} for more info. */
->>>>>>> development-8.1.x
   public boolean isAlter() {
     return m_alter && !m_create;
   }

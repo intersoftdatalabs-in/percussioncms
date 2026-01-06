@@ -17,20 +17,12 @@
 
 package com.ibm.cadf.model;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
-=======
-import static org.junit.Assert.assertEquals;
->>>>>>> development-8.1.x
 
 import com.ibm.cadf.exception.CADFException;
 import com.ibm.cadf.util.TimeStampUtils;
 import java.io.IOException;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class ReporterstepTest {
 

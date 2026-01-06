@@ -22,11 +22,7 @@
  */
 package test.percussion.pso.effects;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
@@ -36,22 +32,13 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Before;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class PSFolderFollowerEffectText {
   TestableFolderFollowerEffect cut;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new TestableFolderFollowerEffect();
   }

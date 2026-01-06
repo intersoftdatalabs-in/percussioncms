@@ -67,10 +67,7 @@ public class PSLocalizedTextLookupUser extends PSSimpleJavaUdfExtension {
     }
     return result;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /*
    * main method for test purpose
    * @param args  not used

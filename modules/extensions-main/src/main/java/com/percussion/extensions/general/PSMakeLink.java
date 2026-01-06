@@ -21,11 +21,7 @@ import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-<<<<<<< HEAD
 import com.percussion.system.utils.PSUrlUtils;
-=======
-import com.percussion.util.PSUrlUtils;
->>>>>>> development-8.1.x
 import java.util.HashMap;
 
 /**

@@ -47,21 +47,13 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.error.PSNotFoundException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,7 +80,6 @@ public class PSSearchResult {
    * @throws PSAssemblyException
    */
   public String getSearchResults(IPSRequestContext request)
-<<<<<<< HEAD
       throws PSCmsException,
           PSExtensionProcessingException,
           PSUnknownNodeTypeException,
@@ -96,10 +87,6 @@ public class PSSearchResult {
           JSONException,
           PSAssemblyException,
           PSNotFoundException {
-=======
-      throws PSCmsException, PSExtensionProcessingException, PSUnknownNodeTypeException,
-          PSSearchException, JSONException, PSAssemblyException, PSNotFoundException {
->>>>>>> development-8.1.x
     Map<String, SearchField> searchFields = new HashMap<String, SearchField>();
     Map parameters = parseParameters(request.getParametersIterator(), searchFields);
 

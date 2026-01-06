@@ -35,7 +35,6 @@ import com.percussion.util.PSHtmlParamDocument;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -43,8 +42,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-=======
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -66,7 +63,6 @@ import org.xml.sax.SAXException;
  * search criteria defined in search nodes and saves the new searches.
  */
 @SuppressWarnings("unchecked")
-<<<<<<< HEAD
 public class PSSearchViewActionManager
 {
    static Logger log = LogManager.getLogger(PSSearchViewActionManager.class);
@@ -84,22 +80,6 @@ public class PSSearchViewActionManager
     * <code>null</code>
     */
    public PSSearchViewActionManager(
-=======
-public class PSSearchViewActionManager {
-  static Logger log = Logger.getLogger(PSSearchViewActionManager.class);
-
-  /**
-   * Constructs the manager with the supplied connection objects to server to perform search
-   * requests. Loads the current searches/views available on server. The search criteria is
-   * different for 'CX' and 'IA' modes. The search mode defaults to {@link #MODE_CXSEARCH}. The
-   * search mode can be set using {@link #setSearchMode(String)}.
-   *
-   * @param proxy the remote proxy to use to make requests to the server, may not be <code>null
-   *     </code>
-   * @param urlBase the base url of the applet to make url requests, may not be <code>null</code>
-   */
-  public PSSearchViewActionManager(
->>>>>>> development-8.1.x
       PSComponentProcessorProxy proxy,
       PSRemoteCataloger remCataloger,
       URL urlBase,

@@ -19,7 +19,6 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -29,7 +28,6 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Display Format Option object from the XML document
  * and to get XML document from the Display Format object.
  */
-<<<<<<< HEAD
 public class PSDisplayFormatOption implements IPSClientObjects
 {
    static Logger log = LogManager.getLogger(PSDisplayFormatOption.class);

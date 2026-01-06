@@ -62,13 +62,9 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @see InitializingBean#afterPropertiesSet()
    */
-=======
-  /** @see InitializingBean#afterPropertiesSet() */
->>>>>>> development-8.1.x
   public void afterPropertiesSet() throws Exception {
     allSites = loadAllSites();
 
@@ -89,13 +85,9 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     return mySites;
   }
 
-<<<<<<< HEAD
   /**
    * @see SiteLoader#findAllSites()
    */
-=======
-  /** @see SiteLoader#findAllSites() */
->>>>>>> development-8.1.x
   public synchronized List<IPSSite> findAllSites() throws PSSiteManagerException {
     if (allSites == null || siteReloadDelay < 0) {
       allSites = loadAllSites();
@@ -140,13 +132,9 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
 
   private class SiteReloader implements Runnable {
 
-<<<<<<< HEAD
     /**
      * @see Runnable#run()
      */
-=======
-    /** @see Runnable#run() */
->>>>>>> development-8.1.x
     public void run() {
       try {
         // TODO: NC-?????

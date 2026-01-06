@@ -43,13 +43,9 @@ public class Attribute_lang {
     this.id = id;
   }
 
-<<<<<<< HEAD
   /**
    * @return the language name
    */
-=======
-  /** @return the language name */
->>>>>>> development-8.1.x
   public String getName() {
     return name;
   }

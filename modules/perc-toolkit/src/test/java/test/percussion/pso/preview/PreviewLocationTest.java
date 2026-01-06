@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.PreviewLocation;
@@ -35,20 +34,6 @@ public class PreviewLocationTest {
 
   @BeforeEach
   public void setUp() {
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.preview.PreviewLocation;
-import org.junit.Before;
-import org.junit.Test;
-
-public class PreviewLocationTest {
-
-  PreviewLocation cut;
-
-  @Before
-  public void setUp() throws Exception {
->>>>>>> development-8.1.x
     cut = new PreviewLocation();
     cut.setPath("myPath");
     cut.setSiteName("mySite");
@@ -56,11 +41,7 @@ public class PreviewLocationTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testCompareTo() {
-=======
-  public final void testCompareTo() {
->>>>>>> development-8.1.x
     PreviewLocation other = new PreviewLocation();
     other.setPath("myPath");
     other.setSiteName("mySite");

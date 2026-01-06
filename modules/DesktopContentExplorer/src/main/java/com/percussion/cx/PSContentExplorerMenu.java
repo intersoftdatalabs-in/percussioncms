@@ -20,23 +20,9 @@ import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.cx.objectstore.PSProperties;
 import com.percussion.utils.collections.PSIteratorUtils;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-=======
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Callable;
->>>>>>> development-8.1.x
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -52,7 +38,6 @@ import javax.swing.event.PopupMenuListener;
 import org.apache.log4j.Logger;
 
 /**
-<<<<<<< HEAD
  * The class that should be used to construct menus, sub-menus and pop-up menus
  * represented by {@link com.percussion.cx.objectstore#PSAction}.
  * This class implements the Callable interface so the menu can be built on a 

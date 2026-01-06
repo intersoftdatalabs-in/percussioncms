@@ -20,15 +20,9 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /** Implementation of the "canCreateFolder" action. */
 public class PSCanCreateFolderAction extends PSAAActionBase {

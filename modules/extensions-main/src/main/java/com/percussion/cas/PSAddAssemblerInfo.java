@@ -1288,7 +1288,6 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
 
   /** Constant for contentdetails resource name */
   public static final String CONTENT_DETAILS_URL = "sys_ceSupport/contentdetails";
-<<<<<<< HEAD
 
   /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_CONTENTEDITORURL = "contenteditorurl";
@@ -1313,31 +1312,6 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
    */
   private static final String ASSEMBLY_LEVEL = "sys_assemblylevel";
 
-=======
-  /** Constant for linkurl's relateditemid attribute */
-  public static final String ATTR_CONTENTEDITORURL = "contenteditorurl";
-
-  /** Constant for linkurl's relateditemid attribute */
-  public static final String ATTR_CONTENTVALID = "contentvalid";
-
-  /** Constant for linkurl's relateditemid attribute */
-  public static final String ATTR_CHECKOUTUSERNAME = "checkoutusername";
-
-  /**
-   * String constant to retrieve and modify the map of previously assembled snippets and their
-   * parent contexts. The key and value both follow the pattern described in {@link
-   * #makeKeyFromRequestContext(IPSRequestContext)}.
-   */
-  public static final String ASSEMBLY_RECURSION_MAP_KEY = "sys_assemblyRecursionMapKey";
-
-  /**
-   * String constant for the special parameter name that holds the value of the assmbly recursion
-   * depth. The value of this parameter is passed to child snipptes after incrementing by one during
-   * assembly process.
-   */
-  private static final String ASSEMBLY_LEVEL = "sys_assemblylevel";
-
->>>>>>> development-8.1.x
   /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSAddAssemblerInfo.class);
 }

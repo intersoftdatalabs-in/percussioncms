@@ -19,17 +19,10 @@ package com.percussion.pso.imageedit.web;
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManagerLocator;
-<<<<<<< HEAD
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-=======
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
@@ -94,35 +87,23 @@ public class BinaryImageController extends AbstractController implements Control
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @return the urlBuilder
    */
-=======
-  /** @return the urlBuilder */
->>>>>>> development-8.1.x
   public ImageUrlBuilder getUrlBuilder() {
     return urlBuilder;
   }
 
-<<<<<<< HEAD
   /**
    * @param urlBuilder the urlBuilder to set
    */
-=======
-  /** @param urlBuilder the urlBuilder to set */
->>>>>>> development-8.1.x
   public void setUrlBuilder(ImageUrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
   }
 
-<<<<<<< HEAD
   /**
    * @param cacheMgr the cacheMgr to set
    */
-=======
-  /** @param cacheMgr the cacheMgr to set */
->>>>>>> development-8.1.x
   public void setCacheMgr(ImageCacheManager cacheMgr) {
     this.cacheMgr = cacheMgr;
   }

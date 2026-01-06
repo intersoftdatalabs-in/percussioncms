@@ -81,11 +81,7 @@ public interface IPSBrandCodeMap {
    *     null</code>
    * @throws CodeException if any license element does not have name or id attribute defined.
    */
-<<<<<<< HEAD
   public Map<String, String> getLicenses(int brandCodeMapVersion) throws CodeException;
-=======
-  public Map getLicenses(int brandCodeMapVersion) throws CodeException;
->>>>>>> development-8.1.x
 
   /**
    * Returns the name of the license, corresponding to the specified brand code map version and
@@ -119,7 +115,6 @@ public interface IPSBrandCodeMap {
    * @throws CodeException if any error occurs obtaining the name of the specified part.
    */
   public String getPartName(int brandCodeMapVersion, int partId) throws CodeException;
-<<<<<<< HEAD
 
   /**
    * Returns the map of required or optional parts for a specified license, the id of the part is
@@ -232,117 +227,6 @@ public interface IPSBrandCodeMap {
 
   public static final String[] OPT_ATTRIBUTES_EL_PART = {ATTR_DEPRECATED};
 
-=======
-
-  /**
-   * Returns the map of required or optional parts for a specified license, the id of the part is
-   * the key and the part name is the value.
-   *
-   * @param brandCodeMapVersion the brand code map version to use, should be greater than 0, and the
-   *     code map version should be defined in the component map Xml document.
-   * @param licenseId the id of the license for which the map of parts is to be returned
-   * @param partsType the type of part, must be one of the following values: <code>
-   *     PARTS_TYPE_REQUIRED</code> <code>PARTS_TYPE_OPTIONAL_SELECTED</code> <code>
-   *     PARTS_TYPE_OPTIONAL_UNSELECTED</code> <code>PARTS_TYPE_OPTIONAL</code>
-   * @return a map containing the id of the part as key and part name as value, never <code>null
-   *     </code>
-   * @throws CodeException if the specified license element could not be found for the specified
-   *     brand code map version
-   * @throws IllegalArgumentException if <code>partsType</code> is invalid
-   */
-  public Map getParts(int brandCodeMapVersion, int licenseId, int partsType) throws CodeException;
-
-  /**
-   * Returns a map containing the components id as key and component name as value, based on the
-   * specified brand code map version, license id and part ids in the partsIdList.
-   *
-   * @param brandCodeMapVersion the brand code map version to use, should be greater than 0, and the
-   *     code map version should be defined in the component map Xml document.
-   * @param partsIdList list containing the id of parts, may not be <code>null</code>
-   * @return map containing the components id as key and component name as value
-   * @throws CodeException if any error occurs retrieving the list of components
-   * @throws IllegalArgumentException if partsIdList is <code>null</code>
-   */
-  public Map getComponents(int brandCodeMapVersion, List partsIdList) throws CodeException;
-
-  /**
-   * Returns the map of properties, the id of the property is the key and the property name is the
-   * value.
-   *
-   * @return a map containing the id of the property as key and property name as value, never <code>
-   *     null</code>
-   * @throws CodeException if any property element does not have name or id attribute defined.
-   */
-  public Map getProperties() throws CodeException;
-
-  /**
-   * Returns a list of property ids corresponding to the properties supported by the licese
-   * specified by <code>licenseId</code>
-   *
-   * @param brandCodeMapVersion the brand code map version to use, should be greater than 0, and the
-   *     code map version should be defined in the component map Xml document.
-   * @param licenseId the id of the license whose properties is to be obtained
-   * @return the list of property ids (<code>String</code>), never <code>null</code>, may be empty
-   * @throws CodeException if the specified license element could not be found
-   */
-  public List getLicenseProperties(int brandCodeMapVersion, int licenseId) throws CodeException;
-
-  /**
-   * Returns the list of valid Rhythmyx versions.
-   *
-   * @return the list of valid Rhythmyx versions, never <code>null</code>
-   * @throws CodeException if any error occurs retrieving the list of Rhythmyx Versions
-   */
-  public List getRhythmyxVersions() throws CodeException;
-
-  public static final String COMPONENT_MAP_FILE = "ComponentMap.xml";
-
-  /** Constants for the Xml Elements and Attributes in the component map xml */
-  public static final String EL_COMPONENT_MAP = "componentmap";
-
-  public static final String EL_CURRENT_VERSIONS = "currentVersions";
-  public static final String EL_CURRENT_VERSION = "currentVersion";
-  public static final String EL_COMPONENTS = "components";
-  public static final String EL_COMPONENT = "component";
-  public static final String EL_PROPERTIES = "properties";
-  public static final String EL_PROPERTY = "property";
-  public static final String EL_MAP = "map";
-  public static final String EL_SUPPORTED_VERSIONS = "supportedVersions";
-  public static final String EL_RX_VERSION = "rxversion";
-  public static final String EL_PARTS = "parts";
-  public static final String EL_PART = "part";
-  public static final String EL_LICENSES = "licenses";
-  public static final String EL_LICENSE = "license";
-
-  public static final String ATTR_VALUE = "value";
-  public static final String ATTR_NAME = "name";
-  public static final String ATTR_ID = "id";
-  public static final String ATTR_RHYTHMYX_VERSION = "RhythmyxVersion";
-  public static final String ATTR_VERSION = "version";
-  public static final String ATTR_BUILD_FROM = "buildFrom";
-  public static final String ATTR_BUILD_TO = "buildTo";
-  public static final String ATTR_COMPONENT_ID = "componentid";
-  public static final String ATTR_REQUIRED_PART_ID = "requiredpartid";
-  public static final String ATTR_SELECTED_OPTIONAL_PART_ID = "optionalpartidselected";
-  public static final String ATTR_UNSELECTED_OPTIONAL_PART_ID = "optionalpartidunselected";
-  public static final String ATTR_PROPERTIES_ID = "propertiesid";
-  public static final String ATTR_DEPRECATED = "deprecatedVersion";
-  public static final String ATTR_SUPPORTS_EXTENDED_PRODUCT_INFO = "supportsExtendedProductInfo";
-  public static final String ATTR_LIMITED_SERVER_TYPES = "limitedServerTypes";
-
-  public static final String[] REQ_ATTRIBUTES_EL_COMPONENT = {ATTR_NAME, ATTR_ID};
-
-  public static final String[] REQ_ATTRIBUTES_EL_PROPERTY = {ATTR_NAME, ATTR_ID};
-
-  public static final String[] REQ_ATTRIBUTES_EL_RX_VERSION = {
-    ATTR_VALUE, ATTR_BUILD_FROM, ATTR_BUILD_TO
-  };
-
-  public static final String[] REQ_ATTRIBUTES_EL_PART = {ATTR_NAME, ATTR_ID, ATTR_COMPONENT_ID};
-
-  public static final String[] OPT_ATTRIBUTES_EL_PART = {ATTR_DEPRECATED};
-
->>>>>>> development-8.1.x
   public static final String[] REQ_ATTRIBUTES_EL_LICENSE = {ATTR_NAME, ATTR_ID, ATTR_PROPERTIES_ID};
 
   public static final String[] OPT_ATTRIBUTES_EL_LICENSE = {

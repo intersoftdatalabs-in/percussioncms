@@ -28,11 +28,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * Gets the path corresponding to the supplied item id. Builds the path by getting the folder path

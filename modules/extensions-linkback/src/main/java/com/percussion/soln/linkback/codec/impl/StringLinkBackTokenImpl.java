@@ -19,21 +19,13 @@ package com.percussion.soln.linkback.codec.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.soln.linkback.codec.LinkbackTokenCodec;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,13 +45,9 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
     bitMask = (byte) 0x55;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.soln.linkback.codec.LinkbackTokenCodec#decode(java.lang.String)
    */
-=======
-  /** @see com.percussion.soln.linkback.codec.LinkbackTokenCodec#decode(java.lang.String) */
->>>>>>> development-8.1.x
   public Map<String, String> decode(String token) throws IllegalArgumentException {
     Map<String, String> oparm = new HashMap<>();
     String codedToken;
@@ -105,13 +93,9 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.soln.linkback.codec.LinkbackTokenCodec#encode(java.util.Map)
    */
-=======
-  /** @see com.percussion.soln.linkback.codec.LinkbackTokenCodec#encode(java.util.Map) */
->>>>>>> development-8.1.x
   public String encode(Map<String, Object> params) throws IllegalArgumentException {
     StringBuilder sb = new StringBuilder();
     appendPart(params, sb, IPSHtmlParameters.SYS_CONTENTID, CONTENTID);

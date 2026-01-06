@@ -25,16 +25,11 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.Arrays;
 import java.util.List;
 
-<<<<<<< HEAD
 /***
  * Utility class to hold common and useful methods related to
  * folders and items.
  *
  * @author natechadwick
-=======
-/**
- * * Utility class to hold common and useful methods related to folders and items.
->>>>>>> development-8.1.x
  *
  * @author natechadwick
  */
@@ -44,14 +39,9 @@ public class PSOItemFolderUtilities {
     // Force static access
   }
 
-<<<<<<< HEAD
   /***
    * Given an item's GUID will return all of the folder paths that
    * the item belongs in.
-=======
-  /**
-   * * Given an item's GUID will return all of the folder paths that the item belongs in.
->>>>>>> development-8.1.x
    *
    * @param guid A valid Guid, must not be null
    * @return An array of strings containing the folder paths.
@@ -75,13 +65,8 @@ public class PSOItemFolderUtilities {
     return folderproc.getIdByPath(getFolderPath(itemId));
   }
 
-<<<<<<< HEAD
   /***
    * Returns the Path of the containing folder.
-=======
-  /**
-   * * Returns the Path of the containing folder.
->>>>>>> development-8.1.x
    *
    * @param id The Content ID of the item
    * @return

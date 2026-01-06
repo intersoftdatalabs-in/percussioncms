@@ -213,13 +213,9 @@ public class PSXmlDomContext {
     m_pprint = pprint;
   }
 
-<<<<<<< HEAD
   /**
    * @return tidy pretty print flag.
    */
-=======
-  /** @return tidy pretty print flag. */
->>>>>>> development-8.1.x
   public boolean getUsePrettyPrint() {
     return m_pprint;
   }

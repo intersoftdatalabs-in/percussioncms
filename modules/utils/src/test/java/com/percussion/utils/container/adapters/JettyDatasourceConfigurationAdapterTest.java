@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,27 +47,6 @@ public class JettyDatasourceConfigurationAdapterTest {
   }
 
   @AfterEach
-=======
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-public class JettyDatasourceConfigurationAdapterTest {
-
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  private String rxdeploydir;
-
-  @Before
-  public void setup() {
-    rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-  }
-
-  @After
->>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
@@ -77,11 +55,7 @@ public class JettyDatasourceConfigurationAdapterTest {
   @Test
   public void load() throws IOException {
 
-<<<<<<< HEAD
     Path root = temporaryFolder;
-=======
-    Path root = temporaryFolder.getRoot().toPath();
->>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         PSJettyConnectorsTest.class.getResourceAsStream(
@@ -96,11 +70,7 @@ public class JettyDatasourceConfigurationAdapterTest {
         PSJettyConnectorsTest.class.getResourceAsStream(
             "/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
 
-<<<<<<< HEAD
     Files.createDirectories(temporaryFolder.resolve("jetty").resolve("base").resolve("etc"));
-=======
-    temporaryFolder.newFolder("jetty", "base", "etc");
->>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));

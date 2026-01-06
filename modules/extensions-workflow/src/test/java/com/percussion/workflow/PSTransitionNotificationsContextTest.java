@@ -16,30 +16,17 @@
  */
 package com.percussion.workflow;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
 import java.sql.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
-=======
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.IntegrationTest;
-import java.sql.Connection;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
->>>>>>> development-8.1.x
 
 /**
  * The PSTransitionNotificationsContextTestclass is a test class for the class
  * PSTransitionNotificationsContext.
  */
-<<<<<<< HEAD
 @Tag("IntegrationTest")
-=======
-@Category(IntegrationTest.class)
->>>>>>> development-8.1.x
 public class PSTransitionNotificationsContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log =

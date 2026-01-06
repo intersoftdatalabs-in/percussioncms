@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.utils;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -51,64 +50,10 @@ public class RxItemUtilsTest {
     verify(item).getFieldByName("a");
     verify(fld).getItemFieldMeta();
     verify(meta).getBackendDataType();
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.cms.PSCmsException;
-import com.percussion.cms.objectstore.IPSItemAccessor;
-import com.percussion.cms.objectstore.PSBinaryValue;
-import com.percussion.cms.objectstore.PSItemField;
-import com.percussion.cms.objectstore.PSItemFieldMeta;
-import com.percussion.pso.utils.RxItemUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
-import org.junit.Test;
-
-public class RxItemUtilsTest {
-  private static final Logger log = LogManager.getLogger(RxItemUtilsTest.class);
-
-  Mockery context;
-
-  @Before
-  public void setUp() throws Exception {
-    context =
-        new Mockery() {
-          {
-            setImposteriser(ClassImposteriser.INSTANCE);
-          }
-        };
-  }
-
-  @Test
-  public final void testIsBinaryFieldTrue() {
-    final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-    final PSItemField fld = context.mock(PSItemField.class);
-    final PSItemFieldMeta meta = context.mock(PSItemFieldMeta.class);
-
-    context.checking(
-        new Expectations() {
-          {
-            one(item).getFieldByName("a");
-            will(returnValue(fld));
-            one(fld).getItemFieldMeta();
-            will(returnValue(meta));
-            allowing(meta).getBackendDataType();
-            will(returnValue(PSItemFieldMeta.DATATYPE_BINARY));
-          }
-        });
-    boolean result = RxItemUtils.isBinaryField(item, "a");
-    assertTrue(result);
-    context.assertIsSatisfied();
->>>>>>> development-8.1.x
   }
 
   @Test
   public final void testIsBinaryFieldFalse() {
-<<<<<<< HEAD
     IPSItemAccessor item = mock(IPSItemAccessor.class);
     PSItemField fld = mock(PSItemField.class);
     PSItemFieldMeta meta = mock(PSItemFieldMeta.class);
@@ -122,26 +67,6 @@ public class RxItemUtilsTest {
     verify(item).getFieldByName("a");
     verify(fld).getItemFieldMeta();
     verify(meta).getBackendDataType();
-=======
-    final IPSItemAccessor item = context.mock(IPSItemAccessor.class);
-    final PSItemField fld = context.mock(PSItemField.class);
-    final PSItemFieldMeta meta = context.mock(PSItemFieldMeta.class);
-
-    context.checking(
-        new Expectations() {
-          {
-            one(item).getFieldByName("a");
-            will(returnValue(fld));
-            one(fld).getItemFieldMeta();
-            will(returnValue(meta));
-            allowing(meta).getBackendDataType();
-            will(returnValue(PSItemFieldMeta.DATATYPE_TEXT));
-          }
-        });
-    boolean result = RxItemUtils.isBinaryField(item, "a");
-    assertFalse(result);
-    context.assertIsSatisfied();
->>>>>>> development-8.1.x
   }
 
   @Test

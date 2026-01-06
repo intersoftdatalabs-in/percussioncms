@@ -16,7 +16,6 @@
  */
 package com.percussion.utils.timing;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,23 +26,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-=======
-import java.security.SecureRandom;
-import junit.framework.TestCase;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
->>>>>>> development-8.1.x
 /**
  * Test the stopwatch stack
  *
  * @author dougrand
  */
-<<<<<<< HEAD
 public class PSStopwatchStackTest {
-=======
-public class PSStopwatchStackTest extends TestCase {
->>>>>>> development-8.1.x
   private static final Logger ms_log = LogManager.getLogger(PSStopwatchStackTest.class);
 
   /**
@@ -51,10 +39,7 @@ public class PSStopwatchStackTest extends TestCase {
    *
    * @throws Exception
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testOneLevel() throws Exception {
     PSStopwatchStack stack = PSStopwatchStack.getStack();
     assertNotNull(stack);
@@ -81,10 +66,7 @@ public class PSStopwatchStackTest extends TestCase {
    *
    * @throws Exception
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public synchronized void testTimings() throws Exception {
     PSStopwatchStack stack = PSStopwatchStack.getStack();
 
@@ -107,10 +89,7 @@ public class PSStopwatchStackTest extends TestCase {
    *
    * @throws Exception
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testOverhead() throws Exception {
     int count = 0;
     SecureRandom rand = new SecureRandom();

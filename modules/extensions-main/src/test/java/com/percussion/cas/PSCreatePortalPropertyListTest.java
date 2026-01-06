@@ -29,7 +29,6 @@ import org.w3c.dom.Document;
  *     <p>To change the template for this generated type comment go to
  *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-<<<<<<< HEAD
 @Tag("UnitTest")
 public class PSCreatePortalPropertyListTest {
   private static final Logger log = LogManager.getLogger(PSCreatePortalPropertyListTest.class);

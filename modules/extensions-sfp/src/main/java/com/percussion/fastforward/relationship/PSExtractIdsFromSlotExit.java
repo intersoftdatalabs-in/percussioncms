@@ -23,17 +23,10 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.PSAssemblyException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

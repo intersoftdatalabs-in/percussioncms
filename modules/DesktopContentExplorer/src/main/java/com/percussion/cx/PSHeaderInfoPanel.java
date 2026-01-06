@@ -22,7 +22,6 @@ import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSLocale;
 import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.security.data.PSRole;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -38,8 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -80,7 +77,6 @@ public class PSHeaderInfoPanel extends JPanel {
 
   private PSCESessionManager sessionManager;
 
-<<<<<<< HEAD
    private PSContentExplorerApplet m_applet;
    
    private ResourceBundle m_res;
@@ -89,9 +85,6 @@ public class PSHeaderInfoPanel extends JPanel {
    
    public PSHeaderInfoPanel(PSContentExplorerApplet applet)
    {
-=======
-  private PSContentExplorerApplet m_applet;
->>>>>>> development-8.1.x
 
   private ResourceBundle m_res;
 

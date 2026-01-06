@@ -31,7 +31,6 @@ import com.percussion.server.PSRequestValidationException;
 import java.io.File;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,48 +73,6 @@ public class PSAllowOnlyPathValues
     String paramCSV = null;
     ;
 
-=======
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-public class PSAllowOnlyPathValues
-    implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {
-  private String ms_fullExtensionName;
-
-  @Override
-  public String validate(String value, String options) {
-    String ret = "";
-
-    if (value == null) return ret;
-
-    value = value.trim();
-
-    try {
-      Paths.get(value);
-      if ((value.contains("/") || value.contains("\\")) & !value.contains(";")) {
-        ret = value;
-      } else {
-        ret = "";
-      }
-
-    } catch (InvalidPathException e) {
-      ret = "";
-    } catch (NullPointerException ex) {
-      ret = "";
-    }
-
-    return ret;
-  }
-
-  public void preProcessRequest(Object[] params, IPSRequestContext request)
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
-          PSExtensionProcessingException {
-    PSExtensionParams ep = null;
-    String paramCSV = null;
-    ;
-
->>>>>>> development-8.1.x
     try {
       ep = new PSExtensionParams(params);
 

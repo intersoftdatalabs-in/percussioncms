@@ -25,11 +25,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.jexl.PSLocationUtils;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.Map;
 import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
@@ -153,12 +149,8 @@ public class DispatchTemplateUtil extends SolnJexlBase {
    */
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "generate a  default template url from the target item. The resulting url will be escaped"
               + " for use in xhtml/xml.",
-=======
-          "generate a  default template url from the target item. The resulting url will be escaped for use in xhtml/xml.",
->>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(name = "targetItem", description = "the target assembly item"),
         @IPSJexlParam(

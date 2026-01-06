@@ -38,11 +38,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Attributes;
@@ -152,13 +148,9 @@ public class PSXdTextCleanup extends PSDefaultExtension implements IPSRequestPre
    * @throws PSExtensionProcessingException when a run time error is detected.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     String encodingDefault = StandardCharsets.UTF_8.name();
     boolean inlineDisable = false;

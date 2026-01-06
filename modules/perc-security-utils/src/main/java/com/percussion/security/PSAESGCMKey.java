@@ -29,17 +29,10 @@ public class PSAESGCMKey implements IPSSecretKey {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMKey.class);
   private static final int DEFAULT_KEY_SIZE = 256;
-<<<<<<< HEAD
   private SecretKey key;
 
   /**
    * Returns an encryptor for this key.
-=======
-  private SecretKey key = null;
-
-  /**
-   * Generate an IPSEncryptor object which can make use of this key.
->>>>>>> development-8.1.x
    *
    * @return the associated encryptor
    */
@@ -51,10 +44,6 @@ public class PSAESGCMKey implements IPSSecretKey {
       }
       return new PSAESGCMEncryptor(this);
     } catch (IllegalArgumentException e) {
-<<<<<<< HEAD
-=======
-      // only throws on null key, which clearly can't happen here
->>>>>>> development-8.1.x
       return null;
     }
   }

@@ -39,11 +39,7 @@ public class PSExitNextNumberMaxPP implements IPSRequestPreProcessor {
   private static PSExitNextNumber newNextNumberExt = new PSExitNextNumber();
   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     newNextNumberExt.init(extensionDef, file);
   }
@@ -52,12 +48,8 @@ public class PSExitNextNumberMaxPP implements IPSRequestPreProcessor {
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException, PSParameterMismatchException {
     log.warn(
-<<<<<<< HEAD
         "Extension {} is deprecated and may produce false results, please update references to use"
             + " PSExitNextNumber.",
-=======
-        "Extension {} is deprecated and may produce false results, please update references to use PSExitNextNumber.",
->>>>>>> development-8.1.x
         ms_exitName);
     log.warn("Invoking PSExitNextNumber instead...");
 

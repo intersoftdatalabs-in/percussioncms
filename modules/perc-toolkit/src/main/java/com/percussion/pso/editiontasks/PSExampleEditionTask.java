@@ -27,11 +27,7 @@ import com.percussion.services.sitemgr.IPSSite;
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

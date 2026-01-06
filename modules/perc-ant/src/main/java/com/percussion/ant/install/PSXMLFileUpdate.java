@@ -84,16 +84,9 @@ import org.xml.sax.InputSource;
  */
 public class PSXMLFileUpdate extends PSAction implements EntityResolver {
 
-<<<<<<< HEAD
   /***************************************************************************
    * EntityResolver implementation
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* EntityResolver
-   * implementation *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Implementation of the <code>EntityResolver</code> interface method. The default Xerces
@@ -201,16 +194,9 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
     }
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Private Functions
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Private Functions
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Helper method to transform an Xml file using the specified XSL file.
@@ -470,16 +456,9 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
     }
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Bean Properties
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Bean Properties
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the path of the XML File on the target machine to update.
@@ -602,16 +581,9 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
     m_value = value;
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Properties
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Properties
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * The relative path of the XML File on the target machine to update. Modified using <code>

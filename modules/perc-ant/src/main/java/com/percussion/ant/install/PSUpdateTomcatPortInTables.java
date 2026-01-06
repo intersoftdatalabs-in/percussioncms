@@ -34,7 +34,6 @@ public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
     super.execute();
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the tomcatPort.
    */
@@ -45,13 +44,6 @@ public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
   /**
    * @param tokens The tomcatPort to set.
    */
-=======
-  /** @return Returns the tomcatPort. */
-  public String getTomcatPort() {
-    return tomcatPort;
-  }
-  /** @param tokens The tomcatPort to set. */
->>>>>>> development-8.1.x
   public void setTomcatPort(String token) {
     this.tomcatPort = token;
   }

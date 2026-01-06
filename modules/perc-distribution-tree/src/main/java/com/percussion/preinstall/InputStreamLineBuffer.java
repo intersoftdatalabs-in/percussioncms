@@ -17,11 +17,7 @@
 
 package com.percussion.preinstall;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -69,43 +65,28 @@ public class InputStreamLineBuffer {
               }
             });
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // is the input reader thread alive
   public boolean isAlive() {
     return isAlive;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // start the input reader thread
   public void start() {
     isAlive = true;
     inputCatcher.start();
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // has Queue some lines
   public boolean hasNext() {
     return lines.size() > 0;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // get next line from Queue
   public String getNext() {
     return lines.poll();
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // how much time has elapsed since last line was read
   public long timeElapsed() {
     return (System.currentTimeMillis() - lastTimeModified);

@@ -27,11 +27,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import java.io.File;
 import java.util.Properties;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,13 +40,8 @@ public class PSAuditLogService implements IPSAuditLogService {
   private static final String CONFIG_FILE_BASE = "rxconfig/Server/audit-log.properties";
   private static Boolean isGenerateLog = false;
 
-<<<<<<< HEAD
   /***
    * Creates an Audit Log Entry for a ContentEvent
-=======
-  /**
-   * * Creates an Audit Log Entry for a ContentEvent
->>>>>>> development-8.1.x
    *
    * @param event A fully populated ContentEvent
    */
@@ -68,14 +59,8 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-<<<<<<< HEAD
   /***
    * Logs a Workflow Event
-=======
-  /**
-   * * Logs a Workflow Event
-   *
->>>>>>> development-8.1.x
    * @param event
    */
   public void logWorkflowEvent(PSWorkflowEvent event) {
@@ -97,14 +82,8 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-<<<<<<< HEAD
   /***
    * Logs an Authentication Event
-=======
-  /**
-   * * Logs an Authentication Event
-   *
->>>>>>> development-8.1.x
    * @param event
    */
   public void logAuthenticationEvent(PSAuthenticationEvent event) {
@@ -113,14 +92,8 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-<<<<<<< HEAD
   /***
    * Logs an event for User Management
-=======
-  /**
-   * * Logs an event for User Management
-   *
->>>>>>> development-8.1.x
    * @param event
    */
   public void logUserManagementEvent(PSUserManagementEvent event) {

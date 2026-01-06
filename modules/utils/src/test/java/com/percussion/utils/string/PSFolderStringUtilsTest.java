@@ -17,7 +17,6 @@
 
 package com.percussion.utils.string;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,34 +30,13 @@ import org.junit.jupiter.api.io.TempDir;
 public class PSFolderStringUtilsTest {
 
   @TempDir public Path temporaryFolder;
-=======
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import com.percussion.security.SecureStringUtils;
-import java.io.File;
-import java.io.IOException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-public class PSFolderStringUtilsTest {
-
-  @Rule public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
->>>>>>> development-8.1.x
 
   @Test
   public void testFolderStringUtils() throws IOException {
 
-<<<<<<< HEAD
     File parentA = temporaryFolder.resolve("parentA").toFile();
     File parentB = temporaryFolder.resolve("parentB").toFile();
     File childA = temporaryFolder.resolve("parentA").resolve("childA").toFile();
-=======
-    File parentA = temporaryFolder.newFolder("parentA");
-    File parentB = temporaryFolder.newFolder("parentB");
-    File childA = temporaryFolder.newFolder("parentA", "childA");
->>>>>>> development-8.1.x
 
     assertFalse(SecureStringUtils.isChildOfFilePath(parentA.toPath(), parentB.toPath()));
     assertTrue(SecureStringUtils.isChildOfFilePath(parentA.toPath(), childA.toPath()));

@@ -51,7 +51,6 @@ public class PSScript implements IPSScript {
   // Control JEXL debug
   private static boolean jexlUseDebug = false;
 
-<<<<<<< HEAD
   private boolean compilable = false;
 
   private JexlScript compiledScript = null;
@@ -65,51 +64,21 @@ public class PSScript implements IPSScript {
     this.scriptText = scriptText;
   }
 
-=======
-  // Explicit feature toggles for backward-compatibility control
-  private static boolean jexlLexical = false;
-  private static boolean jexlLexicalShade = false;
-  private static boolean jexlConstCapture = false;
-
-  private boolean compilable = false;
-
-  private volatile JexlScript compiledScript = null;
-  private volatile String fixedScriptText = null;
-
-  public PSScript(String scriptText) {
-    this.scriptText = scriptText;
-  }
-
->>>>>>> development-8.1.x
   private String ownerType = "";
 
   private String ownerName = "";
 
-<<<<<<< HEAD
   /***
    * An optional string indicating the type of system object that owns this script. Never null
    * @return a user friendly string that indicates the owner type: Template, Widget, Snippet, Location Scheme etc. Never null.  May be empty.
-=======
-  /**
-   * * An optional string indicating the type of system object that owns this script. Never null
-   *
-   * @return a user friendly string that indicates the owner type: Template, Widget, Snippet,
-   *     Location Scheme etc. Never null. May be empty.
->>>>>>> development-8.1.x
    */
   @Override
   public String getOwnerType() {
     return ownerType;
   }
 
-<<<<<<< HEAD
   /***
    * Sets the type of system object that owns this script.  Should be user friendly and i18N.
-=======
-  /**
-   * * Sets the type of system object that owns this script. Should be user friendly and i18N.
-   *
->>>>>>> development-8.1.x
    * @param ownerType
    */
   @Override
@@ -118,14 +87,8 @@ public class PSScript implements IPSScript {
     this.ownerType = ownerType.trim();
   }
 
-<<<<<<< HEAD
   /***
    * An optional property that indicates the system object that owns this script.
-=======
-  /**
-   * * An optional property that indicates the system object that owns this script.
-   *
->>>>>>> development-8.1.x
    * @return name of the system object, never null, may be empty
    */
   @Override
@@ -133,23 +96,14 @@ public class PSScript implements IPSScript {
     return ownerName;
   }
 
-<<<<<<< HEAD
   /***
    * Sets the user friendly name of the system object that owns this script. Should be user friendly.
    * @param ownerName  Never null.
-=======
-  /**
-   * * Sets the user friendly name of the system object that owns this script. Should be user
-   * friendly.
-   *
-   * @param ownerName Never null.
->>>>>>> development-8.1.x
    */
   @Override
   public void setOwnerName(String ownerName) {
     if (ownerName == null) {
       ownerName = "";
-<<<<<<< HEAD
     }
     this.ownerName = ownerName.trim();
   }
@@ -267,108 +221,6 @@ public class PSScript implements IPSScript {
       initConfig();
     }
 
-=======
-  @Override
-  public boolean isCompilable() {
-    return this.compilable;
-  }
-
-  @Override
-  public String getScriptText() {
-    return scriptText;
-  }
-
-  @Override
-  public String getParsedText() {
-    return scriptText;
-  }
-
-  @Override
-  public Object eval(Map<String, Object> bindingsMap) throws JexlException {
-    JexlContext context = new MapContext(bindingsMap);
-    try {
-      // Double-checked locking to avoid duplicate compilation under concurrency
-      JexlScript local = compiledScript;
-      if (local == null) {
-        synchronized (this) {
-          local = compiledScript;
-          if (local == null) {
-            if (fixedScriptText == null) {
-              fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
-            }
-            local = EngineSingletonHolder.DEFAULT_ENGINE.createScript(fixedScriptText);
-            compiledScript = local;
-          }
-        }
-      }
-      return local.execute(context);
-    } catch (JexlException x) {
-      // Add owner context for faster diagnosis while preserving original exception type
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(
-            "JEXL error in script. Type: "
-                + ownerType
-                + " Name: "
-                + ownerName
-                + " Script: "
-                + scriptText);
-      }
-      throw x;
-    }
-  }
-
-  @Override
-  public String getSourceText() {
-    return getScriptText();
-  }
-
-  @Override
-  public boolean getUseStrictMode() {
-    return jexlUseStrict;
-  }
-
-  @Override
-  public void setUseStrictMode(boolean useStrictMode) {
-    jexlUseStrict = useStrictMode;
-  }
-
-  @Override
-  public boolean getUseDebugMode() {
-    return jexlUseDebug;
-  }
-
-  @Override
-  public void setUseDebugMode(boolean useDebugMode) {
-    jexlUseDebug = useDebugMode;
-  }
-
-  @Override
-  public boolean getSilentMode() {
-    return jexlUseSilent;
-  }
-
-  @Override
-  public void setUseSilentMode(boolean useSilentMode) {
-    jexlUseSilent = useSilentMode;
-  }
-
-  /**
-   * * Reinitialize
-   *
-   * @param reloadOptionsFromConfig
-   */
-  @Override
-  public void reinit(boolean reloadOptionsFromConfig) {
-    EngineSingletonHolder.reinit(reloadOptionsFromConfig);
-  }
-
-  private static final class EngineSingletonHolder {
-    /** non instantiable. */
-    private EngineSingletonHolder() {
-      initConfig();
-    }
-
->>>>>>> development-8.1.x
     /** The JEXL engine singleton instance. */
     private static JexlEngine DEFAULT_ENGINE =
         new JexlBuilder()
@@ -377,15 +229,6 @@ public class PSScript implements IPSScript {
             .debug(jexlUseDebug)
             .logger(LOG)
             .cache(CACHE_SIZE)
-<<<<<<< HEAD
-=======
-            // Explicit feature toggles (default false) to preserve legacy behavior
-            .features(
-                new JexlFeatures()
-                    .lexical(jexlLexical)
-                    .lexicalShade(jexlLexicalShade)
-                    .constCapture(jexlConstCapture))
->>>>>>> development-8.1.x
             .create();
 
     private static void initConfig() {
@@ -417,14 +260,6 @@ public class PSScript implements IPSScript {
         jexlUseDebug = Boolean.parseBoolean(props.getProperty("jexlUseDebug", "false"));
 
         CACHE_SIZE = Integer.parseInt(props.getProperty("jexlCacheSize", "512"));
-<<<<<<< HEAD
-=======
-
-        // Feature flags default to false for legacy semantics; can be enabled via config
-        jexlLexical = Boolean.parseBoolean(props.getProperty("jexlLexical", "false"));
-        jexlLexicalShade = Boolean.parseBoolean(props.getProperty("jexlLexicalShade", "false"));
-        jexlConstCapture = Boolean.parseBoolean(props.getProperty("jexlConstCapture", "false"));
->>>>>>> development-8.1.x
       }
     }
 
@@ -441,15 +276,6 @@ public class PSScript implements IPSScript {
               .debug(jexlUseDebug)
               .logger(LOG)
               .cache(CACHE_SIZE)
-<<<<<<< HEAD
-=======
-              // Preserve backward-compatible semantics unless explicitly overridden by config
-              .features(
-                  new JexlFeatures()
-                      .lexical(jexlLexical)
-                      .lexicalShade(jexlLexicalShade)
-                      .constCapture(jexlConstCapture))
->>>>>>> development-8.1.x
               .create();
     }
   }

@@ -16,17 +16,10 @@
  */
 package com.percussion.pso.preview;
 
-<<<<<<< HEAD
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-=======
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -45,10 +38,7 @@ public class ContentTypeLoggingInterceptor implements HandlerInterceptor {
 
   /** */
   public ContentTypeLoggingInterceptor() {}
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * @see HandlerInterceptor#afterCompletion(HttpServletRequest, HttpServletResponse, Object,
    *     Exception)
@@ -68,13 +58,9 @@ public class ContentTypeLoggingInterceptor implements HandlerInterceptor {
       ModelAndView modelAndView)
       throws Exception {}
 
-<<<<<<< HEAD
   /**
    * @see HandlerInterceptor#preHandle(HttpServletRequest, HttpServletResponse, Object)
    */
-=======
-  /** @see HandlerInterceptor#preHandle(HttpServletRequest, HttpServletResponse, Object) */
->>>>>>> development-8.1.x
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
     log.info("Request is a {}", request.getClass().getCanonicalName());

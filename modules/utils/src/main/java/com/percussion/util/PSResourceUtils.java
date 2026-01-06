@@ -31,7 +31,6 @@ public class PSResourceUtils {
     if (url == null) throw new IllegalArgumentException("Cannot load resource " + resourcePath);
     return url.getPath();
   }
-<<<<<<< HEAD
 
   /***
    * Given a valid resource path, returns the resource as a temporary file
@@ -56,32 +55,6 @@ public class PSResourceUtils {
     File ret = p.toFile();
     ret.deleteOnExit();
 
-=======
-  /**
-   * * Given a valid resource path, returns the resource as a temporary file
-   *
-   * @param clazz The class to use for loading the resource
-   * @param resourcePath The resource path
-   * @param dir May be null
-   * @return
-   */
-  public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {
-    File ret = File.createTempFile("test", "tmp", dir);
-    ret.deleteOnExit();
-
-    InputStream is = clazz.getResourceAsStream(resourcePath);
-
-    IOTools.copyStreamToFile(is, ret);
-    return ret;
-  }
-
-  public static File getFakeRxDir() throws IOException {
-    Path p = Files.createTempDirectory("test");
-
-    File ret = p.toFile();
-    ret.deleteOnExit();
-
->>>>>>> development-8.1.x
     return ret;
   }
 

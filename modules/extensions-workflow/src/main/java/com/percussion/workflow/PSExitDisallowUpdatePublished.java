@@ -44,11 +44,7 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
   /* Set the parameter count to not initialized */
   private static int ms_correctParamCount = NOT_INITIALIZED;
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public void init(IPSExtensionDef extensionDef, @SuppressWarnings("unused") File file)
       throws PSExtensionException {
     if (ms_correctParamCount == NOT_INITIALIZED) {

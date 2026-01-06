@@ -44,7 +44,6 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
@@ -64,7 +63,6 @@ public class PSOSlotContentsTest {
   IPSTemplateSlot otherSlot;
   IPSAssemblyTemplate template;
 
-<<<<<<< HEAD
   /**
    * @param name
    */
@@ -87,24 +85,6 @@ public class PSOSlotContentsTest {
 
     final PSLocator parent = new PSLocator(1, 1);
 
-=======
-  /** @param name */
-  public PSOSlotContentsTest(String name) {
-    super(name);
-  }
-  /** @see junit.framework.TestCase#setUp() */
-  @Before
-  protected void setUp() throws Exception {
-    super.setUp();
-  }
-  /** Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}. */
-  @Test
-  public void testPSOSlotContents() {
-    PSOSlotContents contents = new PSOSlotContents();
-
-    final PSLocator parent = new PSLocator(1, 1);
-
->>>>>>> development-8.1.x
     final IPSGuid slot1 = new PSLegacyGuid(1L);
     final IPSGuid slot2 = new PSLegacyGuid(2L);
 

@@ -22,13 +22,9 @@
  */
 package test.percussion.psoitemfilter;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
@@ -48,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,19 +51,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-=======
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
-import org.junit.Test;
-
->>>>>>> development-8.1.x
 public class PSORevisionCorrectingItemFilterTest {
 
   private static final Logger log = LogManager.getLogger(PSORevisionCorrectingItemFilterTest.class);
 
-<<<<<<< HEAD
   @Mock private IPSGuidManager gmgr;
   @Mock private IPSWorkflowService work;
   @Mock private IPSCmsContentSummaries summ;
@@ -84,47 +70,15 @@ public class PSORevisionCorrectingItemFilterTest {
     cut = new PSORevisionCorrectingItemFilter();
     PSORevisionCorrectingItemFilter.setGmgr(gmgr);
     PSORevisionCorrectingItemFilter.setWork(work);
-=======
-  Mockery context;
-  PSORevisionCorrectingItemFilter cut;
-
-  IPSGuidManager gmgr;
-  IPSWorkflowService work;
-  IPSCmsContentSummaries summ;
-
-  @Before
-  public void setUp() throws Exception {
-    context =
-        new Mockery() {
-          {
-            setImposteriser(ClassImposteriser.INSTANCE);
-          }
-        };
-
-    cut = new PSORevisionCorrectingItemFilter();
-
-    gmgr = context.mock(IPSGuidManager.class, "gmgr");
-    PSORevisionCorrectingItemFilter.setGmgr(gmgr);
-
-    work = context.mock(IPSWorkflowService.class, "work");
-    PSORevisionCorrectingItemFilter.setWork(work);
-
-    summ = context.mock(IPSCmsContentSummaries.class, "summ");
->>>>>>> development-8.1.x
     PSORevisionCorrectingItemFilter.setSumm(summ);
   }
 
   @Test
-<<<<<<< HEAD
   void testFilterListOfIPSFilterItemMapOfStringString() {
-=======
-  public final void testFilterListOfIPSFilterItemMapOfStringString() {
->>>>>>> development-8.1.x
     String wfStates = "fee,fi,fo,fum";
     Map<String, String> params = new HashMap<String, String>();
     params.put(PSORevisionCorrectingItemFilter.WORKFLOW_STATES, wfStates);
 
-<<<<<<< HEAD
     final IPSGuid originalGuid = new PSGuid(PSTypeEnum.LEGACY_CONTENT, 3);
     final IPSGuid correctedGuid = new PSGuid(PSTypeEnum.LEGACY_CONTENT, 1);
     final PSLocator badLocator = new PSLocator(3, 1);
@@ -145,65 +99,11 @@ public class PSORevisionCorrectingItemFilterTest {
       when(summary.getCurrentLocator()).thenReturn(badLocator);
       when(gmgr.makeGuid(badLocator)).thenReturn(correctedGuid);
       when(item2.getItemId()).thenReturn(correctedGuid);
-=======
-    final IPSFilterItem item = context.mock(IPSFilterItem.class, "item");
-    final IPSFilterItem item2 = context.mock(IPSFilterItem.class, "item2");
-    final IPSGuid originalGuid = new PSLegacyGuid(3, 2);
-    final IPSGuid correctedGuid = new PSLegacyGuid(3, 1);
-    final PSLocator badLocator = new PSLocator(3, 1);
-    final PSLocator goodLocator = new PSLocator(3, 2);
-
-    final IPSGuid workflowAppGuid = new PSLegacyGuid(4, 1);
-    final IPSGuid workflowStateGuid = new PSLegacyGuid(5, 1);
-
-    final PSComponentSummary summary = context.mock(PSComponentSummary.class, "summary");
-
-    final PSState state = context.mock(PSState.class, "state");
-
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(summ).loadComponentSummary(3);
-              will(returnValue(summary));
-              one(summary).getWorkflowAppId();
-              will(returnValue(4));
-              one(summary).getContentStateId();
-              will(returnValue(5));
-              one(gmgr).makeGuid(4, PSTypeEnum.WORKFLOW);
-              will(returnValue(workflowAppGuid));
-              one(gmgr).makeGuid(5, PSTypeEnum.WORKFLOW_STATE);
-              will(returnValue(workflowStateGuid));
-              one(item).getItemId();
-              will(returnValue(originalGuid));
-              one(gmgr).makeLocator(originalGuid);
-              will(returnValue(badLocator));
-              one(item).clone(with(any(IPSGuid.class)));
-              will(returnValue(item2));
-              one(work).loadWorkflowState(workflowStateGuid, workflowAppGuid);
-              will(returnValue(state));
-              one(state).getName();
-              will(returnValue("fee"));
-              one(summary).getCurrentLocator();
-              will(returnValue(badLocator));
-              one(gmgr).makeGuid(badLocator);
-              will(returnValue(correctedGuid));
-              one(item2).getItemId();
-              will(returnValue(correctedGuid));
-            }
-          });
->>>>>>> development-8.1.x
 
       List<IPSFilterItem> res = cut.filter(Collections.<IPSFilterItem>singletonList(item), params);
       assertNotNull(res);
       assertEquals(1, res.size());
       assertEquals(correctedGuid, res.get(0).getItemId());
-<<<<<<< HEAD
-=======
-
-      context.assertIsSatisfied();
-
->>>>>>> development-8.1.x
     } catch (PSFilterException ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception");

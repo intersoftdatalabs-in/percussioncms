@@ -43,7 +43,6 @@ import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-<<<<<<< HEAD
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import netscape.javascript.JSException;
@@ -61,8 +60,6 @@ import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -124,14 +121,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
   private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
    public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP = new ConcurrentHashMap<String, PSRelationshipInfo> ();
    static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
-=======
-  public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP =
-      new ConcurrentHashMap<String, PSRelationshipInfo>();
-  static Logger log = Logger.getLogger(PSContentExplorerApplet.class);
->>>>>>> development-8.1.x
 
   private PSHttpConnection m_httpConnection;
 

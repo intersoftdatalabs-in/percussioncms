@@ -46,7 +46,6 @@ public class JCRQueryBuilder {
   private Collection<String> folderPaths = emptyList();
   private String query;
 
-<<<<<<< HEAD
   public void validate() {
     if (isEmpty(selectFields) || isEmpty(fromTypes)) {
       throw new IllegalStateException("Configuration of ListBuilder invalid");
@@ -76,47 +75,6 @@ public class JCRQueryBuilder {
     return buildDateRange(queryStartDateField, startDate, endDate);
   }
 
-=======
-  private String startDate = null;
-  private String endDate = null;
-  private String titleContains = null;
-  private String queryStartDateField = "rx:sys_contentstartdate";
-  private String queryTitleField = "rx:displaytitle";
-  private List<String> selectFields = asList("rx:sys_contentid", "rx:sys_folderid", "jcr:path");
-  private Collection<String> fromTypes = asList("nt:base");
-  private Collection<String> folderPaths = emptyList();
-  private String query;
-
-  public void validate() {
-    if (isEmpty(selectFields) || isEmpty(fromTypes)) {
-      throw new IllegalStateException("Configuration of ListBuilder invalid");
-    }
-  }
-
-  protected String buildTextField(String field, String value) {
-    return format("( {0} like ''%{1}%'' )", field, value);
-  }
-
-  public String buildQuery(List<String> fields, Collection<String> types, String cond) {
-    String f = join(fields.iterator(), ", ");
-    String t = join(types.iterator(), ", ");
-    if (isNotBlank(cond)) return format("select {0} from {1} where {2}", f, t, cond);
-    return format("select {0} from {1}", f, t);
-  }
-
-  public String buildDateRange(String field, String startDate, String endDate) {
-    if (isNotBlank(field) && isNotBlank(startDate) && isNotBlank(endDate))
-      return format("(''{0}'' < {1} and {1} < ''{2}'')", startDate, field, endDate);
-    else if (isNotBlank(field) && isNotBlank(startDate))
-      return format("(''{0}''  < {1} )", startDate, field);
-    else return "";
-  }
-
-  protected String buildDateCond() {
-    return buildDateRange(queryStartDateField, startDate, endDate);
-  }
-
->>>>>>> development-8.1.x
   protected String buildTitleCond() {
     if (isBlank(queryTitleField)) return "";
     if (isBlank(titleContains)) return "";

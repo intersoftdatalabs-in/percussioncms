@@ -26,11 +26,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;

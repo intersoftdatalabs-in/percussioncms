@@ -104,7 +104,6 @@ public class PSSourceTargetListPanel extends JPanel {
     m_topBtnMnem = topBtnMnem;
     init();
   }
-<<<<<<< HEAD
 
   /**
    * Sets the model for the left list.
@@ -141,43 +140,6 @@ public class PSSourceTargetListPanel extends JPanel {
     setBorder(emptyBorder);
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-=======
-  /**
-   * Sets the model for the left list.
-   *
-   * @param mdl, model for the list, may not be <code>null</code> may be empty, if <code>null</code>
-   *     then the method silently returns.
-   */
-  public void setModel(ListModel mdl, boolean isSrc) {
-    if (mdl == null) return;
-    if (isSrc) m_srcList.setModel(mdl);
-    else m_targetList.setModel(mdl);
-  }
-
-  /**
-   * Gets the model for the list specified by it's label name.
-   *
-   * @param listLabel, label of the list, may not be <code>null</code> or empty
-   * @return model for the list name supplied, may be <code>null</code>.
-   * @throws IllegalArgumentException if arguments are invalid
-   */
-  public DefaultListModel getModel(String listLabel) {
-    if (listLabel != null && listLabel.length() != 0) {
-      if ((m_srcName != null && listLabel.equals(m_srcName))) {
-        return (DefaultListModel) m_srcList.getModel();
-      } else if ((m_targetName != null && listLabel.equals(m_targetName))) {
-        return (DefaultListModel) m_targetList.getModel();
-      } else throw new IllegalArgumentException("List's label name does not match");
-    } else throw new IllegalArgumentException("List's label name has to be supplied");
-  }
-
-  /** Initializes the panel. */
-  private void init() {
-    EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
-    setBorder(emptyBorder);
-    setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
->>>>>>> development-8.1.x
     // the panel with available packages to install
     JPanel srcPanel = createListPanel(true);
     add(srcPanel);
@@ -466,7 +428,6 @@ public class PSSourceTargetListPanel extends JPanel {
     f.pack();
     f.setVisible(true);
   }
-<<<<<<< HEAD
 
   // end
 
@@ -515,55 +476,6 @@ public class PSSourceTargetListPanel extends JPanel {
   private String m_topBtnName;
 
   /**
-=======
-  // end
-
-  /**
-   * The list on the left side of the panel, initialized in {@link# createListPanel(boolean)}, never
-   * <code>null</code> or modified after that.
-   */
-  private JList m_srcList;
-
-  /**
-   * The list on the right side of the panel, initialized in {@link# createListPanel(boolean)},
-   * never <code>null</code> or modified after that.
-   */
-  private JList m_targetList;
-
-  /**
-   * The top button for removing selected items from <code>m_srcList</code> to <code>m_targetList
-   * </code>. Initialized in {@link#init()}, never <code>null
-   * </code> or modified after that.
-   */
-  private UTFixedButton m_addBtn;
-
-  /**
-   * The bottom button for removing selected items from <code>m_targetList
-   * </code> to <code>m_srcList</code>. Initialized in {@link#init()}, never <code>null</code> or
-   * modified after that.
-   */
-  private UTFixedButton m_removeBtn;
-
-  /**
-   * Name of the label for the list on the left side of the panel. Initialized in the ctor, never
-   * <code>null</code> or modified after that.
-   */
-  private String m_srcName;
-
-  /**
-   * Name of the label for the list on the right side of the panel. Initialized in the ctor, never
-   * <code>null</code> or modified after that.
-   */
-  private String m_targetName;
-
-  /**
-   * Name for the <code>m_addBtn</code>. Initialized in the ctor, never <code>
-   * null</code> or modified after that.
-   */
-  private String m_topBtnName;
-
-  /**
->>>>>>> development-8.1.x
    * Name for the <code>m_removeBtn</code>. Initialized in the ctor, never <code>
    * null</code> or modified after that.
    */

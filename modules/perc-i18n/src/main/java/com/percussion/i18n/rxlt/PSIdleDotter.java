@@ -68,15 +68,10 @@ public class PSIdleDotter extends Thread {
 
   /** Toggle switch to display or not to display idle dots. */
   private boolean m_displayDot = false;
-<<<<<<< HEAD
 
   /** switch to indicate that the process ended. Once this is true thread quits the run() method. */
   private boolean m_processEnded = false;
 
-=======
-  /** switch to indicate that the process ended. Once this is true thread quits the run() method. */
-  private boolean m_processEnded = false;
->>>>>>> development-8.1.x
   /** Switch indicating if this thread is started or not. */
   private boolean m_started = false;
 }

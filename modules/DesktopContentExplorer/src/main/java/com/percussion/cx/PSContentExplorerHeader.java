@@ -19,13 +19,10 @@ package com.percussion.cx;
 
 import com.percussion.webservices.security.data.PSLocale;
 import com.percussion.webservices.security.data.PSLogin;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.JPanel;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
@@ -37,15 +34,11 @@ import org.apache.log4j.Logger;
 public class PSContentExplorerHeader extends JPanel {
   static Logger log = Logger.getLogger(PSContentExplorerHeader.class);
 
-<<<<<<< HEAD
 public class PSContentExplorerHeader extends JPanel
 {
    static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
  
    private static final long serialVersionUID = 1L;
-=======
-  private static final long serialVersionUID = 1L;
->>>>>>> development-8.1.x
 
   private PSContentExplorerApplet m_applet;
   /** @param applet */

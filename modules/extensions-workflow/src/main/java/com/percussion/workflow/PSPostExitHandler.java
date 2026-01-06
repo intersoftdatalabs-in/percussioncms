@@ -49,10 +49,7 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     // nothing to initialize
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** This is the main request processing handler */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

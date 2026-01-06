@@ -34,7 +34,6 @@ import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 
 public class PSHyperlinkListener implements ChangeListener<State>, EventListener {
-<<<<<<< HEAD
 	private static Logger log = LogManager.getLogger(PSHyperlinkListener.class);
 	
 	private static final String CLICK_EVENT = "click";

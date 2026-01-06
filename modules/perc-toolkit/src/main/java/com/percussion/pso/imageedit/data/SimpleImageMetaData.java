@@ -25,7 +25,6 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
 
   /** width in pixels. */
   private int width = 0;
-<<<<<<< HEAD
 
   /** height in pixels. */
   private int height = 0;
@@ -64,44 +63,6 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
   }
 
   /**
-=======
-  /** height in pixels. */
-  private int height = 0;
-
-  /** Default constructor. */
-  public SimpleImageMetaData() {}
-
-  /**
-   * Copy constructor.
-   *
-   * @param data metadata to copy from.
-   */
-  public SimpleImageMetaData(AbstractImageMetaData data) {
-    this.setImageKey(data.getImageKey());
-    this.setMetaData(data.getMetaData());
-    this.height = data.getMetaData().getHeight();
-    this.width = data.getMetaData().getWidth();
-  }
-  /**
-   * Gets the width.
-   *
-   * @return the width.
-   */
-  public int getWidth() {
-    return width;
-  }
-
-  /**
-   * Sets the width.
-   *
-   * @param width the width to set.
-   */
-  public void setWidth(int width) {
-    this.width = width;
-  }
-
-  /**
->>>>>>> development-8.1.x
    * Gets the height.
    *
    * @return the height.

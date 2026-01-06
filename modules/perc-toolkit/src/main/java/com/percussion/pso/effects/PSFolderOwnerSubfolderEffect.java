@@ -16,10 +16,7 @@
  */
 package com.percussion.pso.effects;
 
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.extension.PSExtensionProcessingException;
@@ -38,11 +35,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * Adds an item to a folder where its parent resides. Unlike the FolderFollowerEffect, the item is
@@ -51,12 +44,8 @@ import org.apache.commons.lang.StringUtils;
  * @author DavidBenua
  */
 @PSHandlesEffectContext(required = {PSEffectContext.PRE_CONSTRUCTION, PSEffectContext.PRE_UPDATE})
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {
-=======
-public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect implements IPSEffect {
->>>>>>> development-8.1.x
   /** Default constructor. */
   public PSFolderOwnerSubfolderEffect() {
     super();
@@ -131,7 +120,6 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect impleme
 
     return sb.toString();
   }
-<<<<<<< HEAD
 
   /**
    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
@@ -143,13 +131,6 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect impleme
     // available
     // For now, always run effect for backward compatibility
     {
-=======
-  /** @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult) */
-  public void attempt(
-      Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-      throws PSExtensionProcessingException, PSParameterMismatchException {
-    if (exCtx.isPreConstruction() | exCtx.isPreUpdate()) {
->>>>>>> development-8.1.x
       String subfolderName = params[0].toString();
       log.debug("subfolder name is " + subfolderName);
       String userName = req.getUserName();

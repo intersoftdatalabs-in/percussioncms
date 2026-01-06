@@ -17,7 +17,6 @@
 package com.percussion.pso.imageedit.data;
 
 import java.io.Serializable;
-<<<<<<< HEAD
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class ImageMetaData implements Serializable {
@@ -28,18 +27,6 @@ public class ImageMetaData implements Serializable {
   private String ext;
   private String filename;
 
-=======
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-public class ImageMetaData implements Serializable {
-
-  private static final long serialVersionUID = -13542359L;
-
-  private String mimeType;
-  private String ext;
-  private String filename;
-
->>>>>>> development-8.1.x
   private long size = 0L;
   private int width = 0;
   private int height = 0;
@@ -62,7 +49,6 @@ public class ImageMetaData implements Serializable {
     this.height = o.getHeight();
     this.width = o.getWidth();
   }
-<<<<<<< HEAD
 
   /**
    * @return the mimeType
@@ -102,34 +88,10 @@ public class ImageMetaData implements Serializable {
   /**
    * @param filename the filename to set
    */
-=======
-  /** @return the mimeType */
-  public String getMimeType() {
-    return mimeType;
-  }
-  /** @param mimeType the mimeType to set */
-  public void setMimeType(String mimeType) {
-    this.mimeType = mimeType;
-  }
-  /** @return the ext */
-  public String getExt() {
-    return ext;
-  }
-  /** @param ext the ext to set */
-  public void setExt(String ext) {
-    this.ext = ext;
-  }
-  /** @return the filename */
-  public String getFilename() {
-    return filename;
-  }
-  /** @param filename the filename to set */
->>>>>>> development-8.1.x
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-<<<<<<< HEAD
   /**
    * @return the size
    */
@@ -168,29 +130,6 @@ public class ImageMetaData implements Serializable {
   /**
    * @param height the height to set
    */
-=======
-  /** @return the size */
-  public long getSize() {
-    return size;
-  }
-  /** @param size the size to set */
-  public void setSize(long size) {
-    this.size = size;
-  }
-  /** @return the width */
-  public int getWidth() {
-    return width;
-  }
-  /** @param width the width to set */
-  public void setWidth(int width) {
-    this.width = width;
-  }
-  /** @return the height */
-  public int getHeight() {
-    return height;
-  }
-  /** @param height the height to set */
->>>>>>> development-8.1.x
   public void setHeight(int height) {
     this.height = height;
   }

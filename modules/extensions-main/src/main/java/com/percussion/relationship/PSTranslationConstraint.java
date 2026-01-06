@@ -26,13 +26,8 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSRelationshipUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSRelationshipUtils;
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -57,15 +52,9 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
    * @param params the exit parameters, not used for this exit and therefore can be <code>null
    *     </code> or empty.
    * @param request the request to operate on, not <code>null</code>. The request must provide the
-<<<<<<< HEAD
    *     HTML parameters {#link com.percussion.system.utils.IPSHtmlParameters.SYS_CONTENTID} and
    *     {#link com.percussion.system.utils.IPSHtmlParameters.SYS_LANG} and {#link
    *     com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
-=======
-   *     HTML parameters {#link com.percussion.util.IPSHtmlParameters.SYS_CONTENTID} and {#link
-   *     com.percussion.util.IPSHtmlParameters.SYS_LANG} and {#link
-   *     com.percussion.util.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
->>>>>>> development-8.1.x
    * @throws PSAuthorizationException if the requestor is not authorized to perform the requested
    *     operation.
    * @throws PSRequestValidationException if the current item already has been translated to the
@@ -74,13 +63,9 @@ public class PSTranslationConstraint extends PSDefaultExtension implements IPSRe
    * @throws PSExtensionProcessingException for any exit processing errors.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     try {
       String depId = request.getParameter(IPSHtmlParameters.SYS_DEPENDENTID, "").trim();

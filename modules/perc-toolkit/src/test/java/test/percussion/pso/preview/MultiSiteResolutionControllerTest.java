@@ -22,15 +22,9 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
->>>>>>> development-8.1.x
 
 import com.percussion.pso.preview.MultiSiteResolutionController;
 import com.percussion.pso.preview.PreviewLocation;
@@ -59,13 +53,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class MultiSiteResolutionControllerTest {
   private static final Logger log = LogManager.getLogger(MultiSiteResolutionControllerTest.class);
   Mockery context;
@@ -76,7 +66,6 @@ public class MultiSiteResolutionControllerTest {
   IPSAssemblyService asm;
   SiteFolderFinder finder;
   UrlBuilder builder;
-<<<<<<< HEAD
 
   /**
    * @throws Exception
@@ -109,37 +98,6 @@ public class MultiSiteResolutionControllerTest {
   @Disabled("Test is failing") // TODO: Fix me
   public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() {
 
-=======
-
-  /** @throws Exception */
-  @Before
-  public void setUp() throws Exception {
-    context = new Mockery();
-    cut = new MultiSiteResolutionController();
-    req = new MockHttpServletRequest();
-    req.setMethod("POST");
-    resp = new MockHttpServletResponse();
-    gmgr = context.mock(IPSGuidManager.class);
-    asm = context.mock(IPSAssemblyService.class);
-    finder = context.mock(SiteFolderFinder.class);
-    builder = context.mock(UrlBuilder.class);
-
-    MultiSiteResolutionController.setGmgr(gmgr);
-    MultiSiteResolutionController.setAsm(asm);
-    cut.setSiteFolderFinder(finder);
-    cut.setUrlBuilder(builder);
-  }
-  /**
-   * Test method for {@link
-   * MultiSiteResolutionController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse)}.
-   */
-  @Test
-  @SuppressWarnings("unchecked")
-  @Ignore("Test is failing") // TODO: Fix me
-  public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() {
-
->>>>>>> development-8.1.x
     try {
       cut.setViewName("xyz");
       req.setParameter(IPSHtmlParameters.SYS_VARIANTID, "123");
@@ -154,11 +112,7 @@ public class MultiSiteResolutionControllerTest {
       final IPSSite site = context.mock(IPSSite.class);
       loc.setSite(site);
       locs.add(loc);
-<<<<<<< HEAD
       final IPSGuid templateGuid = new PSGuid(123L);
-=======
-      final IPSGuid templateGuid = new PSLegacyGuid(123L);
->>>>>>> development-8.1.x
       final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
 
       context.checking(

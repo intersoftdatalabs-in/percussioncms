@@ -29,7 +29,6 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequestValidationException;
 import java.io.File;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,15 +41,6 @@ import org.w3c.dom.Element;
  * Returns an empty string for all other values.
  *
  * @author natechadwick
-=======
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-/**
- * * Validates that the supplied input is a boolean value. Accepted boolean strings are yes, no,
- * true, false, 1, or 0.
->>>>>>> development-8.1.x
  *
  * <p>Will trim whitespace.
  *
@@ -91,13 +81,9 @@ public class PSAllowOnlyBooleanValues
   }
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     PSExtensionParams ep = null;
     String paramCSV = null;

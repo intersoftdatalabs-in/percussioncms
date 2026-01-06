@@ -26,7 +26,6 @@ import com.percussion.util.PSProperties;
 import com.percussion.webservices.faults.PSContractViolationFault;
 import com.percussion.webservices.faults.PSNotAuthenticatedFault;
 import com.percussion.webservices.security.data.PSLocale;
-<<<<<<< HEAD
 import org.apache.axis.AxisFault;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -51,8 +50,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -113,14 +110,9 @@ import org.json.JSONObject;
  * on successful login.
  */
 ////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 public class PSContentExplorerLoginPanel extends JFrame
 {
    static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
-=======
-public class PSContentExplorerLoginPanel extends JFrame {
-  static Logger log = Logger.getLogger(PSContentExplorerLoginPanel.class);
->>>>>>> development-8.1.x
 
   /**
    * The name of the file where various properties are stored, such as the last server name, port #,

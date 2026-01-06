@@ -26,13 +26,8 @@ import com.percussion.fastforward.utils.PSUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
->>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;

@@ -33,11 +33,7 @@ import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -51,17 +47,11 @@ import org.w3c.dom.Element;
  */
 public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
     implements IPSItemValidator, IPSResultDocumentProcessor {
-<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
   private static final Logger log = LogManager.getLogger(PSOAbstractItemValidationExit.class);
 
   private IPSOWorkflowInfoFinder finder = null;
 
-=======
-  private static final Logger log = LogManager.getLogger(PSOAbstractItemValidationExit.class);
-
-  private IPSOWorkflowInfoFinder finder = null;
->>>>>>> development-8.1.x
   /** Default constructor. */
   protected PSOAbstractItemValidationExit() {}
 
@@ -71,7 +61,6 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
       finder = new PSOWorkflowInfoFinder();
     }
   }
-<<<<<<< HEAD
 
   /**
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
@@ -80,12 +69,6 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
     return false;
   }
 
-=======
-  /** @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet() */
-  public boolean canModifyStyleSheet() {
-    return false;
-  }
->>>>>>> development-8.1.x
   /**
    * @see
    *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
@@ -181,23 +164,16 @@ public abstract class PSOAbstractItemValidationExit extends PSOItemXMLSupport
     }
     return result;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
    *     java.io.File)
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-<<<<<<< HEAD
   /**
    * @param finder the finder to set. Used only for unit test.
    */
-=======
-  /** @param finder the finder to set. Used only for unit test. */
->>>>>>> development-8.1.x
   protected void setFinder(IPSOWorkflowInfoFinder finder) {
     this.finder = finder;
   }

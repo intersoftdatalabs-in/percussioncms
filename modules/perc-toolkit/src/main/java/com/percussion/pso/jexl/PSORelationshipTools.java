@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,13 +51,6 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author MikeStarck
  */
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-/** @author MikeStarck */
->>>>>>> development-8.1.x
 public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSORelationshipTools.class);
@@ -199,10 +191,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
     }
     return guids;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Is this page referenced in the landing page slot. Will return true if the specified content id
    * is referenced in a landing page slot. Note that this function is limited to PUBLIC navons.
@@ -271,14 +260,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
     }
     return false;
   }
-<<<<<<< HEAD
 
-  /**
-   * Is this page referenced in the landing page slot. Convenience method for {@link
-   * #isLandingPage(String)}
-   *
-   * @param guid the guid
-=======
   /**
    * Is this page referenced in the landing page slot. Convenience method for {@link
    * #isLandingPage(String)}
@@ -289,25 +271,6 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    */
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
-      params = {@IPSJexlParam(name = "guid", description = "the current item guid")})
-  public boolean isLandingPageGuid(IPSGuid guid) throws Exception {
-    initServices();
-    String id = gmgr.makeLocator(guid).getPart(PSLocator.KEY_ID);
-    return isLandingPage(id);
-  }
-
-  /**
-   * Is this page referenced in the landing page slot for the current folder.
-   *
-   * @param contentGuid the Item guid
-   * @param folderGuid the Folder guid
->>>>>>> development-8.1.x
-   * @return code>true</code> if this page has a public navon parent in the landing page slot.
-   * @throws Exception
-   */
-  @IPSJexlMethod(
-      description = "is this page referenced in the landing page slot",
-<<<<<<< HEAD
       params = {@IPSJexlParam(name = "guid", description = "the current item guid")})
   public boolean isLandingPageGuid(IPSGuid guid) throws Exception {
     initServices();
@@ -337,20 +300,6 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
     return isLandingPageInFolder(contentid, folderid);
   }
 
-=======
-      params = {
-        @IPSJexlParam(name = "contentGuid", description = "the current item guid"),
-        @IPSJexlParam(name = "folderGuid", description = "the folder guid")
-      })
-  public boolean isLandingPageInFolderGuid(IPSGuid contentGuid, IPSGuid folderGuid)
-      throws Exception {
-    initServices();
-    String contentid = gmgr.makeLocator(contentGuid).getPart(PSLocator.KEY_ID);
-    String folderid = gmgr.makeLocator(folderGuid).getPart(PSLocator.KEY_ID);
-    return isLandingPageInFolder(contentid, folderid);
-  }
-
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
       params = {
@@ -383,10 +332,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
     String contentid = gmgr.makeLocator(guid).getPart(PSLocator.KEY_ID);
     return hasOnlyPublicAncestors(contentid, slotName, null);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Checks if an item has any non-public ancestors. The direct and indirect ancestors in the
    * specified slot are scanned to make sure that they are in a workflow state consistent with the
@@ -438,13 +384,9 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
     return slotnames;
   }
 
-<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set
    */
-=======
-  /** @param gmgr the gmgr to set */
->>>>>>> development-8.1.x
   public static void setGmgr(IPSGuidManager gmgr) {
     PSORelationshipTools.gmgr = gmgr;
   }

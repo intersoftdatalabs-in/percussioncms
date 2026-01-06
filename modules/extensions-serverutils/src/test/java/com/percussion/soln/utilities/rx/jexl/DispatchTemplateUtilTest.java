@@ -17,28 +17,19 @@
 
 package test.percussion.soln.utilities.rx.jexl;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.soln.utilities.rx.jexl.DispatchTemplateUtil;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Map;
 import javax.jcr.Node;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-<<<<<<< HEAD
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,11 +47,7 @@ public class DispatchTemplateUtilTest {
 
   Node mockNode;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     picker = new DispatchTemplateUtil();
 

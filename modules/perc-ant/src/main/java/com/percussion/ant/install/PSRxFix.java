@@ -50,7 +50,6 @@ import java.util.List;
  */
 public class PSRxFix extends PSAction {
   // see base class
-<<<<<<< HEAD
 
   @Override
   public void execute() {
@@ -97,53 +96,6 @@ public class PSRxFix extends PSAction {
           }
         }
 
-=======
-  @Override
-  public void execute() {
-    String strRootDir = getRootDir();
-    PSProperties props = null;
-    PSJdbcDbmsDef dbmsDef = null;
-
-    if (strRootDir != null) {
-      if (!(strRootDir.endsWith(File.separator))) strRootDir += File.separator;
-
-      try {
-        // Get the db info
-        props = new PSProperties(strRootDir + IPSUpgradeModule.REPOSITORY_PROPFILEPATH);
-        props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-        dbmsDef = new PSJdbcDbmsDef(props);
-
-        // Setup the RxFix tool
-        PSRxFixCmd cmd = new PSRxFixCmd();
-        cmd.setDriver(dbmsDef.getDriverClassName());
-        cmd.setHost(dbmsDef.getServer());
-        cmd.setName(dbmsDef.getDataBase());
-        cmd.setPassword(dbmsDef.getPassword());
-        cmd.setSchema(dbmsDef.getSchema());
-        cmd.setUrl("jdbc:" + dbmsDef.getDriver());
-        cmd.setUser(dbmsDef.getUserId());
-
-        ArrayList<String> fixes = new ArrayList<String>();
-        for (int i = 0; i < m_fixModules.length; i++) fixes.add(m_fixModules[i]);
-
-        cmd.setFixes(fixes);
-
-        // Run RxFix
-        PSLogger.logInfo("#### Running RxFix ####");
-        cmd.execute();
-
-        // Log the results
-        List results = cmd.getResults();
-
-        if (results.size() == 0) PSLogger.logInfo("No modifications were required");
-        else {
-          for (int i = 0; i < results.size(); i++) {
-            String result = (String) results.get(i);
-            PSLogger.logInfo(result);
-          }
-        }
-
->>>>>>> development-8.1.x
         PSLogger.logInfo("#### Completed RxFix ####");
       } catch (Exception e) {
         PSLogger.logError("PSRxFix#execute : " + e.getMessage());
@@ -152,16 +104,9 @@ public class PSRxFix extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
-=======
-  /**
-   * *********************************************************************** Property Accessors and
-   * Mutators ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** Accessor for the fix modules property */
   public String[] getFixModules() {
@@ -173,7 +118,6 @@ public class PSRxFix extends PSAction {
     m_fixModules = convertToArray(fixModules);
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
@@ -188,20 +132,6 @@ public class PSRxFix extends PSAction {
   /**************************************************************************
    * properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************* Bean properties
-   * *************************************************************************
-   */
-
-  /** The list of RxFix modules to be executed. */
-  private String m_fixModules[] = new String[0];
-
-  /**
-   * ************************************************************************ private function
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * ************************************************************************ properties

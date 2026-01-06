@@ -17,12 +17,8 @@
 
 package test.percussion.pso.demandpreview.service.impl;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.pso.demandpreview.exception.SiteLookUpException;
@@ -41,22 +37,14 @@ import java.util.List;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-=======
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultPageTemplateBeanTest {
-<<<<<<< HEAD
   private static final Logger log = LogManager.getLogger(DefaultPageTemplateBeanTest.class);
   TestableDefaultPageTemplateBean cut;
   @Mock IPSOObjectFinder objFinder;
@@ -110,71 +98,6 @@ public class DefaultPageTemplateBeanTest {
       verify(t1).getPublishWhen();
       verify(t1).getOutputFormat();
       verify(t1, atLeastOnce()).getName();
-=======
-
-  private static final Logger log = LogManager.getLogger(DefaultPageTemplateBeanTest.class);
-  Mockery context;
-  TestableDefaultPageTemplateBean cut;
-  IPSOObjectFinder objFinder;
-  IPSTemplateService tempSvc;
-
-  @Before
-  public void setUp() throws Exception {
-    context = new Mockery();
-    cut = new TestableDefaultPageTemplateBean();
-    objFinder = context.mock(IPSOObjectFinder.class, "objFinder");
-    cut.setObjFinder(objFinder);
-    tempSvc = context.mock(IPSTemplateService.class, "tempSvc");
-    cut.setTempSvc(tempSvc);
-  }
-
-  @Test
-  public void testFindTemplateSingle() {
-    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class, "t1");
-    final List<IPSAssemblyTemplate> tlist =
-        new ArrayList<IPSAssemblyTemplate>() {
-          {
-            add(t1);
-          }
-        };
-    final IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
-    final IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    final PSComponentSummary summ =
-        new PSComponentSummary() {
-          {
-            setContentTypeId(42L);
-          }
-        };
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSGuid contentId = context.mock(IPSGuid.class, "contentId");
-
-    log.info("Testing findTemplate");
-    try {
-      context.checking(
-          new Expectations() {
-            {
-              one(objFinder).getComponentSummary(contentId);
-              will(returnValue(summ));
-              allowing(t1).getGUID();
-              will(returnValue(t1ID));
-              one(site).getAssociatedTemplates();
-              will(returnValue(Collections.singleton(t1)));
-              one(tempSvc).findTemplatesByContentType(ctypeId);
-              will(returnValue(tlist));
-              one(t1).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Default));
-              one(t1).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-              allowing(t1).getName();
-              will(returnValue("TestTemplate1"));
-            }
-          });
-
-      IPSAssemblyTemplate result = cut.findTemplate(site, contentId);
-      assertNotNull(result);
-      assertEquals(t1, result);
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -184,17 +107,10 @@ public class DefaultPageTemplateBeanTest {
 
   @Test
   public void testFindTemplateMulti() {
-<<<<<<< HEAD
     IPSAssemblyTemplate t1 = mock(IPSAssemblyTemplate.class);
     IPSAssemblyTemplate t2 = mock(IPSAssemblyTemplate.class);
     IPSAssemblyTemplate t3 = mock(IPSAssemblyTemplate.class);
     List<IPSAssemblyTemplate> tlist =
-=======
-    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class, "t1");
-    final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class, "t2");
-    final IPSAssemblyTemplate t3 = context.mock(IPSAssemblyTemplate.class, "t3");
-    final List<IPSAssemblyTemplate> tlist =
->>>>>>> development-8.1.x
         new ArrayList<IPSAssemblyTemplate>() {
           {
             add(t3);
@@ -202,33 +118,19 @@ public class DefaultPageTemplateBeanTest {
             add(t1);
           }
         };
-<<<<<<< HEAD
     IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
     IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
     IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
     IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
     PSComponentSummary summ =
-=======
-    final IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
-    final IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
-    final IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
-    final IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    final PSComponentSummary summ =
->>>>>>> development-8.1.x
         new PSComponentSummary() {
           {
             setContentTypeId(42L);
           }
         };
-<<<<<<< HEAD
     IPSSite site = mock(IPSSite.class);
     IPSGuid contentId = mock(IPSGuid.class);
     Set<IPSAssemblyTemplate> siteTemplates =
-=======
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSGuid contentId = context.mock(IPSGuid.class, "contentId");
-    final Set<IPSAssemblyTemplate> siteTemplates =
->>>>>>> development-8.1.x
         new HashSet<IPSAssemblyTemplate>() {
           {
             add(t3);
@@ -238,7 +140,6 @@ public class DefaultPageTemplateBeanTest {
 
     log.info("Testing findTemplate Multiple");
     try {
-<<<<<<< HEAD
       when(objFinder.getComponentSummary(contentId)).thenReturn(summ);
       when(t1.getGUID()).thenReturn(t1ID);
       when(site.getAssociatedTemplates()).thenReturn(siteTemplates);
@@ -254,49 +155,10 @@ public class DefaultPageTemplateBeanTest {
       when(t3.getOutputFormat()).thenReturn(IPSAssemblyTemplate.OutputFormat.Binary);
       when(t3.getName()).thenReturn("TestTemplate3");
       when(t3.getGUID()).thenReturn(t3ID);
-=======
-      context.checking(
-          new Expectations() {
-            {
-              one(objFinder).getComponentSummary(contentId);
-              will(returnValue(summ));
-              allowing(t1).getGUID();
-              will(returnValue(t1ID));
-              one(site).getAssociatedTemplates();
-              will(returnValue(siteTemplates));
-              one(tempSvc).findTemplatesByContentType(ctypeId);
-              will(returnValue(tlist));
-              one(t1).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Default));
-              one(t1).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-              allowing(t1).getName();
-              will(returnValue("TestTemplate1"));
-              one(t2).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Default));
-              one(t2).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-              allowing(t2).getName();
-              will(returnValue("TestTemplate2"));
-              allowing(t2).getGUID();
-              will(returnValue(t2ID));
-
-              one(t3).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Never));
-              allowing(t3).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Binary));
-              allowing(t3).getName();
-              will(returnValue("TestTemplate3"));
-              allowing(t3).getGUID();
-              will(returnValue(t3ID));
-            }
-          });
->>>>>>> development-8.1.x
 
       IPSAssemblyTemplate result = cut.findTemplate(site, contentId);
       assertNotNull(result);
       assertEquals(t1, result);
-<<<<<<< HEAD
 
       verify(objFinder).getComponentSummary(contentId);
       verify(t1, atLeastOnce()).getGUID();
@@ -313,9 +175,6 @@ public class DefaultPageTemplateBeanTest {
       verify(t3).getOutputFormat();
       verify(t3, atLeastOnce()).getName();
       verify(t3, atLeastOnce()).getGUID();
-=======
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -325,17 +184,10 @@ public class DefaultPageTemplateBeanTest {
 
   @Test
   public void testFindTemplateNotFound() {
-<<<<<<< HEAD
     IPSAssemblyTemplate t1 = mock(IPSAssemblyTemplate.class);
     IPSAssemblyTemplate t2 = mock(IPSAssemblyTemplate.class);
     IPSAssemblyTemplate t3 = mock(IPSAssemblyTemplate.class);
     List<IPSAssemblyTemplate> tlist =
-=======
-    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class, "t1");
-    final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class, "t2");
-    final IPSAssemblyTemplate t3 = context.mock(IPSAssemblyTemplate.class, "t3");
-    final List<IPSAssemblyTemplate> tlist =
->>>>>>> development-8.1.x
         new ArrayList<IPSAssemblyTemplate>() {
           {
             add(t3);
@@ -343,33 +195,19 @@ public class DefaultPageTemplateBeanTest {
             add(t1);
           }
         };
-<<<<<<< HEAD
     IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
     IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
     IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
     IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
     PSComponentSummary summ =
-=======
-    final IPSGuid t1ID = new PSGuid(PSTypeEnum.TEMPLATE, 1L);
-    final IPSGuid t2ID = new PSGuid(PSTypeEnum.TEMPLATE, 2L);
-    final IPSGuid t3ID = new PSGuid(PSTypeEnum.TEMPLATE, 3L);
-    final IPSGuid ctypeId = new PSGuid(PSTypeEnum.NODEDEF, 42L);
-    final PSComponentSummary summ =
->>>>>>> development-8.1.x
         new PSComponentSummary() {
           {
             setContentTypeId(42L);
           }
         };
-<<<<<<< HEAD
     IPSSite site = mock(IPSSite.class);
     IPSGuid contentId = mock(IPSGuid.class);
     Set<IPSAssemblyTemplate> siteTemplates =
-=======
-    final IPSSite site = context.mock(IPSSite.class, "site");
-    final IPSGuid contentId = context.mock(IPSGuid.class, "contentId");
-    final Set<IPSAssemblyTemplate> siteTemplates =
->>>>>>> development-8.1.x
         new HashSet<IPSAssemblyTemplate>() {
           {
             add(t3);
@@ -379,7 +217,6 @@ public class DefaultPageTemplateBeanTest {
 
     log.info("Testing findTemplate Not Found");
     try {
-<<<<<<< HEAD
       when(objFinder.getComponentSummary(contentId)).thenReturn(summ);
       when(t1.getGUID()).thenReturn(t1ID);
       when(site.getAssociatedTemplates()).thenReturn(siteTemplates);
@@ -415,53 +252,6 @@ public class DefaultPageTemplateBeanTest {
       verify(t3, atLeastOnce()).getName();
       verify(t3, atLeastOnce()).getGUID();
       verify(site).getName();
-=======
-      context.checking(
-          new Expectations() {
-            {
-              one(objFinder).getComponentSummary(contentId);
-              will(returnValue(summ));
-              allowing(t1).getGUID();
-              will(returnValue(t1ID));
-              one(site).getAssociatedTemplates();
-              will(returnValue(siteTemplates));
-              one(tempSvc).findTemplatesByContentType(ctypeId);
-              will(returnValue(tlist));
-              one(t1).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Default));
-              one(t1).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Snippet));
-              allowing(t1).getName();
-              will(returnValue("TestTemplate1"));
-              one(t2).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Default));
-              one(t2).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Page));
-              allowing(t2).getName();
-              will(returnValue("TestTemplate2"));
-              allowing(t2).getGUID();
-              will(returnValue(t2ID));
-
-              one(t3).getPublishWhen();
-              will(returnValue(IPSAssemblyTemplate.PublishWhen.Never));
-              allowing(t3).getOutputFormat();
-              will(returnValue(IPSAssemblyTemplate.OutputFormat.Binary));
-              allowing(t3).getName();
-              will(returnValue("TestTemplate3"));
-              allowing(t3).getGUID();
-              will(returnValue(t3ID));
-
-              allowing(site).getName();
-              will(returnValue("Mock Site"));
-            }
-          });
-
-      IPSAssemblyTemplate result = cut.findTemplate(site, contentId);
-
-    } catch (SiteLookUpException sle) {
-      log.info("expected exception caught");
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (Exception e) {
       log.error(e.getMessage(), e);

@@ -387,10 +387,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
       fail("Exception caught");
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Test class to expose protected methods.
    *
@@ -416,13 +413,9 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
       return super.getFolderId(request);
     }
 
-<<<<<<< HEAD
     /**
      * @see com.percussion.pso.validation.PSOUniqueFieldWithInFoldersValidator#isPromotable(int)
      */
-=======
-    /** @see com.percussion.pso.validation.PSOUniqueFieldWithInFoldersValidator#isPromotable(int) */
->>>>>>> development-8.1.x
     @Override
     public boolean isPromotable(int contentid) throws PSErrorException {
       return super.isPromotable(contentid);

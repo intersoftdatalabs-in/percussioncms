@@ -51,13 +51,9 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "Returns a Map of Feed parameters from a Jquery formatted feed. For example a post of"
               + " url: 'http://rss.news.yahoo.com/rss/yahoonewsroom', targetFolder:"
               + " '//Sites/EnterpriseInvestments/News'",
-=======
-          "Returns a Map of Feed parameters from a Jquery formatted feed. For example a post of url: 'http://rss.news.yahoo.com/rss/yahoonewsroom', targetFolder: '//Sites/EnterpriseInvestments/News'",
->>>>>>> development-8.1.x
       params = {@IPSJexlParam(name = "params", description = "The feed parameters")})
   public Map<String, String> getFeedParameters(String params) throws IllegalArgumentException {
 
@@ -91,12 +87,8 @@ public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "Returns a ROME SyndFeed instance for the given URL.  Supports Optional GET based upon"
               + " cached ETAG and LastModified Date.  Do not use unless cacheing these values.",
-=======
-          "Returns a ROME SyndFeed instance for the given URL.  Supports Optional GET based upon cached ETAG and LastModified Date.  Do not use unless cacheing these values.",
->>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(name = "url", description = "The URL of the feed to download."),
         @IPSJexlParam(name = "eTag", description = "A cached HTTP ETAG Headerfor the feed. "),

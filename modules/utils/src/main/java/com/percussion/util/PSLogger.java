@@ -16,11 +16,7 @@
  */
 package com.percussion.util;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -219,13 +215,8 @@ public class PSLogger implements IPSLogSink, IPSLogger {
   /** Made private to implement the singleton pattern. */
   private PSLogger() {}
 
-<<<<<<< HEAD
   /*****************************************************************/
   /*************** LogSink Interface *******************************/
-=======
-  /** ************************************************************** */
-  /** ************* LogSink Interface ****************************** */
->>>>>>> development-8.1.x
   /**
    * Logs the message.
    *

@@ -117,13 +117,9 @@ public class PSJdbcTableMetaData {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @return <code>true</code> if the table exists, <code>false</code> if not.
    */
-=======
-  /** @return <code>true</code> if the table exists, <code>false</code> if not. */
->>>>>>> development-8.1.x
   public boolean exists() {
     return m_tableExists;
   }

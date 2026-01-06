@@ -25,26 +25,16 @@ package com.percussion.pso.preview;
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.pso.utils.SimplifyParameters;
 import com.percussion.services.sitemgr.IPSSite;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-=======
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
@@ -71,7 +61,6 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
   private String folderIdParam = IPSHtmlParameters.SYS_FOLDERID;
 
   private String siteIdParam = IPSHtmlParameters.SYS_SITEID;
-<<<<<<< HEAD
 
   /**
    * @see AbstractMenuController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
@@ -93,26 +82,6 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
       return redirectTo(baseUrl, simpleMap);
     }
 
-=======
-  /** @see AbstractMenuController#handleRequestInternal(HttpServletRequest, HttpServletResponse) */
-  @Override
-  @SuppressWarnings("unchecked")
-  protected ModelAndView handleRequestInternal(
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
-    ModelAndView mav = super.handleRequestInternal(request, response);
-
-    Locale locale = request.getLocale();
-
-    Map<String, String[]> pmap = request.getParameterMap();
-    Map<String, String> simpleMap = SimplifyParameters.simplifyMapStringStringArray(pmap);
-    log.debug("Simple map is {}", simpleMap);
-
-    if (simpleMap.containsKey(
-        IPSHtmlParameters.SYS_SITEID)) { // there is already a site id, we can just use it.
-      return redirectTo(baseUrl, simpleMap);
-    }
-
->>>>>>> development-8.1.x
     Set<IPSSite> sites = findSitesForItem(simpleMap);
     if (sites.size() == 0) {
       log.error("item not found on any site");
@@ -173,10 +142,7 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
     View redirect = new RedirectView(url, false);
     return new ModelAndView(redirect, pmap);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the base url.
    *
@@ -185,10 +151,7 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
   public String getBaseUrl() {
     return baseUrl;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Sets the base url.
    *

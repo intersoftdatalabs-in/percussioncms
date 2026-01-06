@@ -165,17 +165,10 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-<<<<<<< HEAD
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-=======
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
->>>>>>> development-8.1.x
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -208,7 +201,6 @@ public class ItemRestServiceImpl implements IItemRestService {
 
   /** Field isi. */
   protected static IImportItemSystemInfo isi = null;
-<<<<<<< HEAD
 
   /** Field gmgr. */
   private static IPSGuidManager gmgr = null;
@@ -231,36 +223,15 @@ public class ItemRestServiceImpl implements IItemRestService {
   /** Field contentMgr. */
   private static IPSContentMgr contentMgr = null;
 
-=======
-  /** Field gmgr. */
-  private static IPSGuidManager gmgr = null;
-  /** Field cws. */
-  private static IPSContentWs cws = null;
-  /** Field summ. */
-  private static IPSCmsContentSummaries summ = null;
-  /** Field aService. */
-  private static IPSAssemblyService aService = null;
-  /** Field system. */
-  private static IPSSystemWs system = null;
-  /** Field sitemgr. */
-  private static IPSSiteManager sitemgr = null;
-  /** Field contentMgr. */
-  private static IPSContentMgr contentMgr = null;
->>>>>>> development-8.1.x
   /** Field filter. */
   private static IPSFilterService filter;
 
   /** Field uri. */
   private UriInfo uri;
-<<<<<<< HEAD
 
   /** Field emailProps. */
   private Properties emailProps;
 
-=======
-  /** Field emailProps. */
-  private Properties emailProps;
->>>>>>> development-8.1.x
   /**
    * Method setUriInfo.
    *
@@ -563,12 +534,8 @@ public class ItemRestServiceImpl implements IItemRestService {
               foldersum = folderproc.getSummary(folder);
             } catch (PSCmsException e) {
               log.debug(
-<<<<<<< HEAD
                   "get summary threw exception, ignoring just want to check if item refers to a non"
                       + " folder");
-=======
-                  "get summary threw exception, ignoring just want to check if item refers to a non folder");
->>>>>>> development-8.1.x
             }
 
             if (foldersum != null && !foldersum.isFolder()) {
@@ -1212,12 +1179,8 @@ public class ItemRestServiceImpl implements IItemRestService {
               item.setContentId(id);
             } else {
               throw new ItemRestException(
-<<<<<<< HEAD
                   "Item specifies multiple folders locating by path but currently these a different"
                       + " items "
-=======
-                  "Item specifies multiple folders locating by path but currently these a different items "
->>>>>>> development-8.1.x
                       + id
                       + " and "
                       + foundId);
@@ -2331,15 +2294,9 @@ public class ItemRestServiceImpl implements IItemRestService {
     return builder.build();
   }
 
-<<<<<<< HEAD
   /***
    * Given the specified content id, will load the Feed Definition
    * parameters and execute the import template specified by the feed.
-=======
-  /**
-   * * Given the specified content id, will load the Feed Definition parameters and execute the
-   * import template specified by the feed.
->>>>>>> development-8.1.x
    */
   @GET
   @Path("/importfeed/")

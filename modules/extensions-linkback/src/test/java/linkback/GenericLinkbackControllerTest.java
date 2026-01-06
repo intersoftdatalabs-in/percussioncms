@@ -23,20 +23,12 @@
  */
 package linkback;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.servlet.GenericLinkbackController;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,13 +41,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class GenericLinkbackControllerTest {
 
   private static final Logger log = LogManager.getLogger(GenericLinkbackControllerTest.class);
@@ -64,15 +52,10 @@ public class GenericLinkbackControllerTest {
 
   String token;
 
-<<<<<<< HEAD
   /**
    * @throws java.lang.Exception
    */
   @BeforeEach
-=======
-  /** @throws java.lang.Exception */
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new GenericLinkbackController();
     Map<String, Object> pmap = new HashMap<String, Object>();

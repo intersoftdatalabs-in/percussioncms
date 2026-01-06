@@ -175,13 +175,9 @@ public abstract class PSEditTableModel implements TableModel {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @return get the current PSCollection contained in the model
    */
-=======
-  /** @return get the current PSCollection contained in the model */
->>>>>>> development-8.1.x
   public PSCollection getRows() {
     return m_rows;
   }

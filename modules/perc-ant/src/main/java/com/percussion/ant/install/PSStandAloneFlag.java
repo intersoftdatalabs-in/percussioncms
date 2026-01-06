@@ -64,13 +64,9 @@ public class PSStandAloneFlag extends PSAction {
     return m_bStandalone;
   }
 
-<<<<<<< HEAD
   /**
    * @return <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
-=======
-  /** @return <code>true</code> if this is a standalone install, <code>false</code> otherwise. */
->>>>>>> development-8.1.x
   public static boolean isStandalone() {
     return m_bStandalone;
   }

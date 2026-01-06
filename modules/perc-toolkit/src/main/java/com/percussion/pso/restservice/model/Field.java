@@ -17,11 +17,7 @@
 package com.percussion.pso.restservice.model;
 
 import java.util.List;
-<<<<<<< HEAD
 import jakarta.xml.bind.annotation.*;
-=======
-import javax.xml.bind.annotation.*;
->>>>>>> development-8.1.x
 
 /** */
 @XmlRootElement
@@ -36,10 +32,7 @@ public class Field {
   public void setName(String name) {
     this.name = name;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method getName.
    *
@@ -148,10 +141,7 @@ public class Field {
     this.value = null;
     this.values = values;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method getValues.
    *
@@ -173,10 +163,7 @@ public class Field {
   public Field() {
     super();
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Constructor for Field.
    *
@@ -191,15 +178,10 @@ public class Field {
 
   /** Field name. */
   private String name;
-<<<<<<< HEAD
 
   /** Field valueAtt. */
   private String valueAtt;
 
-=======
-  /** Field valueAtt. */
-  private String valueAtt;
->>>>>>> development-8.1.x
   /** Field value. */
   private Value value;
 

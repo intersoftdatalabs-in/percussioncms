@@ -27,11 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 
@@ -89,14 +85,8 @@ public class TaxonomySecurityHelper {
     }
   }
 
-<<<<<<< HEAD
   /***
    * Minimal method for sanitizing input
-=======
-  /**
-   * * Minimal method for sanitizing input
-   *
->>>>>>> development-8.1.x
    * @param input
    * @return
    */

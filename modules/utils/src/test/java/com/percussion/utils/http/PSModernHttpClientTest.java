@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -115,6 +114,3 @@ class PSModernHttpClientTest {
     assertTrue(thrown.getMessage().contains("HTTP Error 404"));
   }
 }
-=======
-
->>>>>>> development-8.1.x

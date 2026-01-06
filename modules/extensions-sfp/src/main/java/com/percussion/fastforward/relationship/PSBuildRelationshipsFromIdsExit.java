@@ -28,15 +28,9 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.PSAssemblyException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -51,13 +45,9 @@ import org.w3c.dom.Document;
  */
 public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
-<<<<<<< HEAD
   /**
    * @return <code>false</code> always.
    */
-=======
-  /** @return <code>false</code> always. */
->>>>>>> development-8.1.x
   public boolean canModifyStyleSheet() {
     return false;
   }

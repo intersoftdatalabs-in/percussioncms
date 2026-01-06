@@ -41,12 +41,8 @@ public class TaxonomyTextConverter implements IPSLuceneTextConverter {
   // TODO we should really be using the taxonomy DAO... originally we didn't think this would run in
   // the spring context
   private String SQL_SIMILAR =
-<<<<<<< HEAD
       "select r.related_node.id from Related_node r where r.node.id in (:nodes) and"
           + " r.relationship.id = :relationship_type_id";
-=======
-      "select r.related_node.id from Related_node r where r.node.id in (:nodes) and r.relationship.id = :relationship_type_id";
->>>>>>> development-8.1.x
   private String SQL_GET_VALUES =
       "select v.Name from Value v where v.node.id in (:ids) and v.lang.id = :language_id";
 

@@ -23,10 +23,6 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSErrors.PSObjectError;
 import com.percussion.share.validation.PSValidationErrors.PSFieldError;
 import org.apache.commons.lang3.StringUtils;
-<<<<<<< HEAD
-=======
-import org.apache.commons.lang3.Validate;
->>>>>>> development-8.1.x
 
 /**
  * A fluent patterned validation errors builder. http://en.wikipedia.org/wiki/Fluent_interface
@@ -53,15 +49,9 @@ public class PSValidationErrorsBuilder {
 
   public PSValidationErrorsBuilder rejectField(
       String field, String code, String defaultMessage, Object value) {
-<<<<<<< HEAD
     notNull(field, "field cannot be null");
     notNull(code, "code cannot be null");
     notNull(defaultMessage, "defaultMessage cannot be null");
-=======
-    Validate.notNull(field);
-    Validate.notNull(code);
-    Validate.notNull(defaultMessage);
->>>>>>> development-8.1.x
     PSFieldError e = new PSFieldError();
     e.setCode(code);
     e.setDefaultMessage(defaultMessage);

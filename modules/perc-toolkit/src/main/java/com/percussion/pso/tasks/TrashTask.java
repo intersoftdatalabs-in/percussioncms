@@ -15,13 +15,9 @@
  * limitations under the License.
  */
 
-<<<<<<< HEAD
 /**
  * @author Stephen Bolton
  */
-=======
-/** @author Stephen Bolton */
->>>>>>> development-8.1.x
 package com.percussion.pso.tasks;
 
 // REFACTORED: CP-JAVA11
@@ -109,11 +105,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.naming.NamingException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -145,10 +137,7 @@ import org.apache.logging.log4j.Logger;
 public class TrashTask implements IPSTask {
   /** logger for this class. */
   private static final Logger log = LogManager.getLogger(TrashTask.class);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Field ORPHAN_ITEM_SQL. (value is ""select contentid,communityid from contentstatus " + "where
    * contentid not in (select dependent_id from psx_objectrelationship " + "where config_id = 3) and
@@ -158,10 +147,7 @@ public class TrashTask implements IPSTask {
       "select contentid,communityid from contentstatus "
           + "where contentid not in (select dependent_id from psx_objectrelationship "
           + "where config_id = 3) and contentid > 3";
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Field PURGE_ITEMS. (value is ""select c.contentid,c.lasttransitiondate from contentstatus
    * c,states s " + "where c.workflowappid = s.workflowappid and c.contentstateid = s.stateid " +
@@ -174,10 +160,7 @@ public class TrashTask implements IPSTask {
 
   /** Field MAX_ITEMS_IN_FOLDER. (value is 200) */
   private static final int MAX_ITEMS_IN_FOLDER = 200;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** The relationship type for folder object */
   public static final String FOLDER_RELATE_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
 
@@ -192,10 +175,7 @@ public class TrashTask implements IPSTask {
 
   /** Field gmgr. */
   private static IPSGuidManager gmgr = null;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** Field wf. */
   private static IPSWorkflowService wf = null;
 
@@ -244,7 +224,6 @@ public class TrashTask implements IPSTask {
 
   /** Field userName. */
   private String userName = PSSecurityProvider.INTERNAL_USER_NAME;
-<<<<<<< HEAD
 
   /** Field trashTransitionsList. */
   private List<String> trashTransitionsList;
@@ -252,12 +231,6 @@ public class TrashTask implements IPSTask {
   /** Field req. */
   private PSRequest req;
 
-=======
-  /** Field trashTransitionsList. */
-  private List<String> trashTransitionsList;
-  /** Field req. */
-  private PSRequest req;
->>>>>>> development-8.1.x
   /** Field folderproc. */
   private PSServerFolderProcessor folderproc;
 
@@ -501,10 +474,7 @@ public class TrashTask implements IPSTask {
    * @throws FatalTaskException * @throws PSORMException
    */
   private void dedupeTitles(List<PSComponentSummary> pageSumms) throws FatalTaskException {
-<<<<<<< HEAD
     // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
 
     // List to check against
     final Map<String, List<PSComponentSummary>> dupCheck =
@@ -926,10 +896,7 @@ public class TrashTask implements IPSTask {
     }
     return path;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method init.
    *
@@ -952,10 +919,7 @@ public class TrashTask implements IPSTask {
     public FatalTaskException(Exception e) {
       super(e);
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
     /**
      * Constructor for FatalTaskException.
      *

@@ -31,11 +31,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -142,10 +138,7 @@ public class PSJdbcStatementFactory {
         dbmsDef.getSchema(),
         ixName);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Returns an execution step that will drop FK constraint.
    *
@@ -205,10 +198,7 @@ public class PSJdbcStatementFactory {
 
     return buffer;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Returns an execution step that will alter the specified table. Can only process components that
    * are being added.
@@ -1127,7 +1117,6 @@ public class PSJdbcStatementFactory {
   public static String getForeignKeyConstraint(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema) {
     return getForeignKeyConstraint(dbmsDef, schema, null);
   }
-<<<<<<< HEAD
 
   /**
    * Creates sql definition for all external tables in a foreign key definition.
@@ -1161,40 +1150,6 @@ public class PSJdbcStatementFactory {
           HashSet<String> fkCols = new HashSet<>();
           while (cols.hasNext()) fkCols.add(cols.next()[2]);
 
-=======
-  /**
-   * Creates sql definition for all external tables in a foreign key definition.
-   *
-   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
-   * @param schema
-   * @param schema The table possibly containing the foreign key. Assumed not <code>null</code>.
-   * @return The foreign key definition, or <code>null</code> if the tableSchema does not contain
-   *     any.
-   */
-  public static String getForeignKeyConstraint(
-      PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema, PSJdbcTableSchema newSchema) {
-    StringBuilder buf = null;
-
-    List<PSJdbcForeignKey> fKeys = schema.getForeignKeys();
-    String newTable = newSchema == null ? null : newSchema.getName();
-    for (PSJdbcForeignKey fKey : fKeys) {
-      if (fKey != null) {
-        buf = new StringBuilder();
-
-        Iterator<String> tables = fKey.getTables();
-        int i = 1;
-
-        while (tables.hasNext()) {
-          String tableName = tables.next();
-          if (newTable != null && !tableName.equals(newTable)) continue;
-          String fkName =
-              StringUtils.isBlank(fKey.getName()) ? "fk_" + tableName + "_" + i : fKey.getName();
-
-          Iterator<String[]> cols = fKey.getColumns(tableName);
-          HashSet<String> fkCols = new HashSet<>();
-          while (cols.hasNext()) fkCols.add(cols.next()[2]);
-
->>>>>>> development-8.1.x
           if (newTable != null) {
             HashSet<String> pkCols = new HashSet<>();
             PSJdbcPrimaryKey pk = newSchema.getPrimaryKey();

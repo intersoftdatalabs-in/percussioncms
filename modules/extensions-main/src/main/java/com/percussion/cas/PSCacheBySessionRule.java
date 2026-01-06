@@ -22,11 +22,7 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestContext;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.io.File;
 
 /**

@@ -377,7 +377,6 @@ public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
     }
     return match;
   }
-<<<<<<< HEAD
 
   /** Alignment of the label. Defaults to RIGHT_ALIGNMENT */
   private float m_labelAlignment = RIGHT_ALIGNMENT;
@@ -418,47 +417,6 @@ public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
   /** The standard button size for all buttons. */
   public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
 
-=======
-  /** Alignment of the label. Defaults to RIGHT_ALIGNMENT */
-  private float m_labelAlignment = RIGHT_ALIGNMENT;
-
-  /** The constant to indicate fixed field height. */
-  public static final int FIXED_FIELD_HEIGHT = 20;
-
-  /** The constant to indicate fixed area height. */
-  public static final int FIXED_AREA_HEIGHT = 100;
-
-  /** The constant to indicate preferred width of a field or area. */
-  public static final int PREF_WIDTH = 200;
-
-  /** The constant to indicate minimum width of a field or area. */
-  public static final int MIN_WIDTH = 40;
-
-  /**
-   * The maximum dimension for a control which takes up an area, height and width are the maximum it
-   * can have.
-   */
-  public static final Dimension MAX_AREA_SIZE = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
-
-  /** The preferred dimension for a control which takes up an area, height is fixed. */
-  public static final Dimension PREF_AREA_SIZE = new Dimension(PREF_WIDTH, FIXED_AREA_HEIGHT);
-
-  /** The minimum dimension for a control which takes up an area, height is fixed. */
-  public static final Dimension MIN_AREA_SIZE = new Dimension(MIN_WIDTH, FIXED_AREA_HEIGHT);
-
-  /** The maximum dimension for a field control, height is fixed, width is maximum it can have. */
-  public static final Dimension MAX_SIZE = new Dimension(Integer.MAX_VALUE, FIXED_FIELD_HEIGHT);
-
-  /** The preferred dimension for a control. */
-  public static final Dimension PREF_SIZE = new Dimension(PREF_WIDTH, FIXED_FIELD_HEIGHT);
-
-  /** The minimum dimension for a control. */
-  public static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, FIXED_FIELD_HEIGHT);
-
-  /** The standard button size for all buttons. */
-  public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
-
->>>>>>> development-8.1.x
   /**
    * List of components by row, never <code>null</code>, may be empty. Each element in the list is a
    * <code>List</code> of <code>Component</code> objects, added as controls are added to this panel.

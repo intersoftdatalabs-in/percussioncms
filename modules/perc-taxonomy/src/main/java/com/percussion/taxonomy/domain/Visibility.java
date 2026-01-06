@@ -68,10 +68,7 @@ public class Visibility {
   public long getCommunity_id() {
     return community_id;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Set visible community id
    *

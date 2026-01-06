@@ -50,13 +50,9 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
     m_dbmsDef = dbmsDef;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.IPSJdbcRowMapping
    */
-=======
-  /** @see com.percussion.tablefactory.IPSJdbcRowMapping */
->>>>>>> development-8.1.x
   public void addColumnMapping(String srcTblColName, String destTblColName) {
     if ((srcTblColName == null) || (srcTblColName.trim().length() < 1))
       throw new IllegalArgumentException("srcTblColName may not be null or empty");
@@ -67,49 +63,33 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
     m_colMapping.put(srcTblColName, destTblColName);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.IPSJdbcRowMapping
    */
-=======
-  /** @see com.percussion.tablefactory.IPSJdbcRowMapping */
->>>>>>> development-8.1.x
   public void addColumn(PSJdbcColumnData destTblColData) {
     if (destTblColData == null)
       throw new IllegalArgumentException("destTblColData may not be null");
     m_defColValues.add(destTblColData);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.IPSJdbcRowMapping
    */
-=======
-  /** @see com.percussion.tablefactory.IPSJdbcRowMapping */
->>>>>>> development-8.1.x
   public void setTableData(PSJdbcTableData tblData) {
     if (tblData == null) throw new IllegalArgumentException("tblData may not be null");
     m_tblData = tblData;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.IPSJdbcRowMapping
    */
-=======
-  /** @see com.percussion.tablefactory.IPSJdbcRowMapping */
->>>>>>> development-8.1.x
   public void setRowAction(int rowAction) {
     m_rowAction = rowAction;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.tablefactory.IPSJdbcRowMapping
    */
-=======
-  /** @see com.percussion.tablefactory.IPSJdbcRowMapping */
->>>>>>> development-8.1.x
   public PSJdbcRowData processRow(Connection conn, PSJdbcRowData srcRow)
       throws PSJdbcTableFactoryException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");

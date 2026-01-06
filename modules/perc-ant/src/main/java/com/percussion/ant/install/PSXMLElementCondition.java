@@ -76,7 +76,6 @@ public class PSXMLElementCondition extends PSAction implements Condition {
       PSLogger.logInfo("file does not exist : " + strXmlFile);
       return false;
     }
-<<<<<<< HEAD
 
     Document doc = null;
     DocumentBuilder db = PSXmlDocumentBuilder.getDocumentBuilder(false);
@@ -114,46 +113,6 @@ public class PSXMLElementCondition extends PSAction implements Condition {
   /***************************************************************
    * Mutators and Accessors
    ***************************************************************/
-=======
-
-    Document doc = null;
-    DocumentBuilder db = PSXmlDocumentBuilder.getDocumentBuilder(false);
-
-    try {
-      File f = new File(strXmlFile);
-      doc = db.parse(f);
-      if (doc == null) return false;
-      Element root = doc.getDocumentElement();
-      if (root == null) return false;
-      NodeList nl = root.getElementsByTagName(xmlElementName);
-      if (nl == null) return false;
-      int nodeListLen = nl.getLength();
-      Element el = null;
-      String elText = "";
-      for (int j = 0; j < nodeListLen; j++) {
-        el = (Element) nl.item(j);
-        elText = getElementData(el);
-        if (!((elText == null) || (elText.trim().length() == 0))) {
-          if (ignoreCase) {
-            if (xmlElementValue.equalsIgnoreCase(elText)) return true;
-          } else {
-            if (xmlElementValue.equals(elText)) return true;
-          }
-        }
-      }
-    } catch (Exception e) {
-      PSLogger.logInfo("Exception in PSXMLElementCondition : " + e.getMessage());
-      PSLogger.logInfo(e);
-      return false;
-    }
-    return false;
-  }
-
-  /**
-   * ************************************************************* Mutators and Accessors
-   * *************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the relative path of the xml file from the installation directory.
@@ -243,16 +202,9 @@ public class PSXMLElementCondition extends PSAction implements Condition {
     this.ignoreCase = ignoreCase;
   }
 
-<<<<<<< HEAD
   /***************************************************************
    * Bean properties
    ***************************************************************/
-=======
-  /**
-   * ************************************************************* Bean properties
-   * *************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** stores the relative path of the xml file, never <code>null</code> or empty */
   String relativeFilePath = "rxconfig/Server/config.xml";
@@ -269,16 +221,9 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    */
   boolean ignoreCase = true;
 
-<<<<<<< HEAD
   /**************************************************************************
    * private function
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ private function
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Get the value (text data) associated with the specified node. If the specified node is <code>
@@ -300,20 +245,12 @@ public class PSXMLElementCondition extends PSAction implements Condition {
          */
         if (text.getNodeType() == Node.TEXT_NODE) ret.append(text.getNodeValue());
         else
-<<<<<<< HEAD
         /***
          * DB: when there are embedded entities in element data, the
          * "Actual Value" of the entity will be contained in one or more
          * Text nodes as children of the entity ref node.  We call ourselves
          * recursively to process these additional nodes.
          ***/
-=======
-        /**
-         * * DB: when there are embedded entities in element data, the "Actual Value" of the entity
-         * will be contained in one or more Text nodes as children of the entity ref node. We call
-         * ourselves recursively to process these additional nodes. *
-         */
->>>>>>> development-8.1.x
         if (text.getNodeType() == Node.ENTITY_REFERENCE_NODE) {
           ret.append(getElementData(text));
         }

@@ -33,11 +33,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -447,12 +443,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
               + origFolderId
               + " from relationship rid="
               + rel.getId()
-<<<<<<< HEAD
               + " because cannot identify the folder under the target site for the dependent item"
               + " id="
-=======
-              + " because cannot identify the folder under the target site for the dependent item id="
->>>>>>> development-8.1.x
               + rel.getDependent().getId());
     }
   }
@@ -494,12 +486,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
       // target site.
 
       logErrorMessage(
-<<<<<<< HEAD
           "There are more than one folders that are originated from the original (and incorrect)"
               + " folder (id="
-=======
-          "There are more than one folders that are originated from the original (and incorrect) folder (id="
->>>>>>> development-8.1.x
               + origFolderId
               + ") which is the property of relationship rid="
               + rel.getId());

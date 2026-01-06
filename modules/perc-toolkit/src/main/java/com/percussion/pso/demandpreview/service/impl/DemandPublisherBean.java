@@ -16,10 +16,6 @@
  */
 package com.percussion.pso.demandpreview.service.impl;
 
-<<<<<<< HEAD
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import com.percussion.pso.demandpreview.service.DemandPublisherService;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
 import com.percussion.rx.publisher.IPSRxPublisherService;
@@ -46,10 +42,7 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /** Service for RxPublisherService */
   private IPSRxPublisherService rxPubSvc = null;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** timeout in seconds */
   private long timeout = 100L; // seconds
 

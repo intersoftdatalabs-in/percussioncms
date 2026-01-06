@@ -57,11 +57,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -180,7 +176,6 @@ public class PSCreateItemAction extends PSAAActionBase {
    * @throws PSAAClientActionException
    */
   private int createItem(int ctypeId, Object itemPath, String itemTitle)
-<<<<<<< HEAD
       throws PSErrorException,
           PSErrorResultsException,
           PSInvalidContentTypeException,
@@ -312,132 +307,6 @@ public class PSCreateItemAction extends PSAAActionBase {
     }
   }
 
-=======
-      throws PSErrorException, PSErrorResultsException, PSInvalidContentTypeException,
-          PSErrorsException, PSInternalRequestCallException, PSAuthorizationException,
-          PSAuthenticationFailedException, PSAAClientActionException {
-    int newItem = -1;
-    IPSContentWs cws = PSContentWsLocator.getContentWebservice();
-    canCreateItem(ctypeId);
-
-    if (itemPath == null || StringUtils.isBlank(itemPath.toString())) {
-      PSItemDefManager defMgr = PSItemDefManager.getInstance();
-      PSItemDefSummary sum = defMgr.getSummary(ctypeId, PSItemDefManager.COMMUNITY_ANY);
-      List<PSCoreItem> items =
-          cws.createItems(
-              sum.getName(), 1, getRequestContext().getUserSessionId(), getCurrentUser());
-      setTitles(items.get(0), itemTitle);
-      List<IPSGuid> nitems =
-          cws.saveItems(
-              items, false, false, getRequestContext().getUserSessionId(), getCurrentUser());
-      newItem = nitems.get(0).getUUID();
-    } else {
-      IPSGuid id = cws.getIdByPath(itemPath.toString());
-      if (id == null) return -1;
-      IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
-      PSComponentSummary summary = objMgr.loadComponentSummary(id.getUUID());
-      PSLocator loc = summary.getCurrentLocator();
-      loc.setRevision(summary.getAAViewableRevision(getCurrentUser()));
-      IPSGuid iguid = PSGuidManagerLocator.getGuidMgr().makeGuid(loc);
-      List<PSCoreItem> items =
-          cws.newCopies(
-              Collections.singletonList(iguid),
-              Collections.singletonList(""),
-              null,
-              false,
-              getRequestContext().getUserSessionId(),
-              getCurrentUser());
-      IPSGuid itemGuid =
-          PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(items.get(0).getContentId(), 1));
-      cws.checkoutItems(Collections.singletonList(itemGuid), "", getCurrentUser());
-      setTitles(items.get(0), itemTitle);
-      List<IPSGuid> nitems =
-          cws.saveItems(
-              items, false, false, getRequestContext().getUserSessionId(), getCurrentUser());
-      newItem = nitems.get(0).getUUID();
-    }
-
-    return newItem;
-  }
-
-  /**
-   * Checks whether an item of the supplied content type can be created by the logged in user if not
-   * throws an exception, otherwise does nothing. Makes an internal request to the content editor
-   * URL by passing in workflow id and other parameters. If user is not authorized to create item,
-   * then the internal request throws an exception with authorization failure message in it. If the
-   * message has authorization failure, then throws client exception with authorization error
-   * message, for any other exception simply returns that exception wrapping in client exception.
-   *
-   * @param ctypeId id of the content type whose item needs to be created, if not a valid content
-   *     type then throws exception.
-   * @throws PSInternalRequestCallException
-   * @throws PSAuthorizationException
-   * @throws PSAuthenticationFailedException
-   * @throws PSInvalidContentTypeException
-   * @throws PSAAClientActionException
-   */
-  private void canCreateItem(int ctypeId)
-      throws PSInternalRequestCallException, PSAuthorizationException,
-          PSAuthenticationFailedException, PSInvalidContentTypeException,
-          PSAAClientActionException {
-    PSItemDefManager defMgr = PSItemDefManager.getInstance();
-    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, ctypeId);
-    PSNodeDefinition def = PSContentTypeHelper.findNodeDef(guid);
-    PSItemDefinition itemDef = defMgr.getItemDef(ctypeId, -1);
-    int workflowId =
-        PSCms.getDefaultWorkflowId(
-            PSServer.getRequest(getRequestContext()), itemDef.getContentEditor());
-    String editorUrl = def.getQueryRequest();
-    Map<String, String> params = new HashMap<String, String>();
-    params.put(IPSHtmlParameters.SYS_VIEW, IPSConstants.SYS_ALL_VIEW_NAME);
-    params.put(IPSHtmlParameters.SYS_COMMAND, "edit");
-    params.put("sys_workflowappid", workflowId + "");
-    IPSInternalRequest ir = getRequestContext().getInternalRequest(editorUrl, params, false);
-    try {
-      ir.getResultDoc();
-    } catch (Exception e) {
-      ms_log.error(e);
-      if (e.getMessage().indexOf("PSAuthorizationException") != -1)
-        throw new PSAAClientActionException(
-            "You are not authorized to create the content of the selected type.");
-      else throw new PSAAClientActionException(e);
-    }
-  }
-
-  /**
-   * Helper method to set the values of {@link IPSHtmlParameters#SYS_TITLE} field and displaytitle
-   * filed to the supplied itemTitle on the supplied coreItem, if those fields exist.
-   *
-   * @param itemTitle Assumed not <code>null</code>.
-   * @param coreItem Assumed not <code>null</code>.
-   */
-  private void setTitles(PSCoreItem coreItem, String itemTitle) {
-    Iterator<PSItemField> fields = coreItem.getAllFields();
-    PSItemField titleFld = null;
-    PSItemField dsTitleFld = null;
-    while (fields.hasNext()) {
-      PSItemField fld = fields.next();
-      if (fld.getName().equals(IPSHtmlParameters.SYS_TITLE)) {
-        titleFld = fld;
-      } else if (fld.getName().equals("displaytitle")) {
-        dsTitleFld = fld;
-      }
-      // Break if we have both fields
-      if (titleFld != null && dsTitleFld != null) {
-        break;
-      }
-    }
-    if (titleFld != null) {
-      titleFld.addValue(new PSTextValue(itemTitle));
-    }
-    // Check whether display title field exists or not and also check whether
-    // it is a single value field or not before setting the field value.
-    if (dsTitleFld != null && !dsTitleFld.isMultiValue()) {
-      dsTitleFld.addValue(new PSTextValue(itemTitle));
-    }
-  }
-
->>>>>>> development-8.1.x
   /**
    * Helper method to add the supplied itemid to the folder corresponding to the supplied folder
    * path.

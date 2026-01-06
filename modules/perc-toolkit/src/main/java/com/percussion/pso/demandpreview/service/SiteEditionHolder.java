@@ -90,24 +90,16 @@ public class SiteEditionHolder {
     this.context = context;
   }
 
-<<<<<<< HEAD
   /**
    * @return the contextURLRootVar
    */
-=======
-  /** @return the contextURLRootVar */
->>>>>>> development-8.1.x
   public String getContextURLRootVar() {
     return contextURLRootVar;
   }
 
-<<<<<<< HEAD
   /**
    * @param contextURLRootVar the contextURLRootVar to set
    */
-=======
-  /** @param contextURLRootVar the contextURLRootVar to set */
->>>>>>> development-8.1.x
   public void setContextURLRootVar(String contextURLRootVar) {
     this.contextURLRootVar = contextURLRootVar;
   }

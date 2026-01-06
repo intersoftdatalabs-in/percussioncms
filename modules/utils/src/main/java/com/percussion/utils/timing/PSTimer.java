@@ -31,10 +31,7 @@ public class PSTimer {
   public PSTimer(Logger log) {
     m_watch.start();
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Log the message along with the elapsed time.
    *

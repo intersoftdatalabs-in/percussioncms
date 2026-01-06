@@ -17,11 +17,7 @@
 
 package com.percussion.auditlog;
 
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
-=======
-import javax.servlet.http.HttpServletRequest;
->>>>>>> development-8.1.x
 
 public class PSAuthenticationEvent extends AbstractEvent {
 

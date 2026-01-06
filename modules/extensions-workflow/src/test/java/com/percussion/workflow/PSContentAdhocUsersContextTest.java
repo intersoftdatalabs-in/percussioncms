@@ -16,33 +16,20 @@
  */
 package com.percussion.workflow;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.IntegrationTest;
->>>>>>> development-8.1.x
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Tag;
-=======
-import org.junit.experimental.categories.Category;
->>>>>>> development-8.1.x
 
 /**
  * The PSContentAdhocUsersContextTest class is a test class for the class
  * PSContentAdhocUsersContext.
  */
-<<<<<<< HEAD
 @Tag("IntegrationTest")
-=======
-@Category(IntegrationTest.class)
->>>>>>> development-8.1.x
 public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContextTest.class);

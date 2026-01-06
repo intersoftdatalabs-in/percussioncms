@@ -17,11 +17,7 @@
 
 package com.percussion.ant.gui;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -38,11 +34,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
@@ -59,7 +51,6 @@ import org.apache.tools.ant.helper.ProjectHelperImpl;
 public class PSRxBuildInput {
 
   private static final Logger log = LogManager.getLogger(PSRxBuildInput.class);
-<<<<<<< HEAD
 
   /**
    * Contructs a new Ui
@@ -136,83 +127,6 @@ public class PSRxBuildInput {
     m_verbose = verbose;
     m_readme = readme;
 
-=======
-  /**
-   * Contructs a new Ui
-   *
-   * @param batchfile the temporary batch file which will be used to launch the build, may not be
-   *     <code>null</code> or empty.
-   * @param libPath the library path specified by the Ant -lib command line parameter, may not be
-   *     <code>null</code> or empty.
-   * @param buildfile the build file which will include instructions for copying source files to the
-   *     patch files build directory.
-   * @param backupfile the build file which will include instructions for backing up original
-   *     Rhythmyx files to be patched.
-   * @param installfile the build file which will include instructions for installing the patch
-   *     files.
-   * @param uninstallfile the build file which will include instructions for uninstalling the patch
-   *     files and restoring the originals.
-   * @param rootDir the source root directory, may not be <code>null</code> or empty.
-   * @param configfile the full path to the .cfg file should not be <code>null</code>
-   */
-  public PSRxBuildInput(
-      String batchfile,
-      String libPath,
-      String buildfile,
-      String backupfile,
-      String installfile,
-      String uninstallfile,
-      String rootDir,
-      String configfile,
-      String readme,
-      boolean obfuscation,
-      boolean debug,
-      boolean manufacture,
-      boolean sync,
-      boolean verbose) {
-    if (batchfile == null || batchfile.trim().length() == 0)
-      throw new IllegalArgumentException("Batchfile cannot be null or empty.");
-
-    if (libPath == null || libPath.trim().length() == 0)
-      throw new IllegalArgumentException("LibPath cannot be null or empty.");
-
-    if (buildfile == null || buildfile.trim().length() == 0)
-      throw new IllegalArgumentException("Buildfile cannot be null or empty.");
-
-    if (backupfile == null || backupfile.trim().length() == 0)
-      throw new IllegalArgumentException("Backupfile cannot be null or empty.");
-
-    if (installfile == null || installfile.trim().length() == 0)
-      throw new IllegalArgumentException("Installfile cannot be null or empty.");
-
-    if (uninstallfile == null || uninstallfile.trim().length() == 0)
-      throw new IllegalArgumentException("Uninstallfile cannot be null or empty.");
-
-    if (rootDir == null || rootDir.trim().length() == 0)
-      throw new IllegalArgumentException("Rootdir cannot be null or empty.");
-
-    if (configfile == null || configfile.trim().length() == 0)
-      throw new IllegalArgumentException("Configfile cannot be null or empty.");
-
-    if (readme == null || readme.trim().length() == 0)
-      throw new IllegalArgumentException("Readme cannot be null or empty.");
-
-    m_batchfile = batchfile;
-    m_libPath = libPath;
-    m_buildfile = buildfile;
-    m_backupfile = backupfile;
-    m_installfile = installfile;
-    m_uninstallfile = uninstallfile;
-    m_rootDir = rootDir;
-    m_configfile = configfile;
-    m_obfu = obfuscation;
-    m_debug = debug;
-    m_manufacture = manufacture;
-    m_sync = sync;
-    m_verbose = verbose;
-    m_readme = readme;
-
->>>>>>> development-8.1.x
     File file = new File(m_batchfile);
     if (file.exists()) file.delete();
     File file2 = new File(m_buildfile);
