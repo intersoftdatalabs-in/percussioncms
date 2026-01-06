@@ -6,10 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import org.junit.Test;
-
 public class TestPSHtmlUtils {
 
   @Test
