@@ -278,7 +278,6 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
 
     return ((Text) temp).getData().trim();
   }
-<<<<<<< HEAD
 
   /** String constant for the element name workflows */
   private static final String ELEM_WORKFLOWS = "workflows";
@@ -295,23 +294,6 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
   /** String constant for the attribute name workflowid */
   private static final String ATTR_WORKFLOWID = "workflowid";
 
-=======
-  /** String constant for the element name workflows */
-  private static final String ELEM_WORKFLOWS = "workflows";
-
-  /** String constant for the element name workflow */
-  private static final String ELEM_WORKFLOW = "workflow";
-
-  /** String constant for the element name id */
-  private static final String ELEM_ID = "id";
-
-  /** String constant for the attribute name contenttypeid */
-  private static final String ATTR_CONTENTTYPEID = "contenttypeid";
-
-  /** String constant for the attribute name workflowid */
-  private static final String ATTR_WORKFLOWID = "workflowid";
-
->>>>>>> development-8.1.x
   /** String constant for the workflow lookup resource */
   private static final String WORKFLOW_LOOKUP_RESOURCE =
       "sys_psxRelationshipSupport/workflowlookup";

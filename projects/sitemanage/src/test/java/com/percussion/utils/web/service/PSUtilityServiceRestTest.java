@@ -25,7 +25,7 @@ import com.percussion.utils.service.impl.PSUtilityRestService;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient> {
 

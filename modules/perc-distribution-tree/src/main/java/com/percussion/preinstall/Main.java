@@ -157,12 +157,8 @@ public class Main {
                             .forEach(File::delete);
                       } catch (IOException ex) {
                         System.out.println(
-<<<<<<< HEAD
                             "An error occurred while executing the installation, installation has"
                                 + " likely failed. "
-=======
-                            "An error occurred while executing the installation, installation has likely failed. "
->>>>>>> development-8.1.x
                                 + ex.getMessage());
                       }
                     }
@@ -256,7 +252,6 @@ public class Main {
           Files.createDirectory(entryDest);
           continue;
         }
-<<<<<<< HEAD
         if (MainIAInstall.installerProxy != null) {
           MainIAInstall.showProgress(
               MainIAInstall.installerProxy,
@@ -267,18 +262,6 @@ public class Main {
           System.out.println("Creating file " + entryDest);
         }
         Files.copy(archive.getInputStream(entry), entryDest);
-=======
-
-        System.out.println("Creating file " + entryDest);
-
-        Files.copy(archive.getInputStream(entry), entryDest);
-
-        // Preserve executable permissions for shell scripts
-        if (entryName.endsWith(".sh")) {
-          File file = entryDest.toFile();
-          file.setExecutable(true, false); // Set executable for owner, group, and others
-        }
->>>>>>> development-8.1.x
       }
     } catch (Exception ex) {
       log.error(ex.getMessage());
@@ -355,7 +338,6 @@ public class Main {
                       // start the input reader buffer threads
                       outBuff.start();
                       errBuff.start();
-<<<<<<< HEAD
 
                       // while an input reader buffer thread is alive
                       // or there are unconsumed data left
@@ -404,42 +386,6 @@ public class Main {
 
           streamReader.start();
 
-=======
-
-                      // while an input reader buffer thread is alive
-                      // or there are unconsumed data left
-                      while (outBuff.isAlive()
-                          || outBuff.hasNext()
-                          || errBuff.isAlive()
-                          || errBuff.hasNext()) {
-
-                        // get the normal output if at least 50 millis have passed
-                        if (outBuff.timeElapsed() > 50)
-                          while (outBuff.hasNext()) {
-                            currentLineNo.getAndIncrement();
-
-                            System.out.println(errBuff.getNext());
-                          }
-                        // get the error output if at least 50 millis have passed
-                        if (errBuff.timeElapsed() > 50)
-                          while (errBuff.hasNext()) currentErrLineNo.getAndIncrement();
-
-                        System.err.println(errBuff.getNext());
-
-                        // sleep a bit bofore next run
-                        try {
-                          Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                          Thread.currentThread().interrupt();
-                        }
-                      }
-                      System.out.println("Finish reading error and output stream");
-                    }
-                  });
-
-          streamReader.start();
-
->>>>>>> development-8.1.x
           process.waitFor();
 
           // Shutdown threads and streams
@@ -462,7 +408,6 @@ public class Main {
           if (processCode != 0) {
             error = true;
           }
-<<<<<<< HEAD
         }
       }
     } catch (Exception ex) {
@@ -554,99 +499,6 @@ public class Main {
     }
   }
 
-=======
-        }
-      }
-    } catch (Exception ex) {
-      log.error(ex.getMessage());
-      log.debug(ex.getMessage(), ex);
-      processCode = -2;
-      error = true;
-    }
-    return processCode;
-  }
-
-  private static Properties loadVersionProperties(Path installDir) {
-    File versionFile = new File(installDir + File.separator + VERSION_PROPERTIES);
-    Properties rawVersionProperties = new Properties();
-    if (versionFile.exists()) {
-      try (FileInputStream versionfileStream = new FileInputStream(versionFile)) {
-        rawVersionProperties.load(versionfileStream);
-        return rawVersionProperties;
-      } catch (IOException e) {
-        log.info("Loading Version.properties file failed", PSExceptionUtils.getMessageForLog(e));
-      }
-    }
-    return rawVersionProperties;
-  }
-
-  private static void updateSSLProtocol(Path installDir) {
-    String installationPropertiesFilePath =
-        installDir.toAbsolutePath().toString() + INSTALLATION_PROPS_PATH;
-    File installationPropertiesFile = new File(installationPropertiesFilePath);
-    Properties installationProperties = new Properties();
-    String newProtocol = null;
-    if (installationPropertiesFile.exists()) {
-      try (FileInputStream installationPropsfileStream =
-          new FileInputStream(installationPropertiesFile)) {
-        installationProperties.load(installationPropsfileStream);
-        String protocols = installationProperties.getProperty("perc.ssl.protocols");
-        if (protocols != null) {
-          String[] protocolArray = protocols.split(",");
-          for (String pr : protocolArray) {
-            if (!"".equals(pr) && !"TLSv1".equals(pr) && !"TLSv1.1".equals(pr)) {
-              if (newProtocol == null) {
-                newProtocol = pr;
-              } else {
-                newProtocol += "," + pr;
-              }
-            }
-          }
-          installationProperties.setProperty("perc.ssl.protocols", protocols);
-          try (FileOutputStream os = new FileOutputStream(installationPropertiesFile)) {
-            installationProperties.store(os, "update ssl Protocol");
-          }
-        }
-      } catch (IOException e) {
-        log.info(
-            "Loading Installation.properties file failed", PSExceptionUtils.getMessageForLog(e));
-      }
-    }
-  }
-
-  public static void updateUserSpringConfig(Path installDir) {
-    String userSprinXMLDir =
-        installDir.toAbsolutePath().toString()
-            + "/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/";
-    String[] ext = new String[] {"xml"};
-    File userSprinXMLDirectory = new File(userSprinXMLDir);
-    if (userSprinXMLDirectory.exists()) {
-      List<File> userSpringXMLFiles =
-          (List<File>) FileUtils.listFiles(userSprinXMLDirectory, ext, false);
-      for (File xmlFile : userSpringXMLFiles) {
-        if (xmlFile.exists()) {
-
-          replaceTokens(
-              xmlFile,
-              "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \n"
-                  + "   \"http://www.springframework.org/dtd/spring-beans.dtd\">\n"
-                  + "<beans>",
-              "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n"
-                  + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-                  + "xmlns:tx=\"http://www.springframework.org/schema/tx\"\n"
-                  + "xmlns:context=\"http://www.springframework.org/schema/context\"\n"
-                  + "xsi:schemaLocation=\"http://www.springframework.org/schema/beans\n"
-                  + "http://www.springframework.org/schema/beans/spring-beans-4.2.xsd\n"
-                  + "http://www.springframework.org/schema/tx\n"
-                  + "http://www.springframework.org/schema/tx/spring-tx-4.2.xsd\n"
-                  + "http://www.springframework.org/schema/context\n"
-                  + "http://www.springframework.org/schema/context/spring-context-4.2.xsd\">");
-        }
-      }
-    }
-  }
-
->>>>>>> development-8.1.x
   public static void updateCategoryXMLForUpgrade(Path installDir) {
     String categoryXMLDir =
         installDir.toAbsolutePath().toString() + "/rx_resources/category/category.xml";
@@ -662,12 +514,8 @@ public class Main {
               if (s.contains("<CategoryTree")) {
                 topLevelNodeToReplace.set(s);
               }
-<<<<<<< HEAD
               if (s.contains("</CategoryTree"))
                 ;
-=======
-              if (s.contains("</CategoryTree")) ;
->>>>>>> development-8.1.x
               {
                 topLevelNodeEndToReplace.set(s);
               }

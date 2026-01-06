@@ -22,11 +22,7 @@ import static junit.framework.Assert.*;
 import com.thoughtworks.xstream.XStream;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class XStreamTest {
   @Test

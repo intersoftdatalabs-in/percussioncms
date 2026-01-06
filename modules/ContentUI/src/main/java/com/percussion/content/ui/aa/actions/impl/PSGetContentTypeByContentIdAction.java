@@ -20,11 +20,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.content.ui.aa.PSAAObjectId;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;

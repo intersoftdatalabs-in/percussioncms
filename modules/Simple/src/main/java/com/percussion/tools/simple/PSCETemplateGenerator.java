@@ -114,21 +114,13 @@ public class PSCETemplateGenerator {
 
       // Remove Pagetank and table references as they are not valid for
       // templates
-<<<<<<< HEAD
       List<String> excludeList = new ArrayList<>();
-=======
-      List excludeList = new ArrayList();
->>>>>>> development-8.1.x
       excludeList.add(PAGE_DATATANK_ELEMENT);
       excludeList.add(TABLE_REFERENCE_ELEMENT);
 
       // Add dummy table reference as dtd requires atleast one table reference
       // element in tableset.
-<<<<<<< HEAD
       Map<String, Element> addList = new HashMap<>();
-=======
-      Map addList = new HashMap();
->>>>>>> development-8.1.x
       Document dummyDoc = PSXmlDocumentBuilder.createXmlDocument();
       Element tableRef = dummyDoc.createElement(TABLE_REFERENCE_ELEMENT);
       tableRef.setAttribute(TABLE_REFERENCE_NAME_ATTRIBUTE, DUMMY_TABLE_REFERENCE_NAME);
@@ -195,11 +187,8 @@ public class PSCETemplateGenerator {
    * creating the template.
    */
   public class PSCreateTemplateException extends Exception {
-<<<<<<< HEAD
     private static final long serialVersionUID = 1L;
 
-=======
->>>>>>> development-8.1.x
     /**
      * Constructs this exception object from the given message.
      *
@@ -249,11 +238,7 @@ public class PSCETemplateGenerator {
           dtd = new URL(args[2]);
         } else {
           File dtdFile = new File(args[2]);
-<<<<<<< HEAD
           dtd = dtdFile.toURI().toURL();
-=======
-          dtd = dtdFile.toURL();
->>>>>>> development-8.1.x
         }
       } catch (MalformedURLException e) {
         System.out.println("Invalid dtd specified");

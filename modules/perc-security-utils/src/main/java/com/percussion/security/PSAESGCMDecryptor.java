@@ -19,10 +19,6 @@ package com.percussion.security;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-<<<<<<< HEAD
-=======
-import java.nio.ByteBuffer;
->>>>>>> development-8.1.x
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -47,7 +43,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class PSAESGCMDecryptor implements IPSDecryptor {
 
-<<<<<<< HEAD
   private PSAESGCMKey key;
 
   /**
@@ -74,33 +69,6 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
   public void decrypt(InputStream in, OutputStream out) {}
 
   /**
-=======
-  private PSAESGCMKey m_key = null;
-
-  /**
-   * Construct a AES decryptor using the specified DES key.
-   *
-   * @param key the AES key to use for decryption
-   * @throws IllegalArgumentException if <code>key</code> is <code>null</code>
-   */
-  public PSAESGCMDecryptor(PSAESGCMKey key) throws IllegalArgumentException {
-    if (key == null) throw new IllegalArgumentException("key cannot be null");
-
-    // store key for later use
-    m_key = key;
-  }
-
-  /**
-   * Decrypt the data in the specified input stream.
-   *
-   * @param in the stream containing the encrypted data
-   * @param out the stream to store the plain text representation of the data
-   */
-  @Override
-  public void decrypt(InputStream in, OutputStream out) {}
-
-  /**
->>>>>>> development-8.1.x
    * A convenience method to decrypt data into a String.
    *
    * @param in the stream containing the encrypted data
@@ -112,7 +80,6 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
   }
 
   /**
-<<<<<<< HEAD
    * A convenience method to decrypt data from a byte array into a String.
    *
    * @param in the byte array containing the encrypted data
@@ -128,56 +95,18 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
     if (in == null || in.length <= minLength) {
       throw new PSEncryptionException(
           "Input too short for AES-GCM decryption (minimum " + minLength + " bytes required)");
-=======
-   * A convenidece method to decrypt data from a byte array into a String.
-   *
-   * @param in the byte array containing the encrypted data
-   * @return a string containing the plain text representation of the data
-   * @throws PSEncryptionException
-   */
-  @Override
-  public String decrypt(byte[] in) throws PSEncryptionException {
-    byte[] decryptedText = null;
-
-    ByteBuffer bb = ByteBuffer.wrap(in);
-
-    int size = (bb.capacity() > 12 ? 12 : bb.capacity());
-    byte[] iv = new byte[size];
-    bb.get(iv);
-
-    byte[] cipherText = new byte[bb.remaining()];
-    bb.get(cipherText);
-
-    try {
-
-      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-      PSAESGCMKey aesKey = (PSAESGCMKey) m_key;
-      cipher.init(Cipher.DECRYPT_MODE, aesKey.getSecretKey(), new GCMParameterSpec(128, iv));
-      byte[] plainText = cipher.doFinal(cipherText);
-
-      return new String(plainText, StandardCharsets.UTF_8);
-
-    } catch (NoSuchAlgorithmException
-        | NoSuchPaddingException
-        | BadPaddingException
-        | IllegalBlockSizeException
-        | InvalidAlgorithmParameterException
-        | InvalidKeyException e) {
-      throw new PSEncryptionException(e.getMessage(), e);
->>>>>>> development-8.1.x
     }
   }
 
-<<<<<<< HEAD
-    byte[] iv = new byte[ivLength];
-    System.arraycopy(in, 0, iv, 0, ivLength);
-
-    // The remaining bytes contain ciphertext + authentication tag
-    byte[] cipherTextWithTag = new byte[in.length - ivLength];
-    System.arraycopy(in, ivLength, cipherTextWithTag, 0, cipherTextWithTag.length);
-
     try {
-      var cipher = Cipher.getInstance("AES/GCM/NoPadding");
+      byte[] iv = new byte[ivLength];
+      System.arraycopy(in, 0, iv, 0, ivLength);
+
+      // The remaining bytes contain ciphertext + authentication tag
+      byte[] cipherTextWithTag = new byte[in.length - ivLength];
+      System.arraycopy(in, ivLength, cipherTextWithTag, 0, cipherTextWithTag.length);
+
+      Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       cipher.init(Cipher.DECRYPT_MODE, key.getSecretKey(), new GCMParameterSpec(128, iv));
       byte[] plainText = cipher.doFinal(cipherTextWithTag);
       return new String(plainText, StandardCharsets.UTF_8);
@@ -222,7 +151,6 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
       throw new PSEncryptionException(e.getMessage(), e);
     }
   }
-=======
   @Override
   public String decryptWithPassword(String in, String password) throws PSEncryptionException {
 
@@ -262,5 +190,4 @@ public class PSAESGCMDecryptor implements IPSDecryptor {
       throw new PSEncryptionException(e.getMessage(), e);
     }
   }
->>>>>>> development-8.1.x
 }

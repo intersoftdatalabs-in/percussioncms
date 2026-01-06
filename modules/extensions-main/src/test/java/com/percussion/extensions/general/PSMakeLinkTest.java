@@ -30,11 +30,7 @@ public class PSMakeLinkTest {
 
   public PSMakeLinkTest() {}
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     m_ext = new PSMakeAbsLinkSecureEx();
     m_abs = new PSMakeAbsLink();

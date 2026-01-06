@@ -167,10 +167,7 @@ public class PSSecureProperty {
       }
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Determine if a value is encrypted.
    *

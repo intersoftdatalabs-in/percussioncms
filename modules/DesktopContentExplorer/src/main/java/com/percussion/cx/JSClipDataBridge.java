@@ -17,13 +17,10 @@
 
 package com.percussion.cx;
 
-<<<<<<< HEAD
 import javafx.scene.input.DataFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-=======
->>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,11 +39,7 @@ import org.apache.log4j.Logger;
  * @author stephenbolton
  */
 public class JSClipDataBridge {
-<<<<<<< HEAD
     static Logger log = LogManager.getLogger(JSClipDataBridge.class);
-=======
-  static Logger log = Logger.getLogger(JSClipDataBridge.class);
->>>>>>> development-8.1.x
 
   public String[] types = new String[0];
   public JSClipDataItem[] items = new JSClipDataItem[0];

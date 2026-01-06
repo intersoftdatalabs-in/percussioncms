@@ -56,13 +56,8 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import org.apache.commons.codec.binary.Base64;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
@@ -124,13 +119,9 @@ public class PSOThumbnailGenerator extends PSFileInfo
    * @throws PSExtensionProcessingException
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     if (params == null || params.length < 4)
       throw new PSParameterMismatchException("Required Parameters are missing");
@@ -327,10 +318,7 @@ public class PSOThumbnailGenerator extends PSFileInfo
     }
     return null;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Reads an image in a file and creates a thumbnail in another file. Modified slightly to use
    * ImageIO instead of Sun JPEG CODEC.
@@ -492,10 +480,7 @@ public class PSOThumbnailGenerator extends PSFileInfo
       outstream.flush();
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Computes the size of the thumbnail image based on parameters specified. If height and width are
    * both specified, these values define the size directly. If only one is specified, then the
@@ -675,10 +660,7 @@ public class PSOThumbnailGenerator extends PSFileInfo
     }
     return true;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Get or create child metadata node with the specified name
    *
@@ -711,90 +693,58 @@ public class PSOThumbnailGenerator extends PSFileInfo
     }
   }
 
-<<<<<<< HEAD
   /**
    * @return the stepFactor
    */
-=======
-  /** @return the stepFactor */
->>>>>>> development-8.1.x
   public int getStepFactor() {
     return stepFactor;
   }
 
-<<<<<<< HEAD
   /**
    * @param stepFactor the stepFactor to set
    */
-=======
-  /** @param stepFactor the stepFactor to set */
->>>>>>> development-8.1.x
   public void setStepFactor(int stepFactor) {
     this.stepFactor = stepFactor;
   }
 
-<<<<<<< HEAD
   /**
    * @return the maxInterpolationSize
    */
-=======
-  /** @return the maxInterpolationSize */
->>>>>>> development-8.1.x
   public int getMaxInterpolationSize() {
     return maxInterpolationSize;
   }
 
-<<<<<<< HEAD
   /**
    * @param maxInterpolationSize the maxInterpolationSize to set
    */
-=======
-  /** @param maxInterpolationSize the maxInterpolationSize to set */
->>>>>>> development-8.1.x
   public void setMaxInterpolationSize(int maxInterpolationSize) {
     this.maxInterpolationSize = maxInterpolationSize;
   }
 
-<<<<<<< HEAD
   /**
    * @return the imageFormat
    */
-=======
-  /** @return the imageFormat */
->>>>>>> development-8.1.x
   public String getImageFormat() {
     return imageFormat;
   }
 
-<<<<<<< HEAD
   /**
    * @param imageFormat the imageFormat to set
    */
-=======
-  /** @param imageFormat the imageFormat to set */
->>>>>>> development-8.1.x
   public void setImageFormat(String imageFormat) {
     this.imageFormat = imageFormat;
   }
 
-<<<<<<< HEAD
   /**
    * @return the compression
    */
-=======
-  /** @return the compression */
->>>>>>> development-8.1.x
   public float getCompression() {
     return compression;
   }
 
-<<<<<<< HEAD
   /**
    * @param compression the compression to set
    */
-=======
-  /** @param compression the compression to set */
->>>>>>> development-8.1.x
   public void setCompression(float compression) {
     this.compression = compression;
   }

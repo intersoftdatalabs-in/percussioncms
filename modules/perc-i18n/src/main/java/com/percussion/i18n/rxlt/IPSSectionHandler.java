@@ -40,7 +40,6 @@ public interface IPSSectionHandler {
 
   /** Section ID for CMS tables part of the Rhythmyx Content Manager */
   static final int SECTIONID_CMS_TABLES = 1;
-<<<<<<< HEAD
 
   /** Section ID for XSL Stylesheets of the Rhythmyx Content Manager */
   static final int SECTIONID_XSL_STYLESHEETS = 2;
@@ -48,18 +47,11 @@ public interface IPSSectionHandler {
   /** Section ID for Content Editors of the Rhythmyx Content Manager */
   static final int SECTIONID_CONTENT_EDITORS = 3;
 
-=======
-  /** Section ID for XSL Stylesheets of the Rhythmyx Content Manager */
-  static final int SECTIONID_XSL_STYLESHEETS = 2;
-  /** Section ID for Content Editors of the Rhythmyx Content Manager */
-  static final int SECTIONID_CONTENT_EDITORS = 3;
->>>>>>> development-8.1.x
   /**
    * Section ID for the extension resources. These are typically uploaded to the server along with
    * the exits written by customer when the exits handle the localized error messages.
    */
   static final int SECTIONID_EXTENSION_RESOURCES = 4;
-<<<<<<< HEAD
 
   /** Section ID for JSPs included with Rhythmyx. */
   static final int SECTIONID_JSPS = 5;
@@ -67,12 +59,6 @@ public interface IPSSectionHandler {
   /** First Sectionid */
   static final int SECTIONID_FIRST = SECTIONID_CMS_TABLES;
 
-=======
-  /** Section ID for JSPs included with Rhythmyx. */
-  static final int SECTIONID_JSPS = 5;
-  /** First Sectionid */
-  static final int SECTIONID_FIRST = SECTIONID_CMS_TABLES;
->>>>>>> development-8.1.x
   /** Last Sectionid */
   static final int SECTIONID_LAST = SECTIONID_JSPS;
 }

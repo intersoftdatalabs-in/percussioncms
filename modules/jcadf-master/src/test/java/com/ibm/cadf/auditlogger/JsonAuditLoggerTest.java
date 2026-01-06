@@ -28,21 +28,12 @@ import com.ibm.cadf.model.Resource;
 import com.ibm.cadf.util.Constants;
 import java.io.File;
 import java.io.IOException;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class JsonAuditLoggerTest {
 
   @BeforeEach
-=======
-import org.junit.Before;
-import org.junit.Test;
-
-public class JsonAuditLoggerTest {
-
-  @Before
->>>>>>> development-8.1.x
   public void setUp() {
     System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
   }

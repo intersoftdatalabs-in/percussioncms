@@ -128,7 +128,6 @@ public class PSCommandLineProcessor {
       }
     }
   }
-<<<<<<< HEAD
 
   /**
    * This method gets the action to run from UI. Gathers all the inoformation specific to that
@@ -146,24 +145,6 @@ public class PSCommandLineProcessor {
 
     int action = -1;
 
-=======
-  /**
-   * This method gets the action to run from UI. Gathers all the inoformation specific to that
-   * action and midifies the config document in memory.
-   *
-   * @return the actionid chosen by the user to run. One of the actions from the list defined in the
-   *     interface {@link IPSActionHandler}
-   * @throws IOException if there is a problem reading console. Very rare possibility.
-   * @throws PSFatalException if there is a problem connecting to server database to get the
-   *     supported languages.
-   */
-  protected int getActionToRun() throws IOException, PSFatalException {
-    if (!ms_standalone)
-      throw new IllegalStateException("Not running standalone, user input disable");
-
-    int action = -1;
-
->>>>>>> development-8.1.x
     while (action == -1) {
       // Display the list of languages already in the Rhythmyx Content Manager
       displayExistingLanguages();
@@ -624,10 +605,7 @@ public class PSCommandLineProcessor {
   /** Path of the Repository Properties file relative to the Rhythmyx root directory. */
   public static final String REPOSITORY_PROPFILEPATH =
       "rxconfig" + File.separator + "Installer" + File.separator + "rxrepository.properties";
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * The program resources. You must access this variable through the {@link #getRes getRes} method.
    */

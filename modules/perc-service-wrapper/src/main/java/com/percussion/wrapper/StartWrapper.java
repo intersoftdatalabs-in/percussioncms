@@ -22,11 +22,7 @@ import static com.percussion.wrapper.JettyStartUtils.error;
 import static com.percussion.wrapper.JettyStartUtils.getRunningPid;
 import static com.percussion.wrapper.JettyStartUtils.info;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -290,12 +286,8 @@ public abstract class StartWrapper {
 
     if (returnState != ProcState.STOPPED && pid <= 0) {
       debug(
-<<<<<<< HEAD
           "Process not running for port %s but state file %s shows state %s process must have been"
               + " killed",
-=======
-          "Process not running for port %s but state file %s shows state %s process must have been killed",
->>>>>>> development-8.1.x
           port, stateFile.getName(), returnState);
       returnState = ProcState.STOPPED;
     }

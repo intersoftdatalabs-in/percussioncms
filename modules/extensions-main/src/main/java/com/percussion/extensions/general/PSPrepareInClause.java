@@ -75,12 +75,8 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
    * @see IPSRequestPreProcessor#preProcessRequest(Object[], IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSParameterMismatchException,
           PSExtensionProcessingException,
-=======
-      throws PSParameterMismatchException, PSExtensionProcessingException,
->>>>>>> development-8.1.x
           PSRequestValidationException {
     // validate and extract params
     if ((params == null) || (params.length < EXPECTED_NUMBER_OF_PARAMS)) {

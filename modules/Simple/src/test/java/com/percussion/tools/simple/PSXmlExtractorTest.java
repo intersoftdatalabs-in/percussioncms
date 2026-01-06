@@ -16,21 +16,13 @@
  */
 package com.percussion.tools.simple;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-=======
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import com.percussion.utils.testing.IntegrationTest;
->>>>>>> development-8.1.x
 import com.percussion.utils.xml.PSEntityResolver;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.net.URL;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
@@ -40,12 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.io.TempDir;
-=======
-import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
->>>>>>> development-8.1.x
 
 /**
  * Test the extractor. This currently just tests a particular error case found in 5.5 development,
@@ -54,17 +40,12 @@ import org.junit.experimental.categories.Category;
  * <p>Note that this test must be run with the working directory set to the root of the development
  * tree. Also note that the referenced xml file should be replaced if necessary.
  */
-<<<<<<< HEAD
 @TestInstance(Lifecycle.PER_CLASS)
-=======
-@Category(IntegrationTest.class)
->>>>>>> development-8.1.x
 public class PSXmlExtractorTest {
   private static final String TEST_EDITOR_DTD =
       "/com/percussion/tools/simple/sys_ContentEditorLocalDef.dtd";
   private static final String TEST_EDITOR = "/com/percussion/tools/simple/rx_cePage.xml";
 
-<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
 
   @BeforeEach
@@ -122,79 +103,11 @@ public class PSXmlExtractorTest {
    */
   @Test
   public void testExtractCEnoDTDCheck() throws Exception {
-=======
-  @BeforeClass
-  public void setupResolver() throws Exception {
-    PSEntityResolver res = PSEntityResolver.getInstance();
-    res.setResolutionHome(new File(System.getProperty("rxdeploydir") + File.separatorChar + "DTD"));
-  }
-
-  /**
-   * Quick test to check that the create document call can be called without a system or public id
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testDoc() throws Exception {
-    PSXmlDocumentBuilder.createXmlDocument("XYZ", null, null);
-  }
-
-  /**
-   * Test extracting a content editor with validation.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testExtractCE() throws Exception {
     File source = File.createTempFile("test", "xml");
     source.deleteOnExit();
     FileUtils.copyInputStreamToFile(
         PSXmlExtractorTest.class.getResourceAsStream(TEST_EDITOR), source);
 
-    File target = File.createTempFile("test", ".xml");
-    target.deleteOnExit();
-
-    URL dtd =
-        new URL(
-            "file:///"
-                + System.getProperty("rxdeploydir")
-                + File.separatorChar
-                + "DTD/sys_ContentEditorLocalDef.dtd");
-
-    String result =
-        PSXmlExtractor.extract(source, target, CE_ROOT_ELEMENT_NAME, dtd, null, null, true);
-    assertNull(result, result);
-  }
-
-  /**
-   * Test extracting a content editor without validation.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testExtractCEnoDTDCheck() throws Exception {
-    File source = File.createTempFile("test", "xml");
-    source.deleteOnExit();
-    FileUtils.copyInputStreamToFile(
-        PSXmlExtractorTest.class.getResourceAsStream(TEST_EDITOR), source);
-
-    File target = File.createTempFile("testnodtd", ".xml");
-    target.deleteOnExit();
-
-    String result =
-        PSXmlExtractor.extract(source, target, CE_ROOT_ELEMENT_NAME, null, null, null, false);
-    assertTrue(result == null);
-  }
-
-  @Test
-  public void testExtraceCE2() throws Exception {
->>>>>>> development-8.1.x
-    File source = File.createTempFile("test", "xml");
-    source.deleteOnExit();
-    FileUtils.copyInputStreamToFile(
-        PSXmlExtractorTest.class.getResourceAsStream(TEST_EDITOR), source);
-
-<<<<<<< HEAD
     File target = File.createTempFile("testnodtd", ".xml");
     target.deleteOnExit();
 
@@ -210,9 +123,6 @@ public class PSXmlExtractorTest {
     source.deleteOnExit();
     FileUtils.copyInputStreamToFile(
         PSXmlExtractorTest.class.getResourceAsStream(TEST_EDITOR), source);
-
-=======
->>>>>>> development-8.1.x
     File target = File.createTempFile("testb", ".xml");
     target.deleteOnExit();
     URL dtd =

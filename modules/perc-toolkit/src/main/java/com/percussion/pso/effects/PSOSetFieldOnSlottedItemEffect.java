@@ -61,17 +61,11 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-<<<<<<< HEAD
 /***
  * This effect is intended to be used on AA relationships
  * to set the property of an item when an item is added to
  * a given slot.
  *
-=======
-/**
- * * This effect is intended to be used on AA relationships to set the property of an item when an
- * item is added to a given slot.
->>>>>>> development-8.1.x
  */
 @PSHandlesEffectContext(required = PSEffectContext.ALL)
 public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
@@ -82,14 +76,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
   private static IPSContentWs mCws;
   private static IPSGuidManager mGmgr;
 
-<<<<<<< HEAD
   /***
    * Returns a valid ContentWS instance
-=======
-  /**
-   * * Returns a valid ContentWS instance
-   *
->>>>>>> development-8.1.x
    * @return
    */
   protected static IPSContentWs getContentService() {
@@ -98,14 +86,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     return mCws;
   }
 
-<<<<<<< HEAD
   /***
    * Returns a valid Guid Manager instance.
-=======
-  /**
-   * * Returns a valid Guid Manager instance.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   protected static IPSGuidManager getGuidManager() {
@@ -114,15 +96,9 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     return mGmgr;
   }
 
-<<<<<<< HEAD
   /***
    * Inner class for handling the user configured parameters for the extension
    * on the Relationship Effect parameters dialog.
-=======
-  /**
-   * * Inner class for handling the user configured parameters for the extension on the Relationship
-   * Effect parameters dialog.
->>>>>>> development-8.1.x
    */
   private class ConfiguredParams {
 
@@ -132,14 +108,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     protected String slotName;
     protected int slotId;
 
-<<<<<<< HEAD
     /***
      * Constructor to initialize a new parameter object
-=======
-    /**
-     * * Constructor to initialize a new parameter object
-     *
->>>>>>> development-8.1.x
      * @param params
      */
     protected ConfiguredParams(Object[] params) {
@@ -148,10 +118,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
         // Make sure that all the parameters have been supplied.
         if (params.length < 4) {
-<<<<<<< HEAD
           // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
           throw new IllegalArgumentException("All parameters are required!");
         }
 
@@ -193,17 +160,10 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     }
   }
 
-<<<<<<< HEAD
   /***
    * Inner class for encapsulating the relationship parameters.
    * @author natechadwick
    *
-=======
-  /**
-   * * Inner class for encapsulating the relationship parameters.
-   *
-   * @author natechadwick
->>>>>>> development-8.1.x
    */
   private class RelationshipParams {
 
@@ -244,14 +204,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     @SuppressWarnings("unused")
     protected int sortrank; // 2
 
-<<<<<<< HEAD
     /***
      * Will return true if the supplied property exists and is set to true, false otherwise
-=======
-    /**
-     * * Will return true if the supplied property exists and is set to true, false otherwise
-     *
->>>>>>> development-8.1.x
      * @param props map of properties, must not be null.
      * @param name name of the property
      * @return true or false
@@ -268,14 +222,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
       }
     }
 
-<<<<<<< HEAD
     /***
      * Will return the integer property value or 0 if the property is not set.
-=======
-    /**
-     * * Will return the integer property value or 0 if the property is not set.
-     *
->>>>>>> development-8.1.x
      * @param props Never null. Collection of properties.
      * @param name Name of the property
      * @return Integer value or 0 if the property is not set.
@@ -288,14 +236,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
       }
     }
 
-<<<<<<< HEAD
     /***
      * Convenience constructor
-=======
-    /**
-     * * Convenience constructor
-     *
->>>>>>> development-8.1.x
      * @param props
      */
     protected RelationshipParams(Map<String, String> props) {
@@ -323,15 +265,9 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     }
   }
 
-<<<<<<< HEAD
   /***
    * This is called when the Effect is being executed.  Note, this will be called for every item in a slot
    * during a save request.
-=======
-  /**
-   * * This is called when the Effect is being executed. Note, this will be called for every item in
-   * a slot during a save request.
->>>>>>> development-8.1.x
    */
   public void attempt(
       Object[] params,
@@ -515,16 +451,10 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
   public static String PROCESSED_FLAG = "PSOSetFieldOnSlottedItemProcessedFlag";
 
-<<<<<<< HEAD
   /***
    * Sets the {@link #PROCESSED_FLAG} on the Request context so that the
    * input transform doesn't overwrite the output of the effect when running
    * in non Content Editor contexts.
-=======
-  /**
-   * * Sets the {@link #PROCESSED_FLAG} on the Request context so that the input transform doesn't
-   * overwrite the output of the effect when running in non Content Editor contexts.
->>>>>>> development-8.1.x
    *
    * @param ctx
    */
@@ -532,13 +462,9 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
     ctx.setParameter(PROCESSED_FLAG, true);
   }
 
-<<<<<<< HEAD
   /***
    * Clears the processed flag.
    */
-=======
-  /** * Clears the processed flag. */
->>>>>>> development-8.1.x
   private void clearProcessedFlag(IPSRequestContext ctx) {
     ctx.removeParameter(PROCESSED_FLAG);
   }

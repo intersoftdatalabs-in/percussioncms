@@ -19,11 +19,7 @@ package com.percussion.pso.preview;
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.services.sitemgr.IPSSite;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,90 +61,58 @@ public class SiteFolderLocation {
     return url.toString();
   }
 
-<<<<<<< HEAD
   /**
    * @return the siteName
    */
-=======
-  /** @return the siteName */
->>>>>>> development-8.1.x
   public String getSiteName() {
     return site.getName();
   }
 
-<<<<<<< HEAD
   /**
    * @return the folderPath
    */
-=======
-  /** @return the folderPath */
->>>>>>> development-8.1.x
   public String getFolderPath() {
     return folderPath;
   }
 
-<<<<<<< HEAD
   /**
    * @param folderPath the folderPath to set
    */
-=======
-  /** @param folderPath the folderPath to set */
->>>>>>> development-8.1.x
   public void setFolderPath(String folderPath) {
     this.folderPath = folderPath;
   }
 
-<<<<<<< HEAD
   /**
    * @return the siteid
    */
-=======
-  /** @return the siteid */
->>>>>>> development-8.1.x
   public long getSiteid() {
     return site.getSiteId();
   }
 
-<<<<<<< HEAD
   /**
    * @return the folderid
    */
-=======
-  /** @return the folderid */
->>>>>>> development-8.1.x
   public int getFolderid() {
     return folderid;
   }
 
-<<<<<<< HEAD
   /**
    * @param folderid the folderid to set
    */
-=======
-  /** @param folderid the folderid to set */
->>>>>>> development-8.1.x
   public void setFolderid(int folderid) {
     this.folderid = folderid;
   }
 
-<<<<<<< HEAD
   /**
    * @return the site
    */
-=======
-  /** @return the site */
->>>>>>> development-8.1.x
   public IPSSite getSite() {
     return site;
   }
 
-<<<<<<< HEAD
   /**
    * @param site the site to set
    */
-=======
-  /** @param site the site to set */
->>>>>>> development-8.1.x
   public void setSite(IPSSite site) {
     this.site = site;
   }

@@ -31,13 +31,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -239,12 +234,8 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    */
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "Creates a list from an array or collection. If its neither the list will contain just"
               + " the item.",
-=======
-          "Creates a list from an array or collection. If its neither the list will contain just the item.",
->>>>>>> development-8.1.x
       params = {@IPSJexlParam(name = "value", description = "value ")},
       returns = "a list")
   @SuppressWarnings("unchecked")

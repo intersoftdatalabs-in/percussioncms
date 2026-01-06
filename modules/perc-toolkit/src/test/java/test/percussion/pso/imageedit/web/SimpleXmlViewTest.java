@@ -42,11 +42,7 @@ public class SimpleXmlViewTest {
   SimpleXmlView cut;
   Map<String, Object> model;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new SimpleXmlView();
     model = new HashMap<String, Object>();

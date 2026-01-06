@@ -141,13 +141,9 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
     return remains;
   }
 
-<<<<<<< HEAD
   /**
    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
    */
-=======
-  /** @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult) */
->>>>>>> development-8.1.x
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException {

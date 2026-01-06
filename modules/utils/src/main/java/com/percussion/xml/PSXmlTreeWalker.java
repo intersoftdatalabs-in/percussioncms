@@ -302,20 +302,12 @@ public class PSXmlTreeWalker implements Serializable {
          */
         if (text.getNodeType() == Node.TEXT_NODE) ret.append(text.getNodeValue());
         else
-<<<<<<< HEAD
         /***
          * DB: when there are embedded entities in element data, the
          * "Actual Value" of the entity will be contained in one or more
          * Text nodes as children of the entity ref node.  We call ourselves
          * recursively to process these additional nodes.
          ***/
-=======
-        /**
-         * * DB: when there are embedded entities in element data, the "Actual Value" of the entity
-         * will be contained in one or more Text nodes as children of the entity ref node. We call
-         * ourselves recursively to process these additional nodes. *
-         */
->>>>>>> development-8.1.x
         if (text.getNodeType() == Node.ENTITY_REFERENCE_NODE) {
           ret.append(getElementData(text));
         }

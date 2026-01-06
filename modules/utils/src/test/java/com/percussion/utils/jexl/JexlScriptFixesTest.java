@@ -27,49 +27,29 @@ public class JexlScriptFixesTest {
 
     String testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg";
     String result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
-<<<<<<< HEAD
     Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
-=======
-    Assert.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
->>>>>>> development-8.1.x
     System.out.println(testScript + " ----> " + result);
 
     testScript = "if ( !$test )";
     result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
     System.out.println(testScript + " ----> " + result);
-<<<<<<< HEAD
     Assertions.assertEquals("if ( ! $test )", result);
-=======
-    Assert.assertEquals("if ( ! $test )", result);
->>>>>>> development-8.1.x
 
     testScript = "if ( $ref1=$ref2 )";
     result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
     System.out.println(testScript + " ----> " + result);
-<<<<<<< HEAD
     Assertions.assertEquals("if ( $ref1 = $ref2 )", result);
-=======
-    Assert.assertEquals("if ( $ref1 = $ref2 )", result);
->>>>>>> development-8.1.x
 
     testScript = "$params=$rx.string.stringToMap(null);";
     result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
     System.out.println(testScript + " ----> " + result);
-<<<<<<< HEAD
     Assertions.assertEquals("$params = $rx.string.stringToMap(null);", result);
-=======
-    Assert.assertEquals("$params = $rx.string.stringToMap(null);", result);
->>>>>>> development-8.1.x
 
     testScript =
         "sdfgsdfg foreach($item in list ) sdfgsdfg sdfgsdfg foreach($item in list ) sdfgsdfg";
     result = JexlScriptFixes.fixScript(testScript, "Unit Test", "fixScript");
     System.out.println(testScript + " ----> " + result);
-<<<<<<< HEAD
     Assertions.assertEquals(
-=======
-    Assert.assertEquals(
->>>>>>> development-8.1.x
         "sdfgsdfg for($item : list) sdfgsdfg sdfgsdfg for($item : list) sdfgsdfg", result);
   }
 }

@@ -39,7 +39,6 @@ import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,8 +46,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;

@@ -47,7 +47,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet.jsp.jstl</groupId>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jstl-api</artifactId>
         </dependency>
         <dependency>

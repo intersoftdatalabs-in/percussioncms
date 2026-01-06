@@ -89,17 +89,12 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @see #getLocaleDocument
    */
   public static Object[] getLocaleStrings(String rxroot)
-<<<<<<< HEAD
       throws IOException,
           SAXException,
           PSJdbcTableFactoryException,
           SQLException,
           PSInvalidXmlException,
           PSMissingApplicationPolicyException {
-=======
-      throws IOException, SAXException, PSJdbcTableFactoryException, SQLException,
-          PSInvalidXmlException, PSMissingApplicationPolicyException {
->>>>>>> development-8.1.x
     Document doc = getLocaleDocument(rxroot);
     List<String> list = new ArrayList<>();
 
@@ -145,7 +140,6 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static Document getLocaleDocument(String rxroot)
-<<<<<<< HEAD
       throws FileNotFoundException,
           IOException,
           SAXException,
@@ -153,10 +147,6 @@ public class PSLocaleHandler implements IPSActionHandler {
           SQLException,
           PSInvalidXmlException,
           PSMissingApplicationPolicyException {
-=======
-      throws FileNotFoundException, IOException, SAXException, PSJdbcTableFactoryException,
-          SQLException, PSInvalidXmlException, PSMissingApplicationPolicyException {
->>>>>>> development-8.1.x
     if (rxroot == null) throw new IllegalArgumentException("rxroot may not be null");
 
     PSJdbcDbmsDef dbmsDef = getDbmsDef(rxroot);
@@ -182,17 +172,12 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static PSJdbcDbmsDef getDbmsDef(String rxroot)
-<<<<<<< HEAD
       throws FileNotFoundException,
           IOException,
           PSJdbcTableFactoryException,
           PSInvalidXmlException,
           PSMissingApplicationPolicyException,
           SAXException {
-=======
-      throws FileNotFoundException, IOException, PSJdbcTableFactoryException, PSInvalidXmlException,
-          PSMissingApplicationPolicyException, SAXException {
->>>>>>> development-8.1.x
     if (rxroot == null) throw new IllegalArgumentException("rxroot may not be null");
 
     Properties props = getRepositoryProperties(rxroot);
@@ -217,31 +202,19 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static PSJdbcDataTypeMap getDataTypeMap(String rxroot)
-<<<<<<< HEAD
       throws FileNotFoundException,
           IOException,
           SAXException,
           PSJdbcTableFactoryException,
           PSInvalidXmlException,
           PSMissingApplicationPolicyException {
-=======
-      throws FileNotFoundException, IOException, SAXException, PSJdbcTableFactoryException,
-          PSInvalidXmlException, PSMissingApplicationPolicyException {
->>>>>>> development-8.1.x
     if (rxroot == null) throw new IllegalArgumentException("rxroot may not be null");
 
     Properties props = getRepositoryProperties(rxroot);
     PSJdbcDataTypeMap dataTypeMap =
         new PSJdbcDataTypeMap(
-<<<<<<< HEAD
             props.getProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY),
             props.getProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY),
-=======
-            props.getProperty(
-                com.percussion.utils.container.IPSJdbcDbmsDefConstants.DB_BACKEND_PROPERTY),
-            props.getProperty(
-                com.percussion.utils.container.IPSJdbcDbmsDefConstants.DB_DRIVER_NAME_PROPERTY),
->>>>>>> development-8.1.x
             null);
 
     return dataTypeMap;
@@ -634,14 +607,10 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @throws com.percussion.utils.container.PSMissingApplicationPolicyException
    */
   private static Properties getRepositoryProperties(String rxroot)
-<<<<<<< HEAD
       throws FileNotFoundException,
           IOException,
           PSInvalidXmlException,
           SAXException,
-=======
-      throws FileNotFoundException, IOException, PSInvalidXmlException, SAXException,
->>>>>>> development-8.1.x
           com.percussion.utils.container.PSMissingApplicationPolicyException {
     if (repositoryProperties == null)
       repositoryProperties = PSJdbcDbmsDef.loadRxRepositoryProperties(rxroot);

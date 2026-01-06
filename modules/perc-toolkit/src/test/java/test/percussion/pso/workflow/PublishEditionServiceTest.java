@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.workflow;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.workflow.PublishEditionService;
@@ -52,38 +51,6 @@ public class PublishEditionServiceTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.workflow.PublishEditionService;
-import com.percussion.rx.publisher.IPSRxPublisherService;
-import com.percussion.services.guidmgr.IPSGuidManager;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
-public class PublishEditionServiceTest {
-  /** Logger for this class */
-  private static final Logger log = LogManager.getLogger(PublishEditionServiceTest.class);
-
-  Mockery context;
-  IPSGuidManager gmgr;
-  IPSRxPublisherService rps;
-
-  TestablePublishEditionService svc = null;
-
-  @Before
-  public void setUp() throws Exception {
-
-    context = new Mockery();
-    gmgr = context.mock(IPSGuidManager.class);
-    rps = context.mock(IPSRxPublisherService.class);
-
->>>>>>> development-8.1.x
     svc = new TestablePublishEditionService();
     svc.setGmgr(gmgr);
     svc.setRps(rps);

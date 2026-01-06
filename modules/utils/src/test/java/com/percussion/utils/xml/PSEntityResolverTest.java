@@ -17,7 +17,6 @@
 
 package com.percussion.utils.xml;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -34,52 +33,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.xml.sax.InputSource;
 
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import com.percussion.security.xml.PSCatalogResolver;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.xml.sax.InputSource;
-
->>>>>>> development-8.1.x
 public class PSEntityResolverTest {
 
   private static final Logger log = LogManager.getLogger(PSEntityResolverTest.class);
 
-<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
   private File testInstallRoot;
 
   @BeforeEach
   public void setup() throws IOException {
     testInstallRoot = temporaryFolder.resolve("testInstallRoot").toFile();
-=======
-  @Rule public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
-  private File testInstallRoot;
-
-  @Before
-  public void setup() throws IOException {
-    testInstallRoot = temporaryFolder.newFolder("testInstallRoot");
->>>>>>> development-8.1.x
     System.setProperty("rxdeploydir", testInstallRoot.getAbsolutePath());
   }
 
   @Test
-<<<<<<< HEAD
   @Disabled("TODO: Update to use the test XML Catalog")
-=======
-  @Ignore("TODO: Update to use the test XML Catalog")
->>>>>>> development-8.1.x
   public void testExternalEntityOutsideOfInstall() throws IOException {
     PSCatalogResolver resolver = new PSCatalogResolver();
     InputSource src =

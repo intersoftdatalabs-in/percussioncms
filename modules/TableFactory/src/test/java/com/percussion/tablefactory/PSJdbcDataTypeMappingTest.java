@@ -22,34 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.StringReader;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
-=======
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit tests for <code>PSJdbcDataTypeMapping</code>. */
-<<<<<<< HEAD
 public class PSJdbcDataTypeMappingTest {
-=======
-public class PSJdbcDataTypeMappingTest extends TestCase {
-  public PSJdbcDataTypeMappingTest(String name) {
-    super(name);
-  }
->>>>>>> development-8.1.x
 
   /**
    * Tests the various permutations of illegal parameters to the ctor to make sure they all throw
    * IllegalArgumentExceptions.
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testIllegalCtors() throws Exception {
     testIllegalCtor("", "BIT", null, null, null);
     testIllegalCtor("BIT", "", null, null, null);
@@ -62,12 +46,8 @@ public class PSJdbcDataTypeMappingTest extends TestCase {
     doc =
         PSXmlDocumentBuilder.createXmlDocument(
             new StringReader(
-<<<<<<< HEAD
                 "<DataTypeOops jdbc=\"VARBINARY\" native=\"VARCHAR\" defaultSize=\"1\" suffix=\"FOR"
                     + " BIT DATA\"/>"),
-=======
-                "<DataTypeOops jdbc=\"VARBINARY\" native=\"VARCHAR\" defaultSize=\"1\" suffix=\"FOR BIT DATA\"/>"),
->>>>>>> development-8.1.x
             false);
     testIllegalCtor(doc.getDocumentElement());
 
@@ -101,11 +81,7 @@ public class PSJdbcDataTypeMappingTest extends TestCase {
     } catch (IllegalArgumentException e) {
       didThrow = true;
     }
-<<<<<<< HEAD
     assertTrue(didThrow, "Expected IllegalArgumentException for invalid ctor args");
-=======
-    assertTrue(didThrow);
->>>>>>> development-8.1.x
   }
 
   /**
@@ -119,18 +95,11 @@ public class PSJdbcDataTypeMappingTest extends TestCase {
     } catch (PSJdbcTableFactoryException e) {
       didThrow = true;
     }
-<<<<<<< HEAD
     assertTrue(didThrow, "Expected PSJdbcTableFactoryException for invalid XML ctor");
   }
 
   /** Tests the ctor with a various parameters and makes sure the parameters are assigned. */
   @Test
-=======
-    assertTrue(didThrow);
-  }
-
-  /** Tests the ctor with a various parameters and makes sure the parameters are assigned. */
->>>>>>> development-8.1.x
   public void testCtorAndGetters() throws Exception {
     testCtorsAndGetters("BIT", "BIT", null, null, null);
     testCtorsAndGetters("BIT", "CHAR", "1", null, null);
@@ -169,15 +138,4 @@ public class PSJdbcDataTypeMappingTest extends TestCase {
     assertEquals(defaultScale, dataType.getDefaultScale());
     assertEquals(suffix, dataType.getSuffix());
   }
-<<<<<<< HEAD
-=======
-
-  /** Collect all tests into a TestSuite and returns it */
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSJdbcDataTypeMappingTest("testIllegalCtors"));
-    suite.addTest(new PSJdbcDataTypeMappingTest("testCtorAndGetters"));
-    return suite;
-  }
->>>>>>> development-8.1.x
 }

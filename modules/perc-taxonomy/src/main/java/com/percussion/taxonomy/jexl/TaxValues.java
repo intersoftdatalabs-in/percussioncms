@@ -17,7 +17,6 @@
 package com.percussion.taxonomy.jexl;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 
 public class TaxValues extends ArrayList<String> {
@@ -40,32 +39,6 @@ public class TaxValues extends ArrayList<String> {
   public boolean isMultiValued() {
     return this.size() > 1;
   }
-
-=======
-import org.apache.commons.lang.StringUtils;
-
-public class TaxValues extends ArrayList<String> {
-  /**
-   * An object that can handle both single and multiple taxonomy attribute values It can be treated
-   * like a regular List for multiple values or toString will output a comma separated list for
-   * multiple values.
-   */
-  private static final long serialVersionUID = 1L;
-
-  public TaxValues() {
-    super();
-  }
-
-  public TaxValues(String string) {
-    super();
-    this.add(string);
-  }
-
-  public boolean isMultiValued() {
-    return this.size() > 1;
-  }
-
->>>>>>> development-8.1.x
   public String join(String delim) {
     return StringUtils.join(this, delim);
   }

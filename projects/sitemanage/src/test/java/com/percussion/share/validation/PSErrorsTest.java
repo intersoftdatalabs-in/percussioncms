@@ -19,12 +19,12 @@
 package com.percussion.share.validation;
 
 import com.percussion.share.validation.PSErrors.PSObjectError;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link PSErrors}. */

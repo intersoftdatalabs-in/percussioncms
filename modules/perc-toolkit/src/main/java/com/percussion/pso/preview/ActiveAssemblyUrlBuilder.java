@@ -18,19 +18,11 @@ package com.percussion.pso.preview;
 
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

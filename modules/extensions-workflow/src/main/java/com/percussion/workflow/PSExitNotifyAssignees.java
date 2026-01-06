@@ -89,11 +89,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.naming.NamingException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -113,11 +109,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   /** Set the parameter count to not initialized */
   private static int ms_correctParamCount = IPSExtension.NOT_INITIALIZED;
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     if (ms_correctParamCount == IPSExtension.NOT_INITIALIZED) {
       ms_correctParamCount = 0;
@@ -131,11 +123,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
     }
   }
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     Logger l = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
@@ -465,14 +453,10 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
       IPSRequestContext request,
       Connection connection,
       String communityId)
-<<<<<<< HEAD
       throws PSEntryNotFoundException,
           PSMailException,
           SQLException,
           NamingException,
-=======
-      throws PSEntryNotFoundException, PSMailException, SQLException, NamingException,
->>>>>>> development-8.1.x
           RepositoryException {
     PSWorkFlowUtils.printWorkflowMessage(request, "  Entering Method sendNotifications");
 
@@ -678,12 +662,8 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         throw new SQLException(e1);
       } catch (NamingException e1) {
         m_log.error(
-<<<<<<< HEAD
             "Naming exception occurred. Possibly the notification with the given name does not"
                 + " exist.",
-=======
-            "Naming exception occurred. Possibly the notification with the given name does not exist.",
->>>>>>> development-8.1.x
             e1);
         throw new NamingException(e1.getMessage());
       }
@@ -1338,11 +1318,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
     return ret;
   }
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public boolean canModifyStyleSheet() {
     return true;
   }

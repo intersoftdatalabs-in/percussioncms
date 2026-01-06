@@ -27,17 +27,10 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.error.PSNotFoundException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import java.util.Collection;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.json.JSONException;
 
 /**

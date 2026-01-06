@@ -123,10 +123,7 @@ public interface IItemRestService {
   @GET
   @Path("/AllContent/")
   public PagedResult getItems(@QueryParam("n") Integer n);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method getItems.
    *
@@ -143,11 +140,8 @@ public interface IItemRestService {
   @Path("/Type/{typename}")
   public PagedResult getTypeItems(@PathParam("typename") String type, @QueryParam("n") Integer n);
 
-<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
 
-=======
->>>>>>> development-8.1.x
   @GET
   @Path("{id}/{rev}/field/{fieldname}")
   @Produces("*/*")
@@ -166,17 +160,10 @@ public interface IItemRestService {
   public Response updateItems(
       @QueryParam("debug") boolean debug, @QueryParam("content_type") String content_type);
 
-<<<<<<< HEAD
   /***
    * Given a content id for a Feed Definition will import the specified feed.
    *
    * @param  debug
-=======
-  /**
-   * * Given a content id for a Feed Definition will import the specified feed.
-   *
-   * @param debug
->>>>>>> development-8.1.x
    * @param contentId
    * @param folderId
    * @return
@@ -188,14 +175,8 @@ public interface IItemRestService {
       @QueryParam("sys_contentid") int contentId,
       @QueryParam("sys_folderid") int folderId);
 
-<<<<<<< HEAD
   /***
    * Finds an item by a key field.
-=======
-  /**
-   * * Finds an item by a key field.
-   *
->>>>>>> development-8.1.x
    * @return null or the Item.
    * @throws ItemRestException
    */

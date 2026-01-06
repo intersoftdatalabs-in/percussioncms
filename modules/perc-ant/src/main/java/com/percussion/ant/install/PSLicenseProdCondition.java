@@ -54,16 +54,9 @@ public class PSLicenseProdCondition extends PSAction implements Condition {
     return (code == null) ? false : code.isComponentLicensed(componentId);
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean property
-   * Accessors and Mutators ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the id of the component whose license is to be verified. This id uniquely identifies a
@@ -85,16 +78,9 @@ public class PSLicenseProdCondition extends PSAction implements Condition {
     this.componentId = componentId;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean properties
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * The id of the component whose license is to be verified. This id should be obtained from the

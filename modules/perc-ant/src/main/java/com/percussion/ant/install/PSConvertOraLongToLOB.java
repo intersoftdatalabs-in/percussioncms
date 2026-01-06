@@ -56,7 +56,6 @@ import java.util.Properties;
  */
 public class PSConvertOraLongToLOB extends PSAction {
   // see base class
-<<<<<<< HEAD
 
   @Override
   public void execute() {
@@ -94,44 +93,6 @@ public class PSConvertOraLongToLOB extends PSAction {
 
       String[] convertTables = oraConvert.filterTablesToConvert(tableNames);
 
-=======
-  @Override
-  public void execute() {
-    FileInputStream in = null;
-    Connection conn = null;
-    ByteArrayOutputStream baos = null;
-    PrintStream ps = null;
-
-    try {
-      String propFile =
-          getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
-
-      File f = new File(propFile);
-      if (!(f.exists() && f.isFile())) return;
-
-      in = new FileInputStream(f);
-      Properties props = new Properties();
-      props.load(in);
-
-      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
-      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
-
-      String driver = dbmsDef.getDriver();
-      if (!driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY)) return;
-
-      conn = RxLogTables.createConnection(props);
-
-      PSLogger.logInfo("Converting LONG column to LOB column for tables : ");
-      for (int i = 0; i < tableNames.length; i++) PSLogger.logInfo(tableNames[i]);
-
-      baos = new ByteArrayOutputStream();
-      ps = new PrintStream(baos);
-
-      PSOraConvertLONG2LOBTool oraConvert = new PSOraConvertLONG2LOBTool(conn, dbmsDef, ps);
-
-      String[] convertTables = oraConvert.filterTablesToConvert(tableNames);
-
->>>>>>> development-8.1.x
       if ((convertTables == null) || (convertTables.length == 0)) {
         PSLogger.logInfo("Tables already converted from LONG column to LOB column");
         return;
@@ -175,7 +136,6 @@ public class PSConvertOraLongToLOB extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /*******************************************************************
    * Private functions.
    *******************************************************************/
@@ -183,17 +143,6 @@ public class PSConvertOraLongToLOB extends PSAction {
   /*******************************************************************
    * Property accessors and mutators.
    *******************************************************************/
-=======
-  /**
-   * ***************************************************************** Private functions.
-   * *****************************************************************
-   */
-
-  /**
-   * ***************************************************************** Property accessors and
-   * mutators. *****************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the names of tables which have a LONG column and the column needs to be converted into
@@ -218,29 +167,19 @@ public class PSConvertOraLongToLOB extends PSAction {
     this.tableNames = convertToArray(tableNames);
   }
 
-<<<<<<< HEAD
   /*******************************************************************
    * Properties
    *******************************************************************/
-=======
-  /**
-   * ***************************************************************** Properties
-   * *****************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * names of tables which have a LONG column and the column needs to be converted into LOB column,
    * never <code>null</code>, may be empty.
    */
   private String[] tableNames = new String[0];
-<<<<<<< HEAD
 
   /*******************************************************************
    * Member variables
    *******************************************************************/
-=======
->>>>>>> development-8.1.x
 
   /**
    * ***************************************************************** Member variables

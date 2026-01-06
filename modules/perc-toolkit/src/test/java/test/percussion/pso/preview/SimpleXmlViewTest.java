@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.SimpleXmlView;
@@ -53,39 +52,6 @@ public class SimpleXmlViewTest {
   void testRenderMergedOutputModelMapHttpServletRequestHttpServletResponse() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSXmlDocumentBuilder.createRoot(doc, "root");
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.preview.SimpleXmlView;
-import com.percussion.xml.PSXmlDocumentBuilder;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-public class SimpleXmlViewTest {
-  private static final Logger log = LogManager.getLogger(SimpleXmlViewTest.class);
-  SimpleXmlView cut;
-  Map<String, Object> model;
-
-  @Before
-  public void setUp() throws Exception {
-    cut = new SimpleXmlView();
-    model = new HashMap<String, Object>();
-    cut.setEncoding("UTF-8");
-  }
-
-  @Test
-  public final void testRenderMergedOutputModelMapHttpServletRequestHttpServletResponse() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
->>>>>>> development-8.1.x
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -106,15 +72,9 @@ public class SimpleXmlViewTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testRenderMergedOutputWrongType() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSXmlDocumentBuilder.createRoot(doc, "root");
-=======
-  public final void testRenderMergedOutputWrongType() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
->>>>>>> development-8.1.x
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -125,24 +85,14 @@ public class SimpleXmlViewTest {
       cut.render(model, request, response);
       fail("Should throw exception");
     } catch (Exception ex) {
-<<<<<<< HEAD
       assertTrue(true, () -> "ExpectedException");
-=======
-      assertTrue("ExpectedException", true);
->>>>>>> development-8.1.x
     }
   }
 
   @Test
-<<<<<<< HEAD
   void testRenderMergedOutputWrongName() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSXmlDocumentBuilder.createRoot(doc, "root");
-=======
-  public final void testRenderMergedOutputWrongName() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
->>>>>>> development-8.1.x
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -153,11 +103,7 @@ public class SimpleXmlViewTest {
       cut.render(model, request, response);
       fail("Should throw exception");
     } catch (Exception ex) {
-<<<<<<< HEAD
       assertTrue(true, () -> "ExpectedException");
-=======
-      assertTrue("ExpectedException", true);
->>>>>>> development-8.1.x
     }
   }
 }

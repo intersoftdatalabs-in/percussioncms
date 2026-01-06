@@ -32,13 +32,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOBase64Codec.class);

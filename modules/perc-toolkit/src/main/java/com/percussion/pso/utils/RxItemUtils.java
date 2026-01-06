@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-<<<<<<< HEAD
 import jakarta.activation.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -45,14 +44,6 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author DavidBenua
  */
-=======
-import javax.activation.DataSource;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class RxItemUtils {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(RxItemUtils.class);

@@ -24,11 +24,7 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
-<<<<<<< HEAD
    * @see PSException#PSException(int,Object)
-=======
-   * @see com.percussion.error.PSException#PSException(int,Object)
->>>>>>> development-8.1.x
    */
   public PSRelationshipException(int msgCode, Object singleArg) {
     super(msgCode, singleArg);
@@ -37,11 +33,7 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
-<<<<<<< HEAD
    * @see PSException#PSException(int,Object[])
-=======
-   * @see com.percussion.error.PSException#PSException(int,Object[])
->>>>>>> development-8.1.x
    */
   public PSRelationshipException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
@@ -50,11 +42,7 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
-<<<<<<< HEAD
    * @see PSException#PSException(int)
-=======
-   * @see com.percussion.error.PSException#PSException(int)
->>>>>>> development-8.1.x
    */
   public PSRelationshipException(int msgCode) {
     super(msgCode);

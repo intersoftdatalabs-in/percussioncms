@@ -26,24 +26,8 @@ import com.percussion.design.objectstore.PSConfigurationFactory;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.guitools.PSNameLabel;
 import com.percussion.guitools.PSPathLabel;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 
-=======
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
->>>>>>> development-8.1.x
 import javax.accessibility.AccessibleContext;
 import javax.swing.Box;
 import javax.swing.BoxLayout;

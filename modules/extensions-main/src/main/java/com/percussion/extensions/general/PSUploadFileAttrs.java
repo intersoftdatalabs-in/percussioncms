@@ -52,13 +52,9 @@ public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestP
    */
   public void preProcessRequest(
       java.lang.Object[] params, com.percussion.server.IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // validate parameters
     if (params.length < 2) {

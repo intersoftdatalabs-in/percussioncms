@@ -19,6 +19,9 @@ package com.percussion.webui.gadget.servlets;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,9 +29,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -44,8 +44,8 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
   private static final Logger log = LogManager.getLogger(GadgetRepositoryListingServlet.class);
 
   /* (non-Javadoc)
-   * @see javax.servlet.http.HttpServlet#doGet(
-   *    javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see jakarta.servlet.http.HttpServlet#doGet(
+   *    jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)
    */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

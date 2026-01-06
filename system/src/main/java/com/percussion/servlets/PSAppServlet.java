@@ -69,8 +69,8 @@ public class PSAppServlet extends HttpServlet {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
-   *      javax.servlet.http.HttpServletResponse)
+   * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
+   *      jakarta.servlet.http.HttpServletResponse)
    */
   protected void service(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
@@ -195,7 +195,7 @@ public class PSAppServlet extends HttpServlet {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Servlet#init(javax.servlet.ServletConfig)
+   * @see jakarta.servlet.Servlet#init(jakarta.servlet.ServletConfig)
    */
   public void init(ServletConfig conf) throws ServletException {
     // first init base services
@@ -239,7 +239,7 @@ public class PSAppServlet extends HttpServlet {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Servlet#destroy()
+   * @see jakarta.servlet.Servlet#destroy()
    */
   public void destroy() {
     super.destroy();

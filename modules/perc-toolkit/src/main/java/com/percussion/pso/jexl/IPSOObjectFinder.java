@@ -37,10 +37,7 @@ public interface IPSOObjectFinder {
       description = "get the Legacy Component Summary for an item",
       params = {@IPSJexlParam(name = "guid", description = "the item GUID")})
   public PSComponentSummary getComponentSummary(IPSGuid guid) throws PSException;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the legacy component summary by content id
    *
@@ -52,10 +49,7 @@ public interface IPSOObjectFinder {
       description = "get the Legacy Component Summary for an item",
       params = {@IPSJexlParam(name = "content", description = "the content id")})
   public PSComponentSummary getComponentSummaryById(String contentid) throws PSException;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the content type summary for a content type by GUID.
    *
@@ -66,10 +60,7 @@ public interface IPSOObjectFinder {
       description = "get the content type summary for a specified type",
       params = {@IPSJexlParam(name = "guid", description = "the content type GUID")})
   public PSContentTypeSummary getContentTypeSummary(IPSGuid guid);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the JSESSIONID value for the current session.
    *
@@ -80,10 +71,7 @@ public interface IPSOObjectFinder {
       description = "Get the JSESSIONID value for the current request",
       params = {})
   public String getJSessionId();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the PSSessionId for the current session.
    *
@@ -93,10 +81,7 @@ public interface IPSOObjectFinder {
       description = "Get the PSSESSIONID value for the current request",
       params = {})
   public String getPSSessionId();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the users current locale.
    *
@@ -106,10 +91,7 @@ public interface IPSOObjectFinder {
       description = "get the users current locale",
       params = {})
   public String getUserLocale();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the name of the current user community.
    *
@@ -119,10 +101,7 @@ public interface IPSOObjectFinder {
       description = "get the users current community name",
       params = {})
   public String getUserCommunity();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the users current community id.
    *
@@ -132,10 +111,7 @@ public interface IPSOObjectFinder {
       description = "get the users current community id",
       params = {})
   public String getUserCommunityId();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Get the GUID for a give content id and revision.
    *
@@ -150,10 +126,7 @@ public interface IPSOObjectFinder {
         @IPSJexlParam(name = "revision", description = "the revision")
       })
   public IPSGuid getGuidById(String contentid, String revision);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the GUID for a content id. The revision independent guid is returned.
    *
@@ -164,10 +137,7 @@ public interface IPSOObjectFinder {
       description = "get the GUID by Content Id",
       params = {@IPSJexlParam(name = "contentid", description = "the content id")})
   public IPSGuid getGuidById(String contentid);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the Node for a content item by GUID.
    *
@@ -179,10 +149,7 @@ public interface IPSOObjectFinder {
       description = "get the node for a particular guid",
       params = {@IPSJexlParam(name = "guid", description = "the GUID for the item")})
   public IPSNode getNodeByGuid(IPSGuid guid) throws RepositoryException;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the guid for a site by id.
    *
@@ -193,10 +160,7 @@ public interface IPSOObjectFinder {
       description = "get the site guid for a given id",
       params = {@IPSJexlParam(name = "siteid", description = "the id for the site")})
   public IPSGuid getSiteGuid(int siteid);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Get the template guid for given id
    *

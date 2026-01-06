@@ -16,10 +16,8 @@
  */
 package com.percussion.utils.jboss;
 
-import junit.framework.TestCase;
-
 /** Test case for the {@link PSJndiDatasource} class. */
-public class PSJndiDatasourceTest extends TestCase {
+public class PSJndiDatasourceTest {
   /**
    * Tests the constructor that takes the datasource props.
    *

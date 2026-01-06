@@ -25,12 +25,8 @@ public class HibernateAttributeDAO extends HibernateDaoSupport implements Attrib
 
   public Collection getAttribute(int id) {
     String queryString =
-<<<<<<< HEAD
         "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id ="
             + " "
-=======
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id = "
->>>>>>> development-8.1.x
             + id;
     return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
@@ -38,12 +34,8 @@ public class HibernateAttributeDAO extends HibernateDaoSupport implements Attrib
   /** Return all Attributes */
   public Collection getAllAttributes(int taxonomy_id, int langID) {
     String queryString =
-<<<<<<< HEAD
         "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join"
             + " fetch al.language where a.taxonomy.id = "
-=======
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join fetch al.language where a.taxonomy.id = "
->>>>>>> development-8.1.x
             + taxonomy_id
             + " and al.language.id = "
             + langID;
@@ -53,12 +45,8 @@ public class HibernateAttributeDAO extends HibernateDaoSupport implements Attrib
   /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id) {
     String queryString =
-<<<<<<< HEAD
         "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and"
             + " a.taxonomy.id = "
-=======
-        "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and a.taxonomy.id = "
->>>>>>> development-8.1.x
             + taxonomy_id
             + " and al.language.id = "
             + language_id

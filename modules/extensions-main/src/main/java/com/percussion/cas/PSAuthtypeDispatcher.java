@@ -26,11 +26,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,18 +34,11 @@ import org.w3c.dom.NodeList;
 /**
  * This exit acts like a dispatcher to the appropriate authtype implementation resource. Exit takes
  * the authtype in the request (as HTML parameter {@link
-<<<<<<< HEAD
  * com.percussion.system.utils.IPSHtmlParameters#SYS_AUTHTYPE}), finds the matching resource name
  * using the singleton object of the class {@link
  * com.percussion.cms.objectstore.server.PSAuthTypes}, makes an internal request and imports the
  * &lt;linkurl&gt; nodes from the result document to the original result document.The default value
  * for the requested authtype is "0".
-=======
- * com.percussion.util.IPSHtmlParameters#SYS_AUTHTYPE}), finds the matching resource name using the
- * singleton object of the class {@link com.percussion.cms.objectstore.server.PSAuthTypes}, makes an
- * internal request and imports the &lt;linkurl&gt; nodes from the result document to the original
- * result document.The default value for the requested authtype is "0".
->>>>>>> development-8.1.x
  */
 public class PSAuthtypeDispatcher extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**

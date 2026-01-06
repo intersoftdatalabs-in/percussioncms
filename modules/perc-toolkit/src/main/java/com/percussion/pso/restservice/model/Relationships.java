@@ -17,19 +17,13 @@
 package com.percussion.pso.restservice.model;
 
 import java.util.List;
-<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
-=======
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
->>>>>>> development-8.1.x
 
 /** */
 public class Relationships {
   /** Field slots. */
   List<Slot> slots = null;
-<<<<<<< HEAD
 
   /** Field copies. */
   List<Copy> copies = null;
@@ -58,35 +52,6 @@ public class Relationships {
   }
 
   /**
-=======
-  /** Field copies. */
-  List<Copy> copies = null;
-
-  /** Field translations. */
-  private List<Translation> translations;
-
-  /**
-   * Method getTranslations.
-   *
-   * @return List<Translation>
-   */
-  @XmlElementWrapper(name = "Translations")
-  @XmlElement(name = "Translation")
-  public List<Translation> getTranslations() {
-    return translations;
-  }
-
-  /**
-   * Method setTranslations.
-   *
-   * @param translations List<Translation>
-   */
-  public void setTranslations(List<Translation> translations) {
-    this.translations = translations;
-  }
-
-  /**
->>>>>>> development-8.1.x
    * Method getSlots.
    *
    * @return List<Slot>

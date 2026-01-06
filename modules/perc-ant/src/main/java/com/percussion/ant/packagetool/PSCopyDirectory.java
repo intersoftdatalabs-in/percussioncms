@@ -24,35 +24,23 @@ import org.apache.tools.ant.types.FileSet;
 
 public class PSCopyDirectory extends Copy {
 
-<<<<<<< HEAD
   /**
    * @param rootDirPath the rootDirPath to set
    */
-=======
-  /** @param rootDirPath the rootDirPath to set */
->>>>>>> development-8.1.x
   public void setRootDirPath(String rootDirPath) {
     this.rootDirPath = rootDirPath;
   }
 
-<<<<<<< HEAD
   /**
    * @param packageName the packageName to set
    */
-=======
-  /** @param packageName the packageName to set */
->>>>>>> development-8.1.x
   public void setPackageName(String packageName) {
     this.packageName = packageName;
   }
 
-<<<<<<< HEAD
   /**
    * @param destDir the destDir to set
    */
-=======
-  /** @param destDir the destDir to set */
->>>>>>> development-8.1.x
   public void setDestDir(String destDir) {
     this.destDir = destDir;
   }

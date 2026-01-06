@@ -52,13 +52,9 @@ public class PSOItemSummaryFinderWrapper implements IPSOItemSummaryFinder {
     return PSOItemSummaryFinder.getCurrentOrEditLocator(contentId);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getCurrentOrEditLocator(int)
    */
-=======
-  /** @see com.percussion.pso.utils.IPSOItemSummaryFinder#getCurrentOrEditLocator(int) */
->>>>>>> development-8.1.x
   public PSLocator getCurrentOrEditLocator(int id) throws PSException {
     return PSOItemSummaryFinder.getCurrentOrEditLocator(id);
   }
@@ -74,14 +70,10 @@ public class PSOItemSummaryFinderWrapper implements IPSOItemSummaryFinder {
   public int getCheckoutStatus(String contentId, String userName) throws PSException {
     return PSOItemSummaryFinder.getCheckoutStatus(contentId, userName);
   }
-<<<<<<< HEAD
 
   /**
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(java.lang.String)
    */
-=======
-  /** @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(java.lang.String) */
->>>>>>> development-8.1.x
   public PSComponentSummary getSummary(String contentId) throws PSException {
     return PSOItemSummaryFinder.getSummary(contentId);
   }
@@ -94,13 +86,9 @@ public class PSOItemSummaryFinderWrapper implements IPSOItemSummaryFinder {
     return PSOItemSummaryFinder.getSummary(guid);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(int)
    */
-=======
-  /** @see com.percussion.pso.utils.IPSOItemSummaryFinder#getSummary(int) */
->>>>>>> development-8.1.x
   public PSComponentSummary getSummary(int id) throws PSException {
     return PSOItemSummaryFinder.getSummary(id);
   }

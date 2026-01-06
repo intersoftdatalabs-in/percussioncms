@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Tag;
 
 /** PSSendMailTest is a test class for the method PSExitNotifyAssignees.sendMail. */
@@ -30,14 +29,6 @@ import org.junit.jupiter.api.Tag;
 public class PSSendMailTest extends PSAbstractWorkflowTest {
   private static final Logger log = LogManager.getLogger(PSSendMailTest.class);
 
-=======
-import org.junit.experimental.categories.Category;
-
-/** PSSendMailTest is a test class for the method PSExitNotifyAssignees.sendMail. */
-@Category(IntegrationTest.class)
-public class PSSendMailTest extends PSAbstractWorkflowTest {
-  private static final Logger log = LogManager.getLogger(PSSendMailTest.class);
->>>>>>> development-8.1.x
   /**
    * Constructor specifying command line arguments
    *
@@ -47,7 +38,6 @@ public class PSSendMailTest extends PSAbstractWorkflowTest {
     m_sArgs = args;
     m_bNeedConnection = false;
   }
-<<<<<<< HEAD
 
   /* IMPLEMENTATION OF METHODS FROM CLASS PSAbstractWorkflowTest  */
   public void ExecuteTest(Connection connection) throws PSWorkflowTestException {
@@ -103,62 +93,6 @@ public class PSSendMailTest extends PSAbstractWorkflowTest {
 
     List<PSMessagePackage> mailPkgs = new ArrayList<>();
 
-=======
-  /* IMPLEMENTATION OF METHODS FROM CLASS PSAbstractWorkflowTest  */
-  public void ExecuteTest(Connection connection) throws PSWorkflowTestException {
-    log.info("\nExecuting test of " + "PSExitNotifyAssignees.sendMail\n");
-    Exception except = null;
-    String exceptionMessage = "";
-    String msgFrom = "aaron_brandes";
-    String msgTo = "admin1";
-    String msgCc = null;
-    String mailSubject = "Important fewer mail for you";
-    String mailBody = "Not kidding.";
-    String mailURL = "www.percussion.com";
-
-    // Parse the arguments if any
-    if (null != m_sArgs) {
-      for (int i = 0; i < m_sArgs.length; i++) {
-        if (m_sArgs[i].equals("-f") || m_sArgs[i].equals("-from")) {
-          msgFrom = m_sArgs[++i];
-        }
-
-        if (m_sArgs[i].equals("-t") || m_sArgs[i].equals("-to")) {
-          msgTo = m_sArgs[++i];
-        }
-
-        if (m_sArgs[i].equals("-c") || m_sArgs[i].equals("-cc")) {
-          msgCc = m_sArgs[++i];
-        }
-        if (m_sArgs[i].equals("-s") || m_sArgs[i].equals("-subject")) {
-          mailSubject = m_sArgs[++i];
-        }
-
-        if (m_sArgs[i].equals("-b") || m_sArgs[i].equals("-body")) {
-          mailBody = m_sArgs[++i];
-        }
-
-        if (m_sArgs[i].equals("-u") || m_sArgs[i].equals("-url")) {
-          mailURL = m_sArgs[++i];
-        }
-
-        if (m_sArgs[i].equals("-h") || m_sArgs[i].equals("-help")) {
-          log.info("Options are:");
-          log.info("   -f, -from      MessageFrom");
-          log.info("   -t, -to        MessageTo");
-          log.info("   -c, -cc        MessageCc");
-          log.info("   -s, -subject   MailSubject");
-          log.info("   -b, -body      MailBody");
-          log.info("   -u, -url       MailURL");
-          log.info("   -h, -help      help");
-          return;
-        }
-      } // End for (int i = 0; i < m_sArgs.length; i++)
-    } // End if (null != m_sArgs)
-
-    List<PSMessagePackage> mailPkgs = new ArrayList<>();
-
->>>>>>> development-8.1.x
     PSMessagePackage mailPkg = new PSMessagePackage();
     mailPkg.setEmailBody(mailBody);
     mailPkg.setEmailToStr(msgTo);

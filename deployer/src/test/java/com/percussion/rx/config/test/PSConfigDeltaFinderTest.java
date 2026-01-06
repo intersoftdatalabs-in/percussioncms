@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import junit.framework.TestCase;
 
-public class PSConfigDeltaFinderTest extends TestCase {
+public class PSConfigDeltaFinderTest {
   public void testDeltaFinder() {
     Map<String, Object> newProps = new HashMap<String, Object>();
     newProps.put("name1", "value1");

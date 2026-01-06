@@ -35,23 +35,19 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
-public class PSOSlotContentsTest extends TestCase {
+public class PSOSlotContentsTest {
   private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
 
   JUnit4Mockery mocks =
@@ -67,7 +63,6 @@ public class PSOSlotContentsTest extends TestCase {
   IPSTemplateSlot otherSlot;
   IPSAssemblyTemplate template;
 
-<<<<<<< HEAD
   /**
    * @param name
    */
@@ -90,24 +85,6 @@ public class PSOSlotContentsTest extends TestCase {
 
     final PSLocator parent = new PSLocator(1, 1);
 
-=======
-  /** @param name */
-  public PSOSlotContentsTest(String name) {
-    super(name);
-  }
-  /** @see junit.framework.TestCase#setUp() */
-  @Before
-  protected void setUp() throws Exception {
-    super.setUp();
-  }
-  /** Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}. */
-  @Test
-  public void testPSOSlotContents() {
-    PSOSlotContents contents = new PSOSlotContents();
-
-    final PSLocator parent = new PSLocator(1, 1);
-
->>>>>>> development-8.1.x
     final IPSGuid slot1 = new PSLegacyGuid(1L);
     final IPSGuid slot2 = new PSLegacyGuid(2L);
 

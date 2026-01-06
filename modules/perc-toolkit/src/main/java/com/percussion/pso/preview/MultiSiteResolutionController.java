@@ -30,28 +30,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-=======
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class MultiSiteResolutionController extends ParameterizableViewController
     implements Controller {
 
@@ -72,10 +62,7 @@ public class MultiSiteResolutionController extends ParameterizableViewController
       asm = PSAssemblyServiceLocator.getAssemblyService();
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * @see
    *     org.springframework.web.servlet.mvc.AbstractController#handleRequestInternal(HttpServletRequest,
@@ -135,90 +122,58 @@ public class MultiSiteResolutionController extends ParameterizableViewController
     return template;
   }
 
-<<<<<<< HEAD
   /**
    * @return the siteFolderFinder
    */
-=======
-  /** @return the siteFolderFinder */
->>>>>>> development-8.1.x
   public SiteFolderFinder getSiteFolderFinder() {
     return siteFolderFinder;
   }
 
-<<<<<<< HEAD
   /**
    * @param siteFolderFinder the siteFolderFinder to set
    */
-=======
-  /** @param siteFolderFinder the siteFolderFinder to set */
->>>>>>> development-8.1.x
   public void setSiteFolderFinder(SiteFolderFinder siteFolderFinder) {
     this.siteFolderFinder = siteFolderFinder;
   }
 
-<<<<<<< HEAD
   /**
    * @return the gmgr
    */
-=======
-  /** @return the gmgr */
->>>>>>> development-8.1.x
   public static IPSGuidManager getGmgr() {
     return gmgr;
   }
 
-<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set
    */
-=======
-  /** @param gmgr the gmgr to set */
->>>>>>> development-8.1.x
   public static void setGmgr(IPSGuidManager gmgr) {
     MultiSiteResolutionController.gmgr = gmgr;
   }
 
-<<<<<<< HEAD
   /**
    * @return the asm
    */
-=======
-  /** @return the asm */
->>>>>>> development-8.1.x
   public static IPSAssemblyService getAsm() {
     return asm;
   }
 
-<<<<<<< HEAD
   /**
    * @param asm the asm to set
    */
-=======
-  /** @param asm the asm to set */
->>>>>>> development-8.1.x
   public static void setAsm(IPSAssemblyService asm) {
     MultiSiteResolutionController.asm = asm;
   }
 
-<<<<<<< HEAD
   /**
    * @return the urlBuilder
    */
-=======
-  /** @return the urlBuilder */
->>>>>>> development-8.1.x
   public UrlBuilder getUrlBuilder() {
     return urlBuilder;
   }
 
-<<<<<<< HEAD
   /**
    * @param urlBuilder the urlBuilder to set
    */
-=======
-  /** @param urlBuilder the urlBuilder to set */
->>>>>>> development-8.1.x
   public void setUrlBuilder(UrlBuilder urlBuilder) {
     this.urlBuilder = urlBuilder;
   }

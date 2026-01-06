@@ -19,13 +19,9 @@ package com.percussion.utils.thread;
 import com.percussion.utils.request.PSRequestInfoBase;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-<<<<<<< HEAD
 /**
  * @author JaySeletz
  */
-=======
-/** @author JaySeletz */
->>>>>>> development-8.1.x
 public class PSThreadUtils {
   public static final String JOB_CANCELLED = "JOB_CANCELLED";
 

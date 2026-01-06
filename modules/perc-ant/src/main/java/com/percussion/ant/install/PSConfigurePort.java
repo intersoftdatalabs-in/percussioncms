@@ -101,16 +101,9 @@ public class PSConfigurePort extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
-=======
-  /**
-   * *********************************************************************** Property Accessors and
-   * Mutators ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** Accessor for the server properties location */
   public static String getServerPropsLocation() {
@@ -130,16 +123,9 @@ public class PSConfigurePort extends PSAction {
     m_strServerPort = strServerPort;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
-=======
-  /**
-   * ************************************************************************ Properties
-   * ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** The server properties location, relative to the Rhythmyx root. */
   private static String ms_strServerPropsLocation = "rxconfig/Server/server.properties";

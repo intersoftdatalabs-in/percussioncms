@@ -17,13 +17,10 @@
 
 package com.percussion.cx;
 
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.ImageIcon;
-=======
->>>>>>> development-8.1.x
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -41,7 +38,6 @@ public class PSContentExplorerHelper {
 
   public static List<String> htmExt = Arrays.asList("html", "htm");
 
-<<<<<<< HEAD
 public class PSContentExplorerHelper
 {
    static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
@@ -52,9 +48,6 @@ public class PSContentExplorerHelper
    
   
    private static ResourceBundle sm_res = null;
-=======
-  public static List<String> xlsExt = Arrays.asList("xls");
->>>>>>> development-8.1.x
 
   private static ResourceBundle sm_res = null;
 

@@ -28,20 +28,12 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
-<<<<<<< HEAD
 import org.json.simple.JSONObject;
-=======
-import org.json.JSONObject;
->>>>>>> development-8.1.x
 
 /**
  * Return all available workflow actions for the content item based on the current users permissions

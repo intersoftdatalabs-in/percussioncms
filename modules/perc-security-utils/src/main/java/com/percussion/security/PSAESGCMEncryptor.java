@@ -42,11 +42,7 @@ public class PSAESGCMEncryptor implements IPSEncryptor {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMEncryptor.class);
 
-<<<<<<< HEAD
   private PSAESGCMKey key;
-=======
-  private PSAESGCMKey m_key;
->>>>>>> development-8.1.x
 
   public byte[] getIV(int size) {
     byte[] nonce = new byte[size];
@@ -64,11 +60,7 @@ public class PSAESGCMEncryptor implements IPSEncryptor {
     if (key == null) throw new IllegalArgumentException("key cannot be null");
 
     // store key for later use
-<<<<<<< HEAD
     this.key = key;
-=======
-    m_key = key;
->>>>>>> development-8.1.x
   }
 
   /**
@@ -105,11 +97,7 @@ public class PSAESGCMEncryptor implements IPSEncryptor {
   @Override
   public byte[] encrypt(String in) throws PSEncryptionException {
     try {
-<<<<<<< HEAD
       PSAESGCMKey aesKey = key;
-=======
-      PSAESGCMKey aesKey = m_key;
->>>>>>> development-8.1.x
       byte[] iv = getIV(12);
 
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");

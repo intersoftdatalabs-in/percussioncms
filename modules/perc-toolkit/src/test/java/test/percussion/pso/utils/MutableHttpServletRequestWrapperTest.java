@@ -17,11 +17,7 @@
 package test.percussion.pso.utils;
 
 import static org.apache.commons.collections.CollectionUtils.*;
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.pso.utils.MutableHttpServletRequestWrapper;
 import java.util.ArrayList;
@@ -38,11 +34,7 @@ public class MutableHttpServletRequestWrapperTest {
 
   MutableHttpServletRequestWrapper cut;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setParameter("foo", "foo");

@@ -18,7 +18,6 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Category;
 
-<<<<<<< HEAD
 /***
  * For Media RSS:
  * <media:category>
@@ -39,10 +38,6 @@ import com.rometools.modules.mediarss.types.Category;
  * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
  *
  * @author natechadwick
-=======
-/**
- * * For Media RSS: <media:category>
->>>>>>> development-8.1.x
  *
  * <p>Allows a taxonomy to be set that gives an indication of the type of media content, and its
  * particular contents. It has 2 optional attributes.
@@ -72,13 +67,9 @@ public class PSSynFeedCategory {
     this.category = arg;
   }
 
-<<<<<<< HEAD
   /**
    * @return
    */
-=======
-  /** @return */
->>>>>>> development-8.1.x
   public String getScheme() {
     return category.getScheme();
   }
@@ -87,15 +78,8 @@ public class PSSynFeedCategory {
     return category.getValue();
   }
 
-<<<<<<< HEAD
   /***
    * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
-=======
-  /**
-   * * label is the human readable label that can be displayed in end user applications. It is an
-   * optional attribute.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getLabel() {

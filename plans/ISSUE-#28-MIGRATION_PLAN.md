@@ -21,11 +21,5 @@ Migrate all usage to `java.net.http.HttpClient` (available since Java 11).
 
 ## Progress
 
-<<<<<<< HEAD:plans/ISSUE-#28-MIGRATION_PLAN.md
-Currently targeting development branch.
-=======================================
-
 Currently targeting development-java-11 branch as requested.
-
->>>>>>> development:MIGRATION_PLAN.md
 

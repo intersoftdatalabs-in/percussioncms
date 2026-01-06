@@ -27,7 +27,6 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,8 +55,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-=======
->>>>>>> development-8.1.x
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -125,7 +122,6 @@ import org.apache.log4j.Logger;
  * according to the node's display format. Supports pop-up menu based on selection.
  */
 public class PSMainDisplayPanel extends JScrollPane
-<<<<<<< HEAD
    implements DragGestureListener, DropTargetListener
 {
    static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
@@ -150,10 +146,6 @@ public class PSMainDisplayPanel extends JScrollPane
       
       if(actManager.getApplet() == null)
          throw new IllegalArgumentException("applet may not be null.");
-=======
-    implements DragGestureListener, DropTargetListener {
-  static Logger log = Logger.getLogger(PSMainDisplayPanel.class);
->>>>>>> development-8.1.x
 
   /**
    * Constructs the panel with supplied parameters.
@@ -1339,7 +1331,96 @@ public class PSMainDisplayPanel extends JScrollPane
       // The autoscroller can generate drag events outside the Table's range.
       if ((column == -1) || (row == -1)) return;
 
-<<<<<<< HEAD
+            if (selNode.isContainer()) {
+              m_navTree.selectNode(selNode);
+            } else // execute the default action for the node if applicable
+            {
+              // parent node a node selected in display panel is the node
+              // selected in the navigation tree.
+              PSNode parentNode = m_navTree.getSelectedNode();
+              PSUiMode mode = new PSUiMode(m_view, ms_mode);
+              PSSelection selection =
+                  new PSSelection(mode, parentNode, PSIteratorUtils.iterator(selNode));
+              PSMenuAction defAction = m_actManager.findDefaultAction(selection);
+
+              if (defAction != null) {
+                m_actManager.executeAction(defAction, selection);
+              }
+            }
+          } else {
+            isPopup = false;
+          }
+        } else {
+          enter = 0;
+        }
+
+      } else if (code == KeyEvent.VK_CONTEXT_MENU || code == KeyEvent.VK_RIGHT) {
+        Iterator<PSNode> selNodes = getSelectedRowNodes();
+
+        PSNode selNode = null;
+        if (selNodes.hasNext()) {
+          selNode = selNodes.next();
+        } else {
+          return;
+        }
+
+        int row = getMatchingRowIndex(selNode);
+        int col = table.getSelectedColumn();
+        displayPopupMenu(
+            (Component) e.getSource(),
+            null,
+            getSelectedRowNodes(),
+            new Point(row + 150, col + (row * 17)));
+        isPopup = true;
+      } else if (code == KeyEvent.VK_TAB) {
+        int row = table.getSelectedRow();
+        int col = table.getSelectedColumn();
+        if (row == -1 && col == -1) {
+          row = 0;
+          col = 0;
+        }
+        table.requestFocusInWindow();
+        CellEditor editor = table.getCellEditor();
+        if (editor == null || editor.shouldSelectCell(e)) {
+          table.getSelectionModel().setValueIsAdjusting(true);
+          table.getColumnModel().getSelectionModel().setValueIsAdjusting(true);
+          table.changeSelection(row, col, e.isControlDown(), e.isShiftDown());
+        }
+      }
+    }
+  }
+
+  /**
+   * The mouse input handler that handles the mouse events on the table in this panel. This differs
+   * from <code>BasicTableUI</code>'s <code>
+   * MouseInputHandler</code> in the following ways.
+   *
+   * <ol>
+   *   <li>Selects the row or cell upon mouse click, not on mouse press.
+   *   <li>In mouse dragged, if the cell at drag origin (mouse press location) is not currently
+   *       selected, makes that as selected, otherwise keeps the current selection.
+   * </ol>
+   *
+   * This behavior is similar to windows explorer behavior in right panel.
+   */
+  private class TableMouseInputHandler extends PSMouseAdapter implements MouseInputListener {
+    /**
+     * Implements interface method to make the clicked cell as selected. If the control key is down,
+     * the cell is selected/deselected based on current selection state of that row not affecting
+     * any other selection. If shift key is down, the range of cells between last selected row in
+     * the direction (up/down) are selected. See the interface for more description.
+     */
+    @Override
+    public void mouseWasClicked(MouseEvent e) {
+      if (shouldIgnore(e)) return;
+
+      JTable table = (JTable) e.getSource();
+      Point p = e.getPoint();
+      int row = table.rowAtPoint(p);
+      int column = table.columnAtPoint(p);
+      // The autoscroller can generate drag events outside the Table's range.
+      if ((column == -1) || (row == -1)) return;
+
          String name = "Table Header column "+ column + " " + value;
          if (dispOptions != null)
          {
@@ -1588,13 +1669,6 @@ public class PSMainDisplayPanel extends JScrollPane
             table.changeSelection(
                row, column, e.isControlDown(), e.isShiftDown());
          }
-=======
-      if (table.editCellAt(row, column, e)) {
-        setDispatchComponent(e);
-        repostEvent(e);
-      } else {
-        table.requestFocus();
->>>>>>> development-8.1.x
       }
 
       CellEditor editor = table.getCellEditor();

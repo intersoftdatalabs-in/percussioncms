@@ -20,12 +20,12 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.IPSFolderPath;
 import com.percussion.share.data.PSAbstractPersistantObject;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotNull;
 
 /**

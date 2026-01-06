@@ -29,7 +29,6 @@ public class PSMissingBeanConfigurationException extends RuntimeException {
   /** */
   public PSMissingBeanConfigurationException() {
     super();
-<<<<<<< HEAD
   }
 
   /**
@@ -39,22 +38,12 @@ public class PSMissingBeanConfigurationException extends RuntimeException {
     super(message);
   }
 
-=======
-    // TODO Auto-generated constructor stub
-  }
-  /** @param message */
-  public PSMissingBeanConfigurationException(String message) {
-    super(message);
-    // TODO Auto-generated constructor stub
-  }
->>>>>>> development-8.1.x
   /**
    * @param message
    * @param cause
    */
   public PSMissingBeanConfigurationException(String message, Throwable cause) {
     super(message, cause);
-<<<<<<< HEAD
   }
 
   /**
@@ -62,13 +51,5 @@ public class PSMissingBeanConfigurationException extends RuntimeException {
    */
   public PSMissingBeanConfigurationException(Throwable cause) {
     super(cause);
-=======
-    // TODO Auto-generated constructor stub
-  }
-  /** @param cause */
-  public PSMissingBeanConfigurationException(Throwable cause) {
-    super(cause);
-    // TODO Auto-generated constructor stub
->>>>>>> development-8.1.x
   }
 }

@@ -40,7 +40,6 @@ public class PSAjaxSwingWrapperLocator {
                 "Running with AjaxSwing but com.percussion.ajaxswing.PSAjaxSwingWrapper not compiled with rxcx.",
                 e);
 
-<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSAjaxSwingWrapperLocator.class);
    
    public static IPSAjaxSwingWrapper getInstance()
@@ -65,12 +64,6 @@ public class PSAjaxSwingWrapperLocator {
                catch (InstantiationException e)
                {
                   log.error("Running with AjaxSwing but Cannot instantiate com.percussion.ajaxswing.PSAjaxSwingWrapper",e);
-=======
-          } catch (InstantiationException e) {
-            log.error(
-                "Running with AjaxSwing but Cannot instantiate com.percussion.ajaxswing.PSAjaxSwingWrapper",
-                e);
->>>>>>> development-8.1.x
 
           } catch (IllegalAccessException e) {
             log.error(

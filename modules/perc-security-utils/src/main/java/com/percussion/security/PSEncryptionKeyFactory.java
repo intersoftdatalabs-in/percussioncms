@@ -17,7 +17,6 @@
 
 package com.percussion.security;
 
-<<<<<<< HEAD
 /** Factory for encryption key generation. */
 public abstract class PSEncryptionKeyFactory {
 
@@ -42,40 +41,6 @@ public abstract class PSEncryptionKeyFactory {
     if (!algorithm.equalsIgnoreCase(AES_GCM_ALGORIYTHM))
       throw new IllegalArgumentException("Algorithm not supported");
 
-=======
-/**
- * This factory class determines which encryptor is available for use by the system. It is the
- * callers responsibility to understand the key generation scheme, etc. and use the returned object
- * appropriately.
- *
- * @author Tas Giakouminakis
- * @version 1.0
- * @since 1.0
- */
-public abstract class PSEncryptionKeyFactory {
-
-  @Deprecated public static final String DES_ALGORITHM = "DES";
-
-  public static final String AES_GCM_ALGORIYTHM = "AES";
-
-  private PSEncryptionKeyFactory() {
-    super();
-  }
-
-  /**
-   * Get an instance of the key generator which can be used for the default encryption/decryption
-   * algorithm. From the key type returned, the caller can determine what to use to generate the
-   * key. The updated key can then be passed in to the encryptor/decryptor.
-   */
-  public static IPSKey getKeyGenerator(String algorithm) {
-    IPSKey key = null;
-
-    if (algorithm == null) throw new IllegalArgumentException("Algorithm cannot be null.");
-
-    if (!algorithm.equalsIgnoreCase(AES_GCM_ALGORIYTHM))
-      throw new IllegalArgumentException("Algorithm not supported");
-
->>>>>>> development-8.1.x
     key = new PSAESGCMKey();
 
     return key;

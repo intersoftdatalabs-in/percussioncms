@@ -80,13 +80,9 @@ public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPre
    * @throws PSExtensionProcessingException when a run time error is detected.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     PSXmlDomContext contxt = new PSXmlDomContext(m_extname, request);
     String sourceName = PSXmlDomUtils.getParameter(params, 0, PSXmlDomUtils.DEFAULT_PRIVATE_OBJECT);

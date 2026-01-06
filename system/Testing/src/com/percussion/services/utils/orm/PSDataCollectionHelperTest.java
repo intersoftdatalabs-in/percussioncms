@@ -30,7 +30,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
 import jakarta.persistence.criteria.CriteriaBuilder;

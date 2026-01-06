@@ -9,7 +9,7 @@
 GenericServlet (Servlet API Documentation)
 </TITLE>
 
-<META NAME="keywords" CONTENT="javax.servlet.GenericServlet class">
+<META NAME="keywords" CONTENT="jakarta.servlet.GenericServlet class">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -89,13 +89,13 @@ javax.servlet</FONT>
 Class GenericServlet</H2>
 <PRE>
 java.lang.Object
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by"><B>javax.servlet.GenericServlet</B>
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by"><B>jakarta.servlet.GenericServlet</B>
 </PRE>
 <DL>
 <DT><B>All Implemented Interfaces:</B> <DD>java.io.Serializable, <A HREF="../../javax/servlet/Servlet.html" title="interface in javax.servlet">Servlet</A>, <A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A></DD>
 </DL>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../javax/servlet/http/HttpServlet.html" title="class in javax.servlet.http">HttpServlet</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../javax/servlet/http/HttpServlet.html" title="class in jakarta.servlet.http">HttpServlet</A></DD>
 </DL>
 <HR>
 <DL>
@@ -104,7 +104,7 @@ java.lang.Object
 <P>
 Defines a generic, protocol-independent
  servlet. To write an HTTP servlet for use on the
- Web, extend <A HREF="../../javax/servlet/http/HttpServlet.html" title="class in javax.servlet.http"><CODE>HttpServlet</CODE></A> instead.
+ Web, extend <A HREF="../../javax/servlet/http/HttpServlet.html" title="class in jakarta.servlet.http"><CODE>HttpServlet</CODE></A> instead.
 
  <p><code>GenericServlet</code> implements the <code>Servlet</code>
  and <code>ServletConfig</code> interfaces. <code>GenericServlet</code>
@@ -128,7 +128,7 @@ Defines a generic, protocol-independent
   <DD>$Version$</DD>
 <DT><B>Author:</B></DT>
   <DD>Various</DD>
-<DT><B>See Also:</B><DD><A HREF="../../serialized-form.html#javax.servlet.GenericServlet">Serialized Form</A></DL>
+<DT><B>See Also:</B><DD><A HREF="../../serialized-form.html#jakarta.servlet.GenericServlet">Serialized Form</A></DL>
 <HR>
 
 <P>
@@ -242,7 +242,7 @@ Defines a generic, protocol-independent
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../javax/servlet/GenericServlet.html#init(javax.servlet.ServletConfig)">init</A></B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)</CODE>
+<TD><CODE><B><A HREF="../../javax/servlet/GenericServlet.html#init(jakarta.servlet.ServletConfig)">init</A></B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by the servlet container to indicate to a servlet that the
@@ -272,7 +272,7 @@ Defines a generic, protocol-independent
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../javax/servlet/GenericServlet.html#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)">service</A></B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,
+<TD><CODE><B><A HREF="../../javax/servlet/GenericServlet.html#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)">service</A></B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,
         <A HREF="../../javax/servlet/ServletResponse.html" title="interface in javax.servlet">ServletResponse</A>&nbsp;res)</CODE>
 
 <BR>
@@ -405,7 +405,7 @@ public <A HREF="../../javax/servlet/ServletConfig.html" title="interface in java
 <DD><DL>
 
 <DT><B>Returns:</B><DD>ServletConfig 	the <code>ServletConfig</code> object
-				that initialized this servlet<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/Servlet.html#init(javax.servlet.ServletConfig)"><CODE>Servlet.init(javax.servlet.ServletConfig)</CODE></A></DL>
+				that initialized this servlet<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/Servlet.html#init(jakarta.servlet.ServletConfig)"><CODE>Servlet.init(jakarta.servlet.ServletConfig)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -454,14 +454,14 @@ public java.lang.String <B>getServletInfo</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="init(javax.servlet.ServletConfig)"><!-- --></A><H3>
+<A NAME="init(jakarta.servlet.ServletConfig)"><!-- --></A><H3>
 init</H3>
 <PRE>
 public void <B>init</B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)
           throws <A HREF="../../javax/servlet/ServletException.html" title="class in javax.servlet">ServletException</A></PRE>
 <DL>
 <DD>Called by the servlet container to indicate to a servlet that the
- servlet is being placed into service.  See <A HREF="../../javax/servlet/Servlet.html#init(javax.servlet.ServletConfig)"><CODE>Servlet.init(javax.servlet.ServletConfig)</CODE></A>.
+ servlet is being placed into service.  See <A HREF="../../javax/servlet/Servlet.html#init(jakarta.servlet.ServletConfig)"><CODE>Servlet.init(jakarta.servlet.ServletConfig)</CODE></A>.
 
  <p>This implementation stores the <A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet"><CODE>ServletConfig</CODE></A>
  object it receives from the servlet container for later use.
@@ -469,7 +469,7 @@ public void <B>init</B>(<A HREF="../../javax/servlet/ServletConfig.html" title="
  <code>super.init(config)</code>.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../javax/servlet/Servlet.html#init(javax.servlet.ServletConfig)">init</A></CODE> in interface <CODE><A HREF="../../javax/servlet/Servlet.html" title="interface in javax.servlet">Servlet</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../javax/servlet/Servlet.html#init(jakarta.servlet.ServletConfig)">init</A></CODE> in interface <CODE><A HREF="../../javax/servlet/Servlet.html" title="interface in javax.servlet">Servlet</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>config</CODE> - the <code>ServletConfig</code> object
@@ -492,7 +492,7 @@ public void <B>init</B>()
 <DD>A convenience method which can be overridden so that there's no need
  to call <code>super.init(config)</code>.
 
- <p>Instead of overriding <A HREF="../../javax/servlet/GenericServlet.html#init(javax.servlet.ServletConfig)"><CODE>init(ServletConfig)</CODE></A>, simply override
+ <p>Instead of overriding <A HREF="../../javax/servlet/GenericServlet.html#init(jakarta.servlet.ServletConfig)"><CODE>init(ServletConfig)</CODE></A>, simply override
  this method and it will be called by
  <code>GenericServlet.init(ServletConfig config)</code>.
  The <code>ServletConfig</code> object can still be retrieved via <A HREF="../../javax/servlet/GenericServlet.html#getServletConfig()"><CODE>getServletConfig()</CODE></A>.
@@ -550,7 +550,7 @@ public void <B>log</B>(java.lang.String&nbsp;message,
 </DL>
 <HR>
 
-<A NAME="service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)"><!-- --></A><H3>
+<A NAME="service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)"><!-- --></A><H3>
 service</H3>
 <PRE>
 public abstract void <B>service</B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,
@@ -559,13 +559,13 @@ public abstract void <B>service</B>(<A HREF="../../javax/servlet/ServletRequest.
                              java.io.IOException</PRE>
 <DL>
 <DD>Called by the servlet container to allow the servlet to respond to
- a request.  See <A HREF="../../javax/servlet/Servlet.html#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)"><CODE>Servlet.service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)</CODE></A>.
+ a request.  See <A HREF="../../javax/servlet/Servlet.html#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)"><CODE>Servlet.service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)</CODE></A>.
  
  <p>This method is declared abstract so subclasses, such as 
  <code>HttpServlet</code>, must override it.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../javax/servlet/Servlet.html#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)">service</A></CODE> in interface <CODE><A HREF="../../javax/servlet/Servlet.html" title="interface in javax.servlet">Servlet</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../javax/servlet/Servlet.html#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)">service</A></CODE> in interface <CODE><A HREF="../../javax/servlet/Servlet.html" title="interface in javax.servlet">Servlet</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>req</CODE> - the <code>ServletRequest</code> object

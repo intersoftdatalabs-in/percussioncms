@@ -17,11 +17,7 @@
 
 package com.percussion.taxonomy.web.xmlGeneration;
 
-<<<<<<< HEAD
-import com.percussion.security.error.PSExceptionUtils;
-=======
 import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.ByteArrayOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -19,23 +19,16 @@ import javax.crypto.SecretKey;
  * limitations under the License.
  */
 /**
-<<<<<<< HEAD
  * Represents a key for encryption/decryption algorithms used within the product.
  *
  * <p>
  *
-=======
- * IPSKey is a transparent interface for encryption/decryption algorithms which can be used within
- * the product.
- *
->>>>>>> development-8.1.x
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
 public interface IPSKey {
   /**
-<<<<<<< HEAD
    * Generates an IPSEncryptor object which can make use of this key.
    *
    * @return the associated encryptor.
@@ -55,40 +48,13 @@ public interface IPSKey {
    * @return the secret key as a byte array.
    */
   byte[] getSecret();
-=======
-   * Generate an IPSEncryptor object which can make use of this key.
-   *
-   * @return the associated encryptor
-   */
-  public IPSEncryptor getEncryptor();
-
-  /**
-   * Generate an IPSDecryptor object which can make use of this key.
-   *
-   * @return the associated decryptor
-   */
-  public IPSDecryptor getDecryptor();
-
-  /**
-   * Returns a byte aray containing the secret key
-   *
-   * @return
-   */
-  public byte[] getSecret();
->>>>>>> development-8.1.x
 
   /**
    * Sets the secret to the specified byte array.
    *
-<<<<<<< HEAD
    * @param secret the secret key as a byte array.
    */
   void setSecret(byte[] secret);
-=======
-   * @param secret
-   */
-  public void setSecret(byte[] secret);
->>>>>>> development-8.1.x
 
   /**
    * Generates a new key.

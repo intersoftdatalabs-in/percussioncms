@@ -49,11 +49,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.DOMException;
@@ -554,12 +550,8 @@ public class PSXmlDocumentBuilder {
         + NEWLINE
         + "\t\t%HTMLsymbol;"
         + NEWLINE
-<<<<<<< HEAD
         + "\t<!ENTITY % HTMLspecial PUBLIC \"-//W3C//ENTITIES_Special_for_XHTML//EN\" SYSTEM"
         + " \"file:"
-=======
-        + "\t<!ENTITY % HTMLspecial PUBLIC \"-//W3C//ENTITIES_Special_for_XHTML//EN\" SYSTEM \"file:"
->>>>>>> development-8.1.x
         + serverRoot
         + "/DTD/HTMLspecialx.ent\">"
         + NEWLINE
@@ -1393,18 +1385,12 @@ public class PSXmlDocumentBuilder {
     return elementNode;
   }
 
-<<<<<<< HEAD
   /**
    * @deprecated Use #removeElement(Element) instead
    */
   public static void removeElement(Document parentDoc, Element elementNode) {
     if (parentDoc != null) {
       ;
-=======
-  /** @deprecated Use #removeElement(Element) instead */
-  public static void removeElement(Document parentDoc, Element elementNode) {
-    if (parentDoc != null) {;
->>>>>>> development-8.1.x
     }
 
     removeElement(elementNode);

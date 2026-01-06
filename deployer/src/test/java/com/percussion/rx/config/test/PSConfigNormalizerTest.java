@@ -32,7 +32,7 @@ import org.apache.commons.io.IOUtils;
  *
  * @author YuBingChen
  */
-public class PSConfigNormalizerTest extends TestCase {
+public class PSConfigNormalizerTest {
   /**
    * Tests loading a local config file which contains (more advanced) example properties.
    *

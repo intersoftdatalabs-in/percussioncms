@@ -137,7 +137,6 @@ public class PSHelpApplet extends JApplet {
       // Invoke showHelp method when icon is clicked
       showHelp();
     }
-<<<<<<< HEAD
 
     /**
      * Sets cursor to hand cursor when we mouse over icon
@@ -164,32 +163,6 @@ public class PSHelpApplet extends JApplet {
   /** The help topic id to be displayed, gets initialized when the applet is initialized. */
   private String m_helpID = null;
 
-=======
-    /**
-     * Sets cursor to hand cursor when we mouse over icon
-     *
-     * @param evt the MouseEvent passed in
-     */
-    public void mouseEntered(MouseEvent evt) {
-      // Set to hand cursor when we mouse over icon
-      setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    }
-    /**
-     * Sets cursor to default cursor when we mouse exit the icon
-     *
-     * @param evt the MouseEvent passed in
-     */
-    public void mouseExited(MouseEvent evt) {
-      // Reset to default cursor when our cursor exits the
-      // icon label component
-      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-  }
-
-  /** The help topic id to be displayed, gets initialized when the applet is initialized. */
-  private String m_helpID = null;
-
->>>>>>> development-8.1.x
   /**
    * The singleton instance of java help so that it is not garbage collected, initialized in <code>
    * init()</code> and never <code>null</code> or modified after that.

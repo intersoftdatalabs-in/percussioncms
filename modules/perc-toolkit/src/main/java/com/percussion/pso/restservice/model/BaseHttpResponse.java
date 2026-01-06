@@ -24,42 +24,24 @@ public abstract class BaseHttpResponse {
   private Item existingItem;
   private Header[] headers;
 
-<<<<<<< HEAD
   /***
    * Sets the HTTP Headers collection for this response.
-=======
-  /**
-   * * Sets the HTTP Headers collection for this response.
-   *
->>>>>>> development-8.1.x
    * @param headers
    */
   public void setHeaders(Header[] headers) {
     this.headers = headers;
   }
 
-<<<<<<< HEAD
   /***
    * Gets the HTTP Headers collection for this response.
-=======
-  /**
-   * * Gets the HTTP Headers collection for this response.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public Header[] getHeaders() {
     return headers;
   }
 
-<<<<<<< HEAD
   /***
    * Will return the ETag header if it is set or the empty string.
-=======
-  /**
-   * * Will return the ETag header if it is set or the empty string.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getETag() {
@@ -75,14 +57,8 @@ public abstract class BaseHttpResponse {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    * Will return the last modified header if it is set or the empty string.
-=======
-  /**
-   * * Will return the last modified header if it is set or the empty string.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getLastModified() {

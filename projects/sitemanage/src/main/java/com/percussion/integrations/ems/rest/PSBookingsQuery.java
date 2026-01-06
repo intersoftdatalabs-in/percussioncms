@@ -18,12 +18,12 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.ems.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Model object to hold query parameters for the backend Bookings service. Duplicated in delivery

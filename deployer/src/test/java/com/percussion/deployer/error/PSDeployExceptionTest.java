@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the PSDeployException class. */
-public class PSDeployExceptionTest extends TestCase {
+public class PSDeployExceptionTest {
   /**
    * Construct this unit test
    *

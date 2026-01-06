@@ -174,13 +174,9 @@ public class PSCopyManifest {
    *
    * Any errors are written to System.out
    */
-<<<<<<< HEAD
   /**
    * @param args
    */
-=======
-  /** @param args */
->>>>>>> development-8.1.x
   public static void main(String[] args) {
     try {
       // get the args

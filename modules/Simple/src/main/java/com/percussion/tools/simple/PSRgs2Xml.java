@@ -17,11 +17,7 @@
 
 package com.percussion.tools.simple;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -176,11 +172,7 @@ public class PSRgs2Xml {
    */
   private static String parseTypes(String s) {
     if (s == null) return "";
-<<<<<<< HEAD
     List<String> types = new ArrayList<>();
-=======
-    List types = new ArrayList();
->>>>>>> development-8.1.x
     StringBuilder sb = new StringBuilder();
     int pos = 0;
     int arrayDimensions = 0;
@@ -200,11 +192,7 @@ public class PSRgs2Xml {
         sb.setLength(0);
 
       } else {
-<<<<<<< HEAD
         sb.append(ms_types.get(current));
-=======
-        sb.append((String) ms_types.get(current));
->>>>>>> development-8.1.x
         for (int i = 0; i < arrayDimensions; i++) sb.append("[]");
         arrayDimensions = 0;
         types.add(sb.toString());
@@ -212,15 +200,9 @@ public class PSRgs2Xml {
       }
     }
     sb.setLength(0);
-<<<<<<< HEAD
     Iterator<String> it = types.iterator();
     while (it.hasNext()) {
       sb.append(it.next());
-=======
-    Iterator it = types.iterator();
-    while (it.hasNext()) {
-      sb.append((String) it.next());
->>>>>>> development-8.1.x
       if (it.hasNext()) sb.append(",");
     }
 
@@ -261,11 +243,7 @@ public class PSRgs2Xml {
   private String m_rgsPath;
   private String m_xmlPath;
 
-<<<<<<< HEAD
   private static Map<String, String> ms_types = new HashMap<>();
-=======
-  private static Map ms_types = new HashMap();
->>>>>>> development-8.1.x
 
   static {
     ms_types.put("B", "byte");

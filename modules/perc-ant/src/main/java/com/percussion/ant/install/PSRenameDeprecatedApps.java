@@ -52,7 +52,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSRenameDeprecatedApps extends PSAction {
   private static final Logger log = LogManager.getLogger(PSRenameDeprecatedApps.class);
-<<<<<<< HEAD
 
   // see base class
   @Override
@@ -60,14 +59,6 @@ public class PSRenameDeprecatedApps extends PSAction {
     try {
       PSLogger.logInfo("Renaming deprecated applications");
 
-=======
-  // see base class
-  @Override
-  public void execute() {
-    try {
-      PSLogger.logInfo("Renaming deprecated applications");
-
->>>>>>> development-8.1.x
       int renamedApps = renameApplications();
       PSLogger.logInfo("Renamed " + renamedApps + " applications");
     } catch (Exception e) {
@@ -129,16 +120,9 @@ public class PSRenameDeprecatedApps extends PSAction {
     return renamedApps;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
-=======
-  /**
-   * ************************************************************************ Properties
-   * ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** The rhythmyx root directory */
   private String m_strRxRoot = getRootDir();

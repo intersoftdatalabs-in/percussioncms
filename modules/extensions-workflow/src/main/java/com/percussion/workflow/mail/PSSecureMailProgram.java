@@ -126,13 +126,8 @@ public class PSSecureMailProgram implements IPSMailProgram {
         log.debug("SMTP port: {}", smtpPort);
       } catch (NumberFormatException e) {
         log.error(
-<<<<<<< HEAD
             "Unable to set smtp port number; defaulting to port 587.  Please check the"
                 + " configuration and verify the port number is a valid port. Error: {}",
-=======
-            "Unable to set smtp port number; defaulting to port 587.  Please check the configuration and"
-                + " verify the port number is a valid port. Error: {}",
->>>>>>> development-8.1.x
             PSExceptionUtils.getMessageForLog(e));
       }
     }

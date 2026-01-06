@@ -48,7 +48,7 @@ import java.util.List;
  * @author ram
  * 
  */
-public class PSSiteCatalogServlet extends javax.servlet.http.HttpServlet
+public class PSSiteCatalogServlet extends jakarta.servlet.http.HttpServlet
 {
    private static final Logger ms_log = LogManager.getLogger(PSSiteCatalogServlet.class);
 
@@ -57,8 +57,8 @@ public class PSSiteCatalogServlet extends javax.servlet.http.HttpServlet
    /*
     * (non-Javadoc)
     * 
-    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
-    * javax.servlet.http.HttpServletResponse)
+    * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
+    * jakarta.servlet.http.HttpServletResponse)
     */
    @Override
    protected void service(HttpServletRequest request,

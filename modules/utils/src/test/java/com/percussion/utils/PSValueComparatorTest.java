@@ -25,36 +25,22 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 
 public class PSValueComparatorTest {
   static PSValueComparator vc = new PSValueComparator();
 
   @Test
-=======
-import junit.framework.TestCase;
-
-public class PSValueComparatorTest extends TestCase {
-  static PSValueComparator vc = new PSValueComparator();
-
->>>>>>> development-8.1.x
   public void testCompareLongs() throws Exception {
     doTest(1L, 2L);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareDoubles() throws Exception {
     doTest(1.1, 1.2);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareDates() throws Exception {
     Calendar c1, c2;
 
@@ -67,10 +53,7 @@ public class PSValueComparatorTest extends TestCase {
     doTest(c1, c2);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareStrings() throws Exception {
     doTest("aaaa", "aaab");
 
@@ -90,18 +73,12 @@ public class PSValueComparatorTest extends TestCase {
     doTest("\u00D1", "O");
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareBooleans() throws Exception {
     doTest(Boolean.FALSE, Boolean.TRUE);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareFirstNull() throws Exception {
     Value v2 = PSValueFactory.createValue((Object) "a");
     Value v1 = null;
@@ -110,10 +87,7 @@ public class PSValueComparatorTest extends TestCase {
     assertTrue(r < 0);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareSecondNull() throws Exception {
     Value v1 = PSValueFactory.createValue((Object) "a");
     Value v2 = null;
@@ -122,10 +96,7 @@ public class PSValueComparatorTest extends TestCase {
     assertTrue(r > 0);
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testCompareBothNull() throws Exception {
     int r = vc.compare(null, null);
     assertTrue(r == 0);

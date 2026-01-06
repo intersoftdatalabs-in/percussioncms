@@ -17,11 +17,7 @@
 
 package com.percussion.ant.packagetool;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -220,13 +216,9 @@ public class PSPackageBuildToolHelper {
     return directoryName;
   }
 
-<<<<<<< HEAD
   /**
    * @param directoryToBeDeleted
    */
-=======
-  /** @param directoryToBeDeleted */
->>>>>>> development-8.1.x
   private static void deleteDirectory(File directoryToBeDeleted) {
     if (directoryToBeDeleted.exists()) {
       File[] files = directoryToBeDeleted.listFiles();

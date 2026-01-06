@@ -37,7 +37,6 @@ public class PSSecureXMLUtils {
   private PSSecureXMLUtils() {
     // hidden ctor
   }
-<<<<<<< HEAD
 
   //  http://xml.org/sax/features/namespaces
   // Set to true
@@ -85,56 +84,6 @@ public class PSSecureXMLUtils {
     dbf.setXIncludeAware(XINCLUDE_AWARE);
     dbf.setExpandEntityReferences(EXPAND_ENTITY_REFERENCES);
     PSXMLEntityResolverWrapper resolver = new PSXMLEntityResolverWrapper();
-
-=======
-  //  http://xml.org/sax/features/namespaces
-  // Set to true
-  public static final String SECURE_PROCESSING_FEATURE = XMLConstants.FEATURE_SECURE_PROCESSING;
-
-  // Set to true based on param
-  public static final String DISALLOW_DOCTYPES_FEATURE =
-      "http://apache.org/xml/features/disallow-doctype-decl";
-
-  // Set to false
-  public static final String SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xml.org/sax/features/external-general-entities";
-
-  // Set to true
-  public static final String X1_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-general-entities";
-
-  // Set to true
-  public static final String X2_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-general-entities";
-
-  // false
-  public static final String X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-parameter-entities";
-
-  public static final String X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities";
-
-  public static final String SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xml.org/sax/features/external-parameter-entities";
-
-  public static final String LOAD_EXTERNAL_DTD =
-      "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-
-  public static final boolean XINCLUDE_AWARE = false;
-  public static final boolean EXPAND_ENTITY_REFERENCES = false;
-
-  private static final Logger log = LogManager.getLogger(PSSecureXMLUtils.class);
-
-  public static final String UNSUPPORTED_FEATURE_WARN =
-      "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.";
-
-  private static DocumentBuilderFactory enableDBFFeatures(
-      DocumentBuilderFactory dbf, PSXmlSecurityOptions options) {
-    dbf.setXIncludeAware(XINCLUDE_AWARE);
-    dbf.setExpandEntityReferences(EXPAND_ENTITY_REFERENCES);
-    PSXMLEntityResolverWrapper resolver = new PSXMLEntityResolverWrapper();
-
->>>>>>> development-8.1.x
     // Set each feature logging any errors as warnings for unsupported features.
     try {
       dbf.setAttribute("http://apache.org/xml/properties/internal/entity-resolver", resolver);
@@ -263,12 +212,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SECURE_PROCESSING_FEATURE);
     }
 
@@ -279,12 +224,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           DISALLOW_DOCTYPES_FEATURE);
     }
 
@@ -295,12 +236,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -311,12 +248,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -327,12 +260,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -344,12 +273,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -361,12 +286,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -378,12 +299,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -394,12 +311,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           LOAD_EXTERNAL_DTD);
     }
 
@@ -418,12 +331,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SECURE_PROCESSING_FEATURE);
     }
 
@@ -434,12 +343,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           DISALLOW_DOCTYPES_FEATURE);
     }
 
@@ -450,12 +355,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -466,12 +367,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X1_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -482,12 +379,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X2_GENERAL_EXTERNAL_ENTITIES_FEATURE);
     }
 
@@ -499,12 +392,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -516,12 +405,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -533,12 +418,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE);
     }
 
@@ -549,12 +430,8 @@ public class PSSecureXMLUtils {
         | SAXNotRecognizedException
         | SAXNotSupportedException e) {
       log.debug(
-<<<<<<< HEAD
           "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML"
               + " Parser.",
-=======
-          "enableSecureFeatures exception thrown, XML Feature: {} is not supported by this XML Parser.",
->>>>>>> development-8.1.x
           LOAD_EXTERNAL_DTD);
     }
 

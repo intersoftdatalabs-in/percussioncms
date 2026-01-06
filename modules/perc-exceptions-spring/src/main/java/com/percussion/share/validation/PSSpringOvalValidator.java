@@ -44,11 +44,7 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
   }
 
   @SuppressWarnings("unchecked")
-<<<<<<< HEAD
   public boolean supports(Class<?> clazz) {
-=======
-  public boolean supports(Class clazz) {
->>>>>>> development-8.1.x
     return true;
   }
 
@@ -60,11 +56,8 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
     try {
       for (ConstraintViolation violation : validator.validate(target)) {
 
-<<<<<<< HEAD
         // Note: getContext() is deprecated, but we need it for backward compatibility
         @SuppressWarnings("deprecation")
-=======
->>>>>>> development-8.1.x
         OValContext ctx = violation.getContext();
         String errorCode = violation.getErrorCode();
         String errorMessage = violation.getMessage();
@@ -83,12 +76,8 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
           String name = field.getName();
           PSValidateNestedProperty validate = field.getAnnotation(PSValidateNestedProperty.class);
           if (validate != null) {
-<<<<<<< HEAD
             // Use trySetAccessible() instead of deprecated isAccessible()
             if (!field.canAccess(target)) {
-=======
-            if (!field.isAccessible()) {
->>>>>>> development-8.1.x
               field.setAccessible(true);
             }
             Object nestedProperty = field.get(target);
@@ -108,21 +97,13 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
 
   @SuppressWarnings("unchecked")
   private Field[] getFields(Object target) {
-<<<<<<< HEAD
     Class<?> clazz = target.getClass();
-=======
-    Class clazz = target.getClass();
->>>>>>> development-8.1.x
     List<Field> fields = doGetFields(clazz);
     return fields.toArray(new Field[fields.size()]);
   }
 
   @SuppressWarnings("unchecked")
-<<<<<<< HEAD
   private List<Field> doGetFields(Class<?> clazz) {
-=======
-  private List<Field> doGetFields(Class clazz) {
->>>>>>> development-8.1.x
     ArrayList<Field> list = new ArrayList<>();
     Field[] fields = clazz.getDeclaredFields();
     list.addAll(Arrays.asList(fields));

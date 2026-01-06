@@ -28,13 +28,9 @@ import org.owasp.encoder.Encode;
 
 public class PSJavaScriptEncode implements IPSFieldInputTransformer {
 
-<<<<<<< HEAD
   /***
    * Default public constructor
    */
-=======
-  /** * Default public constructor */
->>>>>>> development-8.1.x
   public PSJavaScriptEncode() {}
 
   @Override

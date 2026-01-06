@@ -15,10 +15,17 @@
  */
 package com.percussion.utils.servlet;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
-import com.percussion.error.PSExceptionUtils;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -31,14 +38,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -146,7 +145,6 @@ public class PSInputValidatorFilter implements Filter {
       // We're already stopping the request, the error response is just a formality.
       // It doesn't matter if we can't print to a client.
       log.error("Bad Parameter: {} Error: {}", badParam, e.getMessage());
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
   }
 
@@ -436,7 +434,7 @@ public class PSInputValidatorFilter implements Filter {
       doLoadProperties(is);
       doLoadCustomProps(propsFilePath);
     } catch (IOException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.error("Error initializing input validator filter", e);
     }
 
     if (isEnabled) log.info("Request Validation is enabled");

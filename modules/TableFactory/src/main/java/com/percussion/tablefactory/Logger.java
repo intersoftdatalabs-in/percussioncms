@@ -196,13 +196,8 @@ public class Logger implements LogSink, IPSLogger {
   /** Made private to implement the singleton pattern. */
   private Logger() {}
 
-<<<<<<< HEAD
   /*****************************************************************/
   /*************** LogSink Interface *******************************/
-=======
-  /** ************************************************************** */
-  /** ************* LogSink Interface ****************************** */
->>>>>>> development-8.1.x
   /**
    * Logs the message.
    *

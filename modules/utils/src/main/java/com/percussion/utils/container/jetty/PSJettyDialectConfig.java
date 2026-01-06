@@ -28,10 +28,7 @@ public class PSJettyDialectConfig implements IPSHibernateDialectConfig {
    * Modified by calls to {@link #setDialects(Map)}.
    */
   private static volatile Map<String, String> m_sqlDialects = new HashMap<String, String>();
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // Refactor to pick up dialects from jetty
   static {
     m_sqlDialects.put("jtds:sqlserver", "org.hibernate.dialect.SQLServerDialect");

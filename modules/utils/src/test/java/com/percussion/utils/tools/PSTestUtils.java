@@ -19,12 +19,7 @@ package com.percussion.utils.tools;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /** Class of unit test utility functions. */
 public class PSTestUtils {
@@ -36,10 +31,7 @@ public class PSTestUtils {
       throws Exception {
     testSetter(obj, prop, val, String.class, shouldThrow);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Tests the specified get/set methods. Invokes the set method of the supplied object with the
    * supplied value. If this suceeds and <code>shouldThrow</code> is <code>false</code>, it then
@@ -80,12 +72,6 @@ public class PSTestUtils {
         throw e;
       }
     }
-<<<<<<< HEAD
-=======
-
-    TestCase.assertEquals(shouldThrow, didThrow);
-    if (!didThrow) TestCase.assertEquals(val, getter.invoke(obj, new Object[] {}));
->>>>>>> development-8.1.x
   }
 
   /**
@@ -116,11 +102,6 @@ public class PSTestUtils {
       result = shouldThrow;
     }
 
-<<<<<<< HEAD
-=======
-    TestCase.assertTrue(result);
-
->>>>>>> development-8.1.x
     return test;
   }
 }

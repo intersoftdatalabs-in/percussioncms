@@ -20,23 +20,9 @@ import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.cx.objectstore.PSProperties;
 import com.percussion.utils.collections.PSIteratorUtils;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-=======
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Callable;
->>>>>>> development-8.1.x
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -52,7 +38,6 @@ import javax.swing.event.PopupMenuListener;
 import org.apache.log4j.Logger;
 
 /**
-<<<<<<< HEAD
  * The class that should be used to construct menus, sub-menus and pop-up menus
  * represented by {@link com.percussion.cx.objectstore#PSAction}.
  * This class implements the Callable interface so the menu can be built on a 
@@ -99,46 +84,6 @@ public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSCont
    {
       if(action == null)
          throw new IllegalArgumentException("action may not be null.");
-=======
- * The class that should be used to construct menus, sub-menus and pop-up menus represented by
- * {@link com.percussion.cx.objectstore#PSAction}. This class implements the Callable interface so
- * the menu can be built on a separate thread when selection changes.
- */
-public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSContentExplorerMenu> {
-  static Logger log = Logger.getLogger(PSContentExplorerMenu.class);
-  /**
-   * Constructs the menu from suppled action. The action represents top-level menu and its children
-   * represents either menuitem or sub-menu based on their type. This constructor builds the menu on
-   * construction.
-   *
-   * @param action the action represented by this menu, may not be <code>null
-   * </code> and its type must be either one of <code>PSAction.TYPE_MENU</code> or <code>
-   *     PSAction.TYPE_CONTEXTMENU</code> values.
-   * @param menuSource the source on which this menu should act on, may not be <code>null</code>
-   * @param actionManager the action manager to use to execute any action or to get sub-menu, may
-   *     not be <code>null</code>
-   */
-  public PSContentExplorerMenu(
-      PSMenuAction action, PSMenuSource menuSource, PSActionManager actionManager) {
-    this(action, menuSource, actionManager, true);
-  }
-  /**
-   * Constructs the menu from suppled action. The action represents top-level menu and its children
-   * represents either menuitem or sub-menu based on their type. The menu may be build on
-   * construction or delayed with the build option.
-   *
-   * @param action the action represented by this menu, may not be <code>null
-   * </code> and its type must be either one of <code>PSAction.TYPE_MENU</code> or <code>
-   *     PSAction.TYPE_CONTEXTMENU</code> values.
-   * @param menuSource the source on which this menu should act on, may not be <code>null</code>
-   * @param actionManager the action manager to use to execute any action or to get sub-menu, may
-   *     not be <code>null</code>
-   * @param build whether we build the menu on construction
-   */
-  public PSContentExplorerMenu(
-      PSMenuAction action, PSMenuSource menuSource, PSActionManager actionManager, boolean build) {
-    if (action == null) throw new IllegalArgumentException("action may not be null.");
->>>>>>> development-8.1.x
 
     if (!action.isMenu()) throw new IllegalArgumentException("action must represent a menu");
 

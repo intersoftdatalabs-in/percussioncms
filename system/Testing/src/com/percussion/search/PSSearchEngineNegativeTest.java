@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author paulhoward
  */
-public class PSSearchEngineNegativeTest extends TestCase {
+public class PSSearchEngineNegativeTest {
    /**
     * Tries to get the search engine instance w/o properties.
     * 

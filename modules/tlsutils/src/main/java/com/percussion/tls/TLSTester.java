@@ -17,11 +17,7 @@
 
 package com.percussion.tls;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -82,14 +78,10 @@ public class TLSTester {
   public static final String KEYSTORE_PASS = "changeit";
 
   public static void main(String[] args)
-<<<<<<< HEAD
       throws IOException,
           NoSuchAlgorithmException,
           CertificateException,
           KeyManagementException,
-=======
-      throws IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException,
->>>>>>> development-8.1.x
           KeyStoreException {
 
     String yahoocert =
@@ -179,11 +171,7 @@ public class TLSTester {
     Set<String> testCipher = null;
     String lastProt = null;
     testCipher = new HashSet<>(Arrays.asList(supportedCiphers));
-<<<<<<< HEAD
     log.debug("Testing cipher suites: {}", testCipher);
-=======
-    System.out.println("test" + testCipher);
->>>>>>> development-8.1.x
     try {
       while (connected = true) {
         try {
@@ -200,11 +188,7 @@ public class TLSTester {
             socket.close();
 
             lastProt = protocol;
-<<<<<<< HEAD
             log.info("Connected with protocol {} using cipher {}", protocol, cipher);
-=======
-            System.out.println("Connected with " + protocol + " cipher " + cipher);
->>>>>>> development-8.1.x
             testCipher.remove(cipher);
             workingProtocols.add(protocol + ":" + cipher);
           }
@@ -220,11 +204,7 @@ public class TLSTester {
         }
       }
     } catch (IOException e2) {
-<<<<<<< HEAD
       log.info("No more SSL connections available for testing");
-=======
-      System.out.println("No more connections");
->>>>>>> development-8.1.x
     }
 
     //  SSLSocket csf = (SSLSocket) SSLSocketFactory.getDefault().createSocket();
@@ -267,11 +247,7 @@ public class TLSTester {
       try (ByteArrayInputStream bis = new ByteArrayInputStream(pem.getBytes())) {
         Certificate cert = cf.generateCertificate(bis);
         String alias = caCert.getSubjectDN().getName().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-<<<<<<< HEAD
         log.debug("Adding certificate alias: {}", alias);
-=======
-        System.out.println("adding alias " + alias);
->>>>>>> development-8.1.x
         myTrustStore.setCertificateEntry(alias, cert);
       }
       try (FileOutputStream fo = new FileOutputStream(store)) {
@@ -296,21 +272,13 @@ public class TLSTester {
   private static void print_content(HttpsURLConnection con) {
     if (con != null) {
 
-<<<<<<< HEAD
       log.info("****** Content of the URL ********");
-=======
-      System.out.println("****** Content of the URL ********");
->>>>>>> development-8.1.x
       try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 
         String input;
 
         while ((input = br.readLine()) != null) {
-<<<<<<< HEAD
           log.info(input);
-=======
-          System.out.println(input);
->>>>>>> development-8.1.x
         }
 
       } catch (IOException e) {
@@ -326,7 +294,6 @@ public class TLSTester {
 
       try {
 
-<<<<<<< HEAD
         log.info("Response Code : {}", con.getResponseCode());
         log.info("Cipher Suite : {}", con.getCipherSuite());
 
@@ -336,19 +303,6 @@ public class TLSTester {
           log.info("Cert Hash Code : {}", cert.hashCode());
           log.info("Cert Public Key Algorithm : {}", cert.getPublicKey().getAlgorithm());
           log.info("Cert Public Key Format : {}", cert.getPublicKey().getFormat());
-=======
-        System.out.println("Response Code : " + con.getResponseCode());
-        System.out.println("Cipher Suite : " + con.getCipherSuite());
-        System.out.println("\n");
-
-        Certificate[] certs = con.getServerCertificates();
-        for (Certificate cert : certs) {
-          System.out.println("Cert Type : " + cert.getType());
-          System.out.println("Cert Hash Code : " + cert.hashCode());
-          System.out.println("Cert Public Key Algorithm : " + cert.getPublicKey().getAlgorithm());
-          System.out.println("Cert Public Key Format : " + cert.getPublicKey().getFormat());
-          System.out.println("\n");
->>>>>>> development-8.1.x
         }
 
       } catch (SSLPeerUnverifiedException e) {
@@ -373,7 +327,6 @@ public class TLSTester {
     Set<String> defaultCiphers = new HashSet<>(Arrays.asList(ssf.getDefaultCipherSuites()));
     Set<String> availableCiphers = new HashSet<>(Arrays.asList(ssf.getSupportedCipherSuites()));
 
-<<<<<<< HEAD
     log.info("Default\tCipher");
     for (Iterator i = availableCiphers.iterator(); i.hasNext(); ) {
       String cipher = (String) i.next();
@@ -386,18 +339,6 @@ public class TLSTester {
       cipherInfo.append('\t');
       cipherInfo.append(cipher);
       log.info(cipherInfo.toString());
-=======
-    System.out.println("Default\tCipher");
-    for (Iterator i = availableCiphers.iterator(); i.hasNext(); ) {
-      String cipher = (String) i.next();
-      if (defaultCiphers.contains(cipher)) System.out.print('*');
-      else System.out.print(' ');
-      if (enabledCiphers.contains(cipher)) System.out.print('*');
-      else System.out.print(' ');
-
-      System.out.print('\t');
-      System.out.println(cipher);
->>>>>>> development-8.1.x
     }
   }
 
@@ -417,15 +358,9 @@ public class TLSTester {
 
   public static void getEnabledCiphers() {
     for (Provider provider : Security.getProviders()) {
-<<<<<<< HEAD
       log.info("Security Provider: {}", provider.getName());
       for (String key : provider.stringPropertyNames())
         log.debug("\t{}\t{}", key, provider.getProperty(key));
-=======
-      System.out.println(provider.getName());
-      for (String key : provider.stringPropertyNames())
-        System.out.println("\t" + key + "\t" + provider.getProperty(key));
->>>>>>> development-8.1.x
     }
   }
 

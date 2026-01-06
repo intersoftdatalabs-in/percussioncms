@@ -9,7 +9,7 @@
 ServletRequest (Servlet API Documentation)
 </TITLE>
 
-<META NAME="keywords" CONTENT="javax.servlet.ServletRequest interface">
+<META NAME="keywords" CONTENT="jakarta.servlet.ServletRequest interface">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -88,10 +88,10 @@ javax.servlet</FONT>
 <BR>
 Interface ServletRequest</H2>
 <DL>
-<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in javax.servlet.http">HttpServletRequest</A></DD>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in jakarta.servlet.http">HttpServletRequest</A></DD>
 </DL>
 <DL>
-<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../javax/servlet/http/HttpServletRequestWrapper.html" title="class in javax.servlet.http">HttpServletRequestWrapper</A>, <A HREF="../../javax/servlet/ServletRequestWrapper.html" title="class in javax.servlet">ServletRequestWrapper</A></DD>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../javax/servlet/http/HttpServletRequestWrapper.html" title="class in jakarta.servlet.http">HttpServletRequestWrapper</A>, <A HREF="../../javax/servlet/ServletRequestWrapper.html" title="class in javax.servlet">ServletRequestWrapper</A></DD>
 </DL>
 <HR>
 <DL>
@@ -106,7 +106,7 @@ Defines an object to provide client request information to a servlet.  The
  parameter name and values, attributes, and an input stream.
  Interfaces that extend <code>ServletRequest</code> can provide
  additional protocol-specific data (for example, HTTP data is
- provided by <A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in javax.servlet.http"><CODE>HttpServletRequest</CODE></A>.
+ provided by <A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in jakarta.servlet.http"><CODE>HttpServletRequest</CODE></A>.
 <P>
 
 <P>
@@ -115,7 +115,7 @@ Defines an object to provide client request information to a servlet.  The
   <DD>$Version$</DD>
 <DT><B>Author:</B></DT>
   <DD>Various</DD>
-<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in javax.servlet.http"><CODE>HttpServletRequest</CODE></A></DL>
+<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/http/HttpServletRequest.html" title="interface in jakarta.servlet.http"><CODE>HttpServletRequest</CODE></A></DL>
 <HR>
 
 <P>
@@ -446,7 +446,7 @@ public java.lang.Object <B>getAttribute</B>(java.lang.String&nbsp;name)</PRE>
  <p> Attributes can be set two ways.  The servlet container may set
  attributes to make available custom information about a request.
  For example, for requests made using HTTPS, the attribute
- <code>javax.servlet.request.X509Certificate</code> can be used to
+ <code>jakarta.servlet.request.X509Certificate</code> can be used to
  retrieve information on the certificate of the client.  Attributes
  can also be set programatically using 
  <A HREF="../../javax/servlet/ServletRequest.html#setAttribute(java.lang.String, java.lang.Object)"><CODE>setAttribute(java.lang.String, java.lang.Object)</CODE></A>.  This allows information to be

@@ -82,24 +82,16 @@ public class PSUnZipPackage extends Expand {
   /** Root directory where package folder will go. It is required and comes from build.xml */
   private String m_rootDirPath;
 
-<<<<<<< HEAD
   /**
    * @param zipFilePath the zipFilePath to set
    */
-=======
-  /** @param zipFilePath the zipFilePath to set */
->>>>>>> development-8.1.x
   public void setZipFilePath(String zipFilePath) {
     this.m_zipFilePath = zipFilePath;
   }
 
-<<<<<<< HEAD
   /**
    * @param destinationDir the destinationDir to set
    */
-=======
-  /** @param destinationDir the destinationDir to set */
->>>>>>> development-8.1.x
   public void setRootDirPath(String rootDir) {
     this.m_rootDirPath = rootDir;
   }

@@ -17,11 +17,7 @@
 
 package com.percussion.util;
 
-<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import java.util.Iterator;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
@@ -77,13 +73,9 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
       throw new UnsupportedOperationException("PSConcurrentIterator does not support remove");
     } catch (UnsupportedOperationException e) {
       log.fatal(
-<<<<<<< HEAD
           "Detected potential thread safety problem, call to PSConcurrentIterator.remove().  Please"
               + " correct the implementation to remove from the source collection itself. Error:"
               + " {}",
-=======
-          "Detected potential thread safety problem, call to PSConcurrentIterator.remove().  Please correct the implementation to remove from the source collection itself. Error: {}",
->>>>>>> development-8.1.x
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw (e);

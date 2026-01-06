@@ -23,46 +23,30 @@ public class PSInvalidXmlException extends PSBaseException {
   /** */
   private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
   /**
    * @see PSBaseException#PSBaseException(int, Object[])
    */
-=======
-  /** @see PSBaseException#PSBaseException(int, Object[]) */
->>>>>>> development-8.1.x
   public PSInvalidXmlException(int msgCode, Object singleArg) {
     super(msgCode, singleArg);
   }
 
-<<<<<<< HEAD
   /**
    * @see PSBaseException#PSBaseException(int, Object[])
    */
-=======
-  /** @see PSBaseException#PSBaseException(int, Object[]) */
->>>>>>> development-8.1.x
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
   }
 
-<<<<<<< HEAD
   /**
    * @see PSBaseException#PSBaseException(int)
    */
-=======
-  /** @see PSBaseException#PSBaseException(int) */
->>>>>>> development-8.1.x
   public PSInvalidXmlException(int msgCode) {
     super(msgCode);
   }
 
-<<<<<<< HEAD
   /**
    * @see PSBaseException#PSBaseException(int, Throwable, Object[])
    */
-=======
-  /** @see PSBaseException#PSBaseException(int, Throwable, Object[]) */
->>>>>>> development-8.1.x
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs, Throwable cause) {
     super(msgCode, cause, arrayArgs);
   }

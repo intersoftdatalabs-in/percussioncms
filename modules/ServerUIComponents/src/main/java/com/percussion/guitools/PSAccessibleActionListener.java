@@ -38,10 +38,7 @@ public class PSAccessibleActionListener implements ActionListener {
   public PSAccessibleActionListener(String prependString) {
     m_prependStr = prependString;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** Override to set the accessible name on selection change */
   public void actionPerformed(ActionEvent e) {
     Object obj = e.getSource();
@@ -63,7 +60,6 @@ public class PSAccessibleActionListener implements ActionListener {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the prepend label for Accessibility.
    */
@@ -71,12 +67,6 @@ public class PSAccessibleActionListener implements ActionListener {
     return m_prependStr;
   }
 
-=======
-  /** @return Returns the prepend label for Accessibility. */
-  public String getPrependStr() {
-    return m_prependStr;
-  }
->>>>>>> development-8.1.x
   /** */
   public void setPrependStr(String str) {
     m_prependStr = str;

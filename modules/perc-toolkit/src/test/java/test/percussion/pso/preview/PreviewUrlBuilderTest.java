@@ -22,11 +22,7 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.pso.preview.PreviewUrlBuilder;
 import com.percussion.pso.preview.SiteFolderLocation;
@@ -35,23 +31,15 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
-<<<<<<< HEAD
 import com.percussion.utils.guid.PSLegacyGuid;
-=======
->>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Before;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class PreviewUrlBuilderTest {
   private static final Logger log = LogManager.getLogger(PreviewUrlBuilderTest.class);
@@ -59,11 +47,7 @@ public class PreviewUrlBuilderTest {
   private PreviewUrlBuilder cut;
   private Mockery context;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new PreviewUrlBuilder();
     context = new Mockery();
@@ -73,11 +57,7 @@ public class PreviewUrlBuilderTest {
 
   @Test
   public final void testBuildPreviewUrl() {
-<<<<<<< HEAD
     final IPSGuid tempGuid = new PSGuid(123L);
-=======
-    final IPSGuid tempGuid = new PSLegacyGuid(123L);
->>>>>>> development-8.1.x
     final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
 
     Map<String, Object> urlParams = new HashMap<String, Object>();

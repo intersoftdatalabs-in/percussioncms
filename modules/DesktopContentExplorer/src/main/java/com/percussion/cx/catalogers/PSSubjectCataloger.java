@@ -41,7 +41,6 @@ public class PSSubjectCataloger {
    */
   public PSSubjectCataloger() {}
 
-<<<<<<< HEAD
    }
 
    /**
@@ -108,51 +107,14 @@ public class PSSubjectCataloger {
                 .appendSuper(super.equals(object))
                 .append(m_collSubjects, that.m_collSubjects)
                 .isEquals();
-=======
-  /**
-   * Constructor meant to be used in the context of an applet. This may not work in other contexts
-   * since there is no way of supplying credentials for logging in.
-   *
-   * @param urlBase the document or code base for the applet.
-   * @throws PSCmsException if request to server to get the data fails for any reason.
-   */
-  public PSSubjectCataloger(URL urlBase) throws PSCmsException {
-    m_collSubjects.clear();
-    try {
-      URL url = new URL(urlBase, "sys_components/getSubject.xml");
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
-      fromXml(doc.getDocumentElement());
-    } catch (Exception e) {
-      throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
->>>>>>> development-8.1.x
     }
   }
 
-<<<<<<< HEAD
     public int hashCode() {
         return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
                 .append(m_collSubjects)
                 .toHashCode();
-=======
-  /*
-   * Implementation of the interface method.
-   */
-  public Object clone() {
-    PSSubjectCataloger clone = null;
-    try {
-      clone = (PSSubjectCataloger) super.clone();
-
-      Collection clonedSubjects = new ArrayList();
-
-      Iterator it = m_collSubjects.iterator();
-      while (it.hasNext()) clonedSubjects.add(((Subject) it.next()).clone());
-
-      clone.m_collSubjects = clonedSubjects;
-
-    } catch (CloneNotSupportedException e) {
-      // TODO:  Fix ME ????
->>>>>>> development-8.1.x
     }
     return clone;
   }

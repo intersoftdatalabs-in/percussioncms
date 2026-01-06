@@ -41,10 +41,7 @@ import org.apache.logging.log4j.Logger;
 public class PSFormEncodeDecodeHelper {
 
   private static final Logger log = LogManager.getLogger(PSFormEncodeDecodeHelper.class);
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Looks for form tags and turns them into div tags with a special rxFormTagMarker attribute that
    * indicates the div tag is being used as a form tag placeholder.
@@ -214,7 +211,6 @@ public class PSFormEncodeDecodeHelper {
 
   // Test string
   public static final String ms_test_string =
-<<<<<<< HEAD
       "<body>\n"
           + "<form action=\"test.jsp\" method=\"post\">\n"
           + "<pageBreak></pageBreak>\n"
@@ -233,16 +229,4 @@ public class PSFormEncodeDecodeHelper {
           + "var dummy = 1;\n"
           + "</script>\n"
           + "</body>";
-=======
-      "<body>\n<form action=\"test.jsp\" method=\"post\">\n"
-          + "<pageBreak></pageBreak>\n"
-          + "<input type=\"text\" value=\"field\">\n</form>\n"
-          + "<object><embed></embed></object>\n"
-          + "<form action=\"test2.jsp\" method=\"get\">\n"
-          + "<input type=\"button\" value=\"field\">\n</form>\n"
-          + "<table><tbody><tr><td>\n"
-          + "<!--somecomment--><script language=\"JavaScript1.1\" src=\"http://ads.vegas.com/js.ng/site=vegas&amp;size=html&amp;ppos=guide014&amp;ch1=v_realestate&amp;ch2=builders\" type=\"text/javascript\" />\n"
-          + "</td></tr></tbody></table>\n"
-          + "<script type=\"javascript\">\nvar dummy = 1;\n</script>\n</body>";
->>>>>>> development-8.1.x
 }

@@ -32,15 +32,15 @@ import java.util.List;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * @author LucasPiccoli
  */
-@Category(IntegrationTest.class)
-@Ignore
+
+@Disabled
 public class PSSiteImporterTest {
 
   private String USER_AGENT =
@@ -50,7 +50,7 @@ public class PSSiteImporterTest {
   @Test
   public void testNothing() {}
 
-  @Ignore
+  @Disabled
   public void ignore_testConnectToUrl() {
     PSSiteImportCtx importContext = new PSSiteImportCtx();
     importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
@@ -94,7 +94,7 @@ public class PSSiteImporterTest {
     }
   }
 
-  @Ignore
+  @Disabled
   public void ignore_testParsing() {
     String validUrl = "http://www.percussion.com";
     try {
@@ -116,7 +116,7 @@ public class PSSiteImporterTest {
     }
   }
 
-  @Ignore
+  @Disabled
   public void ignore_testGetRedirectedUrl_302Response() {
     try {
       String url = "http://www.firefox.com";
@@ -134,7 +134,7 @@ public class PSSiteImporterTest {
     }
   }
 
-  @Ignore
+  @Disabled
   public void ignore_testGetRedirectedUrl_301Response() {
     try {
       String url = "http://firefox.com";
@@ -152,7 +152,7 @@ public class PSSiteImporterTest {
     }
   }
 
-  @Ignore
+  @Disabled
   public void ignore_testGetRedirectedUrl_notRedirected() {
     try {
       String url = "http://www.percussion.com";
