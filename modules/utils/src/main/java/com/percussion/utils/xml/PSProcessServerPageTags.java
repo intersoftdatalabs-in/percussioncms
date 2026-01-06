@@ -53,6 +53,7 @@ import org.xml.sax.SAXException;
  */
 public class PSProcessServerPageTags extends Object {
   private static final Logger log = LogManager.getLogger(PSProcessServerPageTags.class);
+<<<<<<< HEAD
 
   /**
    * Constructs and initializes the state machine.
@@ -111,6 +112,64 @@ public class PSProcessServerPageTags extends Object {
     String key = "";
     String serverPageBlock = "";
 
+=======
+  /**
+   * Constructs and initializes the state machine.
+   *
+   * @param filePath the absolute path of the server page tags XML file.
+   * @throws IOException if the server page tag file is invalid.
+   */
+  public PSProcessServerPageTags(File filePath) throws IOException {
+    m_serverPageTags = getXMLDocument(filePath);
+    initTagVectors();
+  }
+  /**
+   * Call this to process the provided source for server page tags.
+   *
+   * @param htmlSource the source HTML page to pre-process server page tags.
+   * @return the processed HTML string.
+   */
+  public String preProcess(String htmlSource) {
+    m_htmlSource = htmlSource;
+
+    // initialize the markup hash map and make sure our key is unique
+    int counter = 0;
+    m_codeMap.clear();
+    m_escapeMap.clear();
+    while (m_htmlSource.indexOf(m_keyPrefix) != -1) m_keyPrefix += counter;
+
+    m_htmlTarget = new StringBuilder(m_htmlSource.length());
+
+    m_current = 0;
+    m_lastClose = 0;
+    int closingTagIndex = setNextOpeningTag(m_current);
+    while (m_nextOpen != -1) {
+      int skipTagIndex = nextSkipTag(m_current);
+      if (m_nextOpen < m_nextSkip || m_nextSkip == -1) markIt(closingTagIndex);
+      else skipIt(skipTagIndex);
+
+      closingTagIndex = setNextOpeningTag(m_current);
+    }
+    m_htmlTarget.append(m_htmlSource.substring(m_current, m_htmlSource.length()));
+
+    return m_htmlTarget.toString();
+  }
+
+  /**
+   * This goes through the map created in the pre process and replaces the XSpLit markups with its
+   * original server page code.
+   *
+   * @param xslSource the source XSL string
+   * @return the processed XSL string
+   */
+  public String postProcess(String xslSource) {
+    StringBuilder xslTarget = new StringBuilder(xslSource);
+    Vector<String> topElements = new Vector<String>();
+
+    String key = "";
+    String serverPageBlock = "";
+
+>>>>>>> development-8.1.x
     int stylesheetStart = 0;
     int pos = 0;
     Iterator keys = m_codeMap.keySet().iterator();
@@ -426,6 +485,7 @@ public class PSProcessServerPageTags extends Object {
 
   /** This is the hash table which will be used to store the removed server page code. */
   private ConcurrentHashMap m_codeMap = new ConcurrentHashMap<>();
+<<<<<<< HEAD
 
   /**
    * This is the hash table which will be used to store the enable/disable escape information. The
@@ -484,11 +544,55 @@ public class PSProcessServerPageTags extends Object {
     ms_closeDocTags.add("--%>");
   }
 
+=======
+  /**
+   * This is the hash table which will be used to store the enable/disable escape information. The
+   * keys correspond to the keys in the code map.
+   */
+  private ConcurrentHashMap m_escapeMap = new ConcurrentHashMap<>();
+  /** The key prefix used to mark removed server page code. */
+  private String m_keyPrefix = "XSpLit_Server_Page_Block";
+  /** The key counter. */
+  private static int ms_keyCount = 0;
+  /** A vector of opening tags. */
+  private Vector m_openingTags = null;
+  /** A vector of closing tags. */
+  private Vector m_closingTags = null;
+  /** A vector of disable escaping information. */
+  private Vector m_disableEscaping = null;
+  /** A vector of skip tags. */
+  private Vector m_skipTags = null;
+  /** The source HTML string to pre-process server page tags for. */
+  private String m_htmlSource = null;
+  /** The target HTML string to which we build the result to. */
+  private StringBuilder m_htmlTarget = null;
+  /** The current index of the state machine. */
+  private int m_current = 0;
+  /** The next index of opening tag found. -1 indicates there is no next opening tag index. */
+  private int m_nextOpen = 0;
+  /** The last closeing tag position marked. */
+  private int m_lastClose = 0;
+  /** The next index of skip tag found. -1 indicates there is no next skip tag index. */
+  private int m_nextSkip = 0;
+  /** All documentation opening tags. */
+  private static final Vector<String> ms_openDocTags = new Vector<>();
+  /** All documentation closing tags. */
+  private static final Vector<String> ms_closeDocTags = new Vector<>();
+  /** Initialize the documentation tags. */
+  static {
+    ms_openDocTags.add("<!--");
+    ms_closeDocTags.add("-->");
+
+    ms_openDocTags.add("<%--");
+    ms_closeDocTags.add("--%>");
+  }
+>>>>>>> development-8.1.x
   /**
    * The document which holds the JSP / APS tags that need special handling for tidy. If the file is
    * not found, the splitter still works fine for all cases where no JSP and/or ASP tags are used.
    */
   private Document m_serverPageTags;
+<<<<<<< HEAD
 
   /** The CDATA wrapper opening part. */
   private static final String ms_strCDATABegin = "<![CDATA[\n";
@@ -499,6 +603,14 @@ public class PSProcessServerPageTags extends Object {
   /** The xsl:text wrapper opening part. */
   private static final String ms_strXslTextBegin = "\n<xsl:text disable-output-escaping=\"yes\">";
 
+=======
+  /** The CDATA wrapper opening part. */
+  private static final String ms_strCDATABegin = "<![CDATA[\n";
+  /** The CDATA wrapper closing part. */
+  private static final String ms_strCDATAEnd = "\n]]>";
+  /** The xsl:text wrapper opening part. */
+  private static final String ms_strXslTextBegin = "\n<xsl:text disable-output-escaping=\"yes\">";
+>>>>>>> development-8.1.x
   /** The xsl:text wrapper closing part. */
   private static final String ms_strXslTextEnd = "</xsl:text>";
 }

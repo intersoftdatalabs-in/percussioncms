@@ -51,10 +51,13 @@ import com.percussion.util.PSStringComparator;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+=======
+>>>>>>> development-8.1.x
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;

@@ -27,6 +27,7 @@ import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /***
  * A field input transform for setting the value of a field
  * to the java @see String#hashCode() hashCode of the specified
@@ -36,6 +37,11 @@ import org.apache.logging.log4j.Logger;
  * like a remote URL by it's hashCode.
  *
  * @author natechadwick
+=======
+/**
+ * * A field input transform for setting the value of a field to the java @see String#hashCode()
+ * hashCode of the specified source values.
+>>>>>>> development-8.1.x
  *
  * <p>An example use case for this may be where you want to index something like a remote URL by
  * it's hashCode.

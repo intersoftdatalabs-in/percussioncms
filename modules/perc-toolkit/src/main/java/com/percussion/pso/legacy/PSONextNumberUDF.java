@@ -23,7 +23,11 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.fastforward.utils.PSUtils;
 import com.percussion.server.IPSRequestContext;
 import java.sql.SQLException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,6 +44,7 @@ public class PSONextNumberUDF extends PSSimpleJavaUdfExtension implements IPSUdf
   public PSONextNumberUDF() {
     super();
   }
+<<<<<<< HEAD
 
   /**
    * Generates the next key in a sequence. Calls the internal PSUtils method for allocating a block
@@ -58,6 +63,25 @@ public class PSONextNumberUDF extends PSSimpleJavaUdfExtension implements IPSUdf
       throw new IllegalArgumentException(emsg);
     }
 
+=======
+  /**
+   * Generates the next key in a sequence. Calls the internal PSUtils method for allocating a block
+   * based on the name supplied in <code>params[0]</code>.
+   *
+   * @param params the parameter array
+   * @param request the callers request context
+   * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext)
+   */
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    String keyName = PSUtils.getParameter(params, 0);
+    if (StringUtils.isBlank(keyName)) {
+      String emsg = "Key name must be supplied";
+      throw new IllegalArgumentException(emsg);
+    }
+
+>>>>>>> development-8.1.x
     try {
       return new Integer(PSIdGenerator.getNextId(keyName));
     } catch (SQLException ex) {

@@ -29,7 +29,11 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
+<<<<<<< HEAD
 import com.percussion.system.utils.PSHttpUtils;
+=======
+import com.percussion.util.PSHttpUtils;
+>>>>>>> development-8.1.x
 import com.percussion.util.PSPurgableTempFile;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,9 +100,13 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
    * @throws PSExtensionProcessingException Never.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // make a copy to avoid ConcurrentModificationException
     Set paramKeys = new HashSet(request.getParameters().keySet());

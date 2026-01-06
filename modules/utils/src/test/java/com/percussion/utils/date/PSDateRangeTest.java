@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.date;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -77,6 +78,83 @@ public class PSDateRangeTest {
 
     try {
       range = new PSDateRange(d2, Granularity.DAY, -1);
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import com.percussion.utils.date.PSDateRange.Granularity;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.joda.time.DateTime;
+import org.junit.Test;
+
+/** @author paulhoward */
+public class PSDateRangeTest {
+  /**
+   * Create a date from expected values, hiding the weird values you have to pass to the Date ctor.
+   *
+   * @param year actual year
+   * @param month 1-based, from 1 to 12
+   * @param day 1 based
+   * @return Never <code>null</code>.
+   */
+  private Date createDate(int year, int month, int day) {
+    Calendar cal = Calendar.getInstance();
+    cal.set(year, month - 1, day, 0, 0, 0);
+    return cal.getTime();
+  }
+
+  @Test
+  public void testCtor() throws Exception {
+    Date d1 = createDate(2010, 9, 1);
+    Date d2 = createDate(2010, 9, 7);
+    PSDateRange range;
+    try {
+      range = new PSDateRange(d2, d1);
+      fail();
+    } catch (IllegalArgumentException e) {
+      /* success */
+    }
+
+    range = new PSDateRange(d1, null);
+    assertTrue(range.getDaysInRange() > 49);
+
+    range = new PSDateRange(null, null);
+    assertEquals(1, range.getDaysInRange());
+
+    d1 = createDate(2010, 9, 1);
+    d2 = createDate(2010, 9, 1);
+    range = new PSDateRange(d1, d2);
+
+    try {
+      range = new PSDateRange(d2, null, 5);
+>>>>>>> development-8.1.x
+      fail();
+    } catch (IllegalArgumentException e) {
+      /* success */
+    }
+
+<<<<<<< HEAD
+    FastDateFormat formatter;
+    formatter = FastDateFormat.getInstance("MM/dd/yyyy");
+
+    d1 = createDate(2010, 10, 24);
+    String d1Str = formatter.format(d1);
+    d2 = createDate(2010, 10, 29);
+    Date d3 = createDate(2010, 10, 28);
+    String d3Str = formatter.format(d3);
+
+    range = new PSDateRange(d2, Granularity.DAY, 5);
+    assertEquals(d1Str, formatter.format(range.getStart()));
+    assertEquals(d3Str, formatter.format(range.getEnd()));
+    assertEquals(Granularity.DAY, range.getGranularity());
+
+=======
+    try {
+      range = new PSDateRange(d2, Granularity.DAY, -1);
       fail();
     } catch (IllegalArgumentException e) {
       /* success */
@@ -96,6 +174,7 @@ public class PSDateRangeTest {
     assertEquals(d3Str, formatter.format(range.getEnd()));
     assertEquals(Granularity.DAY, range.getGranularity());
 
+>>>>>>> development-8.1.x
     d1Str = formatter.format(createDate(2010, 10, 22));
     range = new PSDateRange(d2, Granularity.WEEK, 1);
     assertEquals(d1Str, formatter.format(range.getStart()));

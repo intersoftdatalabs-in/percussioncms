@@ -23,7 +23,11 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.io.File;
 
 /**

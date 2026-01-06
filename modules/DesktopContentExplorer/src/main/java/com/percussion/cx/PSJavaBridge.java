@@ -22,10 +22,13 @@ package com.percussion.cx;
 import com.percussion.cx.javafx.PSDesktopExplorerWindow;
 import com.percussion.cx.javafx.PSFileSaver;
 import com.percussion.cx.javafx.PSWindowManager;
+<<<<<<< HEAD
 import netscape.javascript.JSObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+=======
+>>>>>>> development-8.1.x
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
@@ -35,6 +38,7 @@ import org.apache.log4j.Logger;
 
 public class PSJavaBridge implements ClipboardOwner {
 
+<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSJavaBridge.class);
 
    final CountDownLatch initialized = new CountDownLatch(1);
@@ -45,6 +49,8 @@ public class PSJavaBridge implements ClipboardOwner {
    {
       this.frame = frame;
    }
+=======
+  static Logger log = Logger.getLogger(PSJavaBridge.class);
 
   public void error(String text) {
     log.debug("javascript.error: " + text);

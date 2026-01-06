@@ -31,7 +31,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -103,8 +107,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
 
     if (StringUtils.isEmpty(configXml)) {
       PSLogger.logInfo(
+<<<<<<< HEAD
           "PSUpgradeRelationshipConfig : configxml for relationships is null. Thus nothing to"
               + " update");
+=======
+          "PSUpgradeRelationshipConfig : configxml for relationships is null. Thus nothing to update");
+>>>>>>> development-8.1.x
       return;
     }
 
@@ -172,12 +180,17 @@ public class PSUpgradeRelationshipConfig extends PSAction {
   }
 
   private String getRecycleContentConfig() {
+<<<<<<< HEAD
     return "<PSXRelationshipConfig category=\"rs_recycled\" id=\"8\" label=\"Recycled Content\""
         + " name=\"RecycledContent\" type=\"system\">\n"
+=======
+    return "<PSXRelationshipConfig category=\"rs_recycled\" id=\"8\" label=\"Recycled Content\" name=\"RecycledContent\" type=\"system\">\n"
+>>>>>>> development-8.1.x
         + "    <PSXCloneOverrideFieldList id=\"0\"/>\n"
         + "    <PSXPropertySet>\n"
         + "      <PSXProperty locked=\"yes\" name=\"rs_allowcloning\">\n"
         + "        <Value type=\"Boolean\">yes</Value>\n"
+<<<<<<< HEAD
         + "        <Description>Specifies whether or not this relationship can be"
         + " cloned.</Description>\n"
         + "      </PSXProperty>\n"
@@ -202,10 +215,31 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        <Value type=\"Boolean\">no</Value>\n"
         + "        <Description>Defines whether or not to use the dependent revision as part"
         + " of the dependent\n"
+=======
+        + "        <Description>Specifies whether or not this relationship can be cloned.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_islocaldependency\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Specifies if this relationship must be packaged and deployed with the owner. If\n"
+        + "                checked, the relationship must be deployed, if not, it is optional.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_skippromotion\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies if this relationship should be skipped when an item is promoted.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_usecommunityfilter\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies if this relationship will be filtered by community id.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_usedependentrevision\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Defines whether or not to use the dependent revision as part of the dependent\n"
+>>>>>>> development-8.1.x
         + "                locator.</Description>\n"
         + "      </PSXProperty>\n"
         + "      <PSXProperty locked=\"yes\" name=\"rs_useownerrevision\">\n"
         + "        <Value type=\"Boolean\">no</Value>\n"
+<<<<<<< HEAD
         + "        <Description>Defines whether or not to use the owner revision as part of"
         + " the owner locator.</Description>\n"
         + "      </PSXProperty>\n"
@@ -220,6 +254,18 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "    <ProcessChecks>\n"
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\""
         + " sequence=\"1\">\n"
+=======
+        + "        <Description>Defines whether or not to use the owner revision as part of the owner locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_useserverid\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies the user to be used while executing effects. If checked the user RXSERVER\n"
+        + "                will be used, otherwise the current user will be used.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "    </PSXPropertySet>\n"
+        + "    <ProcessChecks>\n"
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -239,8 +285,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "          </PSXRule>\n"
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -282,12 +332,17 @@ public class PSUpgradeRelationshipConfig extends PSAction {
   }
 
   private String getWidgetContentConfig() {
+<<<<<<< HEAD
     return "<PSXRelationshipConfig category=\"rs_widget\" id=\"115\" label=\"Widget Content\""
         + " name=\"Widget-Content\" type=\"system\">\n"
+=======
+    return "<PSXRelationshipConfig category=\"rs_widget\" id=\"115\" label=\"Widget Content\" name=\"Widget-Content\" type=\"system\">\n"
+>>>>>>> development-8.1.x
         + "    <PSXCloneOverrideFieldList id=\"0\"/>\n"
         + "    <PSXPropertySet>\n"
         + "      <PSXProperty locked=\"no\" name=\"rs_allowcloning\">\n"
         + "        <Value type=\"Boolean\">yes</Value>\n"
+<<<<<<< HEAD
         + "        <Description>Specifies whether or not this relationship can be"
         + " cloned.</Description>\n"
         + "      </PSXProperty>\n"
@@ -317,15 +372,42 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        <Description>Specifies the user to be used while executing effects. If"
         + " checked the user RXSERVER will be used, otherwise the current user will be"
         + " used.</Description>\n"
+=======
+        + "        <Description>Specifies whether or not this relationship can be cloned.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_islocaldependency\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies if this relationship must be packaged and deployed with the owner.  If checked, the relationship must be deployed, if not, it is optional.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_skippromotion\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Specifies if this relationship should be skipped when an item is promoted.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_usedependentrevision\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Defines whether or not to use the dependent revision as part of the dependent locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_useownerrevision\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Defines whether or not to use the owner revision as part of the owner locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_useserverid\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies the user to be used while executing effects. If checked the user RXSERVER will be used, otherwise the current user will be used.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "    </PSXPropertySet>\n"
         + "    <UserPropertySet>\n"
         + "      <PSXProperty locked=\"yes\" name=\"rs_inlinerelationship\">\n"
         + "        <Value type=\"String\"/>\n"
+<<<<<<< HEAD
         + "        <Description>Marks a relationship as an inline link relationship. Its"
         + " value is the field name and possibly the row id. If this property is missing"
         + " (null or empty), the relationship is not treated as an inline link"
         + " relationship.</Description>\n"
+=======
+        + "        <Description>Marks a relationship as an inline link relationship. Its value is the field name and possibly the row id. If this property is missing (null or empty), the relationship is not treated as an inline link relationship.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "      <PSXProperty locked=\"yes\" name=\"sys_folderid\">\n"
         + "        <Value type=\"String\"/>\n"
@@ -353,8 +435,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "      </PSXProperty>\n"
         + "    </UserPropertySet>\n"
         + "    <ProcessChecks>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -374,8 +460,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "          </PSXRule>\n"
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -396,18 +486,27 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
         + "    </ProcessChecks>\n"
+<<<<<<< HEAD
         + "    <Explanation>The relationship configuration for storing the relationship"
         + " between widgets and assets.</Explanation>\n"
+=======
+        + "    <Explanation>The relationship configuration for storing the relationship between widgets and assets.</Explanation>\n"
+>>>>>>> development-8.1.x
         + "  </PSXRelationshipConfig>";
   }
 
   private String getWidgetAssemblyConfig() {
+<<<<<<< HEAD
     return "<PSXRelationshipConfig category=\"rs_widget\" id=\"113\" label=\"Widget Assembly\""
         + " name=\"Widget-Assembly\" type=\"system\">\n"
+=======
+    return "<PSXRelationshipConfig category=\"rs_widget\" id=\"113\" label=\"Widget Assembly\" name=\"Widget-Assembly\" type=\"system\">\n"
+>>>>>>> development-8.1.x
         + "    <PSXCloneOverrideFieldList id=\"0\"/>\n"
         + "    <PSXPropertySet>\n"
         + "      <PSXProperty locked=\"no\" name=\"rs_allowcloning\">\n"
         + "        <Value type=\"Boolean\">yes</Value>\n"
+<<<<<<< HEAD
         + "        <Description>Specifies whether or not this relationship can be"
         + " cloned.</Description>\n"
         + "      </PSXProperty>\n"
@@ -437,15 +536,42 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        <Description>Specifies the user to be used while executing effects. If"
         + " checked the user RXSERVER will be used, otherwise the current user will be"
         + " used.</Description>\n"
+=======
+        + "        <Description>Specifies whether or not this relationship can be cloned.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_islocaldependency\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies if this relationship must be packaged and deployed with the owner.  If checked, the relationship must be deployed, if not, it is optional.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_skippromotion\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Specifies if this relationship should be skipped when an item is promoted.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_usedependentrevision\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Defines whether or not to use the dependent revision as part of the dependent locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_useownerrevision\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Defines whether or not to use the owner revision as part of the owner locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_useserverid\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies the user to be used while executing effects. If checked the user RXSERVER will be used, otherwise the current user will be used.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "    </PSXPropertySet>\n"
         + "    <UserPropertySet>\n"
         + "      <PSXProperty locked=\"yes\" name=\"rs_inlinerelationship\">\n"
         + "        <Value type=\"String\"/>\n"
+<<<<<<< HEAD
         + "        <Description>Marks a relationship as an inline link relationship. Its"
         + " value is the field name and possibly the row id. If this property is missing"
         + " (null or empty), the relationship is not treated as an inline link"
         + " relationship.</Description>\n"
+=======
+        + "        <Description>Marks a relationship as an inline link relationship. Its value is the field name and possibly the row id. If this property is missing (null or empty), the relationship is not treated as an inline link relationship.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "      <PSXProperty locked=\"yes\" name=\"sys_folderid\">\n"
         + "        <Value type=\"String\"/>\n"
@@ -473,8 +599,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "      </PSXProperty>\n"
         + "    </UserPropertySet>\n"
         + "    <ProcessChecks>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -494,8 +624,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "          </PSXRule>\n"
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -516,18 +650,27 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
         + "    </ProcessChecks>\n"
+<<<<<<< HEAD
         + "    <Explanation>The relatin ship configuration for storing the widget"
         + " relationships with the other objects like pages and templates.</Explanation>\n"
+=======
+        + "    <Explanation>The relatin ship configuration for storing the widget relationships with the other objects like pages and templates.</Explanation>\n"
+>>>>>>> development-8.1.x
         + "  </PSXRelationshipConfig>";
   }
 
   private String getLocalContentConfig() {
+<<<<<<< HEAD
     return " <PSXRelationshipConfig category=\"rs_activeassembly\" id=\"111\" label=\"Local"
         + " Content\" name=\"LocalContent\" type=\"system\">\n"
+=======
+    return " <PSXRelationshipConfig category=\"rs_activeassembly\" id=\"111\" label=\"Local Content\" name=\"LocalContent\" type=\"system\">\n"
+>>>>>>> development-8.1.x
         + "    <PSXCloneOverrideFieldList id=\"0\"/>\n"
         + "    <PSXPropertySet>\n"
         + "      <PSXProperty locked=\"no\" name=\"rs_allowcloning\">\n"
         + "        <Value type=\"Boolean\">yes</Value>\n"
+<<<<<<< HEAD
         + "        <Description>Specifies whether or not this relationship can be"
         + " cloned.</Description>\n"
         + "      </PSXProperty>\n"
@@ -557,15 +700,42 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "        <Description>Specifies the user to be used while executing effects. If"
         + " checked the user RXSERVER will be used, otherwise the current user will be"
         + " used.</Description>\n"
+=======
+        + "        <Description>Specifies whether or not this relationship can be cloned.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_islocaldependency\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies if this relationship must be packaged and deployed with the owner.  If checked, the relationship must be deployed, if not, it is optional.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_skippromotion\">\n"
+        + "        <Value type=\"Boolean\">no</Value>\n"
+        + "        <Description>Specifies if this relationship should be skipped when an item is promoted.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_usedependentrevision\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Defines whether or not to use the dependent revision as part of the dependent locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"yes\" name=\"rs_useownerrevision\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Defines whether or not to use the owner revision as part of the owner locator.</Description>\n"
+        + "      </PSXProperty>\n"
+        + "      <PSXProperty locked=\"no\" name=\"rs_useserverid\">\n"
+        + "        <Value type=\"Boolean\">yes</Value>\n"
+        + "        <Description>Specifies the user to be used while executing effects. If checked the user RXSERVER will be used, otherwise the current user will be used.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "    </PSXPropertySet>\n"
         + "    <UserPropertySet>\n"
         + "      <PSXProperty locked=\"yes\" name=\"rs_inlinerelationship\">\n"
         + "        <Value type=\"String\"/>\n"
+<<<<<<< HEAD
         + "        <Description>Marks a relationship as an inline link relationship. Its"
         + " value is the field name and possibly the row id. If this property is missing"
         + " (null or empty), the relationship is not treated as an inline link"
         + " relationship.</Description>\n"
+=======
+        + "        <Description>Marks a relationship as an inline link relationship. Its value is the field name and possibly the row id. If this property is missing (null or empty), the relationship is not treated as an inline link relationship.</Description>\n"
+>>>>>>> development-8.1.x
         + "      </PSXProperty>\n"
         + "      <PSXProperty locked=\"yes\" name=\"sys_folderid\">\n"
         + "        <Value type=\"String\"/>\n"
@@ -593,8 +763,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "      </PSXProperty>\n"
         + "    </UserPropertySet>\n"
         + "    <ProcessChecks>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_cloneshallow\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"
@@ -614,8 +788,12 @@ public class PSUpgradeRelationshipConfig extends PSAction {
         + "          </PSXRule>\n"
         + "        </Conditions>\n"
         + "      </PSXProcessCheck>\n"
+<<<<<<< HEAD
         + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\""
         + " sequence=\"1\">\n"
+=======
+        + "      <PSXProcessCheck context=\"relationship\" name=\"rs_clonedeep\" sequence=\"1\">\n"
+>>>>>>> development-8.1.x
         + "        <Conditions>\n"
         + "          <PSXRule boolean=\"and\">\n"
         + "            <PSXConditional id=\"1\">\n"

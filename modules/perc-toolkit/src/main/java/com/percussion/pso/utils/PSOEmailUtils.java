@@ -38,9 +38,15 @@ public class PSOEmailUtils {
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSOEmailUtils.class);
 
+<<<<<<< HEAD
   /***
    * Takes a comma seperated list of email addresses and returns a list of
    * Address instances.
+=======
+  /**
+   * * Takes a comma seperated list of email addresses and returns a list of Address instances.
+   *
+>>>>>>> development-8.1.x
    * @param list
    * @return
    * @throws AddressException
@@ -63,9 +69,15 @@ public class PSOEmailUtils {
     return ret;
   }
 
+<<<<<<< HEAD
   /***
    * Sends an email using the specified parameters and the SMTP configuration
    * defined in the system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
+=======
+  /**
+   * * Sends an email using the specified parameters and the SMTP configuration defined in the
+   * system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
+>>>>>>> development-8.1.x
    *
    * @param from_line
    * @param to_line
@@ -74,7 +86,10 @@ public class PSOEmailUtils {
    * @param subject
    * @param body
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+=======
+>>>>>>> development-8.1.x
   public static void sendEmail(
       String from_line,
       String to_line,

@@ -17,6 +17,7 @@
 
 package com.ibm.cadf.model;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.ibm.cadf.exception.CADFException;
@@ -33,6 +34,24 @@ public class MetricTest {
   }
 
   @Test
+=======
+import static org.junit.Assert.assertEquals;
+
+import com.ibm.cadf.exception.CADFException;
+import java.io.IOException;
+import org.junit.Test;
+
+public class MetricTest {
+
+  @Test
+  public void testMetricPositive() throws CADFException, IOException {
+    String metricId = Identifier.generateUniqueId();
+    Metric metric1 = new Metric(metricId, "size", "MB");
+    assertEquals(true, metric1.isValid());
+  }
+
+  @Test
+>>>>>>> development-8.1.x
   public void testMetricNegative() throws CADFException, IOException {
     Metric metric1 = new Metric(null, "size", "MB");
     assertEquals(false, metric1.isValid());

@@ -228,16 +228,24 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
       this.index = index;
     }
 
+<<<<<<< HEAD
     /**
      * @param levelAttributeName The levelAttributeName to set.
      */
+=======
+    /** @param levelAttributeName The levelAttributeName to set. */
+>>>>>>> development-8.1.x
     public void setLevelAttributeName(String levelAttributeName) {
       this.levelAttributeName = levelAttributeName;
     }
 
+<<<<<<< HEAD
     /**
      * @param wholeTree The wholeTree to set.
      */
+=======
+    /** @param wholeTree The wholeTree to set. */
+>>>>>>> development-8.1.x
     public void setWholeTree(boolean wholeTree) {
       this.wholeTree = wholeTree;
     }

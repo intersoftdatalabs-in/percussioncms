@@ -88,7 +88,10 @@ public class PSTmxUnit {
   public int getMnemonic() {
     return m_mnemonic;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Get the tooltip
    *
@@ -97,7 +100,10 @@ public class PSTmxUnit {
   public String getTooltip() {
     return m_tooltip;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Get the value
    *

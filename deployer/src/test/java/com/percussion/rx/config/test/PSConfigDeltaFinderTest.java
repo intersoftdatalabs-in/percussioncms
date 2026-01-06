@@ -19,6 +19,7 @@ package com.percussion.rx.config.test;
 import com.percussion.rx.config.impl.PSConfigDeltaFinder;
 import java.util.HashMap;
 import java.util.Map;
+import junit.framework.TestCase;
 
 public class PSConfigDeltaFinderTest {
   public void testDeltaFinder() {

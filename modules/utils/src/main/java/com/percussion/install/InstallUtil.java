@@ -63,7 +63,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -74,7 +78,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** The InstallUtil class contains some utility methods for the installer. */
+<<<<<<< HEAD
 @SuppressWarnings("all")
+=======
+>>>>>>> development-8.1.x
 public class InstallUtil {
 
   private static final Logger log = LogManager.getLogger(InstallUtil.class);
@@ -335,6 +342,7 @@ public class InstallUtil {
   }
 
   /**
+<<<<<<< HEAD
    * Checks if the specified table exists for the specified database and
    * schema.
    *
@@ -345,6 +353,16 @@ public class InstallUtil {
    *
    * @return <code>true</code> if the database contains the table,
    *         <code>false</code> otherwise.
+=======
+   * Checks if the specified table exists for the specified database and schema.
+   *
+   * @param table the table to look for, may not be <code>null<code>
+   * &#64;param conn the connection to the database, may not be <code>null<code>
+   * &#64;param database the name of the database, may not be <code>null<code>
+   * &#64;param schema the schema for this connection, may not be <code>null<code>
+   *
+   * @return <code>true</code> if the database contains the table, <code>false</code> otherwise.
+>>>>>>> development-8.1.x
    *
    * @throws SQLException
    */
@@ -987,7 +1005,11 @@ public class InstallUtil {
    * responsible for closing the connection.
    */
   public static Connection createDerbyConnection() {
+<<<<<<< HEAD
     return InstallUtil.createConnection("derby", "//localhost:152,derby_jv509", "derby", "demo");
+=======
+    return InstallUtil.createConnection("derby", "//localhost:1527/CMDB", "CMDB", "demo");
+>>>>>>> development-8.1.x
   }
 
   /**
@@ -1073,7 +1095,11 @@ public class InstallUtil {
   public static Connection createLoadedConnection(
       String driver, String server, String db, String uid, String pw) throws SQLException {
     String className = null;
+<<<<<<< HEAD
     Class<?> driverClass = null;
+=======
+    Class driverClass = null;
+>>>>>>> development-8.1.x
     if ("oracle:thin".equals(driver))
       className = RxInstallerProperties.getResources().getString("oracle");
     else className = RxInstallerProperties.getResources().getString(driver);
@@ -1117,6 +1143,7 @@ public class InstallUtil {
               URL[] urlList = new URL[size];
               for (int i = 0; i < size; i++) {
                 InstallUtil.logInfo("Loading " + m_jarUrls.get(i));
+<<<<<<< HEAD
                 urlList[i] = m_jarUrls.get(i);
               }
 
@@ -1128,6 +1155,20 @@ public class InstallUtil {
                           return new URLClassLoader(urlList);
                         }
                       });
+=======
+                urlList[i] = (URL) m_jarUrls.get(i);
+              }
+
+              ClassLoader loader =
+                  (ClassLoader)
+                      AccessController.doPrivileged(
+                          new PrivilegedAction() {
+                            @Override
+                            public Object run() {
+                              return new URLClassLoader(urlList);
+                            }
+                          });
+>>>>>>> development-8.1.x
 
               driverClass = Class.forName(className, true, loader);
               InstallUtil.logInfo("Loaded " + className);
@@ -1174,6 +1215,7 @@ public class InstallUtil {
               i++;
             }
             ClassLoader loader =
+<<<<<<< HEAD
                 AccessController.doPrivileged(
                     new PrivilegedAction<URLClassLoader>() {
                       @Override
@@ -1181,6 +1223,16 @@ public class InstallUtil {
                         return new URLClassLoader(urlList);
                       }
                     });
+=======
+                (ClassLoader)
+                    AccessController.doPrivileged(
+                        new PrivilegedAction() {
+                          @Override
+                          public Object run() {
+                            return new URLClassLoader(urlList);
+                          }
+                        });
+>>>>>>> development-8.1.x
 
             System.setProperty("jdbc.drivers", className);
             driverClass = Class.forName(className, true, loader);
@@ -1464,7 +1516,11 @@ public class InstallUtil {
   /**
    * Determine if additional error logging is enabled for silent install
    *
+<<<<<<< HEAD
    * @return <code>true</code> if performing a silent install, <code>false</code>if not.
+=======
+   * @return <code>true</code> if performing a silent install, <code>false</code> if not.
+>>>>>>> development-8.1.x
    */
   public static boolean isSilentInstall() {
     return ms_isSilentInstall;
@@ -1516,5 +1572,9 @@ public class InstallUtil {
 
   private static boolean ms_isSilentInstall = false;
   private static Driver m_extDriver = null;
+<<<<<<< HEAD
   private static List<URL> m_jarUrls = null;
+=======
+  private static List m_jarUrls = null;
+>>>>>>> development-8.1.x
 }

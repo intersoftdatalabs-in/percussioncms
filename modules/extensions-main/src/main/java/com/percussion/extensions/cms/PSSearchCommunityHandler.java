@@ -125,7 +125,11 @@ public class PSSearchCommunityHandler implements IPSRequestPreProcessor {
                     community,
                     new PSPermissions[] {PSPermissions.READ, PSPermissions.RUNTIME_VISIBLE});
             object_acl.addEntry(object_acl.getFirstOwner(), e);
+<<<<<<< HEAD
           } catch (PSSecurityException se) {
+=======
+          } catch (PSServiceSecurityException se) {
+>>>>>>> development-8.1.x
             ms_log.debug(se);
           } catch (Exception e1) {
             ms_log.error(e1);
@@ -152,7 +156,11 @@ public class PSSearchCommunityHandler implements IPSRequestPreProcessor {
         acls.add(object_acl);
         asvc.saveAcls(acls);
       }
+<<<<<<< HEAD
     } catch (PSSecurityException e1) {
+=======
+    } catch (PSServiceSecurityException e1) {
+>>>>>>> development-8.1.x
       ms_log.error(e1);
     }
   }

@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 
 public class PSJdbcUtilsTest {
@@ -129,6 +130,110 @@ public class PSJdbcUtilsTest {
     dbName = PSJdbcUtils.getDatabaseFromUrl(url);
     assertEquals(DB_NAME, dbName);
 
+=======
+public class PSJdbcUtilsTest extends TestCase {
+
+  public void testGetDriverFromUrl() {
+    assertEquals("oracle:thin", PSJdbcUtils.getDriverFromUrl("jdbc:oracle:thin:serverName"));
+    assertEquals("jtds:sqlserver", PSJdbcUtils.getDriverFromUrl("jdbc:jtds:sqlserver://bender"));
+
+    assertEquals("sqlserver", PSJdbcUtils.getDriverFromUrl("jdbc:sqlserver://bender"));
+  }
+
+  public void testGetServerFromUrl() {
+    assertEquals("serverName", PSJdbcUtils.getServerFromUrl("jdbc:oracle:thin:serverName"));
+    assertEquals("//fffooo", PSJdbcUtils.getServerFromUrl("jdbc:odbc://fffooo"));
+    assertEquals("//bender", PSJdbcUtils.getServerFromUrl("jdbc:jtds:sqlserver://bender"));
+    assertEquals("//bender", PSJdbcUtils.getServerFromUrl("jdbc:sqlserver://bender"));
+  }
+
+  public void testGetJdbcUrl() {
+    assertEquals(
+        "jdbc:oracle:thin:serverName", PSJdbcUtils.getJdbcUrl("oracle:thin", "serverName"));
+  }
+
+  public void testGetDBBackendForDriver() {
+    assertEquals(
+        PSJdbcUtils.SPRINTA_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.SPRINTA));
+    assertEquals(PSJdbcUtils.DB2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.DB2));
+    assertEquals(
+        PSJdbcUtils.JTDS_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.JTDS_DRIVER));
+    assertEquals(
+        PSJdbcUtils.ORACLE_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.ORACLE));
+  }
+
+  public void testGetDatabaseFromUrl() {
+    String DB_NAME = "myDatabase";
+
+    // \/\/\
+    // jTDS
+    // \/\/\
+    // test format for jTDS driver, === positive ===
+    String url = "jdbc:jtds:sqlserver://localhost/" + DB_NAME;
+    String dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433/" + DB_NAME;
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost/" + DB_NAME + ";user=u;password=p";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433;database=" + DB_NAME + ";user=u;password=p";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433;user=u;password=p;database=" + DB_NAME;
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    // test format for jTDS driver, === negative ===
+
+    url = "jdbc:jtds:sqlserver://localhost:1433";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertNull(dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433/";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertNull(dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433;user=u;password=p";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertNull(dbName);
+
+    url = "jdbc:jtds:sqlserver://localhost:1433/;database=" + DB_NAME + ";user=u;password=p";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertFalse(DB_NAME.equals(dbName));
+
+    // \/\/\
+    // mySQL
+    // \/\/\
+    url = "jdbc:mysql://localhost/" + DB_NAME;
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:mysql://localhost:1431/" + DB_NAME;
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+    url = "jdbc:mysql://localhost:1431/";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertNull(dbName);
+
+    url = "jdbc:mysql://localhost:1431";
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertNull(dbName);
+
+    // \/\/\
+    // DB2
+    // \/\/\
+    url = "jdbc:db2://localhost:1234/" + DB_NAME;
+    dbName = PSJdbcUtils.getDatabaseFromUrl(url);
+    assertEquals(DB_NAME, dbName);
+
+>>>>>>> development-8.1.x
     url = "jdbc:db2://localhost/";
     dbName = PSJdbcUtils.getDatabaseFromUrl(url);
     assertNull(dbName);

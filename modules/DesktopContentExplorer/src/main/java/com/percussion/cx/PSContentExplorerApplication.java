@@ -21,6 +21,7 @@ package com.percussion.cx;
 
 import com.percussion.cx.javafx.PSWindowManager;
 import com.percussion.security.xml.PSSecureXMLUtils;
+<<<<<<< HEAD
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.web.WebView;
@@ -35,6 +36,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
+=======
+>>>>>>> development-8.1.x
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -61,11 +64,14 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class PSContentExplorerApplication extends Application {
+<<<<<<< HEAD
    
    static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
    
    private static File configDir;
    private static final Dimension DEFAULT_DIMENSION = new Dimension(1180, 750);
+=======
+>>>>>>> development-8.1.x
 
   static Logger log = Logger.getLogger(PSContentExplorerApplication.class);
 
@@ -137,6 +143,7 @@ public class PSContentExplorerApplication extends Application {
 
     String version = this.getClass().getPackage().getImplementationVersion();
 
+<<<<<<< HEAD
       Map<String, String> params = this.getParameters().getNamed();
       String codebase = params.get("codebase");
       if (codebase==null)
@@ -154,6 +161,9 @@ public class PSContentExplorerApplication extends Application {
                port = ("https".equals(protocol)) ? 443:80;
             
             clientConfigDir+= File.separator+host.replace(".","_");
+=======
+    Parameters parameters = getParameters();
+>>>>>>> development-8.1.x
 
     Map<String, String> params = this.getParameters().getNamed();
     String codebase = params.get("codebase");
@@ -203,11 +213,18 @@ public class PSContentExplorerApplication extends Application {
           log.error("Cannot write user log config to " + logConfig.getAbsolutePath());
         }
       }
+<<<<<<< HEAD
       
       configDir = new File(System.getProperty("user.home")
             + File.separator + clientConfigDir);
       
       configDir.mkdirs();
+=======
+    } else {
+      PropertyConfigurator.configure(logConfig.getAbsolutePath());
+    }
+    PSSecureXMLUtils.setupJAXPDefaults();
+>>>>>>> development-8.1.x
 
     //      System.setProperty("javax.xml.parsers.SAXParserFactory",
     //            "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
@@ -223,6 +240,7 @@ public class PSContentExplorerApplication extends Application {
     log.info("USING JAVA:   " + System.getProperty("java.version"));
     log.info("DesktopContentExplorer.jar version :   " + version);
 
+<<<<<<< HEAD
       System.out.println("Setting log4j config to "+logConfig);
       System.setProperty("configDir", configDir.getAbsolutePath());
       var loader = Thread.currentThread().getContextClassLoader();
@@ -255,6 +273,14 @@ public class PSContentExplorerApplication extends Application {
          }
       }
       PSSecureXMLUtils.setupJAXPDefaults();
+=======
+    WebView web = new WebView();
+    log.info("Java Version:   " + System.getProperty("java.runtime.version"));
+    log.info("JavaFX Version: " + System.getProperty("javafx.runtime.version"));
+    log.info(
+        "OS:             " + System.getProperty("os.name") + ", " + System.getProperty("os.arch"));
+    log.info("User Agent:     " + web.getEngine().getUserAgent());
+>>>>>>> development-8.1.x
 
     Map<String, String> namedParameters = parameters.getNamed();
     List<String> rawArguments = parameters.getRaw();

@@ -225,9 +225,13 @@ public class PSDateRange {
     return result;
   }
 
+<<<<<<< HEAD
   /**
    * @return The number of days spanned by this range, regardless of the granularity setting.
    */
+=======
+  /** @return The number of days spanned by this range, regardless of the granularity setting. */
+>>>>>>> development-8.1.x
   public int getDaysInRange() {
     return Days.daysIn(new Interval(start, end.plusDays(1))).getDays();
   }

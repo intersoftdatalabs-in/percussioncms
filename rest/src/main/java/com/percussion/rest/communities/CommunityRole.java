@@ -46,8 +46,7 @@ public class CommunityRole {
 
   public CommunityRole() {}
 
-  public CommunityRole(
-      long communityId, long roleId, String roleName, Guid communityGuid, Guid roleGuid) {
+  public CommunityRole(long communityId, long roleId, String roleName, Guid communityGuid, Guid roleGuid) {
     this.communityId = communityId;
     this.roleId = roleId;
     this.roleName = roleName;
@@ -114,18 +113,12 @@ public class CommunityRole {
 
   @Override
   public String toString() {
-    return "CommunityRole{"
-        + "communityId="
-        + communityId
-        + ", roleId="
-        + roleId
-        + ", roleName='"
-        + roleName
-        + '\''
-        + ", communityGuid="
-        + communityGuid
-        + ", roleGuid="
-        + roleGuid
-        + '}';
+    return "CommunityRole{" +
+        "communityId=" + communityId +
+        ", roleId=" + roleId +
+        ", roleName='" + roleName + '\'' +
+        ", communityGuid=" + communityGuid +
+        ", roleGuid=" + roleGuid +
+        '}';
   }
 }

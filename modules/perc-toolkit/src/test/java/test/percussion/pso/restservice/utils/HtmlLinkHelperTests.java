@@ -16,8 +16,11 @@
  */
 package test.percussion.pso.restservice.utils;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
+=======
+>>>>>>> development-8.1.x
 import com.percussion.pso.restservice.utils.HtmlLinkHelper;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,8 +31,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+=======
+import junit.framework.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+>>>>>>> development-8.1.x
 import org.xml.sax.SAXException;
 
 public class HtmlLinkHelperTests {
@@ -38,7 +47,11 @@ public class HtmlLinkHelperTests {
   public void testConvertToAbsoluteLink1() throws URISyntaxException, MalformedURLException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "image1.jpg");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
@@ -46,28 +59,44 @@ public class HtmlLinkHelperTests {
 
     String test =
         HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "./image1.jpg");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
   public void testRootAbsoluteFile() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "/image1.jpg");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
   public void testRelativeDir() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/images", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/images", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
   public void testRelativeDirTrailingSlash() throws MalformedURLException, URISyntaxException {
 
     String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/images/", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/images/", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
@@ -75,7 +104,11 @@ public class HtmlLinkHelperTests {
 
     String test =
         HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.docx");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/images/file1.docx", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/images/file1.docx", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
@@ -85,7 +118,11 @@ public class HtmlLinkHelperTests {
     String test =
         HtmlLinkHelper.convertToAbsoluteLink(
             "http://www.somedomain.com/", "images/file1.html#234.78");
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
+=======
+    Assert.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
@@ -94,7 +131,11 @@ public class HtmlLinkHelperTests {
     String test =
         HtmlLinkHelper.getBaseLink("http://www.somewhere.gov/news/about.html?month=03&year=2011");
 
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somewhere.gov/", test);
+=======
+    Assert.assertEquals("http://www.somewhere.gov/", test);
+>>>>>>> development-8.1.x
   }
 
   @Test
@@ -103,6 +144,7 @@ public class HtmlLinkHelperTests {
         HtmlLinkHelper.getBaseLink(
             "http://www.somewhere.gov:8793/news/about.html?month=03&year=2011");
 
+<<<<<<< HEAD
     Assertions.assertEquals("http://www.somewhere.gov:8793/", test);
   }
 
@@ -113,6 +155,15 @@ public class HtmlLinkHelperTests {
           TransformerException,
           ParserConfigurationException,
           SAXException,
+=======
+    Assert.assertEquals("http://www.somewhere.gov:8793/", test);
+  }
+
+  @Test
+  @Ignore("Test is failing") // TODO: Fix me
+  public void testFixLinksRandom()
+      throws IOException, TransformerException, ParserConfigurationException, SAXException,
+>>>>>>> development-8.1.x
           URISyntaxException {
 
     InputStream is = this.getClass().getResourceAsStream("randomcar.html");
@@ -129,6 +180,10 @@ public class HtmlLinkHelperTests {
         HtmlLinkHelper.convertLinksToAbsolute(
             "https://www.percussion.com/randomcar.html", builder.toString());
 
+<<<<<<< HEAD
     Assertions.assertEquals(builder.toString(), n);
+=======
+    Assert.assertEquals(builder.toString(), n);
+>>>>>>> development-8.1.x
   }
 }

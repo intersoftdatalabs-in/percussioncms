@@ -18,6 +18,7 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Rating;
 
+<<<<<<< HEAD
 /***
  * <media:rating>
  *
@@ -33,6 +34,10 @@ import com.rometools.modules.mediarss.types.Rating;
  * For compatibility, a medai:adult tag will appear in the ratings as a urn:simple equiv.
  *
  * @author natechadwick
+=======
+/**
+ * * <media:rating>
+>>>>>>> development-8.1.x
  *
  * <p>This allows the permissible audience to be declared. If this element is not included, it
  * assumes that no restrictions are necessary. It has one optional attribute.

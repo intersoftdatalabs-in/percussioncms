@@ -35,11 +35,19 @@ class RxTables {
    * @param targetTable - the target to compare with. Must not be <CODE>null</CODE>
    * @return - A vector of RxColumns with the colAction set.
    */
+<<<<<<< HEAD
   public Vector<RxColumns> compareTables(RxTables targetTable) {
     if (targetTable == null || targetTable.vColumns.size() == 0)
       throw new IllegalArgumentException("Target table must not be empty.");
 
     Vector<RxColumns> vColumnDiffs = new Vector<>();
+=======
+  public Vector compareTables(RxTables targetTable) {
+    if (targetTable == null || targetTable.vColumns.size() == 0)
+      throw new IllegalArgumentException("Target table must not be empty.");
+
+    Vector vColumnDiffs = new Vector();
+>>>>>>> development-8.1.x
 
     for (int iSourceCol = 0; iSourceCol < vColumns.size(); ++iSourceCol) {
       boolean bFound = false;
@@ -213,9 +221,15 @@ class RxTables {
   private String action = new String();
   private int tableAction = 0;
   private boolean dataAction = false;
+<<<<<<< HEAD
   public Vector<RxColumns> vColumns = new Vector<>();
   public Vector<String> vtSqlStmts = new Vector<>();
   public Vector<String> vtErrors = new Vector<>();
+=======
+  public Vector vColumns = new Vector();
+  public Vector vtSqlStmts = new Vector();
+  public Vector vtErrors = new Vector();
+>>>>>>> development-8.1.x
   public int columnCount = 0;
   public String sError = new String();
   public Element dataElement = null;

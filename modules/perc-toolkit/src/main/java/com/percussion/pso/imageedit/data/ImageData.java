@@ -18,19 +18,27 @@ package com.percussion.pso.imageedit.data;
 
 import java.io.Serializable;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
+=======
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class ImageData extends ImageMetaData implements Serializable {
 
   private static final long serialVersionUID = -135423469L;
   private byte[] binary;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** */
   public ImageData() {
     super();
   }
 
+<<<<<<< HEAD
   /**
    * @return the binary
    */
@@ -41,6 +49,13 @@ public class ImageData extends ImageMetaData implements Serializable {
   /**
    * @param binary the binary to set
    */
+=======
+  /** @return the binary */
+  public byte[] getBinary() {
+    return binary;
+  }
+  /** @param binary the binary to set */
+>>>>>>> development-8.1.x
   public void setBinary(byte[] binary) {
     this.binary = binary;
   }

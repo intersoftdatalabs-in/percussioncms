@@ -19,6 +19,7 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -29,6 +30,7 @@ import org.w3c.dom.Text;
  * This class provides a way of constructing the Expanded object from the XML document and to get
  * XML document from the Expanded object.
  */
+<<<<<<< HEAD
 public class PSExpandedOption implements IPSClientObjects
 {
    static Logger log = LogManager.getLogger(PSExpandedOption.class);

@@ -28,9 +28,15 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
+=======
+import com.percussion.util.IPSHtmlParameters;
+import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,7 +50,13 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
 
   private IPSAssemblyService m_assemblyService;
 
+<<<<<<< HEAD
   public PSActiveAssemblyRelationshipBuilder() {}
+=======
+  public PSActiveAssemblyRelationshipBuilder() {
+    // TODO Auto-generated constructor stub
+  }
+>>>>>>> development-8.1.x
 
   public void init() {
     if (m_assemblyService == null) {
@@ -136,7 +148,10 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends PSRelationship
 
     return rvalue;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Finds the definition for a slot given its name, using the assembly service.
    *

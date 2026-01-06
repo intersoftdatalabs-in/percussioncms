@@ -25,7 +25,11 @@ import com.percussion.utils.io.PathUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
@@ -76,7 +80,10 @@ public class PSMakeLasagna extends Task {
   }
 
   // see base class
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
+=======
+>>>>>>> development-8.1.x
   @Override
   public void execute() throws BuildException {
     FileOutputStream out = null;

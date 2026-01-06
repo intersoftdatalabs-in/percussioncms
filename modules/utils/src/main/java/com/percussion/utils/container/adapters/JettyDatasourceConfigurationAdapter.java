@@ -60,8 +60,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.io.FileUtils;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -263,9 +268,13 @@ public class JettyDatasourceConfigurationAdapter
     ;
   }
 
+<<<<<<< HEAD
   /**
    * @param props
    */
+=======
+  /** @param props */
+>>>>>>> development-8.1.x
   private List<Integer> getDsIdsFromProperties(Properties props) {
     List<Integer> ids = new ArrayList<Integer>();
 

@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,6 +69,16 @@ import org.apache.logging.log4j.Logger;
  * an error will be thrown.
  *
  * @author natechadwick
+=======
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * * Workflow Action that will switch the item to the community specified by the
+ * defaultCommunityName custom property of the Folder containing the item. If the item is involved
+ * in multiple folders that have this property configured, an error will be thrown.
+>>>>>>> development-8.1.x
  *
  * @author natechadwick
  */
@@ -84,18 +95,31 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
   private static IPSSecurityDesignWs secSvc = null;
   private boolean overrideVisibility = false;
 
+<<<<<<< HEAD
   /***
    * OverrideVisibility determines if the community switch will ignore
    * visbility problems with the Workflow and State
+=======
+  /**
+   * * OverrideVisibility determines if the community switch will ignore visbility problems with the
+   * Workflow and State
+   *
+>>>>>>> development-8.1.x
    * @return
    */
   public boolean getOverrideVisibility() {
     return overrideVisibility;
   }
 
+<<<<<<< HEAD
   /***
    * A boolean value that when true, will ignore validation of visibility rules.
    * False by default.
+=======
+  /**
+   * * A boolean value that when true, will ignore validation of visibility rules. False by default.
+   *
+>>>>>>> development-8.1.x
    * @param overrideVisibility
    */
   public void setOverrideVisibility(boolean overrideVisibility) {
@@ -219,10 +243,18 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
   private static final String SQL_UPDATE =
       "UPDATE CONTENTSTATUS SET COMMUNITYID = ? where CONTENTID = ?";
 
+<<<<<<< HEAD
   /****
    * Method to determine if the Workflow and State are valid in the specified community.
    * @param wfCtx An active workflow context.
    * @param communityId  IPSGuid for the community to be checked.
+=======
+  /**
+   * ** Method to determine if the Workflow and State are valid in the specified community.
+   *
+   * @param wfCtx An active workflow context.
+   * @param communityId IPSGuid for the community to be checked.
+>>>>>>> development-8.1.x
    * @param user Active user
    * @param session Active Session id
    * @return True if the Workflow and State are visible in the community, false if not.
@@ -281,8 +313,14 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
     secSvc = PSSecurityWsLocator.getSecurityDesignWebservice();
   }
 
+<<<<<<< HEAD
   /***
    * Locate the given community by name.
+=======
+  /**
+   * * Locate the given community by name.
+   *
+>>>>>>> development-8.1.x
    * @param name
    * @return
    */
@@ -298,10 +336,19 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
     }
   }
 
+<<<<<<< HEAD
   /***
    * Get the defaultCommunityName property for the specified folder.
    * @param folder_id A valid IPSGuid for the target folder.
    * @return the name configured for the folder.  May return null if Community or property is not found.
+=======
+  /**
+   * * Get the defaultCommunityName property for the specified folder.
+   *
+   * @param folder_id A valid IPSGuid for the target folder.
+   * @return the name configured for the folder. May return null if Community or property is not
+   *     found.
+>>>>>>> development-8.1.x
    */
   private String getDefaultCommunityProperty(int folder_id) {
     String community = null;
@@ -335,10 +382,18 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
     return community;
   }
 
+<<<<<<< HEAD
   /***
    * Get the properties for the given folder.
    * @param id The id of the folder.
    * @return A Map containing folder properties in Name, Value pairs.  Never null. May be empty.
+=======
+  /**
+   * * Get the properties for the given folder.
+   *
+   * @param id The id of the folder.
+   * @return A Map containing folder properties in Name, Value pairs. Never null. May be empty.
+>>>>>>> development-8.1.x
    */
   private Map<String, String> getFolderProperties(int id) {
 

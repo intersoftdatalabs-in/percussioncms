@@ -44,16 +44,24 @@ public class SizedImageMetaData extends SimpleImageMetaData {
     this.y = y;
   }
 
+<<<<<<< HEAD
   /**
    * @return the sizeDefinition
    */
+=======
+  /** @return the sizeDefinition */
+>>>>>>> development-8.1.x
   public ImageSizeDefinition getSizeDefinition() {
     return sizeDefinition;
   }
 
+<<<<<<< HEAD
   /**
    * @param sizeDefinition the sizeDefinition to set
    */
+=======
+  /** @param sizeDefinition the sizeDefinition to set */
+>>>>>>> development-8.1.x
   public void setSizeDefinition(ImageSizeDefinition sizeDefinition) {
     this.sizeDefinition = sizeDefinition;
   }

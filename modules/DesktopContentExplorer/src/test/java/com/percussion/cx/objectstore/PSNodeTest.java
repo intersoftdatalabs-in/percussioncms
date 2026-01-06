@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +45,8 @@ public class PSNodeTest
       
       PSNode node2 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", 
          "iconKey", true, 1);
+=======
+import junit.framework.TestCase;
 
     PSNode node2 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", "iconKey", true, 1);
 

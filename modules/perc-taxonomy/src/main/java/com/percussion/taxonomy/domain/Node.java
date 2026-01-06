@@ -20,7 +20,11 @@ package com.percussion.taxonomy.domain;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashSet;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /** Taxonomy Node class to represent information about its taxons. */
 public class Node implements Comparable<Node> {

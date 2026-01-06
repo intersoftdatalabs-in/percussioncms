@@ -45,9 +45,13 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
 
   /** Pre processes the request. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // first do the normal file info processing
     super.preProcessRequest(params, request);
@@ -141,6 +145,7 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
     private ImageSize(int width, int height) {
       this(Integer.toString(width), Integer.toString(height));
     }
+<<<<<<< HEAD
 
     /**
      * Returns the image width as a String
@@ -152,6 +157,18 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
     }
 
     /**
+=======
+    /**
+     * Returns the image width as a String
+     *
+     * @return image width
+     */
+    private String getWidth() {
+      return mi_width;
+    }
+
+    /**
+>>>>>>> development-8.1.x
      * Returns the image height as a String
      *
      * @return image height

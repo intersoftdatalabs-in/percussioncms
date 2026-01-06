@@ -66,6 +66,7 @@ public class PSJdbcStatementColumn {
   public PSJdbcStatementColumn(String value, int dataType) {
     this(value, dataType, PSJdbcColumnData.ENC_TEXT);
   }
+<<<<<<< HEAD
 
   /**
    * @return The value of this column, may be <code>null</code>, or emtpy.
@@ -107,6 +108,44 @@ public class PSJdbcStatementColumn {
     if (!PSJdbcColumnData.validEncoding(encoding))
       throw new IllegalArgumentException("invalid encoding");
 
+=======
+  /** @return The value of this column, may be <code>null</code>, or emtpy. */
+  public String getValue() {
+    return m_value;
+  }
+
+  /**
+   * *
+   *
+   * @return The binary column value - including stream for this column, may be null or empty.
+   */
+  public PSJdbcBinaryColumnValue getBinaryValue() {
+    return m_binaryValue;
+  }
+
+  /** @return The jdbc data type of this column. */
+  public int getType() {
+    return m_type;
+  }
+
+  /** @return the encoding method for this column */
+  public int getEncoding() {
+    return m_encoding;
+  }
+
+  /**
+   * set the encoding method
+   *
+   * @param encoding, the method used to encode this column. Valid values are <code>
+   *      PSJdbcColumnData.ENC_TEXT </code>, <code> PSJdbcColumnData.ENC_BASE64 </code> and <code>
+   *      PSJdbcColumnData.ENC_ESCAPED </code>.
+   * @throws IllegalArgumentException if encoding specified is not a valid value.
+   */
+  public void setEncoding(int encoding) {
+    if (!PSJdbcColumnData.validEncoding(encoding))
+      throw new IllegalArgumentException("invalid encoding");
+
+>>>>>>> development-8.1.x
     m_encoding = encoding;
   }
 

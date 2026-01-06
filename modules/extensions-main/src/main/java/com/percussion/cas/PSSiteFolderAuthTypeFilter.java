@@ -82,7 +82,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   public boolean canModifyStyleSheet() {
     return false;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument
    * (java.lang.Object[], com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
@@ -99,12 +102,18 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     }
     return resultDoc;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Filters the linkurl elements by calling following helper methods. {@link
    * #isValidLinkBySiteID(IPSRequestContext, PSRelationshipProcessorProxy, Map, Map, Element)} to
@@ -159,7 +168,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
       }
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Utility method to validate the linkurl element and then build a map of required parameters for
    * filtering the linkurl.
@@ -277,7 +289,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     params.put(IPSHtmlParameters.SYS_REVISION, revision.trim());
     return params;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Makes an internal request to the @link{LOOKUP_SITE_FOLDER_ROOT} and builds the site and folder
    * root map.
@@ -342,7 +357,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     }
     return siteFolderRoot;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Builds a folder path map by getting the component summaries for all the folderids in the
    * linkurls. If a folder does not exist then we do not get the component summary for that folder
@@ -498,7 +516,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     }
     return true;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Utility method to decide whether a link is valid by folder id or not. Gets the folder id from
    * linkurl if does not present then returns <code>true</code> as we can not filter the link
@@ -607,7 +628,10 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     }
     return true;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Utility method to decide whether a link is valid by variant id or not. Gets the variant id from
    * linkurl and if it is a page variant then checks whether the variant is a publishable variant or
@@ -730,18 +754,25 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
     }
     return true;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Name of the Rhythmyx internal resource used to query the site folder root for a given site id.
    */
   private final String LOOKUP_SITE_FOLDER_ROOT = "sys_casSupport/SiteLookup";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Name of the Rhythmyx internal resource used to query the publishable variants for the given
    * item based on the given site id and revision.
    */
   private final String LOOKUP_VARIANTS_SITE_ITEM =
       "rx_supportSiteFolderContentList/lookupVariantsBySiteItem.xml";
+<<<<<<< HEAD
 
   /** The exit name used for error handling */
   private static final String ms_className = "PSSiteFolderAuthTypeFilter";
@@ -752,6 +783,14 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   /** The name of the attribute for variantid in linkurl */
   private static final String VARIANTID = "variantid";
 
+=======
+  /** The exit name used for error handling */
+  private static final String ms_className = "PSSiteFolderAuthTypeFilter";
+  /** The element name for the relationship links */
+  private static final String LINKURL = "linkurl";
+  /** The name of the attribute for variantid in linkurl */
+  private static final String VARIANTID = "variantid";
+>>>>>>> development-8.1.x
   /** The name of the attribute for contentid in linkurl */
   private static final String CONTENTID = "contentid";
 

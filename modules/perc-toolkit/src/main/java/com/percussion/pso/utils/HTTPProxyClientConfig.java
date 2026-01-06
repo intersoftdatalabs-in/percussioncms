@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /***
  * Contains the basic proxy client configuration
  *
@@ -33,6 +34,10 @@ import org.apache.logging.log4j.Logger;
  * proxyport=
  *
  * @author natechadwick
+=======
+/**
+ * * Contains the basic proxy client configuration
+>>>>>>> development-8.1.x
  *
  * <p>This file is read from rxconfig/Server/clientproxy.properties proxyserver= proxyport=
  *
@@ -61,9 +66,16 @@ public class HTTPProxyClientConfig {
     return proxyPort;
   }
 
+<<<<<<< HEAD
   /***
    * Loads the properties file and initializes the properties.  This could be made more efficient by
    * moving it out of the constructor but this way the file can be changed without restarting the server.
+=======
+  /**
+   * * Loads the properties file and initializes the properties. This could be made more efficient
+   * by moving it out of the constructor but this way the file can be changed without restarting the
+   * server.
+>>>>>>> development-8.1.x
    */
   public HTTPProxyClientConfig() {
     String propFile =

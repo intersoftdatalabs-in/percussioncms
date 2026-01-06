@@ -55,6 +55,7 @@ import java.sql.SQLException;
  */
 public class PSTrimRxPubDocs extends PSAction {
   // see base class
+<<<<<<< HEAD
 
   @Override
   public void execute() {
@@ -80,6 +81,32 @@ public class PSTrimRxPubDocs extends PSAction {
           return;
         }
 
+=======
+  @Override
+  public void execute() {
+    String strRootDir = null;
+    PSProperties props = null;
+    PSJdbcDbmsDef dbmsDef = null;
+
+    try {
+      strRootDir = getRootDir();
+
+      if (!(strRootDir.endsWith(File.separator))) strRootDir += File.separator;
+
+      props = new PSProperties(strRootDir + IPSUpgradeModule.REPOSITORY_PROPFILEPATH);
+      props.setProperty(PSJdbcDbmsDef.PWD_ENCRYPTED_PROPERTY, "Y");
+      dbmsDef = new PSJdbcDbmsDef(props);
+      try (Connection conn = RxLogTables.createConnection(props)) {
+
+        if (conn == null) {
+          PSLogger.logError(
+              "PSTrimRxPubDocs#execute : Could not establish connection with database");
+          PSLogger.logError("PSTrimRxPubDocs#execute : Table modifications aborted");
+
+          return;
+        }
+
+>>>>>>> development-8.1.x
         // Trim table if specified
         if (m_bShouldTrim) {
           trimTable(conn, dbmsDef, m_strTrimDate);
@@ -144,9 +171,16 @@ public class PSTrimRxPubDocs extends PSAction {
     PSLogger.logInfo("Trimmed " + rows + " row(s) from " + RXPUBDOCS_TABLE);
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Property Accessors and
+   * Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Sets the should trim flag.
@@ -168,6 +202,7 @@ public class PSTrimRxPubDocs extends PSAction {
     m_strTrimDate = trimDate;
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * private function
    **************************************************************************/
@@ -175,13 +210,31 @@ public class PSTrimRxPubDocs extends PSAction {
   /**************************************************************************
    * Static Strings
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ private function
+   * ************************************************************************
+   */
+
+  /**
+   * ************************************************************************ Static Strings
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** RXPUBDOCS Table constant */
   private static String RXPUBDOCS_TABLE = "RXPUBDOCS";
 
+<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Determines if the table should be trimmed. */
   private boolean m_bShouldTrim = false;

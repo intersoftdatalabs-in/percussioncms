@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 
 public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult {
   private static final Logger log = LogManager.getLogger();
+<<<<<<< HEAD
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;

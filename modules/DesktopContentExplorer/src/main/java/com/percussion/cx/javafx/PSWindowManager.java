@@ -19,11 +19,14 @@ package com.percussion.cx.javafx;
 
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.SwingUtilities;
+=======
+>>>>>>> development-8.1.x
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,6 +38,7 @@ import org.apache.log4j.Logger;
 public class PSWindowManager {
   private static PSWindowManager instance = new PSWindowManager();
 
+<<<<<<< HEAD
    private Map<String, PSDesktopExplorerWindow> windows = new HashMap<String, PSDesktopExplorerWindow>();
    private Map<String, String> parents = new HashMap<String, String>();
    protected String mi_style = "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1";

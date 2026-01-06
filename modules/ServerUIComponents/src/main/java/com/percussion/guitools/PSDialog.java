@@ -157,7 +157,10 @@ public class PSDialog extends JDialog {
     Rectangle bounds = gc.getBounds();
     return bounds;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Creates the standard command panel with 'OK', 'Cancel' and 'Help' buttons. Assigns the default
    * actions to the buttons. Sets the 'OK' button as default to the dialog.

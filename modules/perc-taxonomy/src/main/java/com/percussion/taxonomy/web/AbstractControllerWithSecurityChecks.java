@@ -24,8 +24,13 @@ import com.percussion.taxonomy.domain.Node_editor;
 import com.percussion.taxonomy.service.TaxonomyService;
 import java.util.Collection;
 import java.util.List;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+=======
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 // TODO: Update this with annotations
 public class AbstractControllerWithSecurityChecks {

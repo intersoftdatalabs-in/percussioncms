@@ -18,6 +18,7 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Restriction;
 
+<<<<<<< HEAD
 /***
  * <media:restriction>
  *
@@ -37,6 +38,10 @@ import com.rometools.modules.mediarss.types.Restriction;
  *
  * "uri" allows restrictions based on URI. Examples: urn:apple, http://images.google.com, urn:yahoo, etc.
  * @author natechadwick
+=======
+/**
+ * * <media:restriction>
+>>>>>>> development-8.1.x
  *
  * <p>Allows restrictions to be placed on the aggregator rendering the media in the feed. Currently,
  * restrictions are based on distributor (uri) and country codes. This element is purely

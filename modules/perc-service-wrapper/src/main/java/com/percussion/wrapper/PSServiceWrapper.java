@@ -46,7 +46,10 @@ public class PSServiceWrapper {
    *
    * <p>If Derby doesn't start it will fail.
    */
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+=======
+>>>>>>> development-8.1.x
   public static void main(String[] args) {
 
     rxDir = JettyStartUtils.locateRxDir();
@@ -108,7 +111,11 @@ public class PSServiceWrapper {
     List<StartWrapper> wrapperList = new ArrayList<>();
 
     // If this is a staging-only directory, we need to not
+<<<<<<< HEAD
     // display the output for the other services.  Done because the
+=======
+    // display the output for the other services. Done because the
+>>>>>>> development-8.1.x
     // production DTS output is getting mixed up with the staging output.
     if (isStagingOnly) {
       wrapperList.add(stagingDtsWrapper);

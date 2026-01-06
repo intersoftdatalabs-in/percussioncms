@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.security.PSEncryptionException;
 import java.nio.charset.StandardCharsets;
+<<<<<<< HEAD
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -28,6 +29,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+=======
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+>>>>>>> development-8.1.x
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -35,6 +42,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+<<<<<<< HEAD
 public class PSAesCBC {
   private static final String AES_ALGORITHM = "AES";
   private static final String AES_CBC_PKCS5 = "AES/CBC/PKCS5Padding";
@@ -168,5 +176,84 @@ public class PSAesCBC {
     System.arraycopy(iv, 0, out, 0, IV_LENGTH);
     System.arraycopy(ct, 0, out, IV_LENGTH, ct.length);
     return out;
+=======
+@Deprecated
+public class PSAesCBC {
+  /** Strings encrypted with this IV can only be de-crypted with this IV */
+  private final byte[] InitialVector;
+
+  /** Create a new AES. Sets initial values of byte array. */
+  @Deprecated
+  public PSAesCBC() {
+    super();
+    InitialVector =
+        new byte[] {
+          0x04, 0x38, 0x40, 0x33, 0x17, 0x65, 0x32, 0x28, 0x56, 0x39, 0x50, 0x23, 0x7c, 0x6a, 0x0f,
+          0x3a
+        };
+  }
+
+  /**
+   * Encrypt a given plain text String using a given encryption key. Character encode the encrypted
+   * text as ISO-8859-1 String.
+   *
+   * @param plainText String to encrypt. Not null.
+   * @param encryptionKey String used for encryption. Not null.
+   * @return The resultant String of encrypted text
+   * @throws Exception
+   */
+  // Suppressing warnings as the class is deprecated.
+  @Deprecated
+  public String encrypt(String plainText, String encryptionKey) throws Exception {
+    if (isBlank(plainText)) plainText = "";
+    if (isBlank(encryptionKey)) encryptionKey = "";
+
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+
+    SecretKeySpec key =
+        new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.ISO_8859_1), "AES");
+
+    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(InitialVector));
+
+    final byte[] encrypted = cipher.doFinal(plainText.getBytes("ISO-8859-1"));
+
+    return new String(encrypted, "ISO-8859-1");
+  }
+
+  /**
+   * Decode a given ISO-8859-1 character encoded String. Decrypt resulting String using encryption
+   * key String.
+   *
+   * @param secretText String to decyrpt. May be null.
+   * @param encryptionKey String used for decryption. Not null.
+   * @return The resultant String of decrypted and decoded text.
+   * @throws Exception
+   */
+  @Deprecated
+  public String decrypt(String secretText, String encryptionKey) throws PSEncryptionException {
+    if (isBlank(secretText)) secretText = "";
+    if (isBlank(encryptionKey)) encryptionKey = "";
+
+    try {
+      final byte[] cipherText = secretText.getBytes(StandardCharsets.ISO_8859_1);
+
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+
+      SecretKeySpec key =
+          new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.ISO_8859_1), "AES");
+
+      cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(InitialVector));
+
+      return new String(cipher.doFinal(cipherText), StandardCharsets.ISO_8859_1);
+    } catch (InvalidAlgorithmParameterException
+        | NoSuchAlgorithmException
+        | BadPaddingException
+        | NoSuchProviderException
+        | InvalidKeyException
+        | NoSuchPaddingException
+        | IllegalBlockSizeException e) {
+      throw new PSEncryptionException(e);
+    }
+>>>>>>> development-8.1.x
   }
 }

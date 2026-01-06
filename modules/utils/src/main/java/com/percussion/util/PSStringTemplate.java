@@ -18,7 +18,11 @@ package com.percussion.util;
 
 import java.util.HashMap;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * @author DougRand
@@ -90,6 +94,7 @@ public class PSStringTemplate {
       }
       m_dictionary = dict;
     }
+<<<<<<< HEAD
 
     /**
      * Looks for key in the map supplied in the ctor and returns the value associated with that
@@ -196,6 +201,112 @@ public class PSStringTemplate {
   }
 
   /**
+=======
+    /**
+     * Looks for key in the map supplied in the ctor and returns the value associated with that
+     * entry.
+     *
+     * <p>See {@link IPSTemplateDictionary#lookup(String) inteface} for more details.
+     */
+    public String lookup(String key) {
+      if (null == key) {
+        throw new IllegalArgumentException("key cannot be null or empty");
+      }
+      Object o = m_dictionary.get(key);
+      String val = null == o ? "" : o.toString();
+      return val;
+    }
+    /** Set in ctor, then never <code>null</code>, may be empty. */
+    private Map m_dictionary;
+  }
+
+  /**
+   * Construct a new template object. Calls {@link PSStringTemplate#PSStringTemplate(String, String,
+   * String, char) PSStringTemplate(template, null, null, '\\'}}.
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
+   */
+  public PSStringTemplate(String template) {
+    this(template, null, null, '\\');
+  }
+
+  /**
+   * Construct a new template object. Calls {@link PSStringTemplate#PSStringTemplate(String, String,
+   * String, char) PSStringTemplate(template, start, end, '\\'}}.
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
+   * @param start A string that introduces variable references, if <code>null</code> the default
+   *     value is used
+   * @param end A string that ends variable references, if <code>null</code> the default value is
+   *     used
+   */
+  public PSStringTemplate(String template, String start, String end) {
+    this(template, start, end, '\\');
+  }
+
+  /**
+   * Construct a new template object
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
+   * @param start A string that introduces variable references, if <code>null</code> the default
+   *     value is used
+   * @param end A string that ends variable references, if <code>null</code> the default value is
+   *     used.
+   * @param quote a character that escapes the next character to pass it through literally
+   */
+  public PSStringTemplate(String template, String start, String end, char quote) {
+    if (start == null || start.trim().length() == 0) {
+      start = "{";
+    }
+    if (end == null || end.trim().length() == 0) {
+      end = "}";
+    }
+    m_startSequence = start;
+    m_endSequence = end;
+    m_quoteCharacter = quote;
+    m_template = template;
+  }
+
+  /**
+   * Convenience method that calls {@link #expand(IPSTemplateDictionary) expand(new
+   * MapDictionary(dict)}.
+   *
+   * @param dict The keys in the passed <code>Map</code> are always of type {@link String} and are
+   *     case sensitive. So "foo" and "Foo" are different keys and are specified differently in the
+   *     template string. The values are of any class. They are generally {@link String} objects,
+   *     but any class that implements a useful and predictable {@link Object#toString()} method
+   *     will work.
+   */
+  public String expand(Map dict) throws PSStringTemplateException {
+    if (dict == null) {
+      throw new IllegalArgumentException("dict must never be null");
+    }
+    return expand(new PSMapDictionary(dict));
+  }
+
+  /**
+   * Expand the template given the passed variable references. Note that embedded variables in the
+   * expansion are not themselves expanded.
+   *
+   * @param dict A mapping of variable names to values, must never be <code>null</code>.
+   * @return a string containing the original template with variables replaced by their references.
+   *     If a variable does not exist then it is replaced by the empty string. Never returns <code>
+   *     null</code>. If the template supplied during construction was <code>null</code> or empty,
+   *     an empty string is returned.
+   * @throws PSStringTemplateException if an error is encountered while expanding the template.
+   */
+  public String expand(IPSTemplateDictionary dict) throws PSStringTemplateException {
+    if (null == dict) {
+      throw new IllegalArgumentException("dictionary cannot be null");
+    }
+    return expand(dict, 0);
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Indicate if a start sequence with no matching end sequence should be ignored or if an exception
    * should be thrown, <code>false</code> by default if never set.
    *
@@ -302,16 +413,24 @@ public class PSStringTemplate {
 
   /** The template to expand, will never be <code>null</code> or empty after construction. */
   private String m_template = null;
+<<<<<<< HEAD
 
   /** This character causes the next character in the template to be taken as literal input. */
   private char m_quoteCharacter = '\\';
 
+=======
+  /** This character causes the next character in the template to be taken as literal input. */
+  private char m_quoteCharacter = '\\';
+>>>>>>> development-8.1.x
   /**
    * If this sequence is discovered in the template, it is used as the start delimiter for a
    * variable reference.
    */
   private String m_startSequence = "{";
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * This sequence is used as the end sequence when scanning for a variable reference. If this
    * sequence uses multiple characters, they must all match.

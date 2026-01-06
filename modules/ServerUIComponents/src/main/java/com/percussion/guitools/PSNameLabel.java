@@ -34,6 +34,10 @@ public class PSNameLabel extends JLabel {
   /** Ctor */
   public PSNameLabel() {
     super();
+<<<<<<< HEAD
+=======
+    // TODO Auto-generated constructor stub
+>>>>>>> development-8.1.x
   }
 
   /**

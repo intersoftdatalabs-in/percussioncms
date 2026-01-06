@@ -16,6 +16,7 @@
  */
 package test.percussion.pso.imageedit.services.cache.impl;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ImageMetaData;
@@ -31,6 +32,23 @@ public class ImageCacheManagerImplTest {
   TestableImageCacheManagerImpl cut;
 
   @BeforeEach
+=======
+import static org.junit.Assert.*;
+
+import com.percussion.pso.imageedit.data.ImageMetaData;
+import com.percussion.pso.imageedit.services.cache.impl.ImageCacheManagerImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ImageCacheManagerImplTest {
+  private static final Logger log = LogManager.getLogger(ImageCacheManagerImplTest.class);
+
+  TestableImageCacheManagerImpl cut;
+
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new TestableImageCacheManagerImpl();
   }
@@ -63,9 +81,13 @@ public class ImageCacheManagerImplTest {
 
   private class TestableImageCacheManagerImpl extends ImageCacheManagerImpl {
 
+<<<<<<< HEAD
     /**
      * @see ImageCacheManagerImpl#generateKey(ImageMetaData)
      */
+=======
+    /** @see ImageCacheManagerImpl#generateKey(ImageMetaData) */
+>>>>>>> development-8.1.x
     @Override
     public String generateKey(ImageMetaData data) {
       return super.generateKey(data);

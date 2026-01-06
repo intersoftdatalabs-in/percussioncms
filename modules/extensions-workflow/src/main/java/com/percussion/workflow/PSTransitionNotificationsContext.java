@@ -164,7 +164,11 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
     return m_sCCList;
   }
 
+<<<<<<< HEAD
   /******** Context Defining Members ********/
+=======
+  /** ****** Context Defining Members ******* */
+>>>>>>> development-8.1.x
 
   /** ID of the workflow for this item. */
   private int m_nWorkflowID = 0;
@@ -172,7 +176,11 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
   /** ID of the transition for this item. */
   private int m_nTransitionID = 0;
 
+<<<<<<< HEAD
   /******** Context Data Members ********/
+=======
+  /** ****** Context Data Members ******* */
+>>>>>>> development-8.1.x
 
   /** the notification ID */
   private int m_nNotificationID = 0;
@@ -216,7 +224,11 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
    */
   private boolean m_bRequireToStateRoles = false;
 
+<<<<<<< HEAD
   /******** Database Related Variables ********/
+=======
+  /** ****** Database Related Variables ******* */
+>>>>>>> development-8.1.x
 
   /** static constant string that represents the qualified table name. */
   private static String TABLE_TNC =

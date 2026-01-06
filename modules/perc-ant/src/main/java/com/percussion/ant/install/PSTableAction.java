@@ -70,6 +70,7 @@ import org.w3c.dom.Document;
  */
 public class PSTableAction extends PSAction {
   // see base class
+<<<<<<< HEAD
 
   @Override
   public void execute() {
@@ -122,6 +123,59 @@ public class PSTableAction extends PSAction {
         Document doc =
             PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(new File(filePath)), false);
 
+=======
+  @Override
+  public void execute() {
+    PSLogger.logInfo("Installing tables...");
+    isRepositoryError = false;
+    String newLine = System.getProperty("line.separator");
+    repositoryErrorMsg = RxInstallerProperties.getResources().getString("repositoryConfError");
+    repositoryErrorMsg += newLine;
+    repositoryErrorMsg += newLine;
+    PrintStream ps = System.out;
+
+    try {
+      PSJdbcTableSchemaCollection schemaColl = null;
+      PSJdbcTableDataCollection dataColl = null;
+      PSJdbcTableSchema schema = null;
+      PSJdbcTableData data = null;
+      PSJdbcDataTypeMap dataTypeMap = null;
+
+      // log the tablefactory output to tablefactory.log
+      String strLogFile = getTableFactoryLogFile();
+      PSLogger.logInfo("tablefactory log file : " + strLogFile);
+      ps = new PrintStream(new FileOutputStream(strLogFile, true));
+
+      PSProperties props = new PSProperties(getRepositoryLocation());
+
+      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
+
+      dataTypeMap = new PSJdbcDataTypeMap(dbmsDef.getBackEndDB(), dbmsDef.getDriver(), null);
+      InstallUtil.setRootDir(getRootDir());
+      String pw = dbmsDef.getPassword();
+      String driver = dbmsDef.getDriver();
+      String server = dbmsDef.getServer();
+      String database = dbmsDef.getDataBase();
+      String uid = dbmsDef.getUserId();
+      PSLogger.logInfo(
+          "Driver : "
+              + driver
+              + " Server : "
+              + server
+              + " Database : "
+              + database
+              + " uid : "
+              + uid);
+
+      // get table def files
+      String[] tableDef = getTableDef();
+      for (int i = 0; i < tableDef.length; i++) {
+        String filePath = tableDef[i];
+
+        Document doc =
+            PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(new File(filePath)), false);
+
+>>>>>>> development-8.1.x
         if (schemaColl == null) schemaColl = new PSJdbcTableSchemaCollection(doc, dataTypeMap);
         else schemaColl.addAll(new PSJdbcTableSchemaCollection(doc, dataTypeMap));
       }
@@ -179,9 +233,16 @@ public class PSTableAction extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Property Accessors and
+   * Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** Accessor for the repository location */
   public String getRepositoryLocation() {
@@ -236,34 +297,51 @@ public class PSTableAction extends PSAction {
     return "";
   }
 
+<<<<<<< HEAD
   /**
    * @return
    */
+=======
+  /** @return */
+>>>>>>> development-8.1.x
   public String[] getTableData() {
     return m_strTableData;
   }
 
+<<<<<<< HEAD
   /**
    * @return
    */
+=======
+  /** @return */
+>>>>>>> development-8.1.x
   public String[] getTableDef() {
     return m_strTableDef;
   }
 
+<<<<<<< HEAD
   /**
    * @param strings
    */
+=======
+  /** @param strings */
+>>>>>>> development-8.1.x
   public void setTableData(String strings) {
     m_strTableData = convertToArray(strings);
   }
 
+<<<<<<< HEAD
   /**
    * @param strings
    */
+=======
+  /** @param strings */
+>>>>>>> development-8.1.x
   public void setTableDef(String strings) {
     m_strTableDef = convertToArray(strings);
   }
 
+<<<<<<< HEAD
   /**************************************************************************
    * private function
    **************************************************************************/
@@ -275,6 +353,22 @@ public class PSTableAction extends PSAction {
   /**************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * ************************************************************************ private function
+   * ************************************************************************
+   */
+
+  /**
+   * ************************************************************************ Static Strings
+   * ***********************************************************************
+   */
+
+  /**
+   * ************************************************************************ Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** The Tables name for the table definitions. */
   private String[] m_strTableDef = {"$P(absoluteInstallLocation)/rxconfig"};

@@ -18,6 +18,7 @@ package com.percussion.utils.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 
 public class PSConversionsTest {
@@ -28,6 +29,15 @@ public class PSConversionsTest {
       assertEquals(i + 1, rval[i]);
     }
 
+=======
+public class PSConversionsTest extends TestCase {
+  public void testToArr() throws Exception {
+    byte[] rval = PSConversions.longToByteArray(0x0102030405060708L);
+    for (int i = 0; i < 8; i++) {
+      assertEquals(i + 1, rval[i]);
+    }
+
+>>>>>>> development-8.1.x
     rval = PSConversions.longToByteArray(0xF1F2F3F4F5F6F7F8L);
     for (int i = 0; i < 8; i++) {
       long v = ((long) rval[i]) & 0xFF;
@@ -36,7 +46,10 @@ public class PSConversionsTest {
     }
   }
 
+<<<<<<< HEAD
   @Test
+=======
+>>>>>>> development-8.1.x
   public void testToLong() throws Exception {
     byte[] test = new byte[16];
 

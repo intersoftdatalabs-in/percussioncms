@@ -18,7 +18,11 @@ package com.percussion.utils.request;
 
 import java.util.HashMap;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 
 /**
  * This class stores a variety of per request information. This is initialized in a servlet at the
@@ -73,6 +77,7 @@ public class PSRequestInfoBase {
   static {
     isInitedThreadLocal.set(false);
   }
+<<<<<<< HEAD
 
   /**
    * test the boolean value to see if this object is inited.
@@ -91,6 +96,25 @@ public class PSRequestInfoBase {
   /** Locale information */
   public static final String KEY_LOCALE = "LOCALE";
 
+=======
+  /**
+   * test the boolean value to see if this object is inited.
+   *
+   * @return <code>true</code> if inited else <code>false</code>
+   */
+  public static boolean isInited() {
+    Boolean initVal = isInitedThreadLocal.get();
+    if (initVal == null) return false;
+    return initVal;
+  }
+
+  /** Subject information for this request. Stored as {@link javax.security.auth.Subject} */
+  public static final String SUBJECT = "SUBJECT";
+
+  /** Locale information */
+  public static final String KEY_LOCALE = "LOCALE";
+
+>>>>>>> development-8.1.x
   public static final String KEY_PSREQUESTCONTEXT = "REQUEST_CONTEXT";
   public static final String KEY_USER_INFO = "USER_INFO";
   public static final String KEY_USER_ACCESS_LEVEL = "USER_ACCESS_LEVEL";
@@ -128,7 +152,10 @@ public class PSRequestInfoBase {
   public static Map<String, Object> getRequestInfoMap() {
     return mapThreadLocal.get();
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Copies the request info. Modifications to this collection will not change the original request
    * info map.

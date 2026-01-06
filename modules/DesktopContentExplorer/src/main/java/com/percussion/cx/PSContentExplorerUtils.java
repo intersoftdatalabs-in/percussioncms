@@ -19,6 +19,7 @@ package com.percussion.cx;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSUserInfo;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +28,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPathFactory;
+=======
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -52,6 +55,7 @@ public class PSContentExplorerUtils {
   public static Map<String, String> getQueryMap(String url) {
     Map<String, String> map = new HashMap<>();
 
+<<<<<<< HEAD
 public class PSContentExplorerUtils
 {
    static Logger log = LogManager.getLogger(PSContentExplorerUtils.class);
@@ -80,6 +84,12 @@ public class PSContentExplorerUtils
          String targetDirectory) throws MalformedURLException, IOException
  {
      URL url = new URL(sourceUrl);
+=======
+    int idx = url.indexOf("?");
+    String query = "";
+    if (idx >= 0) query = url.substring(idx + 1);
+    else return map;
+>>>>>>> development-8.1.x
 
     String[] params = query.split("&");
     for (String param : params) {

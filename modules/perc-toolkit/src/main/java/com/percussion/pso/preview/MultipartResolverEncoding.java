@@ -16,8 +16,13 @@
  */
 package com.percussion.pso.preview;
 
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+=======
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.multipart.MultipartResolver;
@@ -34,10 +39,14 @@ public class MultipartResolverEncoding extends CommonsMultipartResolver
     implements MultipartResolver {
 
   private static final Logger log = LogManager.getLogger(MultipartResolverEncoding.class);
+<<<<<<< HEAD
 
   /**
    * @see CommonsMultipartResolver#determineEncoding(HttpServletRequest)
    */
+=======
+  /** @see CommonsMultipartResolver#determineEncoding(HttpServletRequest) */
+>>>>>>> development-8.1.x
   @Override
   protected String determineEncoding(HttpServletRequest request) {
     String encoding = super.determineEncoding(request);

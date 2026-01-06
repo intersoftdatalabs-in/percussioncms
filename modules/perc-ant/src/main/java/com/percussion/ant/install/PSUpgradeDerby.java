@@ -17,8 +17,13 @@
 
 package com.percussion.ant.install;
 
+<<<<<<< HEAD
 import com.percussion.install.PSLogger;
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+import com.percussion.install.PSLogger;
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.InvocationTargetException;
@@ -35,9 +40,15 @@ import java.util.Properties;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.tools.ant.BuildException;
 
+<<<<<<< HEAD
 /***
  * Provides an ant task to upgrade a derby database.  Expects to be able to start the derby database in
  * embedded mode - single user
+=======
+/**
+ * * Provides an ant task to upgrade a derby database. Expects to be able to start the derby
+ * database in embedded mode - single user
+>>>>>>> development-8.1.x
  */
 public class PSUpgradeDerby extends PSAction {
 
@@ -166,9 +177,13 @@ public class PSUpgradeDerby extends PSAction {
   }
 
   public synchronized void loadDerbyJDBCJar()
+<<<<<<< HEAD
       throws MalformedURLException,
           NoSuchMethodException,
           InvocationTargetException,
+=======
+      throws MalformedURLException, NoSuchMethodException, InvocationTargetException,
+>>>>>>> development-8.1.x
           IllegalAccessException {
     PSLogger.logInfo("Loading DerbyDriver at RunTime");
     File derbyJDBCDriver = null;

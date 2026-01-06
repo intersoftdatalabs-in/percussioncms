@@ -30,7 +30,11 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import org.apache.commons.collections.MultiHashMap;
 import org.apache.commons.collections.MultiMap;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,32 +102,48 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
     return model;
   }
 
+<<<<<<< HEAD
   /**
    * @return the number of weeks in the assigned month
    */
+=======
+  /** @return the number of weeks in the assigned month */
+>>>>>>> development-8.1.x
   public int getWeeks() {
     getModel().m_cal.set(Calendar.DAY_OF_MONTH, getLastDay());
     return getModel().m_cal.get(Calendar.WEEK_OF_MONTH);
   }
 
+<<<<<<< HEAD
   /**
    * @return the last day of the assigned month
    */
+=======
+  /** @return the last day of the assigned month */
+>>>>>>> development-8.1.x
   public int getLastDay() {
     return getModel().m_cal.getActualMaximum(Calendar.DAY_OF_MONTH);
   }
 
+<<<<<<< HEAD
   /**
    * @return the day of the week for the first day of the assigned month
    */
+=======
+  /** @return the day of the week for the first day of the assigned month */
+>>>>>>> development-8.1.x
   public int getFirstDayOfWeek() {
     getModel().m_cal.set(Calendar.DAY_OF_MONTH, 1);
     return getModel().m_cal.get(Calendar.DAY_OF_WEEK);
   }
 
+<<<<<<< HEAD
   /**
    * @return the day of the week for the last day of the assigned month
    */
+=======
+  /** @return the day of the week for the last day of the assigned month */
+>>>>>>> development-8.1.x
   public int getLastDayOfWeek() {
     getModel().m_cal.set(Calendar.DAY_OF_MONTH, getLastDay());
     return getModel().m_cal.get(Calendar.DAY_OF_WEEK);

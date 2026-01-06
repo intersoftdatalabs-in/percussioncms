@@ -255,9 +255,13 @@ public abstract class PSIteratorUtils {
       return m_iterator.hasNext();
     }
 
+<<<<<<< HEAD
     /**
      * @throws UnsupportedOperationException always.
      */
+=======
+    /** @throws UnsupportedOperationException always. */
+>>>>>>> development-8.1.x
     public void remove() {
       throw new UnsupportedOperationException("This operation is not supported.");
     }

@@ -24,12 +24,15 @@ import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSEntrySet;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+=======
+>>>>>>> development-8.1.x
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

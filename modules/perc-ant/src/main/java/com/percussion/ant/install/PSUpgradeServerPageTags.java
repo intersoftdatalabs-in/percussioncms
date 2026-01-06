@@ -27,7 +27,11 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -194,9 +198,16 @@ public class PSUpgradeServerPageTags extends PSAction {
     }
   }
 
+<<<<<<< HEAD
   /***************************************************************
    * Mutators and Accessors
    ***************************************************************/
+=======
+  /**
+   * ************************************************************* Mutators and Accessors
+   * *************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Returns the path of the server page tags xml file relative to the installation directory.
@@ -244,9 +255,16 @@ public class PSUpgradeServerPageTags extends PSAction {
     this.serverPageTagsXmlE2FilePath = serverPageTagsXmlE2FilePath;
   }
 
+<<<<<<< HEAD
   /***************************************************************
    * Bean properties
    ***************************************************************/
+=======
+  /**
+   * ************************************************************* Bean properties
+   * *************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * path of the server page tags xml file relative to the installation root directory, never <code>
@@ -259,10 +277,13 @@ public class PSUpgradeServerPageTags extends PSAction {
    * empty.
    */
   private String serverPageTagsXmlE2FilePath = "";
+<<<<<<< HEAD
 
   /**************************************************************************
    * private function
    **************************************************************************/
+=======
+>>>>>>> development-8.1.x
 
   /**
    * ************************************************************************ private function

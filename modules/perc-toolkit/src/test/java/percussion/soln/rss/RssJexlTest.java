@@ -18,9 +18,14 @@
 package percussion.soln.rss;
 
 import static com.percussion.services.assembly.IPSAssemblyTemplate.OutputFormat.*;
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+>>>>>>> development-8.1.x
 
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSAssemblyTemplate.OutputFormat;
@@ -34,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -45,6 +51,20 @@ public class RssJexlTest {
 
   @Mock Node node;
 
+=======
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(JMock.class)
+public class RssJexlTest {
+
+  Mockery context = new JUnit4Mockery();
+  Node node;
+>>>>>>> development-8.1.x
   Map<String, String> values = new HashMap<String, String>();
   List<IPSAssemblyTemplate> foundTemplates = new ArrayList<IPSAssemblyTemplate>();
   String contentType = "myContentType";
@@ -114,6 +134,7 @@ public class RssJexlTest {
       final String mimeType,
       final String description,
       final OutputFormat format) {
+<<<<<<< HEAD
     final IPSAssemblyTemplate t = mock(IPSAssemblyTemplate.class);
 
     when(t.getName()).thenReturn(templateName);
@@ -121,6 +142,23 @@ public class RssJexlTest {
     when(t.getDescription()).thenReturn(description);
     when(t.getOutputFormat()).thenReturn(format);
 
+=======
+    final IPSAssemblyTemplate t =
+        context.mock(IPSAssemblyTemplate.class, templateName + "-" + ++nameId);
+    context.checking(
+        new Expectations() {
+          {
+            allowing(t).getName();
+            will(returnValue(templateName));
+            one(t).getMimeType();
+            will(returnValue(mimeType));
+            one(t).getDescription();
+            will(returnValue(description));
+            one(t).getOutputFormat();
+            will(returnValue(format));
+          }
+        });
+>>>>>>> development-8.1.x
     foundTemplates.add(t);
     return t;
   }

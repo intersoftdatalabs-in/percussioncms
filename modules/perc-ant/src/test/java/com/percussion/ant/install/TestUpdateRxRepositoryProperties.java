@@ -18,18 +18,27 @@
 package com.percussion.ant.install;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
+=======
+import static org.junit.Assert.assertEquals;
+>>>>>>> development-8.1.x
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.jdbc.PSJdbcUtils;
+<<<<<<< HEAD
+=======
+import com.percussion.utils.testing.UnitTest;
+>>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,6 +48,18 @@ import org.junit.jupiter.api.io.TempDir;
 public class TestUpdateRxRepositoryProperties {
 
   @TempDir public Path temporaryFolder;
+=======
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
+
+@Category(UnitTest.class)
+public class TestUpdateRxRepositoryProperties {
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+>>>>>>> development-8.1.x
 
   private Path getResourcePath(String resource) throws URISyntaxException {
     return Paths.get(TestUpdateRxRepositoryProperties.class.getResource(resource).toURI());
@@ -46,14 +67,22 @@ public class TestUpdateRxRepositoryProperties {
 
   private Path setupRoot() throws IOException, URISyntaxException {
 
+<<<<<<< HEAD
     Path p = temporaryFolder.toPath();
+=======
+    Path p = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     PSTaskTestUtils.copyFolder(getResourcePath("/com/percussion/ant/install/mockinstall"), p);
 
     return p;
   }
 
+<<<<<<< HEAD
   @BeforeEach
+=======
+  @Before
+>>>>>>> development-8.1.x
   public void setup() {
     PSSecureXMLUtils.setupJAXPDefaults();
   }

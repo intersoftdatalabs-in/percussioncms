@@ -157,12 +157,21 @@ public class PSBrandCodeData {
    *
    * @return the list containing the names of selected parts, never <code>null</code>
    */
+<<<<<<< HEAD
   public List<String> getPartsName() {
     List<String> partsName = new ArrayList<>();
     try {
       Iterator<String> it = m_partsId.iterator();
       while (it.hasNext()) {
         String strPartId = it.next();
+=======
+  public List getPartsName() {
+    List partsName = new ArrayList();
+    try {
+      Iterator it = m_partsId.iterator();
+      while (it.hasNext()) {
+        String strPartId = (String) it.next();
+>>>>>>> development-8.1.x
         int partId = Integer.parseInt(strPartId);
         String partName = m_brandCodeMap.getPartName(m_brandCodeMapVersion, partId);
         partsName.add(partName);
@@ -178,7 +187,11 @@ public class PSBrandCodeData {
    *
    * @return the list containing the part ids for selected parts.
    */
+<<<<<<< HEAD
   public List<String> getPartsId() {
+=======
+  public List getPartsId() {
+>>>>>>> development-8.1.x
     return m_partsId;
   }
 
@@ -189,7 +202,11 @@ public class PSBrandCodeData {
    *     </code>
    * @throws IllegalArgumentException if parts is <code>null</code>
    */
+<<<<<<< HEAD
   public void setPartsId(List<String> partsId) {
+=======
+  public void setPartsId(List partsId) {
+>>>>>>> development-8.1.x
     if (partsId == null) throw new IllegalArgumentException("partsId may not be null");
     m_partsId = partsId;
   }
@@ -199,7 +216,11 @@ public class PSBrandCodeData {
    *
    * @return the map containing the property id and quantity of each property.
    */
+<<<<<<< HEAD
   public Map<String, String> getProperties() {
+=======
+  public Map getProperties() {
+>>>>>>> development-8.1.x
     return m_propertiesMap;
   }
 
@@ -209,7 +230,11 @@ public class PSBrandCodeData {
    * @param properties the map containing the property id and quantity of each property.
    * @throws IllegalArgumentException if properties is <code>null</code>
    */
+<<<<<<< HEAD
   public void setProperties(Map<String, String> properties) {
+=======
+  public void setProperties(Map properties) {
+>>>>>>> development-8.1.x
     if (properties == null) throw new IllegalArgumentException("properties may not be null");
     m_propertiesMap = properties;
   }
@@ -227,7 +252,11 @@ public class PSBrandCodeData {
    */
   public boolean isComponentLicensed(int componentId) throws CodeException {
     if (componentId < 1) throw new IllegalArgumentException("Invalid component id");
+<<<<<<< HEAD
     Map<String, String> licCompMap = getLicensedComponents();
+=======
+    Map licCompMap = getLicensedComponents();
+>>>>>>> development-8.1.x
     if (licCompMap.containsKey("" + componentId)) return true;
     return false;
   }
@@ -238,7 +267,11 @@ public class PSBrandCodeData {
    * @return map containing the licensed component's id as key and component name as value
    * @throws CodeException if any error occurs retrieving the list of licensed components
    */
+<<<<<<< HEAD
   public Map<String, String> getLicensedComponents() throws CodeException {
+=======
+  public Map getLicensedComponents() throws CodeException {
+>>>>>>> development-8.1.x
     return m_brandCodeMap.getComponents(m_brandCodeMapVersion, m_partsId);
   }
 
@@ -298,13 +331,21 @@ public class PSBrandCodeData {
   private int m_licenseId = 0;
 
   /** list for storing the part ids for selected parts. */
+<<<<<<< HEAD
   private List<String> m_partsId = null;
+=======
+  private List m_partsId = null;
+>>>>>>> development-8.1.x
 
   /**
    * map for storing the property id and quantity of each property. For example, the property id of
    * "Number of Processors" (0) and its quantity.
    */
+<<<<<<< HEAD
   private Map<String, String> m_propertiesMap = null;
+=======
+  private Map m_propertiesMap = null;
+>>>>>>> development-8.1.x
 
   /**
    * In memory representation of the Component Map Xml, initialized in the constructor, never <code>

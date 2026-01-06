@@ -62,9 +62,13 @@ public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
    *      com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     m_log.debug("Entering sys_SetArrayHtmlParameter Exit.");
     // validate and number of params

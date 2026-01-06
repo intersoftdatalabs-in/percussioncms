@@ -18,9 +18,13 @@ package com.percussion.security;
 
 import com.github.javafaker.Faker;
 import com.ibm.icu.text.Normalizer2;
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -37,6 +41,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+<<<<<<< HEAD
+=======
+import javax.servlet.http.HttpServletRequest;
+>>>>>>> development-8.1.x
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,6 +69,7 @@ public class SecureStringUtils {
    * </pre>
    */
   public static final String INVALID_WINDOWS_FILE_CHARACTERS = "\\/|<>?\":*";
+<<<<<<< HEAD
 
   /**
    * Characters that should not be used as part of URL; otherwise it may cause error in REST layer
@@ -79,6 +88,24 @@ public class SecureStringUtils {
   public static final String INVALID_ITEM_NAME_CHARACTERS =
       INVALID_WINDOWS_FILE_CHARACTERS + UNSAFE_URL_CHARACTERS;
 
+=======
+  /**
+   * Characters that should not be used as part of URL; otherwise it may cause error in REST layer
+   * when the item name contain any of the characters.
+   *
+   * <p>'#' - used by anchors in HTML<br>
+   * ';' - used to append "jsessionid=..." to URL<br>
+   * '%' - used to URL encode/escape other characters.
+   */
+  public static final String UNSAFE_URL_CHARACTERS = "#;%[]<>{}|\\^~`/?:@=&";
+  /**
+   * Characters that are invalid for item names (sys_title). It is the combination of "invalid
+   * characters for the file name in Windows" and "unsafe URL characters".
+   */
+  public static final String INVALID_ITEM_NAME_CHARACTERS =
+      INVALID_WINDOWS_FILE_CHARACTERS + UNSAFE_URL_CHARACTERS;
+
+>>>>>>> development-8.1.x
   private static final Logger log = LogManager.getLogger("Security");
 
   private SecureStringUtils() {
@@ -173,7 +200,11 @@ public class SecureStringUtils {
    * @return the sanitized filename
    * @throws IllegalArgumentException if the filename is too long
    */
+<<<<<<< HEAD
   public static String sanitizeFileName(@Nonnull String s) {
+=======
+  public static String sanitizeFileName(String s) {
+>>>>>>> development-8.1.x
     String fileName = s.trim();
     if (fileName.length() > MAX_FILENAME_LEN) fileName = s.substring(0, MAX_FILENAME_LEN - 1);
 
@@ -1530,9 +1561,15 @@ public class SecureStringUtils {
     else return true;
   }
 
+<<<<<<< HEAD
   /***
    * Removes any characters from a given string that are not a valid SQL Object Name.
    * Supports unicode strings.
+=======
+  /**
+   * * Removes any characters from a given string that are not a valid SQL Object Name. Supports
+   * unicode strings.
+>>>>>>> development-8.1.x
    *
    * @param str
    * @return A version of the string with any special characters removed.

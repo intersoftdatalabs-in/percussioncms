@@ -21,6 +21,7 @@ import com.percussion.cx.guitools.PSMouseAdapter;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.utils.collections.PSIteratorUtils;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +34,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+=======
+>>>>>>> development-8.1.x
 import java.awt.*;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -76,6 +79,7 @@ import org.apache.log4j.Logger;
  * com.percussion.cx.PSNavTreeNodeRenderer } to render the nodes of the tree. Displays pop-up menu
  * for right-click on a node.
  */
+<<<<<<< HEAD
 public class PSNavigationTree
         extends JTree
         implements DragGestureListener, DropTargetListener

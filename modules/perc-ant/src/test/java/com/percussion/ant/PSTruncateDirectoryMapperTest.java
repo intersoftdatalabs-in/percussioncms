@@ -19,6 +19,7 @@ package com.percussion.ant;
 import org.apache.tools.ant.BuildException;
 import org.junit.jupiter.api.Tag;
 
+<<<<<<< HEAD
 @Tag("UnitTest")
 public class PSTruncateDirectoryMapperTest {
   public void testSetTo() {

@@ -214,12 +214,20 @@ public class Code {
     shiftCount = BITS_LICENSE_ID;
 
     // store the quantities of properties
+<<<<<<< HEAD
     Iterator<Map.Entry<String, String>> itProps =
         m_brandCodeData.getProperties().entrySet().iterator();
     while (itProps.hasNext()) {
       Map.Entry<String, String> item = itProps.next();
       String strPropId = item.getKey();
       String strPropValue = item.getValue();
+=======
+    Iterator itProps = m_brandCodeData.getProperties().entrySet().iterator();
+    while (itProps.hasNext()) {
+      Map.Entry item = (Map.Entry) itProps.next();
+      String strPropId = (String) item.getKey();
+      String strPropValue = (String) item.getValue();
+>>>>>>> development-8.1.x
       int propId = Integer.parseInt(strPropId);
       int propValue = Integer.parseInt(strPropValue);
       shiftCount = BITS_LICENSE_ID + (propId * BITS_PROPERTIES_ID);
@@ -230,9 +238,15 @@ public class Code {
     // ------------------------------------------------------------------------
     // store the parts id
     long lParts = 0;
+<<<<<<< HEAD
     Iterator<String> itParts = m_brandCodeData.getPartsId().iterator();
     while (itParts.hasNext()) {
       String strPartId = itParts.next();
+=======
+    Iterator itParts = m_brandCodeData.getPartsId().iterator();
+    while (itParts.hasNext()) {
+      String strPartId = (String) itParts.next();
+>>>>>>> development-8.1.x
       int partId = Integer.parseInt(strPartId);
       lParts |= partId;
     }
@@ -335,11 +349,19 @@ public class Code {
       lLicProps = lLicProps >> BITS_LICENSE_ID;
 
       // properties
+<<<<<<< HEAD
       Map<String, String> propsMap =
           getPropertiesMap(lLicProps, m_brandCodeMap.getLicenseProperties(bcmv, licenseId));
 
       // parts
       List<String> partsIdList = getPartsList(lParts);
+=======
+      Map propsMap =
+          getPropertiesMap(lLicProps, m_brandCodeMap.getLicenseProperties(bcmv, licenseId));
+
+      // parts
+      List partsIdList = getPartsList(lParts);
+>>>>>>> development-8.1.x
 
       int yr = iExpire % 100;
       iExpire = (iExpire - yr) / 100;
@@ -411,6 +433,7 @@ public class Code {
       el = doc.createElement(IPSBrandCodeMap.EL_PROPERTIES);
       root.appendChild(el);
 
+<<<<<<< HEAD
       Map<String, String> propsIdValueMap = m_brandCodeData.getProperties();
       Map<String, String> propsIdNameMap = m_brandCodeMap.getProperties();
 
@@ -420,6 +443,17 @@ public class Code {
         String propId = item.getKey();
         String propValue = item.getValue();
         String propName = propsIdNameMap.get(propId);
+=======
+      Map propsIdValueMap = m_brandCodeData.getProperties();
+      Map propsIdNameMap = m_brandCodeMap.getProperties();
+
+      Iterator it = propsIdValueMap.entrySet().iterator();
+      while (it.hasNext()) {
+        Map.Entry item = (Map.Entry) it.next();
+        String propId = (String) item.getKey();
+        String propValue = (String) item.getValue();
+        String propName = (String) propsIdNameMap.get(propId);
+>>>>>>> development-8.1.x
 
         childEl = doc.createElement(IPSBrandCodeMap.EL_PROPERTY);
         childEl.setAttribute(IPSBrandCodeMap.ATTR_NAME, propName);
@@ -437,11 +471,19 @@ public class Code {
       el = doc.createElement(IPSBrandCodeMap.EL_PARTS);
       root.appendChild(el);
 
+<<<<<<< HEAD
       List<String> partsName = m_brandCodeData.getPartsName();
       Iterator<String> itParts = partsName.iterator();
       while (itParts.hasNext()) {
         childEl = doc.createElement(IPSBrandCodeMap.EL_PART);
         String partName = itParts.next();
+=======
+      List partsName = m_brandCodeData.getPartsName();
+      it = partsName.iterator();
+      while (it.hasNext()) {
+        childEl = doc.createElement(IPSBrandCodeMap.EL_PART);
+        String partName = (String) it.next();
+>>>>>>> development-8.1.x
         childEl.setAttribute(IPSBrandCodeMap.ATTR_NAME, partName);
         el.appendChild(childEl);
       }
@@ -450,10 +492,17 @@ public class Code {
       el = doc.createElement(IPSBrandCodeMap.EL_COMPONENTS);
       root.appendChild(el);
 
+<<<<<<< HEAD
       Iterator<String> itComponents = m_brandCodeData.getLicensedComponents().values().iterator();
       while (itComponents.hasNext()) {
         childEl = doc.createElement(IPSBrandCodeMap.EL_COMPONENT);
         String componentName = itComponents.next();
+=======
+      it = m_brandCodeData.getLicensedComponents().values().iterator();
+      while (it.hasNext()) {
+        childEl = doc.createElement(IPSBrandCodeMap.EL_COMPONENT);
+        String componentName = (String) it.next();
+>>>>>>> development-8.1.x
         childEl.setAttribute(IPSBrandCodeMap.ATTR_NAME, componentName);
         el.appendChild(childEl);
       }
@@ -503,8 +552,13 @@ public class Code {
    *     </code>.
    * @return the map containing property id as key and quantity as value, never <code>null</code>
    */
+<<<<<<< HEAD
   private Map<String, String> getPropertiesMap(long lProps, List<String> propIds) {
     Map<String, String> propsMap = new HashMap<>();
+=======
+  private Map getPropertiesMap(long lProps, List propIds) {
+    Map propsMap = new HashMap();
+>>>>>>> development-8.1.x
 
     /*
      * first fill the map with zero values for each propId since if we've
@@ -512,8 +566,13 @@ public class Code {
      * for that index since if the higher bits are all zero, there's nothing
      * to shift to
      */
+<<<<<<< HEAD
     for (String propId : propIds) {
       propsMap.put(propId, "0");
+=======
+    for (Object object : propIds) {
+      propsMap.put(object, "0");
+>>>>>>> development-8.1.x
     }
 
     int i = 0;
@@ -533,8 +592,13 @@ public class Code {
    * @param lParts the value containing the id of parts supported by this brand code
    * @return a list containing the id of parts, never <code>null</code>
    */
+<<<<<<< HEAD
   private List<String> getPartsList(long lParts) {
     List<String> partsIdList = new ArrayList<>();
+=======
+  private List getPartsList(long lParts) {
+    List partsIdList = new ArrayList();
+>>>>>>> development-8.1.x
     int i = 1;
     while (i <= lParts) {
       if ((lParts & i) == i) partsIdList.add("" + i);
@@ -596,8 +660,13 @@ public class Code {
       if (jarEntry != null) jarEntry.setExtra(strCode.getBytes());
       else throw new CodeException(getResources().getString("branderr"));
 
+<<<<<<< HEAD
       for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
         JarEntry entry = entries.nextElement();
+=======
+      for (Enumeration entries = jar.entries(); entries.hasMoreElements(); ) {
+        JarEntry entry = (JarEntry) entries.nextElement();
+>>>>>>> development-8.1.x
         if (entry.getName().equals(JAR_ENTRY)) {
           entry = jarEntry;
         }
@@ -651,6 +720,7 @@ public class Code {
 
   public static final String LIBDIR =
       "/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/lib/";
+<<<<<<< HEAD
 
   /** base yr used for calculating the yr in which the brand code should expire */
   public static final int BRAND_CODE_EXPIRE_BASE_YR = 2003;
@@ -665,6 +735,21 @@ public class Code {
   private static final int BITS_LICENSE_ID = 6;
   private static final int BITS_PROPERTIES_ID = 6;
 
+=======
+  /** base yr used for calculating the yr in which the brand code should expire */
+  public static final int BRAND_CODE_EXPIRE_BASE_YR = 2003;
+
+  /** Constants for the bits sizes. */
+  private static final int BITS_BRAND_CODE_MAP_VERSION = 6;
+
+  private static final int BITS_SERVER_TYPE = 2;
+  private static final int BITS_SERVER_TYPE_EXTENDED = 6;
+  private static final int BITS_PRODUCT_EXPIRES = 2;
+  private static final int BITS_PRODUCT_EXPIRES_EXTENDED = 6;
+  private static final int BITS_LICENSE_ID = 6;
+  private static final int BITS_PROPERTIES_ID = 6;
+
+>>>>>>> development-8.1.x
   /** jar entry used for storing the brand code in the extra part */
   private static final String JAR_ENTRY =
       "com/percussion/install/RxDesignerOnlyPostInstaller.class";

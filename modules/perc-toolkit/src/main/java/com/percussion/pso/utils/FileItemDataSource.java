@@ -15,12 +15,19 @@
  */
 package com.percussion.pso.utils;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import jakarta.activation.DataSource;
+=======
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.activation.DataSource;
+>>>>>>> development-8.1.x
 import org.apache.commons.fileupload.FileItem;
 
 /**
@@ -47,7 +54,11 @@ public class FileItemDataSource implements DataSource {
    * Gets the file data as a stream.
    *
    * @return the stream
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getInputStream()
+=======
+   * @see javax.activation.DataSource#getInputStream()
+>>>>>>> development-8.1.x
    */
   public InputStream getInputStream() throws IOException {
     return item.getInputStream();
@@ -57,7 +68,11 @@ public class FileItemDataSource implements DataSource {
    * Gets a stream for writing the data.
    *
    * @return the stream.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getOutputStream()
+=======
+   * @see javax.activation.DataSource#getOutputStream()
+>>>>>>> development-8.1.x
    */
   public OutputStream getOutputStream() throws IOException {
     return item.getOutputStream();
@@ -67,7 +82,11 @@ public class FileItemDataSource implements DataSource {
    * Gets the MIME content type of this file.
    *
    * @return the content type.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getContentType()
+=======
+   * @see javax.activation.DataSource#getContentType()
+>>>>>>> development-8.1.x
    */
   public String getContentType() {
     return item.getContentType();
@@ -77,9 +96,14 @@ public class FileItemDataSource implements DataSource {
    * Gets the file name.
    *
    * @return the file name.
+<<<<<<< HEAD
    * @see jakarta.activation.DataSource#getName()
    */
   // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
+=======
+   * @see javax.activation.DataSource#getName()
+   */
+>>>>>>> development-8.1.x
   public String getName() {
     return item.getName();
   }

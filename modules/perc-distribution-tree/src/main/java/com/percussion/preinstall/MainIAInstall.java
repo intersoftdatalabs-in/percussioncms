@@ -17,12 +17,15 @@
 
 package com.percussion.preinstall;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
 import com.zerog.ia.api.pub.CustomCodeAction;
 import com.zerog.ia.api.pub.InstallException;
 import com.zerog.ia.api.pub.InstallerProxy;
 import com.zerog.ia.api.pub.ProgressAccess;
 import com.zerog.ia.api.pub.UninstallerProxy;
+=======
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +35,7 @@ public class MainIAInstall {
 
   public static final int ESTIMATED_LINES = 30000;
 
+<<<<<<< HEAD
   public static InstallerProxy installProxy = null;
 
   @Override
@@ -90,6 +94,16 @@ public class MainIAInstall {
     }
   }
 
+=======
+  public String getInstallStatusMessage() {
+    return "Installing files...";
+  }
+
+  public String getUninstallStatusMessage() {
+    return "Uninstalling files...";
+  }
+
+>>>>>>> development-8.1.x
   public static float calculatePercentage(int lineNo) {
     return (lineNo * 100) / ESTIMATED_LINES;
   }

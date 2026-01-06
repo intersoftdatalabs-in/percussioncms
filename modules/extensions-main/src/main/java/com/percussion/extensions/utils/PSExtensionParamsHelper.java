@@ -17,6 +17,7 @@
 
 package com.percussion.extensions.utils;
 
+<<<<<<< HEAD
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
@@ -33,6 +34,24 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+=======
+import static org.apache.commons.lang.StringUtils.isBlank;
+
+import com.percussion.design.objectstore.IPSReplacementValue;
+import com.percussion.extension.IPSExtensionDef;
+import com.percussion.server.IPSRequestContext;
+import com.percussion.services.assembly.IPSSlotContentFinder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.BooleanConverter;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+>>>>>>> development-8.1.x
 /**
  * Helps make getting Extension/Result parameters easier by doing the necessary conversion and error
  * handling.
@@ -191,7 +210,10 @@ public class PSExtensionParamsHelper {
   public Boolean getRequiredParameterAsBoolean(String paramName) {
     return paramToBoolean(paramName, getRequiredParameter(paramName));
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Gets a parameter and if its null or an empty String then an IllegalArgumentException is thrown.
    *
@@ -261,7 +283,10 @@ public class PSExtensionParamsHelper {
       throw new IllegalArgumentException(message, ex);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Get the parameters passed to the extension as a map. <em>This does not include the parameters
    * that are in the request.</em>

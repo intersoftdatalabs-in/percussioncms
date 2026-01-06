@@ -67,9 +67,16 @@ public class PSLogger {
     }
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties Accessors and Mutators
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties Accessors
+   * and Mutators ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * returns the log file path relative to the install directory
@@ -92,9 +99,16 @@ public class PSLogger {
     ms_logFile = logFile;
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Static Public functions
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Static Public functions
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Logs info level message into the log4j file. Accumulates any log entries that are queued before
@@ -261,9 +275,16 @@ public class PSLogger {
     return (Collection) ms_mapLevel2LogList.get(level);
   }
 
+<<<<<<< HEAD
   /*************************************************************************
    * Static Variables
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Static Variables
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
   /**
    * This reference to a root logger. Initialized in ensureLog4jConfiguration may be <code>null
    * </code> if used before that.
@@ -274,9 +295,16 @@ public class PSLogger {
   public static String DEFAULT_LOG_FILE =
       "rxconfig" + File.separator + "Installer" + File.separator + "install.log";
 
+<<<<<<< HEAD
   /*************************************************************************
    * Properties
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Properties
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /** log file */
   private static String ms_logFile = DEFAULT_LOG_FILE;
@@ -284,9 +312,16 @@ public class PSLogger {
   /** Absolute resolved file path for log4j to use. */
   private static String ms_absoluteLogFilePath = null;
 
+<<<<<<< HEAD
   /*************************************************************************
    * Private Variables
    *************************************************************************/
+=======
+  /**
+   * *********************************************************************** Private Variables
+   * ***********************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * stores the log strings, grouped by a log level, to be logged later to log file, never <code>

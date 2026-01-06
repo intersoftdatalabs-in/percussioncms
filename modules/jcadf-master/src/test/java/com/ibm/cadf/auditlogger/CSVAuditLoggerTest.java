@@ -25,12 +25,20 @@ import com.ibm.cadf.model.Measurement;
 import com.ibm.cadf.model.Metric;
 import com.ibm.cadf.model.Resource;
 import com.ibm.cadf.util.Constants;
+<<<<<<< HEAD
 import com.opencsv.CSVReader;
+=======
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
+>>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,13 +46,27 @@ import org.junit.jupiter.api.Test;
 public class CSVAuditLoggerTest {
 
   @BeforeEach
+=======
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class CSVAuditLoggerTest {
+
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() {
     System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");
   }
 
   @Test
+<<<<<<< HEAD
   public void testCSVAuditing()
       throws CADFException, IOException, com.opencsv.exceptions.CsvException {
+=======
+  public void testCSVAuditing() throws CADFException, IOException, CsvException {
+>>>>>>> development-8.1.x
 
     File file = new File(Constants.CSV_AUDIT_FILES_NAME);
     if (file.exists()) {
@@ -92,14 +114,25 @@ public class CSVAuditLoggerTest {
     event.addMeasurement(measurement2);
     auditLogger.audit(event);
 
+<<<<<<< HEAD
     Assertions.assertTrue(true);
+=======
+    Assert.assertTrue(true);
+>>>>>>> development-8.1.x
 
     file = new File(Constants.CSV_AUDIT_FILES_NAME);
 
     if (file.exists()) {
 
       // create CSVReader object
+<<<<<<< HEAD
       CSVReader reader = new CSVReader(new FileReader(Constants.CSV_AUDIT_FILES_NAME));
+=======
+      CSVReader reader =
+          new CSVReaderBuilder(new FileReader(Constants.CSV_AUDIT_FILES_NAME))
+              .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
+              .build();
+>>>>>>> development-8.1.x
 
       // read all lines at once
       List<String[]> records = reader.readAll();
@@ -108,6 +141,7 @@ public class CSVAuditLoggerTest {
       // header row
       String[] headerRecord = iterator.next();
 
+<<<<<<< HEAD
       Assertions.assertEquals("Id", headerRecord[0]);
       Assertions.assertEquals("Timestamp", headerRecord[1]);
       Assertions.assertEquals("Action", headerRecord[2]);
@@ -125,6 +159,25 @@ public class CSVAuditLoggerTest {
       Assertions.assertEquals("Configuration Component", auditRecord[5]);
       Assertions.assertEquals("successful", auditRecord[6]);
       Assertions.assertEquals(
+=======
+      Assert.assertEquals("Id", headerRecord[0]);
+      Assert.assertEquals("Timestamp", headerRecord[1]);
+      Assert.assertEquals("Action", headerRecord[2]);
+      Assert.assertEquals("Observer", headerRecord[3]);
+      Assert.assertEquals("Initiator", headerRecord[4]);
+      Assert.assertEquals("Target", headerRecord[5]);
+      Assert.assertEquals("Outcome", headerRecord[6]);
+      Assert.assertEquals("<Measurements>", headerRecord[7]);
+
+      // audit row
+      String[] auditRecord = iterator.next();
+      Assert.assertEquals("Send File", auditRecord[2]);
+      Assert.assertEquals("Management Component", auditRecord[3]);
+      Assert.assertEquals("AuditLoggerTest", auditRecord[4]);
+      Assert.assertEquals("Configuration Component", auditRecord[5]);
+      Assert.assertEquals("successful", auditRecord[6]);
+      Assert.assertEquals(
+>>>>>>> development-8.1.x
           "<"
               + metric1.getMetricId()
               + " - "
@@ -141,7 +194,19 @@ public class CSVAuditLoggerTest {
           auditRecord[7]);
       reader.close();
     } else {
+<<<<<<< HEAD
       Assertions.fail();
     }
   }
+=======
+      Assert.fail();
+    }
+  }
+
+  @AfterClass
+  public static void clean() {
+    File auditFile = new File(Constants.CSV_AUDIT_FILES_NAME);
+    // auditFile.delete();
+  }
+>>>>>>> development-8.1.x
 }

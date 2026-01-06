@@ -17,7 +17,11 @@
 
 package com.percussion.extensions.utils;
 
+<<<<<<< HEAD
 import static org.apache.commons.lang3.Validate.notNull;
+=======
+import static org.apache.commons.lang.Validate.notNull;
+>>>>>>> development-8.1.x
 
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.share.service.exception.PSExtractHTMLException;
@@ -26,7 +30,11 @@ import com.percussion.xmldom.PSXmlDomContext;
 import com.percussion.xmldom.PSXmlDomUtils;
 import java.io.IOException;
 import java.util.Properties;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

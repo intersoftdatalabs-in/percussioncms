@@ -33,6 +33,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +42,14 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author DavidBenua
  */
+=======
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/** @author DavidBenua */
+>>>>>>> development-8.1.x
 public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   private static final Logger log = LogManager.getLogger(ImageEditorTools.class);
@@ -186,7 +195,10 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
       log.debug("Value is " + val);
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Sets the isdm in unit tests.
    *

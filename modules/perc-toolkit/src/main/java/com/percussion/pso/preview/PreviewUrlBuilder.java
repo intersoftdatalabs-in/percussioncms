@@ -18,7 +18,11 @@ package com.percussion.pso.preview;
 
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
+=======
+import com.percussion.util.IPSHtmlParameters;
+>>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +40,7 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
   private String defaultLocationUrl;
 
   private String multipleLocationUrl;
+<<<<<<< HEAD
 
   /** */
   public PreviewUrlBuilder() {}
@@ -74,6 +79,43 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
     return url.toString();
   }
 
+=======
+  /** */
+  public PreviewUrlBuilder() {}
+
+  /** @see UrlBuilder#buildUrl(IPSAssemblyTemplate, Map, SiteFolderLocation, boolean) */
+  public String buildUrl(
+      IPSAssemblyTemplate template,
+      Map<String, Object> urlParams,
+      SiteFolderLocation location,
+      boolean useMultiple)
+      throws Exception {
+    PSOMutableUrl url;
+    String defaultLoc = this.getDefaultLocationUrl();
+
+    String templateid = findTemplateId(template);
+    if (useMultiple) {
+      url = new PSOMutableUrl(this.getMultipleLocationUrl());
+      log.debug("multiple url is : {}", url.toString());
+    } else {
+      url = new PSOMutableUrl(this.getDefaultLocationUrl());
+      log.debug("single url is : {}", url.toString());
+    }
+    Map<String, Object> newParams = new HashMap<String, Object>(urlParams);
+    if (location != null) {
+      newParams.putAll(location.getParameterMap());
+    }
+    newParams.put(IPSHtmlParameters.SYS_ITEMFILTER, "preview");
+    newParams.put(IPSHtmlParameters.SYS_CONTEXT, "0");
+
+    newParams.put(IPSHtmlParameters.SYS_TEMPLATE, templateid);
+
+    url.setParamList(newParams);
+    log.debug("new url is {}", url.toString());
+    return url.toString();
+  }
+
+>>>>>>> development-8.1.x
   /**
    * Find the template id for the given template.
    *
@@ -101,31 +143,47 @@ public class PreviewUrlBuilder implements UrlBuilder, Cloneable {
 
   /** Default Assembler Url */
   protected static final String DEFAULT_ASSY_URL = "/Rhythmyx/assembler/render";
+<<<<<<< HEAD
 
   /**
    * @return the defaultLocationUrl
    */
+=======
+  /** @return the defaultLocationUrl */
+>>>>>>> development-8.1.x
   public String getDefaultLocationUrl() {
     return defaultLocationUrl;
   }
 
+<<<<<<< HEAD
   /**
    * @param defaultLocationUrl the defaultLocationUrl to set
    */
+=======
+  /** @param defaultLocationUrl the defaultLocationUrl to set */
+>>>>>>> development-8.1.x
   public void setDefaultLocationUrl(String defaultLocationUrl) {
     this.defaultLocationUrl = defaultLocationUrl;
   }
 
+<<<<<<< HEAD
   /**
    * @return the multipleLocationUrl
    */
+=======
+  /** @return the multipleLocationUrl */
+>>>>>>> development-8.1.x
   public String getMultipleLocationUrl() {
     return multipleLocationUrl;
   }
 
+<<<<<<< HEAD
   /**
    * @param multipleLocationUrl the multipleLocationUrl to set
    */
+=======
+  /** @param multipleLocationUrl the multipleLocationUrl to set */
+>>>>>>> development-8.1.x
   public void setMultipleLocationUrl(String multipleLocationUrl) {
     this.multipleLocationUrl = multipleLocationUrl;
   }

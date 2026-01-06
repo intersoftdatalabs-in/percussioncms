@@ -122,9 +122,13 @@ public class PSOAncestorFolderSlotContentFinder extends PSBaseSlotContentFinder 
   }
 
   private PSItemSummary findAncestorItem(IPSAssemblyItem assemblyItem, String contentType)
+<<<<<<< HEAD
       throws PSExtensionProcessingException,
           PSErrorResultsException,
           PSErrorException,
+=======
+      throws PSExtensionProcessingException, PSErrorResultsException, PSErrorException,
+>>>>>>> development-8.1.x
           PSCmsException {
     String path = getFolderTools().getParentFolderPath(assemblyItem);
     List<IPSGuid> folderIds = getContentWs().findPathIds(path);

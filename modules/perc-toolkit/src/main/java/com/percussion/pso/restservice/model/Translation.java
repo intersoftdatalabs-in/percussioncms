@@ -31,6 +31,7 @@ public class Translation extends Relationship {
   public void setLocale(String locale) {
     this.locale = locale;
   }
+<<<<<<< HEAD
 
   /**
    * Method getLocale.
@@ -43,6 +44,19 @@ public class Translation extends Relationship {
   }
 
   /**
+=======
+  /**
+   * Method getLocale.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getLocale() {
+    return locale;
+  }
+
+  /**
+>>>>>>> development-8.1.x
    * Method equals.
    *
    * @param otherO Object

@@ -20,11 +20,14 @@ import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+=======
+>>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +40,7 @@ import org.w3c.dom.Element;
  * This class provides a way of constructing the Column Widths Option object from the XML document
  * and to get XML document from the Column Width object.
  */
+<<<<<<< HEAD
 public class PSColumnWidthsOption implements IPSClientObjects
 {
    static Logger log = LogManager.getLogger(PSColumnWidthsOption.class);

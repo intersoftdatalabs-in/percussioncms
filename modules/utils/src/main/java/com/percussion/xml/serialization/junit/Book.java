@@ -34,9 +34,13 @@ public class Book {
   /** Default ctor. Required by serializer. */
   public Book() {}
 
+<<<<<<< HEAD
   /**
    * @throws ParseException
    */
+=======
+  /** @throws ParseException */
+>>>>>>> development-8.1.x
   public Book(String title, String pubDate) throws ParseException {
     this.title = title;
     FastDateFormat df = FastDateFormat.getInstance("MMddyyyy");

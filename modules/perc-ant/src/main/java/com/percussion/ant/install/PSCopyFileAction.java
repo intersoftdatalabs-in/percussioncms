@@ -133,6 +133,7 @@ public class PSCopyFileAction extends PSAction {
           throw new FileNotFoundException(
               "Failed to copy file : " + resolvedSource + "File does not exist.");
       }
+<<<<<<< HEAD
 
       if (destFile.exists() && !overwriteDestinationFile) {
         PSLogger.logInfo("Did not overwrite file because the file exists : " + resolvedDestination);
@@ -152,6 +153,28 @@ public class PSCopyFileAction extends PSAction {
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
+=======
+
+      if (destFile.exists() && !overwriteDestinationFile) {
+        PSLogger.logInfo("Did not overwrite file because the file exists : " + resolvedDestination);
+        return;
+      }
+
+      PSLogger.logInfo("Copying : " + resolvedSource + " to " + resolvedDestination);
+      if (!destFile.exists() || destFile.canWrite()) IOTools.copyFileStreams(srcFile, destFile);
+      if (deleteSourceFile) srcFile.delete();
+    } catch (IOException io) {
+      PSLogger.logInfo(
+          "ERROR : " + io.getMessage() + "\n" + resolvedSource + "\n" + resolvedDestination);
+      PSLogger.logInfo(io);
+    }
+  }
+
+  /**
+   * ************************************************************************ Bean property
+   * Accessors and Mutators ************************************************************************
+   */
+>>>>>>> development-8.1.x
 
   /**
    * Sets the absolute path of the source file that should be copied.
@@ -172,6 +195,7 @@ public class PSCopyFileAction extends PSAction {
   public String getSource() {
     return source;
   }
+<<<<<<< HEAD
 
   /**
    * Sets the absolute path of the destination file to which the source file is copied.
@@ -294,6 +318,132 @@ public class PSCopyFileAction extends PSAction {
    * Static Variables
    *************************************************************************/
 
+=======
+
+  /**
+   * Sets the absolute path of the destination file to which the source file is copied.
+   *
+   * @param destination the absolute path of the destination file to which the source file is
+   *     copied, should not be <code>null</code> or empty
+   */
+  public void setDestination(String destination) {
+    this.destination = destination;
+  }
+
+  /**
+   * Returns the absolute path of the destination file to which the source file is copied.
+   *
+   * @return the absolute path of the destination file to which the source file is copied, never
+   *     <code>null</code> or empty.
+   */
+  public String getDestination() {
+    return destination;
+  }
+
+  /**
+   * Sets the property for determining if the source file should be deleted after copying.
+   *
+   * @param deleteSourceFile <code>true</code> if the source file will be deleted after copying,
+   *     otherwise <code>false</code>.
+   */
+  public void setDeleteSourceFile(boolean deleteSourceFile) {
+    this.deleteSourceFile = deleteSourceFile;
+  }
+
+  /**
+   * Returns the property for determining if the source file should be deleted after copying.
+   *
+   * @return <code>true</code> if the source file will be deleted after copying, otherwise <code>
+   *     false</code>.
+   */
+  public boolean getDeleteSourceFile() {
+    return deleteSourceFile;
+  }
+
+  /**
+   * Sets the property for determining if the destination file should be overwritten if it exists.
+   *
+   * @param overwriteDestinationFile <code>true</code> the destination file will be overwritten if
+   *     it exists, otherwise <code>false</code>.
+   */
+  public void setOverwriteDestinationFile(boolean overwriteDestinationFile) {
+    this.overwriteDestinationFile = overwriteDestinationFile;
+  }
+
+  /**
+   * Returns the property for determining if the destination file should be overwritten if it
+   * exists.
+   *
+   * @return <code>true</code> if the destination file will be overwritten if it exists, otherwise
+   *     <code>false</code>.
+   */
+  public boolean getOverwriteDestinationFile() {
+    return overwriteDestinationFile;
+  }
+
+  /**
+   * Sets the property for printing error messages if the source file does not exist.
+   *
+   * @param ignoreIfSourceNotExists <code>true</code> no error message should be written to the log
+   *     file if the source file does not exist, otherwise <code>false</code>.
+   */
+  public void setIgnoreIfSourceNotExists(boolean ignoreIfSourceNotExists) {
+    this.ignoreIfSourceNotExists = ignoreIfSourceNotExists;
+  }
+
+  /**
+   * Returns the property for printing error messages if the source file does not exist.
+   *
+   * @return <code>true</code>if no error message should be written to the log file if the source
+   *     file does not exist, otherwise <code>false</code>.
+   */
+  public boolean getIgnoreIfSourceNotExists() {
+    return ignoreIfSourceNotExists;
+  }
+
+  /**
+   * ************************************************************************ Bean properties
+   * ************************************************************************
+   */
+
+  /**
+   * Absolute path of the source file that should be copied, never <code>null</code>. This string is
+   * resolved at runtime using Installshield's StringResolver methods.
+   */
+  private String source = "";
+
+  /**
+   * Absolute path of the destination file to which the source file is copied, never <code>null
+   * </code>. This string is resolved at runtime using Installshield's StringResolver methods.
+   */
+  private String destination = "";
+
+  /**
+   * If <code>true</code> the source file will be deleted after copying, otherwise not. Default
+   * value is not to delete the source file.
+   */
+  private boolean deleteSourceFile = false;
+
+  /**
+   * If <code>true</code> and the destination file exists, will be overwritten with the source. If
+   * <code>false</code> and the destination file exists, an exception message is printed in the log
+   * file. Default value is to overwrite the destination file.
+   */
+  private boolean overwriteDestinationFile = true;
+
+  /**
+   * If <code>true</code> then simply returns if the source file does not exist, otherwise prints
+   * error message in the log file. Default value is to log error message if the source file does
+   * not exist.
+   */
+  private boolean ignoreIfSourceNotExists = false;
+
+  /**
+   * ************************************************************************ Static Variables
+   * ***********************************************************************
+   */
+
+>>>>>>> development-8.1.x
   /** Default AppServer JRE location */
   private static final String JRELOCATION = "JRE";
 }

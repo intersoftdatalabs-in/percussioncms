@@ -181,10 +181,16 @@ public class PSOParseUrlQueryString {
   private static final char URLENCODING_SPACE_TOKEN = '+';
   private static final char URLENCODING_SPACE_REAL = ' ';
   private static final char URLENCODING_HEX_TOKEN = '%';
+<<<<<<< HEAD
 
   private static final String STR_URLENCODING_PARAM_TOKEN = "&";
   private static final String STR_URLENCODING_VALUE_TOKEN = "=";
 
+=======
+
+  private static final String STR_URLENCODING_PARAM_TOKEN = "&";
+  private static final String STR_URLENCODING_VALUE_TOKEN = "=";
+>>>>>>> development-8.1.x
   /** This is the entity reference for an ampersand character, used by xml. */
   private static final String AMPERSAND_ENTITY = "&amp;";
 }

@@ -55,6 +55,7 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
 public class PSPropertyCondition extends PSAction implements Condition {
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
+<<<<<<< HEAD
    */
   public boolean eval() {
     String installDir = getRootDir();
@@ -121,6 +122,75 @@ public class PSPropertyCondition extends PSAction implements Condition {
    *     be <code>null</code> or empty
    * @throws IllegalArgumentException if propertyFile is <code>null</code> or empty
    */
+=======
+   */
+  public boolean eval() {
+    String installDir = getRootDir();
+
+    if ((installDir == null) || (installDir.trim().length() == 0)) return false;
+
+    if (!installDir.endsWith(File.separator)) installDir += File.separator;
+
+    String strPropFile = installDir + propertyFile;
+    File propFile = new File(strPropFile);
+    if (!propFile.exists()) {
+      PSLogger.logInfo("Property file does not exist : " + strPropFile);
+      return false;
+    }
+
+    boolean isEqual = false;
+
+    String propValue = null;
+    try (FileInputStream in = new FileInputStream(propFile)) {
+      Properties verProp = new Properties();
+      verProp.load(in);
+      propValue = verProp.getProperty(propertyName);
+      if ((propValue == null) || (propValue.trim().length() == 0)) {
+        if (leftSideValue.trim().length() == 0) isEqual = true;
+      } else {
+        propValue = propValue.trim();
+        leftSideValue = leftSideValue.trim();
+
+        if (m_caseSensitive) {
+          int res = leftSideValue.compareTo(propValue);
+
+          return isMatch(res);
+        } else {
+          int res = leftSideValue.compareToIgnoreCase(propValue);
+
+          return isMatch(res);
+        }
+      }
+    } catch (Exception ex) {
+      PSLogger.logInfo("Exception : " + ex.getLocalizedMessage());
+      PSLogger.logInfo(ex);
+    }
+    return isEqual;
+  }
+
+  /**
+   * ************************************************************* Mutators and Accessors
+   * *************************************************************
+   */
+
+  /**
+   * Returns the path of the property file relative to the Rhythmyx root directory.
+   *
+   * @return the property file path relative to the installation root directory, never <code>null
+   *     </code> or empty
+   */
+  public String getPropertyFile() {
+    return propertyFile;
+  }
+
+  /**
+   * Sets the path of the property file relative to the Rhythmyx root directory.
+   *
+   * @param propertyFile the property file path relative to the installation root directory, may not
+   *     be <code>null</code> or empty
+   * @throws IllegalArgumentException if propertyFile is <code>null</code> or empty
+   */
+>>>>>>> development-8.1.x
   public void setPropertyFile(String propertyFile) {
     if ((propertyFile == null) || (propertyFile.trim().length() == 0))
       throw new IllegalArgumentException("propertyFile may not be null or empty");
@@ -172,6 +242,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
     if (propertyValue == null) propertyValue = "";
     this.leftSideValue = propertyValue;
   }
+<<<<<<< HEAD
 
   /**
    * Returns whether the comparison of the specified property value and the actual value in the
@@ -209,6 +280,46 @@ public class PSPropertyCondition extends PSAction implements Condition {
    ***************************************************************/
 
   /**
+=======
+
+  /**
+   * Returns whether the comparison of the specified property value and the actual value in the
+   * property file should be case-sensitive or not.
+   *
+   * @return <code>true</code> if the comparison of the specified property value and the actual
+   *     value in the property file should be case-sensitive, otherwise <code>false</code>.
+   */
+  public boolean getIsCaseSensitive() {
+    return m_caseSensitive;
+  }
+
+  /**
+   * @param b
+   * @return
+   */
+  public void setIsCaseSensitive(boolean b) {
+    m_caseSensitive = b;
+  }
+
+  /**
+   * Sets whether the comparison of the specified property value and the actual value in the
+   * property file should be case-sensitive or not.
+   *
+   * @param isCaseSensitive <code>true</code> if the comparison of the specified property value and
+   *     the actual value in the property file should be case-sensitive, otherwise <code>false
+   *     </code>.
+   */
+  public void getIsCaseSensitive(boolean isCaseSensitive) {
+    this.m_caseSensitive = isCaseSensitive;
+  }
+
+  /**
+   * ************************************************************* Bean properties
+   * *************************************************************
+   */
+
+  /**
+>>>>>>> development-8.1.x
    * The path of the properties file relative to the root installation directory. The actual value
    * will be set through the Installshield UI. May not be <code>null</code> or empty.
    */

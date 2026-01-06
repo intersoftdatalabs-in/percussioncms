@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +40,13 @@ public class WrappedTrustManager implements X509TrustManager {
 
   private LinkedHashMap<String, X509TrustManager> wrappedManagers = new LinkedHashMap<>();
 
+=======
+
+public class WrappedTrustManager implements X509TrustManager {
+
+  private LinkedHashMap<String, X509TrustManager> wrappedManagers = new LinkedHashMap<>();
+
+>>>>>>> development-8.1.x
   WrappedTrustManager() {
     addKeyStore("Default Java", null);
   }
@@ -50,6 +58,7 @@ public class WrappedTrustManager implements X509TrustManager {
       throw new RuntimeException("No such algorithm", e);
     } catch (KeyStoreException e) {
       throw new RuntimeException("Not adding keystore due to error", e);
+<<<<<<< HEAD
     }
   }
 
@@ -100,9 +109,12 @@ public class WrappedTrustManager implements X509TrustManager {
       } catch (CertificateException e) {
         exception = e;
       }
+=======
+>>>>>>> development-8.1.x
     }
   }
 
+<<<<<<< HEAD
     if (exception != null) {
       log.warn("Failed to validate client certificate with any trust manager");
       throw exception;

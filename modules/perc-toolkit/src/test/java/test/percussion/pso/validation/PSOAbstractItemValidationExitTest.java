@@ -25,6 +25,7 @@ import com.percussion.pso.validation.PSOAbstractItemValidationExit;
 import com.percussion.pso.workflow.IPSOWorkflowInfoFinder;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.workflow.data.PSState;
+<<<<<<< HEAD
 import com.percussion.system.utils.PSItemErrorDoc;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -38,17 +39,44 @@ import org.w3c.dom.Document;
 
 // REFACTORED: CP-JAVA11
 @ExtendWith(MockitoExtension.class)
+=======
+import com.percussion.util.PSItemErrorDoc;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+
+>>>>>>> development-8.1.x
 public class PSOAbstractItemValidationExitTest {
   private static final Logger log = LogManager.getLogger(PSOAbstractItemValidationExitTest.class);
 
   TestableItemValidationExit cut;
 
+<<<<<<< HEAD
   @Mock private PSState state;
 
   @Mock private IPSOWorkflowInfoFinder finder;
 
   @BeforeEach
   public void setUp() throws Exception {
+=======
+  Mockery context;
+
+  @Before
+  public void setUp() throws Exception {
+    context =
+        new Mockery() {
+          {
+            setImposteriser(ClassImposteriser.INSTANCE);
+          }
+        };
+
+>>>>>>> development-8.1.x
     cut = new TestableItemValidationExit();
   }
 
@@ -67,6 +95,11 @@ public class PSOAbstractItemValidationExitTest {
     try {
       boolean rslt = cut.matchDestinationState("1", "2", null);
       assertTrue(rslt);
+<<<<<<< HEAD
+=======
+      rslt = cut.matchDestinationState("1", "2", "");
+      assertTrue(rslt);
+>>>>>>> development-8.1.x
       rslt = cut.matchDestinationState("1", "2", "*");
       assertTrue(rslt);
     } catch (PSException ex) {
@@ -76,6 +109,7 @@ public class PSOAbstractItemValidationExitTest {
   }
 
   @Test
+<<<<<<< HEAD
   public final void testMatchDestinationStateWithMocks() {
     cut.setFinder(finder);
     try {
@@ -94,6 +128,33 @@ public class PSOAbstractItemValidationExitTest {
     }
   }
 
+=======
+  public final void testMatchDestinationStateComplex() {
+    final PSState state = context.mock(PSState.class);
+    final IPSOWorkflowInfoFinder finder = context.mock(IPSOWorkflowInfoFinder.class);
+    cut.setFinder(finder);
+    try {
+
+      context.checking(
+          new Expectations() {
+            {
+              one(finder).findDestinationState("1", "2");
+              will(returnValue(state));
+              atLeast(1).of(state).getName();
+              will(returnValue("fi"));
+            }
+          });
+      boolean rslt = cut.matchDestinationState("1", "2", "fee,fi,fo,fum");
+      assertTrue(rslt);
+      context.assertIsSatisfied();
+
+    } catch (PSException ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("Exception");
+    }
+  }
+
+>>>>>>> development-8.1.x
   private class TestableItemValidationExit extends PSOAbstractItemValidationExit {
 
     @Override

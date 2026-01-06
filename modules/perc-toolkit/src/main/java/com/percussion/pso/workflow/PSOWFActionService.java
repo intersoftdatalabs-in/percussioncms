@@ -16,7 +16,10 @@
  */
 package com.percussion.pso.workflow;
 
+<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
+=======
+>>>>>>> development-8.1.x
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.IPSWorkflowAction;
@@ -31,7 +34,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import org.apache.commons.lang3.Validate;
+=======
+import org.apache.commons.lang.Validate;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -89,7 +96,10 @@ public class PSOWFActionService implements IPSOWFActionService {
 
   /** Workflow Info finder. */
   private IPSOWorkflowInfoFinder wfFinder = null;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Extension Manager for loading any Workflow Actions we find. */
   private IPSExtensionManager extMgr = null;
 
@@ -98,7 +108,10 @@ public class PSOWFActionService implements IPSOWFActionService {
    * and the values are the list of Workflow Action Names.
    */
   private Map<String, Map<String, List<String>>> transitionActions;
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Default Constructor. */
   public PSOWFActionService() {
     transitionActions = new HashMap<String, Map<String, List<String>>>(); // add empty map.
@@ -144,9 +157,13 @@ public class PSOWFActionService implements IPSOWFActionService {
     }
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWFActionService#getActions(int, int)
    */
+=======
+  /** @see com.percussion.pso.workflow.IPSOWFActionService#getActions(int, int) */
+>>>>>>> development-8.1.x
   public List<IPSWorkflowAction> getActions(int workflowid, int transitionid) throws Exception {
     initServices();
     List<IPSWorkflowAction> actions = new ArrayList<IPSWorkflowAction>();
@@ -177,9 +194,13 @@ public class PSOWFActionService implements IPSOWFActionService {
     return actions;
   }
 
+<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWFActionService#getWorkflowAction(java.lang.String)
    */
+=======
+  /** @see com.percussion.pso.workflow.IPSOWFActionService#getWorkflowAction(java.lang.String) */
+>>>>>>> development-8.1.x
   @SuppressWarnings("unchecked")
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException {

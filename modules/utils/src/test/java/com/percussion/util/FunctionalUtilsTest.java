@@ -17,13 +17,21 @@
 
 package com.percussion.util;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertTrue;
+=======
+import static org.junit.Assert.assertTrue;
+>>>>>>> development-8.1.x
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
+=======
+import org.junit.Test;
+>>>>>>> development-8.1.x
 
 public class FunctionalUtilsTest {
 

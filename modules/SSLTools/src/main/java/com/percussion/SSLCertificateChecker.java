@@ -16,7 +16,11 @@
 
 package com.percussion;
 
+<<<<<<< HEAD
 import com.percussion.security.error.PSExceptionUtils;
+=======
+import com.percussion.error.PSExceptionUtils;
+>>>>>>> development-8.1.x
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -104,7 +108,10 @@ public class SSLCertificateChecker {
     }
   }
 
+<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
+=======
+>>>>>>> development-8.1.x
   private void checkCertificate(String urlStr, int warningDays) {
     URL url = null;
 

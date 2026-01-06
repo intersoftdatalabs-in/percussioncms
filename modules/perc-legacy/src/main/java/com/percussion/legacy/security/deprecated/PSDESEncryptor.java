@@ -357,7 +357,11 @@ public class PSDESEncryptor implements IPSEncryptor {
       lCount = 0;
       for (int i = 0; i < eArrayLen; i++) {
         switch (i) {
+<<<<<<< HEAD
           // multiply by 2
+=======
+            // multiply by 2
+>>>>>>> development-8.1.x
           case 0:
           case 3:
           case 6:
@@ -376,7 +380,11 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 45:
             ERArray[i] <<= 1;
             break;
+<<<<<<< HEAD
           // multiply by 4
+=======
+            // multiply by 4
+>>>>>>> development-8.1.x
           case 2:
           case 8:
           case 14:
@@ -387,7 +395,11 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 44:
             ERArray[i] <<= 2;
             break;
+<<<<<<< HEAD
           // multiply by 8
+=======
+            // multiply by 8
+>>>>>>> development-8.1.x
           case 1:
           case 7:
           case 13:
@@ -398,7 +410,11 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 43:
             ERArray[i] <<= 3;
             break;
+<<<<<<< HEAD
           // add results
+=======
+            // add results
+>>>>>>> development-8.1.x
           case 4:
           case 10:
           case 16:
@@ -422,6 +438,7 @@ public class PSDESEncryptor implements IPSEncryptor {
             rCount++;
             break;
         }
+<<<<<<< HEAD
       }
 
       // step 2.4.4.3 and step 2.4.4.4
@@ -520,6 +537,106 @@ public class PSDESEncryptor implements IPSEncryptor {
     if ((boxGives < 0) || (boxGives > 15))
       throw new IllegalArgumentException("boxGives out of bounds");
 
+=======
+      }
+
+      // step 2.4.4.3 and step 2.4.4.4
+      for (int box = 0; box < 8; box++) {
+        switch (box) {
+          case 0:
+            boxGives = substitutionBox1[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 1:
+            boxGives = substitutionBox2[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 2:
+            boxGives = substitutionBox3[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 3:
+            boxGives = substitutionBox4[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 4:
+            boxGives = substitutionBox5[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 5:
+            boxGives = substitutionBox6[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 6:
+            boxGives = substitutionBox7[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+          case 7:
+            boxGives = substitutionBox8[row[box]][col[box]];
+            fillInB(boxGives, box + 1, bOneToEight);
+            break;
+        }
+      }
+
+      for (int i = 0; i < pArrayLen; i++) tempRArray[i] = RArray[i];
+
+      // permute and do exclusive-or with LArray[ite-1], step 2.4.5 and 2.4.6
+      for (int i = 0; i < pArrayLen; i++) { // 32 times
+        permutedB[i] = bOneToEight[PArray[i] - 1]; // note the index!!!
+        RArray[i] = (permutedB[i] == LArray[i]) ? 0 : 1;
+      }
+
+      // step 2.4.7, L[ite] = R[ite-1]
+      for (int i = 0; i < pArrayLen; i++) LArray[i] = tempRArray[i];
+    } // end of the iteration for loop, finish step 2.4.8
+
+    // set up R[16]L[16] block
+    int[] finalPerm = new int[initialPermLen]; // 64 elements
+    for (int i = 0; i < pArrayLen; i++) { // 32 times
+      finalPerm[i] = RArray[i];
+      finalPerm[i + pArrayLen] = LArray[i];
+    }
+
+    // perform final permutation on the block R[16]L[16], step 2.5
+    for (int i = 0; i < initialPermLen; i++) {
+      encryptedBlock[i] = finalPerm[inverseIPArray[i] - 1];
+    }
+
+    // convert to 8 bytes
+    int temp = 0;
+    int temp0 = 0;
+    Integer oneInteger;
+    for (int i = 0; i < 8; i++) {
+      temp = 8 * i;
+      temp0 =
+          ((encryptedBlock[temp] << 7)
+              + (encryptedBlock[temp + 1] << 6)
+              + (encryptedBlock[temp + 2] << 5)
+              + (encryptedBlock[temp + 3] << 4)
+              + (encryptedBlock[temp + 4] << 3)
+              + (encryptedBlock[temp + 5] << 2)
+              + (encryptedBlock[temp + 6] << 1)
+              + encryptedBlock[temp + 7]);
+      oneInteger = new Integer(temp0);
+      m_oneEncodedDataBlock[i] = oneInteger.byteValue();
+    }
+  }
+
+  /**
+   * Fill in 4 bits into the B array based on the Substitution Box index and the value obtained from
+   * that box. After the 8th filling in, this B array becomes a ready-to-use 32-bit-array.
+   *
+   * @param boxGives the number obtained from the Substitution Box
+   * @param boxIndex the Substitution Box being used
+   * @param bOneToEight the 32-bit-array to be filled in
+   * @throws IllegalArgumentException if any parameter is out of bounds
+   */
+  private void fillInB(int boxGives, int boxIndex, int[] bOneToEight)
+      throws IllegalArgumentException {
+    if ((boxGives < 0) || (boxGives > 15))
+      throw new IllegalArgumentException("boxGives out of bounds");
+
+>>>>>>> development-8.1.x
     if ((boxIndex < 1) || (boxIndex > 8))
       throw new IllegalArgumentException("boxIndex out of bounds");
 

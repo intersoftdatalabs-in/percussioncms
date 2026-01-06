@@ -22,9 +22,15 @@
  */
 package test.percussion.pso.preview;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+=======
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+>>>>>>> development-8.1.x
 
 import com.percussion.pso.preview.AbstractMenuController;
 import com.percussion.pso.preview.ActionSiteForwardingController;
@@ -49,6 +55,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
@@ -61,15 +68,32 @@ public class ActionSiteForwardingControllerTest {
   IPSAssemblyService asm;
   IPSSecurityWs secws;
 
+=======
+/** @author DavidBenua */
+public class ActionSiteForwardingControllerTest {
+  private static final Logger log = LogManager.getLogger(ActionSiteForwardingControllerTest.class);
+
+  Mockery context;
+  ActionSiteForwardingController cut;
+
+  IPSAssemblyService asm;
+  IPSSecurityWs secws;
+
+>>>>>>> development-8.1.x
   SiteFolderFinder finder;
 
   MockHttpServletRequest req;
   MockHttpServletResponse resp;
+<<<<<<< HEAD
 
   /**
    * @throws Exception
    */
   @BeforeEach
+=======
+  /** @throws Exception */
+  @Before
+>>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new ActionSiteForwardingController();
@@ -97,7 +121,11 @@ public class ActionSiteForwardingControllerTest {
    * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
+<<<<<<< HEAD
   @Disabled("Test is failing") // TODO: Fix me
+=======
+  @Ignore("Test is failing") // TODO: Fix me
+>>>>>>> development-8.1.x
   public final void testHandleRequestWithSiteId() {
     req.addParameter(IPSHtmlParameters.SYS_SITEID, "1");
     try {
@@ -109,14 +137,21 @@ public class ActionSiteForwardingControllerTest {
       fail("Exception");
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Test method for {@link
    * ActionSiteForwardingController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
    * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
+<<<<<<< HEAD
   @Disabled("Test is failing") // TODO: Fix me
+=======
+  @Ignore("Test is failing") // TODO: Fix me
+>>>>>>> development-8.1.x
   public final void testHandleRequestOneSite() {
     try {
       req.addParameter(IPSHtmlParameters.SYS_CONTENTID, "123");
@@ -155,14 +190,21 @@ public class ActionSiteForwardingControllerTest {
       fail("Exception");
     }
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /**
    * Test method for {@link
    * ActionSiteForwardingController#handleRequestInternal(jakarta.servlet.http.HttpServletRequest,
    * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
+<<<<<<< HEAD
   @Disabled("Test is failing") // TODO: Fix me
+=======
+  @Ignore("Test is failing") // TODO: Fix me
+>>>>>>> development-8.1.x
   public final void testHandleRequestInternalTwoSites() {
     try {
       req.addParameter(IPSHtmlParameters.SYS_CONTENTID, "123");

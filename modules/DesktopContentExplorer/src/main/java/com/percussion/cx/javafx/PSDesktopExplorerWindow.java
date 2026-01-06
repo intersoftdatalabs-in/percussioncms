@@ -25,6 +25,7 @@ import com.percussion.guitools.PSDialog;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
+<<<<<<< HEAD
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -35,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+=======
+>>>>>>> development-8.1.x
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -62,6 +65,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
       ourJsState = state;
     }
 
+<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSDesktopExplorerWindow.class);
 
   protected PSDesktopExplorerStateProvider myStateProvider = new PSDesktopExplorerStateProvider();

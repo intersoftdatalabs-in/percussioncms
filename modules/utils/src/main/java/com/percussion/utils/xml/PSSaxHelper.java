@@ -34,7 +34,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -202,7 +206,11 @@ public class PSSaxHelper {
               "h4",
               "h5",
               "h6",
+<<<<<<< HEAD
               "iframe"));
 
   ;
+=======
+              "iframe"));;
+>>>>>>> development-8.1.x
 }

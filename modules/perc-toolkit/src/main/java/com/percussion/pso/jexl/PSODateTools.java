@@ -26,10 +26,15 @@ import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+<<<<<<< HEAD
 /***
  * Tools for working with date and time.
  *
  * @author natechadwick
+=======
+/**
+ * * Tools for working with date and time.
+>>>>>>> development-8.1.x
  *
  * @author natechadwick
  */

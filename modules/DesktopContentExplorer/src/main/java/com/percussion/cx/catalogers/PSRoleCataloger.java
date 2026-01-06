@@ -41,6 +41,7 @@ public class PSRoleCataloger {
    */
   public PSRoleCataloger() {}
 
+<<<<<<< HEAD
    }
 
    /**
@@ -106,9 +107,27 @@ public class PSRoleCataloger {
                 .appendSuper(super.equals(object))
                 .append(m_collRoles, that.m_collRoles)
                 .isEquals();
+=======
+  /**
+   * Constructor meant to be used in the context of an applet. This may not work in other contexts
+   * since there is no way of supplying credentials for logging in.
+   *
+   * @param urlBase the document or code base for the applet.
+   * @throws PSCmsException if request to server to get the data fails for any reason.
+   */
+  public PSRoleCataloger(URL urlBase) throws PSCmsException {
+    m_collRoles.clear();
+    try {
+      URL url = new URL(urlBase, "sys_components/getRole.xml");
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
+      fromXml(doc.getDocumentElement());
+    } catch (Exception e) {
+      throw new PSCmsException(IPSContentExplorerErrors.CATALOG_ERROR, e.getMessage());
+>>>>>>> development-8.1.x
     }
   }
 
+<<<<<<< HEAD
     public int hashCode() {
         return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
@@ -193,6 +212,7 @@ public class PSRoleCataloger {
       } catch (CloneNotSupportedException e) {
         // ????
       }
+    }
 
       return clone;
     }

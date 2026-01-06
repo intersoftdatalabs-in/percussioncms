@@ -221,9 +221,13 @@ public class PSContentList {
     m_list.add(item);
   }
 
+<<<<<<< HEAD
   /**
    * @return the size of the content list.
    */
+=======
+  /** @return the size of the content list. */
+>>>>>>> development-8.1.x
   public int size() {
     return m_list.size();
   }

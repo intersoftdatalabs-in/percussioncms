@@ -18,9 +18,15 @@ package com.percussion.share.validation;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.security.SecureStringUtils;
+<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
 import java.util.List;
+=======
+import java.text.MessageFormat;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+>>>>>>> development-8.1.x
 
 /**
  * A data object that represents global errors.

@@ -23,9 +23,15 @@ import com.percussion.design.objectstore.PSDisplayError;
 import com.percussion.design.objectstore.PSFieldError;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
+<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+=======
+import com.percussion.util.IPSHtmlParameters;
+import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.json.JSONObject;
 
 /**

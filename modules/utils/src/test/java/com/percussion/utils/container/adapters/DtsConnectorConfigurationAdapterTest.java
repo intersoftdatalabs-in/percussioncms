@@ -17,9 +17,15 @@
 
 package com.percussion.utils.container.adapters;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+=======
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+>>>>>>> development-8.1.x
 
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSConnector;
@@ -34,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +59,27 @@ public class DtsConnectorConfigurationAdapterTest {
   }
 
   @AfterEach
+=======
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+public class DtsConnectorConfigurationAdapterTest {
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private String rxdeploydir;
+
+  @Before
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+  }
+
+  @After
+>>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
@@ -60,7 +88,11 @@ public class DtsConnectorConfigurationAdapterTest {
   @Test
   public void load() throws IOException {
 
+<<<<<<< HEAD
     Path root = temporaryFolder;
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
@@ -81,9 +113,15 @@ public class DtsConnectorConfigurationAdapterTest {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/utils/container/Staging/Deployment/Server/conf/server.xml");
 
+<<<<<<< HEAD
     Files.createDirectories(temporaryFolder.resolve("jetty/base/etc"));
     Files.createDirectories(temporaryFolder.resolve("Deployment/Server/conf"));
     Files.createDirectories(temporaryFolder.resolve("Staging/Deployment/Server/conf"));
+=======
+    temporaryFolder.newFolder("jetty", "base", "etc");
+    temporaryFolder.newFolder("Deployment", "Server", "conf");
+    temporaryFolder.newFolder("Staging", "Deployment", "Server", "conf");
+>>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
@@ -143,7 +181,11 @@ public class DtsConnectorConfigurationAdapterTest {
 
   @Test
   public void testProdDTSRemoveAjp() throws IOException {
+<<<<<<< HEAD
     Path root = temporaryFolder;
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
@@ -164,9 +206,15 @@ public class DtsConnectorConfigurationAdapterTest {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/utils/container/Staging/Deployment/Server/conf/server.xml");
 
+<<<<<<< HEAD
     Files.createDirectories(temporaryFolder.resolve("jetty/base/etc"));
     Files.createDirectories(temporaryFolder.resolve("Deployment/Server/conf"));
     Files.createDirectories(temporaryFolder.resolve("Staging/Deployment/Server/conf"));
+=======
+    temporaryFolder.newFolder("jetty", "base", "etc");
+    temporaryFolder.newFolder("Deployment", "Server", "conf");
+    temporaryFolder.newFolder("Staging", "Deployment", "Server", "conf");
+>>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
@@ -225,7 +273,11 @@ public class DtsConnectorConfigurationAdapterTest {
 
   @Test
   public void testProdDTSHttps() throws IOException {
+<<<<<<< HEAD
     Path root = temporaryFolder;
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
@@ -246,9 +298,15 @@ public class DtsConnectorConfigurationAdapterTest {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/utils/container/Staging/Deployment/Server/conf/server.xml");
 
+<<<<<<< HEAD
     Files.createDirectories(root.resolve("jetty/base/etc"));
     Files.createDirectories(root.resolve("Deployment/Server/conf"));
     Files.createDirectories(root.resolve("Staging/Deployment/Server/conf"));
+=======
+    temporaryFolder.newFolder("jetty", "base", "etc");
+    temporaryFolder.newFolder("Deployment", "Server", "conf");
+    temporaryFolder.newFolder("Staging", "Deployment", "Server", "conf");
+>>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));
@@ -308,7 +366,11 @@ public class DtsConnectorConfigurationAdapterTest {
 
   @Test
   public void testStageDTSHttps() throws IOException {
+<<<<<<< HEAD
     Path root = temporaryFolder;
+=======
+    Path root = temporaryFolder.getRoot().toPath();
+>>>>>>> development-8.1.x
 
     InputStream srcInstallProps =
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
@@ -329,9 +391,15 @@ public class DtsConnectorConfigurationAdapterTest {
         DtsConnectorConfigurationAdapterTest.class.getResourceAsStream(
             "/com/percussion/utils/container/Staging/Deployment/Server/conf/server.xml");
 
+<<<<<<< HEAD
     Files.createDirectories(root.resolve("jetty/base/etc"));
     Files.createDirectories(root.resolve("Deployment/Server/conf"));
     Files.createDirectories(root.resolve("Staging/Deployment/Server/conf"));
+=======
+    temporaryFolder.newFolder("jetty", "base", "etc");
+    temporaryFolder.newFolder("Deployment", "Server", "conf");
+    temporaryFolder.newFolder("Staging", "Deployment", "Server", "conf");
+>>>>>>> development-8.1.x
 
     Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
     Files.copy(srcLoginConf, root.resolve("jetty/base/etc/login.conf"));

@@ -16,9 +16,12 @@
  */
 package com.percussion.utils.io;
 
+<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+=======
+>>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +29,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+<<<<<<< HEAD
+=======
+import junit.framework.TestCase;
+>>>>>>> development-8.1.x
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -34,7 +41,11 @@ import org.apache.commons.io.IOUtils;
  *
  * @author dougrand
  */
+<<<<<<< HEAD
 public class PSReaderInputStreamTest {
+=======
+public class PSReaderInputStreamTest extends TestCase {
+>>>>>>> development-8.1.x
   /**
    * Create a string with all 2^16 code points. Move from a reader to a stream and back to a reader.
    * Use the result and compare with the input.

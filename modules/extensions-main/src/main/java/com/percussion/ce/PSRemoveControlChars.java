@@ -40,9 +40,13 @@ public class PSRemoveControlChars implements IPSRequestPreProcessor {
    * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(java.lang.Object[], com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
 
     Map reqParams = request.getParameters();

@@ -29,6 +29,7 @@ public class PSORMException extends Exception {
   public PSORMException() {
     super();
   }
+<<<<<<< HEAD
 
   /**
    * @param message
@@ -37,6 +38,12 @@ public class PSORMException extends Exception {
     super(message);
   }
 
+=======
+  /** @param message */
+  public PSORMException(String message) {
+    super(message);
+  }
+>>>>>>> development-8.1.x
   /**
    * @param message
    * @param cause
@@ -44,10 +51,14 @@ public class PSORMException extends Exception {
   public PSORMException(String message, Throwable cause) {
     super(message, cause);
   }
+<<<<<<< HEAD
 
   /**
    * @param cause
    */
+=======
+  /** @param cause */
+>>>>>>> development-8.1.x
   public PSORMException(Throwable cause) {
     super(cause);
   }

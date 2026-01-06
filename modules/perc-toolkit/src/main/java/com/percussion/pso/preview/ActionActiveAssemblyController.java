@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.mvc.Controller;
 
+<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
@@ -39,6 +40,17 @@ public class ActionActiveAssemblyController extends ActionPreviewController impl
   /** */
   public ActionActiveAssemblyController() {}
 
+=======
+/** @author DavidBenua */
+public class ActionActiveAssemblyController extends ActionPreviewController implements Controller {
+
+  private static final Logger log = LogManager.getLogger(ActionActiveAssemblyController.class);
+
+  private boolean showSnippets = true;
+  /** */
+  public ActionActiveAssemblyController() {}
+
+>>>>>>> development-8.1.x
   /**
    * Finds the eligible templates. For Active Assembly this is limited to HMTL templates. The
    * setting of the <code>showSnippets</code> flag determines if snippet templates are also included
@@ -50,8 +62,12 @@ public class ActionActiveAssemblyController extends ActionPreviewController impl
   protected List<IPSAssemblyTemplate> findVisibleTemplates(String contentid, Set<IPSSite> sites)
       throws PSException, PSAssemblyException {
     initServices();
+<<<<<<< HEAD
     if (log.isDebugEnabled())
       ; // do nothing for now
+=======
+    if (log.isDebugEnabled()) ; // do nothing for now
+>>>>>>> development-8.1.x
     List<IPSAssemblyTemplate> templates = super.findVisibleTemplates(contentid, sites);
     List<IPSAssemblyTemplate> htmlTemplates = new ArrayList<IPSAssemblyTemplate>();
     for (IPSAssemblyTemplate template : templates) {

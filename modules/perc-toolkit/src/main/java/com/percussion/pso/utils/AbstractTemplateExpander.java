@@ -43,7 +43,11 @@ import javax.jcr.Value;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -262,30 +266,46 @@ public abstract class AbstractTemplateExpander implements IPSTemplateExpander {
     return nodeMap;
   }
 
+<<<<<<< HEAD
   /**
    * @return the needsContentNode
    */
+=======
+  /** @return the needsContentNode */
+>>>>>>> development-8.1.x
   protected boolean isNeedsContentNode() {
     return NeedsContentNode;
   }
 
+<<<<<<< HEAD
   /**
    * @param needsContentNode the needsContentNode to set
    */
+=======
+  /** @param needsContentNode the needsContentNode to set */
+>>>>>>> development-8.1.x
   protected void setNeedsContentNode(boolean needsContentNode) {
     NeedsContentNode = needsContentNode;
   }
 
+<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set
    */
+=======
+  /** @param gmgr the gmgr to set */
+>>>>>>> development-8.1.x
   public static void setGmgr(IPSGuidManager gmgr) {
     AbstractTemplateExpander.gmgr = gmgr;
   }
 
+<<<<<<< HEAD
   /**
    * @param cmgr the cmgr to set
    */
+=======
+  /** @param cmgr the cmgr to set */
+>>>>>>> development-8.1.x
   public static void setCmgr(IPSContentMgr cmgr) {
     AbstractTemplateExpander.cmgr = cmgr;
   }

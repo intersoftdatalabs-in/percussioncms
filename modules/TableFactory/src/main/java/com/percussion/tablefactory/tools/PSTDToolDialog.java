@@ -1104,7 +1104,10 @@ public class PSTDToolDialog extends JPanel {
     }
     return vec;
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> development-8.1.x
   /** Writes the connection parameters to the "conn.properties" file. */
   void saveServerProperties() {
     try {
@@ -1554,11 +1557,16 @@ public class PSTDToolDialog extends JPanel {
    * <code>null</null> or empty
    */
   private void transformDocument(String xmlFile)
+<<<<<<< HEAD
       throws TransformerConfigurationException,
           TransformerException,
           FileNotFoundException,
           SAXException,
           IOException {
+=======
+      throws TransformerConfigurationException, TransformerException, FileNotFoundException,
+          SAXException, IOException {
+>>>>>>> development-8.1.x
     Document doc = PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(xmlFile), false);
 
     String xslFileName = TABLE_BUILDER_XSL_FILE;

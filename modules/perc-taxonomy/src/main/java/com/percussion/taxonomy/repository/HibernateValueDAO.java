@@ -28,7 +28,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -474,9 +478,14 @@ public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }
+<<<<<<< HEAD
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+=======
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+>>>>>>> development-8.1.x
   private static class NodeInfo {
 
     private Node node = null;

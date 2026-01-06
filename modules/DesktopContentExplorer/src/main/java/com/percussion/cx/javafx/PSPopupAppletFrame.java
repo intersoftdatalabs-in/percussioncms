@@ -26,6 +26,7 @@ import com.percussion.cx.PSContentExplorerUtils;
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
+<<<<<<< HEAD
 import javafx.application.Platform;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +34,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+=======
+>>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -43,9 +46,14 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
+<<<<<<< HEAD
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow
 {
    static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
+=======
+public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
+  static Logger log = Logger.getLogger(PSPopupAppletFrame.class);
+>>>>>>> development-8.1.x
 
   PSContentExplorerAppletStub stub = new PSContentExplorerAppletStub();
 

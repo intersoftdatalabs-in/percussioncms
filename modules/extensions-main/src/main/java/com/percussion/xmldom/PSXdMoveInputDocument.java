@@ -49,9 +49,13 @@ public class PSXdMoveInputDocument extends PSDefaultExtension implements IPSRequ
    * @throws PSParameterMismatchException when the HTML parameter name is missing or empty.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
+<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
+=======
+      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
+>>>>>>> development-8.1.x
           PSExtensionProcessingException {
     String HTMLParamName = PSXmlDomUtils.getParameter(params, 0, null);
     if (null == HTMLParamName) throw new PSParameterMismatchException(params.length, 1);
