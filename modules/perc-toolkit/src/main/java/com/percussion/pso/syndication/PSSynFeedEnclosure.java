@@ -23,6 +23,7 @@ import com.rometools.rome.feed.synd.SyndEnclosure;
  *
  * @author natechadwick
  *
+ * @author natechadwick
  */
 public class PSSynFeedEnclosure {
 

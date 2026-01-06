@@ -17,6 +17,8 @@
 
 package com.percussion.cx;
 
+import java.awt.Desktop;
+import java.net.URI;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -30,9 +32,6 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
-
-import java.awt.Desktop;
-import java.net.URI;
 
 public class PSHyperlinkListener implements ChangeListener<State>, EventListener {
 	private static Logger log = LogManager.getLogger(PSHyperlinkListener.class);

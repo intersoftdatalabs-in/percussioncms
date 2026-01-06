@@ -18,7 +18,7 @@
 /**
  * Define the pathmanager functions.
  */
-(function($){
+(function ($) {
 
     var ut = $.perc_utils;
 
@@ -28,102 +28,120 @@
      *
      * This version does some pre-processing on the returned contents.
      */
-    function is_leaf( path, if_leaf, if_folder, if_error ) {
+    function is_leaf(path, if_leaf, if_folder, if_error) {
 
-        _is_leaf( path, function(spec) { if_leaf( spec.pathItem ); }, prepare_folder_items( if_folder ), if_error );
+        _is_leaf(path, function (spec) { if_leaf(spec.pathItem); }, prepare_folder_items(if_folder), if_error);
 
-        function prepare_folder_items( callback ) {
-            return function( pathitems ) {
-                var specs = $.map( pathitems.PathItem, function(s) {
+        function prepare_folder_items(callback) {
+            return function (pathitems) {
+                var specs = $.map(pathitems.PathItem, function (s) {
                     var paths = s.path.split('/');
-                    if( paths[paths.length - 1] === "" ) {
+                    if (paths[paths.length - 1] === "") {
                         paths.pop();
                     }
-                    s.path = $.map( paths, function(p) { return p; });
-                    s.path_component = paths[ paths.length - 1 ];
+                    s.path = $.map(paths, function (p) { return p; });
+                    s.path_component = paths[paths.length - 1];
                     return s;
                 });
-                specs = $.grep( specs, function(s) { return s.type !== 'percNavTree' && s.name != '.system'; } );
-                callback( specs );
+                specs = $.grep(specs, function (s) { return s.type !== 'percNavTree' && s.name != '.system'; });
+                callback(specs);
             };
         }
     }
 
-    function _is_leaf(path, if_leaf, if_folder, if_error ) {
-        if( path.length <= 2 ) {
+    function _is_leaf(path, if_leaf, if_folder, if_error) {
+        if (path.length <= 2) {
             open_path(path, true, if_folder, if_error);
         }
         else {
-            var pathclone = $.map( path, function(x){ return x; } );
+            var pathclone = $.map(path, function (x) { return x; });
             var path_end = pathclone.pop();
             function check_results(specs) {
-                var it = $.grep( specs.PathItem, function( p ) {
+                console.log("check_results received:", specs);
+
+                // Handle different response formats from the API
+                var pathItems;
+                if (specs && specs.PathItemList) {
+                    // New format: {PathItemList: [...]}
+                    pathItems = specs.PathItemList;
+                } else if (specs && specs.PathItem) {
+                    // Old format: {PathItem: {...}} or {PathItem: [...]}
+                    pathItems = Array.isArray(specs.PathItem) ? specs.PathItem : [specs.PathItem];
+                } else {
+                    console.error("Missing PathItem or PathItemList in response:", specs);
+                    if (typeof if_error === 'function') {
+                        if_error(I18N.message("perc.ui.path.manager@Item Not Found")); //I18N
+                    }
+                    return;
+                }
+
+                var it = $.grep(pathItems, function (p) {
                     var path_components = p.path.split('/');
                     var e = path_components.pop();
-                    if( e == "" )
+                    if (e == "")
                         e = path_components.pop();
                     return e == path_end;
-                } );
-                if( it.length == 0 ) {
-                    if_error( I18N.message("perc.ui.path.manager@Item Not Found") ); //I18N
+                });
+                if (it.length == 0) {
+                    if_error(I18N.message("perc.ui.path.manager@Item Not Found")); //I18N
                 }
                 else {
-                    if( it[0].leaf == true ) {
-                        open_path( path, false, if_leaf, if_error );
+                    if (it[0].leaf == true) {
+                        open_path(path, false, if_leaf, if_error);
                     }
                     else {
-                        open_path( path, true, if_folder, if_error );
+                        open_path(path, true, if_folder, if_error);
                     }
                 }
             }
 
-            open_path( pathclone, true, check_results, if_error);
+            open_path(pathclone, true, check_results, if_error);
         }
     }
 
 
-    function get_site_id( path, k, err ) {
+    function get_site_id(path, k, err) {
         //XXX get this from id.
-        k( path[1] );
+        k(path[1]);
     }
 
-    function get_folder_path( path, k, err ) {
-        open_path( path, false, function(pathItem) {
-            k( pathItem.PathItem.folderPath);
-        }, err );
+    function get_folder_path(path, k, err) {
+        open_path(path, false, function (pathItem) {
+            k(pathItem.PathItem.folderPath);
+        }, err);
     }
 
 
     /**
      * Decide if the path is a leaf; if it is, open its parent folder; otherwise, open the folder itself.
      */
-    function open_containing_folder( path, k, err ) {
-        var pathclone = $.map( path, function(x) { return x; } );
-        _is_leaf( path,
-            function() {
+    function open_containing_folder(path, k, err) {
+        var pathclone = $.map(path, function (x) { return x; });
+        _is_leaf(path,
+            function () {
                 pathclone.pop();
-                open_path( pathclone, true, function( spec ) { k( spec, pathclone ); }, err );
+                open_path(pathclone, true, function (spec) { k(spec, pathclone); }, err);
             },
-            function(spec) {
+            function (spec) {
                 k(spec, pathclone);
             },
             err);
     }
 
-    function add_folder( path, k, err ) {
+    function add_folder(path, k, err) {
         var path_str = path.join('/') + '/';
-        var parent = $.perc_utils.acop( path );
+        var parent = $.perc_utils.acop(path);
         var nm = parent.pop();
-        open_path( parent, true, function( folder_spec ) {
-            var matches = $.grep( folder_spec.PathItem, function(fs) {
+        open_path(parent, true, function (folder_spec) {
+            var matches = $.grep(folder_spec.PathItem, function (fs) {
                 return fs.name === nm;
             });
-            if( matches.length > 0 ) {
-                err( I18N.message( "perc.ui.saveasdialog.error@Duplicate folder" ) );
+            if (matches.length > 0) {
+                err(I18N.message("perc.ui.saveasdialog.error@Duplicate folder"));
             }
             else {
                 path_str = $.perc_utils.encodeURL(path_str);
-                $.ajax( {
+                $.ajax({
                     type: 'GET',
                     success: k,
                     error: err,
@@ -131,7 +149,7 @@
                     dataType: 'json'
                 });
             }
-        }, err );
+        }, err);
 
     }
 
@@ -140,35 +158,35 @@
      * call err. folder determines if it is opened as a folder or an item.
      * Added the last param to retrieve paged results
      */
-    function open_path( path, folder, callback, err, paging ) {
+    function open_path(path, folder, callback, err, paging) {
         var path_str;
         var serviceUrl;
         //Check if we need paged results and change the service URL.
-        if (paging){
+        if (paging) {
             path_str = path;
             serviceUrl = $.perc_paths.PATH_PAGINATED_FOLDER + path_str;
         }
-        else{
+        else {
             path_str = $.perc_utils.encodeURL(path.join("/") + "/");
             serviceUrl = $.perc_paths.PATH_FOLDER + path_str;
         }
 
-        if( ! $.perc_fakes.path_service ) {
-            if( folder ) {
-                $.ajax( {
+        if (!$.perc_fakes.path_service) {
+            if (folder) {
+                $.ajax({
                     type: 'GET',
                     success: callback,
-                    error:  err,
+                    error: err,
                     url: serviceUrl,
                     dataType: 'json',
                     cache: false
                 });
             }
             else {
-                $.ajax( {
+                $.ajax({
                     type: 'GET',
                     success: callback,
-                    error:  err,
+                    error: err,
                     url: $.perc_paths.PATH_ITEM + path_str,
                     dataType: 'json',
                     cache: false
@@ -177,15 +195,18 @@
         }
         else {
             var fakes = {
-                '/' : {"PathItem":[{"name":"Sites","leaf":"false","path":"\/Sites\/"}]},
-                '/Sites/' : {"PathItem":[{"name":"Test","leaf":"false","path":"\/Sites\/Test\/"},
-                        {"name":"TestTwo","leaf":"false","path":"\/Sites\/TestTwo\/"}]},
-                '/Sites/Test/' : {"PathItem":[{"name":"Test","leaf":"true","path":"\/Sites\/Test\/Test\/"}]},
-                '/Sites/Test/Test/' : {"PathItem":{"name":"Test","leaf":"true","path":"\/Sites\/Test\/Test\/"}},
-                '/Sites/TestTwo/' : {"PathItem":[{"name":"TestTwo","leaf":"true","path":"\/Sites\/TestTwo\/TestTwo\/"}]},
-                '/Sites/TestTwo/TestTwo/' : {"PathItem":{"name":"TestTwo","leaf":"true","path":"\/Sites\/TestTwo\/TestTwo\/"}} };
+                '/': { "PathItem": [{ "name": "Sites", "leaf": "false", "path": "\/Sites\/" }] },
+                '/Sites/': {
+                    "PathItem": [{ "name": "Test", "leaf": "false", "path": "\/Sites\/Test\/" },
+                    { "name": "TestTwo", "leaf": "false", "path": "\/Sites\/TestTwo\/" }]
+                },
+                '/Sites/Test/': { "PathItem": [{ "name": "Test", "leaf": "true", "path": "\/Sites\/Test\/Test\/" }] },
+                '/Sites/Test/Test/': { "PathItem": { "name": "Test", "leaf": "true", "path": "\/Sites\/Test\/Test\/" } },
+                '/Sites/TestTwo/': { "PathItem": [{ "name": "TestTwo", "leaf": "true", "path": "\/Sites\/TestTwo\/TestTwo\/" }] },
+                '/Sites/TestTwo/TestTwo/': { "PathItem": { "name": "TestTwo", "leaf": "true", "path": "\/Sites\/TestTwo\/TestTwo\/" } }
+            };
 
-            callback( fakes[ path_str ] );
+            callback(fakes[path_str]);
         }
     }
 
@@ -196,21 +217,20 @@
      * @param callback The callback function that gets called with true and ItemProperties object if succeeds, otherwise falls.
      * Shows the error message in case of error.
      */
-    function getItemProperties(path, callback)
-    {
+    function getItemProperties(path, callback) {
         /** Testing code
          var itemProps = {"ItemProperties":{"name":"Home Page", "status":"Live", "lastAccessedBy":"Some User", "lastAccessedDate": "2010/01/22:10:30AM"}};
          callback(true, itemProps);
          */
-        var successCallback = function(data){
+        var successCallback = function (data) {
             callback(true, data.ItemProperties);
         };
-        var errorCallback = function(request, status, error){
-            callback(false,$.PercServiceUtils.extractDefaultErrorMessage(request));
+        var errorCallback = function (request, status, error) {
+            callback(false, $.PercServiceUtils.extractDefaultErrorMessage(request));
         };
         var path_str = $.perc_utils.encodeURL(path);
 
-        $.ajax( {
+        $.ajax({
             type: 'GET',
             success: successCallback,
             error: errorCallback,
@@ -221,13 +241,13 @@
     }
 
     $.perc_pathmanager = {
-        'is_leaf' : is_leaf,
-        'open_path' : open_path,
-        'get_folder_path' : get_folder_path,
-        'get_site_id' :  get_site_id,
-        'open_containing_folder' : open_containing_folder,
-        'add_folder' : add_folder,
-        'getItemProperties' : getItemProperties
+        'is_leaf': is_leaf,
+        'open_path': open_path,
+        'get_folder_path': get_folder_path,
+        'get_site_id': get_site_id,
+        'open_containing_folder': open_containing_folder,
+        'add_folder': add_folder,
+        'getItemProperties': getItemProperties
     };
 
 })(jQuery);

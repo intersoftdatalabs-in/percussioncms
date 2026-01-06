@@ -17,6 +17,13 @@
 
 package com.percussion.cx.javafx;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -25,136 +32,115 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+/** @web http://java-buddy.blogspot.com/ */
+public class PSFileSaver {
+  private static final Logger log = LogManager.getLogger(PSFileSaver.class);
+  private static final String LCAFILENAME = "LifecycleAnalysisTemplate.xls";
+  private static final Map<String, FileChooser.ExtensionFilter>
+      EXTMAP; // map to hold file type extensions
+  String srcURL;
+  String fileName;
+  String fileExtension;
 
-/**
- *
- * @web http://java-buddy.blogspot.com/
- */
-public class PSFileSaver
-{
-   private static final Logger log = LogManager.getLogger(PSFileSaver.class);
-   private static final String LCAFILENAME = "LifecycleAnalysisTemplate.xls";
-   private static final Map<String, FileChooser.ExtensionFilter> EXTMAP; //map to hold file type extensions
-   String srcURL;
-   String fileName;
-   String fileExtension;
-   
-   static {
-      TreeMap<String, FileChooser.ExtensionFilter> extensionTypes = new TreeMap<>();
-      extensionTypes.put("*.*", new FileChooser.ExtensionFilter("All Files", "*.*"));
-      extensionTypes.put(".jpg", new FileChooser.ExtensionFilter("JPG", "*.jpg"));
-      extensionTypes.put(".jpeg", new FileChooser.ExtensionFilter("JPEG", "*.jpeg"));
-      extensionTypes.put(".png", new FileChooser.ExtensionFilter("PNG", "*.png"));
-      extensionTypes.put(".pdf", new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-      extensionTypes.put(".doc", new FileChooser.ExtensionFilter("Microsoft Word Document *.doc", "*.doc"));
-      extensionTypes.put(".docx", new FileChooser.ExtensionFilter("Microsoft Word Document *.docx", "*.docx"));
-      extensionTypes.put(".xls", new FileChooser.ExtensionFilter("Microsoft Excel Document", "*.xls"));
-      extensionTypes.put(".txt", new FileChooser.ExtensionFilter("Text File", "*.txt"));
-      extensionTypes.put(".css", new FileChooser.ExtensionFilter("Cascading Stylesheets File", "*.css"));
-      extensionTypes.put(".html", new FileChooser.ExtensionFilter("Hyper Text Markup Language File", "*.html"));
-      extensionTypes.put(".js", new FileChooser.ExtensionFilter("JavaSript File", "*.js"));
-      
-      EXTMAP = Collections.unmodifiableMap(extensionTypes);
-   }
+  static {
+    TreeMap<String, FileChooser.ExtensionFilter> extensionTypes = new TreeMap<>();
+    extensionTypes.put("*.*", new FileChooser.ExtensionFilter("All Files", "*.*"));
+    extensionTypes.put(".jpg", new FileChooser.ExtensionFilter("JPG", "*.jpg"));
+    extensionTypes.put(".jpeg", new FileChooser.ExtensionFilter("JPEG", "*.jpeg"));
+    extensionTypes.put(".png", new FileChooser.ExtensionFilter("PNG", "*.png"));
+    extensionTypes.put(".pdf", new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+    extensionTypes.put(
+        ".doc", new FileChooser.ExtensionFilter("Microsoft Word Document *.doc", "*.doc"));
+    extensionTypes.put(
+        ".docx", new FileChooser.ExtensionFilter("Microsoft Word Document *.docx", "*.docx"));
+    extensionTypes.put(
+        ".xls", new FileChooser.ExtensionFilter("Microsoft Excel Document", "*.xls"));
+    extensionTypes.put(".txt", new FileChooser.ExtensionFilter("Text File", "*.txt"));
+    extensionTypes.put(
+        ".css", new FileChooser.ExtensionFilter("Cascading Stylesheets File", "*.css"));
+    extensionTypes.put(
+        ".html", new FileChooser.ExtensionFilter("Hyper Text Markup Language File", "*.html"));
+    extensionTypes.put(".js", new FileChooser.ExtensionFilter("JavaSript File", "*.js"));
 
-   /**
-    * Used for LifeCycleAnalysis
-    * @param srcURL url of the xls binary
-    */
-   public PSFileSaver(String srcURL)
-   {
-      this.srcURL = srcURL;
-      // if we have other xls options, include them here
-      if (srcURL.contains("LifecycleAnalysis"))
-      {
-         fileName = LCAFILENAME;
-      }
-   }
-   
-   /**
-    * This constructor can be used to pass in the fileName for the save dialog
-    * @param srcURL the URL of the binary
-    * @param fileName the fileName should be the name of the file as well as the extension, i.e. my_file.pdf
-    */
-   public PSFileSaver(String srcURL, String fileName) {
-      this.srcURL = srcURL;
-      try
-      {
-         this.fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         log.error("Unable to decode file name: " + e);
-      }
-      int extensionIndex = StringUtils.lastIndexOf(fileName, ".");
-      if(extensionIndex != -1)
-         fileExtension = fileName.substring(extensionIndex).toLowerCase();
-      else
-         fileExtension = "";
-      
-   }
+    EXTMAP = Collections.unmodifiableMap(extensionTypes);
+  }
 
-   public void startFileSaver()
-   {
-      Platform.runLater(new Runnable()
-      {
-         @Override
-         public void run()
-         {
+  /**
+   * Used for LifeCycleAnalysis
+   *
+   * @param srcURL url of the xls binary
+   */
+  public PSFileSaver(String srcURL) {
+    this.srcURL = srcURL;
+    // if we have other xls options, include them here
+    if (srcURL.contains("LifecycleAnalysis")) {
+      fileName = LCAFILENAME;
+    }
+  }
+
+  /**
+   * This constructor can be used to pass in the fileName for the save dialog
+   *
+   * @param srcURL the URL of the binary
+   * @param fileName the fileName should be the name of the file as well as the extension, i.e.
+   *     my_file.pdf
+   */
+  public PSFileSaver(String srcURL, String fileName) {
+    this.srcURL = srcURL;
+    try {
+      this.fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      log.error("Unable to decode file name: " + e);
+    }
+    int extensionIndex = StringUtils.lastIndexOf(fileName, ".");
+    if (extensionIndex != -1) fileExtension = fileName.substring(extensionIndex).toLowerCase();
+    else fileExtension = "";
+  }
+
+  public void startFileSaver() {
+    Platform.runLater(
+        new Runnable() {
+          @Override
+          public void run() {
             Stage stage = new Stage();
 
             showFileSaver(stage);
-         }
-      });
-   }
+          }
+        });
+  }
 
-   public void showFileSaver(final Stage primaryStage)
-   {
-      primaryStage.setTitle("File Saver");
+  public void showFileSaver(final Stage primaryStage) {
+    primaryStage.setTitle("File Saver");
 
-      FileChooser fileChooser = new FileChooser();
+    FileChooser fileChooser = new FileChooser();
 
-      // Set extension filter
-      for(FileChooser.ExtensionFilter extension : EXTMAP.values()) {
-         fileChooser.getExtensionFilters().add(extension);
-      }
-      
-      String home = System.getProperty("user.home");
-      File defaultFolder = new File(home + "/Downloads");
+    // Set extension filter
+    for (FileChooser.ExtensionFilter extension : EXTMAP.values()) {
+      fileChooser.getExtensionFilters().add(extension);
+    }
 
-      // Show save file dialog
-      // Choose the file
-      FileChooser.ExtensionFilter extFilter = EXTMAP.get(fileExtension);
-      if(extFilter==null)
-         extFilter = EXTMAP.get("*.*");
-      fileChooser.setSelectedExtensionFilter(extFilter);
-      fileChooser.setInitialFileName(fileName);
-      fileChooser.setInitialDirectory(defaultFolder);
-      File file = fileChooser.showSaveDialog(primaryStage);
-      if (file != null)
-      {
-         saveFile(this.srcURL, file);
-      }
-   }
+    String home = System.getProperty("user.home");
+    File defaultFolder = new File(home + "/Downloads");
 
-   private void saveFile(String urlString, File file)
-   {
-      try
-      {
-         URL url = new URL(urlString);
-         FileUtils.copyURLToFile(url, file);
-      }
-      catch (IOException ex)
-      {
-         log.error("Unable to save file: " + ex);
-      }
-   }
+    // Show save file dialog
+    // Choose the file
+    FileChooser.ExtensionFilter extFilter = EXTMAP.get(fileExtension);
+    if (extFilter == null) extFilter = EXTMAP.get("*.*");
+    fileChooser.setSelectedExtensionFilter(extFilter);
+    fileChooser.setInitialFileName(fileName);
+    fileChooser.setInitialDirectory(defaultFolder);
+    File file = fileChooser.showSaveDialog(primaryStage);
+    if (file != null) {
+      saveFile(this.srcURL, file);
+    }
+  }
 
+  private void saveFile(String urlString, File file) {
+    try {
+      URL url = new URL(urlString);
+      FileUtils.copyURLToFile(url, file);
+    } catch (IOException ex) {
+      log.error("Unable to save file: " + ex);
+    }
+  }
 }

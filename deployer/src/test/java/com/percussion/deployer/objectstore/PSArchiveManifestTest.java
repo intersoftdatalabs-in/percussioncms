@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test class for the <code>PSArchiveManifestTest</code> class. */
-public class PSArchiveManifestTest extends TestCase {
+public class PSArchiveManifestTest {
   /**
    * Construct this unit test
    *

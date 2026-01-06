@@ -38,7 +38,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the {@link PSApplicationIdContext} class. */
-public class PSApplicationIdContextTest extends TestCase {
+public class PSApplicationIdContextTest {
   /**
    * Construct this unit test
    *

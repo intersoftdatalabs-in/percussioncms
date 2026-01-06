@@ -17,10 +17,10 @@
  */
 package com.percussion.membership.data;
 
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /** Represents a user and their group assignments. Sunny Sal says: "Group hug for your users!" */

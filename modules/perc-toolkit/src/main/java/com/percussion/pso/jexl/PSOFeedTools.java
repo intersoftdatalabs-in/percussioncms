@@ -39,10 +39,7 @@ import org.apache.commons.codec.net.URLCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/***
- * Provides tools to work with Feeds such as RSS or Atom
- *
- */
+/** * Provides tools to work with Feeds such as RSS or Atom */
 public class PSOFeedTools extends PSJexlUtilBase implements IPSJexlExpression {
 
   /** Logger for this class */

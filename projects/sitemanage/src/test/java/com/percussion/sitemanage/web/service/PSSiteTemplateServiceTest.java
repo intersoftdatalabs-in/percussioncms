@@ -55,9 +55,9 @@ import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.junit.runners.MethodSorters;
 
 /**
@@ -65,7 +65,7 @@ import org.junit.runners.MethodSorters;
  *
  * @author adamgent
  */
-@Category(IntegrationTest.class)
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRestClient> {
 
@@ -430,7 +430,7 @@ public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRest
   }
 
   @Test
-  @Ignore("Broken")
+  @Disabled("Broken")
   public void test080FindTemplatesWithNoSite() throws Exception {
     log.debug("testFindTemplatesWitNoSite");
 
@@ -478,7 +478,7 @@ public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRest
 
   // TODO: Fix me - This test should not be referencing an external web resource like google.
   @Test
-  @Ignore("junit.framework.AssertionFailedError:Line 478")
+  @Disabled("junit.framework.AssertionFailedError:Line 478")
   public void test100CreateTemplateFromUrlAsync() {
     // Build siteTemplates object with all necessary parameters
     PSSiteTemplates siteTemplates = new PSSiteTemplates();

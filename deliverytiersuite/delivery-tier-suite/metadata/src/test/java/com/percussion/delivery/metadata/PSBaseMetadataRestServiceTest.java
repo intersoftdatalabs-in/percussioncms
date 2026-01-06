@@ -76,14 +76,15 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
 
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    assertEquals(testGetVersion(), response.getEntity());
+    String version_string = PSVersionHelper.getVersion(this.getClass());
+    assertNotNull(version_string);
+    assertEquals(version_string, response.getEntity());
   }
 
   @Test
-  private String testGetVersion() {
+  public void testGetVersion() {
     String version = PSVersionHelper.getVersion(this.getClass());
     assertNotNull(version);
     System.out.print(version);
-    return version;
   }
 }

@@ -168,7 +168,7 @@ public class PSSingleSignonFilter implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+   * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
   public void init(FilterConfig config) throws ServletException {
     m_config = config;
@@ -177,7 +177,7 @@ public class PSSingleSignonFilter implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#destroy()
+   * @see jakarta.servlet.Filter#destroy()
    */
   public void destroy() {
     // There is nothing to destroy at this point.

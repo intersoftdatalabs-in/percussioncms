@@ -15,7 +15,7 @@
     import="com.percussion.services.guidmgr.data.PSGuid, com.percussion.services.sitemgr.IPSSite"
     import="com.percussion.services.sitemgr.IPSSiteManager,com.percussion.services.sitemgr.PSSiteManagerLocator"
     import="com.percussion.utils.guid.IPSGuid, com.percussion.utils.types.PSPair, com.percussion.webservices.assembly.IPSAssemblyDesignWs, com.percussion.webservices.assembly.PSAssemblyWsLocator, com.percussion.webservices.content.IPSContentDesignWs, com.percussion.webservices.content.PSContentWsLocator, com.percussion.workbench.ui.editors.form.PSPublishWhenHelper.PublishWhenChoice, org.apache.logging.log4j.LogManager"
-    import="org.apache.logging.log4j.Logger, javax.servlet.jsp.JspWriter, java.io.IOException"
+    import="org.apache.logging.log4j.Logger, jakarta.servlet.jsp.JspWriter, java.io.IOException"
     import="java.util.ArrayList, java.util.Collection"
     import="java.util.List"
 %>

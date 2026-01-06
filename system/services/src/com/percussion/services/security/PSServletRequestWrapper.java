@@ -96,7 +96,7 @@ public class PSServletRequestWrapper extends HttpServletRequestWrapper
    }
    
    /* (non-Javadoc)
-    * @see javax.servlet.http.HttpServletRequest#getRemoteUser()
+    * @see jakarta.servlet.http.HttpServletRequest#getRemoteUser()
     */
    @Override
    public String getRemoteUser()
@@ -128,7 +128,7 @@ public class PSServletRequestWrapper extends HttpServletRequestWrapper
    }
    
    /* (non-Javadoc)
-    * @see javax.servlet.http.HttpServletRequest#isUserInRole(java.lang.String)
+    * @see jakarta.servlet.http.HttpServletRequest#isUserInRole(java.lang.String)
     */
    @Override
    public boolean isUserInRole(String role)

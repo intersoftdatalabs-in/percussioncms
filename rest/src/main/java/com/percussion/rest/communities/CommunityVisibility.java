@@ -66,6 +66,7 @@ public class CommunityVisibility {
   public Optional<Guid> getGuid() {
     return Optional.ofNullable(guid);
   }
+  }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
@@ -73,6 +74,7 @@ public class CommunityVisibility {
 
   public Optional<ObjectSummaryList> getVisibleObjects() {
     return Optional.ofNullable(visibleObjects);
+  }
   }
 
   public void setVisibleObjects(ObjectSummaryList visibleObjects) {
@@ -105,4 +107,5 @@ public class CommunityVisibility {
         + visibleObjects
         + '}';
   }
+
 }

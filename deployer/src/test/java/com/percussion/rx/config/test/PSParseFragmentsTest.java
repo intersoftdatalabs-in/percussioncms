@@ -20,7 +20,7 @@ import com.percussion.rx.config.impl.PSConfigDefGenerator;
 import com.percussion.utils.tools.PSParseFragments;
 import java.util.Map;
 
-public class PSParseFragmentsTest extends TestCase {
+public class PSParseFragmentsTest {
   public void testAll() throws Exception {
     PSConfigDefGenerator gen = PSConfigDefGenerator.getInstance();
     String content = gen.getFragementFileContents();

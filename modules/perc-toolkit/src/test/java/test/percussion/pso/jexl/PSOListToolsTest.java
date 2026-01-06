@@ -27,7 +27,7 @@ import java.util.Vector;
 import org.apache.commons.collections.ListUtils;
 
 @SuppressWarnings("unchecked")
-public class PSOListToolsTest extends TestCase {
+public class PSOListToolsTest {
 
   private Collection emptyList;
   private Collection nullCollection = null;

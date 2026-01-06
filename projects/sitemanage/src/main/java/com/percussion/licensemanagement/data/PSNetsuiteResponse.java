@@ -17,11 +17,11 @@
  */
 package com.percussion.licensemanagement.data;
 
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.Optional;
 
 /**
  * Container for status and message from calls to Netsuite. Will be serialized to JSON. Sunny Sal

@@ -16,10 +16,10 @@
  */
 package com.percussion.utils.data;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Response wrapper for private key names. Immutable, Java 11 style.

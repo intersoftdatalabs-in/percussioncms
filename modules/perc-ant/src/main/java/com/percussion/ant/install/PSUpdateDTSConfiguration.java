@@ -33,11 +33,10 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.Project;
 
-/****
- * This action is responsible for generating a properties file that
- * can be used to externalize the configuration of the DTS tomcat from
- * the server.xml file. It should be called before the server.xml is updated
- * or replaced.
+/**
+ * ** This action is responsible for generating a properties file that can be used to externalize
+ * the configuration of the DTS tomcat from the server.xml file. It should be called before the
+ * server.xml is updated or replaced.
  */
 public class PSUpdateDTSConfiguration extends PSAction {
 

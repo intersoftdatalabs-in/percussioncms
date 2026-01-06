@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
-@ContextConfiguration(locations = {"classpath:test-beans.xml"})
+@ContextConfiguration(locations = {"classpath:test-beans-generic-key.xml"})
 public class PSGenericKeyServiceTest {
   @Autowired private IPSGenericKeyService genericKeyService;
 

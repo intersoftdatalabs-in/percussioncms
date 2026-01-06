@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -25,12 +24,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -50,233 +48,186 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "serviceOrderDetailID",
-    "resourceID",
-    "quantity",
-    "pricingMethodID",
-    "unitPrice",
-    "notes",
-    "specialInstructions"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "serviceOrderDetailID",
+      "resourceID",
+      "quantity",
+      "pricingMethodID",
+      "unitPrice",
+      "notes",
+      "specialInstructions"
+    })
 @XmlRootElement(name = "UpdateServiceOrderDetail")
 public class UpdateServiceOrderDetail {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "ServiceOrderDetailID")
-    protected int serviceOrderDetailID;
-    @XmlElement(name = "ResourceID")
-    protected int resourceID;
-    @XmlElement(name = "Quantity", required = true)
-    protected BigDecimal quantity;
-    @XmlElement(name = "PricingMethodID")
-    protected int pricingMethodID;
-    @XmlElement(name = "UnitPrice", required = true)
-    protected BigDecimal unitPrice;
-    @XmlElement(name = "Notes")
-    protected String notes;
-    @XmlElement(name = "SpecialInstructions")
-    protected String specialInstructions;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "ServiceOrderDetailID")
+  protected int serviceOrderDetailID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "ResourceID")
+  protected int resourceID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "Quantity", required = true)
+  protected BigDecimal quantity;
 
-    /**
-     * Gets the value of the serviceOrderDetailID property.
-     * 
-     */
-    public int getServiceOrderDetailID() {
-        return serviceOrderDetailID;
-    }
+  @XmlElement(name = "PricingMethodID")
+  protected int pricingMethodID;
 
-    /**
-     * Sets the value of the serviceOrderDetailID property.
-     * 
-     */
-    public void setServiceOrderDetailID(int value) {
-        this.serviceOrderDetailID = value;
-    }
+  @XmlElement(name = "UnitPrice", required = true)
+  protected BigDecimal unitPrice;
 
-    /**
-     * Gets the value of the resourceID property.
-     * 
-     */
-    public int getResourceID() {
-        return resourceID;
-    }
+  @XmlElement(name = "Notes")
+  protected String notes;
 
-    /**
-     * Sets the value of the resourceID property.
-     * 
-     */
-    public void setResourceID(int value) {
-        this.resourceID = value;
-    }
+  @XmlElement(name = "SpecialInstructions")
+  protected String specialInstructions;
 
-    /**
-     * Gets the value of the quantity property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getQuantity() {
-        return quantity;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Sets the value of the quantity property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setQuantity(BigDecimal value) {
-        this.quantity = value;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Gets the value of the pricingMethodID property.
-     * 
-     */
-    public int getPricingMethodID() {
-        return pricingMethodID;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the value of the pricingMethodID property.
-     * 
-     */
-    public void setPricingMethodID(int value) {
-        this.pricingMethodID = value;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Gets the value of the unitPrice property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
+  /** Gets the value of the serviceOrderDetailID property. */
+  public int getServiceOrderDetailID() {
+    return serviceOrderDetailID;
+  }
 
-    /**
-     * Sets the value of the unitPrice property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setUnitPrice(BigDecimal value) {
-        this.unitPrice = value;
-    }
+  /** Sets the value of the serviceOrderDetailID property. */
+  public void setServiceOrderDetailID(int value) {
+    this.serviceOrderDetailID = value;
+  }
 
-    /**
-     * Gets the value of the notes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getNotes() {
-        return notes;
-    }
+  /** Gets the value of the resourceID property. */
+  public int getResourceID() {
+    return resourceID;
+  }
 
-    /**
-     * Sets the value of the notes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setNotes(String value) {
-        this.notes = value;
-    }
+  /** Sets the value of the resourceID property. */
+  public void setResourceID(int value) {
+    this.resourceID = value;
+  }
 
-    /**
-     * Gets the value of the specialInstructions property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSpecialInstructions() {
-        return specialInstructions;
-    }
+  /**
+   * Gets the value of the quantity property.
+   *
+   * @return possible object is {@link BigDecimal }
+   */
+  public BigDecimal getQuantity() {
+    return quantity;
+  }
 
-    /**
-     * Sets the value of the specialInstructions property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSpecialInstructions(String value) {
-        this.specialInstructions = value;
-    }
+  /**
+   * Sets the value of the quantity property.
+   *
+   * @param value allowed object is {@link BigDecimal }
+   */
+  public void setQuantity(BigDecimal value) {
+    this.quantity = value;
+  }
 
+  /** Gets the value of the pricingMethodID property. */
+  public int getPricingMethodID() {
+    return pricingMethodID;
+  }
+
+  /** Sets the value of the pricingMethodID property. */
+  public void setPricingMethodID(int value) {
+    this.pricingMethodID = value;
+  }
+
+  /**
+   * Gets the value of the unitPrice property.
+   *
+   * @return possible object is {@link BigDecimal }
+   */
+  public BigDecimal getUnitPrice() {
+    return unitPrice;
+  }
+
+  /**
+   * Sets the value of the unitPrice property.
+   *
+   * @param value allowed object is {@link BigDecimal }
+   */
+  public void setUnitPrice(BigDecimal value) {
+    this.unitPrice = value;
+  }
+
+  /**
+   * Gets the value of the notes property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getNotes() {
+    return notes;
+  }
+
+  /**
+   * Sets the value of the notes property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setNotes(String value) {
+    this.notes = value;
+  }
+
+  /**
+   * Gets the value of the specialInstructions property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getSpecialInstructions() {
+    return specialInstructions;
+  }
+
+  /**
+   * Sets the value of the specialInstructions property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setSpecialInstructions(String value) {
+    this.specialInstructions = value;
+  }
 }

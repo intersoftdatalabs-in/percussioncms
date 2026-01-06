@@ -28,7 +28,7 @@ import com.percussion.share.test.PSTestDataCleaner;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClient> {
 

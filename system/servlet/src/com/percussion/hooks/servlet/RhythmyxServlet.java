@@ -1011,13 +1011,13 @@ public class RhythmyxServlet extends PSServletBase
     * The attribute name for JSP request URI's.
     */
    private static final String INCLUDED_REQUEST_URI =
-       "javax.servlet.include.request_uri";
+       "jakarta.servlet.include.request_uri";
 
    /**
     * The attribute name for JSP query strings.
     */
    private static final String INCLUDED_QUERY_STRING =
-       "javax.servlet.include.query_string";
+       "jakarta.servlet.include.query_string";
 
    /** A single space. */
    private static final String SPACE = " ";

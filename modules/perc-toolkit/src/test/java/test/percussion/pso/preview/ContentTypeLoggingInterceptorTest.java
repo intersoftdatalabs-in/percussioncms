@@ -41,8 +41,8 @@ public class ContentTypeLoggingInterceptorTest {
 
   /**
    * Test method for {@link
-   * ContentTypeLoggingInterceptor#preHandle(javax.servlet.http.HttpServletRequest,
-   * javax.servlet.http.HttpServletResponse, Object)}.
+   * ContentTypeLoggingInterceptor#preHandle(jakarta.servlet.http.HttpServletRequest,
+   * jakarta.servlet.http.HttpServletResponse, Object)}.
    */
   @Test
   public final void testPreHandle() {

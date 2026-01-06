@@ -19,9 +19,9 @@
 
 package com.percussion.assetmanagement.data;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** List wrapper for PSAssetSummary objects. */
 @XmlRootElement(name = "AssetSummary")

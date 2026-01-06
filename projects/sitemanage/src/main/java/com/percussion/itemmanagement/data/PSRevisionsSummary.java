@@ -17,8 +17,8 @@
 
 package com.percussion.itemmanagement.data;
 
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Provides the revision summary that has list of PSRevision objects and other info like the item

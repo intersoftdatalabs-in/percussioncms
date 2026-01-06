@@ -24,7 +24,6 @@ import java.util.Properties;
 
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
