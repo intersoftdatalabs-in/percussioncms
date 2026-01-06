@@ -104,7 +104,7 @@ Always use the #codebase context when resolving missing interfaces or classes.
 * Build and test the project using JDK 21
 * **ALWAYS set JAVA_HOME to a Java 21 JRE before running any build or shell commands**
 * Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
-== Dependencies 
+== Dependencies
 * Upgrade dependencies to their latest versions that are compatible with JDK 21.0
 * Dependency versions are managed in the parent pom.xml file
 * axis
