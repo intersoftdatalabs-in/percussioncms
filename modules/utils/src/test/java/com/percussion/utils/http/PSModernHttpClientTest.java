@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** Simple test for the PSModernHttpClient to verify basic functionality */
@@ -46,6 +47,7 @@ class PSModernHttpClientTest {
     assertTrue(response.contains("\"foo\": \"bar\""));
   }
 
+  @Disabled("httpbin.org service is unreliable - returns 502 errors")
   @Test
   void testGetBinaryReturnsInputStream() throws IOException {
     var client = new PSModernHttpClient(BASE_URL);
@@ -65,6 +67,7 @@ class PSModernHttpClientTest {
     assertTrue(response.contains("\"hello\": \"world\""));
   }
 
+  @Disabled("httpbin.org service is unreliable - returns 502 errors")
   @Test
   void testPostFormReturnsResponse() throws IOException {
     var client = new PSModernHttpClient(BASE_URL);
