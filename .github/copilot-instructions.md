@@ -94,18 +94,18 @@ Always use the #codebase context when resolving missing interfaces or classes.
 * All changes must be tested locally before pushing
 
 == Branch Information
-* Branch Name: development-8.1.x
-* This branch is intended to maintain compatibility with Java 8 (JDK 1.8.0) while providing security updates and bug fixes.
-* All code changes in this branch must be compatible with JDK 1.8.0
+* Branch Name: development
+* This branch is intended to maintain compatibility with the JDK 21
+* All code changes in this branch must be compatible with JDK 21
 * All changes must preserve existing functionality and not introduce any features that require a higher Java version.
 * Maintaining backward compatibility with existing functionality is the highest priority behind security and accessibility defects.
 == Java Version
-* Ensure all code is compatible with JDK 1.8.0
-* Build and test the project using JDK 1.8.0
-* **ALWAYS set JAVA_HOME to a Java 1.8 JRE before running any build or shell commands**
-* Example: `export JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto` before running `mvn` commands
-== Dependencies
-* Upgrade dependencies to their latest versions that are compatible with JDK 1.8.0
+* Ensure all code is compatible with JDK 21
+* Build and test the project using JDK 21
+* **ALWAYS set JAVA_HOME to a Java 21 JRE before running any build or shell commands**
+* Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
+== Dependencies 
+* Upgrade dependencies to their latest versions that are compatible with JDK 21.0
 * Dependency versions are managed in the parent pom.xml file
 * axis
 ** axis:axis dependencies are manaaged in static lib folder and not an external repository
@@ -115,4 +115,3 @@ Always use the #codebase context when resolving missing interfaces or classes.
 * prefer the javax namespace, do not migrate to the jakarta namespace on this branch.
 * Add all AI generated plans, tasks, issues to the /docs/ai-generated/tasks/ folder for future reference.
 * Organize AI-generated documentation by task using the pattern: `/docs/ai-generated/tasks/PR#-TaskName/` (e.g., `/docs/ai-generated/tasks/#524-v8.1.6-release-notes/`)
->>>>>>> development-8.1.x
