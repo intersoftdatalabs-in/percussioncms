@@ -264,9 +264,6 @@
                             <value>${project.build.directory}</value>
                         </property>
                     </systemProperties>
-                    <classpathDependencyExcludes>
-                        <!-- Ensure Derby is loaded from our explicit dependency -->
-                    </classpathDependencyExcludes>
                 </configuration>
                 <dependencies>
                     <dependency>
