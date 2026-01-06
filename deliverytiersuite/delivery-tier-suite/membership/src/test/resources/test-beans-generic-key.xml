@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+   <bean id="propertyPlaceholderProps"
+         class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
+      <property name="ignoreResourceNotFound" value="true" />
+      <property name="autoSecure" value="true" />
+      <property name="securedProperties">
+         <list>
+            <value>cacheMgr.password</value>
+            <value>db.password</value>
+         </list>
+      </property>
+      <property name="locations">
+         <list>
+            <value>perc-datasources.properties</value>
+            <value>perc-membership-services.properties</value>
+         </list>
+      </property>
+
+      <property name="properties">
+         <props>
+            <!-- default properties for database -->
+            <prop key="jdbcUrl">jdbc:derby:memory:percmembership;create=true</prop>
+            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+            <prop key="maximumPoolSize">10</prop>
+            <prop key="db.username">test</prop>
+            <prop key="db.password">test</prop>
+            <prop key="db.schema">APP</prop>
+            <prop key="datasource">percDataSource</prop>
+            <prop key="hibernateProperties">percHibernateProperties</prop>
+            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
+            <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+            <prop key="hibernate.cache.use_second_level_cache">false</prop>
+            <prop key="hibernate.cache.use_query_cache">false</prop>
+         </props>
+      </property>
+   </bean>
+
+   <bean id="propertyConfigurer"
+         class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
+      <property name="properties" ref="propertyPlaceholderProps" />
+   </bean>
+
+   <!-- Only import the minimal test DataSource/Hibernate props -->
+   <import resource="perc-datasources.xml" />
+
+   <!-- Hibernate SessionFactory -->
+   <bean id="membershipSessionFactory"
+         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+      <property name="dataSource">
+         <ref bean="${datasource}" />
+      </property>
+      <property name="hibernateProperties">
+         <ref bean="${hibernateProperties}" />
+      </property>
+      <property name="configLocation">
+         <value>hibernate.cfg.xml</value>
+      </property>
+   </bean>
+
+   <tx:annotation-driven transaction-manager="txManager"/>
+
+   <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+      <property name="sessionFactory" ref="membershipSessionFactory" />
+   </bean>
+
+   <bean id="genericKeyDao"
+         class="com.percussion.generickey.utils.services.rdbms.impl.PSGenericKeyDao">
+      <constructor-arg ref="membershipSessionFactory" />
+   </bean>
+
+   <bean id="genericKeyService"
+         class="com.percussion.generickey.utils.services.impl.PSGenericKeyService"
+         autowire="constructor">
+   </bean>
+
+</beans>
