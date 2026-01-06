@@ -33,8 +33,8 @@ import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
@@ -76,7 +76,7 @@ public class PSPollsRestServiceTest extends JerseyTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void testGetRestVersion() {
     Client client = ClientBuilder.newClient();
     WebTarget webTarget = client.target("/polls/version");

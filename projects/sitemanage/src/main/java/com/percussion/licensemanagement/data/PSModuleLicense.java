@@ -18,8 +18,8 @@
 
 package com.percussion.licensemanagement.data;
 
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Represents a module license. Sunny Sal says: "License modules like a boss!" */
 @XmlRootElement(name = "moduleLicense")

@@ -339,7 +339,7 @@ public class PSSecurityFilter implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+   * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
   public void init(FilterConfig config) throws ServletException {
     String p = config.getInitParameter("policy");
@@ -1859,7 +1859,7 @@ public class PSSecurityFilter implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#destroy()
+   * @see jakarta.servlet.Filter#destroy()
    */
   public void destroy() {
     // Nothing to do here but can be overridden

@@ -33,6 +33,23 @@ import com.rometools.modules.mediarss.types.Thumbnail;
  * time specifies the time offset in relation to the media object. Typically this is used when creating multiple keyframes within a single video. The format for this attribute should be in the DSM-CC's Normal Play Time (NTP) as used in RTSP [RFC 2326 3.6 Normal Play Time]. It is an optional attribute.
  * @author natechadwick
  *
+ * <p>Allows particular images to be used as representative images for the media object. If multiple
+ * thumbnails are included, and time coding is not at play, it is assumed that the images are in
+ * order of importance. It has 1 required attribute and 3 optional attributes.
+ *
+ * <p><media:thumbnail url="http://www.foo.com/keyframe.jpg" width="75" height="50"
+ * time="12:05:01.123" /> url specifies the url of the thumbnail. It is a required attribute.
+ *
+ * <p>height specifies the height of the thumbnail. It is an optional attribute.
+ *
+ * <p>width specifies the width of the thumbnail. It is an optional attribute.
+ *
+ * <p>time specifies the time offset in relation to the media object. Typically this is used when
+ * creating multiple keyframes within a single video. The format for this attribute should be in the
+ * DSM-CC's Normal Play Time (NTP) as used in RTSP [RFC 2326 3.6 Normal Play Time]. It is an
+ * optional attribute.
+ *
+ * @author natechadwick
  */
 public class PSSynFeedThumbnail {
 

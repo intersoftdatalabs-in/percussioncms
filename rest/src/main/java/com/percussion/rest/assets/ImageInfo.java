@@ -21,8 +21,8 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @XmlRootElement(name = "ImageInfo")
 @JsonInclude(Include.NON_NULL)

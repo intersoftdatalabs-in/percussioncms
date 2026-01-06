@@ -19,10 +19,10 @@ package com.percussion.pso.restservice.model;
 import org.apache.commons.httpclient.Header;
 import org.dom4j.Document;
 
-/***
- * Represents a Response from an request for the DOM of a remote resource.
- * @author natechadwick
+/**
+ * * Represents a Response from an request for the DOM of a remote resource.
  *
+ * @author natechadwick
  */
 public class HttpDOMResponse extends BaseHttpResponse {
 

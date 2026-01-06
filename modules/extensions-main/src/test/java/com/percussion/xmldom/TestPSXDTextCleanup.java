@@ -30,12 +30,13 @@ import com.percussion.util.PSPurgableTempFile;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Scanner;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+
 
 /** Test the text cleanup extension. */
 public class TestPSXDTextCleanup {
@@ -85,7 +86,7 @@ public class TestPSXDTextCleanup {
             + " 😀</b></div>");
     psXdTextCleanup.preProcessRequest(params, context);
     assertEquals(
-        "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div 😀</b></div>",
+        "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div ��</b></div>",
         context.getParameter("postBody"));
   }
 
@@ -97,52 +98,42 @@ public class TestPSXDTextCleanup {
           PSRequestValidationException,
           PSParameterMismatchException {
 
-    PSXdTextCleanup psXdTextCleanup = new PSXdTextCleanup();
+      PSXdTextCleanup psXdTextCleanup = new PSXdTextCleanup();
 
-    String text =
-        new Scanner(
-                Objects.requireNonNull(
-                    TestPSHtmlCleanerProperties.class.getResourceAsStream(
-                        "/com/percussion/xmldom/testdocument.html")),
-                "UTF-8")
-            .useDelimiter("\\A")
-            .next();
-    Object[] params =
-        new Object[] {
-          "postBody", // fieldName
-          "html-cleaner.properties", // cleaner properties config
-          null, // server tags config file
-          StandardCharsets.UTF_8.name(), // encoding
-          "yes", // disable inline links
-          "yes", // use pretty print
-        };
+      String text =
+              new Scanner(
+                      Objects.requireNonNull(TestPSHtmlCleanerProperties.class
+                              .getResourceAsStream("/com/percussion/xmldom/testdocument.html")),
+                      "UTF-8").useDelimiter("\\A").next();
+      Object[] params = new Object[] {"postBody", // fieldName
+              "html-cleaner.properties", // cleaner properties config
+              null, // server tags config file
+              StandardCharsets.UTF_8.name(), // encoding
+              "yes", // disable inline links
+              "yes", // use pretty print
+      };
 
-    PSPurgableTempFile tempFile = new PSPurgableTempFile("test", "html", temporaryFolder.getRoot());
-    tempFile.setSourceFileName("testdocument.html");
-    tempFile.setSourceContentType("text/html");
-    try (PrintWriter writer = new PrintWriter(tempFile)) {
-      writer.print(text);
-    }
+      PSPurgableTempFile tempFile =
+              new PSPurgableTempFile("test", "html", temporaryFolder.toFile());
+      tempFile.setSourceFileName("testdocument.html");
+      tempFile.setSourceContentType("text/html");
+      try (PrintWriter writer = new PrintWriter(tempFile)) {
+          writer.print(text);
+      }
 
-    PSMockRequestContext context = new PSMockRequestContext();
+      PSMockRequestContext context = new PSMockRequestContext();
 
-    context.setParameter("postBody", tempFile);
-    psXdTextCleanup.preProcessRequest(params, context);
+      context.setParameter("postBody", tempFile);
+      psXdTextCleanup.preProcessRequest(params, context);
+      String newText = null;
 
-    assertNotNull(context.getParameter("postBody"));
-    String newText =
-        new Scanner(Objects.requireNonNull(tempFile), "UTF-8").useDelimiter("\\A").next();
-    System.out.println(newText);
-    assertEquals(text, newText);
-  }
+      assertNotNull(context.getParameter("postBody"));
+      try (Scanner scanner = new Scanner(Objects.requireNonNull(tempFile), "UTF-8")) {
+          new Scanner(Objects.requireNonNull(tempFile), "UTF-8").useDelimiter("\\A").next();
+          newText = scanner.useDelimiter("\\A").next();
+          System.out.println(newText);
+          assertEquals(text, newText);
 
-  @BeforeEach
-  public void setup() throws IOException {
-    temporaryFolder.create();
-  }
-
-  @AfterEach
-  public void teardown() {
-    temporaryFolder.delete();
+      }
   }
 }

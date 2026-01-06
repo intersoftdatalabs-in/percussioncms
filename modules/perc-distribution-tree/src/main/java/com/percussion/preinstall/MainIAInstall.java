@@ -26,7 +26,7 @@ import com.zerog.ia.api.pub.UninstallerProxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MainIAInstall extends CustomCodeAction {
+public class MainIAInstall {
 
   private static final Logger log = LogManager.getLogger(MainIAInstall.class);
 

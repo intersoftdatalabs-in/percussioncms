@@ -17,9 +17,9 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.List;
 
 @XmlRootElement(name = "DashboardConfig")
 @XmlType(

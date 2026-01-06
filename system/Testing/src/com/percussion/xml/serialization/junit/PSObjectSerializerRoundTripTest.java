@@ -32,7 +32,6 @@ import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.xml.serialization.PSObjectSerializer;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -44,7 +44,7 @@ import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSUserAccessLevel;
@@ -290,7 +290,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
                aclService.deleteAcl(id);
                results.addResult(id);
             }
-            catch (PSSecurityException e)
+            catch (PSServiceSecurityException e)
             {
                int code = IPSWebserviceErrors.DELETE_FAILED;
                PSDesignGuid guid = new PSDesignGuid(id);
@@ -670,7 +670,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
             else
                acls = aclService.loadAcls(null);
          }
-         catch (PSSecurityException e)
+         catch (PSServiceSecurityException e)
          {
             //make a fake id
             IPSGuid id = new PSGuid(-1, PSTypeEnum.INVALID, -1);
@@ -738,7 +738,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
 
          try {
             aclService.saveAcls(Collections.singletonList(acl));
-         } catch (PSSecurityException e) {
+         } catch (PSServiceSecurityException e) {
             results.addError(acl.getGUID(), e);
          }
          aclList.add(aclImpl);
@@ -1082,7 +1082,7 @@ public class PSSystemDesignWs extends PSSystemBaseWs implements
       {
          aclService.saveAcls(saveList);
       }
-      catch (PSSecurityException e) 
+      catch (PSServiceSecurityException e) 
       {
          /* assign error to all guids that don't already have one and skip 
           * processing below

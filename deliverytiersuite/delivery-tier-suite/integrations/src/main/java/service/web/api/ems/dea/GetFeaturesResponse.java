@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getFeaturesResult"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getFeaturesResult"})
 @XmlRootElement(name = "GetFeaturesResponse")
 public class GetFeaturesResponse {
 
-    @XmlElement(name = "GetFeaturesResult")
-    protected String getFeaturesResult;
+  @XmlElement(name = "GetFeaturesResult")
+  protected String getFeaturesResult;
 
-    /**
-     * Gets the value of the getFeaturesResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetFeaturesResult() {
-        return getFeaturesResult;
-    }
+  /**
+   * Gets the value of the getFeaturesResult property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetFeaturesResult() {
+    return getFeaturesResult;
+  }
 
-    /**
-     * Sets the value of the getFeaturesResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetFeaturesResult(String value) {
-        this.getFeaturesResult = value;
-    }
-
+  /**
+   * Sets the value of the getFeaturesResult property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetFeaturesResult(String value) {
+    this.getFeaturesResult = value;
+  }
 }

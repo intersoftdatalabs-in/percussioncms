@@ -101,6 +101,7 @@ public class WrappedTrustManager implements X509TrustManager {
         exception = e;
       }
     }
+  }
 
     if (exception != null) {
       log.warn("Failed to validate client certificate with any trust manager");
@@ -117,13 +118,3 @@ public class WrappedTrustManager implements X509TrustManager {
     // Using null here initialises the TMF with the default trust store.
     tmf.init(keystore);
 
-    // Get hold of the default trust manager
-
-    for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        return (X509TrustManager) tm;
-      }
-    }
-    return null;
-  }
-}

@@ -18,6 +18,14 @@ package com.percussion.webui.gadget.servlets;
 
 import com.percussion.security.ToDoVulnerability;
 import com.percussion.security.error.PSExceptionUtils;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -30,14 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -66,8 +66,8 @@ public class GadgetSettingsFormServlet extends HttpServlet {
   }
 
   /* (non-Javadoc)
-   * @see javax.servlet.http.HttpServlet#doGet(
-   *    javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see jakarta.servlet.http.HttpServlet#doGet(
+   *    jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)
    */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {

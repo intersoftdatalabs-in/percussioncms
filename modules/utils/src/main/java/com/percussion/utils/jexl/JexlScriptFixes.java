@@ -27,14 +27,23 @@ public class JexlScriptFixes {
   /** The logger. */
   private static final Logger LOG = LogManager.getLogger(PSScript.class);
 
-  public static final String REF_REGEX = "[a-zA-Z_$][0-9a-zA-Z_$]*";
+  public static final String REF_VAR = "\\$[a-zA-Z_$][0-9a-zA-Z_$]*";
+
   public static final Pattern REF_EQUALS_REGEX =
-      Pattern.compile("(" + REF_REGEX + ")=(\\$[0-9a-zA-Z_$]+)");
+      Pattern.compile("(" + REF_VAR + ")=(" + REF_VAR + ")");
   public static final String REF_EQUALS_REGEX_REPL = "$1 = $2";
-  public static final Pattern REF_NEQUALS_REGEX = Pattern.compile("!(\\$[a-zA-Z_$])");
+
+  public static final Pattern REF_NEQUALS_REGEX = Pattern.compile("!\\s*(" + REF_VAR + ")");
   public static final String REF_NEQUALS_REGEX_REPL = "! $1";
+
+  // Match: foreach($item in list) or foreach($item in $list)
   public static final Pattern FOR_REGEX =
-      Pattern.compile("foreach\\s*\\(\\s*(" + REF_REGEX + ")\\s+in\\s+(" + REF_REGEX + ")\\s*\\)");
+      Pattern.compile(
+          "foreach\\s*\\(\\s*("
+              + REF_VAR
+              + ")\\s+in\\s+("
+              + REF_VAR
+              + "|[a-zA-Z_$][0-9a-zA-Z_$.]*)\\s*\\)");
 
   public static final String FOR_REGEX_REPL = "for($1 : $2)";
 

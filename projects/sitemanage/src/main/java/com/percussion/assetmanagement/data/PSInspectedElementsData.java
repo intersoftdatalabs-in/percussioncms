@@ -19,9 +19,9 @@
 
 package com.percussion.assetmanagement.data;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Wrapper object that holds the details of HTML assets that need to be created and added to the

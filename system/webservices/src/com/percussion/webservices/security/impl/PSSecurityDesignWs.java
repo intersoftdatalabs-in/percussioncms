@@ -40,7 +40,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;
@@ -130,7 +130,7 @@ public class PSSecurityDesignWs extends PSSecurityBaseWs implements
                service.loadCommunity(id);
                exists = true;
             }
-            catch (PSSecurityException e)
+            catch (PSServiceSecurityException e)
             {
                // ignore, just means that the community does not exist
             }

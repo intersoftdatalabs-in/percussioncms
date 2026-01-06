@@ -9,7 +9,7 @@
 ExpressionEvaluator (JavaServer Pages API Documentation)
 </TITLE>
 
-<META NAME="keywords" CONTENT="javax.servlet.jsp.el.ExpressionEvaluator class">
+<META NAME="keywords" CONTENT="jakarta.servlet.jsp.el.ExpressionEvaluator class">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" TITLE="Style">
 
@@ -52,7 +52,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in javax.servlet.jsp.el"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in jakarta.servlet.jsp.el"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -84,12 +84,12 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <!-- ======== START OF CLASS DATA ======== -->
 <H2>
 <FONT SIZE="-1">
-javax.servlet.jsp.el</FONT>
+jakarta.servlet.jsp.el</FONT>
 <BR>
 Class ExpressionEvaluator</H2>
 <PRE>
 java.lang.Object
-  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by"><B>javax.servlet.jsp.el.ExpressionEvaluator</B>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by"><B>jakarta.servlet.jsp.el.ExpressionEvaluator</B>
 </PRE>
 <HR>
 <DL>
@@ -169,20 +169,20 @@ java.lang.Object
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;java.lang.Object</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../javax/servlet/jsp/el/ExpressionEvaluator.html#evaluate(java.lang.String, java.lang.Class, javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)">evaluate</A></B>(java.lang.String&nbsp;expression,
+<TD><CODE><B><A HREF="../../../../javax/servlet/jsp/el/ExpressionEvaluator.html#evaluate(java.lang.String, java.lang.Class, jakarta.servlet.jsp.el.VariableResolver, jakarta.servlet.jsp.el.FunctionMapper)">evaluate</A></B>(java.lang.String&nbsp;expression,
          java.lang.Class&nbsp;expectedType,
-         <A HREF="../../../../javax/servlet/jsp/el/VariableResolver.html" title="interface in javax.servlet.jsp.el">VariableResolver</A>&nbsp;vResolver,
-         <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in javax.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)</CODE>
+         <A HREF="../../../../javax/servlet/jsp/el/VariableResolver.html" title="interface in jakarta.servlet.jsp.el">VariableResolver</A>&nbsp;vResolver,
+         <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in jakarta.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Evaluates an expression.  </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>abstract &nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in javax.servlet.jsp.el">Expression</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../javax/servlet/jsp/el/ExpressionEvaluator.html#parseExpression(java.lang.String, java.lang.Class, javax.servlet.jsp.el.FunctionMapper)">parseExpression</A></B>(java.lang.String&nbsp;expression,
+<CODE>abstract &nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in jakarta.servlet.jsp.el">Expression</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../javax/servlet/jsp/el/ExpressionEvaluator.html#parseExpression(java.lang.String, java.lang.Class, jakarta.servlet.jsp.el.FunctionMapper)">parseExpression</A></B>(java.lang.String&nbsp;expression,
                 java.lang.Class&nbsp;expectedType,
-                <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in javax.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)</CODE>
+                <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in jakarta.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prepare an expression for later evaluation.  </TD>
@@ -230,13 +230,13 @@ public <B>ExpressionEvaluator</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="parseExpression(java.lang.String, java.lang.Class, javax.servlet.jsp.el.FunctionMapper)"><!-- --></A><H3>
+<A NAME="parseExpression(java.lang.String, java.lang.Class, jakarta.servlet.jsp.el.FunctionMapper)"><!-- --></A><H3>
 parseExpression</H3>
 <PRE>
-public abstract <A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in javax.servlet.jsp.el">Expression</A> <B>parseExpression</B>(java.lang.String&nbsp;expression,
+public abstract <A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in jakarta.servlet.jsp.el">Expression</A> <B>parseExpression</B>(java.lang.String&nbsp;expression,
                                            java.lang.Class&nbsp;expectedType,
-                                           <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in javax.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)
-                                    throws <A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in javax.servlet.jsp.el">ELException</A></PRE>
+                                           <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in jakarta.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)
+                                    throws <A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in jakarta.servlet.jsp.el">ELException</A></PRE>
 <DL>
 <DD>Prepare an expression for later evaluation.  This method should perform
  syntactic validation of the expression; if in doing so it detects 
@@ -255,19 +255,19 @@ public abstract <A HREF="../../../../javax/servlet/jsp/el/Expression.html" title
      and <code>Expression.evaluate()</code>.
 <DT><B>Returns:</B><DD>The Expression object encapsulating the arguments.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in javax.servlet.jsp.el">ELException</A></CODE> - Thrown if parsing errors were found.</DL>
+<DD><CODE><A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in jakarta.servlet.jsp.el">ELException</A></CODE> - Thrown if parsing errors were found.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="evaluate(java.lang.String, java.lang.Class, javax.servlet.jsp.el.VariableResolver, javax.servlet.jsp.el.FunctionMapper)"><!-- --></A><H3>
+<A NAME="evaluate(java.lang.String, java.lang.Class, jakarta.servlet.jsp.el.VariableResolver, jakarta.servlet.jsp.el.FunctionMapper)"><!-- --></A><H3>
 evaluate</H3>
 <PRE>
 public abstract java.lang.Object <B>evaluate</B>(java.lang.String&nbsp;expression,
                                           java.lang.Class&nbsp;expectedType,
-                                          <A HREF="../../../../javax/servlet/jsp/el/VariableResolver.html" title="interface in javax.servlet.jsp.el">VariableResolver</A>&nbsp;vResolver,
-                                          <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in javax.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)
-                                   throws <A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in javax.servlet.jsp.el">ELException</A></PRE>
+                                          <A HREF="../../../../javax/servlet/jsp/el/VariableResolver.html" title="interface in jakarta.servlet.jsp.el">VariableResolver</A>&nbsp;vResolver,
+                                          <A HREF="../../../../javax/servlet/jsp/el/FunctionMapper.html" title="interface in jakarta.servlet.jsp.el">FunctionMapper</A>&nbsp;fMapper)
+                                   throws <A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in jakarta.servlet.jsp.el">ELException</A></PRE>
 <DL>
 <DD>Evaluates an expression.  This method may perform some syntactic 
  validation and, if so, it should raise an ELParseException error if 
@@ -281,7 +281,7 @@ public abstract java.lang.Object <B>evaluate</B>(java.lang.String&nbsp;expressio
      are supported for this invocation.
 <DT><B>Returns:</B><DD>The result of the expression evaluation.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in javax.servlet.jsp.el">ELException</A></CODE> - Thrown if the expression evaluation failed.</DL>
+<DD><CODE><A HREF="../../../../javax/servlet/jsp/el/ELException.html" title="class in jakarta.servlet.jsp.el">ELException</A></CODE> - Thrown if the expression evaluation failed.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -315,7 +315,7 @@ public abstract java.lang.Object <B>evaluate</B>(java.lang.String&nbsp;expressio
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in javax.servlet.jsp.el"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../javax/servlet/jsp/el/Expression.html" title="class in jakarta.servlet.jsp.el"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../index.html" target="_top"><B>FRAMES</B></A>  &nbsp;

@@ -31,8 +31,8 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 
@@ -47,7 +47,7 @@ public class PSOProxyQueryResourceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @Ignore
+  @Disabled
   // TODO: Fix Me
   public void shouldFailIfUrlIsNotProvided() throws Exception {
     IPSRequestContext request = makeRequest(makeRequestParams(null, null, null));

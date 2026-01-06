@@ -31,6 +31,7 @@ import org.jsoup.select.Elements;
  *
  * @author natechadwick
  *
+ * @author natechadwick
  */
 public class HtmlLinkHelper {
 

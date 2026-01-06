@@ -52,7 +52,6 @@ import org.w3c.dom.Document;
  * @see com.percussion.extension.IPSItemInputTransformer
  * @see com.percussion.extension.IPSRequestPreProcessor
  * @author natechadwick
- *
  */
 public class PSOSetFieldOnSlottedItemTransform
     implements IPSItemInputTransformer,

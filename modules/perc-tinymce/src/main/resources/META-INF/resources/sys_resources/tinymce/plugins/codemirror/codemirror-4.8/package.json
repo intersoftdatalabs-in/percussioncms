@@ -7,7 +7,7 @@
                   "url": "http://codemirror.net/LICENSE"}],
     "directories": {"lib": "./lib"},
     "scripts": {"test": "node ./test/run.js"},
-    "devDependencies": {"phantomjs": "1.9.2-5"},
+    "devDependencies": {"phantomjs": "2.1.7"},
     "bugs": "http://github.com/codemirror/CodeMirror/issues",
     "keywords": ["JavaScript", "CodeMirror", "Editor"],
     "homepage": "http://codemirror.net",

@@ -20,8 +20,8 @@ package com.percussion.rest.acls;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @XmlRootElement(name = "CreateAclRequest")
 @Schema(description = "A request to create an acl")
