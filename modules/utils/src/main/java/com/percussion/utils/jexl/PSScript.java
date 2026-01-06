@@ -27,7 +27,6 @@ import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
-import org.apache.commons.jexl3.JexlFeatures;
 import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.logging.Log;
@@ -166,8 +165,6 @@ public class PSScript implements IPSScript {
       }
     }
     this.ownerName = ownerName.trim();
-  }
-
     return result;
   }
 
