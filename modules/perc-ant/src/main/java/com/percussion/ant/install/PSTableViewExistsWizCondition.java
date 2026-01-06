@@ -55,29 +55,16 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSTableViewExistsWizCondition extends PSAction implements Condition {
-<<<<<<< HEAD
   /* (non-Javadoc)
-=======
-  /*
-   * (non-Javadoc)
-   *
->>>>>>> development-8.1.x
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */
   public boolean eval() {
     return checkExists();
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * private functions
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ private functions
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Checks if the database object specified by <code>objectName</code> already exists in the
@@ -146,16 +133,9 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
     return exists;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean property
-   * Accessors and Mutators ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Name of the table or view whose existence in the database is to be verified.
@@ -200,16 +180,9 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
     isView = aIsView;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean properties
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Name of the table or view whose existence in the database is to be verified, may not be <code>

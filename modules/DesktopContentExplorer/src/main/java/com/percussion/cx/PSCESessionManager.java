@@ -23,7 +23,6 @@ import com.percussion.webservices.security.LoginRequest;
 import com.percussion.webservices.security.LoginResponse;
 import com.percussion.webservices.security.SecuritySOAPStub;
 import com.percussion.webservices.security.data.PSLogin;
-<<<<<<< HEAD
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,8 +32,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-=======
->>>>>>> development-8.1.x
 import java.awt.Window;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -58,11 +55,7 @@ public class PSCESessionManager implements Runnable {
 
   private static final String EXTEND_SESSION = "Extend Session";
 
-<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSCESessionManager.class);
-=======
-  static Logger log = Logger.getLogger(PSCESessionManager.class);
->>>>>>> development-8.1.x
 
   private ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 

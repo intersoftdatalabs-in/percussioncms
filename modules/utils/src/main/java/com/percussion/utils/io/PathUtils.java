@@ -25,11 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +52,6 @@ public class PathUtils {
     return getRxDir(null);
   }
 
-<<<<<<< HEAD
   /***
    * Provides a container neutral method for detecting the RX install directory.
    *
@@ -67,18 +62,6 @@ public class PathUtils {
    * If the directory is not detected then the user.home system folder is returned.
    *
    * @param startDirectory Defaults to current working directory.  may be null
-=======
-  /**
-   * * Provides a container neutral method for detecting the RX install directory.
-   *
-   * <p>If the rxdeployerdir system property is defined that will be used.
-   *
-   * <p>Auto detection may be overridden by calling the setRxDir method.
-   *
-   * <p>If the directory is not detected then the user.home system folder is returned.
-   *
-   * @param startDirectory Defaults to current working directory. may be null
->>>>>>> development-8.1.x
    */
   public static File getRxDir(String startDirectory) {
     String baseDir = startDirectory;
@@ -171,15 +154,9 @@ public class PathUtils {
     threadRxRoot.remove();
   }
 
-<<<<<<< HEAD
   /***
    * Given the current directory attempts to locate the rx install dir by walking
    * the parent folder path.
-=======
-  /**
-   * * Given the current directory attempts to locate the rx install dir by walking the parent
-   * folder path.
->>>>>>> development-8.1.x
    *
    * @return a valid installation dir.
    */

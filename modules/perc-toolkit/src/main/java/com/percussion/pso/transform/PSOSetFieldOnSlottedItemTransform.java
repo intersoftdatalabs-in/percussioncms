@@ -46,14 +46,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-<<<<<<< HEAD
 /***
  * Extension for setting the field on an item when it is saved and has an item in the specified slot.
-=======
-/**
- * * Extension for setting the field on an item when it is saved and has an item in the specified
- * slot.
->>>>>>> development-8.1.x
  *
  * @see com.percussion.extension.IPSItemInputTransformer
  * @see com.percussion.extension.IPSRequestPreProcessor
@@ -68,19 +62,11 @@ public class PSOSetFieldOnSlottedItemTransform
   private IPSGuidManager mGmgr;
   private IPSContentWs mCws;
 
-<<<<<<< HEAD
   /***
    * Inner class for handling the user configured parameters for the extension
    * on the Relationship Effect parameters dialog.
    * @author natechadwick
    *
-=======
-  /**
-   * * Inner class for handling the user configured parameters for the extension on the Relationship
-   * Effect parameters dialog.
-   *
-   * @author natechadwick
->>>>>>> development-8.1.x
    */
   private class ConfiguredParams {
 
@@ -89,14 +75,8 @@ public class PSOSetFieldOnSlottedItemTransform
     protected String valueIfNotEmpty;
     protected String slotName;
 
-<<<<<<< HEAD
     /***
      * Constructor to initialize a new parameter object
-=======
-    /**
-     * * Constructor to initialize a new parameter object
-     *
->>>>>>> development-8.1.x
      * @param params
      */
     protected ConfiguredParams(Object[] params) {
@@ -144,13 +124,9 @@ public class PSOSetFieldOnSlottedItemTransform
   }
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
 
     IPSGuidManager gmgr = getGuidManager();

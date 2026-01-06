@@ -27,13 +27,9 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
   private String baseUrl;
   private String suffix = "jpg";
 
-<<<<<<< HEAD
   /**
    * @see ImageUrlBuilder#buildUrl(String)
    */
-=======
-  /** @see ImageUrlBuilder#buildUrl(String) */
->>>>>>> development-8.1.x
   public String buildUrl(String imageKey) {
     StringBuilder sb = new StringBuilder();
     sb.append(baseUrl);
@@ -47,13 +43,9 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
     return sb.toString();
   }
 
-<<<<<<< HEAD
   /**
    * @see ImageUrlBuilder#extractKey(String)
    */
-=======
-  /** @see ImageUrlBuilder#extractKey(String) */
->>>>>>> development-8.1.x
   public String extractKey(String url) {
     String emsg;
     if (StringUtils.isBlank(url)) {
@@ -68,46 +60,30 @@ public class ImageUrlBuilderImpl implements ImageUrlBuilder {
     return key;
   }
 
-<<<<<<< HEAD
   /**
    * @return the baseUrl
    */
-=======
-  /** @return the baseUrl */
->>>>>>> development-8.1.x
   public String getBaseUrl() {
     return baseUrl;
   }
 
-<<<<<<< HEAD
   /**
    * @param baseUrl the baseUrl to set
    */
-=======
-  /** @param baseUrl the baseUrl to set */
->>>>>>> development-8.1.x
   public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
 
-<<<<<<< HEAD
   /**
    * @return the suffix
    */
-=======
-  /** @return the suffix */
->>>>>>> development-8.1.x
   public String getSuffix() {
     return suffix;
   }
 
-<<<<<<< HEAD
   /**
    * @param suffix the suffix to set
    */
-=======
-  /** @param suffix the suffix to set */
->>>>>>> development-8.1.x
   public void setSuffix(String suffix) {
     this.suffix = suffix;
   }

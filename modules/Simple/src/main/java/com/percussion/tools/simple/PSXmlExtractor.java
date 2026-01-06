@@ -87,13 +87,8 @@ public class PSXmlExtractor {
       File target,
       String element,
       URL dtd,
-<<<<<<< HEAD
       List<String> excludeList,
       Map<String, Element> addList,
-=======
-      List excludeList,
-      Map addList,
->>>>>>> development-8.1.x
       String dtdPath)
       throws IOException, FileNotFoundException, SAXException {
     // validate params
@@ -131,33 +126,19 @@ public class PSXmlExtractor {
         Document newDoc = PSXmlDocumentBuilder.createXmlDocument(rootElementName, dtd, null);
         PSXmlDocumentBuilder.replaceRoot(newDoc, el);
         if (excludeList != null) {
-<<<<<<< HEAD
           Iterator<String> i = excludeList.iterator();
           while (i.hasNext()) {
             String exclude = i.next();
-=======
-          Iterator i = excludeList.iterator();
-          while (i.hasNext()) {
-            String exclude = (String) i.next();
->>>>>>> development-8.1.x
             removeElement(newDoc, exclude);
           }
         }
 
         if (addList != null) {
-<<<<<<< HEAD
           Iterator<Map.Entry<String, Element>> i = addList.entrySet().iterator();
           while (i.hasNext()) {
             Map.Entry<String, Element> entry = i.next();
             String parentElement = entry.getKey();
             Element child = entry.getValue();
-=======
-          Iterator i = addList.entrySet().iterator();
-          while (i.hasNext()) {
-            Map.Entry entry = (Map.Entry) i.next();
-            String parentElement = (String) entry.getKey();
-            Element child = (Element) entry.getValue();
->>>>>>> development-8.1.x
             addElement(newDoc, parentElement, child);
           }
         }
@@ -209,13 +190,8 @@ public class PSXmlExtractor {
       File target,
       String element,
       URL dtd,
-<<<<<<< HEAD
       List<String> excludeList,
       Map<String, Element> addList,
-=======
-      List excludeList,
-      Map addList,
->>>>>>> development-8.1.x
       boolean addDtd)
       throws IOException, FileNotFoundException, SAXException {
     // validate params
@@ -238,12 +214,8 @@ public class PSXmlExtractor {
    * Convenience Version for {@link #extract(File, File, String, URL, List, Map)}. Assumes <code>
    * null</code> for <code>addList</code> parameter.
    */
-<<<<<<< HEAD
   public static String extract(
       File source, File target, String element, URL dtd, List<String> excludeList)
-=======
-  public static String extract(File source, File target, String element, URL dtd, List excludeList)
->>>>>>> development-8.1.x
       throws IOException, FileNotFoundException, SAXException {
     return extract(source, target, element, dtd, excludeList, null);
   }
@@ -253,16 +225,12 @@ public class PSXmlExtractor {
    * <code>false</code> for <code>addDtd</code> parameter.
    */
   public static String extract(
-<<<<<<< HEAD
       File source,
       File target,
       String element,
       URL dtd,
       List<String> excludeList,
       Map<String, Element> addList)
-=======
-      File source, File target, String element, URL dtd, List excludeList, Map addList)
->>>>>>> development-8.1.x
       throws IOException, FileNotFoundException, SAXException {
     return extract(source, target, element, dtd, excludeList, addList, false);
   }
@@ -294,16 +262,10 @@ public class PSXmlExtractor {
       } catch (SAXException e) {
         if (e instanceof PSSaxParseException) {
           result = "Document has failed to validate: \n";
-<<<<<<< HEAD
           @SuppressWarnings("unchecked")
           Iterator<SAXParseException> errors = ((PSSaxParseException) e).getExceptions();
           while (errors.hasNext()) {
             SAXParseException spe = errors.next();
-=======
-          Iterator errors = ((PSSaxParseException) e).getExceptions();
-          while (errors.hasNext()) {
-            SAXParseException spe = (SAXParseException) errors.next();
->>>>>>> development-8.1.x
             result +=
                 "Error: "
                     + spe.getLocalizedMessage()
@@ -414,26 +376,16 @@ public class PSXmlExtractor {
       if (args.length >= 4 && !args[3].trim().equalsIgnoreCase("null")) {
         try {
           File dtdFile = new File(args[3]);
-<<<<<<< HEAD
           dtd = dtdFile.toURI().toURL();
-=======
-          dtd = dtdFile.toURL();
->>>>>>> development-8.1.x
         } catch (MalformedURLException e) {
           System.out.println("Invalid dtd specified");
           return;
         }
       }
 
-<<<<<<< HEAD
       List<String> excludeList = null;
       if (args.length >= 5) {
         excludeList = new ArrayList<>();
-=======
-      List excludeList = null;
-      if (args.length >= 5) {
-        excludeList = new ArrayList();
->>>>>>> development-8.1.x
         for (int i = 4; i < args.length; i++) {
           excludeList.add(args[i]);
         }

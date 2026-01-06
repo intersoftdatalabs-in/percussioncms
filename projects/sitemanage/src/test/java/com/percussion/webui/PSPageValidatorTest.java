@@ -29,8 +29,8 @@ import org.apache.commons.httpclient.HttpException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
  *
  * @author paulhoward
  */
-@Ignore
+@Disabled
 public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClient> {
   private static PSPageValidatorRestClient restClient;
 
@@ -88,7 +88,7 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
     validatePage("arch");
   }
 
-  @Ignore
+  @Disabled
   public final void testPublishPage() throws Exception {
     validatePage("publish");
   }

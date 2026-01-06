@@ -24,11 +24,11 @@ import static com.percussion.share.dao.PSDateUtils.getDateToString;
 import com.percussion.itemmanagement.data.IPSEditableItem;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a comment in Percussion CMS. Provides all comment metadata and supports XML

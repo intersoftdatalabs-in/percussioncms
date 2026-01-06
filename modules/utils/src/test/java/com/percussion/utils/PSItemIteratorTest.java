@@ -16,12 +16,9 @@
  */
 package com.percussion.utils;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-=======
->>>>>>> development-8.1.x
 import com.percussion.utils.jsr170.PSItemIterator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,26 +39,16 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
-<<<<<<< HEAD
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.junit.jupiter.api.Test;
-=======
-import junit.framework.TestCase;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
->>>>>>> development-8.1.x
 
 /**
  * Tests to ensure correct behavior for the base item iterator implementation.
  *
  * @author dougrand
  */
-<<<<<<< HEAD
 public class PSItemIteratorTest {
-=======
-public class PSItemIteratorTest extends TestCase {
->>>>>>> development-8.1.x
   /** Test class to test the base class of item iterator */
   static class TestItemIterator extends PSItemIterator<Object> {
     /**
@@ -139,7 +126,6 @@ public class PSItemIteratorTest extends TestCase {
         throws VersionException, LockException, ConstraintViolationException, RepositoryException {}
 
     public void save()
-<<<<<<< HEAD
         throws AccessDeniedException,
             ItemExistsException,
             ConstraintViolationException,
@@ -149,11 +135,6 @@ public class PSItemIteratorTest extends TestCase {
             LockException,
             NoSuchNodeTypeException,
             RepositoryException {}
-=======
-        throws AccessDeniedException, ItemExistsException, ConstraintViolationException,
-            InvalidItemStateException, ReferentialIntegrityException, VersionException,
-            LockException, NoSuchNodeTypeException, RepositoryException {}
->>>>>>> development-8.1.x
   }
 
   /** Test data for multi map testing */
@@ -207,10 +188,7 @@ public class PSItemIteratorTest extends TestCase {
 
   /** Test multi map iteration behavior for the item iterator. */
   @SuppressWarnings("unchecked")
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testMultiMap() {
     TestItemIterator ti = new TestItemIterator(ms_mm.asMap(), "a*");
 
@@ -255,10 +233,7 @@ public class PSItemIteratorTest extends TestCase {
    *
    * @throws RepositoryException
    */
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testMapIteration() throws RepositoryException {
     Map<String, Item> test = new HashMap<String, Item>();
 

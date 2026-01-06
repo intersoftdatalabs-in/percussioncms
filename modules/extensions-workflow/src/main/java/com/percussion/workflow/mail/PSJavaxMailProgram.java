@@ -27,11 +27,7 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * This is the default implementation of the Mail Program interface <code>IPSMailProgram</code> that
@@ -50,10 +46,7 @@ public class PSJavaxMailProgram implements IPSMailProgram {
   /*
    * Method required by the interface.
    */
-<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("SMTP_HEADER_INJECTION")
-=======
->>>>>>> development-8.1.x
   public void sendMessage(IPSMailMessageContext messageContext) throws PSMailException {
     // create some properties and get the default Session
     Properties props = new Properties();

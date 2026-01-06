@@ -29,14 +29,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-<<<<<<< HEAD
 /****
  * Provides Velocity friendly methods for a
  * Syndication Feed entry.
-=======
-/**
- * ** Provides Velocity friendly methods for a Syndication Feed entry.
->>>>>>> development-8.1.x
  *
  * @author natechadwick
  */
@@ -44,14 +39,8 @@ public class PSSynFeedEntry {
 
   private SyndEntry entry;
 
-<<<<<<< HEAD
   /***
    * Returns the name of the first entry author in the collection of authors.
-=======
-  /**
-   * * Returns the name of the first entry author in the collection of authors.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getAuthor() {
@@ -61,28 +50,16 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    * Returns the entry authors.
-=======
-  /**
-   * * Returns the entry authors.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public List getAuthorsList() {
     return entry.getAuthors();
   }
 
-<<<<<<< HEAD
   /***
    * Returns a comma seperated list of the entry authors.
-=======
-  /**
-   * * Returns a comma seperated list of the entry authors.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getAuthors() {
@@ -99,7 +76,6 @@ public class PSSynFeedEntry {
     }
     return ret;
   }
-<<<<<<< HEAD
 
   /***
    * Returns the feed categories.
@@ -134,44 +110,6 @@ public class PSSynFeedEntry {
     String ret = "";
     Object a;
 
-=======
-  /**
-   * * Returns the feed categories.
-   *
-   * @return
-   */
-  public List getCategoriesList() {
-    return entry.getCategories();
-  }
-
-  /**
-   * * Returns the feed categories as a comma separated string.
-   *
-   * @return
-   */
-  public String getCategories() {
-    String ret = "";
-    SyndCategory a;
-
-    for (int i = 0; i < entry.getCategories().size(); i++) {
-      a = (SyndCategory) entry.getCategories().get(i);
-      if (ret == "") ret = a.getName();
-      else ret.concat("," + a.getName());
-    }
-
-    return ret;
-  }
-
-  /**
-   * * the feed author.
-   *
-   * @return
-   */
-  public String getContributors() {
-    String ret = "";
-    Object a;
-
->>>>>>> development-8.1.x
     // @TODO: Add Atom Support
     for (int i = 0; i < entry.getContributors().size(); i++) {
       a = entry.getContributors().get(i);
@@ -187,14 +125,8 @@ public class PSSynFeedEntry {
     return entry.getContributors();
   }
 
-<<<<<<< HEAD
   /***
    * Returns the entry contents.
-=======
-  /**
-   * * Returns the entry contents.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getContents() {
@@ -207,14 +139,8 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    * Returns the entry description.
-=======
-  /**
-   * * Returns the entry description.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getDescription() {
@@ -235,13 +161,9 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    *  Returns the entry link.
    */
-=======
-  /** * Returns the entry link. */
->>>>>>> development-8.1.x
   public String getLink() {
     String ret = "";
 
@@ -250,14 +172,8 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    * Returns the entry links
-=======
-  /**
-   * * Returns the entry links
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public List<SyndLink> getLinks() {
@@ -281,28 +197,16 @@ public class PSSynFeedEntry {
     return contents;
   }
 
-<<<<<<< HEAD
   /***
    * Returns the entry published date.
-=======
-  /**
-   * * Returns the entry published date.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public Date getPublishedDate() {
     return entry.getPublishedDate();
   }
 
-<<<<<<< HEAD
   /***
    *  Returns the entry title.
-=======
-  /**
-   * * Returns the entry title.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getTitle() {
@@ -311,14 +215,8 @@ public class PSSynFeedEntry {
     return ret;
   }
 
-<<<<<<< HEAD
   /***
    *  Returns the entry updated date.
-=======
-  /**
-   * * Returns the entry updated date.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public Date getUpdatedDate() {

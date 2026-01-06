@@ -76,10 +76,7 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
   private static IPSSecurityWs sws = null;
 
   private static IPSWorkflowService wf = null;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** */
   public PSOObjectFinder() {
     super();
@@ -119,23 +116,16 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return PSOItemSummaryFinder.getSummary(guid);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getComponentSummaryById(java.lang.String)
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getComponentSummaryById(java.lang.String) */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the Legacy Component Summary for an item",
       params = {@IPSJexlParam(name = "content", description = "the content id")})
   public PSComponentSummary getComponentSummaryById(String contentid) throws PSException {
     return PSOItemSummaryFinder.getSummary(contentid);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * @see
    *     com.percussion.pso.jexl.IPSOObjectFinder#getContentTypeSummary(com.percussion.utils.guid.IPSGuid)
@@ -155,13 +145,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getJSessionId()
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getJSessionId() */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Get the JSESSIONID value for the current request",
       params = {})
@@ -171,13 +157,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return jsession;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getPSSessionId()
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getPSSessionId() */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "Get the PSSESSIONID value for the current request",
       params = {})
@@ -188,13 +170,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return sessionid;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getUserLocale()
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getUserLocale() */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the users current locale",
       params = {})
@@ -207,13 +185,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getUserCommunity()
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getUserCommunity() */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the users current community name",
       params = {})
@@ -222,13 +196,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return session.getUserCurrentCommunity();
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getUserCommunityId()
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getUserCommunityId() */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the users current community id",
       params = {})
@@ -256,13 +226,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return gmgr.makeGuid(loc);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getGuidById(java.lang.String)
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getGuidById(java.lang.String) */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the GUID by Content Id",
       params = {@IPSJexlParam(name = "contentid", description = "the content id")})
@@ -287,13 +253,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getSiteGuid(int)
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getSiteGuid(int) */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the site guid for a given id",
       params = {@IPSJexlParam(name = "siteid", description = "the id for the site")})
@@ -304,13 +266,9 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return guid;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.jexl.IPSOObjectFinder#getTemplateGuid(int)
    */
-=======
-  /** @see com.percussion.pso.jexl.IPSOObjectFinder#getTemplateGuid(int) */
->>>>>>> development-8.1.x
   @IPSJexlMethod(
       description = "get the template guid for a given id",
       params = {@IPSJexlParam(name = "template", description = "the id for the template")})
@@ -337,7 +295,6 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return communityName;
   }
 
-<<<<<<< HEAD
   /***
    * Returns a PSState object for the given state and workflow.  This can be used to get
    * the publishable flag on a given workflow state.
@@ -346,16 +303,6 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
    *
    * $summary = $user.psoObjectFinder.getComponentSummary($sys.assemblyItem.getId())
    * $state = $user.psoObjectFinder.getWorkflowState($summary.getContentStateId(),$summary.getWorkflowAppId())
-=======
-  /**
-   * * Returns a PSState object for the given state and workflow. This can be used to get the
-   * publishable flag on a given workflow state.
-   *
-   * <p>For Example:
-   *
-   * <p>$summary = $user.psoObjectFinder.getComponentSummary($sys.assemblyItem.getId()) $state =
-   * $user.psoObjectFinder.getWorkflowState($summary.getContentStateId(),$summary.getWorkflowAppId())
->>>>>>> development-8.1.x
    *
    * <h1>STATE CURRENT VALUE=${state.getContentValidValue()}</h1>
    *
@@ -391,35 +338,23 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
     return session;
   }
 
-<<<<<<< HEAD
   /**
    * @param cws The cws to set. This routine should only be used for unit testing.
    */
-=======
-  /** @param cws The cws to set. This routine should only be used for unit testing. */
->>>>>>> development-8.1.x
   public static void setCws(IPSContentWs cws) {
     PSOObjectFinder.cws = cws;
   }
 
-<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set
    */
-=======
-  /** @param gmgr the gmgr to set */
->>>>>>> development-8.1.x
   public static void setGmgr(IPSGuidManager gmgr) {
     PSOObjectFinder.gmgr = gmgr;
   }
 
-<<<<<<< HEAD
   /**
    * @param cmgr the cmgr to set
    */
-=======
-  /** @param cmgr the cmgr to set */
->>>>>>> development-8.1.x
   public static void setCmgr(IPSContentMgr cmgr) {
     PSOObjectFinder.cmgr = cmgr;
   }

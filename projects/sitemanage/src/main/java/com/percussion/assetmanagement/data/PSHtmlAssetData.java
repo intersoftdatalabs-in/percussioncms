@@ -19,8 +19,8 @@
 
 package com.percussion.assetmanagement.data;
 
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
  * This is a data object that provides details for creating HTML assets and adding them to the pages

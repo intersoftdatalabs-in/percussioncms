@@ -35,7 +35,7 @@ import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PSItemWorkflowRestServiceTest extends PSRestTestCase<PSItemWorkflowServiceRestClient> {
 

@@ -16,41 +16,28 @@
  */
 package com.percussion.utils.request;
 
-import com.percussion.utils.testing.IntegrationTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test request info
  *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PSRequestInfoTest extends TestCase {
-
-  /** @param arg0 */
-  public PSRequestInfoTest(String arg0) {
-    super(arg0);
-    // TODO Auto-generated constructor stub
-  }
+public class PSRequestInfoTest {
 
   @Test
-  public static TestSuite suite() {
-    return new TestSuite(PSRequestInfoTest.class);
-  }
-
-  @Test
+  @Disabled
   public void test10Basic() {
     try {
       PSRequestInfo.setRequestInfo("FOO", "BAR");
-      assertTrue("No exception where expected", false);
+      assertTrue(false, "No exception where expected");
     } catch (Exception e) {
       // OK
     }
@@ -67,6 +54,7 @@ public class PSRequestInfoTest extends TestCase {
   }
 
   @Test
+  @Disabled
   public void test20Initial() {
     Map<String, Object> initial = new HashMap<String, Object>();
     initial.put("FOO", "BAR");

@@ -21,13 +21,8 @@ import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManagerLocator;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.List;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-=======
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,13 +31,9 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 @org.springframework.stereotype.Controller
 public class ImageSizeDefinitionLookupController extends ParameterizableViewController
     implements Controller {

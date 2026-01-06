@@ -21,9 +21,5 @@ public class PSThreadInterruptedException extends RuntimeException {
 
   public PSThreadInterruptedException() {
     super();
-<<<<<<< HEAD
-=======
-    // TODO Auto-generated constructor stub
->>>>>>> development-8.1.x
   }
 }

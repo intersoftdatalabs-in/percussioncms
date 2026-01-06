@@ -28,20 +28,12 @@ import com.percussion.utils.guid.IPSGuid;
  */
 public interface LinkBuilderService {
 
-<<<<<<< HEAD
   /***
    * Service to build the URL of an item published on a site.
    *
    * The URL will contain the site root path and the location
    * as computed by the location scheme in effect for the content
    * type, template and context.
-=======
-  /**
-   * * Service to build the URL of an item published on a site.
-   *
-   * <p>The URL will contain the site root path and the location as computed by the location scheme
-   * in effect for the content type, template and context.
->>>>>>> development-8.1.x
    *
    * @param site the site where the item is to be published.
    * @param template the template used for the publish

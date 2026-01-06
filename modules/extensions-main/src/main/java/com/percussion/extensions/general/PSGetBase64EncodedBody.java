@@ -18,11 +18,7 @@
 package com.percussion.extensions.general;
 
 import com.percussion.HTTPClient.HttpURLConnection;
-<<<<<<< HEAD
 import com.percussion.system.utils.PSHtmlBodyInputStream;
-=======
-import com.percussion.util.PSHtmlBodyInputStream;
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.InputStream;
 

@@ -51,10 +51,7 @@ public class PSORequestContext extends PSRequestContext implements IPSRequestCon
     this();
     this.setCommunity(CommunityId);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * This method always returns <code>false</code>. System requests cannot trace, beccause there is
    * no home application.

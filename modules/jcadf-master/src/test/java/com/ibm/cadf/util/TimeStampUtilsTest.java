@@ -26,10 +26,6 @@ public class TimeStampUtilsTest {
   public void GetCurrentTimeTest() {
     String currentTime = TimeStampUtils.getCurrentTime();
     boolean b = currentTime.contains("T");
-<<<<<<< HEAD
     Assertions.assertTrue(b, "timestamp is not expected format");
-=======
-    Assert.assertTrue("timestamp is not expected format", b);
->>>>>>> development-8.1.x
   }
 }

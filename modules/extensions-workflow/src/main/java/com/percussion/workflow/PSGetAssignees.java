@@ -84,10 +84,7 @@ public class PSGetAssignees extends PSSimpleJavaUdfExtension implements IPSUdfPr
       result = result.substring(0, result.length() - SEPARATOR.length());
     return result;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   // String constants for the temporary XML document
   private static final String ELEMENT_ITEM = "Item";
   private static final String ATTRIB_CONTENTID = "contentid";

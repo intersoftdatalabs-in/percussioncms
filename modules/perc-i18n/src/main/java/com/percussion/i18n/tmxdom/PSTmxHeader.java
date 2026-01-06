@@ -127,20 +127,15 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
     m_DOMElement.setAttribute(attrib, value);
   }
 
-<<<<<<< HEAD
   /**
    * @return array of language strings of of suported languages. May be <code>null</code>.
    */
-=======
-  /** @return array of language strings of of suported languages. May be <code>null</code>. */
->>>>>>> development-8.1.x
   public Object[] getSupportedLanguages() {
     return m_Languages.keySet().toArray();
   }
 
   /** Map of all notes in the header. Never <code>null</code>. May be <code>empty</code>. */
   protected Map m_Notes = new HashMap();
-<<<<<<< HEAD
 
   /**
    * Map of all supported languages in the header. Never <code>null</code>. May be <code>empty
@@ -152,18 +147,6 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
   /** Node type value for the TMX header, constant */
   public static final int TMXNODETYPE = IPSTmxNode.TMXHEADER;
 
-=======
-  /**
-   * Map of all supported languages in the header. Never <code>null</code>. May be <code>empty
-   * </code>. These are actually {@link IPSTmxProperty} object with special attribute of
-   * "supportedlanguage".
-   */
-  protected Map m_Languages = new HashMap();
-
-  /** Node type value for the TMX header, constant */
-  public static final int TMXNODETYPE = IPSTmxNode.TMXHEADER;
-
->>>>>>> development-8.1.x
   /** Node name value for the TMX header, constant */
   public static final String TMXNODENAME = IPSTmxNode.NODENAMEMAP[TMXNODETYPE];
 }

@@ -70,13 +70,9 @@ public class PSNavFolderSelector extends PSDefaultExtension
    *     com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext req)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     if (params.length > 0 && params[0] != null) {
       String pathname = params[0].toString().trim();

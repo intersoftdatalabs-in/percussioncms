@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -43,14 +42,6 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author DavidBenua
  */
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class ImagePersistenceManagerImpl extends ImageItemSupport
     implements ImagePersistenceManager {
   private static final Logger log = LogManager.getLogger(ImagePersistenceManagerImpl.class);
@@ -63,13 +54,9 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
 
   public ImagePersistenceManagerImpl() {}
 
-<<<<<<< HEAD
   /**
    * @see ImagePersistenceManager#CreateImage(MasterImageMetaData, String, boolean)
    */
-=======
-  /** @see ImagePersistenceManager#CreateImage(MasterImageMetaData, String, boolean) */
->>>>>>> development-8.1.x
   public String CreateImage(MasterImageMetaData master, String folderid, boolean checkin)
       throws Exception {
     initServices();
@@ -104,13 +91,9 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
     return loc.getPart(PSLocator.KEY_ID);
   }
 
-<<<<<<< HEAD
   /**
    * @see ImagePersistenceManager#validateSystemTitleUnique(String, String)
    */
-=======
-  /** @see ImagePersistenceManager#validateSystemTitleUnique(String, String) */
->>>>>>> development-8.1.x
   public boolean validateSystemTitleUnique(String sysTitle, String folderId) throws Exception {
     initServices();
     Validate.notEmpty(sysTitle);
@@ -133,14 +116,10 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
     }
     return true;
   }
-<<<<<<< HEAD
 
   /**
    * @see ImagePersistenceManager#OpenImage(String)
    */
-=======
-  /** @see ImagePersistenceManager#OpenImage(String) */
->>>>>>> development-8.1.x
   public OpenImageResult OpenImage(String contentid) throws Exception {
     log.debug("OpenImage: Starting to open image");
 
@@ -165,14 +144,10 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
 
     return result;
   }
-<<<<<<< HEAD
 
   /**
    * @see ImagePersistenceManager#UpdateImage(MasterImageMetaData, String, PSItemStatus)
    */
-=======
-  /** @see ImagePersistenceManager#UpdateImage(MasterImageMetaData, String, PSItemStatus) */
->>>>>>> development-8.1.x
   public void UpdateImage(MasterImageMetaData image, String contentid, PSItemStatus itemStatus)
       throws Exception {
     initServices();
@@ -269,24 +244,16 @@ public class ImagePersistenceManagerImpl extends ImageItemSupport
     }
   }
 
-<<<<<<< HEAD
   /**
    * @return the imageContentType
    */
-=======
-  /** @return the imageContentType */
->>>>>>> development-8.1.x
   public String getImageContentType() {
     return imageContentType;
   }
 
-<<<<<<< HEAD
   /**
    * @param imageContentType the imageContentType to set
    */
-=======
-  /** @param imageContentType the imageContentType to set */
->>>>>>> development-8.1.x
   public void setImageContentType(String imageContentType) {
     this.imageContentType = imageContentType;
   }

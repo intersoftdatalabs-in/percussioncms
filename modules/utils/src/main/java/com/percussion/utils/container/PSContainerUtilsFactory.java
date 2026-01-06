@@ -38,7 +38,6 @@ public class PSContainerUtilsFactory {
 
   private static final List<IPSConfigurationAdapter<DefaultConfigurationContextImpl>> adapterList =
       new CopyOnWriteArrayList<>();
-<<<<<<< HEAD
 
   /** Logger */
   private static final Logger ms_log = LogManager.getLogger(PSContainerUtilsFactory.class);
@@ -98,73 +97,6 @@ public class PSContainerUtilsFactory {
     return newContext;
   }
 
-=======
-  /** Logger */
-  private static final Logger ms_log = LogManager.getLogger(PSContainerUtilsFactory.class);
-
-  static {
-    adapterList.add(new JBossDatasourceConfigurationAdapter());
-    adapterList.add(new JBossConnectorConfigurationAdapter());
-
-    adapterList.add(new JettyDatasourceConfigurationAdapter());
-    adapterList.add(new JettyInstallationPropertiesConfigurationAdapter());
-    // adapterList.add(new LoggingContainerConfigurationAdapter());
-  }
-
-  public static DefaultConfigurationContextImpl getConfigurationContextInstance(Path path) {
-    DefaultConfigurationContextImpl value =
-        factoryInstances.computeIfAbsent(
-            path.normalize().toAbsolutePath().toString(),
-            k ->
-                addNew(
-                    k,
-                    PSLegacyEncrypter.getInstance(
-                            PathUtils.getRxPath()
-                                .toAbsolutePath()
-                                .toString()
-                                .concat(PSEncryptor.SECURE_DIR))
-                        .getPartOneKey()));
-    return value;
-  }
-
-  public static DefaultConfigurationContextImpl getConfigurationContextInstance() {
-    return getConfigurationContextInstance(PathUtils.getRxDir(null).toPath());
-  }
-
-  public static BaseContainerUtils getInstance() {
-    return getConfigurationContextInstance().getConfig();
-  }
-
-  public static BaseContainerUtils getInstance(Path root) {
-    return getConfigurationContextInstance(root).getConfig();
-  }
-
-  public void save(Path path) {
-    getConfigurationContextInstance(path).save();
-  }
-
-  public void load(Path path) {
-    getConfigurationContextInstance(path).load();
-  }
-
-  public void save() {
-    getConfigurationContextInstance().save();
-  }
-
-  public void load() {
-    getConfigurationContextInstance().load();
-  }
-
-  private static DefaultConfigurationContextImpl addNew(String path, String key) {
-    ms_log.info("Creating new Configuration context for path " + path);
-    DefaultConfigurationContextImpl newContext =
-        new DefaultConfigurationContextImpl(Paths.get(path), key, BaseContainerUtils::new);
-    getAdapterList().forEach(newContext::addConfigurationAdapter);
-    newContext.load();
-    return newContext;
-  }
-
->>>>>>> development-8.1.x
   public static List<IPSConfigurationAdapter<DefaultConfigurationContextImpl>> getAdapterList() {
     return adapterList;
   }

@@ -388,13 +388,9 @@ public class PSContentListItem implements Comparable {
     m_nullUrl = true;
   }
 
-<<<<<<< HEAD
   /**
    * @return contentid of the item, never <code>null</code> or empty.
    */
-=======
-  /** @return contentid of the item, never <code>null</code> or empty. */
->>>>>>> development-8.1.x
   public String getContentId() {
     return m_contentId;
   }
@@ -413,46 +409,30 @@ public class PSContentListItem implements Comparable {
     m_getLastPubRev4QEState = false;
   }
 
-<<<<<<< HEAD
   /**
    * @return variantid of the item, never <code>null</code> or empty.
    */
-=======
-  /** @return variantid of the item, never <code>null</code> or empty. */
->>>>>>> development-8.1.x
   public String getVariantId() {
     return m_variantId;
   }
 
-<<<<<<< HEAD
   /**
    * @return Last modified date of the item, may be <code>null</code>.
    */
-=======
-  /** @return Last modified date of the item, may be <code>null</code>. */
->>>>>>> development-8.1.x
   public Date getLastModifiedDate() {
     return m_lastModifiedDate;
   }
 
-<<<<<<< HEAD
   /**
    * @return Unpublish attribute of the item, may be <code>null</code> or empty.
    */
-=======
-  /** @return Unpublish attribute of the item, may be <code>null</code> or empty. */
->>>>>>> development-8.1.x
   public String getUnpublishValue() {
     return m_unpublishValue;
   }
 
-<<<<<<< HEAD
   /**
    * @return If the Url is null then return <code>true</code> otherwise <code>false</code>.
    */
-=======
-  /** @return If the Url is null then return <code>true</code> otherwise <code>false</code>. */
->>>>>>> development-8.1.x
   public boolean isContentUrlNull() {
     if (m_contenturl != null)
       throw new IllegalStateException(

@@ -23,56 +23,32 @@ public class PSSynFeedImage {
 
   private SyndImage image;
 
-<<<<<<< HEAD
   /***
    * Returns the image link.
-=======
-  /**
-   * * Returns the image link.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getLink() {
     return image.getLink();
   }
 
-<<<<<<< HEAD
   /***
    * Returns the image title.
-=======
-  /**
-   * * Returns the image title.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getTitle() {
     return image.getTitle();
   }
 
-<<<<<<< HEAD
   /***
    *    Returns the image URL.
-=======
-  /**
-   * * Returns the image URL.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getUrl() {
     return image.getUrl();
   }
-<<<<<<< HEAD
 
   /***
    * Returns the image description.
-=======
-  /**
-   * * Returns the image description.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getDescription() {

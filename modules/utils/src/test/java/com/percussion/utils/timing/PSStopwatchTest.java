@@ -25,21 +25,8 @@ import org.junit.jupiter.api.Test;
  * @author dougrand
  *     <p>Unit tests for stopwatch class
  */
-<<<<<<< HEAD
 public class PSStopwatchTest {
 
-=======
-public class PSStopwatchTest extends TestCase {
-  /** @param arg0 */
-  public PSStopwatchTest(String arg0) {
-    super(arg0);
-  }
-
-  public static TestSuite suite() {
-    return new TestSuite(PSStopwatchTest.class);
-  }
-
->>>>>>> development-8.1.x
   /**
    * Checks to see if the two times are within some milliseconds. Some variance is allowed to keep
    * the test from failing on hiccups and inaccuracies in the bios timer. The basic issue is that
@@ -47,31 +34,17 @@ public class PSStopwatchTest extends TestCase {
    *
    * @param time1
    * @param time2
-<<<<<<< HEAD
    */
   public void checkReasonable(double time1, double time2) {
-=======
-   * @throws AssertionFailedError
-   */
-  public void checkReasonable(double time1, double time2) throws AssertionFailedError {
->>>>>>> development-8.1.x
     double delta = Math.abs(time1 - time2);
 
     System.err.println("Delta: " + delta);
     if (delta > 80) {
-<<<<<<< HEAD
       fail("Times varied by more than 80 millis. " + "real variance was " + delta + " millis");
     }
   }
 
   @Test
-=======
-      throw new AssertionFailedError(
-          "Times varied by more than 80 millis. " + "real variance was " + delta + " millis");
-    }
-  }
-
->>>>>>> development-8.1.x
   public synchronized void testSimple() throws Exception {
     PSStopwatch w = new PSStopwatch();
 
@@ -82,10 +55,7 @@ public class PSStopwatchTest extends TestCase {
     checkReasonable(400, w.elapsed());
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public synchronized void testPause() throws Exception {
     PSStopwatch w = new PSStopwatch();
 
@@ -100,21 +70,14 @@ public class PSStopwatchTest extends TestCase {
     checkReasonable(700, w.elapsed());
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testStatechecks() throws Exception {
     PSStopwatch w = new PSStopwatch();
 
     try {
       w.stop(); // Should throw an exception
       assertTrue(
-<<<<<<< HEAD
           true, "Failed to throw expected exception on stopping a non" + " started stopwatch");
-=======
-          "Failed to throw expected exception on stopping a non" + " started stopwatch", true);
->>>>>>> development-8.1.x
     } catch (Exception e) {
       // Ignore
     }
@@ -123,11 +86,7 @@ public class PSStopwatchTest extends TestCase {
 
     try {
       w.start(); // Should throw an exception
-<<<<<<< HEAD
       assertTrue(true, "Failed to throw expected exception on starting a " + " started stopwatch");
-=======
-      assertTrue("Failed to throw expected exception on starting a " + " started stopwatch", true);
->>>>>>> development-8.1.x
     } catch (Exception e) {
       // Ignore
     }
@@ -138,10 +97,7 @@ public class PSStopwatchTest extends TestCase {
     w.cont(); // Should not throw an exception
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public synchronized void testOutput() throws InterruptedException {
     PSStopwatch w = new PSStopwatch();
 

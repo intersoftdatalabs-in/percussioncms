@@ -19,17 +19,10 @@ package com.percussion.pso.restservice.model;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-<<<<<<< HEAD
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlValue;
-=======
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,7 +33,6 @@ public class DateValue implements Value {
 
   /** Logger for this class */
   private static final Logger log = LogManager.getLogger(DateValue.class);
-<<<<<<< HEAD
 
   /** Field DATE_FORMAT. (value is ""yyyy-MM-dd HH:mm:ss"") */
   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -48,13 +40,6 @@ public class DateValue implements Value {
   /** Field date. */
   private Date date;
 
-=======
-  /** Field DATE_FORMAT. (value is ""yyyy-MM-dd HH:mm:ss"") */
-  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
-  /** Field date. */
-  private Date date;
->>>>>>> development-8.1.x
   /** Field type. */
   public static final int TYPE = 2;
 
@@ -87,10 +72,7 @@ public class DateValue implements Value {
     SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
     return df.format(date);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method setStringValue.
    *

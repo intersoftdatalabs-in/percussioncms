@@ -17,10 +17,7 @@
 
 package com.percussion.security;
 
-<<<<<<< HEAD
 /** Exception for encryption errors. */
-=======
->>>>>>> development-8.1.x
 public class PSEncryptionException extends Exception {
   public PSEncryptionException(String s, Throwable e) {
     super(s, e);

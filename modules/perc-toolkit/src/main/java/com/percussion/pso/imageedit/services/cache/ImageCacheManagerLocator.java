@@ -18,13 +18,9 @@ package com.percussion.pso.imageedit.services.cache;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class ImageCacheManagerLocator extends PSBaseServiceLocator {
   private static final String IMAGE_CACHE_BEAN = "imedImageMetaDataCacheImpl";
 

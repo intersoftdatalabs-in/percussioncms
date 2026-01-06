@@ -23,11 +23,7 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.error.PSException;
 import com.percussion.server.IPSRequestContext;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * An action that will move a slot item up or down by one position or move the item to a specified

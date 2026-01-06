@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.imageedit.web;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
@@ -40,41 +39,12 @@ public class ImageSizeDefinitionLookupControllerTest {
   private static final Logger log =
       LogManager.getLogger(ImageSizeDefinitionLookupControllerTest.class);
 
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.imageedit.data.ImageSizeDefinition;
-import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
-import com.percussion.pso.imageedit.web.ImageSizeDefinitionLookupController;
-import com.percussion.xml.PSXmlDocumentBuilder;
-import com.percussion.xml.PSXmlTreeWalker;
-import java.util.Arrays;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.w3c.dom.Document;
-
-public class ImageSizeDefinitionLookupControllerTest {
-  private static final Logger log =
-      LogManager.getLogger(ImageSizeDefinitionLookupControllerTest.class);
-
->>>>>>> development-8.1.x
   private ImageSizeDefinitionLookupController cut;
 
   private Mockery context;
   private ImageSizeDefinitionManager defmgr;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new ImageSizeDefinitionLookupController();

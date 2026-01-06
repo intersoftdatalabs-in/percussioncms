@@ -226,10 +226,7 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
 
     return true;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Initializes this panel with the data from the supplied PSSearch object if the bDirection is
    * <code>false</code>. Updates the search object if the bDirection is <code>true</code> with the

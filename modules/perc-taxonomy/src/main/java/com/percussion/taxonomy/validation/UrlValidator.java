@@ -97,7 +97,6 @@ public class UrlValidator implements Serializable {
   /** This expression derived/taken from the BNF for URI (RFC2396). */
   private static final String URL_PATTERN =
       "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
-<<<<<<< HEAD
 
   //                                                                      12            3  4
   //  5       6   7        8 9
@@ -154,63 +153,6 @@ public class UrlValidator implements Serializable {
   /** If no schemes are provided, default to this set. */
   protected String[] defaultSchemes = {"http", "https", "ftp"};
 
-=======
-  //                                                                      12            3  4
-  //  5       6   7        8 9
-
-  /** Schema/Protocol (ie. http:, ftp:, file:, etc). */
-  private static final int PARSE_URL_SCHEME = 2;
-
-  /** Includes hostname/ip and port number. */
-  private static final int PARSE_URL_AUTHORITY = 4;
-
-  private static final int PARSE_URL_PATH = 5;
-
-  private static final int PARSE_URL_QUERY = 7;
-
-  private static final int PARSE_URL_FRAGMENT = 9;
-
-  /** Protocol (ie. http:, ftp:,https:). */
-  private static final String SCHEME_PATTERN = "/^[" + SCHEME_CHARS + "]/";
-
-  private static final String AUTHORITY_PATTERN = "/^([" + AUTHORITY_CHARS + "]*)(:\\d*)?(.*)?/";
-  //                                                                            1
-  //       2  3       4
-
-  private static final int PARSE_AUTHORITY_HOST_IP = 1;
-
-  private static final int PARSE_AUTHORITY_PORT = 2;
-
-  /** Should always be empty. */
-  private static final int PARSE_AUTHORITY_EXTRA = 3;
-
-  private static final String PATH_PATTERN = "/^(/[-\\w:@&?=+,.!/~*'%$_;]*)?$/";
-
-  private static final String QUERY_PATTERN = "/^(.*)$/";
-
-  private static final String LEGAL_ASCII_PATTERN = "/^[\\000-\\177]+$/";
-
-  private static final String IP_V4_DOMAIN_PATTERN =
-      "/^(\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})$/";
-
-  private static final String DOMAIN_PATTERN = "/^" + ATOM + "(\\." + ATOM + ")*$/";
-
-  private static final String PORT_PATTERN = "/^:(\\d{1,5})$/";
-
-  private static final String ATOM_PATTERN = "/(" + ATOM + ")/";
-
-  private static final String ALPHA_PATTERN = "/^[" + ALPHA_CHARS + "]/";
-
-  /** Holds the set of current validation options. */
-  private Flags options;
-
-  /** The set of schemes that are allowed to be in a URL. */
-  private Set allowedSchemes = new HashSet();
-
-  /** If no schemes are provided, default to this set. */
-  protected String[] defaultSchemes = {"http", "https", "ftp"};
-
->>>>>>> development-8.1.x
   /** Create a UrlValidator with default properties. */
   public UrlValidator() {
     this(null);

@@ -17,7 +17,6 @@
 
 package com.percussion.thumbnail;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.AfterEach;
@@ -30,20 +29,6 @@ public class PSThumbnailImageUtilsTest {
   public void setUp() throws Exception {}
 
   @AfterEach
-=======
-import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-public class PSThumbnailImageUtilsTest {
-
-  @Before
-  public void setUp() throws Exception {}
-
-  @After
->>>>>>> development-8.1.x
   public void tearDown() throws Exception {}
 
   @Test

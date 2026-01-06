@@ -56,29 +56,16 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSViewsExistWizCondition extends PSAction implements Condition {
-<<<<<<< HEAD
   /* (non-Javadoc)
-=======
-  /*
-   * (non-Javadoc)
-   *
->>>>>>> development-8.1.x
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */
   public boolean eval() {
     return checkExists();
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * private functions
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ private functions
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Checks if the Rhythmyx views specified by <code>RX_VIEWS</code> already exist in the database.
@@ -146,16 +133,9 @@ public class PSViewsExistWizCondition extends PSAction implements Condition {
     return exists;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * member variables
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ member variables
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** Names of the Rhythmyx views whose existence in the database is to be verified */
   private static final String[] RX_VIEWS = {

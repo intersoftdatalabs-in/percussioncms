@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
 /**
  *  Provides a way to capture the output from an
  * {@link PSInternalRequest}. This object holds the response from a
- * servlet called via {@link javax.servlet.RequestDispatcher}
+ * servlet called via {@link jakarta.servlet.RequestDispatcher}
  *
  * This implemenation provides
  * either a Writer or an OutputStream as requested.
@@ -158,19 +158,19 @@ class PSInternalResponse extends HttpServletResponseWrapper
       // ignore
    }
 
-   // @see javax.servlet.http.HttpServletResponse#setStatus(int)
+   // @see jakarta.servlet.http.HttpServletResponse#setStatus(int)
    public void setStatus(int status)
    {
       m_status = status;
    }
 
-   // @see javax.servlet.http.HttpServletResponse#sendError(int)
+   // @see jakarta.servlet.http.HttpServletResponse#sendError(int)
    public void sendError(int status)
    {
       this.m_status = status;
    }
 
-   // @see javax.servlet.http.HttpServletResponse#sendError(int, String)
+   // @see jakarta.servlet.http.HttpServletResponse#sendError(int, String)
    public void sendError(int status, String errorMessage)
    {
       this.m_errorMessage = errorMessage;
@@ -276,7 +276,7 @@ class PSInternalResponse extends HttpServletResponseWrapper
    /**
     * Flush the output buffer. Also commits the response.
     *
-    * @see javax.servlet.ServletResponse#flushBuffer()
+    * @see jakarta.servlet.ServletResponse#flushBuffer()
     */
    public void flushBuffer() throws IOException
    {
@@ -296,7 +296,7 @@ class PSInternalResponse extends HttpServletResponseWrapper
     *
     * @return the size of the content.
     *
-    * @see javax.servlet.ServletResponse#getBufferSize()
+    * @see jakarta.servlet.ServletResponse#getBufferSize()
     */
    public int getBufferSize()
    {
@@ -319,7 +319,7 @@ class PSInternalResponse extends HttpServletResponseWrapper
     * @throws IllegalStateException if the response has already
     * been committed.
     *
-    * @see javax.servlet.ServletResponse#resetBuffer()
+    * @see jakarta.servlet.ServletResponse#resetBuffer()
     *
     */
    public void resetBuffer()
@@ -343,7 +343,7 @@ class PSInternalResponse extends HttpServletResponseWrapper
     * This method cannot be called after getInputStream() or
     * getWriter().
     *
-    * @see javax.servlet.ServletResponse#setBufferSize(int)
+    * @see jakarta.servlet.ServletResponse#setBufferSize(int)
     */
    public void setBufferSize(int size)
    {
@@ -354,7 +354,7 @@ class PSInternalResponse extends HttpServletResponseWrapper
     * Sets the content length header.  This implementation ignores
     * this header, and this method does nothing.
     *
-    * @see javax.servlet.ServletResponse#setContentLength(int)
+    * @see jakarta.servlet.ServletResponse#setContentLength(int)
     */
    public void setContentLength(int arg0)
    {

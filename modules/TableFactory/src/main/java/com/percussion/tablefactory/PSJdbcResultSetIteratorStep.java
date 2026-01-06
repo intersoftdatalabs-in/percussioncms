@@ -187,13 +187,9 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
     return m_rs.getMetaData();
   }
 
-<<<<<<< HEAD
   /**
    * @see java.lang.Object
    */
-=======
-  /** @see java.lang.Object */
->>>>>>> development-8.1.x
   protected void finalize() throws Throwable {
     close();
     super.finalize();

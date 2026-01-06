@@ -9,7 +9,7 @@
 JspFactory (JavaServer Pages API Documentation)
 </TITLE>
 
-<META NAME="keywords" CONTENT="javax.servlet.jsp.JspFactory class">
+<META NAME="keywords" CONTENT="jakarta.servlet.jsp.JspFactory class">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../../stylesheet.css" TITLE="Style">
 
@@ -52,8 +52,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in javax.servlet.jsp"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../javax/servlet/jsp/JspWriter.html" title="class in javax.servlet.jsp"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in jakarta.servlet.jsp"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../javax/servlet/jsp/JspWriter.html" title="class in jakarta.servlet.jsp"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../index.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="JspFactory.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -84,12 +84,12 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <!-- ======== START OF CLASS DATA ======== -->
 <H2>
 <FONT SIZE="-1">
-javax.servlet.jsp</FONT>
+jakarta.servlet.jsp</FONT>
 <BR>
 Class JspFactory</H2>
 <PRE>
 java.lang.Object
-  <IMG SRC="../../../resources/inherit.gif" ALT="extended by"><B>javax.servlet.jsp.JspFactory</B>
+  <IMG SRC="../../../resources/inherit.gif" ALT="extended by"><B>jakarta.servlet.jsp.JspFactory</B>
 </PRE>
 <HR>
 <DL>
@@ -150,7 +150,7 @@ java.lang.Object
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in javax.servlet.jsp">JspFactory</A></CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in jakarta.servlet.jsp">JspFactory</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#getDefaultFactory()">getDefaultFactory</A></B>()</CODE>
 
 <BR>
@@ -158,7 +158,7 @@ java.lang.Object
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>abstract &nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in javax.servlet.jsp">JspEngineInfo</A></CODE></FONT></TD>
+<CODE>abstract &nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in jakarta.servlet.jsp">JspEngineInfo</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#getEngineInfo()">getEngineInfo</A></B>()</CODE>
 
 <BR>
@@ -168,10 +168,10 @@ java.lang.Object
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>abstract &nbsp;<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in javax.servlet.jsp">PageContext</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#getPageContext(javax.servlet.Servlet, javax.servlet.ServletRequest, javax.servlet.ServletResponse, java.lang.String, boolean, int, boolean)">getPageContext</A></B>(javax.servlet.Servlet&nbsp;servlet,
-               javax.servlet.ServletRequest&nbsp;request,
-               javax.servlet.ServletResponse&nbsp;response,
+<CODE>abstract &nbsp;<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in jakarta.servlet.jsp">PageContext</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#getPageContext(jakarta.servlet.Servlet, jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse, java.lang.String, boolean, int, boolean)">getPageContext</A></B>(jakarta.servlet.Servlet&nbsp;servlet,
+               jakarta.servlet.ServletRequest&nbsp;request,
+               jakarta.servlet.ServletResponse&nbsp;response,
                java.lang.String&nbsp;errorPageURL,
                boolean&nbsp;needsSession,
                int&nbsp;buffer,
@@ -180,14 +180,14 @@ java.lang.Object
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
  obtains an instance of an implementation dependent 
- javax.servlet.jsp.PageContext abstract class for the calling Servlet
+ jakarta.servlet.jsp.PageContext abstract class for the calling Servlet
  and currently pending request and response.
  </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>abstract &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#releasePageContext(javax.servlet.jsp.PageContext)">releasePageContext</A></B>(<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in javax.servlet.jsp">PageContext</A>&nbsp;pc)</CODE>
+<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#releasePageContext(jakarta.servlet.jsp.PageContext)">releasePageContext</A></B>(<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in jakarta.servlet.jsp">PageContext</A>&nbsp;pc)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -197,7 +197,7 @@ java.lang.Object
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#setDefaultFactory(javax.servlet.jsp.JspFactory)">setDefaultFactory</A></B>(<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in javax.servlet.jsp">JspFactory</A>&nbsp;deflt)</CODE>
+<TD><CODE><B><A HREF="../../../javax/servlet/jsp/JspFactory.html#setDefaultFactory(jakarta.servlet.jsp.JspFactory)">setDefaultFactory</A></B>(<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in jakarta.servlet.jsp">JspFactory</A>&nbsp;deflt)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -249,10 +249,10 @@ public <B>JspFactory</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="setDefaultFactory(javax.servlet.jsp.JspFactory)"><!-- --></A><H3>
+<A NAME="setDefaultFactory(jakarta.servlet.jsp.JspFactory)"><!-- --></A><H3>
 setDefaultFactory</H3>
 <PRE>
-public static void <B>setDefaultFactory</B>(<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in javax.servlet.jsp">JspFactory</A>&nbsp;deflt)</PRE>
+public static void <B>setDefaultFactory</B>(<A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in jakarta.servlet.jsp">JspFactory</A>&nbsp;deflt)</PRE>
 <DL>
 <DD><p>
  set the default factory for this implementation. It is illegal for
@@ -268,7 +268,7 @@ public static void <B>setDefaultFactory</B>(<A HREF="../../../javax/servlet/jsp/
 <A NAME="getDefaultFactory()"><!-- --></A><H3>
 getDefaultFactory</H3>
 <PRE>
-public static <A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in javax.servlet.jsp">JspFactory</A> <B>getDefaultFactory</B>()</PRE>
+public static <A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class in jakarta.servlet.jsp">JspFactory</A> <B>getDefaultFactory</B>()</PRE>
 <DL>
 <DD>Returns the default factory for this implementation.
 <P>
@@ -279,12 +279,12 @@ public static <A HREF="../../../javax/servlet/jsp/JspFactory.html" title="class 
 </DL>
 <HR>
 
-<A NAME="getPageContext(javax.servlet.Servlet, javax.servlet.ServletRequest, javax.servlet.ServletResponse, java.lang.String, boolean, int, boolean)"><!-- --></A><H3>
+<A NAME="getPageContext(jakarta.servlet.Servlet, jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse, java.lang.String, boolean, int, boolean)"><!-- --></A><H3>
 getPageContext</H3>
 <PRE>
-public abstract <A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in javax.servlet.jsp">PageContext</A> <B>getPageContext</B>(javax.servlet.Servlet&nbsp;servlet,
-                                           javax.servlet.ServletRequest&nbsp;request,
-                                           javax.servlet.ServletResponse&nbsp;response,
+public abstract <A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in jakarta.servlet.jsp">PageContext</A> <B>getPageContext</B>(jakarta.servlet.Servlet&nbsp;servlet,
+                                           jakarta.servlet.ServletRequest&nbsp;request,
+                                           jakarta.servlet.ServletResponse&nbsp;response,
                                            java.lang.String&nbsp;errorPageURL,
                                            boolean&nbsp;needsSession,
                                            int&nbsp;buffer,
@@ -292,7 +292,7 @@ public abstract <A HREF="../../../javax/servlet/jsp/PageContext.html" title="cla
 <DL>
 <DD><p>
  obtains an instance of an implementation dependent 
- javax.servlet.jsp.PageContext abstract class for the calling Servlet
+ jakarta.servlet.jsp.PageContext abstract class for the calling Servlet
  and currently pending request and response.
  </p>
 
@@ -314,15 +314,15 @@ public abstract <A HREF="../../../javax/servlet/jsp/PageContext.html" title="cla
 <DT><B>Parameters:</B><DD><CODE>servlet</CODE> - the requesting servlet<DD><CODE>request</CODE> - the current request pending on the servlet<DD><CODE>response</CODE> - the current response pending on the servlet<DD><CODE>errorPageURL</CODE> - the URL of the error page for the requesting JSP, or null<DD><CODE>needsSession</CODE> - true if the JSP participates in a session<DD><CODE>buffer</CODE> - size of buffer in bytes, PageContext.NO_BUFFER if no buffer,
 			PageContext.DEFAULT_BUFFER if implementation default.<DD><CODE>autoflush</CODE> - should the buffer autoflush to the output stream on buffer
 			overflow, or throw an IOException?
-<DT><B>Returns:</B><DD>the page context<DT><B>See Also:</B><DD><A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in javax.servlet.jsp"><CODE>PageContext</CODE></A></DL>
+<DT><B>Returns:</B><DD>the page context<DT><B>See Also:</B><DD><A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in jakarta.servlet.jsp"><CODE>PageContext</CODE></A></DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="releasePageContext(javax.servlet.jsp.PageContext)"><!-- --></A><H3>
+<A NAME="releasePageContext(jakarta.servlet.jsp.PageContext)"><!-- --></A><H3>
 releasePageContext</H3>
 <PRE>
-public abstract void <B>releasePageContext</B>(<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in javax.servlet.jsp">PageContext</A>&nbsp;pc)</PRE>
+public abstract void <B>releasePageContext</B>(<A HREF="../../../javax/servlet/jsp/PageContext.html" title="class in jakarta.servlet.jsp">PageContext</A>&nbsp;pc)</PRE>
 <DL>
 <DD><p>
  called to release a previously allocated PageContext object.
@@ -340,7 +340,7 @@ public abstract void <B>releasePageContext</B>(<A HREF="../../../javax/servlet/j
 <A NAME="getEngineInfo()"><!-- --></A><H3>
 getEngineInfo</H3>
 <PRE>
-public abstract <A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in javax.servlet.jsp">JspEngineInfo</A> <B>getEngineInfo</B>()</PRE>
+public abstract <A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in jakarta.servlet.jsp">JspEngineInfo</A> <B>getEngineInfo</B>()</PRE>
 <DL>
 <DD><p>
  called to get implementation-specific information on the current JSP engine.
@@ -382,8 +382,8 @@ public abstract <A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="c
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in javax.servlet.jsp"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../javax/servlet/jsp/JspWriter.html" title="class in javax.servlet.jsp"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../javax/servlet/jsp/JspEngineInfo.html" title="class in jakarta.servlet.jsp"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../javax/servlet/jsp/JspWriter.html" title="class in jakarta.servlet.jsp"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../index.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="JspFactory.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

@@ -37,25 +37,17 @@ import javax.swing.table.TableModel;
  */
 public class PSJTable extends JTable {
 
-<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable()
    */
-=======
-  /** @see javax.swing.JTable#JTable() */
->>>>>>> development-8.1.x
   public PSJTable() {
 
     // XXX Auto-generated constructor stub
   }
 
-<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable(java.util.Vector, java.util.Vector)
    */
-=======
-  /** @see javax.swing.JTable#JTable(java.util.Vector, java.util.Vector) */
->>>>>>> development-8.1.x
   public PSJTable(Vector rowData, Vector columnNames) {
     super(rowData, columnNames);
   }
@@ -76,35 +68,23 @@ public class PSJTable extends JTable {
     super(dm, cm);
   }
 
-<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel)
    */
-=======
-  /** @see javax.swing.JTable#JTable(javax.swing.table.TableModel) */
->>>>>>> development-8.1.x
   public PSJTable(TableModel dm) {
     super(dm);
   }
 
-<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable(java.lang.Object[][], java.lang.Object[])
    */
-=======
-  /** @see javax.swing.JTable#JTable(java.lang.Object[][], java.lang.Object[]) */
->>>>>>> development-8.1.x
   public PSJTable(Object[][] rowData, Object[] columnNames) {
     super(rowData, columnNames);
   }
 
-<<<<<<< HEAD
   /**
    * @see javax.swing.JTable#JTable(int, int)
    */
-=======
-  /** @see javax.swing.JTable#JTable(int, int) */
->>>>>>> development-8.1.x
   public PSJTable(int numRows, int numColumns) {
     super(numRows, numColumns);
   }

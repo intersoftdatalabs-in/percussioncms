@@ -23,13 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
-<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-=======
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
->>>>>>> development-8.1.x
 
 /**
  * Provides a simple wrapper that allows access to an object "property" by referencing the java get
@@ -40,11 +35,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * @author dougrand
  */
 public class PSPropertyWrapper {
-<<<<<<< HEAD
   private static final Class<?>[] noparams = new Class<?>[0];
-=======
-  private static final Class[] noparams = new Class[0];
->>>>>>> development-8.1.x
 
   private static final Object[] emptyargs = new Object[0];
 
@@ -66,11 +57,7 @@ public class PSPropertyWrapper {
 
     private String m_type; // get or set
 
-<<<<<<< HEAD
     private Class<?> m_class;
-=======
-    private Class m_class;
->>>>>>> development-8.1.x
 
     /**
      * Create a new key, assume that arguments are always correct
@@ -79,23 +66,15 @@ public class PSPropertyWrapper {
      * @param prop
      * @param type
      */
-<<<<<<< HEAD
     public Key(Class<?> clazz, String prop, String type) {
-=======
-    public Key(Class clazz, String prop, String type) {
->>>>>>> development-8.1.x
       m_property = prop;
       m_class = clazz;
       m_type = type;
     }
 
-<<<<<<< HEAD
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
-=======
-    /** @see java.lang.Object#equals(java.lang.Object) */
->>>>>>> development-8.1.x
     @Override
     public boolean equals(Object b) {
       EqualsBuilder eq = new EqualsBuilder();
@@ -106,26 +85,18 @@ public class PSPropertyWrapper {
           .isEquals();
     }
 
-<<<<<<< HEAD
     /**
      * @see java.lang.Object#hashCode()
      */
-=======
-    /** @see java.lang.Object#hashCode() */
->>>>>>> development-8.1.x
     @Override
     public int hashCode() {
       HashCodeBuilder hash = new HashCodeBuilder();
       return hash.append(m_property).append(m_class).append(m_type).toHashCode();
     }
 
-<<<<<<< HEAD
     /**
      * @see java.lang.Object#toString()
      */
-=======
-    /** @see java.lang.Object#toString() */
->>>>>>> development-8.1.x
     @Override
     public String toString() {
       StringBuilder b = new StringBuilder(40);
@@ -141,12 +112,8 @@ public class PSPropertyWrapper {
   }
 
   /** Storage for method maps by property and class */
-<<<<<<< HEAD
   private static Map<Key, Method> ms_methodMap = new ConcurrentHashMap<>(16, 0.9f, 1);
   ;
-=======
-  private static Map<Key, Method> ms_methodMap = new ConcurrentHashMap<>(16, 0.9f, 1);;
->>>>>>> development-8.1.x
 
   /**
    * Create instance with an object to wrap
@@ -214,7 +181,6 @@ public class PSPropertyWrapper {
     if (m_wrappedObject == null) {
       this.init();
     }
-<<<<<<< HEAD
     Class<?> clazz = m_wrappedObject.getClass();
     Key k = new Key(clazz, pname, type);
     Method m = null;
@@ -222,15 +188,6 @@ public class PSPropertyWrapper {
     if (type.equals("set")) {
       Method getm = findMethod(pname, "get");
       args = new Class<?>[] {getm.getReturnType()};
-=======
-    Class clazz = m_wrappedObject.getClass();
-    Key k = new Key(clazz, pname, type);
-    Method m = null;
-    Class[] args = noparams;
-    if (type.equals("set")) {
-      Method getm = findMethod(pname, "get");
-      args = new Class[] {getm.getReturnType()};
->>>>>>> development-8.1.x
     }
     m = ms_methodMap.get(k);
 

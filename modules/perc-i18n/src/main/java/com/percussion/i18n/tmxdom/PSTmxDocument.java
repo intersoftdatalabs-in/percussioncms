@@ -194,7 +194,6 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   public IPSTmxHeader getHeader() {
     return m_Header;
   }
-<<<<<<< HEAD
 
   /**
    * Merges the header object from the supplied TMX document object with the header of this TMX
@@ -233,45 +232,6 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     }
   }
 
-=======
-  /**
-   * Merges the header object from the supplied TMX document object with the header of this TMX
-   * document object. Merging header simply means adding the supported linguages from the supplied
-   * document, if they already do not exist.
-   *
-   * @param srcDoc the TMX document object whose header is to merged with that of current one.
-   * @throws IllegalArgumentException if argument is <code>null</code>.
-   */
-  protected void mergeHeader(IPSTmxDocument srcDoc) {
-    if (srcDoc == null) {
-      throw new IllegalArgumentException("srcDoc for merging headers must not be null");
-    }
-    Object[] langs = srcDoc.getSupportedLanguages();
-    for (int i = 0; langs != null && i < langs.length; i++) addLanguage(langs[i].toString());
-  }
-
-  /**
-   * Merges the body of the supplied TMX document object with the that of this TMX document object
-   * using the merge configuration set.
-   *
-   * @param srcDoc the TMX document object whose body is to merged with that of current one.
-   * @throws IllegalArgumentException if argument is <code>null</code>.
-   */
-  protected void mergeBody(IPSTmxDocument srcDoc) {
-    if (srcDoc == null) {
-      throw new IllegalArgumentException("srcDoc for merging body must not be null");
-    }
-    Iterator<Map.Entry> iter = srcDoc.getTranslationUnits();
-    Map.Entry entry = null;
-    IPSTmxTranslationUnit srcTu = null;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      srcTu = (IPSTmxTranslationUnit) entry.getValue();
-      m_Body.merge(srcTu);
-    }
-  }
-
->>>>>>> development-8.1.x
   /*
    * Implementation of the method defined in the interface IPSTmxDocument.
    */

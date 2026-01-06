@@ -17,34 +17,19 @@
 
 package com.percussion.thumbnail;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.utils.testing.IntegrationTest;
->>>>>>> development-8.1.x
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
-=======
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-@Category(IntegrationTest.class)
->>>>>>> development-8.1.x
 public class PSScreenCaptureTest {
 
   protected static final Logger log = LogManager.getLogger();
@@ -53,11 +38,7 @@ public class PSScreenCaptureTest {
 
   public static File temp;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void before() throws IOException {
     /*
           temp = File.createTempFile("temp", Long.toString(System.nanoTime()));

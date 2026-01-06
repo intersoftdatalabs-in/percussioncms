@@ -158,13 +158,7 @@ public class PSPrepForConvert {
     }
   }
 
-<<<<<<< HEAD
   /***
-=======
-  /**
-   * *
-   *
->>>>>>> development-8.1.x
    * @deprecated
    * @param pwd
    * @param uid

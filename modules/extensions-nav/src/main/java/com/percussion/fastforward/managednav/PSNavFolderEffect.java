@@ -461,11 +461,6 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * NavonTree</code> item to a folder which already contains an object of either type.
    */
   private static final String MSG_ALREADY_EXISTS =
-<<<<<<< HEAD
       "Folder \"{0}\" already contains item \"{1}\" of Navigation type. \"{2}\". Multiple items of"
           + " navigation types cannot co-exist in a Folder.";
-=======
-      "Folder \"{0}\" already "
-          + "contains item \"{1}\" of Navigation type. \"{2}\". Multiple items of navigation types cannot co-exist in a Folder.";
->>>>>>> development-8.1.x
 }

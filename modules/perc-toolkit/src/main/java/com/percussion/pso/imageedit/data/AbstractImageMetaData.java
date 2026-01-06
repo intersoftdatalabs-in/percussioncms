@@ -24,46 +24,30 @@ public class AbstractImageMetaData {
     super();
   }
 
-<<<<<<< HEAD
   /**
    * @return the imageKey
    */
-=======
-  /** @return the imageKey */
->>>>>>> development-8.1.x
   public String getImageKey() {
     return imageKey;
   }
 
-<<<<<<< HEAD
   /**
    * @param imageKey the imageKey to set
    */
-=======
-  /** @param imageKey the imageKey to set */
->>>>>>> development-8.1.x
   public void setImageKey(String imageKey) {
     this.imageKey = imageKey;
   }
 
-<<<<<<< HEAD
   /**
    * @return the metaData
    */
-=======
-  /** @return the metaData */
->>>>>>> development-8.1.x
   public ImageMetaData getMetaData() {
     return metaData;
   }
 
-<<<<<<< HEAD
   /**
    * @param metaData the metaData to set
    */
-=======
-  /** @param metaData the metaData to set */
->>>>>>> development-8.1.x
   public void setMetaData(ImageMetaData metaData) {
     this.metaData = metaData;
   }

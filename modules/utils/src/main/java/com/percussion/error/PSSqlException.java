@@ -24,11 +24,7 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 import java.sql.SQLException;
 import java.util.Locale;
 import javax.naming.NamingException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * The PSSqlException class extends the JDBC SQLException class, additionally implementing our

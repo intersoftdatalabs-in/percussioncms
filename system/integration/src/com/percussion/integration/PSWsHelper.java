@@ -1206,7 +1206,7 @@ public class PSWsHelper extends PSWsHelperBase implements IPSWsHelper
    }
 
    /* (non-Javadoc)
-    * @see com.percussion.integration.IPSWsHelper#formatContentTypeList(javax.servlet.http.HttpServletRequest, boolean)
+    * @see com.percussion.integration.IPSWsHelper#formatContentTypeList(jakarta.servlet.http.HttpServletRequest, boolean)
     */
    public Map formatContentTypeList(HttpServletRequest request, boolean sort)
       throws SOAPException, RemoteException
@@ -1215,7 +1215,7 @@ public class PSWsHelper extends PSWsHelperBase implements IPSWsHelper
    }
 
    /* (non-Javadoc)
-    * @see com.percussion.integration.IPSWsHelper#formatEditorUrl(javax.servlet.http.HttpServletRequest, java.lang.String)
+    * @see com.percussion.integration.IPSWsHelper#formatEditorUrl(jakarta.servlet.http.HttpServletRequest, java.lang.String)
     */
    public String formatEditorUrl(
       HttpServletRequest req,

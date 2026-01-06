@@ -18,7 +18,6 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Credit;
 
-<<<<<<< HEAD
 /***
  *
  * <media:credit>
@@ -56,10 +55,6 @@ import com.rometools.modules.mediarss.types.Credit;
  * vocalist
  *
  * @author natechadwick
-=======
-/**
- * *
->>>>>>> development-8.1.x
  *
  * <p><media:credit>
  *
@@ -104,13 +99,9 @@ public class PSSynFeedCredit {
     credit = arg;
   }
 
-<<<<<<< HEAD
   /***
    * Returns in <Role>: <Name> format.
    */
-=======
-  /** * Returns in <Role>: <Name> format. */
->>>>>>> development-8.1.x
   @Override
   public String toString() {
     String ret = "";

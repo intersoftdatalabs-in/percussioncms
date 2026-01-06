@@ -16,7 +16,6 @@
  */
 package linkback;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -28,19 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
-import com.percussion.util.IPSHtmlParameters;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Test;
-
->>>>>>> development-8.1.x
 public class StringLinkBackTokenTest {
 
   private static final Logger log = LogManager.getLogger(StringLinkBackTokenTest.class);

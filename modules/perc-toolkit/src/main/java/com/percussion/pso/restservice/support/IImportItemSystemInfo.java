@@ -30,7 +30,6 @@ public interface IImportItemSystemInfo {
    * @return String
    */
   public String getWorkflowName(int id);
-<<<<<<< HEAD
 
   /**
    * Method getStateName.
@@ -91,60 +90,6 @@ public interface IImportItemSystemInfo {
 
   public int getCommunityId(String name);
 
-=======
-  /**
-   * Method getStateName.
-   *
-   * @param wfid int
-   * @param stateid int
-   * @return String
-   */
-  public String getStateName(int wfid, int stateid);
-  /**
-   * Method getSiteName.
-   *
-   * @param id int
-   * @return String
-   */
-  public String getSiteName(int id);
-  /**
-   * Method getFolderPath.
-   *
-   * @param id int
-   * @return String
-   */
-  public String getFolderPath(int id);
-  /**
-   * Method getSlotName.
-   *
-   * @param id int
-   * @return String
-   */
-  public String getSlotName(int id);
-  /**
-   * Method getTemplateName.
-   *
-   * @param id int
-   * @return String
-   */
-  public String getTemplateName(int id);
-  /**
-   * Method getContentTypeName.
-   *
-   * @param id long
-   * @return String
-   */
-  public String getContentTypeName(long id);
-  /**
-   * Method getCommunityName.
-   *
-   * @param id int
-   * @return String
-   */
-  public String getCommunityName(int id);
-
-  public int getCommunityId(String name);
->>>>>>> development-8.1.x
   /**
    * Method getItemDefinition.
    *

@@ -18,16 +18,13 @@ package com.percussion.deployer.jexl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.percussion.utils.testing.UnitTest;
 import org.apache.commons.jexl3.parser.SimpleNode;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests to verify that the JEXL visitor correctly traverses JEXL 3 specific nodes such as
  * ASTQualifiedIdentifier, ASTIdentifierAccess, and ASTNamespaceIdentifier.
  */
-@Category(UnitTest.class)
 public class PSJexl3NodesTest {
 
   @Test

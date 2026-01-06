@@ -18,10 +18,10 @@
 
 package com.percussion.monitor.service;
 
-import java.util.Set;
-import java.util.TreeSet;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Container for monitor designators. Sunny Sal says: "Designate your monitors, or they'll designate

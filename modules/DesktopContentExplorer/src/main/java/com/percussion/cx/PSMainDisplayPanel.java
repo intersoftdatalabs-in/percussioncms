@@ -27,7 +27,6 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,8 +55,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-=======
->>>>>>> development-8.1.x
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -125,7 +122,6 @@ import org.apache.log4j.Logger;
  * according to the node's display format. Supports pop-up menu based on selection.
  */
 public class PSMainDisplayPanel extends JScrollPane
-<<<<<<< HEAD
    implements DragGestureListener, DropTargetListener
 {
    static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
@@ -150,10 +146,6 @@ public class PSMainDisplayPanel extends JScrollPane
       
       if(actManager.getApplet() == null)
          throw new IllegalArgumentException("applet may not be null.");
-=======
-    implements DragGestureListener, DropTargetListener {
-  static Logger log = Logger.getLogger(PSMainDisplayPanel.class);
->>>>>>> development-8.1.x
 
   /**
    * Constructs the panel with supplied parameters.
@@ -1339,7 +1331,6 @@ public class PSMainDisplayPanel extends JScrollPane
       // The autoscroller can generate drag events outside the Table's range.
       if ((column == -1) || (row == -1)) return;
 
-<<<<<<< HEAD
          String name = "Table Header column "+ column + " " + value;
          if (dispOptions != null)
          {
@@ -1588,13 +1579,6 @@ public class PSMainDisplayPanel extends JScrollPane
             table.changeSelection(
                row, column, e.isControlDown(), e.isShiftDown());
          }
-=======
-      if (table.editCellAt(row, column, e)) {
-        setDispatchComponent(e);
-        repostEvent(e);
-      } else {
-        table.requestFocus();
->>>>>>> development-8.1.x
       }
 
       CellEditor editor = table.getCellEditor();

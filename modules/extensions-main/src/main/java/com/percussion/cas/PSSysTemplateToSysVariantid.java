@@ -31,11 +31,7 @@ import com.percussion.util.PSXMLDomUtil;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -55,13 +51,9 @@ public class PSSysTemplateToSysVariantid implements IPSRequestPreProcessor {
    */
   @SuppressWarnings("unused")
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     String variantid = request.getParameter(IPSHtmlParameters.SYS_VARIANTID);
     String template = request.getParameter(IPSHtmlParameters.SYS_TEMPLATE);

@@ -25,13 +25,8 @@ package test.percussion.pso.preview;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.MultipartResolverEncoding;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
-=======
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Test;
->>>>>>> development-8.1.x
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class MultipartResolverEncodingTest {
@@ -52,13 +47,9 @@ public class MultipartResolverEncodingTest {
       super();
     }
 
-<<<<<<< HEAD
     /**
      * @see MultipartResolverEncoding#determineEncoding(HttpServletRequest)
      */
-=======
-    /** @see MultipartResolverEncoding#determineEncoding(HttpServletRequest) */
->>>>>>> development-8.1.x
     @Override
     public String determineEncoding(HttpServletRequest request) {
       return super.determineEncoding(request);

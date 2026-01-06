@@ -18,9 +18,9 @@
 package com.percussion.sitemanage.importer.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Optional;
-import jakarta.persistence.*;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;

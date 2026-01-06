@@ -46,11 +46,7 @@ public class ImageEditorToolsTest {
   Property propb;
   Sequence nodeSeq;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new ImageEditorTools();

@@ -26,14 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Test {@link PSSimplePropertySetter}
  *
  * @author YuBingChen
  */
-public class PSSimplePropertySetterTest extends TestCase {
+public class PSSimplePropertySetterTest {
   /**
    * Test properties in the super class
    *

@@ -54,15 +54,15 @@ import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+
 import org.junit.runners.MethodSorters;
 
 /**
  * @author LucasPiccoli
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
+
 public class PSTemplateExtractorHelperTest extends ServletTestCase {
   // TODO Add Javadocs/comments
   @Override

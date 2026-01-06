@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.imageedit.web;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.web.impl.ImageUrlBuilderImpl;
@@ -30,21 +29,6 @@ public class ImageUrlBuilderImplTest {
   ImageUrlBuilderImpl cut;
 
   @BeforeEach
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.imageedit.web.impl.ImageUrlBuilderImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-
-public class ImageUrlBuilderImplTest {
-  private static final Logger log = LogManager.getLogger(ImageUrlBuilderImplTest.class);
-  ImageUrlBuilderImpl cut;
-
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new ImageUrlBuilderImpl();
     cut.setBaseUrl("/xyzzy");

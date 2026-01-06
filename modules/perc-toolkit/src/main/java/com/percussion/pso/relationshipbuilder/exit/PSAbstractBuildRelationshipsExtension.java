@@ -33,10 +33,7 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.pso.relationshipbuilder.IPSRelationshipBuilder;
-<<<<<<< HEAD
 // import com.percussion.pso.relationshipbuilder.PSRelationshipHelperService;
-=======
->>>>>>> development-8.1.x
 import com.percussion.pso.utils.PSOExtensionParamsHelper;
 import com.percussion.server.IPSRequestContext;
 import java.io.File;
@@ -54,10 +51,7 @@ public abstract class PSAbstractBuildRelationshipsExtension extends PSDefaultExt
   private static final String MODE_INIT_PARAM = "com.percussion.extension.relationshipbuilder.mode";
   // private static IPSRelationshipHelperService m_relationshipHelperService;
   private Mode m_mode;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log =
       LogManager.getLogger(PSAbstractBuildRelationshipsExtension.class);

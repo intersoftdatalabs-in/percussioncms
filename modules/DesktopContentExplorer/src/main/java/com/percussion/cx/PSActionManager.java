@@ -81,7 +81,6 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.wizard.PSWizardStartFinishPanel;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-<<<<<<< HEAD
 import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -108,8 +107,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -171,13 +168,9 @@ import org.xml.sax.SAXException;
  */
 public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
-<<<<<<< HEAD
    private PSDesktopExplorerWindow dceWindow = null;
    
    static Logger log = LogManager.getLogger(PSActionManager.class);
-=======
-  private PSDesktopExplorerWindow dceWindow = null;
->>>>>>> development-8.1.x
 
   static Logger log = Logger.getLogger(PSActionManager.class);
 
@@ -1838,7 +1831,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               m_searchResultsNode = node;
               hideOrShowNewSearchNode();
             }
-<<<<<<< HEAD
          }
       }
 
@@ -2018,15 +2010,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             try
             {
                perm = m_folderMgr.loadFolder(m_child).getPermissions();
-=======
-            children = node.getChildren();
-            Iterator searchChildren = node.getChildren();
-            while (searchChildren.hasNext()) {
-              PSNode searchNode = (PSNode) searchChildren.next();
-              if (searchNode.getType().equals(PSNode.TYPE_EMPTY_SRCH)) {
-                m_emptySearchNode = searchNode;
-              }
->>>>>>> development-8.1.x
             }
           }
         }
@@ -2284,7 +2267,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               if (monitor.getStatus() != PSProcessMonitor.STATUS_STOP)
                 monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
 
-<<<<<<< HEAD
                      m_applet.debugMessage("Response code is: " + code);
                   }
                   catch (PSContentExplorerException e)
@@ -2321,22 +2303,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                      + e.getLocalizedMessage();
                showJavaFXErrorDialog(msg, "Fatal Error");
                monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-=======
-            } catch (InterruptedException e) {
-              m_applet.debugMessage("Interrupted " + e.getLocalizedMessage());
-              monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-              Thread.currentThread().interrupt();
-            } catch (PSContentExplorerException e) {
-              String msg =
-                  "Failed to acquire initial states of items, no items were transitioned: "
-                      + e.getLocalizedMessage();
-              JOptionPane.showMessageDialog(
-                  getApplet().getDialogParentFrame(),
-                  msg,
-                  "Fatal Error",
-                  JOptionPane.ERROR_MESSAGE);
-              monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
->>>>>>> development-8.1.x
             }
 
             // dirty processed nodes
@@ -5618,7 +5584,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
   }
 
-<<<<<<< HEAD
    /**
     * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
     * This provides better integration with the JavaFX-based application.
@@ -5667,15 +5632,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       }
    }
 
-=======
-  /**
-   * Some params we just want to add to the final dyanmic action and not pass through to the request
-   * for templates. This will prevent re-caching results if only these values have changed.
-   */
-  private static final Set<String> PASS_THRU_PARAMS =
-      Collections.unmodifiableSet(
-          new HashSet<String>(Arrays.asList("targetStyle", "target", "launchesWindow")));
->>>>>>> development-8.1.x
 
   public PSSearchConfig getSearchConfig() {
     return m_searchViewMgr.getSearchConfig();

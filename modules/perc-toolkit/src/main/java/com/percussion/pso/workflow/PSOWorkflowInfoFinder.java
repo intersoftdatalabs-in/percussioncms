@@ -20,10 +20,7 @@
  */
 package com.percussion.pso.workflow;
 
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.error.PSException;
 import com.percussion.pso.utils.PSOItemSummaryFinder;
@@ -37,11 +34,7 @@ import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import java.util.Collection;
 import java.util.List;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,13 +72,9 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
     }
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflow(int)
    */
-=======
-  /** @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflow(int) */
->>>>>>> development-8.1.x
   public PSWorkflow findWorkflow(int id) {
     initServices();
     for (PSWorkflow wf : workflows) {
@@ -111,13 +100,9 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowTransition(int, int)
    */
-=======
-  /** @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowTransition(int, int) */
->>>>>>> development-8.1.x
   public PSTransition findWorkflowTransition(int workflow, int transid) {
     PSWorkflow wf = findWorkflow(workflow);
     if (wf == null) {
@@ -128,13 +113,9 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
     return findWorkflowTransition(wf, transid);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowAnyTransition(int, int)
    */
-=======
-  /** @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowAnyTransition(int, int) */
->>>>>>> development-8.1.x
   public PSTransitionBase findWorkflowAnyTransition(int workflow, int transid) {
     PSWorkflow wf = findWorkflow(workflow);
     if (wf == null) {
@@ -183,13 +164,9 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
     return null;
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(int, int)
    */
-=======
-  /** @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(int, int) */
->>>>>>> development-8.1.x
   public PSState findWorkflowState(int workflow, int state) {
     PSWorkflow wf = this.findWorkflow(workflow);
     if (wf == null) {
@@ -200,13 +177,9 @@ public class PSOWorkflowInfoFinder implements IPSOWorkflowInfoFinder {
     return findWorkflowState(wf, state);
   }
 
-<<<<<<< HEAD
   /**
    * @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(java.lang.String)
    */
-=======
-  /** @see com.percussion.pso.workflow.IPSOWorkflowInfoFinder#findWorkflowState(java.lang.String) */
->>>>>>> development-8.1.x
   public PSState findWorkflowState(String contentId) throws PSException {
     PSComponentSummary sum = PSOItemSummaryFinder.getSummary(contentId);
     int wfapp = sum.getWorkflowAppId();

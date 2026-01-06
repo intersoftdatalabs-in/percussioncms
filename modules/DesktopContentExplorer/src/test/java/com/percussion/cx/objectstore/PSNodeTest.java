@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,19 +44,6 @@ public class PSNodeTest
       
       PSNode node2 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", 
          "iconKey", true, 1);
-=======
-import junit.framework.TestCase;
-
-/** Test case for the {@link PSNode} class. */
-public class PSNodeTest extends TestCase {
-  /**
-   * Test the clone method to ensure child collections are properly supported.
-   *
-   * @throws Exception if there are any errors
-   */
-  public void testClone() throws Exception {
-    PSNode node1 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", "iconKey", true, 1);
->>>>>>> development-8.1.x
 
     PSNode node2 = new PSNode("test1", "test 1", PSNode.TYPE_FOLDER, "url", "iconKey", true, 1);
 

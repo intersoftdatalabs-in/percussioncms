@@ -43,11 +43,7 @@ public class PSExitNextNumber implements IPSRequestPreProcessor {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     if (ms_correctParamCount == NOT_INITIALIZED) {
       ms_correctParamCount = 0;

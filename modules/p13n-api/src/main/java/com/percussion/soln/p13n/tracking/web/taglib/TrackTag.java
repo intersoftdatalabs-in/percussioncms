@@ -42,12 +42,12 @@ public class TrackTag implements Tag{
 		super();
 	}
 
-	public int doStartTag() throws javax.servlet.jsp.JspTagException
+	public int doStartTag() throws jakarta.servlet.jsp.JspTagException
 	{
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() throws javax.servlet.jsp.JspTagException
+	public int doEndTag() throws jakarta.servlet.jsp.JspTagException
 	{
 
 		try
@@ -69,18 +69,18 @@ public class TrackTag implements Tag{
 
 	public void release() {}
 
-	public void setPageContext(final javax.servlet.jsp.PageContext pageContext)
+	public void setPageContext(final jakarta.servlet.jsp.PageContext pageContext)
 	{
 		this.pageContext=pageContext;
 	}
 
 
-	public void setParent(final javax.servlet.jsp.tagext.Tag parent)
+	public void setParent(final jakarta.servlet.jsp.tagext.Tag parent)
 	{
 		this.parent=parent;
 	}
 
-	public javax.servlet.jsp.tagext.Tag getParent()
+	public jakarta.servlet.jsp.tagext.Tag getParent()
 	{
 		return parent;
 	}

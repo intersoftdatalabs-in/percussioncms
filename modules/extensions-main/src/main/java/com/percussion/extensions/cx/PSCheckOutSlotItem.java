@@ -121,7 +121,6 @@ public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultD
     ceurl = ceurl.substring(loc + 1);
     return (ceurl + "/" + ceresource);
   }
-<<<<<<< HEAD
 
   /** Constant for workflow sys command name */
   public static final String WORKFLOW_COMMAND_NAME = "workflow";
@@ -138,23 +137,6 @@ public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultD
   /** Constant for checkoutstatus Attribute */
   public static final String ATTR_CHECKOUTSTATUS = "checkoutstatus";
 
-=======
-  /** Constant for workflow sys command name */
-  public static final String WORKFLOW_COMMAND_NAME = "workflow";
-
-  /** Constant for workflow action */
-  public static final String WORKFLOW_CHECKOUT = "checkout";
-
-  /** Constant for editurl Attribute */
-  public static final String ATTR_EDITURL = "editurl";
-
-  /** Constant for content editor urls resource name */
-  public static final String CONTENT_EDITOR_URLS = "sys_ceSupport/contenteditorurls";
-
-  /** Constant for checkoutstatus Attribute */
-  public static final String ATTR_CHECKOUTSTATUS = "checkoutstatus";
-
->>>>>>> development-8.1.x
   /** Constant for assignmenttype Attribute */
   public static final String ATTR_ASSIGNMENTTYPE = "assignmenttype";
 }

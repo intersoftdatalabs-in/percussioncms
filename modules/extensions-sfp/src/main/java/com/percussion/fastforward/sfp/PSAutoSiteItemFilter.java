@@ -29,11 +29,7 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.IOException;
@@ -46,11 +42,7 @@ import org.w3c.dom.Node;
 
 /**
  * This exit filters out the items in the auto index that are not a part of the site identified by
-<<<<<<< HEAD
  * the HTMLParameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID siteid}passed
-=======
- * the HTMLParameter {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID siteid}passed
->>>>>>> development-8.1.x
  */
 public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResultDocumentProcessor {
 

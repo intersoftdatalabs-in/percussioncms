@@ -112,7 +112,6 @@ public class PSBrandCodeElementList {
    *     have all the specified attributes.
    * @throws IllegalArgumentException if attrName is <code>null</code> or empty array.
    */
-<<<<<<< HEAD
   public List<String[]> getAttributeList(String[] attrNames, boolean required)
       throws CodeException {
     if ((attrNames == null) || (attrNames.length < 1))
@@ -122,16 +121,6 @@ public class PSBrandCodeElementList {
     int len = attrNames.length;
     for (int i = 0; i < m_elementList.size(); i++) {
       PSBrandCodeElement bce = m_elementList.get(i);
-=======
-  public List getAttributeList(String[] attrNames, boolean required) throws CodeException {
-    if ((attrNames == null) || (attrNames.length < 1))
-      throw new IllegalArgumentException("attrNames may not be null or empty");
-
-    List attrValList = new ArrayList();
-    int len = attrNames.length;
-    for (int i = 0; i < m_elementList.size(); i++) {
-      PSBrandCodeElement bce = (PSBrandCodeElement) m_elementList.get(i);
->>>>>>> development-8.1.x
       String[] attrValues = new String[len];
       for (int j = 0; j < len; j++) attrValues[j] = bce.getAttributeValue(attrNames[j], required);
       attrValList.add(attrValues);
@@ -149,7 +138,6 @@ public class PSBrandCodeElementList {
    * @throws CodeException if any element in this list does not have the specified attribute
    * @throws IllegalArgumentException if attrName is <code>null</code> or empty
    */
-<<<<<<< HEAD
   public List<String> getAttributeList(String attrName) throws CodeException {
     if ((attrName == null) || (attrName.trim().length() < 1))
       throw new IllegalArgumentException("attrName may not be null or empty");
@@ -157,15 +145,6 @@ public class PSBrandCodeElementList {
     List<String> attrValList = new ArrayList<>();
     for (int i = 0; i < m_elementList.size(); i++) {
       PSBrandCodeElement bce = m_elementList.get(i);
-=======
-  public List getAttributeList(String attrName) throws CodeException {
-    if ((attrName == null) || (attrName.trim().length() < 1))
-      throw new IllegalArgumentException("attrName may not be null or empty");
-
-    List attrValList = new ArrayList();
-    for (int i = 0; i < m_elementList.size(); i++) {
-      PSBrandCodeElement bce = (PSBrandCodeElement) m_elementList.get(i);
->>>>>>> development-8.1.x
       attrValList.add(bce.getAttributeValue(attrName, true));
     }
     return attrValList;
@@ -223,11 +202,7 @@ public class PSBrandCodeElementList {
    * list for storing the <code>PSBrandCodeElement</code> objects, initialized in the <code>fromXml
    * </code> method, never empty after initialization.
    */
-<<<<<<< HEAD
   private List<PSBrandCodeElement> m_elementList = new ArrayList<>();
-=======
-  private List m_elementList = new ArrayList();
->>>>>>> development-8.1.x
 
   /**
    * tag name of the element, initialized in the <code>fromXml</code> method, never <code>null

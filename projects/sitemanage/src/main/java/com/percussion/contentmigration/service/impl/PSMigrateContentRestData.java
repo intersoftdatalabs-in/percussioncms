@@ -17,8 +17,8 @@
 
 package com.percussion.contentmigration.service.impl;
 
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 

@@ -282,7 +282,6 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
       return m_typeName;
     }
 
-<<<<<<< HEAD
              return new org.apache.commons.lang3.builder.EqualsBuilder()
                      .appendSuper(super.equals(object))
                      .append(m_typeId, that.m_typeId)
@@ -299,13 +298,6 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
                      .append(m_instances)
                      .toHashCode();
          }
-=======
-    /** The provider type id. Set in the ctor. */
-    protected int m_typeId;
-
-    /** The provider type name. Initialized in the ctor. May be <code>null</code>. */
-    protected String m_typeName;
->>>>>>> development-8.1.x
 
     /** The list of provider instances. Never <code>null</code>, may be empty. */
     protected List m_instances = new ArrayList();

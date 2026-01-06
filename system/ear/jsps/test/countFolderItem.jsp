@@ -8,7 +8,7 @@
     import="com.percussion.server.webservices.PSServerFolderProcessor, com.percussion.services.catalog.PSTypeEnum, com.percussion.services.contentmgr.IPSContentMgr, com.percussion.services.contentmgr.IPSNodeDefinition, com.percussion.services.contentmgr.PSContentMgrLocator, com.percussion.services.guidmgr.data.PSGuid, com.percussion.services.guidmgr.data.PSLegacyGuid, com.percussion.services.legacy.IPSCmsObjectMgr, com.percussion.services.legacy.PSCmsObjectMgrLocator"
     import="com.percussion.utils.guid.IPSGuid, com.percussion.utils.request.PSRequestInfo, com.percussion.webservices.content.IPSContentWs, com.percussion.webservices.content.PSContentWsLocator"
     import="com.percussion.webservices.security.IPSSecurityWs, com.percussion.webservices.security.PSSecurityWsLocator, org.apache.commons.lang.StringUtils, javax.jcr.Value, javax.jcr.query.QueryResult"
-    import="javax.jcr.query.Row, javax.jcr.query.RowIterator, javax.servlet.jsp.JspWriter"
+    import="javax.jcr.query.Row, javax.jcr.query.RowIterator, jakarta.servlet.jsp.JspWriter"
     import="java.util.*,com.percussion.server.PSServer"
     import="com.percussion.services.utils.jspel.PSRoleUtilities"
     import="com.percussion.security.SecureStringUtils"
@@ -392,7 +392,7 @@ table#results th{
       return outParam;
    }
    
-   private void handleException(Exception ex, javax.servlet.jsp.JspWriter out)
+   private void handleException(Exception ex, jakarta.servlet.jsp.JspWriter out)
       throws java.io.IOException
    {
       out.println("<pre> Unexpected Exception \n");
@@ -406,7 +406,7 @@ table#results th{
    }
    
    private Map buildParamMap(String[] allNames, String[] allValues,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException
    {
       Map pmap = new HashMap();
@@ -423,7 +423,7 @@ table#results th{
       return pmap;
    }
    private void printTableHeader(String[] columns,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException
    {
       out.println("<thead><tr>");
@@ -434,7 +434,7 @@ table#results th{
       out.println("</tr></thead>");
    }
    private void printTableRows(QueryResult qresults,
-         javax.servlet.jsp.JspWriter out)
+         jakarta.servlet.jsp.JspWriter out)
          throws java.io.IOException, javax.jcr.RepositoryException
    {
       RowIterator rows = qresults.getRows();

@@ -37,13 +37,9 @@ public class PSSetHtmlParameter implements IPSRequestPreProcessor {
    * @see IPSRequestPreProcessor
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // expects two string parameters
     String paramName = getParameter(params, 0, true);

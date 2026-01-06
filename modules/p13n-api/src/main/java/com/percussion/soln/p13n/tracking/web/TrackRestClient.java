@@ -123,14 +123,14 @@ public class TrackRestClient {
          * Extract data from the servlet request.
          */
         if (servletRequest != null) {
-            javax.servlet.http.Cookie cookies[] = servletRequest.getCookies();
+            jakarta.servlet.http.Cookie cookies[] = servletRequest.getCookies();
             HttpState state = new HttpState();
             /*
              * Forward all the cookies to the p13n server.
              */
             if (cookies != null) {
                 for (int i = 0; i < cookies.length; i++) {
-                    javax.servlet.http.Cookie c = cookies[i];
+                    jakarta.servlet.http.Cookie c = cookies[i];
                     String domain = c.getDomain();
                     if (domain == null) {
                         domain = servletRequest.getServerName();

@@ -18,21 +18,13 @@ package com.percussion.cas;
 
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSInternalRequestCallException;
-<<<<<<< HEAD
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.fastforward.utils.PSUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,29 +34,17 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>The site can be specified as the first parameter to the UDF which is the siteid for which the
  * base URL is being requested. If not specified, it will be taken from the request context as
-<<<<<<< HEAD
  * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID sys_siteid} parameter. This, if
  * supplied must be a vlid siteid from the system.
-=======
- * {@link com.percussion.util.IPSHtmlParameters#SYS_SITEID sys_siteid} parameter. This, if supplied
- * must be a vlid siteid from the system.
->>>>>>> development-8.1.x
  *
  * <p>The second parameter, which is optional can be used to specify to modify the base URL if the
  * context is for an intra-site. The context is treated as intra-site if the originating siteid is
  * not <code>null</code> or empty and matches with the current siteid. The originating siteid as
  * always read from the request as the html parameter {@link
-<<<<<<< HEAD
  * com.percussion.system.utils.IPSHtmlParameters#SYS_ORIGINALSITEID}. The value should be a string
  * "yes" to modify the URL (case insensitive) and any other value or no value is treated as "no". If
  * the value is "yes", the URL string will be modified to chop the protocol, host and port and
  * return only the part after those. If the final result is "/" an empty string is returned.
-=======
- * com.percussion.util.IPSHtmlParameters#SYS_ORIGINALSITEID}. The value should be a string "yes" to
- * modify the URL (case insensitive) and any other value or no value is treated as "no". If the
- * value is "yes", the URL string will be modified to chop the protocol, host and port and return
- * only the part after those. If the final result is "/" an empty string is returned.
->>>>>>> development-8.1.x
  *
  * <p>If the current siteid is not supplied and does not exist in the request, the base URL will be
  * returned as an empty string without any processing.
@@ -86,12 +66,8 @@ public class PSGetSiteBaseUrl implements IPSUdfProcessor {
     if (siteid == null || siteid.length() < 1) {
       // Site is not supplied return empty string.
       log.warn(
-<<<<<<< HEAD
           "siteid is not supplied and not available in the request context. Returning empty"
               + " string");
-=======
-          "siteid is not supplied and not available in the request context. Returning empty string");
->>>>>>> development-8.1.x
       return "";
     }
     boolean modifyUrl = false;

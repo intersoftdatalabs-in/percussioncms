@@ -30,13 +30,9 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
 
   public PreviewLocation() {}
 
-<<<<<<< HEAD
   /**
    * @see Comparable#compareTo(Object)
    */
-=======
-  /** @see Comparable#compareTo(Object) */
->>>>>>> development-8.1.x
   public int compareTo(PreviewLocation other) {
     if (this == other) return 0;
     int s = this.siteName.compareTo(other.getSiteName());
@@ -47,80 +43,52 @@ public class PreviewLocation implements Comparable<PreviewLocation> {
     return s;
   }
 
-<<<<<<< HEAD
   /**
    * @see Object#equals(Object)
    */
-=======
-  /** @see Object#equals(Object) */
->>>>>>> development-8.1.x
   @Override
   public boolean equals(Object obj) {
     return super.equals(obj);
   }
 
-<<<<<<< HEAD
   /**
    * @return the siteName
    */
-=======
-  /** @return the siteName */
->>>>>>> development-8.1.x
   public String getSiteName() {
     return siteName;
   }
 
-<<<<<<< HEAD
   /**
    * @param siteName the siteName to set
    */
-=======
-  /** @param siteName the siteName to set */
->>>>>>> development-8.1.x
   public void setSiteName(String siteName) {
     this.siteName = siteName;
   }
 
-<<<<<<< HEAD
   /**
    * @return the path
    */
-=======
-  /** @return the path */
->>>>>>> development-8.1.x
   public String getPath() {
     return path;
   }
 
-<<<<<<< HEAD
   /**
    * @param path the path to set
    */
-=======
-  /** @param path the path to set */
->>>>>>> development-8.1.x
   public void setPath(String path) {
     this.path = path;
   }
 
-<<<<<<< HEAD
   /**
    * @return the url
    */
-=======
-  /** @return the url */
->>>>>>> development-8.1.x
   public String getUrl() {
     return url;
   }
 
-<<<<<<< HEAD
   /**
    * @param url the url to set
    */
-=======
-  /** @param url the url to set */
->>>>>>> development-8.1.x
   public void setUrl(String url) {
     this.url = url;
   }

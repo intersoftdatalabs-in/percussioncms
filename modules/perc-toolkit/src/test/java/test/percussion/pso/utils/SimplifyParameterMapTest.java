@@ -22,18 +22,14 @@
  */
 package test.percussion.pso.utils;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
-=======
->>>>>>> development-8.1.x
 import com.percussion.pso.utils.SimplifyParameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
 
 public class SimplifyParameterMapTest {
@@ -41,16 +37,6 @@ public class SimplifyParameterMapTest {
 
   @Test
   void testSimplifyValue() {
-=======
-import junit.framework.TestCase;
-
-public class SimplifyParameterMapTest extends TestCase {
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(SimplifyParameterMapTest.class);
-  }
-
-  public void testSimplifyValue() {
->>>>>>> development-8.1.x
     assertEquals("xyzzy", SimplifyParameters.simplifyValue("xyzzy"));
     assertEquals("foo", SimplifyParameters.simplifyValue(new String[] {"foo", "bar"}));
     assertEquals("", SimplifyParameters.simplifyValue(new String[0]));
@@ -67,12 +53,8 @@ public class SimplifyParameterMapTest extends TestCase {
   /*
    * Test method for 'com.percussion.pso.utils.SimplifyParameters.simplify(Map<String, Object>)'
    */
-<<<<<<< HEAD
   @Test
   void testSimplifyMap() {
-=======
-  public void testSimplifyMap() {
->>>>>>> development-8.1.x
     Map<String, Object> inmap = new HashMap<String, Object>();
     List<String> inlist = new ArrayList<String>();
     inlist.add("X");
@@ -89,12 +71,8 @@ public class SimplifyParameterMapTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-<<<<<<< HEAD
   @Test
   void testGetValueAsList() {
-=======
-  public void testGetValueAsList() {
->>>>>>> development-8.1.x
     List<String> result;
     result = SimplifyParameters.getValueAsList("foo");
     assertEquals(1, result.size());

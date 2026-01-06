@@ -25,7 +25,6 @@ import com.percussion.design.objectstore.PSAclEntry;
 import com.percussion.guitools.PSDialog;
 import com.percussion.webservices.security.data.PSCommunity;
 import com.percussion.webservices.security.data.PSLogin;
-<<<<<<< HEAD
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +34,6 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-=======
->>>>>>> development-8.1.x
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
@@ -74,13 +71,9 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
 
   private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
   
    private PSContentExplorerHelper helper = new PSContentExplorerHelper();
-=======
-  static Logger log = Logger.getLogger(PSContentExplorerFrame.class);
->>>>>>> development-8.1.x
 
   private PSContentExplorerHelper helper = new PSContentExplorerHelper();
 

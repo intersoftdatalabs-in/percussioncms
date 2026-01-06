@@ -18,9 +18,9 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.data;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Siteimprove credentials to access their API. */
 @XmlRootElement(name = "SiteimproveCredentials")

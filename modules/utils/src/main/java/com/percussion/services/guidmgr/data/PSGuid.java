@@ -80,7 +80,6 @@ public class PSGuid extends Number implements IPSGuid {
   static final short TYPE_POS = 32;
 
   private static final String TYPE_NOT_NULL = "type may not be null";
-<<<<<<< HEAD
 
   /**
    * General constructor for a guid.
@@ -171,96 +170,6 @@ public class PSGuid extends Number implements IPSGuid {
   public PSGuid(PSTypeEnum type, long value) {
     if (type == null) throw new IllegalArgumentException(TYPE_NOT_NULL);
 
-=======
-  /**
-   * General constructor for a guid.
-   *
-   * @param hostid the host id, defined from the system configuration and issued by tech support.
-   *     Host ids below 1000 are reserved for internal use.
-   * @param type the type of the GUID being created, not <code>null</code>.
-   * @param uuid the unique id of the object. Unique ids may be repeated across different types.
-   */
-  public PSGuid(long hostid, PSTypeEnum type, long uuid) {
-    assemble(hostid, type, uuid);
-  }
-
-  /**
-   * Constructor for a guid from string form without a type.
-   *
-   * @param type a type value, not <code>null</code>.
-   * @param representation the string, must be in the following format, where parts in [] are
-   *     optional:
-   *     <pre>
-   *    [hostid-[typeid-]]uuid
-   * </pre>
-   *     .
-   */
-  public PSGuid(PSTypeEnum type, String representation) {
-    assemble(representation, type, false);
-  }
-  /**
-   * Constructor for a guid from string form without a type.
-   *
-   * @param type a type value, not <code>null</code>.
-   * @param representation the string, must be in the following format, where parts in [] are
-   *     optional:
-   *     <pre>
-   *    [hostid-[typeid-]]uuid
-   * </pre>
-   *     .
-   */
-  public PSGuid(PSTypeEnum type, String representation, boolean forceType) {
-    assemble(representation, type, forceType);
-  }
-
-  /**
-   * Public ctor, use in very specific cases for serialization, i.e. fromXML method and such. Not
-   * for general use.
-   */
-  public PSGuid() {
-    this(PSTypeEnum.INTERNAL, 0);
-  }
-
-  /**
-   * Allows creation of a guid from a numeric representation. The type must be a type present in the
-   * {@link PSTypeEnum} class. The hostid is not validated.
-   *
-   * @param guid The value returned from the {@link #longValue()} method. If the type is not found
-   *     in the enumeration class, an <code>IllegalArgumentException</code> is thrown
-   */
-  public PSGuid(long guid) {
-    long uuid = doGetUUID(guid);
-    long host = doGetHostId(guid);
-    short typeVal = doGetType(guid);
-
-    PSTypeEnum type = PSTypeEnum.valueOf(typeVal);
-    if (type == null) {
-      throw new IllegalArgumentException("guid does not contain a valid type");
-    }
-    assemble(host, type, uuid);
-  }
-
-  /**
-   * Constructor for a guid from string form.
-   *
-   * @param representation the string, must be in the same format that {@link #toString()}uses to
-   *     format a GUID.
-   */
-  public PSGuid(String representation) {
-    assemble(representation, null, false);
-  }
-
-  /**
-   * Constructor for a guid from a direct value, e.g. the database.
-   *
-   * @param type the type of the guid to be constructed, never <code>null</code> and must match the
-   *     type if the type is present in the value passed in.
-   * @param value the guid value.
-   */
-  public PSGuid(PSTypeEnum type, long value) {
-    if (type == null) throw new IllegalArgumentException(TYPE_NOT_NULL);
-
->>>>>>> development-8.1.x
     m_guid = value;
     if (getType() == 0) setType(type.getOrdinal());
     else if (getType() != type.getOrdinal())

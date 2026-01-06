@@ -20,11 +20,7 @@ import com.percussion.utils.spring.IPSBeanConfig;
 import com.percussion.utils.spring.PSSpringBeanUtils;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import java.util.Objects;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

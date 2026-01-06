@@ -187,10 +187,7 @@ public class PSGenerateHelptopicMappingsTask extends Task {
    * @throws SAXException
    * @throws IOException
    */
-<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("XXE_DOCUMENT")  // False positive - see PSSecureXMLUtils
-=======
->>>>>>> development-8.1.x
   private Map readKeyValueData(
       DocumentBuilder builder, File mapFile, String nodeName, String keyName, String valName)
       throws SAXException, IOException {
@@ -227,112 +224,72 @@ public class PSGenerateHelptopicMappingsTask extends Task {
     return "Load the mapping file and generate the helpset mappings for" + " javahelp";
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the destFile.
    */
-=======
-  /** @return Returns the destFile. */
->>>>>>> development-8.1.x
   public String getDestFile() {
     return m_destFile;
   }
 
-<<<<<<< HEAD
   /**
    * @param destFile The destFile to set.
    */
-=======
-  /** @param destFile The destFile to set. */
->>>>>>> development-8.1.x
   public void setDestFile(String destFile) {
     m_destFile = destFile;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the keysFile.
    */
-=======
-  /** @return Returns the keysFile. */
->>>>>>> development-8.1.x
   public String getKeysFile() {
     return m_keysFile;
   }
 
-<<<<<<< HEAD
   /**
    * @param keysFile The keysFile to set.
    */
-=======
-  /** @param keysFile The keysFile to set. */
->>>>>>> development-8.1.x
   public void setKeysFile(String keysFile) {
     m_keysFile = keysFile;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the mapFile.
    */
-=======
-  /** @return Returns the mapFile. */
->>>>>>> development-8.1.x
   public String getMapFile() {
     return m_mapFile;
   }
 
-<<<<<<< HEAD
   /**
    * @param mapFile The mapFile to set.
    */
-=======
-  /** @param mapFile The mapFile to set. */
->>>>>>> development-8.1.x
   public void setMapFile(String mapFile) {
     m_mapFile = mapFile;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the suppressError.
    */
-=======
-  /** @return Returns the suppressError. */
->>>>>>> development-8.1.x
   public boolean isSuppressError() {
     return m_suppressError;
   }
 
-<<<<<<< HEAD
   /**
    * @param suppressError The suppressError to set.
    */
-=======
-  /** @param suppressError The suppressError to set. */
->>>>>>> development-8.1.x
   public void setSuppressError(boolean suppressError) {
     m_suppressError = suppressError;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the alwaysRegen.
    */
-=======
-  /** @return Returns the alwaysRegen. */
->>>>>>> development-8.1.x
   public boolean isAlwaysRegen() {
     return m_alwaysRegen;
   }
 
-<<<<<<< HEAD
   /**
    * @param alwaysRegen The alwaysRegen to set.
    */
-=======
-  /** @param alwaysRegen The alwaysRegen to set. */
->>>>>>> development-8.1.x
   public void setAlwaysRegen(boolean alwaysRegen) {
     m_alwaysRegen = alwaysRegen;
   }

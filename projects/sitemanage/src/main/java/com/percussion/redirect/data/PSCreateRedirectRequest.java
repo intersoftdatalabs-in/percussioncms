@@ -18,8 +18,8 @@
 
 package com.percussion.redirect.data;
 
-import java.io.Serializable;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /** Encapsulates a request for a new redirect. Used for creating or updating redirect rules. */
 @SuppressWarnings("serial")

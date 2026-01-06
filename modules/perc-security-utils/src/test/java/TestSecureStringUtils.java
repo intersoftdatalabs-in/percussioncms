@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
->>>>>>> development-8.1.x
 
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.SecureStringUtils;
 import java.net.URI;
 import java.net.URISyntaxException;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.text.StringEscapeUtils;
@@ -45,18 +36,6 @@ import org.junit.jupiter.api.Test;
 public class TestSecureStringUtils {
 
   private Path tempDir;
-=======
-import org.apache.commons.text.StringEscapeUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-public class TestSecureStringUtils {
-
-  @Rule public TemporaryFolder tempFolder = TemporaryFolder.builder().build();
->>>>>>> development-8.1.x
 
   private static final String[] resourcePaths =
       new String[] {
@@ -94,16 +73,10 @@ public class TestSecureStringUtils {
         "/Rhythmyx/"
       };
 
-<<<<<<< HEAD
   @BeforeEach
   public void setup() throws Exception {
     tempDir = Files.createTempDirectory("perc-security-utils-tests");
     System.setProperty("rxdeploydir", tempDir.toAbsolutePath().toString());
-=======
-  @Before
-  public void setup() {
-    System.setProperty("rxdeploydir", tempFolder.getRoot().getAbsolutePath());
->>>>>>> development-8.1.x
   }
 
   @Test
@@ -119,11 +92,7 @@ public class TestSecureStringUtils {
     String testPath =
         SecureStringUtils.cleanWildPath(
             resourcePaths,
-<<<<<<< HEAD
             "/Rhythmyx/cm%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini",
-=======
-            "/Rhythmyx/cm%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini",
->>>>>>> development-8.1.x
             "unit.test");
     assertNull(testPath);
 
@@ -146,21 +115,13 @@ public class TestSecureStringUtils {
     testPath =
         SecureStringUtils.cleanWildPath(
             resourcePaths,
-<<<<<<< HEAD
             "%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini",
-=======
-            "%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini",
->>>>>>> development-8.1.x
             "unit.test");
     assertNull(testPath);
   }
 
   @Test
-<<<<<<< HEAD
   @Disabled
-=======
-  @Ignore
->>>>>>> development-8.1.x
   public void testPwdDecryption() {
     String encPwd = "Qhmee/8dNs2SL0+499RqMv/1hoNxdAgdnyIOewLB7xrt5A==";
     // Add .key and .legacyKey in this dir to get decrypted pwd.
@@ -292,12 +253,8 @@ public class TestSecureStringUtils {
   public void testUnescapeXML() {
 
     String test =
-<<<<<<< HEAD
         "&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;"
             + " standalone=&amp;quot;yes&amp;quot;?&amp;gt;\n"
-=======
-        "&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot; standalone=&amp;quot;yes&amp;quot;?&amp;gt;\n"
->>>>>>> development-8.1.x
             + "&amp;lt;RegionBranches&amp;gt;\n"
             + "    &amp;lt;regionWidgetAssociations&amp;gt;\n"
             + "        &amp;lt;regionWidget&amp;gt;\n"
@@ -306,12 +263,8 @@ public class TestSecureStringUtils {
             + "            &amp;lt;widgetItems&amp;gt;\n"
             + "                &amp;lt;widgetItem&amp;gt;\n"
             + "                    &amp;lt;cssProperties/&amp;gt;\n"
-<<<<<<< HEAD
             + "                   "
             + " &amp;lt;definitionId&amp;gt;percBlogPost&amp;lt;/definitionId&amp;gt;\n"
-=======
-            + "                    &amp;lt;definitionId&amp;gt;percBlogPost&amp;lt;/definitionId&amp;gt;\n"
->>>>>>> development-8.1.x
             + "                    &amp;lt;id&amp;gt;830717652&amp;lt;/id&amp;gt;\n"
             + "                    &amp;lt;properties/&amp;gt;\n"
             + "                &amp;lt;/widgetItem&amp;gt;\n"
@@ -323,12 +276,8 @@ public class TestSecureStringUtils {
             + "            &amp;lt;widgetItems&amp;gt;\n"
             + "                &amp;lt;widgetItem&amp;gt;\n"
             + "                    &amp;lt;cssProperties/&amp;gt;\n"
-<<<<<<< HEAD
             + "                   "
             + " &amp;lt;definitionId&amp;gt;percTitle&amp;lt;/definitionId&amp;gt;\n"
-=======
-            + "                    &amp;lt;definitionId&amp;gt;percTitle&amp;lt;/definitionId&amp;gt;\n"
->>>>>>> development-8.1.x
             + "                    &amp;lt;id&amp;gt;533037133&amp;lt;/id&amp;gt;\n"
             + "                    &amp;lt;properties/&amp;gt;\n"
             + "                &amp;lt;/widgetItem&amp;gt;\n"
@@ -341,12 +290,8 @@ public class TestSecureStringUtils {
             + "            &amp;lt;attributes/&amp;gt;\n"
             + "            &amp;lt;children&amp;gt;\n"
             + "                &amp;lt;code&amp;gt;\n"
-<<<<<<< HEAD
             + "                   "
             + " &amp;lt;templateCode&amp;gt;#region(&amp;quot;header&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;)&amp;lt;/templateCode&amp;gt;\n"
-=======
-            + "                    &amp;lt;templateCode&amp;gt;#region(&amp;quot;header&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;)&amp;lt;/templateCode&amp;gt;\n"
->>>>>>> development-8.1.x
             + "                &amp;lt;/code&amp;gt;\n"
             + "            &amp;lt;/children&amp;gt;\n"
             + "        &amp;lt;/region&amp;gt;\n"
@@ -355,12 +300,8 @@ public class TestSecureStringUtils {
             + "            &amp;lt;attributes/&amp;gt;\n"
             + "            &amp;lt;children&amp;gt;\n"
             + "                &amp;lt;code&amp;gt;\n"
-<<<<<<< HEAD
             + "                   "
             + " &amp;lt;templateCode&amp;gt;#region(&amp;quot;content&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;)&amp;lt;/templateCode&amp;gt;\n"
-=======
-            + "                    &amp;lt;templateCode&amp;gt;#region(&amp;quot;content&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;,&amp;quot;&amp;quot;)&amp;lt;/templateCode&amp;gt;\n"
->>>>>>> development-8.1.x
             + "                &amp;lt;/code&amp;gt;\n"
             + "            &amp;lt;/children&amp;gt;\n"
             + "        &amp;lt;/region&amp;gt;\n"

@@ -47,46 +47,30 @@ public class PSPair<A, B> {
     m_second = second;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the first.
    */
-=======
-  /** @return Returns the first. */
->>>>>>> development-8.1.x
   public A getFirst() {
     return m_first;
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the second.
    */
-=======
-  /** @return Returns the second. */
->>>>>>> development-8.1.x
   public B getSecond() {
     return m_second;
   }
 
-<<<<<<< HEAD
   /**
    * @param first The first to set.
    */
-=======
-  /** @param first The first to set. */
->>>>>>> development-8.1.x
   public void setFirst(A first) {
     m_first = first;
   }
 
-<<<<<<< HEAD
   /**
    * @param second The second to set.
    */
-=======
-  /** @param second The second to set. */
->>>>>>> development-8.1.x
   public void setSecond(B second) {
     m_second = second;
   }

@@ -17,8 +17,8 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 /**
  * Structure for doc type options for templates. Contains an option name and its value.

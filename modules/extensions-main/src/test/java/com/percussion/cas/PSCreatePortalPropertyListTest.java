@@ -29,7 +29,6 @@ import org.w3c.dom.Document;
  *     <p>To change the template for this generated type comment go to
  *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-<<<<<<< HEAD
 @Tag("UnitTest")
 public class PSCreatePortalPropertyListTest {
   private static final Logger log = LogManager.getLogger(PSCreatePortalPropertyListTest.class);
@@ -70,49 +69,6 @@ public class PSCreatePortalPropertyListTest {
     "",
     "123"
   };
-
-=======
-@Category(UnitTest.class)
-public class PSCreatePortalPropertyListTest {
-  private static final Logger log = LogManager.getLogger(PSCreatePortalPropertyListTest.class);
-  /** Test parameters for the test */
-  Object[] params = {
-    "METADATA",
-    "searchKeywords",
-    "string",
-    "",
-    "foo, bar",
-    "excludeFromSearch",
-    "string",
-    "",
-    "no",
-    "categories",
-    "string",
-    ",",
-    "white,yellow,red",
-    "regions",
-    "integer",
-    "",
-    "1, 2",
-    "locale",
-    "string",
-    "",
-    "en-us",
-    "creationDate",
-    "date",
-    "yyyyMMdd",
-    "20030612",
-    "emptyValue",
-    "date",
-    "",
-    "",
-    "number",
-    "integer",
-    "",
-    "123"
-  };
-
->>>>>>> development-8.1.x
   String resultDoc =
       "<METADATA>"
           + "<Property name=\"searchKeywords\" pattern=\"\" type=\"string\">foo, bar</Property>"

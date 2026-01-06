@@ -22,16 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class PSCopyStream {
-<<<<<<< HEAD
 
   /** Constructor, make it private to make uninstantiable. */
   private PSCopyStream() {}
 
-=======
-
-  /** Constructor, make it private to make uninstantiable. */
-  private PSCopyStream() {}
->>>>>>> development-8.1.x
   /**
    * Method to copy Java InputStream to PoutputStream.
    *

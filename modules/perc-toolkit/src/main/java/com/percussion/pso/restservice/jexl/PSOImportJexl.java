@@ -16,10 +16,6 @@
  */
 package com.percussion.pso.restservice.jexl;
 
-<<<<<<< HEAD
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import com.percussion.extension.IPSJexlExpression;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
@@ -48,11 +44,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
-=======
-import javax.servlet.http.HttpServletRequest;
->>>>>>> development-8.1.x
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -101,16 +93,11 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
           "Gets html posted to the template and converts it to tidied xml compliant output ",
       params = {})
   public Document getPostBodyAsDom()
-<<<<<<< HEAD
       throws SAXNotRecognizedException,
           SAXNotSupportedException,
           TransformerFactoryConfigurationError,
           TransformerException,
           IOException {
-=======
-      throws SAXNotRecognizedException, SAXNotSupportedException,
-          TransformerFactoryConfigurationError, TransformerException, IOException {
->>>>>>> development-8.1.x
     PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     HttpServletRequest sreq = req.getServletRequest();
 
@@ -193,14 +180,10 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    */
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "Extracts html from a url and convert to dom. Given the specified keyfield and"
               + " contextroot, will attempt to find any items that match the url's has code in the"
               + " keyfield and path.  If found any previous cached etag and/or last modified header"
               + " data will be used whn checking to see if the item needs to be downloaded.",
-=======
-          "Extracts html from a url and convert to dom. Given the specified keyfield and contextroot, will attempt to find any items that match the url's has code in the keyfield and path.  If found any previous cached etag and/or last modified header data will be used whn checking to see if the item needs to be downloaded.",
->>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(name = "url", description = "the url to connect to"),
         @IPSJexlParam(
@@ -456,14 +439,10 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    */
   @IPSJexlMethod(
       description =
-<<<<<<< HEAD
           "Extracts html from a url and convert to dom. Given the specified keyfield and"
               + " contextroot, will attempt to find any items that match the url's has code in the"
               + " keyfield and path.  If found any previous cached etag and/or last modified header"
               + " data will be used whn checking to see if the item needs to be downloaded.",
-=======
-          "Extracts html from a url and convert to dom. Given the specified keyfield and contextroot, will attempt to find any items that match the url's has code in the keyfield and path.  If found any previous cached etag and/or last modified header data will be used whn checking to see if the item needs to be downloaded.",
->>>>>>> development-8.1.x
       params = {
         @IPSJexlParam(name = "url", description = "the url to connect to"),
         @IPSJexlParam(
@@ -586,22 +565,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       log.debug(e, e);
       ret = html;
       log.warn(
-<<<<<<< HEAD
           "An error occurred while cleaning relative links, content may still contain relative"
               + " links.");
-=======
-          "An error occurred while cleaning relative links, content may still contain relative links.");
->>>>>>> development-8.1.x
     } catch (URISyntaxException e) {
       log.debug(e, e);
       ret = html;
       log.warn(
-<<<<<<< HEAD
           "An error occurred while cleaning relative links, content may still contain relative"
               + " links.");
-=======
-          "An error occurred while cleaning relative links, content may still contain relative links.");
->>>>>>> development-8.1.x
     }
 
     return ret;

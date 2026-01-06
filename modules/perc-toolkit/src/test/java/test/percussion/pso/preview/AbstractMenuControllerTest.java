@@ -22,11 +22,7 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.pso.preview.AbstractMenuController;
 import com.percussion.pso.preview.SiteFolderLocation;
@@ -40,7 +36,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,74 +80,6 @@ public class AbstractMenuControllerTest {
         .thenReturn(Collections.singletonList(tg1));
 
     List<IPSAssemblyTemplate> results = cut.filterVisibleTemplates(temps, sites);
-=======
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Before;
-import org.junit.Test;
-
-public class AbstractMenuControllerTest {
-
-  TestableAbstractMenuController cut;
-  Mockery context;
-
-  @Before
-  public void setUp() throws Exception {
-    context =
-        new Mockery() {
-          {
-            setImposteriser(ClassImposteriser.INSTANCE);
-          }
-        };
-    cut = new TestableAbstractMenuController();
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public final void testFilterVisibleTemplates() {
-    final IPSSite site = context.mock(IPSSite.class);
-    final Set<IPSSite> sites = Collections.<IPSSite>singleton(site);
-
-    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class, "t1");
-    final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class, "t2");
-    final IPSGuid tg1 = context.mock(IPSGuid.class, "tg1");
-    final IPSGuid tg2 = context.mock(IPSGuid.class, "tg2");
-    final Set<IPSAssemblyTemplate> temps = new HashSet<IPSAssemblyTemplate>();
-    temps.add(t1);
-    temps.add(t2);
-
-    final IPSSecurityWs secws = context.mock(IPSSecurityWs.class);
-    final IPSAssemblyService asm = context.mock(IPSAssemblyService.class);
-    AbstractMenuController.setSecws(secws);
-    AbstractMenuController.setAsm(asm);
-
-    cut.setTestCommunityVisibility(true);
-
-    context.checking(
-        new Expectations() {
-          {
-            allowing(t1).getGUID();
-            will(returnValue(tg1));
-            allowing(t2).getGUID();
-            will(returnValue(tg2));
-            allowing(t1).getName();
-            will(returnValue("t1"));
-            allowing(t2).getName();
-            will(returnValue("t2"));
-            allowing(site).getName();
-            will(returnValue("mySite"));
-            allowing(site).getAssociatedTemplates();
-            will(returnValue(temps));
-
-            one(secws).filterByRuntimeVisibility(with(any(List.class)));
-            will(returnValue(Collections.<IPSGuid>singletonList(tg1)));
-          }
-        });
-
-    List<IPSAssemblyTemplate> results = cut.filterVisibleTemplates(temps, sites);
-
->>>>>>> development-8.1.x
     assertNotNull(results);
     assertEquals(1, results.size());
     assertEquals(t1, results.get(0));
@@ -160,7 +87,6 @@ public class AbstractMenuControllerTest {
 
   @Test
   public final void testIsTemplateOnSite() {
-<<<<<<< HEAD
     IPSSite site = Mockito.mock(IPSSite.class);
     Set<IPSSite> sites = Collections.singleton(site);
     IPSAssemblyTemplate t1 = Mockito.mock(IPSAssemblyTemplate.class);
@@ -174,73 +100,31 @@ public class AbstractMenuControllerTest {
     boolean res = cut.isTemplateOnSite(t1, sites);
     assertTrue(res);
     res = cut.isTemplateOnSite(t2, sites);
-=======
-    final IPSSite site = context.mock(IPSSite.class);
-    final Set<IPSSite> sites = Collections.<IPSSite>singleton(site);
-
-    final IPSAssemblyTemplate t1 = context.mock(IPSAssemblyTemplate.class, "t1");
-    final IPSAssemblyTemplate t2 = context.mock(IPSAssemblyTemplate.class, "t2");
-
-    final Set<IPSAssemblyTemplate> temps = new HashSet<IPSAssemblyTemplate>();
-    temps.add(t1);
-
-    context.checking(
-        new Expectations() {
-          {
-            atLeast(1).of(site).getAssociatedTemplates();
-            will(returnValue(temps));
-            allowing(t1).getName();
-            will(returnValue("Template1"));
-            allowing(site).getName();
-            will(returnValue("Site1"));
-          }
-        });
-
-    boolean res = cut.isTemplateOnSite(t1, sites);
-    assertTrue(res);
-
-    context.assertIsSatisfied();
-
-    res = cut.isTemplateOnSite(t2, sites);
-
->>>>>>> development-8.1.x
     assertFalse(res);
   }
 
   class TestableAbstractMenuController extends AbstractMenuController {
 
-<<<<<<< HEAD
     /**
      * @see AbstractMenuController#filterVisibleTemplates(Collection, Set)
      */
-=======
-    /** @see AbstractMenuController#filterVisibleTemplates(Collection, Set) */
->>>>>>> development-8.1.x
     @Override
     public List<IPSAssemblyTemplate> filterVisibleTemplates(
         Collection<IPSAssemblyTemplate> alltemps, Set<IPSSite> sites) {
       return super.filterVisibleTemplates(alltemps, sites);
     }
 
-<<<<<<< HEAD
     /**
      * @see AbstractMenuController#findSitesFromLocations(List)
      */
-=======
-    /** @see AbstractMenuController#findSitesFromLocations(List) */
->>>>>>> development-8.1.x
     @Override
     public Set<IPSSite> findSitesFromLocations(List<SiteFolderLocation> locations) {
       return super.findSitesFromLocations(locations);
     }
 
-<<<<<<< HEAD
     /**
      * @see AbstractMenuController#isTemplateOnSite(IPSAssemblyTemplate, Set)
      */
-=======
-    /** @see AbstractMenuController#isTemplateOnSite(IPSAssemblyTemplate, Set) */
->>>>>>> development-8.1.x
     @Override
     public boolean isTemplateOnSite(IPSAssemblyTemplate t, Set<IPSSite> sites) {
       return super.isTemplateOnSite(t, sites);

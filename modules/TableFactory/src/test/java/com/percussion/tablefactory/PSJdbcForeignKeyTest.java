@@ -16,13 +16,8 @@
  */
 package com.percussion.tablefactory;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
->>>>>>> development-8.1.x
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
@@ -47,16 +42,9 @@ public class PSJdbcForeignKeyTest {
     // Now ForeignKeys are different incase their components are different,
     // if name is different and components are same, they are considered same
     fk2.setName("FK_SOME_OTHER_NAME_1");
-<<<<<<< HEAD
     assertEquals(fk, fk2, "Should not be equal");
 
     fk2.addColumn("col3", "extTable3", "extCol3");
     assertNotEquals(fk, fk2, "Should not be equal");
-=======
-    assertEquals("Should not be equal", fk, fk2);
-
-    fk2.addColumn("col3", "extTable3", "extCol3");
-    assertNotEquals("Should not be equal", fk, fk2);
->>>>>>> development-8.1.x
   }
 }

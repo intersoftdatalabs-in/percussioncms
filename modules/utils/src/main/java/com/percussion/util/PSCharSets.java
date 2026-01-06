@@ -176,24 +176,16 @@ public class PSCharSets {
       // we ignore this -- the file may not exist,  in which case all charsets
       // will map back to themselves, possibly resulting in runtime exceptions
       System.err.println(
-<<<<<<< HEAD
           "Character encoding map file not found. Try to load it through the object store handler"
               + " later.");
-=======
-          "Character encoding map file not found. Try to load it through the object store handler later.");
->>>>>>> development-8.1.x
     } catch (IOException e) {
       System.err.println("Error: Could not initialize charset map: " + e.toString());
     } catch (AccessControlException e) {
       // we ignore this, since we load it later when the connection is
       // established through the object store handler
       System.out.println(
-<<<<<<< HEAD
           "No access to character encoding map file. Try to load it through the object store"
               + " handler later.");
-=======
-          "No access to character encoding map file. Try to load it through the object store handler later.");
->>>>>>> development-8.1.x
     }
   }
 

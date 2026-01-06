@@ -16,22 +16,13 @@
  */
 package com.percussion.ant.install;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-=======
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
->>>>>>> development-8.1.x
 
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.utils.io.PathUtils;
-<<<<<<< HEAD
-=======
-import com.percussion.utils.testing.UnitTest;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,7 +30,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -52,26 +42,10 @@ public class PSMakeLasagnaTest {
 
   private String rxdeploydir;
 
-=======
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
-
-@Category(UnitTest.class)
-public class PSMakeLasagnaTest {
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  private String rxdeploydir;
-
->>>>>>> development-8.1.x
   /** Constant for the test rxrepository.properties file. */
   public static final String TEST_RXREPOSITORY_PROPS_FILE =
       "/com/percussion/ant/install/test_rxrepository.properties";
 
-<<<<<<< HEAD
   @BeforeEach
   public void setUp() {
     rxdeploydir = System.getProperty("rxdeploydir");
@@ -79,15 +53,6 @@ public class PSMakeLasagnaTest {
   }
 
   @AfterEach
-=======
-  @Before
-  public void setUp() {
-    rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-  }
-
-  @After
->>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);

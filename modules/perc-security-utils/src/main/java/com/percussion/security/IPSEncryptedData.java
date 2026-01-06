@@ -24,11 +24,6 @@ package com.percussion.security;
  */
 public interface IPSEncryptedData {
 
-<<<<<<< HEAD
   /** Triggers re-encryption of the implementing class's encrypted data. */
   void reEncrypt();
-=======
-  /** A method that triggers re-encryption of the implementing classes encrypted data. */
-  public void reEncrypt();
->>>>>>> development-8.1.x
 }

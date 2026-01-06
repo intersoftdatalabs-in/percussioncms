@@ -16,17 +16,10 @@
 
 package com.percussion.html;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
->>>>>>> development-8.1.x
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -35,11 +28,7 @@ import java.util.Scanner;
 import javax.xml.transform.TransformerException;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 /** Tests to validate that the html cleaner properties are working properly. */
 public class TestPSHtmlCleanerProperties {
@@ -136,13 +125,7 @@ public class TestPSHtmlCleanerProperties {
             .next();
     Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
     String parsed = doc.body().toString();
-<<<<<<< HEAD
     assertTrue(parsed.contains("<span class=\"perc-blog-more-link\"></span>"));
-=======
-    // jsoup 1.21.2+ correctly treats self-closing span tags as opening tags
-    // (span elements cannot be self-closing in HTML)
-    assertTrue(parsed.contains("<span class=\"perc-blog-more-link\"> Hi this is more</span>"));
->>>>>>> development-8.1.x
   }
 
   @Test

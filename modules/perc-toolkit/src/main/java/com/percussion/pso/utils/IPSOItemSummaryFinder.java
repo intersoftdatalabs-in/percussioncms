@@ -21,10 +21,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.utils.guid.IPSGuid;
 
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
 public interface IPSOItemSummaryFinder {
   public PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException;
 
@@ -33,10 +30,7 @@ public interface IPSOItemSummaryFinder {
   public PSLocator getCurrentOrEditLocator(int id) throws PSException;
 
   public int getCheckoutStatus(String contentId, String userName) throws PSException;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Gets the component summary for an item.
    *

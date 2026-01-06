@@ -64,11 +64,7 @@ public class PSSystem {
     setConsoleCtrlHandler();
   }
 
-<<<<<<< HEAD
   /******************For unix, comment out the following*****************/
-=======
-  /** ****************For unix, comment out the following**************** */
->>>>>>> development-8.1.x
 
   /**
    * Get the number of a local machine's processors.

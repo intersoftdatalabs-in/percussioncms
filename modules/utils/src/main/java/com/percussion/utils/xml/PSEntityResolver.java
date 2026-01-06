@@ -28,11 +28,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.EntityResolver;
@@ -177,12 +173,8 @@ public class PSEntityResolver implements EntityResolver {
 
       if (!SecureStringUtils.isChildOfFilePath(resolutionHome.toPath(), p)) {
         log.warn(
-<<<<<<< HEAD
             "Blocking external entity reference: {} as it is outside of the installation folder:"
                 + " {}.",
-=======
-            "Blocking external entity reference: {} as it is outside of the installation folder: {}.",
->>>>>>> development-8.1.x
             systemid,
             resolutionHome.getAbsolutePath());
         return null;

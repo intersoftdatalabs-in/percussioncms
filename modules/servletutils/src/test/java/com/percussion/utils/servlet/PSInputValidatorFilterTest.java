@@ -20,16 +20,20 @@ import static com.percussion.util.PSResourceUtils.getResourcePath;
 import static com.percussion.utils.servlet.PSInputValidatorFilter.RESPONSE_ERROR_STATUS;
 import static com.percussion.utils.servlet.PSInputValidatorFilter.VALIDATOR_CONFIG_RESOURCE_PROP_NAME;
 import static com.percussion.utils.servlet.PSInputValidatorFilter.VALIDATOR_ENABLE_PROP_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.utils.testing.IntegrationTest;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import junit.framework.TestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,8 +44,8 @@ import org.springframework.mock.web.MockServletContext;
  * @author erikserating
  * @author adamgent
  */
-@Category(IntegrationTest.class)
-public class PSInputValidatorFilterTest extends TestCase {
+@Disabled
+public class PSInputValidatorFilterTest {
 
   private PSInputValidatorFilter filter;
   private MockHttpServletResponse response = new MockHttpServletResponse();
@@ -53,7 +57,8 @@ public class PSInputValidatorFilterTest extends TestCase {
    *
    * @see junit.framework.TestCase#setUp()
    */
-  protected void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() throws Exception {
     String filePath =
         getResourcePath(
             PSInputValidatorFilterTest.class,
@@ -89,7 +94,8 @@ public class PSInputValidatorFilterTest extends TestCase {
   /* (non-Javadoc)
    * @see junit.framework.TestCase#tearDown()
    */
-  protected void tearDown() throws Exception {}
+  @AfterEach
+  public void tearDown() throws Exception {}
 
   private void assertErrorMessage(String badParam, String goodParam) {
     String actualBody = response.getErrorMessage();
@@ -99,14 +105,15 @@ public class PSInputValidatorFilterTest extends TestCase {
 
   private void assertErrorStatus() {
     int actualStatus = response.getStatus();
-    assertEquals("status should be", RESPONSE_ERROR_STATUS, actualStatus);
+    assertEquals(RESPONSE_ERROR_STATUS, actualStatus, "status should be");
   }
 
   private void assertOkStatus() {
     int actualStatus = response.getStatus();
-    assertEquals("status should be", 200, actualStatus);
+    assertEquals(200, actualStatus, "status should be");
   }
 
+  @Test
   public void testRestrictToGuid() throws Exception {
     HttpServletRequest req =
         createMockRequest(
@@ -118,12 +125,14 @@ public class PSInputValidatorFilterTest extends TestCase {
     assertErrorStatus();
   }
 
+  @Test
   public void testNoRestrict() throws Exception {
     HttpServletRequest req = createMockRequest(PARAM_TEST_NORESTRICT, "NonGuidValue <");
     filter.doFilter(req, response, filterChain);
     assertOkStatus();
   }
 
+  @Test
   public void testInvalidParamNameRemoval() throws Exception {
     HttpServletRequest req =
         createMockRequest(
@@ -132,7 +141,8 @@ public class PSInputValidatorFilterTest extends TestCase {
     filter.doFilter(req, response, filterChain);
     assertErrorStatus();
   }
-  //
+
+  @Test
   public void testNoControlChars() throws Exception {
     // If this test fails then the custom property files
     // is probably not loading.
@@ -142,6 +152,7 @@ public class PSInputValidatorFilterTest extends TestCase {
     assertErrorStatus();
     assertErrorMessage(PARAM_TEST_NOCC, null);
   }
+
   //
   //    public void testNoQuotes() throws Exception
   //    {

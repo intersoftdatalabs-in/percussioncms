@@ -21,14 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-<<<<<<< HEAD
 public class BrowserProps
 {
    static Logger log = LogManager.getLogger(BrowserProps.class);
-=======
-public class BrowserProps {
-  static Logger log = Logger.getLogger(BrowserProps.class);
->>>>>>> development-8.1.x
 
   private boolean toolbar = false;
   private boolean location = false;

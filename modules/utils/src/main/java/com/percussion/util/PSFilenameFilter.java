@@ -135,10 +135,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * extension is allowed. The default value is <code>null</code>.
    */
   private List m_fileExtensions;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Flag to indicate whether directories should be included in list of files or not, gets
    * initialized in constructor. The default value is <code>false</code>.

@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-<<<<<<< HEAD
 /***
  * Class of helper functions for working with test resources
  */
@@ -36,18 +35,6 @@ public class PSTestResourceUtils {
    * @param clazz The class to use for loading the resource
    * @param resourcePath The resource path
    * @param dir  May be null
-=======
-/** * Class of helper functions for working with test resources */
-@Deprecated // Use PSResourceUtils
-public class PSTestResourceUtils {
-
-  /**
-   * * Given a valid resource path, returns the resource as a temporary file
-   *
-   * @param clazz The class to use for loading the resource
-   * @param resourcePath The resource path
-   * @param dir May be null
->>>>>>> development-8.1.x
    * @return
    */
   public static File getFile(Class clazz, String resourcePath, File dir) throws IOException {

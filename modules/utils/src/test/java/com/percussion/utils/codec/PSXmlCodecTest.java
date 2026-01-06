@@ -25,16 +25,11 @@ import org.junit.jupiter.api.Test;
  *
  * @author dougrand
  */
-<<<<<<< HEAD
 public class PSXmlCodecTest {
   /**
    * @throws Exception
    */
   @Test
-=======
-public class PSXmlCodecTest extends TestCase {
-  /** @throws Exception */
->>>>>>> development-8.1.x
   public void testDecode() throws Exception {
     PSXmlDecoder dec = new PSXmlDecoder();
     String input = "&lt;a&#64;b&gt;";
