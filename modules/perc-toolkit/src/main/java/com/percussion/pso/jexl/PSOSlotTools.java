@@ -38,13 +38,8 @@ import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-=======
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,10 +55,6 @@ public class PSOSlotTools extends PSJexlUtilBase implements IPSJexlExpression {
   /** Ctor. */
   public PSOSlotTools() {
     super();
-<<<<<<< HEAD
-=======
-    // TODO Auto-generated constructor stub
->>>>>>> development-8.1.x
   }
 
   /**

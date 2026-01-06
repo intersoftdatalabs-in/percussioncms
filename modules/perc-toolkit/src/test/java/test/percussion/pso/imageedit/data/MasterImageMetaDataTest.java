@@ -35,11 +35,7 @@ public class MasterImageMetaDataTest {
 
   MasterImageMetaData cut;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new MasterImageMetaData();
   }
@@ -74,11 +70,7 @@ public class MasterImageMetaDataTest {
         log.info(
             "Property Descriptor " + pd2.getName() + " type " + pd2.getPropertyType().getName());
       }
-<<<<<<< HEAD
       assertTrue(true, "description complete");
-=======
-      assertTrue("description complete", true);
->>>>>>> development-8.1.x
     } catch (Exception ex) {
       log.error("Unexpected Exception " + ex, ex);
       fail("Exception caught");

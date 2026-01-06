@@ -17,7 +17,6 @@
 
 package com.percussion.legacy.security.deprecated;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import javax.crypto.SecretKey;
@@ -25,17 +24,12 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Assert;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 @Deprecated
 public class PSAesTest {
   /** Encryption key used to test AES functionality. Must be 16 bytes */
   final String encryptionKey = "0123456789abcdef";
 
-<<<<<<< HEAD
   private SecretKey testKey;
   private PSAesCBC aes;
 
@@ -91,24 +85,5 @@ public class PSAesTest {
     // PSLegacyEncrypter.
     // Intention: assertThrows(IllegalArgumentException) for empty key during decrypt.
     org.junit.jupiter.api.Assertions.assertTrue(true);
-=======
-  /**
-   * Assert that the encrypt method returns a String that is different from the input. Assert that
-   * the decrypt method returns a String equal to the original input of the encrypt method.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testEncryptDecryptJsonData() throws Exception {
-
-    final String input = "~!@$%^&*()_+aB®©";
-
-    PSAesCBC aes = new PSAesCBC();
-    final String encrypted = aes.encrypt(input, encryptionKey);
-    final String decrypted = aes.decrypt(encrypted, encryptionKey);
-
-    Assert.assertFalse("encrypted not equals input", input.equalsIgnoreCase(encrypted));
-    Assert.assertTrue("decrypted is same as input", input.equals(decrypted));
->>>>>>> development-8.1.x
   }
 }

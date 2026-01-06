@@ -16,42 +16,23 @@ package com.percussion.security;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<< HEAD
 /**
  * Defines the interface for an encryption algorithm used within the product.
  *
  * <p>Sunny Sal says: Encrypt like a pro—no secret decoder ring required!
  *
-=======
-
-package com.percussion.security;
-
-/**
- * IPSEncryptor defines the interface for an encryption algorithm which can be used within the
- * product.
- *
->>>>>>> development-8.1.x
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
 public interface IPSEncryptor {
   /**
-<<<<<<< HEAD
    * Encrypts the data in the specified input stream.
-=======
-   * Encrypt the data in the specified input stream.
->>>>>>> development-8.1.x
    *
    * @param in the stream containing the plain text representation of the data
    * @param out the stream to store the encrypted data
    */
-<<<<<<< HEAD
   void encrypt(java.io.InputStream in, java.io.OutputStream out) throws PSEncryptionException;
-=======
-  public abstract void encrypt(java.io.InputStream in, java.io.OutputStream out)
-      throws PSEncryptionException;
->>>>>>> development-8.1.x
 
   /**
    * A convenience method to encrypt a String.
@@ -59,18 +40,12 @@ public interface IPSEncryptor {
    * @param in the string containing the plain text representation of the data
    * @param out the stream to store the encrypted data
    */
-<<<<<<< HEAD
   void encrypt(String in, java.io.OutputStream out) throws PSEncryptionException;
-=======
-  public abstract void encrypt(java.lang.String in, java.io.OutputStream out)
-      throws PSEncryptionException;
->>>>>>> development-8.1.x
 
   /**
    * A convenience method to encrypt a String and retrieve the resulting byte array.
    *
    * @param in the string containing the plain text representation of the data
-<<<<<<< HEAD
    * @return a byte array containing the encrypted data.
    */
   byte[] encrypt(String in) throws PSEncryptionException;
@@ -83,12 +58,4 @@ public interface IPSEncryptor {
    * @return the encrypted byte array.
    */
   byte[] encryptWithPassword(String in, String password) throws PSEncryptionException;
-=======
-   * @return a byte array containing the encrypted data
-   */
-  public abstract byte[] encrypt(java.lang.String in) throws PSEncryptionException;
-
-  public abstract byte[] encryptWithPassword(String in, String password)
-      throws PSEncryptionException;
->>>>>>> development-8.1.x
 }

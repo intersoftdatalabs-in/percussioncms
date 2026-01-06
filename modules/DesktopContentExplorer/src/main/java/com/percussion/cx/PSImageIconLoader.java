@@ -17,20 +17,14 @@
 package com.percussion.cx;
 
 import com.percussion.util.IOTools;
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-=======
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
->>>>>>> development-8.1.x
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 
-<<<<<<< HEAD
  /**
   * Helper class to load image icons from UIManager cache or archive.
   */
@@ -44,14 +38,6 @@ public class PSImageIconLoader extends UIManager
    private PSImageIconLoader()
    {
    }
-=======
-/** Helper class to load image icons from UIManager cache or archive. */
-public class PSImageIconLoader extends UIManager {
-  static Logger log = Logger.getLogger(PSImageIconLoader.class);
-  private static String rootPath = "../../../";
-  /** Cannot instantiate!!! */
-  private PSImageIconLoader() {}
->>>>>>> development-8.1.x
 
   /**
    * Loads the icon with the supplied key from the UI manager/archive/server.If not found in UI

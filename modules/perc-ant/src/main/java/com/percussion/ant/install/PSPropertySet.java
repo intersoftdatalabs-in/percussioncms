@@ -73,16 +73,9 @@ public class PSPropertySet extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
-=======
-  /**
-   * *********************************************************************** Property Accessors and
-   * Mutators ***********************************************************************
-   */
->>>>>>> development-8.1.x
   /** Accessor for the Property File */
   public String getPropertyFile() {
     return m_strPropertyFile;
@@ -113,16 +106,9 @@ public class PSPropertySet extends PSAction {
     m_strPropertyValue = strPropertyValue;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Properties
    *************************************************************************/
-=======
-  /**
-   * ************************************************************************ Properties
-   * ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** The Property File */
   private String m_strPropertyFile = "";

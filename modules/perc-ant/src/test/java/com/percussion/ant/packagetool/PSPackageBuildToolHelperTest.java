@@ -17,7 +17,6 @@
 
 package com.percussion.ant.packagetool;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -25,16 +24,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-=======
-import static org.junit.Assert.assertEquals;
-
-import com.percussion.utils.testing.UnitTest;
-import java.io.File;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-@Category(UnitTest.class)
->>>>>>> development-8.1.x
 public class PSPackageBuildToolHelperTest {
   @Test
   public void getDestinationDirectoryTest() {

@@ -38,7 +38,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
@@ -47,9 +47,9 @@ import org.jmock.Sequence;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
+public class PSOUniqueFieldWithInFoldersValidatorTest {
 
   private static final Logger log =
       LogManager.getLogger(PSOUniqueFieldWithInFoldersValidatorTest.class);
@@ -387,10 +387,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
       fail("Exception caught");
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Test class to expose protected methods.
    *
@@ -416,13 +413,9 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
       return super.getFolderId(request);
     }
 
-<<<<<<< HEAD
     /**
      * @see com.percussion.pso.validation.PSOUniqueFieldWithInFoldersValidator#isPromotable(int)
      */
-=======
-    /** @see com.percussion.pso.validation.PSOUniqueFieldWithInFoldersValidator#isPromotable(int) */
->>>>>>> development-8.1.x
     @Override
     public boolean isPromotable(int contentid) throws PSErrorException {
       return super.isPromotable(contentid);

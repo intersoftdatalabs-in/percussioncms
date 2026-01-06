@@ -104,10 +104,10 @@
     <p>On each request, the following processing shall be performed:</p>
     <ol>
     <li>Calculate the <code>{ServletPath}</code> for this request, either from
-        request attribute <code>javax.servlet.include.servlet_path</code> or
+        request attribute <code>jakarta.servlet.include.servlet_path</code> or
         by calling <code>request.getServletPath()</code>.</li>
     <li>Calculate the <code>{PathInfo}</code> for this request, either from
-        request attribute <code>javax.servlet.include.path_info</code> or
+        request attribute <code>jakarta.servlet.include.path_info</code> or
         by calling <code>request.getPathInfo()</code>.  If the calculated
         <code>{PathInfo}</code> is null, return HTTP status 400
         (bad request).</li>
@@ -139,7 +139,7 @@
             exit from this request.</li>
         </ol></li>
     <li>Assume that <code>{ServletSelector}</code> is the fully qualified
-        name of a Java class that implements <code>javax.servlet.Servlet</code>
+        name of a Java class that implements <code>jakarta.servlet.Servlet</code>
         and process it as follows:
         <ol>
         <li>Synthesize a new <code>{ServletName}</code> for the servlet
@@ -154,7 +154,7 @@
         <li>Instantiate an instance of this class.  If an error occurs,
             return HTTP status 404 (not found).</li>
         <li>If this class does not implement the
-            <code>javax.servlet.Servlet</code> interface, return HTTP status
+            <code>jakarta.servlet.Servlet</code> interface, return HTTP status
             404 (not found).</li>
         <li>Create and register a new <code>Wrapper</code> child with our
             <code>Context</code>, under name <code>{ServletName}</code>.</li>

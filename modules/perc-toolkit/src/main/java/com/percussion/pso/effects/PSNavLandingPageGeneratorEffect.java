@@ -54,11 +54,7 @@ import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import java.text.MessageFormat;
@@ -70,7 +66,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-<<<<<<< HEAD
 /***
  * A relationship effect for handling the generation and association of Landing Pages for
  * newly created Navons designed for the <code>FolderContent</code> relationship.
@@ -84,11 +79,6 @@ import org.apache.logging.log4j.Logger;
  * A new landing page of the configured content type
  * </p>
  * @author natechadwick
-=======
-/**
- * * A relationship effect for handling the generation and association of Landing Pages for newly
- * created Navons designed for the <code>FolderContent</code> relationship.
->>>>>>> development-8.1.x
  *
  * <p>There is currently one event that that this effect must handle:
  *
@@ -125,169 +115,109 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
   private Integer m_defaultLandingCommunityId = 0;
   private long m_contentTypeId = 0;
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingCommunityId
    */
-=======
-  /** @return the m_defaultLandingCommunityId */
->>>>>>> development-8.1.x
   public Integer getDefaultLandingCommunityId() {
     return m_defaultLandingCommunityId;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingCommunityId the m_defaultLandingCommunityId to set
    */
-=======
-  /** @param m_defaultLandingCommunityId the m_defaultLandingCommunityId to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingCommunityId(Integer m_defaultLandingCommunityId) {
     this.m_defaultLandingCommunityId = m_defaultLandingCommunityId;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingRequiredValues
    */
-=======
-  /** @return the m_defaultLandingRequiredValues */
->>>>>>> development-8.1.x
   public String[] getDefaultLandingRequiredValues() {
     return m_defaultLandingRequiredValues;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingRequiredValues the m_defaultLandingRequiredValues to set
    */
-=======
-  /** @param m_defaultLandingRequiredValues the m_defaultLandingRequiredValues to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingRequiredValues(String[] m_defaultLandingRequiredValues) {
     this.m_defaultLandingRequiredValues = m_defaultLandingRequiredValues;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingRequiredFields
    */
-=======
-  /** @return the m_defaultLandingRequiredFields */
->>>>>>> development-8.1.x
   public String[] getDefaultLandingRequiredFields() {
     return m_defaultLandingRequiredFields;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingRequiredFields the m_defaultLandingRequiredFields to set
    */
-=======
-  /** @param m_defaultLandingRequiredFields the m_defaultLandingRequiredFields to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingRequiredFields(String[] m_defaultLandingRequiredFields) {
     this.m_defaultLandingRequiredFields = m_defaultLandingRequiredFields;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingDisplayTitleFormat
    */
-=======
-  /** @return the m_defaultLandingDisplayTitleFormat */
->>>>>>> development-8.1.x
   public String getDefaultLandingDisplayTitleFormat() {
     return m_defaultLandingDisplayTitleFormat;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingDisplayTitleFormat the m_defaultLandingDisplayTitleFormat to set
    */
-=======
-  /** @param m_defaultLandingDisplayTitleFormat the m_defaultLandingDisplayTitleFormat to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingDisplayTitleFormat(String m_defaultLandingDisplayTitleFormat) {
     this.m_defaultLandingDisplayTitleFormat = m_defaultLandingDisplayTitleFormat;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingDisplayTitleField
    */
-=======
-  /** @return the m_defaultLandingDisplayTitleField */
->>>>>>> development-8.1.x
   public String getDefaultLandingDisplayTitleField() {
     return m_defaultLandingDisplayTitleField;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingDisplayTitleField the m_defaultLandingDisplayTitleField to set
    */
-=======
-  /** @param m_defaultLandingDisplayTitleField the m_defaultLandingDisplayTitleField to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingDisplayTitleField(String m_defaultLandingDisplayTitleField) {
     this.m_defaultLandingDisplayTitleField = m_defaultLandingDisplayTitleField;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultLandingTitleTemplate
    */
-=======
-  /** @return the m_defaultLandingTitleTemplate */
->>>>>>> development-8.1.x
   public String getDefaultLandingTitleTemplate() {
     return m_defaultLandingTitleTemplate;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultLandingTitleTemplate the m_defaultLandingTitleTemplate to set
    */
-=======
-  /** @param m_defaultLandingTitleTemplate the m_defaultLandingTitleTemplate to set */
->>>>>>> development-8.1.x
   public void setDefaultLandingTitleTemplate(String m_defaultLandingTitleTemplate) {
     this.m_defaultLandingTitleTemplate = m_defaultLandingTitleTemplate;
   }
 
-<<<<<<< HEAD
   /**
    * @return the m_defaultContentType
    */
-=======
-  /** @return the m_defaultContentType */
->>>>>>> development-8.1.x
   public String getDefaultContentType() {
     return m_defaultContentType;
   }
 
-<<<<<<< HEAD
   /**
    * @param m_defaultContentType the m_defaultContentType to set
    */
-=======
-  /** @param m_defaultContentType the m_defaultContentType to set */
->>>>>>> development-8.1.x
   public void setDefaultContentType(String m_defaultContentType) {
     this.m_defaultContentType = m_defaultContentType;
   }
 
-<<<<<<< HEAD
   /***
    * Handle initilization parameters.  The Content Type configured
    * as the
    *
    */
-=======
-  /** * Handle initilization parameters. The Content Type configured as the */
->>>>>>> development-8.1.x
   @Override
   public void init(com.percussion.extension.IPSExtensionDef extDef, java.io.File codeRoot)
       throws com.percussion.extension.PSExtensionException {
@@ -340,12 +270,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
       if (m_defaultLandingRequiredFields != null && m_defaultLandingRequiredValues != null) {
         if (m_defaultLandingRequiredFields.length != m_defaultLandingRequiredValues.length) {
           throw new IllegalArgumentException(
-<<<<<<< HEAD
               "Required fields and Required field value lists have a different number of"
                   + " enteries!");
-=======
-              "Required fields and Required field value lists have a different number of enteries!");
->>>>>>> development-8.1.x
         }
       }
     }
@@ -424,15 +350,9 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
     }
   }
 
-<<<<<<< HEAD
   /***
    * Responsible for creating the landing page and adding it to
    * the same Folder as the NavOn.
-=======
-  /**
-   * * Responsible for creating the landing page and adding it to the same Folder as the NavOn.
-   *
->>>>>>> development-8.1.x
    * @throws Exception
    */
   private PSLocator createLandingPage(
@@ -466,10 +386,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
 
       PSItemDefinition lpDef = defMgr.getItemDef(m_contentTypeId, communityId);
       if (lpDef == null) {
-<<<<<<< HEAD
         // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
         String errmsg = "Unable to find Itemdef for type {0} in community {1}. ";
         Object[] args = new Object[2];
         args[0] = config.getNavonTypeIds().get(0);
@@ -543,18 +460,10 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
     return lpLoc;
   }
 
-<<<<<<< HEAD
   /***
    * Handles create the slot relationship between the NavOn and the
    * @param req  Request Context
    * @param navon  Locator for the NavOn
-=======
-  /**
-   * * Handles create the slot relationship between the NavOn and the
-   *
-   * @param req Request Context
-   * @param navon Locator for the NavOn
->>>>>>> development-8.1.x
    * @param lp Locator for the Landing Page
    * @param landingSlotName Name of the NavOn Landing Page slot
    * @throws PSNavException
@@ -652,19 +561,10 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
     return MessageFormat.format(pattern, parray);
   }
 
-<<<<<<< HEAD
   /***
    * Attempts a simple parse of the specified string to return CSV string represented as an array.
    * @param arg
    * @return Returns an array of strings holding the parameters. If no params are found, returns null.
-=======
-  /**
-   * * Attempts a simple parse of the specified string to return CSV string represented as an array.
-   *
-   * @param arg
-   * @return Returns an array of strings holding the parameters. If no params are found, returns
-   *     null.
->>>>>>> development-8.1.x
    */
   public String[] getCSVList(String arg) {
     String ret[] = null;
@@ -725,11 +625,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
     try {
       PSItemDefinition itemDef = defMgr.getItemDef(loc, req.getSecurityToken());
       String editorURL = itemDef.getEditorUrl();
-<<<<<<< HEAD
       Map<String, Object> pMap = new HashMap<>();
-=======
-      Map pMap = new HashMap();
->>>>>>> development-8.1.x
       pMap.put(IPSHtmlParameters.SYS_COMMAND, "workflow");
       pMap.put("WFAction", "CheckIn");
       pMap.put(IPSHtmlParameters.SYS_CONTENTID, loc.getPart(PSLocator.KEY_ID));
@@ -737,11 +633,8 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
       IPSInternalRequest ir = req.getInternalRequest(editorURL, pMap, false);
       ir.performUpdate();
     } catch (Exception ex) {
-<<<<<<< HEAD
       // TODO: PSNavException(Exception) is deprecated. Replace with recommended alternative if
       // available.
-=======
->>>>>>> development-8.1.x
       throw new PSNavException(ex);
     }
   }

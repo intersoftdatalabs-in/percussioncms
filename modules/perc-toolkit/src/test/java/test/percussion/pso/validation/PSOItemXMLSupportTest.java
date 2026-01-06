@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.validation;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.validation.PSOItemXMLSupport;
@@ -36,27 +35,6 @@ public class PSOItemXMLSupportTest {
   Document sample;
 
   @BeforeEach
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.validation.PSOItemXMLSupport;
-import com.percussion.xml.PSXmlDocumentBuilder;
-import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-public class PSOItemXMLSupportTest {
-  private static final Logger log = LogManager.getLogger(PSOItemXMLSupportTest.class);
-
-  PSOItemXMLSupport cut;
-  Document sample;
-
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new PSOItemXMLSupport();
     sample =

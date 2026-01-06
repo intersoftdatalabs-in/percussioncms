@@ -49,15 +49,11 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-<<<<<<< HEAD
 /**
  * @author DavidBenua
  */
-=======
-/** @author DavidBenua */
->>>>>>> development-8.1.x
 public class SiteFolderFinderImplTest {
   private static final Logger log = LogManager.getLogger(SiteFolderFinderImplTest.class);
 
@@ -72,13 +68,9 @@ public class SiteFolderFinderImplTest {
   SiteLoader siteLoader;
   PSOObjectFinder finder;
 
-<<<<<<< HEAD
   /**
    * @throws Exception
    */
-=======
-  /** @throws Exception */
->>>>>>> development-8.1.x
   @Before
   public void setUp() throws Exception {
     context =

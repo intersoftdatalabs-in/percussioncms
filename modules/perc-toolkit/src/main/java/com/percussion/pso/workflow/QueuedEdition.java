@@ -22,11 +22,8 @@
  */
 package com.percussion.pso.workflow;
 
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
 
-=======
->>>>>>> development-8.1.x
 /**
  * A Data Object describing an edition to be run in the future. As of 6.6, this is no longer needed.
  * It is kept for compatibility purposes only.
@@ -43,7 +40,6 @@ public class QueuedEdition {
   private String uri;
   private String listenerPort;
   private int retryCount = 0;
-<<<<<<< HEAD
 
   /** */
   public QueuedEdition(String uri, String port, String editionId, boolean local, int retries) {
@@ -134,63 +130,6 @@ public class QueuedEdition {
   /**
    * @return Returns the retryCount.
    */
-=======
-  /** */
-  public QueuedEdition(String uri, String port, String editionId, boolean local, int retries) {
-    this.uri = uri;
-    this.listenerPort = port;
-    this.editionId = editionId;
-    this.isLocal = local;
-    this.retryCount = retries;
-  }
-
-  /** @return Returns the cmsPassword. */
-  public String getCmsPassword() {
-    return cmsPassword;
-  }
-  /** @param cmsPassword The cmsPassword to set. */
-  public void setCmsPassword(String cmsPassword) {
-    this.cmsPassword = cmsPassword;
-  }
-  /** @return Returns the cmsUser. */
-  public String getCmsUser() {
-    return cmsUser;
-  }
-  /** @param cmsUser The cmsUser to set. */
-  public void setCmsUser(String cmsUser) {
-    this.cmsUser = cmsUser;
-  }
-  /** @return Returns the editionId. */
-  public String getEditionId() {
-    return editionId;
-  }
-  /** @param editionId The editionId to set. */
-  public void setEditionId(String editionId) {
-    this.editionId = editionId;
-  }
-  /** @return Returns the sessionId. */
-  public String getSessionId() {
-    return sessionId;
-  }
-  /** @param sessionId The sessionId to set. */
-  public void setSessionId(String sessionId) {
-    this.sessionId = sessionId;
-  }
-  /** @return Returns the uri. */
-  public String getUri() {
-    return uri;
-  }
-  /** @param uri The uri to set. */
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
-  /** @return Returns the local flag. */
-  public boolean isLocal() {
-    return isLocal;
-  }
-
-  /** @return Returns the retryCount. */
->>>>>>> development-8.1.x
   public int getRetryCount() {
     return retryCount;
   }
@@ -200,13 +139,9 @@ public class QueuedEdition {
     return (retryCount > 0);
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the listenerPort.
    */
-=======
-  /** @return Returns the listenerPort. */
->>>>>>> development-8.1.x
   public String getListenerPort() {
     return listenerPort;
   }

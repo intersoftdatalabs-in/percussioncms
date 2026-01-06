@@ -145,11 +145,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
 
     Set<String> matchedTables = new HashSet<>();
 
-<<<<<<< HEAD
     Iterator<?> tables = this.iterator();
-=======
-    Iterator tables = this.iterator();
->>>>>>> development-8.1.x
     while (tables.hasNext()) {
       PSJdbcTableSchema tableSchema = (PSJdbcTableSchema) tables.next();
       PSJdbcTableData tableData = tableDataCollection.getTableData(tableSchema.getName());
@@ -221,11 +217,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
       childTableName = childTableSchema.getName();
       it = childTableSchema.getParentTables();
       while (it.hasNext()) {
-<<<<<<< HEAD
         parentTableName = it.next();
-=======
-        parentTableName = (String) it.next();
->>>>>>> development-8.1.x
         parentTableSchema = getTableSchema(parentTableName);
         if (parentTableSchema != null) parentTableSchema.addChildTable(childTableName);
       }
@@ -255,10 +247,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     }
   }
 
-<<<<<<< HEAD
   @SuppressWarnings("unchecked")
-=======
->>>>>>> development-8.1.x
   @Override
   public Iterator<PSJdbcTableSchema> iterator() {
     return super.iterator();

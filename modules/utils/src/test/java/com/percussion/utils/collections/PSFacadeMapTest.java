@@ -16,7 +16,6 @@
  */
 package com.percussion.utils.collections;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,14 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PSFacadeMapTest {
-=======
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import junit.framework.TestCase;
-
-public class PSFacadeMapTest extends TestCase {
->>>>>>> development-8.1.x
 
   Map<String, String> inner2 = null;
 
@@ -45,7 +36,6 @@ public class PSFacadeMapTest extends TestCase {
 
   private Map<String, String> inner;
 
-<<<<<<< HEAD
   @BeforeEach
   protected void setUp() throws Exception {
 
@@ -94,60 +84,6 @@ public class PSFacadeMapTest extends TestCase {
     assertEquals(oldval, "3");
     assertNull(fmap.get("c"));
 
-=======
-  /*
-   * (non-Javadoc)
-   *
-   * @see junit.framework.TestCase#setUp()
-   */
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    HashMap<String, String> map = new HashMap<String, String>();
-    map.put("a", "1");
-    map.put("b", "2");
-    map.put("c", "3");
-    inner = Collections.unmodifiableMap(map);
-  }
-
-  @SuppressWarnings("unchecked")
-  public void testClone() throws Exception {
-    fmap = new PSFacadeMap<String, String>(inner);
-    PSFacadeMap<String, String> c = (PSFacadeMap<String, String>) fmap.clone();
-
-    assertEquals(fmap, c);
-    fmap.put("d", "4");
-    assertFalse(fmap.equals(c));
-    c.put("d", "4");
-    assertEquals(fmap, c);
-    assertEquals(4, fmap.entrySet().size());
-    assertEquals(3, inner.entrySet().size());
-  }
-
-  public void testVarious() throws Exception {
-    fmap = new PSFacadeMap<String, String>(inner);
-
-    assertEquals(fmap.get("a"), "1");
-    assertEquals(fmap.get("b"), "2");
-    assertEquals(fmap.get("c"), "3");
-
-    // Check the key set
-    assertEquals(fmap.keySet().size(), 3);
-    assertEquals(fmap.values().size(), 3);
-
-    assertTrue(fmap.containsKey("a"));
-    assertTrue(fmap.containsKey("b"));
-    assertTrue(fmap.containsKey("c"));
-
-    assertTrue(fmap.containsValue("1"));
-    assertTrue(fmap.containsValue("2"));
-    assertTrue(fmap.containsValue("3"));
-
-    String oldval = fmap.remove("c");
-    assertEquals(oldval, "3");
-    assertNull(fmap.get("c"));
-
->>>>>>> development-8.1.x
     fmap.put("b", "99");
     assertEquals(fmap.get("b"), "99");
     assertEquals(2, fmap.values().size());
@@ -172,10 +108,7 @@ public class PSFacadeMapTest extends TestCase {
     assertTrue(fmap.containsValue("4"));
   }
 
-<<<<<<< HEAD
   @Test
-=======
->>>>>>> development-8.1.x
   public void testRemove() throws Exception {
     fmap = new PSFacadeMap<String, String>(inner);
 

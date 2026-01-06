@@ -20,26 +20,15 @@ import com.percussion.content.ui.aa.actions.IPSAAClientAction;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSAAClientActionFactory;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-=======
->>>>>>> development-8.1.x
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-=======
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * Servlet that calls a AA client action to provide a specific response for a request made by the

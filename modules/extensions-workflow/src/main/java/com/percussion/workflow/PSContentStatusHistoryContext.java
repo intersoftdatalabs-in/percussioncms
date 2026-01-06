@@ -598,11 +598,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
     return buf.toString();
   }
 
-<<<<<<< HEAD
   /******** Context Defining Members ********/
-=======
-  /** ****** Context Defining Members ******* */
->>>>>>> development-8.1.x
 
   /** ID of the workflow for this item */
   private int m_nWorkflowID = 0;
@@ -613,11 +609,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /** ID for this content status history record */
   private int m_nContentStatusHistoryID = 0;
 
-<<<<<<< HEAD
   /******** Context Data Members ********/
-=======
-  /** ****** Context Data Members ******* */
->>>>>>> development-8.1.x
 
   /** The SessionID for this content status history entry. May not be more than 40 characters. */
   private String m_sSessionID = "";
@@ -678,11 +670,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /** label of the transition or action */
   private String m_sTransitionLabel = "";
 
-<<<<<<< HEAD
   /******** Database Related Variables ********/
-=======
-  /** ****** Database Related Variables ******* */
->>>>>>> development-8.1.x
 
   /** Connection to the database */
   private Connection m_Connection = null;

@@ -28,11 +28,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class PSAbstractRelationshipBuilderTest {
 

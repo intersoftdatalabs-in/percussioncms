@@ -48,11 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.json.JSONArray;
 
 /**
@@ -113,13 +109,9 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
   }
 
   private class GlobalState extends PSActionVisibilityGlobalState {
-<<<<<<< HEAD
     /**
      * @param ctx Assumed not <code>null</code>.
      */
-=======
-    /** @param ctx Assumed not <code>null</code>. */
->>>>>>> development-8.1.x
     public GlobalState(IPSRequestContext ctx) {
       mi_ctx = ctx;
     }
@@ -145,13 +137,9 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
   }
 
   private class ObjectState extends PSActionVisibilityObjectState {
-<<<<<<< HEAD
     /**
      * @param id Assumed not <code>null</code>.
      */
-=======
-    /** @param id Assumed not <code>null</code>. */
->>>>>>> development-8.1.x
     public ObjectState(PSAAObjectId id, IPSRequestContext ctx) {
       mi_id = id;
       mi_ctx = ctx;

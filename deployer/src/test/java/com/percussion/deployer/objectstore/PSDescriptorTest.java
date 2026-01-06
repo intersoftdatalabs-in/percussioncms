@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the <code>PSDescriptor</code> objects. */
-public class PSDescriptorTest extends TestCase {
+public class PSDescriptorTest {
   /**
    * Construct this unit test
    *

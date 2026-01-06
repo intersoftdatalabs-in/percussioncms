@@ -202,7 +202,7 @@
       return outParam;
    }
       private Map buildParamMap(String[] allNames, String[] allValues,
-                                javax.servlet.jsp.JspWriter out)
+                                jakarta.servlet.jsp.JspWriter out)
               throws java.io.IOException
       {
          Map pmap = new HashMap();
@@ -221,7 +221,7 @@
          return pmap;
       }
       private void printTableHeader(String[] columns,
-                                    javax.servlet.jsp.JspWriter out)
+                                    jakarta.servlet.jsp.JspWriter out)
               throws java.io.IOException
       {
          out.println("<thead><tr>");
@@ -232,7 +232,7 @@
          out.println("</tr></thead>");
       }
       private void printTableRows(QueryResult qresults,
-                                  javax.servlet.jsp.JspWriter out)
+                                  jakarta.servlet.jsp.JspWriter out)
               throws java.io.IOException, javax.jcr.RepositoryException
       {
          RowIterator rows = qresults.getRows();

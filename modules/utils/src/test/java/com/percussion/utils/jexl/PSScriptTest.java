@@ -15,21 +15,19 @@
  */
 package com.percussion.utils.jexl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.utils.testing.UnitTest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test PSScript for performance, backward compatibility, and thread safety with the new JEXL
@@ -37,16 +35,15 @@ import org.junit.experimental.categories.Category;
  *
  * @author percussion
  */
-@Category(UnitTest.class)
 public class PSScriptTest {
 
-  @Before
+  @BeforeEach
   public void setUp() {
     // Reset to defaults before each test
     PSScript.CACHE_SIZE = 512;
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     // Clean up any state
   }
@@ -65,7 +62,7 @@ public class PSScriptTest {
     bindings.put("$list", new String[] {"a", "b", "c"});
 
     // Script should compile and execute despite old syntax
-    assertNotNull("Script should execute without throwing", script.eval(bindings));
+    assertNotNull(script.eval(bindings), "Script should execute without throwing");
   }
 
   /**
@@ -82,7 +79,7 @@ public class PSScriptTest {
     bindings.put("$b", 42);
 
     Object result = script.eval(bindings);
-    assertEquals("Assignment with no space should work after fix", 42, result);
+    assertEquals(42, result, "Assignment with no space should work after fix");
   }
 
   /**
@@ -99,7 +96,7 @@ public class PSScriptTest {
     bindings.put("$flag", false);
 
     Object result = script.eval(bindings);
-    assertEquals("Negation without space should work after fix", 1, result);
+    assertEquals(1, result, "Negation without space should work after fix");
   }
 
   /**
@@ -115,7 +112,7 @@ public class PSScriptTest {
 
     // With default strict=false, undefined variables should return null gracefully
     Object result = ps.eval(bindings);
-    assertEquals("Undefined variable should return null with strict=false", null, result);
+    assertEquals(null, result, "Undefined variable should return null with strict=false");
   }
 
   /**
@@ -132,7 +129,7 @@ public class PSScriptTest {
     bindings.put("$c", 2);
 
     Object result = ps.eval(bindings);
-    assertEquals("Arithmetic expression should evaluate correctly", 20, result);
+    assertEquals(20, result, "Arithmetic expression should evaluate correctly");
   }
 
   /**
@@ -149,7 +146,7 @@ public class PSScriptTest {
 
     // First evaluation compiles the script
     Object result1 = ps.eval(bindings);
-    assertEquals("First eval should work", 6, result1);
+    assertEquals(6, result1, "First eval should work");
 
     // Get a reference to the internal compiled script
     java.lang.reflect.Field compiledScriptField = PSScript.class.getDeclaredField("compiledScript");
@@ -158,12 +155,12 @@ public class PSScriptTest {
 
     // Second evaluation should reuse the cached compiled script
     Object result2 = ps.eval(bindings);
-    assertEquals("Second eval should work", 6, result2);
+    assertEquals(6, result2, "Second eval should work");
 
     Object cachedScript2 = compiledScriptField.get(ps);
 
     // Verify same instance is reused
-    assertTrue("Compiled script should be cached and reused", cachedScript1 == cachedScript2);
+    assertTrue(cachedScript1 == cachedScript2, "Compiled script should be cached and reused");
   }
 
   /**
@@ -180,7 +177,7 @@ public class PSScriptTest {
 
     // First evaluation applies fixes
     Object result1 = ps.eval(bindings);
-    assertEquals("First eval with legacy syntax should work", 42, result1);
+    assertEquals(42, result1, "First eval with legacy syntax should work");
 
     // Get the fixed script text
     java.lang.reflect.Field fixedScriptTextField =
@@ -190,13 +187,13 @@ public class PSScriptTest {
 
     // Second evaluation should reuse cached fixes
     Object result2 = ps.eval(bindings);
-    assertEquals("Second eval should work", 42, result2);
+    assertEquals(42, result2, "Second eval should work");
 
     String cachedFixes2 = (String) fixedScriptTextField.get(ps);
 
     // Verify same fixed text is reused
-    assertEquals("Fixed script text should be cached", cachedFixes1, cachedFixes2);
-    assertTrue("Fixed script should contain space", cachedFixes1.contains("="));
+    assertEquals(cachedFixes1, cachedFixes2, "Fixed script text should be cached");
+    assertTrue(cachedFixes1.contains("="), "Fixed script should contain '='");
   }
 
   /**
@@ -220,14 +217,14 @@ public class PSScriptTest {
               Map<String, Object> bindings = new HashMap<>();
               bindings.put("$x", threadId);
               Object result = ps.eval(bindings);
-              assertEquals("Each thread should get correct result", threadId * 2, result);
+              assertEquals(threadId * 2, result, "Each thread should get correct result");
             } finally {
               latch.countDown();
             }
           });
     }
 
-    assertTrue("All threads should complete", latch.await(10, TimeUnit.SECONDS));
+    assertTrue(latch.await(10, TimeUnit.SECONDS), "All threads should complete");
     executor.shutdownNow();
   }
 
@@ -243,15 +240,15 @@ public class PSScriptTest {
     ps.setOwnerType("Template");
     ps.setOwnerName("MyTemplate");
 
-    assertEquals("Owner type should be set", "Template", ps.getOwnerType());
-    assertEquals("Owner name should be set", "MyTemplate", ps.getOwnerName());
+    assertEquals("Template", ps.getOwnerType(), "Owner type should be set");
+    assertEquals("MyTemplate", ps.getOwnerName(), "Owner name should be set");
 
     Map<String, Object> bindings = new HashMap<>();
     bindings.put("$x", 5);
 
     // Evaluation should work with context preserved
     Object result = ps.eval(bindings);
-    assertEquals("Evaluation with owner context should work", 6, result);
+    assertEquals(6, result, "Evaluation with owner context should work");
   }
 
   /** Test that string concatenation works correctly for Velocity-style templating scenarios. */
@@ -265,7 +262,7 @@ public class PSScriptTest {
     bindings.put("$value", "World");
 
     Object result = ps.eval(bindings);
-    assertEquals("String concatenation should work", "Hello World", result);
+    assertEquals("Hello World", result, "String concatenation should work");
   }
 
   /** Test conditional execution typical of Velocity templating. */
@@ -278,7 +275,7 @@ public class PSScriptTest {
     bindings.put("$count", 10);
 
     Object result = ps.eval(bindings);
-    assertEquals("Conditional should evaluate correctly", "many", result);
+    assertEquals("many", result, "Conditional should evaluate correctly");
   }
 
   /**
@@ -295,14 +292,14 @@ public class PSScriptTest {
     bindings1.put("$b", 20);
 
     Object result1 = ps.eval(bindings1);
-    assertEquals("First evaluation", 30, result1);
+    assertEquals(30, result1, "First evaluation");
 
     Map<String, Object> bindings2 = new HashMap<>();
     bindings2.put("$a", 5);
     bindings2.put("$b", 15);
 
     Object result2 = ps.eval(bindings2);
-    assertEquals("Second evaluation with different bindings", 20, result2);
+    assertEquals(20, result2, "Second evaluation with different bindings");
   }
 
   /** Test that method calls on objects work correctly (uberspect integration). */
@@ -315,7 +312,7 @@ public class PSScriptTest {
     bindings.put("$obj", "hello");
 
     Object result = ps.eval(bindings);
-    assertEquals("Method invocation should work", 5, result);
+    assertEquals(5, result, "Method invocation should work");
   }
 
   /** Test array access syntax. */
@@ -328,7 +325,7 @@ public class PSScriptTest {
     bindings.put("$arr", new int[] {10, 20, 30});
 
     Object result = ps.eval(bindings);
-    assertEquals("Array access should work", 20, result);
+    assertEquals(20, result, "Array access should work");
   }
 
   /** Test map property access using dot notation. */
@@ -343,7 +340,7 @@ public class PSScriptTest {
     bindings.put("$map", innerMap);
 
     Object result = ps.eval(bindings);
-    assertEquals("Map property access should work", "value", result);
+    assertEquals("value", result, "Map property access should work");
   }
 
   /** Test that script source text is retrievable for logging/debugging purposes. */
@@ -352,8 +349,8 @@ public class PSScriptTest {
     String scriptText = "$x + $y";
     PSScript ps = new PSScript(scriptText);
 
-    assertEquals("Source text should match input", scriptText, ps.getSourceText());
-    assertEquals("Script text should match input", scriptText, ps.getScriptText());
+    assertEquals(scriptText, ps.getSourceText(), "Source text should match input");
+    assertEquals(scriptText, ps.getScriptText(), "Script text should match input");
   }
 
   /** Test that getUseStrictMode(), setUseStrictMode(), and related methods work correctly. */
@@ -362,11 +359,11 @@ public class PSScriptTest {
     PSScript ps = new PSScript("$x");
 
     // Default should be non-strict for backward compatibility
-    assertEquals("Default strict mode should be false", false, ps.getUseStrictMode());
+    assertEquals(false, ps.getUseStrictMode(), "Default strict mode should be false");
 
     // Setting strict mode should be reflected
     ps.setUseStrictMode(true);
-    assertEquals("Strict mode should be true after setting", true, ps.getUseStrictMode());
+    assertEquals(true, ps.getUseStrictMode(), "Strict mode should be true after setting");
   }
 
   /** Test that silent mode configuration works. */
@@ -375,10 +372,10 @@ public class PSScriptTest {
     PSScript ps = new PSScript("$x");
 
     // Default should be non-silent
-    assertEquals("Default silent mode should be false", false, ps.getSilentMode());
+    assertEquals(false, ps.getSilentMode(), "Default silent mode should be false");
 
     ps.setUseSilentMode(true);
-    assertEquals("Silent mode should be true after setting", true, ps.getSilentMode());
+    assertEquals(true, ps.getSilentMode(), "Silent mode should be true after setting");
   }
 
   /** Test that debug mode configuration works. */
@@ -387,10 +384,10 @@ public class PSScriptTest {
     PSScript ps = new PSScript("$x");
 
     // Default should be non-debug
-    assertEquals("Default debug mode should be false", false, ps.getUseDebugMode());
+    assertEquals(false, ps.getUseDebugMode(), "Default debug mode should be false");
 
     ps.setUseDebugMode(true);
-    assertEquals("Debug mode should be true after setting", true, ps.getUseDebugMode());
+    assertEquals(true, ps.getUseDebugMode(), "Debug mode should be true after setting");
   }
 
   /** Test toString() for debugging. */
@@ -402,9 +399,9 @@ public class PSScriptTest {
     ps.setOwnerName("TestWidget");
 
     String str = ps.toString();
-    assertTrue("toString should contain script text", str.contains(scriptText));
-    assertTrue("toString should contain owner type", str.contains("Widget"));
-    assertTrue("toString should contain owner name", str.contains("TestWidget"));
+    assertTrue(str.contains(scriptText), "toString should contain script text");
+    assertTrue(str.contains("Widget"), "toString should contain owner type");
+    assertTrue(str.contains("TestWidget"), "toString should contain owner name");
   }
 
   /** Test that null/empty owner type/name are handled gracefully. */
@@ -415,14 +412,14 @@ public class PSScriptTest {
     ps.setOwnerType(null);
     ps.setOwnerName(null);
 
-    assertEquals("Null owner type should become empty", "", ps.getOwnerType());
-    assertEquals("Null owner name should become empty", "", ps.getOwnerName());
+    assertEquals("", ps.getOwnerType(), "Null owner type should become empty");
+    assertEquals("", ps.getOwnerName(), "Null owner name should become empty");
 
     Map<String, Object> bindings = new HashMap<>();
     bindings.put("$x", 5);
 
     Object result = ps.eval(bindings);
-    assertEquals("Evaluation should work with null owner context", 5, result);
+    assertEquals(5, result, "Evaluation should work with null owner context");
   }
 
   /** Test whitespace handling in owner type/name (should be trimmed). */
@@ -433,8 +430,8 @@ public class PSScriptTest {
     ps.setOwnerType("  Template  ");
     ps.setOwnerName("  MyTemplate  ");
 
-    assertEquals("Owner type should be trimmed", "Template", ps.getOwnerType());
-    assertEquals("Owner name should be trimmed", "MyTemplate", ps.getOwnerName());
+    assertEquals("Template", ps.getOwnerType(), "Owner type should be trimmed");
+    assertEquals("MyTemplate", ps.getOwnerName(), "Owner name should be trimmed");
   }
 
   /**
@@ -447,8 +444,8 @@ public class PSScriptTest {
     PSScript ps = new PSScript(scriptText);
 
     // Before evaluation
-    assertEquals("getSourceText should match script", scriptText, ps.getSourceText());
-    assertEquals("getParsedText should match script", scriptText, ps.getParsedText());
+    assertEquals(scriptText, ps.getSourceText(), "getSourceText should match script");
+    assertEquals(scriptText, ps.getParsedText(), "getParsedText should match script");
 
     // After evaluation
     Map<String, Object> bindings = new HashMap<>();
@@ -456,8 +453,8 @@ public class PSScriptTest {
     bindings.put("$y", 2);
     ps.eval(bindings);
 
-    assertEquals("getSourceText should still match original", scriptText, ps.getSourceText());
-    assertEquals("getParsedText should still match original", scriptText, ps.getParsedText());
+    assertEquals(scriptText, ps.getSourceText(), "getSourceText should still match original");
+    assertEquals(scriptText, ps.getParsedText(), "getParsedText should still match original");
   }
 
   /** Test that long-running evaluation does not cause issues. */
@@ -470,7 +467,7 @@ public class PSScriptTest {
     Map<String, Object> bindings = new HashMap<>();
 
     Object result = ps.eval(bindings);
-    assertEquals("Loop evaluation should complete and return correct result", 4950, result);
+    assertEquals(4950, result, "Loop evaluation should complete and return correct result");
   }
 
   /** Test that nested property access works correctly. */
@@ -487,7 +484,7 @@ public class PSScriptTest {
     bindings.put("$obj", outer);
 
     Object result = ps.eval(bindings);
-    assertEquals("Nested property access should work", "nested", result);
+    assertEquals("nested", result, "Nested property access should work");
   }
 
   /** Test isCompilable() behavior. */
@@ -496,7 +493,7 @@ public class PSScriptTest {
     PSScript ps = new PSScript("$x");
 
     // Default should be false (scripts are compiled lazily on first eval)
-    assertEquals("isCompilable should default to false", false, ps.isCompilable());
+    assertEquals(false, ps.isCompilable(), "isCompilable should default to false");
   }
 
   /**
@@ -522,19 +519,18 @@ public class PSScriptTest {
 
     // Test $sys.site.id
     PSScript script1 = new PSScript("$sys.site.id");
-    assertEquals("Should access nested map properties", "101", script1.eval(bindings));
+    assertEquals("101", script1.eval(bindings), "Should access nested map properties");
 
     // Test $sys.activeAssembly
     PSScript script2 = new PSScript("$sys.activeAssembly");
-    assertEquals("Should access boolean property", true, script2.eval(bindings));
+    assertEquals(true, script2.eval(bindings), "Should access boolean property");
 
     // Test $sys.params.sys_contentid
     PSScript script3 = new PSScript("$sys.params.sys_contentid");
-    assertEquals("Should access params map", "999", script3.eval(bindings));
-
+    assertEquals("999", script3.eval(bindings), "Should access params map");
     // Test map syntax
     PSScript script4 = new PSScript("$sys.params['sys_contentid']");
-    assertEquals("Should access params map with bracket syntax", "999", script4.eval(bindings));
+    assertEquals("999", script4.eval(bindings), "Should access params map with bracket syntax");
   }
 
   /** Test JEXL 'empty' operator which is commonly used in templates. */
@@ -547,15 +543,15 @@ public class PSScriptTest {
     bindings.put("$notEmpty", "foo");
 
     PSScript script1 = new PSScript("empty $emptyList");
-    assertEquals("Empty list should be empty", true, script1.eval(bindings));
+    assertEquals(true, script1.eval(bindings), "Empty list should be empty");
 
     PSScript script2 = new PSScript("empty $nullVar");
-    assertEquals("Null var should be empty", true, script2.eval(bindings));
+    assertEquals(true, script2.eval(bindings), "Null var should be empty");
 
     PSScript script3 = new PSScript("empty $string");
-    assertEquals("Empty string should be empty", true, script3.eval(bindings));
+    assertEquals(true, script3.eval(bindings), "Empty string should be empty");
 
     PSScript script4 = new PSScript("empty $notEmpty");
-    assertEquals("Non-empty string should not be empty", false, script4.eval(bindings));
+    assertEquals(false, script4.eval(bindings), "Non-empty string should not be empty");
   }
 }

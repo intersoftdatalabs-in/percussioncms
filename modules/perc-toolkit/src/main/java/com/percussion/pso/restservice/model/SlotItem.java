@@ -26,7 +26,6 @@ public class SlotItem extends Relationship implements Comparable<SlotItem> {
 
   /** Field sortRank. */
   private int sortRank;
-<<<<<<< HEAD
 
   /** Field site. */
   private String site;
@@ -131,104 +130,6 @@ public class SlotItem extends Relationship implements Comparable<SlotItem> {
     return result;
   }
 
-=======
-  /** Field site. */
-  private String site;
-  /** Field folder. */
-  private String folder;
-
-  /**
-   * Method getTemplate.
-   *
-   * @return String
-   */
-  @XmlAttribute
-  public String getTemplate() {
-    return template;
-  }
-  /**
-   * Method setTemplate.
-   *
-   * @param template String
-   */
-  public void setTemplate(String template) {
-    this.template = template;
-  }
-
-  /**
-   * Method getSite.
-   *
-   * @return String
-   */
-  @XmlAttribute
-  public String getSite() {
-    return site;
-  }
-  /**
-   * Method setSite.
-   *
-   * @param site String
-   */
-  public void setSite(String site) {
-    this.site = site;
-  }
-  /**
-   * Method getFolder.
-   *
-   * @return String
-   */
-  @XmlAttribute
-  public String getFolder() {
-    return folder;
-  }
-  /**
-   * Method setFolder.
-   *
-   * @param folder String
-   */
-  public void setFolder(String folder) {
-    this.folder = folder;
-  }
-  /**
-   * Method getSortRank.
-   *
-   * @return int
-   */
-  @XmlTransient
-  public int getSortRank() {
-    return sortRank;
-  }
-  /**
-   * Method setSortRank.
-   *
-   * @param sortRank int
-   */
-  public void setSortRank(int sortRank) {
-    this.sortRank = sortRank;
-  }
-
-  /**
-   * Method compareTo.
-   *
-   * @param o SlotItem
-   * @return int
-   */
-  public int compareTo(SlotItem o) {
-    return this.sortRank - o.sortRank;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((folder == null) ? 0 : folder.hashCode());
-    result = prime * result + ((site == null) ? 0 : site.hashCode());
-    result = prime * result + sortRank;
-    result = prime * result + ((template == null) ? 0 : template.hashCode());
-    return result;
-  }
-
->>>>>>> development-8.1.x
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;

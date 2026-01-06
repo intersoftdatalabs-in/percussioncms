@@ -22,7 +22,6 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class ItemRef {
   /** Field contentId. */
   private Integer contentId;
-<<<<<<< HEAD
 
   /** Field revision. */
   private Integer revision;
@@ -89,67 +88,6 @@ public class ItemRef {
     this.contentId = contentId;
   }
 
-=======
-  /** Field revision. */
-  private Integer revision;
-  /** Field href. */
-  private String href;
-  /** Field contentType. */
-  private String contentType;
-
-  /** Field keyField. */
-  private String keyField;
-  /** Field contextRoot. */
-  private String contextRoot;
-
-  private String title;
-  /**
-   * Method getKeyField.
-   *
-   * @return String
-   */
-  @XmlAttribute
-  public String getKeyField() {
-    return keyField;
-  }
-
-  /**
-   * Method setKeyField.
-   *
-   * @param keyField String
-   */
-  public void setKeyField(String keyField) {
-    this.keyField = keyField;
-  }
-  /**
-   * Method getContextRoot.
-   *
-   * @return String
-   */
-  @XmlAttribute
-  public String getContextRoot() {
-    return contextRoot;
-  }
-
-  /**
-   * Method getContentId.
-   *
-   * @return int
-   */
-  @XmlAttribute
-  public Integer getContentId() {
-    return contentId;
-  }
-  /**
-   * Method setContentId.
-   *
-   * @param contentId int
-   */
-  public void setContentId(Integer contentId) {
-    this.contentId = contentId;
-  }
-
->>>>>>> development-8.1.x
   /**
    * Method getRevision.
    *
@@ -159,10 +97,7 @@ public class ItemRef {
   public Integer getRevision() {
     return revision;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method setRevision.
    *
@@ -181,10 +116,7 @@ public class ItemRef {
   public void setHref(String href) {
     this.href = href;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method getHref.
    *
@@ -193,10 +125,7 @@ public class ItemRef {
   public String getHref() {
     return href;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method setContentType.
    *
@@ -205,10 +134,7 @@ public class ItemRef {
   public void setContentType(String contentType) {
     this.contentType = contentType;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Method getContentType.
    *

@@ -31,12 +31,8 @@ public class PSTestBeanConfig implements IPSBeanConfig {
   }
 
   public void fromXml(Element source) throws PSInvalidXmlException {
-<<<<<<< HEAD
     if (null == source)
       ;
-=======
-    if (null == source) ;
->>>>>>> development-8.1.x
   }
 
   public String getBeanName() {

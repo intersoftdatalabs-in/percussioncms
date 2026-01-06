@@ -65,8 +65,8 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -788,7 +788,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
   }
 
-  @Ignore("Not ready yet. Ignore it to fix the build.")
+  @Disabled("Not ready yet. Ignore it to fix the build.")
   @Test
   public void test130GetForms() throws Exception {
     restClient.switchCommunity(1002);

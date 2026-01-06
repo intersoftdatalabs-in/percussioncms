@@ -22,13 +22,9 @@ import java.awt.*;
 /** Event that is fired off when a value changes on an AWT/SWing component. */
 public class PSValueChangedEvent extends AWTEvent {
 
-<<<<<<< HEAD
   /**
    * @param event
    */
-=======
-  /** @param event */
->>>>>>> development-8.1.x
   public PSValueChangedEvent(Event event) {
     super(event);
   }

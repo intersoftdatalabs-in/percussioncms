@@ -52,11 +52,7 @@ import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -110,10 +106,7 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
         contentId = h.getRequiredParameterAsNumber("sys_contentid");
       }
       if (xpv) {
-<<<<<<< HEAD
         // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
         log.debug("excluding promotable versions");
 
         // sys_command is modify if this is a user update, not a clone, new copy
@@ -243,10 +236,7 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
       throws PSErrorException, InvalidQueryException, RepositoryException, PSErrorResultsException {
     return this.isFieldValueUniqueInFolder(folderId, fieldName, fieldValue, typeList, null);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * See if a field value is unique in the given folder for a new item.
    *
@@ -419,24 +409,16 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
     this.contentManager = contentManager;
   }
 
-<<<<<<< HEAD
   /**
    * @param nodeCataloger the nodeCataloger to set
    */
-=======
-  /** @param nodeCataloger the nodeCataloger to set */
->>>>>>> development-8.1.x
   public void setNodeCataloger(PSONodeCataloger nodeCataloger) {
     this.nodeCataloger = nodeCataloger;
   }
 
-<<<<<<< HEAD
   /**
    * @param systemWs the systemWs to set
    */
-=======
-  /** @param systemWs the systemWs to set */
->>>>>>> development-8.1.x
   public void setSystemWs(IPSSystemWs systemWs) {
     this.systemWs = systemWs;
   }

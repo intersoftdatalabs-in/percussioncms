@@ -17,11 +17,7 @@
 
 package com.percussion.xmldom;
 
-<<<<<<< HEAD
 /**
  * @deprecated Use com.percussion.xml.PSXmlDocumentBuilder instead
  */
-=======
-/** @deprecated Use com.percussion.xml.PSXmlDocumentBuilder instead */
->>>>>>> development-8.1.x
 public class PSXmlDocumentBuilder extends com.percussion.xml.PSXmlDocumentBuilder {}

@@ -17,30 +17,24 @@
 
 package com.percussion.legacy.security.deprecated;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * The PSDESTest class tests running the major methods of the PSDESKEY, PSDESEncryptor, and
  * PSDESDecryptor objects.
  */
 @Deprecated
-public class PSDESTest extends TestCase {
-  /**
-   * Construct this test by name
-   *
-   * @param name The name of the test.
-   */
-  public PSDESTest(String name) {
-    super(name);
-  }
-
+public class PSDESTest {
   /**
    * Tests encrypting and decrypting.
    *
    * @throws Exception if there are any errors or failures
    */
+  @Test
+  @DisplayName("Encrypt and decrypt using legacy DES implementation")
   public void testAll() throws Exception {
     byte[] keyBytes = {
       (byte) 0x40,
@@ -141,13 +135,6 @@ public class PSDESTest extends TestCase {
     System.out.println("OutputMessage = " + outputMessage);
     System.out.println();
 
-    assertEquals("Input and output messages not equal", inputMessage, outputMessage);
-  }
-
-  /** collect all tests into a TestSuite and return it */
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(new PSDESTest("testAll"));
-    return suite;
+    assertEquals(inputMessage, outputMessage, "Input and output messages not equal");
   }
 }

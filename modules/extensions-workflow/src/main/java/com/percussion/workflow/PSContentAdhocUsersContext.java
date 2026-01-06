@@ -499,7 +499,6 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
 
   /** Content ID for which adhoc users are valid */
   private int m_nContentID;
-<<<<<<< HEAD
 
   /** Username at the current cursor position - updated every time moveNext(). is called */
   private String m_sUserName = "";
@@ -555,62 +554,6 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   /** static constant string that represents the qualified table name. */
   private static final String TABLE_CAU = PSConnectionMgr.getQualifiedIdentifier(CONTENTADHOCUSERS);
 
-=======
-  /** Username at the current cursor position - updated every time moveNext(). is called */
-  private String m_sUserName = "";
-
-  /**
-   * Adhoc type at the current cursor position - updated every time moveNext() is called, valid
-   * values in the database are <CODE>PSWorkFlowUtils.ADHOC_ENABLED</CODE> and <CODE>
-   * PSWorkFlowUtils.ADHOC_ANONYMOUS</CODE>
-   */
-  private int m_nAdhocType = PSWorkFlowUtils.ADHOC_DISABLED;
-
-  /** RoleID at the current cursor position - updated every time moveNext(). is called. */
-  private int m_nRoleID = 0;
-
-  /** Map of role IDs for adhoc normal assignees with trimmed lowercase username as key */
-  private Map<String, List<Integer>> m_userNameToAdhocNormalRoleIDMap = new HashMap<>();
-
-  /** Map from adhoc role IDs to adhoc type */
-  private Map<Integer, Integer> m_adhocRoleIDtoAdhocTypeMap = new HashMap<>();
-
-  /** Map of usernames for adhoc anonymous assignees with trimmed lowercase username as key */
-  private Map<String, String> m_lowerCaseUserNameToUserNameMap = new HashMap<>();
-
-  /** List of usernames of adhoc normal assignees */
-  private List<String> m_adhocNormalUserNames = new ArrayList<>();
-
-  /** List of usernames of adhoc anonymous assignees */
-  private List<String> m_adhocAnonymousUserNames = new ArrayList<>();
-
-  /** List of role IDs for adhoc anonymous assignees */
-  private List<Integer> m_adhocAnonymousRoleIDs = new ArrayList<>();
-
-  /**
-   * Flag to indicate if the in memory data is out of sync with the repository after calling a
-   * method to save state to the database. This may happen if {@link
-   * #emptyAdhocUserEntries(Connection, boolean)} is called passing <code>false</code> for the
-   * <code>clearState</code> param.
-   */
-  private boolean m_dataOutOfSync = false;
-
-  /** static constant string that represents the column name in the table */
-  private static final String USERNAME = "USERNAME";
-
-  /** static constant string that represents the column name in the table */
-  private static final String ADHOCTYPE = "ADHOCTYPE";
-
-  /** static constant string that represents the column name in the table */
-  private static final String ROLEID = "ROLEID";
-
-  /** static constant string that represents the unqualified table name. */
-  private static final String CONTENTADHOCUSERS = "CONTENTADHOCUSERS";
-
-  /** static constant string that represents the qualified table name. */
-  private static final String TABLE_CAU = PSConnectionMgr.getQualifiedIdentifier(CONTENTADHOCUSERS);
-
->>>>>>> development-8.1.x
   /** SQL query string is constructed based on fully qualified table name(s). */
   private static final String QRYSTRING =
       "SELECT "

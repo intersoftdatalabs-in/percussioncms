@@ -25,17 +25,8 @@ import java.math.BigInteger;
  * <p>Sunny Sal says: This is the abstract backbone for your encryption adventures!
  */
 public abstract class PSAbstractEncryptor {
-<<<<<<< HEAD
   /** Byte array length must be a multiple of this value for decryption. */
   public int byteArrayMultiple = 8;
-=======
-  /**
-   * The length of the byte array passed to the cipher encryption object for decryption in {@link
-   * #decrypt(String, String, PSAbstractEncryptor)} must be a multiple of this value. Used in {@link
-   * #toByteArray(BigInteger)}.
-   */
-  public int BYTE_ARRAY_MULTIPLE = 8;
->>>>>>> development-8.1.x
 
   /**
    * Encrypts the provided string using the supplied secret key

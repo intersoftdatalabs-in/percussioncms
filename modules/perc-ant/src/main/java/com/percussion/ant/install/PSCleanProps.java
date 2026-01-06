@@ -90,16 +90,9 @@ public class PSCleanProps extends PSAction {
     for (int i = 0; i < properties.length; i++) props.remove(properties[i]);
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean property Accessors and Mutators
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean property
-   * Accessors and Mutators ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the properties to remove
@@ -140,16 +133,9 @@ public class PSCleanProps extends PSAction {
     propertiesFile = propsFile;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * Bean properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ Bean properties
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Properties which should be removed from server.properties, never <code>null</code>, may be

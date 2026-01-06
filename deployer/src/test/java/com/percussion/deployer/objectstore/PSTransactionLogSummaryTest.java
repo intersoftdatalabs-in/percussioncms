@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * Unit test class for both the <code>PSTransactionSummary</code> and <code>PSTransactionLogSummary
  * </code> classes.
  */
-public class PSTransactionLogSummaryTest extends TestCase {
+public class PSTransactionLogSummaryTest {
   /**
    * Construct this unit test
    *

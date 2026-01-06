@@ -25,13 +25,8 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestParsingException;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSParseUrlQueryString;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSParseUrlQueryString;
->>>>>>> development-8.1.x
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

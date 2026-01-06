@@ -16,11 +16,7 @@
  */
 package com.percussion.cas;
 
-<<<<<<< HEAD
 import static com.percussion.system.utils.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
-=======
-import static com.percussion.util.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
->>>>>>> development-8.1.x
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
@@ -28,10 +24,6 @@ import com.percussion.data.PSDatabaseMetaData;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.PSExtensionParamValue;
 import com.percussion.design.objectstore.PSTextLiteral;
-<<<<<<< HEAD
-=======
-import com.percussion.error.PSExceptionUtils;
->>>>>>> development-8.1.x
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSAssemblyLocation;
 import com.percussion.extension.IPSExtension;
@@ -85,11 +77,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.naming.NamingException;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -317,24 +305,16 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       request.printTraceMessage("Public URL= " + urlString);
     } catch (PSExtensionException e) {
       log.error(
-<<<<<<< HEAD
           "Problem while generating a publishing, location for template {} and contentid {} Error:"
               + " {}",
-=======
-          "Problem while generating a publishing, location for template {} and contentid {} Error: {}",
->>>>>>> development-8.1.x
           variantid,
           contentid,
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     } catch (Exception e) {
       log.error(
-<<<<<<< HEAD
           "Problem while generating a publishing location for template {} and contentid {}. Error:"
               + " {}",
-=======
-          "Problem while generating a publishing location for template {} and contentid {}. Error: {}",
->>>>>>> development-8.1.x
           variantid,
           contentid,
           PSExceptionUtils.getMessageForLog(e));
@@ -505,14 +485,10 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
       Number contentid,
       Number revision,
       Number variantid)
-<<<<<<< HEAD
       throws PSConversionException,
           SQLException,
           PSNotFoundException,
           PSExtensionException,
-=======
-      throws PSConversionException, SQLException, PSNotFoundException, PSExtensionException,
->>>>>>> development-8.1.x
           NamingException {
     PSStopwatchStack sws = PSStopwatchStack.getStack();
     sws.start("PSGeneratePubLocation#generatePubLocation");

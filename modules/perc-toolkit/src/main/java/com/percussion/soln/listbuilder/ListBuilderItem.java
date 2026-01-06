@@ -21,15 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
-<<<<<<< HEAD
  * An instance of a list builder usually created from a content node.
  *
  * @author adamgent // REFACTORED: CP-JAVA11
-=======
- * An instance of a list builder usually created from an content node.
- *
- * @author adamgent
->>>>>>> development-8.1.x
  */
 public class ListBuilderItem {
 

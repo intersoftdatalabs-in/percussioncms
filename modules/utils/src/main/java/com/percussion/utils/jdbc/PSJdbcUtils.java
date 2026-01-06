@@ -22,11 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /** Utility class for JDBC operations */
 public class PSJdbcUtils {
@@ -74,7 +70,6 @@ public class PSJdbcUtils {
    * matches against other drivers that could possibly begin with the same characters.]
    */
   public static final String ORACLE_PRIMARY = "oracle:";
-<<<<<<< HEAD
 
   /** constant for the Oracle thin driver. */
   public static final String ORACLE = ORACLE_DRIVER;
@@ -190,116 +185,6 @@ public class PSJdbcUtils {
     String driver = null;
     if (sub2 != null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
 
-=======
-  /** constant for the Oracle thin driver. */
-  public static final String ORACLE = ORACLE_DRIVER;
-  /** constant for the Oracle oci driver. */
-  public static final String ORACLE_OCI = "oracle:oci";
-  /** constant for the Oracle oci driver. */
-  public static final String ORACLE_OCI7 = "oracle:oci7";
-  /** constant for the Oracle oci driver. */
-  public static final String ORACLE_OCI8 = "oracle:oci8";
-
-  /** constant for the SPRINTA driver type. */
-  public static final String SPRINTA = SPRINTA_DRIVER;
-
-  /** constant for the Microsoft SQL driver type. */
-  public static final String MSSQL = "sqlserver";
-
-  /** constant for the Apache Derby driver type. */
-  public static final String DERBY = DERBY_DRIVER;
-
-  /** constant for the MYSQL driver type. */
-  public static final String MYSQL = MYSQL_DRIVER;
-
-  /**
-   * Constant for "microsoft". Will need it for various hacks to make the MS Sql Server JDBC driver
-   * work.
-   */
-  public static final String MICR0SOFT = "microsoft";
-  /**
-   * Constant for "jtds". Will need it for various hacks to make the JTDS Sql Server JDBC driver
-   * work.
-   */
-  public static final String JTDS = "jtds";
-
-  /** Constant for sprinta db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
-  public static final String SPRINTA_DB_BACKEND = "MSSQL";
-
-  /** Constant for db2 db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
-  public static final String DB2_DB_BACKEND = "db2";
-
-  /** Constant for jtds db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
-  public static final String JTDS_DB_BACKEND = "MSSQL";
-
-  /** Constant for oracle db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
-  public static final String ORACLE_DB_BACKEND = "ORACLE";
-
-  /**
-   * Constant for Apache Derby db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
-  public static final String DERBY_DB_BACKEND = "DERBY";
-
-  /** Constant for MYSQL db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
-  public static final String MYSQL_DB_BACKEND = "MYSQL";
-
-  /** Constant for transaction isolation level read uncommitted */
-  public static final String TRANSACTION_READ_UNCOMMITTED = "TRANSACTION_READ_UNCOMMITTED";
-  /** Constant numeric representation of transaction isolation level read uncommitted */
-  public static final String TRANSACTION_READ_UNCOMMITTED_VALUE = "1";
-
-  /** The path to the mysql database driver, relative to the root directory. */
-  public static final String MYSQL_DRIVER_LOCATION = "/jetty/base/lib/jdbc/mysql-connector.jar";
-
-  public static final String MYSQL_DTS_DRIVER_LOCATION =
-      "/Deployment/Server/common/lib/mysql-connector.jar";
-  public static final String MYSQL_STAGING_DTS_DRIVER_LOCATION =
-      "/Staging/Deployment/Server/common/lib/mysql-connector.jar";
-
-  public static final String DEFAULT_JDBC_DRIVER_LOCATION = "/jetty/base/lib/jdbc";
-  public static final String DEFAULT_DTS_DRIVER_LOCATION = "/Deployment/Server/common/lib";
-  public static final String DEFAULT_STAGING_DTS_DRIVER_LOCATION =
-      "/Staging/Deployment/Server/common/lib";
-
-  public static final String LEGACY_SQL_DRIVER_CLASSNAME = "net.sourceforge.jtds.jdbc.Driver";
-  public static final String MICROSOFT_SQL_DRIVER_CLASSNAME =
-      "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-  /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
-  public static String MYSQL_CONN_PARAMS =
-      "?useUnicode=yes&characterEncoding=UTF-8&useSSL=true&requireSSL=false&verifyServerCertificate=false";
-
-  /**
-   * Parses the specified database URL and returns the driver for which this is a valid URL.
-   *
-   * @param url database url, usually specified when connecting to the database, may not be <code>
-   *     null</code> or empty
-   * @return the driver for which the specified database url is a valid url, never <code>null</code>
-   *     or empty
-   */
-  public static String getDriverFromUrl(String url) {
-    if ((url == null) || (url.trim().length() == 0)) {
-      throw new IllegalArgumentException("Database URL may not be null or empty");
-    }
-
-    url = url.toLowerCase();
-    if (!url.startsWith("jdbc:"))
-      throw new IllegalArgumentException("database url must start with jdbc:");
-
-    int subIndex1 = url.indexOf(":", "jdbc:".length());
-    if (subIndex1 == -1)
-      throw new IllegalArgumentException(
-          "invalid database url. Valid format is jdbc:subprotocol:subname");
-
-    String sub1 = url.substring("jdbc:".length(), subIndex1);
-
-    String sub2 = null;
-    int subIndex2 = url.indexOf(":", subIndex1 + 1);
-    if (subIndex2 != -1) sub2 = url.substring(subIndex1 + 1, subIndex2);
-
-    String driver = null;
-    if (sub2 != null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1 + ":" + sub2);
-
->>>>>>> development-8.1.x
     if (driver == null) driver = (String) ms_jdbcUrlToDriverMap.get(sub1);
 
     if ((driver == null) && (sub2 != null)) driver = sub1 + ":" + sub2;

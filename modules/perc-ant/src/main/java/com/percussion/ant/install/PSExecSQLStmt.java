@@ -76,7 +76,6 @@ import org.apache.tools.ant.BuildException;
 public class PSExecSQLStmt extends PSAction {
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
 
-<<<<<<< HEAD
   // see base class
 
   @Override
@@ -86,15 +85,6 @@ public class PSExecSQLStmt extends PSAction {
     File f = new File(propFile);
     if (!(f.exists() && f.isFile())) return;
 
-=======
-  @Override
-  public void execute() {
-    String propFile = getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
-
-    File f = new File(propFile);
-    if (!(f.exists() && f.isFile())) return;
-
->>>>>>> development-8.1.x
     try (FileInputStream in = new FileInputStream(f)) {
       Properties props = new Properties();
       props.load(in);
@@ -185,7 +175,6 @@ public class PSExecSQLStmt extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /*******************************************************************
    * Private functions.
    *******************************************************************/
@@ -193,17 +182,6 @@ public class PSExecSQLStmt extends PSAction {
   /*******************************************************************
    * Property accessors and mutators.
    *******************************************************************/
-=======
-  /**
-   * ***************************************************************** Private functions.
-   * *****************************************************************
-   */
-
-  /**
-   * ***************************************************************** Property accessors and
-   * mutators. *****************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the name of table, which should be replaced by fully qualified table name before
@@ -472,16 +450,9 @@ public class PSExecSQLStmt extends PSAction {
     return strBuffer.toString();
   }
 
-<<<<<<< HEAD
   /*******************************************************************
    * Properties
    *******************************************************************/
-=======
-  /**
-   * ***************************************************************** Properties
-   * *****************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * names of tables, which should be replaced by fully qualified table name before executing the
@@ -500,7 +471,6 @@ public class PSExecSQLStmt extends PSAction {
    * </code>, may be empty
    */
   private String sql = "";
-<<<<<<< HEAD
 
   /**
    * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
@@ -542,8 +512,6 @@ public class PSExecSQLStmt extends PSAction {
   /*******************************************************************
    * Member variables
    *******************************************************************/
-=======
->>>>>>> development-8.1.x
 
   /**
    * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If

@@ -18,7 +18,6 @@ package com.percussion.pso.syndication;
 
 import com.rometools.modules.mediarss.types.Thumbnail;
 
-<<<<<<< HEAD
 /***
  * <media:thumbnail>
  *
@@ -33,10 +32,6 @@ import com.rometools.modules.mediarss.types.Thumbnail;
  *
  * time specifies the time offset in relation to the media object. Typically this is used when creating multiple keyframes within a single video. The format for this attribute should be in the DSM-CC's Normal Play Time (NTP) as used in RTSP [RFC 2326 3.6 Normal Play Time]. It is an optional attribute.
  * @author natechadwick
-=======
-/**
- * * <media:thumbnail>
->>>>>>> development-8.1.x
  *
  * <p>Allows particular images to be used as representative images for the media object. If multiple
  * thumbnails are included, and time coding is not at play, it is assumed that the images are in
@@ -60,42 +55,24 @@ public class PSSynFeedThumbnail {
 
   private Thumbnail thumb;
 
-<<<<<<< HEAD
   /***
    * Returns the thumbHeight.
-=======
-  /**
-   * * Returns the thumbHeight.
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public Integer getHeight() {
     return thumb.getHeight();
   }
 
-<<<<<<< HEAD
   /***
    * returns the time that the thumbnail was captured from its source
-=======
-  /**
-   * * returns the time that the thumbnail was captured from its source
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getTime() {
     return thumb.getTime().toString();
   }
 
-<<<<<<< HEAD
   /***
    * Return the URL
-=======
-  /**
-   * * Return the URL
-   *
->>>>>>> development-8.1.x
    * @return
    */
   public String getUrl() {

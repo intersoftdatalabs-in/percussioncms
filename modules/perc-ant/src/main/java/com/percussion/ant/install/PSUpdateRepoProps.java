@@ -59,7 +59,6 @@ import java.util.Properties;
  * </pre>
  */
 public class PSUpdateRepoProps extends PSAction {
-<<<<<<< HEAD
 
   public void execute() {
     File root = new File(getRootDir());
@@ -128,77 +127,6 @@ public class PSUpdateRepoProps extends PSAction {
   /**************************************************************************
    * Properties
    *************************************************************************/
-=======
-  public void execute() {
-    File root = new File(getRootDir());
-    IPSContainerUtils jetty =
-        PSContainerUtilsFactory.getConfigurationContextInstance(root.toPath()).getConfig();
-
-    Properties props = new Properties();
-    try {
-      IPSDatasourceResolver resolver = jetty.getDatasourceResolver();
-
-      IPSDatasourceConfig ds_config = resolver.getRepositoryDatasourceConfig();
-      String datasourceName = ds_config.getDataSource();
-
-      props.put("DB_SCHEMA", ds_config.getOrigin());
-      props.put("DB_NAME", ds_config.getDatabase());
-      props.put("DSCONFIG_NAME", datasourceName);
-
-      List<IPSJndiDatasource> datasources = jetty.getDatasources();
-      for (IPSJndiDatasource datasource : datasources) {
-        if (datasource.getName().equals(datasourceName)) {
-
-          String pwd = datasource.getPassword();
-          if (!datasource.isEncrypted()) {
-            pwd =
-                PSEncryptor.encryptProperty(
-                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
-                    m_strRepositoryLocation,
-                    "PWD",
-                    pwd);
-          }
-          props.put("PWD", pwd);
-          props.put("PWD_ENCRYPTED", "Y");
-          props.put("UID", datasource.getUserId());
-          props.put("DB_SERVER", datasource.getServer());
-          props.put("DB_BACKEND", PSJdbcUtils.getDBBackendForDriver(datasource.getDriverName()));
-          props.put("DB_DRIVER_NAME", datasource.getDriverName());
-          props.put("DB_DRIVER_CLASS_NAME", datasource.getDriverClassName());
-        }
-      }
-
-      File propfile = new File(root, m_strRepositoryLocation);
-
-      try (PrintWriter pw = new PrintWriter(propfile)) {
-        props.store(pw, null);
-      }
-
-    } catch (Exception e) {
-
-      PSLogger.logError("Failed to update jetty configuration from jboss" + e.getMessage());
-    }
-  }
-
-  /**
-   * *********************************************************************** Property Accessors and
-   * Mutators ***********************************************************************
-   */
-
-  /** Accessor for the repository location */
-  public String getRepositoryLocation() {
-    return m_strRepositoryLocation;
-  }
-
-  public void setRepositoryLocation(String repositoryLocation) {
-    m_strRepositoryLocation = repositoryLocation;
-  }
-
-  /**
-   * ************************************************************************ Properties
-   * ***********************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** The repository location, relative to the Rhythmyx root. */
   private String m_strRepositoryLocation = "rxconfig/Installer/rxrepository.properties";

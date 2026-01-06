@@ -142,35 +142,23 @@ public class PSStopwatch {
         + " >";
   }
 
-<<<<<<< HEAD
   /**
    * @return <code>true</code> if the stopwatch has not been started, or has been stopped.
    */
-=======
-  /** @return <code>true</code> if the stopwatch has not been started, or has been stopped. */
->>>>>>> development-8.1.x
   private boolean isStopped() {
     return m_state == STOP_STATE;
   }
 
-<<<<<<< HEAD
   /**
    * @return <code>true</code> if the stopwatch has been started.
    */
-=======
-  /** @return <code>true</code> if the stopwatch has been started. */
->>>>>>> development-8.1.x
   private boolean isRunning() {
     return m_state == RUN_STATE;
   }
 
-<<<<<<< HEAD
   /**
    * @return <code>true</code> if the stopwatch is currently paused.
    */
-=======
-  /** @return <code>true</code> if the stopwatch is currently paused. */
->>>>>>> development-8.1.x
   private boolean isPaused() {
     return m_state == PAUSED_STATE;
   }
@@ -201,33 +189,22 @@ public class PSStopwatch {
    * have the state <code>STOP_STATE</code> or <code>RUN_STATE</code>.
    */
   private int m_state;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Contains the first time recorded in nanoseconds. This is set in the {@link PSStopwatch#start()}
    * method.
    */
   private long m_initialTime;
-<<<<<<< HEAD
 
   /** Contains the final time recorded in nanoseconds. This is set in the {@link #stop()} method. */
   private long m_stopTime;
 
-=======
-  /** Contains the final time recorded in nanoseconds. This is set in the {@link #stop()} method. */
-  private long m_stopTime;
->>>>>>> development-8.1.x
   /**
    * Contains the time (in nanoseconds) when the stopwatch was paused. This is set in the {@link
    * #pause()} method.
    */
   private long m_pausedTime;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Contains the total time (in nanoseconds) spend in a paused state. This is set in the {@link
    * #continue()} method.

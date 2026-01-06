@@ -56,7 +56,6 @@ public class PSJdbcColumnData {
     m_value = value;
     m_encoding = encoding;
   }
-<<<<<<< HEAD
 
   /**
    * Creates a column with the specified name and value. The encoding defaults to ENC_TEXT ("text").
@@ -119,69 +118,6 @@ public class PSJdbcColumnData {
 
     File f = new File(externalPath);
 
-=======
-  /**
-   * Creates a column with the specified name and value. The encoding defaults to ENC_TEXT ("text").
-   *
-   * @param name The name of the column, may not be <code>null</code> or empty.
-   * @param value The value of this column, may be <code>null</code> or empty.
-   * @throws IllegalArgumentException if the name is <code>null</code> or empty
-   */
-  public PSJdbcColumnData(String name, String value) {
-    this(name, value, ENC_TEXT);
-  }
-
-  /**
-   * Creates a column from it's Xml source.
-   *
-   * @param sourceNode The element from which to get this object's state. Element must conform to
-   *     the definition for the column element in the tabledata.dtd. May not be <code>null</code>.
-   * @throws IllegalArgumentException if sourceNode is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if there are any errors.
-   */
-  public PSJdbcColumnData(Element sourceNode) throws PSJdbcTableFactoryException {
-    if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
-
-    fromXml(sourceNode);
-  }
-
-  /**
-   * Returns this column's name.
-   *
-   * @return The name, never <code>null</code> or empty.
-   */
-  public String getName() {
-    return m_name;
-  }
-
-  /**
-   * Returns this column's value. If the data value is external it will attempt to lazily load the
-   * value from external file path set in the external attribute.
-   *
-   * @return The value, may be <code>null</code> or empty.
-   */
-  public String getValue() {
-    if (m_external == null || m_external.length() == 0) return m_value;
-
-    return getExternalData(m_external, getEncoding());
-  }
-
-  /**
-   * Fetches external data from the external file path supplied by the external attribute. Encodes
-   * the data with
-   *
-   * @param externalPath must be a valid path to the file, never <code>null</code> or <code>empty
-   *     </code>.
-   * @param encoding assumes one of the allowed ENC_* encodings.
-   * @return encoded data extracted from external file, may be <code>null</code> or <code>empty
-   *     </code>.
-   */
-  private String getExternalData(String externalPath, int encoding) {
-    if (externalPath == null) throw new IllegalArgumentException("externalPath may not be null");
-
-    File f = new File(externalPath);
-
->>>>>>> development-8.1.x
     String data;
     try (FileInputStream is = new FileInputStream(f);
         ByteArrayOutputStream oBuf = new ByteArrayOutputStream()) {

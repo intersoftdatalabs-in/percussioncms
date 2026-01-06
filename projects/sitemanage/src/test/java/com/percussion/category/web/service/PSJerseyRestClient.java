@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import com.percussion.category.data.PSCategory;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.system.utils.IPSHtmlParameters;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

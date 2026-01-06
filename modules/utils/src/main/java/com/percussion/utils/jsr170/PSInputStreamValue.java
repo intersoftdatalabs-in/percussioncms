@@ -51,13 +51,9 @@ public class PSInputStreamValue extends PSBaseValue<InputStream> {
    */
   int m_propertyType = PropertyType.BINARY;
 
-<<<<<<< HEAD
   /**
    * @param b boolean value, never <code>null</code>
    */
-=======
-  /** @param b boolean value, never <code>null</code> */
->>>>>>> development-8.1.x
   PSInputStreamValue(InputStream b) {
     this(b, b instanceof PSReaderInputStream);
   }

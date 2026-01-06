@@ -31,7 +31,7 @@ import com.percussion.delivery.integrations.ems.model.Booking;
 
 import org.junit.jupiter.api.Test;
 
-public class TestBookingsQuery extends TestCase {
+public class TestBookingsQuery {
 	
 	
 	@Test

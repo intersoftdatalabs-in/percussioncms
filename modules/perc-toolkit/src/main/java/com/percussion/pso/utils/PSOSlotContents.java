@@ -131,10 +131,7 @@ public class PSOSlotContents {
       cws = PSContentWsLocator.getContentWebservice();
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Compares two AA Relationships by sort rank. Since this comparator depends solely on the sort
    * rank, it may not be consistent with the contract of the Set interface.
@@ -178,42 +175,25 @@ public class PSOSlotContents {
       return super.equals(obj);
     }
   }
-<<<<<<< HEAD
 
   /**
    * @param cws the cws to set. Used for testing.
    */
-=======
-  /** @param cws the cws to set. Used for testing. */
->>>>>>> development-8.1.x
   public void setCws(IPSContentWs cws) {
     PSOSlotContents.cws = cws;
   }
 
-<<<<<<< HEAD
   /**
    * @param gmgr the gmgr to set. Used for testing
    */
-=======
-  /** @param gmgr the gmgr to set. Used for testing */
->>>>>>> development-8.1.x
   public void setGmgr(IPSGuidManager gmgr) {
     PSOSlotContents.gmgr = gmgr;
   }
 
-<<<<<<< HEAD
   /***
    * Loads the specified slot.
    * @param name the name of the slot
    * @return Null if the slot is not found, otherwise a valie IPSTemplateSlot instance for the specified slot.
-=======
-  /**
-   * * Loads the specified slot.
-   *
-   * @param name the name of the slot
-   * @return Null if the slot is not found, otherwise a valie IPSTemplateSlot instance for the
-   *     specified slot.
->>>>>>> development-8.1.x
    */
   public static IPSTemplateSlot getSlot(String name) {
     IPSTemplateSlot ret = null;

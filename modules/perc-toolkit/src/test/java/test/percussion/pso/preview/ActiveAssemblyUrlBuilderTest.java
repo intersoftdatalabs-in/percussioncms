@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.preview.ActiveAssemblyUrlBuilder;
@@ -45,30 +44,6 @@ public class ActiveAssemblyUrlBuilderTest {
   ActiveAssemblyUrlBuilder cut;
 
   @BeforeEach
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.preview.ActiveAssemblyUrlBuilder;
-import com.percussion.services.assembly.IPSAssemblyTemplate;
-import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
-public class ActiveAssemblyUrlBuilderTest {
-  private static final Logger log = LogManager.getLogger(ActiveAssemblyUrlBuilderTest.class);
-
-  Mockery context;
-  ActiveAssemblyUrlBuilder cut;
-
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new ActiveAssemblyUrlBuilder();

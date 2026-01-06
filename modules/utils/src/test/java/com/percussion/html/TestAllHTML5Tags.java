@@ -16,11 +16,7 @@
 
 package com.percussion.html;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -33,28 +29,15 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-=======
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
->>>>>>> development-8.1.x
 
 /** Test to validate the HTML cleaner / parser against a document with all html 5 tags. */
 public class TestAllHTML5Tags {
 
-<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
-=======
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
->>>>>>> development-8.1.x
 
   public Document parsedDoc;
   public String parsedHTML;
@@ -62,14 +45,8 @@ public class TestAllHTML5Tags {
   Map<String, String> globalAttributes = new HashMap<String, String>();
   Map<String, String> eventAttribute = new HashMap<String, String>();
 
-<<<<<<< HEAD
   @BeforeEach
   public void setup() throws IOException, PSHtmlParsingException {
-=======
-  @Before
-  public void setup() throws IOException, PSHtmlParsingException {
-    temporaryFolder.create();
->>>>>>> development-8.1.x
 
     String sourceDoc =
         new Scanner(
@@ -171,11 +148,7 @@ public class TestAllHTML5Tags {
     globalAttributes.put("translate", "no");
   }
 
-<<<<<<< HEAD
   @AfterEach
-=======
-  @After
->>>>>>> development-8.1.x
   public void teardown() {}
 
   @Test
@@ -446,13 +419,8 @@ public class TestAllHTML5Tags {
   @Test
   public void testBodyTag() {
 
-<<<<<<< HEAD
     //        Elements tags = parsedDoc.select("body[class=unit-test]");
     //        assertTrue(tags.size()>0);
-=======
-    // Elements tags = parsedDoc.select("body[class=unit-test]");
-    // assertTrue(tags.size()>0);
->>>>>>> development-8.1.x
 
   }
 
@@ -1286,10 +1254,6 @@ public class TestAllHTML5Tags {
   }
 
   @Test
-<<<<<<< HEAD
-=======
-  @Ignore("noscript tag is no longer supported in jsoup Safelists as of jsoup 1.21.2")
->>>>>>> development-8.1.x
   public void testNoScriptTag() {
 
     Elements tags = parsedDoc.select("noscript[class=unit-test]");

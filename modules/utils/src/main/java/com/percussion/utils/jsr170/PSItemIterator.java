@@ -17,10 +17,7 @@
 package com.percussion.utils.jsr170;
 
 import com.percussion.utils.collections.PSMultiMapIterator;
-<<<<<<< HEAD
 // TODO: Replace with commons collections 4
-=======
->>>>>>> development-8.1.x
 import java.util.*;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.iterators.FilterIterator;

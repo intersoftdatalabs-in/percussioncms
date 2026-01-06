@@ -46,10 +46,7 @@ public class NodeUtils {
 
   public static class DefaultTranslator extends BeanPropertyToNodePropertyNameTranslator {
 
-<<<<<<< HEAD
     // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
     private String fieldPrefix;
     private Collection<String> ignoreFields;
     private Map<String, String> nameMap;

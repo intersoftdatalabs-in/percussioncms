@@ -453,10 +453,7 @@ public class PSJdbcDataTypeMap {
   public String getDriver() {
     return m_driver;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Get the maximum size for any column that may be included in an index definition, see {@link
    * #setMaxIndexColSize(long)} for more info.

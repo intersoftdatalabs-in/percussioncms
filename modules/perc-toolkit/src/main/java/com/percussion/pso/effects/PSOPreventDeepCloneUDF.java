@@ -59,7 +59,6 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
   public PSOPreventDeepCloneUDF() {
     super();
   }
-<<<<<<< HEAD
 
   /**
    * Checks for deep cloning exclusion flag in private object. This is used in the deep cloning
@@ -73,20 +72,6 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension implements 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
 
-=======
-  /**
-   * Checks for deep cloning exclusion flag in private object. This is used in the deep cloning
-   * conditionals <code>params[0]</code>.
-   *
-   * @param params the parameter array
-   * @param request the callers request context
-   * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
-   *     com.percussion.server.IPSRequestContext)
-   */
-  public Object processUdf(Object[] params, IPSRequestContext request)
-      throws PSConversionException {
-
->>>>>>> development-8.1.x
     initServices();
     log.info("Filtering items for revision");
 

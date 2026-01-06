@@ -60,10 +60,7 @@ public class UTFixedButton extends JButton {
     super(name);
     setPreferredSize(new Dimension(width, height));
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Construct a new fixed button with the standard size.
    *

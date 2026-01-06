@@ -20,11 +20,7 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 
 /**
  * Takes a string and encodes it so it is safe to use as a URL query param value.

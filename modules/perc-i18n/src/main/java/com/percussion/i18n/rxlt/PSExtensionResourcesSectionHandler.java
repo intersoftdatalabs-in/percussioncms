@@ -20,10 +20,6 @@ import com.percussion.i18n.tmxdom.IPSTmxDocument;
 import com.percussion.i18n.tmxdom.PSTmxDocument;
 import com.percussion.util.PSFileFilter;
 import com.percussion.util.PSFilteredFileList;
-<<<<<<< HEAD
-=======
-import com.percussion.utils.*;
->>>>>>> development-8.1.x
 import com.percussion.utils.tools.PSPatternMatcher;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;

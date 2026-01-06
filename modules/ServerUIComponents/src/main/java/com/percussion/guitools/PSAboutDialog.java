@@ -287,10 +287,7 @@ public class PSAboutDialog extends JDialog {
       }
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * The applet context of the owner applet, it is <code>null</code> if the owner is not an applet.
    * Default to <code>null</code>, but can be set by setAppletContext(), never modified after that.

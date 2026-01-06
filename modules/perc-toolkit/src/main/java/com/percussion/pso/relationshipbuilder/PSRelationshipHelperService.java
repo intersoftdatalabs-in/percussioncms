@@ -61,11 +61,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -76,7 +72,6 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   private IPSCmsObjectMgr m_cmsObjectManager;
   private IPSContentWs m_contentWs;
   private IPSGuidManager m_guidManager;
-<<<<<<< HEAD
 
   /** Content manager service */
   private IPSContentMgr m_contentManager;
@@ -84,14 +79,6 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
   /** Wires up all the service components when in Rhythmyx. */
   public void init() {
 
-=======
-  /** Content manager service */
-  private IPSContentMgr m_contentManager;
-
-  /** Wires up all the service components when in Rhythmyx. */
-  public void init() {
-
->>>>>>> development-8.1.x
     if (m_cmsObjectManager == null) m_cmsObjectManager = PSCmsObjectMgrLocator.getObjectManager();
     if (m_assemblyService == null)
       m_assemblyService = PSAssemblyServiceLocator.getAssemblyService();
@@ -99,12 +86,8 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
       m_relationshipService = PSRelationshipServiceLocator.getRelationshipService();
     if (m_contentWs == null) m_contentWs = PSContentWsLocator.getContentWebservice();
     if (m_guidManager == null) m_guidManager = PSGuidManagerLocator.getGuidMgr();
-<<<<<<< HEAD
     if (m_contentManager == null)
       ;
-=======
-    if (m_contentManager == null) ;
->>>>>>> development-8.1.x
     m_contentManager = PSContentMgrLocator.getContentMgr();
   }
 
@@ -432,10 +415,7 @@ public class PSRelationshipHelperService implements IPSRelationshipHelperService
       }
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSRelationshipHelperService.class);
 

@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.utils;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.design.objectstore.PSLocator;
@@ -41,35 +40,11 @@ public class UniqueIdLocatorSetTest {
 
   @BeforeEach
   public void setUp() {
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.design.objectstore.PSLocator;
-import com.percussion.pso.utils.UniqueIdLocatorSet;
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-
-public class UniqueIdLocatorSetTest {
-  private static final Logger log = LogManager.getLogger(UniqueIdLocatorSetTest.class);
-
-  UniqueIdLocatorSet cut;
-
-  @Before
-  public void setUp() throws Exception {
->>>>>>> development-8.1.x
     cut = new UniqueIdLocatorSet();
   }
 
   @Test
-<<<<<<< HEAD
   void testAddPSLocator() {
-=======
-  public final void testAddPSLocator() {
->>>>>>> development-8.1.x
     log.info("starting test AddPSLocator");
     PSLocator l1 = new PSLocator(1);
     PSLocator l2 = new PSLocator(2, 1);
@@ -86,11 +61,7 @@ public class UniqueIdLocatorSetTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testAddAll() {
-=======
-  public final void testAddAll() {
->>>>>>> development-8.1.x
     log.info("starting test AddAll");
     PSLocator l1 = new PSLocator(1);
     PSLocator l2 = new PSLocator(2, 1);
@@ -111,11 +82,7 @@ public class UniqueIdLocatorSetTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testContains() {
-=======
-  public final void testContains() {
->>>>>>> development-8.1.x
     log.info("starting test Contains");
     PSLocator l1 = new PSLocator(1);
     PSLocator l2 = new PSLocator(2, 1);
@@ -134,11 +101,7 @@ public class UniqueIdLocatorSetTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testRemove() {
-=======
-  public final void testRemove() {
->>>>>>> development-8.1.x
     log.info("starting test Remove");
     PSLocator l1 = new PSLocator(1);
     PSLocator l2 = new PSLocator(2, 1);
@@ -161,11 +124,7 @@ public class UniqueIdLocatorSetTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testRemoveAll() {
-=======
-  public final void testRemoveAll() {
->>>>>>> development-8.1.x
     log.info("starting test Remove");
     PSLocator l1 = new PSLocator(1);
     PSLocator l2 = new PSLocator(2, 1);

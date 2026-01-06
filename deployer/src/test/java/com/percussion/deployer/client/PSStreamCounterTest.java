@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for the {@link PSInputStreamCounter} and {@link PSOutputStreamCounter} classes. */
-public class PSStreamCounterTest extends TestCase {
+public class PSStreamCounterTest {
   /**
    * Construct this unit test
    *

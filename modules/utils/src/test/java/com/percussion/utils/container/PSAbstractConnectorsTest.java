@@ -21,25 +21,15 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class PSAbstractConnectorsTest {
   Map<String, String> loadMap;
 
   @Test
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void loadProperties() {
     File root =
         new File(
@@ -54,11 +44,7 @@ public class PSAbstractConnectorsTest {
   }
 
   @Test
-<<<<<<< HEAD
   @AfterEach
-=======
-  @After
->>>>>>> development-8.1.x
   public void saveProperties() {
     Path root =
         Paths.get(

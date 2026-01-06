@@ -2673,10 +2673,7 @@ public interface IPSObjectStoreErrors {
    * </TABLE>
    */
   public static final int CE_INVALID_SHARED_FIELDSET_TYPE = 2469;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Shared field set is missing required child display mapping in shared definition or the mapping
    * is invalid.
@@ -2689,10 +2686,7 @@ public interface IPSObjectStoreErrors {
    * </TABLE>
    */
   public static final int CE_MISSING_OR_INVALID_CHILD_DISPLAY_MAPPING = 2470;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Shared group name and its fieldSet must have matching names.
    *
@@ -2704,10 +2698,7 @@ public interface IPSObjectStoreErrors {
    * </TABLE>
    */
   public static final int CE_GROUPNAME_AND_FIELDSETNAME_MUST_MATCH = 2471;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * FieldSet name and DisplayMappers FieldSetRef must match.
    *

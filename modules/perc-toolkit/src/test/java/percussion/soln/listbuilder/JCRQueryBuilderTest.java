@@ -18,7 +18,6 @@
 package percussion.soln.listbuilder;
 
 import static java.util.Arrays.asList;
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -26,25 +25,11 @@ import com.percussion.soln.listbuilder.JCRQueryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-=======
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
-import com.percussion.soln.listbuilder.JCRQueryBuilder;
-import org.junit.Before;
-import org.junit.Test;
-
->>>>>>> development-8.1.x
 public class JCRQueryBuilderTest {
 
   private JCRQueryBuilder builder;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() {
     builder = new JCRQueryBuilder();
   }
@@ -52,12 +37,7 @@ public class JCRQueryBuilderTest {
   @Test
   public void testGetQuery() throws Exception {
     String query = builder.getQuery();
-<<<<<<< HEAD
     assertNotNull(query);
-=======
-    assertThat(query, notNullValue());
-    assertEquals("select rx:sys_contentid, rx:sys_folderid, jcr:path from nt:base", query);
->>>>>>> development-8.1.x
   }
 
   @Test
@@ -68,11 +48,7 @@ public class JCRQueryBuilderTest {
 
     String query = builder.getQuery();
 
-<<<<<<< HEAD
     assertNotNull(query);
-=======
-    assertThat(query, notNullValue());
->>>>>>> development-8.1.x
     assertEquals(
         "select rx:sys_contentid, rx:sys_folderid, jcr:path from nt:base where "
             + "(('2010' < rx:sys_contentstartdate ) and rx:displaytitle like '%News%' )",
@@ -83,16 +59,10 @@ public class JCRQueryBuilderTest {
   public void testGetQueryWithPaths() throws Exception {
     builder.setFolderPaths(asList("//Sites/a", "//Sites/b"));
     String query = builder.getQuery();
-<<<<<<< HEAD
     assertNotNull(query);
     assertEquals(
         "select rx:sys_contentid, rx:sys_folderid, jcr:path from nt:base where (( jcr:path like"
             + " '//Sites/a/%'  or  jcr:path like '//Sites/b/%' ))",
-=======
-    assertThat(query, notNullValue());
-    assertEquals(
-        "select rx:sys_contentid, rx:sys_folderid, jcr:path from nt:base where (( jcr:path like '//Sites/a/%'  or  jcr:path like '//Sites/b/%' ))",
->>>>>>> development-8.1.x
         query);
   }
 }

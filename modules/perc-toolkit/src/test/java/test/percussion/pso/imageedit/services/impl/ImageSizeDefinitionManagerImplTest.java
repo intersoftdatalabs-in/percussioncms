@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.imageedit.services.impl;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
@@ -39,25 +38,6 @@ public class ImageSizeDefinitionManagerImplTest {
    * @throws Exception
    */
   @BeforeEach
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.pso.imageedit.data.ImageSizeDefinition;
-import com.percussion.pso.imageedit.services.impl.ImageSizeDefinitionManagerImpl;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-
-/** @author DavidBenua */
-public class ImageSizeDefinitionManagerImplTest {
-
-  List<ImageSizeDefinition> sizes;
-
-  ImageSizeDefinitionManagerImpl cut;
-  /** @throws Exception */
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new ImageSizeDefinitionManagerImpl();
     sizes = new ArrayList<ImageSizeDefinition>(3);
@@ -84,10 +64,7 @@ public class ImageSizeDefinitionManagerImplTest {
         });
     cut.setSizes(sizes);
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** Test method for {@link ImageSizeDefinitionManagerImpl#getImageSize(String)}. */
   @Test
   public final void testGetImageSize() {

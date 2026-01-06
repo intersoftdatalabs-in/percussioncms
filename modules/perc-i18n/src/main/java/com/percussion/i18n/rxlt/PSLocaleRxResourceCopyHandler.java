@@ -387,7 +387,6 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   /** Rhythmyx root directory. Initialized in the constructor, never <code>null</code>. */
   private String m_rxroot = "";
-<<<<<<< HEAD
 
   /**
    * New language string. Initialized in the constructor. Never <code>null</code> or <code>empty
@@ -424,43 +423,6 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /** Name of the user options xml file that needs to be copies. */
   public static final String USER_OPTIONS_FILE = "UserOptions.xml";
 
-=======
-  /**
-   * New language string. Initialized in the constructor. Never <code>null</code> or <code>empty
-   * </code>
-   */
-  private String m_languagestring = "";
-
-  /** Name of the JavaScript system resource folder relative to the Rhythmyx root. */
-  public static final String SYSTEM_JS_DIR = "sys_resources" + File.separator + "js";
-
-  /** Name of the JavaScript rx resource folder relative to the Rhythmyx root. */
-  public static final String RX_JS_DIR = "rx_resources" + File.separator + "js";
-
-  /** Name of the CSS system resource folder relative to the Rhythmyx root. */
-  public static final String SYSTEM_CSS_DIR = "sys_resources" + File.separator + "css";
-
-  /** Name of the CSS rx resource folder relative to the Rhythmyx root. */
-  public static final String RX_CSS_DIR = "rx_resources" + File.separator + "css";
-
-  /** Name of the Images system resource folder relative to the Rhythmyx root. */
-  public static final String SYSTEM_IMAGE_DIR = "sys_resources" + File.separator + "images";
-
-  /** Name of the Images rx resource folder relative to the Rhythmyx root. */
-  public static final String RX_IMAGE_DIR = "rx_resources" + File.separator + "images";
-
-  /**
-   * Name of the only JavaScript message map file. This file will have locale specific message map.
-   */
-  public static final String JS_ERROR_MESSAGE_FILE = "globalErrorMessages.js";
-
-  /** Name of the only CSS template file in Rhythmyx. */
-  public static final String CSS_TEMPLATE_FILE = "templates.css";
-
-  /** Name of the user options xml file that needs to be copies. */
-  public static final String USER_OPTIONS_FILE = "UserOptions.xml";
-
->>>>>>> development-8.1.x
   /**
    * Main method for testing purpose.
    *

@@ -33,11 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
@@ -530,10 +526,7 @@ public class PSHttpConnection {
   public URL getBaseUrl() {
     return ms_baseUrl;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Reset the cached info which may contain data used from previous applet session. This is called
    * during applet initialization (that is called from {@link PSContentExplorerApplet#init()}).

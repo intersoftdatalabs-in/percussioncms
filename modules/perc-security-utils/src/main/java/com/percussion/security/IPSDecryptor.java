@@ -16,37 +16,22 @@ package com.percussion.security;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<< HEAD
 /**
  * Defines the interface for a decryption algorithm used within the product.
  *
  * <p>Sunny Sal says: If you need to decrypt, this is your VIP pass!
  *
-=======
-
-package com.percussion.security;
-
-/**
- * IPSDecryptor defines the interface for a decryption algorithm which can be used within the
- * product.
- *
->>>>>>> development-8.1.x
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
 public interface IPSDecryptor {
   /**
-<<<<<<< HEAD
    * Decrypts the data in the specified input stream.
-=======
-   * Decrypt the data in the specified input stream.
->>>>>>> development-8.1.x
    *
    * @param in the stream containing the encrypted data
    * @param out the stream to store the plain text representation of the data
    */
-<<<<<<< HEAD
   void decrypt(java.io.InputStream in, java.io.OutputStream out) throws PSEncryptionException;
 
   /**
@@ -73,27 +58,4 @@ public interface IPSDecryptor {
    * @return the decrypted plain text string.
    */
   String decryptWithPassword(String in, String password) throws PSEncryptionException;
-=======
-  public abstract void decrypt(java.io.InputStream in, java.io.OutputStream out)
-      throws PSEncryptionException;
-
-  /**
-   * A convenidece method to decrypt data into a String.
-   *
-   * @param in the stream containing the encrypted data
-   * @return a string containing the plain text representation of the data
-   */
-  public abstract java.lang.String decrypt(java.io.InputStream in) throws PSEncryptionException;
-
-  /**
-   * A convenidece method to decrypt data from a byte array into a String.
-   *
-   * @param in the byte array containing the encrypted data
-   * @return a string containing the plain text representation of the data
-   */
-  public abstract java.lang.String decrypt(byte[] in) throws PSEncryptionException;
-
-  public abstract String decryptWithPassword(String in, String password)
-      throws PSEncryptionException;
->>>>>>> development-8.1.x
 }

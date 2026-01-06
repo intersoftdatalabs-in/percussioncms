@@ -39,16 +39,12 @@ public interface IPSActionHandler {
    * typically goes to translation services for translation to other language(s).
    */
   public static final int ACTIONID_GENERATE_TMX_RESOURCES = 1;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Action id to merge the translated resource bundle with the master TMX resource bundle of
    * Rhythmyx.
    */
   public static final int ACTIONID_MERGE_MASTER = 2;
-<<<<<<< HEAD
 
   /** Action id to exit the program. */
   public static final int ACTIONID_EXIT = 3;
@@ -56,12 +52,6 @@ public interface IPSActionHandler {
   /** First action id */
   public static final int ACTIONID_FIRST = ACTIONID_GENERATE_TMX_RESOURCES;
 
-=======
-  /** Action id to exit the program. */
-  public static final int ACTIONID_EXIT = 3;
-  /** First action id */
-  public static final int ACTIONID_FIRST = ACTIONID_GENERATE_TMX_RESOURCES;
->>>>>>> development-8.1.x
   /** Last action id */
   public static final int ACTIONID_LAST = ACTIONID_EXIT;
 }

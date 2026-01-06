@@ -86,16 +86,9 @@ public class PSUpdateWarFiles extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * private functions
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* private functions
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Updates the war file <code>warFile</code> by adding the jar files listed in <code>jarFiles
@@ -245,16 +238,9 @@ public class PSUpdateWarFiles extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Bean properties
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the absolute path of the war file.
@@ -337,16 +323,9 @@ public class PSUpdateWarFiles extends PSAction {
     return m_isRemoveFiles;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ properties
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Path of the war file to update, never <code>null</code> or empty. The path contains the path of
@@ -376,7 +355,6 @@ public class PSUpdateWarFiles extends PSAction {
   /** Flag that indicates that we want to remove a file. */
   private boolean m_isRemoveFiles = false;
 
-<<<<<<< HEAD
   /**************************************************************************
    * main
    **************************************************************************/
@@ -384,15 +362,6 @@ public class PSUpdateWarFiles extends PSAction {
   public static void main(String[] args) {
     String warFile = "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/soap.war";
 
-=======
-  /**
-   * ************************************************************************ main
-   * ************************************************************************
-   */
-  public static void main(String[] args) {
-    String warFile = "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/soap.war";
-
->>>>>>> development-8.1.x
     // remove file
     String[] jarFiles =
         new String[] {

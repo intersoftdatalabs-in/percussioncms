@@ -54,12 +54,8 @@ public class PSParamExtractor extends PSDefaultExtension implements IPSRequestPr
    * @see IPSRequestPreProcessor#preProcessRequestt()
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSParameterMismatchException,
           PSExtensionProcessingException,
-=======
-      throws PSParameterMismatchException, PSExtensionProcessingException,
->>>>>>> development-8.1.x
           PSRequestValidationException {
     // Three parameters is the minimum.
     if (params == null || params.length < 3) {

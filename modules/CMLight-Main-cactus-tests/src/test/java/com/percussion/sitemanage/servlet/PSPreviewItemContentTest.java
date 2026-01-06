@@ -40,11 +40,11 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.junit.Assert;
-import org.junit.experimental.categories.Category;
 
-// @Ignore("If you want to run these unit tests, adjust the SERVER_URL constant and start your CMS "
+
+// @Disabled("If you want to run these unit tests, adjust the SERVER_URL constant and start your CMS "
 // + "server.")
-@Category(IntegrationTest.class)
+
 public class PSPreviewItemContentTest extends PSServletTestCase {
   private PSSiteDataServletTestCaseFixture fixture;
 

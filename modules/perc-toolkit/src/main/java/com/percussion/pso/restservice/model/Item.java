@@ -20,11 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-<<<<<<< HEAD
 import jakarta.xml.bind.annotation.*;
-=======
-import javax.xml.bind.annotation.*;
->>>>>>> development-8.1.x
 
 /**
  * Collection of package objects.
@@ -356,25 +352,17 @@ public class Item {
     return checkInOnly;
   }
 
-<<<<<<< HEAD
   /**
    * @param updatedDateField the updatedDateField to set
    */
-=======
-  /** @param updatedDateField the updatedDateField to set */
->>>>>>> development-8.1.x
   @XmlAttribute
   public void setUpdatedDateField(String updatedDateField) {
     this.updatedDateField = updatedDateField;
   }
-<<<<<<< HEAD
 
   /**
    * @return the updatedDateField
    */
-=======
-  /** @return the updatedDateField */
->>>>>>> development-8.1.x
   public String getUpdatedDateField() {
     return updatedDateField;
   }

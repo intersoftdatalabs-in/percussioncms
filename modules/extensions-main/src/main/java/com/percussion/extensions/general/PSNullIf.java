@@ -52,13 +52,9 @@ public class PSNullIf extends PSDefaultExtension implements IPSRequestPreProcess
    * @throws PSRequestValidationException never
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     if (request == null) return;
 

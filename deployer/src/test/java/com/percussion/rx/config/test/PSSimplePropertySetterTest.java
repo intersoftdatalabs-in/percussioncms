@@ -33,7 +33,7 @@ import junit.framework.TestCase;
  *
  * @author YuBingChen
  */
-public class PSSimplePropertySetterTest extends TestCase {
+public class PSSimplePropertySetterTest {
   /**
    * Test properties in the super class
    *

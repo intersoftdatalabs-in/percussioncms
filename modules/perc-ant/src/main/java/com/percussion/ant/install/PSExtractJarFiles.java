@@ -136,16 +136,9 @@ public class PSExtractJarFiles extends PSAction {
     }
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Bean properties
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the absolute path of the jar file to extract.
@@ -207,7 +200,6 @@ public class PSExtractJarFiles extends PSAction {
     this.filesToExtract = convertToArray(filesToExtract);
   }
 
-<<<<<<< HEAD
   /**
    * @return Returns the m_neverReplaceFilter.
    */
@@ -246,42 +238,6 @@ public class PSExtractJarFiles extends PSAction {
   public String[] filesToExtract;
 
   /**
-=======
-  /** @return Returns the m_neverReplaceFilter. */
-  public String[] getNeverReplaceFilter() {
-    return m_neverReplaceFilter;
-  }
-  /** @param replaceFilter The m_neverReplaceFilter to set. */
-  public void setNeverReplaceFilter(String replaceFilter) {
-    m_neverReplaceFilter = convertToArray(replaceFilter);
-  }
-
-  /**
-   * ************************************************************************ properties
-   * ************************************************************************
-   */
-
-  /**
-   * Path of the jar file to extract, never <code>null</code> or empty after {@link
-   * #setJarFile(String)} is called. The jar file should already be installed on the destination
-   * system.
-   */
-  private String jarFile = "";
-
-  /**
-   * The directory in which to extract files, may be <code>null</code> or empty, in which case the
-   * jar file is extracted in the directory where it exists.
-   */
-  private String destinationDir = "";
-
-  /**
-   * List of files to extract, may be <code>null</code> or empty array, in which case all the files
-   * are extracted from the jar file.
-   */
-  public String[] filesToExtract;
-
-  /**
->>>>>>> development-8.1.x
    * Never replace filter patterns. May be <code>empty</code>, never <code>null</code>. Note, {@link
    * PSAction#refreshFiles()} will override this filter.
    */

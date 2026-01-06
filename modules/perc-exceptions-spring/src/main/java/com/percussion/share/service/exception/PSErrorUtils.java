@@ -31,11 +31,7 @@ import com.percussion.share.validation.PSErrors.PSObjectError;
 public class PSErrorUtils {
 
   public static PSErrors createErrorsFromException(Throwable exception) {
-<<<<<<< HEAD
     notNull(exception, "exception cannot be null");
-=======
-    Validate.notNull(exception);
->>>>>>> development-8.1.x
     PSErrors errors = new PSErrors();
     PSObjectError oe = new PSObjectError();
 
@@ -62,11 +58,7 @@ public class PSErrorUtils {
   }
 
   public static RuntimeException createExceptionFromErrors(PSErrors errors) {
-<<<<<<< HEAD
     notNull(errors, "errors cannot be null");
-=======
-    Validate.notNull(errors);
->>>>>>> development-8.1.x
     return new PSProxyException(errors);
   }
 
@@ -83,11 +75,7 @@ public class PSErrorUtils {
 
     protected void convert(PSErrors errors) {
       this.errors = errors;
-<<<<<<< HEAD
       notNull(errors, "errors cannot be null");
-=======
-      Validate.notNull(errors);
->>>>>>> development-8.1.x
       PSObjectError oe = errors.getGlobalError();
       setMessage(oe.getDefaultMessage());
     }

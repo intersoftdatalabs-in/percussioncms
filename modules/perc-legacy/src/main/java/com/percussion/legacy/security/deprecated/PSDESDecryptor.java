@@ -260,11 +260,7 @@ public class PSDESDecryptor implements IPSDecryptor {
       lCount = 0;
       for (int j = 0; j < eArrayLen; j++) {
         switch (j) {
-<<<<<<< HEAD
           // multiply by 2
-=======
-            // multiply by 2
->>>>>>> development-8.1.x
           case 0:
           case 3:
           case 6:
@@ -283,11 +279,7 @@ public class PSDESDecryptor implements IPSDecryptor {
           case 45:
             ELArray[j] <<= 1;
             break;
-<<<<<<< HEAD
           // multiply by 4
-=======
-            // multiply by 4
->>>>>>> development-8.1.x
           case 2:
           case 8:
           case 14:
@@ -298,11 +290,7 @@ public class PSDESDecryptor implements IPSDecryptor {
           case 44:
             ELArray[j] <<= 2;
             break;
-<<<<<<< HEAD
           // multiply by 8
-=======
-            // multiply by 8
->>>>>>> development-8.1.x
           case 1:
           case 7:
           case 13:
@@ -313,11 +301,7 @@ public class PSDESDecryptor implements IPSDecryptor {
           case 43:
             ELArray[j] <<= 3;
             break;
-<<<<<<< HEAD
           // add results to store column
-=======
-            // add results to store column
->>>>>>> development-8.1.x
           case 4:
           case 10:
           case 16:

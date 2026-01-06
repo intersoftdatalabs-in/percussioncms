@@ -35,7 +35,6 @@ import com.percussion.search.ui.PSFieldSelectionEditorDialog;
 import com.percussion.search.ui.PSSearchAdvancedPanel;
 import com.percussion.search.ui.PSSearchFieldEditor;
 import com.percussion.search.ui.PSSearchSimplePanel;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,9 +51,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -90,7 +86,6 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 
-<<<<<<< HEAD
 /**
  * Dialog to build/edit Search Query.
  */
@@ -152,11 +147,6 @@ public class PSSearchDialog extends PSDialog
    {
       super(parent, mgr.getApplet().getResourceString(
          PSSearchDialog.class, "Content Search"));
-=======
-/** Dialog to build/edit Search Query. */
-public class PSSearchDialog extends PSDialog {
-  static Logger log = Logger.getLogger(PSSearchDialog.class);
->>>>>>> development-8.1.x
 
   /**
    * Constructs the dialog with supplied parameters.

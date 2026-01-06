@@ -19,10 +19,10 @@ package com.percussion.pagemanagement.data;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
-import java.util.Objects;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a rendered link.

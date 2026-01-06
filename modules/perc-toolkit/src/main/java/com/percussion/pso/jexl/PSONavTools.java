@@ -66,10 +66,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   private static IPSOObjectFinder objFinder = null;
   private static IPSOParentFinder parFinder = null;
   private static PSRelationshipProcessorProxy proxy = null;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /** */
   public PSONavTools() {
     super();
@@ -96,10 +93,7 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
       }
     }
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Builds a list of ancestor nodes. The first node in the list will be the <code>Root</code> node
    * and the last node will be the <code>Self</code> node. If the <code>Self</code> node is the
@@ -303,7 +297,6 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
     }
     return null;
   }
-<<<<<<< HEAD
 
   /**
    * @param gmgr the gmgr to set
@@ -336,29 +329,6 @@ public class PSONavTools extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * @param proxy the proxy to set
    */
-=======
-  /** @param gmgr the gmgr to set */
-  public static void setGmgr(IPSGuidManager gmgr) {
-    PSONavTools.gmgr = gmgr;
-  }
-
-  /** @param navConfig the navConfig to set */
-  public static void setNavConfig(PSNavConfig navConfig) {
-    PSONavTools.navConfig = navConfig;
-  }
-
-  /** @param objFinder the objFinder to set */
-  public static void setObjFinder(IPSOObjectFinder objFinder) {
-    PSONavTools.objFinder = objFinder;
-  }
-
-  /** @param parFinder the parFinder to set */
-  public static void setParFinder(IPSOParentFinder parFinder) {
-    PSONavTools.parFinder = parFinder;
-  }
-
-  /** @param proxy the proxy to set */
->>>>>>> development-8.1.x
   public static void setProxy(PSRelationshipProcessorProxy proxy) {
     PSONavTools.proxy = proxy;
   }

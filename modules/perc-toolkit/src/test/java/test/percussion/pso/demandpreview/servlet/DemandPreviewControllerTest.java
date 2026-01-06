@@ -17,11 +17,7 @@
 
 package test.percussion.pso.demandpreview.servlet;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
@@ -45,15 +41,9 @@ import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
->>>>>>> development-8.1.x
 
 public class DemandPreviewControllerTest {
 
@@ -67,11 +57,7 @@ public class DemandPreviewControllerTest {
   SiteEditionLookUpService siteLookup;
   IPSOItemSummaryFinder isFinder;
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     context = new Mockery();
     cut = new TestableDemandPreviewController();
@@ -90,11 +76,7 @@ public class DemandPreviewControllerTest {
   }
 
   @Test
-<<<<<<< HEAD
   @Disabled
-=======
-  @Ignore
->>>>>>> development-8.1.x
   // TODO: Fix testDoPublishForPreview
   public void testDoPublishForPreview() {
     final String contentId = "1";

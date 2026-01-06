@@ -18,11 +18,7 @@ package com.percussion.workflow;
 
 import static com.percussion.server.PSServer.getProperty;
 import static java.util.Collections.singletonList;
-<<<<<<< HEAD
 import static org.apache.commons.lang3.Validate.notNull;
-=======
-import static org.apache.commons.lang.Validate.notNull;
->>>>>>> development-8.1.x
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSAttribute;
@@ -43,11 +39,7 @@ import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.system.PSAssignmentTypeHelper;
-<<<<<<< HEAD
 import com.percussion.system.utils.PSCms;
-=======
-import com.percussion.util.PSCms;
->>>>>>> development-8.1.x
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;

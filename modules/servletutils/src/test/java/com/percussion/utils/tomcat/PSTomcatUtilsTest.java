@@ -17,18 +17,16 @@
 package com.percussion.utils.tomcat;
 
 import static com.percussion.util.PSResourceUtils.getResourcePath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSTomcatUtils} class. */
 public class PSTomcatUtilsTest extends PSBaseXmlConfigTest {
@@ -47,8 +45,6 @@ public class PSTomcatUtilsTest extends PSBaseXmlConfigTest {
   public void testLoadHttpConnectors() throws Exception {
     // make copy of the configs
     File srcServerDoc = getTempXmlFile();
-    File tgtServerDoc = getTempXmlFile();
-
     // copy source to that file
     File srcFile = new File(TEST_TOMCAT_SERVER_FILE);
     copyXmlFile(srcFile, srcServerDoc);
@@ -59,7 +55,7 @@ public class PSTomcatUtilsTest extends PSBaseXmlConfigTest {
   }
 
   @Test
-  @Ignore("SKIPPED: TODO: testSaveHttpConnectors - Fix Me. This test fails.")
+  @Disabled
   public void testSaveHttpConnectors() throws Exception {
     // make copy of the configs
     File srcServerDoc = getTempXmlFile();
@@ -78,7 +74,6 @@ public class PSTomcatUtilsTest extends PSBaseXmlConfigTest {
     PSTomcatUtils.saveHttpConnectors(tgtServerDoc, connectors1);
     compareXmlDocs(srcServerDoc, tgtServerDoc);
 
-    Path rootPath = Paths.get(".");
     // add a connector
     PSAbstractConnector conn = PSTomcatConnector.getBuilder().setPort(9992).build();
     connectors1.add(conn);

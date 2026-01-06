@@ -23,20 +23,12 @@
  */
 package linkback;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
-import static org.junit.Assert.*;
->>>>>>> development-8.1.x
 
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
 import com.percussion.soln.linkback.servlet.ActionPanelLinkbackController;
 import com.percussion.soln.linkback.utils.LinkbackUtils;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -55,15 +47,10 @@ public class ActionPanelLinkbackControllerTest {
 
   String token_nocontentid, token_nofoldersiteid;
 
-<<<<<<< HEAD
   /**
    * @throws java.lang.Exception
    */
   @BeforeEach
-=======
-  /** @throws java.lang.Exception */
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new ActionPanelLinkbackController();
     cut.setHelpViewName("helpview");

@@ -22,10 +22,7 @@
  */
 package com.percussion.pso.workflow;
 
-<<<<<<< HEAD
 // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -81,7 +78,6 @@ public class PublishEditionService implements InitializingBean {
       rps = PSRxPublisherServiceLocator.getRxPublisherService();
     }
   }
-<<<<<<< HEAD
 
   /**
    * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
@@ -95,18 +91,6 @@ public class PublishEditionService implements InitializingBean {
     runEdition(ed.getEditionId());
   }
 
-=======
-  /** @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet() */
-  public void afterPropertiesSet() throws Exception {
-    initServices();
-  }
-
-  @SuppressWarnings("deprecation")
-  public void runQueuedEdition(QueuedEdition ed) {
-    runEdition(ed.getEditionId());
-  }
-
->>>>>>> development-8.1.x
   /**
    * Runs an edition. This launches a new job asynchronously via the RxPublisherService.
    *
@@ -181,10 +165,7 @@ public class PublishEditionService implements InitializingBean {
   public String getBaseUrl() {
     return baseUrl;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -194,10 +175,7 @@ public class PublishEditionService implements InitializingBean {
   public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -207,10 +185,7 @@ public class PublishEditionService implements InitializingBean {
   public String getListenerPort() {
     return listenerPort;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -220,7 +195,6 @@ public class PublishEditionService implements InitializingBean {
   public void setListenerPort(String listenerPort) {
     this.listenerPort = listenerPort;
   }
-<<<<<<< HEAD
 
   /**
    * @return Returns the workflows.
@@ -236,16 +210,6 @@ public class PublishEditionService implements InitializingBean {
     this.workflows = workflows;
   }
 
-=======
-  /** @return Returns the workflows. */
-  public Map<String, Map<String, Map<String, String>>> getWorkflows() {
-    return workflows;
-  }
-  /** @param workflows The workflows to set. */
-  public void setWorkflows(Map<String, Map<String, Map<String, String>>> workflows) {
-    this.workflows = workflows;
-  }
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -254,10 +218,7 @@ public class PublishEditionService implements InitializingBean {
   public String getCmsPassword() {
     return cmsPassword;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -268,10 +229,7 @@ public class PublishEditionService implements InitializingBean {
     log.debug("Setting CMS Password");
     this.local = false;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -280,10 +238,7 @@ public class PublishEditionService implements InitializingBean {
   public String getCmsUser() {
     return cmsUser;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -294,10 +249,7 @@ public class PublishEditionService implements InitializingBean {
     log.debug("Setting CMS User " + cmsUser);
     this.local = false;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *
@@ -306,10 +258,7 @@ public class PublishEditionService implements InitializingBean {
   public boolean isLocal() {
     return local;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * No longer used in 6.6.
    *

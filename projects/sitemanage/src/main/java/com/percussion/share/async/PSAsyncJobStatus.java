@@ -17,11 +17,11 @@
 package com.percussion.share.async;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.Objects;
 
 /**
  * Represents the current status of a running asynchronous job. Includes the status as a value

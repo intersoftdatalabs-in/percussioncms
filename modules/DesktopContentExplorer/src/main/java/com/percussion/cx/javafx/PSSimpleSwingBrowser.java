@@ -61,7 +61,6 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
-<<<<<<< HEAD
 import netscape.javascript.JSObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -69,8 +68,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-=======
->>>>>>> development-8.1.x
 import javax.accessibility.AccessibleContext;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -92,12 +89,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   static Logger log = Logger.getLogger(PSSimpleSwingBrowser.class);
 
-<<<<<<< HEAD
    static Logger log = LogManager.getLogger(PSSimpleSwingBrowser.class);
-=======
-  private static boolean isMac =
-      System.getProperty("os.name").toLowerCase(Locale.US).startsWith("mac");
->>>>>>> development-8.1.x
 
   private static final long serialVersionUID = 1L;
 

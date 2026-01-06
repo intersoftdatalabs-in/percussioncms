@@ -25,10 +25,7 @@ import javax.jcr.ValueFormatException;
 
 public abstract class AbstractSimplyProperty {
 
-<<<<<<< HEAD
   // REFACTORED: CP-JAVA11
-=======
->>>>>>> development-8.1.x
   public boolean getBoolean() throws ValueFormatException, RepositoryException {
     return getValue().getBoolean();
   }

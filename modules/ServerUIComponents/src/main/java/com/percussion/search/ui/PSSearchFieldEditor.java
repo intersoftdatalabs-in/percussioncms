@@ -65,11 +65,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-=======
-import org.apache.commons.lang.StringUtils;
->>>>>>> development-8.1.x
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -1385,10 +1381,7 @@ public class PSSearchFieldEditor extends JPanel {
       JComponent[] jcArr = {m_operatorCombo, m_contentIdvalueText};
       return jcArr;
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
     /**
      * The operator combo box. Initialized in {@link #init()}. Never <code>null</code> after that.
      */
@@ -1447,10 +1440,7 @@ public class PSSearchFieldEditor extends JPanel {
     public JComponent[] getItsComponents() {
       return super.getItsComponents();
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
     /** Must match ctor. */
     private String[][] m_ops = {
       {PSSearchField.OP_EQUALS, PSCommonSearchUtils.OP_EQUALS},

@@ -46,13 +46,9 @@ public class PSWepFixImages extends PSFileInfo implements IPSRequestPreProcessor
 
   /** Pre processes the request. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
-<<<<<<< HEAD
       throws PSAuthorizationException,
           PSRequestValidationException,
           PSParameterMismatchException,
-=======
-      throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException,
->>>>>>> development-8.1.x
           PSExtensionProcessingException {
     // first do the normal file info processing
     super.preProcessRequest(params, request);

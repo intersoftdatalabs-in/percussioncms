@@ -33,11 +33,7 @@ public class PSExitPrepareQueryFilters implements IPSRequestPreProcessor {
   /* Set the parameter count to not initialized */
   private static int ms_correctParamCount = NOT_INITIALIZED;
 
-<<<<<<< HEAD
   /**************  IPSExtension Interface Implementation ************* */
-=======
-  /** ************ IPSExtension Interface Implementation ************* */
->>>>>>> development-8.1.x
 
   // See Interface for description
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {

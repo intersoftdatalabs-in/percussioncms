@@ -25,15 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-<<<<<<< HEAD
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.Validate;
-=======
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import org.apache.commons.lang.Validate;
->>>>>>> development-8.1.x
 
 /**
  * An HttpServletRequestWrapper that allows modification of the request parameters and headers. This
@@ -55,10 +49,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   PSFacadeMap<String, String[]> localParams;
 
   Map<String, String[]> localHeaders;
-<<<<<<< HEAD
 
-=======
->>>>>>> development-8.1.x
   /**
    * Constructs a new wrapper based on an existing request.
    *
@@ -118,13 +109,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     localHeaders.put(key, values);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameter(java.lang.String)
+   * @see jakarta.servlet.ServletRequestWrapper#getParameter(java.lang.String)
    */
-=======
-  /** @see javax.servlet.ServletRequestWrapper#getParameter(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   public String getParameter(String name) {
     String[] vals = getParameterValues(name);
@@ -134,51 +121,35 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     return vals[0];
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterMap()
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterMap()
    */
-=======
-  /** @see javax.servlet.ServletRequestWrapper#getParameterMap() */
->>>>>>> development-8.1.x
   @Override
   @SuppressWarnings("unchecked")
   public Map getParameterMap() {
     return Collections.unmodifiableMap(localParams);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterNames()
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterNames()
    */
-=======
-  /** @see javax.servlet.ServletRequestWrapper#getParameterNames() */
->>>>>>> development-8.1.x
   @Override
   @SuppressWarnings("unchecked")
   public Enumeration getParameterNames() {
     return Collections.<String>enumeration(localParams.keySet());
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterValues(java.lang.String)
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterValues(java.lang.String)
    */
-=======
-  /** @see javax.servlet.ServletRequestWrapper#getParameterValues(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   public String[] getParameterValues(String name) {
     return localParams.get(name);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String)
    */
-=======
-  /** @see javax.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   public String getHeader(String name) {
     Validate.notEmpty(name);
@@ -193,13 +164,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     return super.getHeader(name);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeaderNames()
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaderNames()
    */
-=======
-  /** @see javax.servlet.http.HttpServletRequestWrapper#getHeaderNames() */
->>>>>>> development-8.1.x
   @Override
   @SuppressWarnings("unchecked")
   public Enumeration getHeaderNames() {
@@ -216,13 +183,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     return Collections.enumeration(names);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
    */
-=======
-  /** @see javax.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   @SuppressWarnings("unchecked")
   public Enumeration getHeaders(String name) {
@@ -235,13 +198,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     return super.getHeaders(name);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String)
    */
-=======
-  /** @see javax.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   public int getIntHeader(String name) {
     Validate.notEmpty(name);
@@ -253,13 +212,9 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
     return super.getIntHeader(name);
   }
 
-<<<<<<< HEAD
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String)
    */
-=======
-  /** @see javax.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String) */
->>>>>>> development-8.1.x
   @Override
   public long getDateHeader(String name) {
     Validate.notEmpty(name);

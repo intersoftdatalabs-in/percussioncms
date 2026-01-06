@@ -74,7 +74,6 @@ import org.xml.sax.SAXException;
 public class PSExportDatabase extends PSAction {
   private static final String ERROR = "ERROR :";
 
-<<<<<<< HEAD
   // see base class
 
   @Override
@@ -109,40 +108,6 @@ public class PSExportDatabase extends PSAction {
       for (int i = 0; i < tableNames.size(); i++) {
         String tblName = tableNames.get(i).trim();
 
-=======
-  @Override
-  public void execute() {
-    Connection conn = null;
-    String propFile = getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
-
-    File f = new File(propFile);
-    if (!(f.exists() && f.isFile())) return;
-    try (FileInputStream in = new FileInputStream(f)) {
-
-      Properties props = new Properties();
-      props.load(in);
-      props.setProperty(IPSJdbcDbmsDefConstants.PWD_ENCRYPTED_PROPERTY, "Y");
-      PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
-      PSJdbcDataTypeMap dataTypeMap =
-          new PSJdbcDataTypeMap(
-              props.getProperty("DB_BACKEND"), props.getProperty("DB_DRIVER_NAME"), null);
-      conn = RxLogTables.createConnection(props);
-
-      List<String> tableNames = getTableNames(conn, dbmsDef);
-      tableNames = filterTableNames(tableNames);
-      Document schemaDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Document dataDoc = PSXmlDocumentBuilder.createXmlDocument();
-
-      PSJdbcTableDataCollection collData = new PSJdbcTableDataCollection();
-      PSJdbcTableSchemaCollection collSchema = new PSJdbcTableSchemaCollection();
-      PSJdbcTableSchema tableSchema = null;
-      PSJdbcTableData tableData = null;
-
-      List<PSJdbcTableSchema> schemasToSort = new ArrayList<>();
-      for (int i = 0; i < tableNames.size(); i++) {
-        String tblName = tableNames.get(i).trim();
-
->>>>>>> development-8.1.x
         try {
           tableSchema = PSJdbcTableFactory.catalogTable(conn, dbmsDef, dataTypeMap, tblName, true);
           if (tableSchema != null) {
@@ -218,16 +183,9 @@ public class PSExportDatabase extends PSAction {
     return tableNames;
   }
 
-<<<<<<< HEAD
   /***************************************************************************
    * Bean properties
    ***************************************************************************/
-=======
-  /**
-   * ************************************************************************* Bean properties
-   * *************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /**
    * Returns the name of tables whose backup is to be created.
@@ -285,32 +243,18 @@ public class PSExportDatabase extends PSAction {
     this.tableDataFile = tableDataFile;
   }
 
-<<<<<<< HEAD
   /**************************************************************************
    * properties
    **************************************************************************/
-=======
-  /**
-   * ************************************************************************ properties
-   * ************************************************************************
-   */
->>>>>>> development-8.1.x
 
   /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String tableDefFile = null;
 
   private String tableDataFile = null;
-<<<<<<< HEAD
 
   /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String[] tableIncludes = null;
 
   /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
-=======
-
-  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
-  private String[] tableIncludes = null;
-  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
->>>>>>> development-8.1.x
   private String[] tableExcludes = null;
 }

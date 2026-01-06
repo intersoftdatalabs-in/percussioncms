@@ -16,7 +16,6 @@
  */
 package com.percussion.legacy.security.deprecated;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.percussion.security.PSEncryptor;
@@ -29,25 +28,11 @@ import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-=======
-import static org.junit.Assert.assertEquals;
-
-import com.percussion.security.PSEncryptor;
-import java.math.BigInteger;
-import java.util.Arrays;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
->>>>>>> development-8.1.x
 
 /** Test case for the {@link PSLegacyEncrypter} class */
 @Deprecated
 public class PSLegacyEncrypterTest {
 
-<<<<<<< HEAD
   @TempDir public Path temporaryFolder;
   private String rxdeploydir;
 
@@ -58,18 +43,6 @@ public class PSLegacyEncrypterTest {
   }
 
   @AfterEach
-=======
-  @Rule public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
-  private String rxdeploydir;
-
-  @Before
-  public void setup() {
-    rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-  }
-
-  @After
->>>>>>> development-8.1.x
   public void teardown() {
     // Reset the deploy dir property if it was set prior to test
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
@@ -82,11 +55,7 @@ public class PSLegacyEncrypterTest {
    */
   @Test
   public void testEncrypt() throws Exception {
-<<<<<<< HEAD
     if (rxdeploydir == null) rxdeploydir = temporaryFolder.toAbsolutePath().toString();
-=======
-    if (rxdeploydir == null) rxdeploydir = temporaryFolder.getRoot().getAbsolutePath();
->>>>>>> development-8.1.x
 
     testKey("jass is the way", "demo");
     testKey(
@@ -146,7 +115,6 @@ public class PSLegacyEncrypterTest {
   private void testKey(String key, String pwd) {
     String enc =
         PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).encrypt(pwd, key);
-<<<<<<< HEAD
     assertNotEquals(pwd, enc);
     System.out.println(enc);
     Assertions.assertEquals(
@@ -154,15 +122,6 @@ public class PSLegacyEncrypterTest {
         PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR)
             .decrypt(enc, key, null));
     Assertions.assertEquals(
-=======
-    Assert.assertNotEquals(pwd, enc);
-    System.out.println(enc);
-    assertEquals(
-        pwd,
-        PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR)
-            .decrypt(enc, key, null));
-    assertEquals(
->>>>>>> development-8.1.x
         enc, PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).encrypt(pwd, key));
   }
 
@@ -179,14 +138,8 @@ public class PSLegacyEncrypterTest {
   private void testToByteArray(BigInteger bigInt) {
     byte[] convertedBytes =
         PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).toByteArray(bigInt);
-<<<<<<< HEAD
     Assertions.assertEquals(0, (convertedBytes.length % PSLegacyEncrypter.BYTE_ARRAY_MULTIPLE));
     BigInteger convertedInt = new BigInteger(convertedBytes);
     Assertions.assertEquals(convertedInt, bigInt);
-=======
-    assertEquals(0, (convertedBytes.length % PSLegacyEncrypter.BYTE_ARRAY_MULTIPLE));
-    BigInteger convertedInt = new BigInteger(convertedBytes);
-    Assert.assertEquals(convertedInt, bigInt);
->>>>>>> development-8.1.x
   }
 }

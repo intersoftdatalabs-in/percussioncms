@@ -207,12 +207,8 @@ public class PSReflectionHelper {
         return null;
       }
     }
-<<<<<<< HEAD
   }
   ;
-=======
-  };
->>>>>>> development-8.1.x
 
   /**
    * Are these objects basically different? To answer this question, check that both the object

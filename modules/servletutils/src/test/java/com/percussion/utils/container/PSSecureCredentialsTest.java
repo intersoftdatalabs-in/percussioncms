@@ -16,17 +16,22 @@
  */
 package com.percussion.utils.container;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Test case for the {@link PSSecureCredentials} class. */
-public class PSSecureCredentialsTest extends TestCase {
+public class PSSecureCredentialsTest {
   /**
    * Test the parameterized ctor and accessors
    *
    * @throws Exception
    */
+  @Test
   public void testCtor() throws Exception {
     String ds = "jdbc/RxDefault";
     String uid = "sa";
@@ -53,6 +58,7 @@ public class PSSecureCredentialsTest extends TestCase {
    *
    * @throws Exception
    */
+  @Test
   public void testXml() throws Exception {
     String ds = "jdbc/RxDefault";
     String uid = "sa";

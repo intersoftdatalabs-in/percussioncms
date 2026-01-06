@@ -33,13 +33,8 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
-=======
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

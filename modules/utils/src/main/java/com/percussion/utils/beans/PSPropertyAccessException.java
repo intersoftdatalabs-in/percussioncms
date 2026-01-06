@@ -31,10 +31,6 @@ public class PSPropertyAccessException extends RuntimeException {
   /** No-args ctor */
   public PSPropertyAccessException() {
     super();
-<<<<<<< HEAD
-=======
-    // TODO Auto-generated constructor stub
->>>>>>> development-8.1.x
   }
 
   /**

@@ -22,11 +22,7 @@ import com.percussion.extension.*;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-<<<<<<< HEAD
 import com.percussion.system.utils.IPSHtmlParameters;
-=======
-import com.percussion.util.IPSHtmlParameters;
->>>>>>> development-8.1.x
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

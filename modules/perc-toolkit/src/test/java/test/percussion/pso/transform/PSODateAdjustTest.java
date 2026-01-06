@@ -16,7 +16,6 @@
  */
 package test.percussion.pso.transform;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -72,87 +71,12 @@ public class PSODateAdjustTest {
 
   @Test
   void testProcessUdf() {
-=======
-import static org.junit.Assert.*;
-
-import com.percussion.data.PSConversionException;
-import com.percussion.extension.IPSExtensionDef;
-import com.percussion.pso.transform.PSODateAdjust;
-import com.percussion.server.IPSRequestContext;
-import java.io.File;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
-public class PSODateAdjustTest {
-  private static final Logger log = LogManager.getLogger(PSODateAdjustTest.class);
-
-  Mockery context;
-  PSODateAdjust cut;
-  IPSRequestContext request;
-  IPSExtensionDef def;
-
-  @Before
-  public void setUp() throws Exception {
-    context = new Mockery();
-    request = context.mock(IPSRequestContext.class);
-    cut = new PSODateAdjust();
-    def = context.mock(IPSExtensionDef.class);
-    cut.init(def, new File("foo"));
-
-    final String[] rnames = new String[0];
-    final String[] pnames = {
-      "sourceFieldName", "years", "months", "days", "hours", "minutes", "seconds"
-    };
-
-    context.checking(
-        new Expectations() {
-          {
-            one(def).getRuntimeParameterNames();
-            will(returnIterator(pnames));
-            one(request).getParameter("sourceFieldName");
-            will(returnValue(null));
-            one(request).getParameter("years");
-            will(returnValue(null));
-            one(request).getParameter("months");
-            will(returnValue(null));
-            one(request).getParameter("days");
-            will(returnValue(null));
-            one(request).getParameter("hours");
-            will(returnValue(null));
-            one(request).getParameter("minutes");
-            will(returnValue(null));
-            one(request).getParameter("seconds");
-            will(returnValue(null));
-          }
-        });
-  }
-
-  @Test
-  public final void testProcessUdf() {
->>>>>>> development-8.1.x
     final Object[] params = new Object[] {"field1", "0", "0", "0", "0", "0", "0"};
     final Date dateNow = new Date();
     final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     final String dateString = formatter.format(dateNow);
 
-<<<<<<< HEAD
     when(request.getParameter("field1")).thenReturn(dateString);
-=======
-    context.checking(
-        new Expectations() {
-          {
-            one(request).getParameter("field1");
-            will(returnValue(dateString));
-          }
-        });
->>>>>>> development-8.1.x
 
     try {
       Timestamp result = (Timestamp) cut.processUdf(params, request);
@@ -162,12 +86,8 @@ public class PSODateAdjustTest {
       long diff = dl - rl;
       log.debug("Date diff is " + diff);
       assertTrue(Math.abs(diff) < 1000);
-<<<<<<< HEAD
 
       verify(request).getParameter("field1");
-=======
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (PSConversionException ex) {
       log.error("Unexpected Exception " + ex, ex);
@@ -176,25 +96,11 @@ public class PSODateAdjustTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testProcessUdfNullDate() {
     final Object[] params = new Object[] {"field1", "0", "0", "0", "0", "0", "0"};
     final Date dateNow = new Date();
 
     when(request.getParameter("field1")).thenReturn(null);
-=======
-  public final void testProcessUdfNullDate() {
-    final Object[] params = new Object[] {"field1", "0", "0", "0", "0", "0", "0"};
-    final Date dateNow = new Date();
-
-    context.checking(
-        new Expectations() {
-          {
-            one(request).getParameter("field1");
-            will(returnValue(null));
-          }
-        });
->>>>>>> development-8.1.x
 
     try {
       Timestamp result = (Timestamp) cut.processUdf(params, request);
@@ -204,12 +110,8 @@ public class PSODateAdjustTest {
       long diff = dl - rl;
       log.debug("Date diff is " + diff);
       assertTrue(Math.abs(diff) < 1000);
-<<<<<<< HEAD
 
       verify(request).getParameter("field1");
-=======
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (PSConversionException ex) {
       log.error("Unexpected Exception " + ex, ex);
@@ -218,11 +120,7 @@ public class PSODateAdjustTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testProcessUdfBlankDate() {
-=======
-  public final void testProcessUdfBlankDate() {
->>>>>>> development-8.1.x
     final Object[] params = new Object[] {"", "0", "0", "0", "0", "0", "0"};
     final Date dateNow = new Date();
     try {
@@ -233,10 +131,6 @@ public class PSODateAdjustTest {
       long diff = dl - rl;
       log.debug("Date diff is " + diff);
       assertTrue(Math.abs(diff) < 1000);
-<<<<<<< HEAD
-=======
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (PSConversionException ex) {
       log.error("Unexpected Exception " + ex, ex);
@@ -245,11 +139,7 @@ public class PSODateAdjustTest {
   }
 
   @Test
-<<<<<<< HEAD
   void testProcessUdf1Year() {
-=======
-  public final void testProcessUdf1Year() {
->>>>>>> development-8.1.x
     final Object[] params = new Object[] {"", "1", "0", "0", "0", "0", "0"};
     final Date dateNow = new Date();
     try {
@@ -260,10 +150,6 @@ public class PSODateAdjustTest {
       long diff = dl - rl;
       log.debug("Date diff is " + diff);
       assertTrue(Math.abs(diff) > 10000);
-<<<<<<< HEAD
-=======
-      context.assertIsSatisfied();
->>>>>>> development-8.1.x
 
     } catch (PSConversionException ex) {
       log.error("Unexpected Exception " + ex, ex);

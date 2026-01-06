@@ -71,29 +71,17 @@ public class DefaultPasswordFilter implements IPSPasswordFilter {
 
   public void init(IPSExtensionDef def, File f) {}
 
-<<<<<<< HEAD
   /***
    * Will encrypt the password using the hashing / encryption
    * routine used in the previous version of the software.
    *
    * This is to allow Security Providers to re-encrypt passwords
    * on login after a security update.
-=======
-  /**
-   * * Will encrypt the password using the hashing / encryption routine used in the previous version
-   * of the software.
-   *
-   * <p>This is to allow Security Providers to re-encrypt passwords on login after a security
-   * update.
->>>>>>> development-8.1.x
    *
    * @param password
    * @return
    */
-<<<<<<< HEAD
   // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
-=======
->>>>>>> development-8.1.x
   @Override
   @Deprecated
   public String legacyEncrypt(String password) {

@@ -17,7 +17,6 @@
 
 package com.percussion.tablefactory;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -46,35 +45,6 @@ public class PSJdbcImportExportHelperTests {
   }
 
   @AfterEach
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Map;
-import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-public class PSJdbcImportExportHelperTests {
-
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  private String rxdeploydir;
-
-  @Before
-  public void setup() throws IOException {
-
-    rxdeploydir = System.getProperty("rxdeploydir");
-    System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
-  }
-
-  @After
->>>>>>> development-8.1.x
   public void teardown() {
     if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
   }
@@ -82,11 +52,7 @@ public class PSJdbcImportExportHelperTests {
   @Test
   public void testGetOptions() throws IOException {
 
-<<<<<<< HEAD
     File props = Files.createFile(temporaryFolder.resolve("db.properties")).toFile();
-=======
-    File props = temporaryFolder.newFile("db.properties");
->>>>>>> development-8.1.x
     props.deleteOnExit();
     FileOutputStream out = new FileOutputStream(props);
 
@@ -98,11 +64,7 @@ public class PSJdbcImportExportHelperTests {
       "-dbprops",
       props.getAbsolutePath(),
       "-storagepath",
-<<<<<<< HEAD
       temporaryFolder.toAbsolutePath().toString(),
-=======
-      temporaryFolder.getRoot().getAbsolutePath(),
->>>>>>> development-8.1.x
       "-tablestoskip",
       "PSX_PUBLICATION_DOC,PSX_PUBLICATIONSTATUS,PSX_PUBLICATION_SITE_ITEM,CONTENTSTATUSHISTORY_BAK,PSX_CONTENTCHANGEEVENT_BAK,PSX_SEARCHINDEXQUEUE"
     };
@@ -112,11 +74,7 @@ public class PSJdbcImportExportHelperTests {
 
     assertEquals("-dbexport", options.get("dboption"));
     assertEquals(props.getAbsolutePath(), options.get("-dbprops"));
-<<<<<<< HEAD
     assertEquals(temporaryFolder.toAbsolutePath().toString(), options.get("-storagepath"));
-=======
-    assertEquals(temporaryFolder.getRoot().getAbsolutePath(), options.get("-storagepath"));
->>>>>>> development-8.1.x
     assertEquals(
         "PSX_PUBLICATION_DOC,PSX_PUBLICATIONSTATUS,PSX_PUBLICATION_SITE_ITEM,CONTENTSTATUSHISTORY_BAK,PSX_CONTENTCHANGEEVENT_BAK,PSX_SEARCHINDEXQUEUE",
         options.get("-tablestoskip"));

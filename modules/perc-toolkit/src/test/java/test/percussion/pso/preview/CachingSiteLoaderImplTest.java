@@ -22,7 +22,6 @@
  */
 package test.percussion.pso.preview;
 
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -42,27 +41,6 @@ import org.junit.jupiter.api.Test;
 public class CachingSiteLoaderImplTest {
   private static final Logger log = LogManager.getLogger(CachingSiteLoaderImplTest.class);
 
-=======
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import com.percussion.pso.preview.CachingSiteLoaderImpl;
-import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.services.sitemgr.IPSSiteManager;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
-public class CachingSiteLoaderImplTest {
-  private static final Logger log = LogManager.getLogger(CachingSiteLoaderImplTest.class);
-
->>>>>>> development-8.1.x
   private CachingSiteLoaderImpl cut;
 
   Mockery context;
@@ -71,11 +49,7 @@ public class CachingSiteLoaderImplTest {
 
   public CachingSiteLoaderImplTest() {}
 
-<<<<<<< HEAD
   @BeforeEach
-=======
-  @Before
->>>>>>> development-8.1.x
   public void setUp() throws Exception {
     cut = new CachingSiteLoaderImpl();
     context = new Mockery();

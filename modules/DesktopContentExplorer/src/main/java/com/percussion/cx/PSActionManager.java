@@ -81,7 +81,6 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.wizard.PSWizardStartFinishPanel;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-<<<<<<< HEAD
 import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
@@ -108,8 +107,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javax.xml.parsers.ParserConfigurationException;
-=======
->>>>>>> development-8.1.x
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -171,13 +168,9 @@ import org.xml.sax.SAXException;
  */
 public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
-<<<<<<< HEAD
    private PSDesktopExplorerWindow dceWindow = null;
    
    static Logger log = LogManager.getLogger(PSActionManager.class);
-=======
-  private PSDesktopExplorerWindow dceWindow = null;
->>>>>>> development-8.1.x
 
   static Logger log = Logger.getLogger(PSActionManager.class);
 
@@ -1838,7 +1831,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               m_searchResultsNode = node;
               hideOrShowNewSearchNode();
             }
-<<<<<<< HEAD
          }
       }
 
@@ -2018,15 +2010,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             try
             {
                perm = m_folderMgr.loadFolder(m_child).getPermissions();
-=======
-            children = node.getChildren();
-            Iterator searchChildren = node.getChildren();
-            while (searchChildren.hasNext()) {
-              PSNode searchNode = (PSNode) searchChildren.next();
-              if (searchNode.getType().equals(PSNode.TYPE_EMPTY_SRCH)) {
-                m_emptySearchNode = searchNode;
-              }
->>>>>>> development-8.1.x
             }
           }
         }
@@ -2284,7 +2267,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
               if (monitor.getStatus() != PSProcessMonitor.STATUS_STOP)
                 monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
 
-<<<<<<< HEAD
                      m_applet.debugMessage("Response code is: " + code);
                   }
                   catch (PSContentExplorerException e)
@@ -2321,22 +2303,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                      + e.getLocalizedMessage();
                showJavaFXErrorDialog(msg, "Fatal Error");
                monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-=======
-            } catch (InterruptedException e) {
-              m_applet.debugMessage("Interrupted " + e.getLocalizedMessage());
-              monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
-              Thread.currentThread().interrupt();
-            } catch (PSContentExplorerException e) {
-              String msg =
-                  "Failed to acquire initial states of items, no items were transitioned: "
-                      + e.getLocalizedMessage();
-              JOptionPane.showMessageDialog(
-                  getApplet().getDialogParentFrame(),
-                  msg,
-                  "Fatal Error",
-                  JOptionPane.ERROR_MESSAGE);
-              monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
->>>>>>> development-8.1.x
             }
 
             // dirty processed nodes
@@ -5618,7 +5584,256 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
   }
 
-<<<<<<< HEAD
+    private boolean isCompareUrl(String urlString) {
+      if (urlString.toLowerCase().contains("sys_compare/compare.html")) {
+        return true;
+      }
+      return false;
+    }
+
+    private void startSwingBrowser() {
+      Platform.runLater(
+          () -> {
+            dceWindow.openChildWindow(mi_actionurl, mi_target, mi_style, mi_selection, action);
+          });
+    }
+
+    @Override
+    public String toString() {
+      return "javascript:showWindow(\""
+          + mi_actionurl
+          + "\",\""
+          + mi_target
+          + "\",\""
+          + mi_style
+          + "\")";
+    }
+
+    private String mi_actionurl = "";
+
+    private String mi_target = "";
+
+    private String mi_style = "";
+
+    private PSMenuAction action;
+
+    private PSSelection mi_selection;
+  }
+
+  /**
+   * Set whenever MainView fires selection change notification, never <code>null</code>, may be
+   * <code>empty</code> before the first tree selection is made.
+   */
+  private String m_navSelectionPath = "";
+
+  /**
+   * Map of all the actions excluding the dynamic menus, initialized in the ctor, never <code>null
+   * </code>, may be empty. It uses an String as the key defined as the url with the mode and
+   * context and returns a <code>
+   * PSAction</code> as the value for each key.
+   */
+  private final Map<String, PSMenuAction> m_actionMap = new HashMap<String, PSMenuAction>();
+
+  /** A reference back to the applet that initiated this action manager. */
+  protected PSContentExplorerApplet m_applet;
+
+  /**
+   * The clip board that supports drag and copy clips, initialized in the ctor and never <code>null
+   * </code> after that. The content of the clip may be modified using this reference object.
+   */
+  private PSClipBoard m_clipBoard;
+
+  /**
+   * The slot definitions are loaded into this map on demand, this will be <code>null</code> until
+   * needed. Never modified after loaded.
+   */
+  private Map<String, List<ContentIdVariantId>> m_slotDefMap;
+
+  /**
+   * The list of action listeners that gets informed when an action is executed, initialized to an
+   * empty list and gets updated through calls to <code>
+   * addActionListener(IPSActionListener)</code>. Never <code>null</code>.
+   */
+  private final List<IPSActionListener> m_actionListeners = new ArrayList<IPSActionListener>();
+
+  /**
+   * Contstant for the name of the resource to execute the server action url. This resource picks
+   * the server action url from the session variable SYS_SERVERACTIONURL and redirects to that url.
+   */
+  private static final String EXECUTE_SERVERACTIONURL =
+      "../sys_cxSupport/executeserveractionurl.html";
+
+  /*
+   * Catalog of display formats. Initilized when the first time this class is
+   * loaded. Never <code>null</code> after that.
+   */
+  private PSDisplayFormatCatalog ms_dfCatalog = null;
+
+  /**
+   * Catalog of server communities. Lazily initilized by the {@link #getCommunityCataloger() } when
+   * it is invoked for the first time. Never <code>null</code> after that.
+   */
+  private PSCommunityCataloger m_communityCataloger = null;
+
+  /**
+   * Catalog of registered locales in the CMS. Lazily initilized by the {@link #getLocaleCataloger()
+   * } when it is invoked for the first time. Never <code>null</code> after that.
+   */
+  private PSLocaleCataloger m_localeCataloger = null;
+
+  /**
+   * Catalog of server roles. Lazily initilized by the {@link #getRoleCataloger() } when it is
+   * invoked for the first time, never <code>null</code> after that.
+   */
+  private PSRoleCataloger m_roleCataloger = null;
+
+  /**
+   * Catalog of server subjects / users. Lazily initilized by the {@link #getSubjectCataloger() }
+   * when it is invoked for the first time, never <code>null</code> after that.
+   */
+  private PSSubjectCataloger m_subjectCataloger = null;
+
+  /**
+   * Catalog of security providers. Lazily initilized by the {@link #getSecurityProviderCataloger()
+   * } when it is invoked for the first time, never <code>null</code> after that.
+   */
+  private PSSecurityProviderCataloger m_securityProviderCataloger = null;
+
+  /**
+   * Catalogs global templates. Lazily initilized by the {@link #getGlobalTemplateCataloger() } when
+   * it is invoked for the first time. Never <code>null</code> after that.
+   */
+  private PSGlobalTemplateCataloger ms_globalTemplateCataloger = null;
+
+  /**
+   * Catalogs site names. Lazily initilized by the {@link #getSiteCataloger() } when it is invoked
+   * for the first time. Never <code>null</code> after that. This member is static because multiple
+   * instances of this class may exist at the same time and changes to one should affect the other.
+   */
+  private PSSiteCataloger ms_siteCataloger = null;
+
+  /**
+   * Map of visibility contexts for each defined menu. Initialized in the ctor, never <code>null
+   * </code> after that.
+   */
+  private Map<String, PSActionVisibilityContexts> m_visibilityContextsMap;
+
+  /**
+   * The remote proxy that is used to make remote requests to the server from this applet to manage
+   * CMS components, initialized in the ctor and never <code>null</code> or modified after that.
+   */
+  private PSComponentProcessorProxy m_componentProxy;
+
+  /**
+   * The remote proxy that is used to make remote requests to the server from this applet,
+   * initialized in the ctor and never <code>null</code> or modified after that.
+   */
+  private PSRelationshipProcessorProxy m_relationshipProxy;
+
+  /**
+   * The remote cataloger to use thorughout this applet instance, initialized in the ctor and never
+   * <code>null</code> or modified after that.
+   */
+  private PSRemoteCataloger m_remCataloger;
+
+  /**
+   * The manager that handles the item relationships, initialized in the ctor and never <code>null
+   * </code> or modified after that.
+   */
+  private PSItemRelationshipsManager m_irsManager = null;
+
+  /**
+   * The manager that handles the actions related folders, initialized in the ctor and never <code>
+   * null</code> or modified after that.
+   */
+  private PSFolderActionManager m_folderMgr = null;
+
+  /**
+   * The manager that handles the actions related to searches and views, initialized in the ctor and
+   * never <code>null</code> or modified after that.
+   */
+  private PSSearchViewActionManager m_searchViewMgr = null;
+
+  /**
+   * Reference to the New Search node. Initialized when the Searh Results loads its child nodes for
+   * the first time. Used to hide until user performs first time search. Initialized when action
+   * manager loads the children of Search Results node for the first time, never <code>null</code>
+   * after that.
+   */
+  private PSNode m_newSearchNode = null;
+
+  /**
+   * Reference to the node that is used to activate a new search request. Initialized when {@link
+   * #loadChildren(PSNode)} is called. May be <code>null</code>, but in general operation shouldn't
+   * be.
+   */
+  private PSNode m_emptySearchNode = null;
+
+  /**
+   * Reference to the Search Results node. Initialized when Root node (hidden) of the Content
+   * Explorer navigation pane loads its child nodes for the first time. Used to manage new search
+   * child node easilty in that we hide it hide until user performs first time search. Initialized
+   * when action manager loads the children of Root node of the Content Explorer navigation pane for
+   * the first time, never <code>null</code> after that.
+   */
+  private PSNode m_searchResultsNode = null;
+
+  /**
+   * List of column names used to load dynamic properties for search nodes. Never <code>null</code>,
+   * no longer used, but left in case we need to reinstitute dynamic menu properties, in which case
+   * it should be populated by the static initializer.
+   */
+  private final List<String> ms_dynColumNames = new ArrayList<String>();
+
+  /**
+   * The community / content type mapper, used to lazily cache the mapper in the current applet
+   * section. Init to <code>null</code>.
+   */
+  private PSCommunityContentTypeMapperCataloger m_commCtMapper = null;
+
+  /**
+   * Cache of dynamic child menu actions where the key is the url and the value is the resulting
+   * action list, never <code>null</code>.
+   */
+  private Map<String, List<PSMenuAction>> m_childMenuCache =
+      new HashMap<String, List<PSMenuAction>>();
+
+  // Static initilizer
+  static {
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_DTITEM, new String[] {ACTION_OPEN});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_ITEM, new String[] {ACTION_EDIT, ACTION_VIEW_CONTENT});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_NEW_SRCH, new String[] {ACTION_EDIT_SEARCH});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_SAVE_SRCH, new String[] {ACTION_EDIT_SEARCH});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_PARENT, new String[] {ACTION_EDIT, ACTION_VIEW_CONTENT});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_CUSTOM_SRCH, new String[] {ACTION_EDIT_SEARCH});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_EMPTY_SRCH, new String[] {ACTION_EDIT_SEARCH});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_STANDARD_SRCH, new String[] {ACTION_EDIT_SEARCH});
+    PSContentExplorerConstants.ms_NodeDefaultActionMap.put(
+        PSNode.TYPE_FOLDER_REF, new String[] {ACTION_OPEN_FOLDER_REF});
+  }
+
+  /**
+   * Set of special parameter names to resolve in the server action URLs. Currently we have only
+   * {@link IPSHtmlParameters#SYS_FOLDERID} and {@link IPSHtmlParameters#SYS_SLOTID}. These special
+   * params are added to the URL based on the following contexts: 1. Drop-Paste, Copy-Paste: Params
+   * are resolved to target Nodes 2. Regular case: Params are resolved to the selection node's
+   * parent.
+   */
+  public static Set<String> ms_specialParams = new HashSet<String>();
+
+  static {
+    ms_specialParams.add(IPSHtmlParameters.SYS_FOLDERID);
+    ms_specialParams.add(IPSHtmlParameters.SYS_SLOTID);
+  }
+
    /**
     * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
     * This provides better integration with the JavaFX-based application.
@@ -5667,15 +5882,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       }
    }
 
-=======
-  /**
-   * Some params we just want to add to the final dyanmic action and not pass through to the request
-   * for templates. This will prevent re-caching results if only these values have changed.
-   */
-  private static final Set<String> PASS_THRU_PARAMS =
-      Collections.unmodifiableSet(
-          new HashSet<String>(Arrays.asList("targetStyle", "target", "launchesWindow")));
->>>>>>> development-8.1.x
 
   public PSSearchConfig getSearchConfig() {
     return m_searchViewMgr.getSearchConfig();
