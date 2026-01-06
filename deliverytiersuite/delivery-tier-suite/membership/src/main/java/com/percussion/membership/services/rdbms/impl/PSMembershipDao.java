@@ -36,13 +36,13 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author jayseletz
  */
-public class PSMembershipDao extends HibernateDaoSupport implements IPSMembershipDao {
+public class PSMembershipDao implements IPSMembershipDao {
 
   private static final Logger log = LogManager.getLogger(PSMembershipDao.class);
 
@@ -77,9 +77,14 @@ public class PSMembershipDao extends HibernateDaoSupport implements IPSMembershi
     return membership;
   }
 
-  private Session getSession() {
+  private final SessionFactory sessionFactory;
 
-    return getSessionFactory().getCurrentSession();
+  public PSMembershipDao(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  private Session getSession() {
+    return sessionFactory.getCurrentSession();
   }
 
   @Override
