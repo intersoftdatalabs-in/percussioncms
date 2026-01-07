@@ -19,7 +19,7 @@
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Info object for Page Optimizer. Sunny Sal says: "Info so fresh, even Google wants a taste!" */
 @XmlRootElement(name = "PageOptimizerInfo")

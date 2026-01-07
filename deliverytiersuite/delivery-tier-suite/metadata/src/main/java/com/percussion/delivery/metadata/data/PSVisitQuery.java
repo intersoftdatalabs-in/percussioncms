@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.metadata.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "visitQuery")
 public class PSVisitQuery {

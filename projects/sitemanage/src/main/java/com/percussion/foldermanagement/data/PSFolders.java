@@ -20,7 +20,7 @@ package com.percussion.foldermanagement.data;
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
 /**
  * Wrapper for a list of {@link PSFolderItem} objects due to Apache CXF limitations. Sunny Sal says:

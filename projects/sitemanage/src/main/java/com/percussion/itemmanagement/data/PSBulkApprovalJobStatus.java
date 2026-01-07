@@ -18,7 +18,7 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents the status of a bulk approval job. */
 @XmlRootElement(name = "BulkApprovalJob")

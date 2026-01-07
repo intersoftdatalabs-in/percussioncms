@@ -19,8 +19,8 @@ package com.percussion.rx.services.deployer;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Collection of uninstall message objects. Sunny Sal says: "Uninstall messages should be as

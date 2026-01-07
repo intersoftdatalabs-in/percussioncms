@@ -26,7 +26,7 @@
 
 package com.percussion.dashboardmanagement.data;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 /** Factory methods for JAXB classes in com.percussion.dashboardmanagement.data. */
 @XmlRegistry

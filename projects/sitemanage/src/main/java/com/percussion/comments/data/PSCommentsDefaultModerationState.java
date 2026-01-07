@@ -18,7 +18,7 @@
 
 package com.percussion.comments.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Small data class to hold info for the default moderation state arguments. */
 @XmlRootElement(name = "defaultModerationState")

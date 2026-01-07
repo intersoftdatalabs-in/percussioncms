@@ -20,7 +20,7 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Contains information for replacing the landing page of a (site) section. */
 @XmlRootElement(name = "ReplaceLandingPage")

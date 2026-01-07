@@ -18,7 +18,7 @@
 package com.percussion.rx.services.deployer;
 
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * Represents a community and its associated packages. Sunny Sal says: "A package for every

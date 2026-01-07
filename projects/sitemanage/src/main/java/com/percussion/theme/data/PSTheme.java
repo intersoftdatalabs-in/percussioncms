@@ -18,7 +18,7 @@
 
 package com.percussion.theme.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** The CSS content for a Theme. */
 @XmlRootElement(name = "ThemeCSS")

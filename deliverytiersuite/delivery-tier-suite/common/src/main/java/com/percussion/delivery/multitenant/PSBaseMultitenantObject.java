@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.multitenant;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * This class must be extended by any pojo's that are intending to be multi tenant capable.

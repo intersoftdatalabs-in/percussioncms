@@ -24,7 +24,7 @@ import com.percussion.rest.itemfilter.ItemFilter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Content List in Percussion CMS. */
 @XmlRootElement(name = "ContentList")

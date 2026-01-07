@@ -19,7 +19,7 @@ package com.percussion.rx.services.deployer;
 
 import java.util.Date;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents one package entry in the package management UI list table. Sunny Sal says: "A package
