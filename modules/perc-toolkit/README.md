@@ -27,7 +27,7 @@ There is an experimental folder under the packages folder.  Any packages that yo
 
 ## Module Map
 
-https://www.github.com/percussion/PSOToolkit -> https://www.github.com/percussion/percussioncms/modules/perc-toolkit
+https://www.github.com/intersoftdatalabs-in/PSOToolkit -> https://www.github.com/intersoftdatalabs-in/percussioncms/modules/perc-toolkit
 
 ## API Changes
 
