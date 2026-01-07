@@ -133,7 +133,7 @@ public class PSItemField extends PSItemComponent {
         throw new IllegalArgumentException("Invalid IPSFieldValue. binary value type expected.");
     } else {
       switch (m_fieldMeta.getBackendDataType()) {
-        // datatype text must be PSXmlValue or PSTextValue:
+          // datatype text must be PSXmlValue or PSTextValue:
         case PSItemFieldMeta.DATATYPE_TEXT:
           if ((!(content instanceof PSTextValue)
               && !(content instanceof PSXmlValue)
@@ -144,12 +144,12 @@ public class PSItemField extends PSItemComponent {
             throw new IllegalArgumentException("Invalid IPSFieldValue - text value expected.");
 
           break;
-        // date must be PSDateValue
+          // date must be PSDateValue
         case PSItemFieldMeta.DATATYPE_DATE:
           if (!(content instanceof PSDateValue))
             throw new IllegalArgumentException("date value type expected.");
           break;
-        // numeric must be PSTextValue (no need to wrap an integer or float):
+          // numeric must be PSTextValue (no need to wrap an integer or float):
         case PSItemFieldMeta.DATATYPE_NUMERIC:
           if (!(content instanceof PSTextValue))
             throw new IllegalArgumentException("text value type expected.");

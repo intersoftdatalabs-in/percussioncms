@@ -19,8 +19,8 @@
 package com.percussion.rest.acls;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema(description = "Principal")

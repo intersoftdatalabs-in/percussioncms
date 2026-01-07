@@ -16,12 +16,13 @@
  */
 package com.percussion.rx.config.test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.IPSPropertySetter;
 import com.percussion.rx.config.impl.PSObjectConfigHandler;
 import com.percussion.rx.config.impl.PSSimplePropertySetter;
 import com.percussion.services.catalog.PSTypeEnum;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +68,8 @@ public class PSSimplePropertySetterTest {
     assertTrue(dObj.getMyStringValue().equals(MY_STR_VALUE));
     assertTrue(dObj.getStringValue().equals(STR_VALUE));
   }
- @Test
+
+  @Test
   public void testAddPropertyDefs() throws Exception {
     MyDesignObject dObj = new MyDesignObject();
 
@@ -83,32 +85,33 @@ public class PSSimplePropertySetterTest {
     Map<String, Object> defs = new HashMap<String, Object>();
     sSetter.addPropertyDefs(dObj, defs);
     assertTrue(
-        defs.isEmpty(),"Expect EMPTY defs since there is no place-holder defined in the properties");
+        defs.isEmpty(),
+        "Expect EMPTY defs since there is no place-holder defined in the properties");
 
     // properties with one NULL property definition
     pmap.put("myStringValue", "${myPrefix.stringVal}");
     sSetter.setProperties(pmap);
     defs.clear();
     sSetter.addPropertyDefs(dObj, defs);
-    assertTrue(defs.size() == 1,"Expect EMPTY 1 def");
+    assertTrue(defs.size() == 1, "Expect EMPTY 1 def");
     Object nullObj = defs.get("myPrefix.stringVal");
-    assertTrue( nullObj == null,"Expect null value");
+    assertTrue(nullObj == null, "Expect null value");
 
     // properties with one none-NULL property definition
     dObj.setMyStringValue("MyValue");
     defs.clear();
     sSetter.addPropertyDefs(dObj, defs);
     String myvalue = (String) defs.get("myPrefix.stringVal");
-    assertTrue(myvalue.equals("MyValue"),"Expect MyValue");
+    assertTrue(myvalue.equals("MyValue"), "Expect MyValue");
 
     // properties with 1 FIX_ME property definition
     pmap.put("myStringValue", "${myPrefix.stringVal} abc");
     sSetter.setProperties(pmap);
     defs.clear();
     sSetter.addPropertyDefs(dObj, defs);
-    assertTrue(defs.size() == 1,"Expect EMPTY 1 def");
+    assertTrue(defs.size() == 1, "Expect EMPTY 1 def");
     myvalue = (String) defs.get("myPrefix.stringVal");
-    assertTrue(myvalue.equals(PSSimplePropertySetter.FIX_ME),"Expect FIXME");
+    assertTrue(myvalue.equals(PSSimplePropertySetter.FIX_ME), "Expect FIXME");
 
     // properties with 2 property definitions
     pmap.put("myStringValue", "${myPrefix.stringVal} abc ${myPrefix.stringVal_2}");
@@ -117,12 +120,12 @@ public class PSSimplePropertySetterTest {
     sSetter.addPropertyDefs(dObj, defs);
 
     // validate "defs"
-    assertTrue(defs.size() == 2,"Expect EMPTY 2 def");
+    assertTrue(defs.size() == 2, "Expect EMPTY 2 def");
     for (String k : defs.keySet()) {
       assertTrue(k.equals("myPrefix.stringVal") || k.equals("myPrefix.stringVal_2"));
 
       myvalue = (String) defs.get(k);
-      assertTrue(myvalue.equals(PSSimplePropertySetter.FIX_ME),"Expect value = \"FIXME\"");
+      assertTrue(myvalue.equals(PSSimplePropertySetter.FIX_ME), "Expect value = \"FIXME\"");
     }
 
     // properties with 1 inner property definitions
@@ -135,9 +138,9 @@ public class PSSimplePropertySetterTest {
     sSetter.addPropertyDefs(dsObj, defs);
 
     // validate "defs"
-    assertTrue(defs.size() == 1,"Expect EMPTY 1 def");
+    assertTrue(defs.size() == 1, "Expect EMPTY 1 def");
     myvalue = (String) defs.get("myPrefix.stringVal");
-    assertTrue(myvalue.equals("MyInnerStringValue"),"Expect value = \"MyInnerStringValue\"");
+    assertTrue(myvalue.equals("MyInnerStringValue"), "Expect value = \"MyInnerStringValue\"");
 
     // properties with 1 string property & 2 inner property definitions
     pmap.clear();
@@ -151,7 +154,7 @@ public class PSSimplePropertySetterTest {
     sSetter.addPropertyDefs(dsObj, defs);
 
     // validate "defs"
-    assertTrue(defs.size() == 3,"Expect EMPTY 3 def");
+    assertTrue(defs.size() == 3, "Expect EMPTY 3 def");
   }
 
   /**
@@ -234,9 +237,9 @@ public class PSSimplePropertySetterTest {
     // perform the test
     try {
       h.process(dObj, ObjectState.BOTH, null);
-      assertTrue(false,"Should fail on null child object");
+      assertTrue(false, "Should fail on null child object");
     } catch (Exception e) {
-      assertTrue(true,"Caught the null child object");
+      assertTrue(true, "Caught the null child object");
     }
   }
 

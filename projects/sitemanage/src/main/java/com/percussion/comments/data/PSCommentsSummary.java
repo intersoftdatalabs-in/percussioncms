@@ -20,7 +20,7 @@ package com.percussion.comments.data;
 
 import com.percussion.itemmanagement.data.IPSEditableItem;
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a summary of comments for a page. */
 @XmlRootElement(name = "commentsSummary")

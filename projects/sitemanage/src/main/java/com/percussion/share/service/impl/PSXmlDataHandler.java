@@ -21,12 +21,12 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.service.impl.jaxb.Data;
 import com.percussion.share.service.impl.jaxb.Response;
-import jakarta.xml.bind.JAXBContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.JAXBContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

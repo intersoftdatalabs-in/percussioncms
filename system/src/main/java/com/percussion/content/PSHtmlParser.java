@@ -180,9 +180,9 @@ public class PSHtmlParser {
         finishText();
         break;
       case ST_ONATVAL:
-      // allow <TAG ATTR=foo<bar>
-      //                    ^
-      // fall through
+        // allow <TAG ATTR=foo<bar>
+        //                    ^
+        // fall through
       case ST_ONQATVAL:
         // this is not technically allowed (it should be
         // escaped as &lt; even in attribute values), but
@@ -217,9 +217,9 @@ public class PSHtmlParser {
   private void handleGT() {
     switch (m_lexState) {
       case ST_SAWTAGNAME:
-      // allow <TAG >
-      //            ^
-      // fall through
+        // allow <TAG >
+        //            ^
+        // fall through
       case ST_ONTAGNAME:
         // allow <TAG>
         //           ^
@@ -253,8 +253,8 @@ public class PSHtmlParser {
         // finishProcInt();
         break;
       case ST_SAWATVAL_SEP:
-      // allow <TAG ATTR=>
-      // fall through
+        // allow <TAG ATTR=>
+        // fall through
       case ST_ONATVAL:
         // allow <TAG ATTR=FOO>    and    <TAG ATTR="FOO">
         //                    ^                          ^
@@ -312,9 +312,9 @@ public class PSHtmlParser {
         finishAtName();
         break;
       case ST_ONATVAL:
-      // allow <TAG ATTR=foo=bar baz=bar>
-      //                    ^
-      // fall through
+        // allow <TAG ATTR=foo=bar baz=bar>
+        //                    ^
+        // fall through
       case ST_ONQATVAL:
         // allow <TAG ATTR="aaaaa=aaaa">
         //                       ^
@@ -357,8 +357,8 @@ public class PSHtmlParser {
       case ST_SAWCLOSETAG:
         // handle <FOO>!</BAR>
         m_lexState = ST_ONTEXT;
-      // fall through
-      // CHECKSTYLE:OFF
+        // fall through
+        // CHECKSTYLE:OFF
       case ST_ONCOMMENT:
       case ST_ONQATVAL:
       case ST_ONTEXT:
@@ -417,8 +417,8 @@ public class PSHtmlParser {
       case ST_SAWCLOSETAG:
         // allow <foo>-
         m_lexState = ST_ONTEXT;
-      // fall through
-      // CHECKSTYLE:OFF
+        // fall through
+        // CHECKSTYLE:OFF
       default:
         // CHECKSTYLE:ON
         accumulate('-');
@@ -457,10 +457,10 @@ public class PSHtmlParser {
         m_quote = c;
         break;
       case ST_SAWATVAL:
-      // Fall through -- this means we forgive things like
-      // <A HREF="foo"">
-      //              ^
-      // because we ignore any number of extra quotes at the end.
+        // Fall through -- this means we forgive things like
+        // <A HREF="foo"">
+        //              ^
+        // because we ignore any number of extra quotes at the end.
       case ST_SAWATVAL_QUOTE:
         m_lexState = ST_SAWATVAL;
         break;
@@ -996,8 +996,8 @@ public class PSHtmlParser {
       }
       c = chars[i];
       switch (c) {
-        // for now we ignore ampersands because they could
-        // signal the start of entity reference
+          // for now we ignore ampersands because they could
+          // signal the start of entity reference
         case '<':
           if (startNormal != i) out.write(chars, startNormal, i - startNormal);
           startNormal = i + 1;
@@ -1019,8 +1019,8 @@ public class PSHtmlParser {
           out.write("&quot;");
           break;
         case '\n':
-        // fall through to the \t case, because
-        // we replace both \t and \n with a space
+          // fall through to the \t case, because
+          // we replace both \t and \n with a space
         case '\t':
           if (startNormal != i) out.write(chars, startNormal, i - startNormal);
           startNormal = i + 1;

@@ -15,5 +15,5 @@
  * limitations under the License.
  */
 
-@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://DEA.EMS.API.Web.Service/", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://DEA.EMS.API.Web.Service/", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package service.web.api.ems.dea;

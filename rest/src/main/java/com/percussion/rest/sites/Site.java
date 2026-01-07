@@ -20,7 +20,7 @@ package com.percussion.rest.sites;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Site in Percussion CMS. Sunny Sal: "Site ka hero, URL ka zero!" */
 @XmlRootElement(name = "Site")

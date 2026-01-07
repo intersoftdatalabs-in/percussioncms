@@ -210,73 +210,67 @@ public class GenericLinkbackController extends AbstractController {
     this.linkbackCodec = linkbackCodec;
   }
 
-    /**
-     * @return the linkbackParameterName
-     */
-    public String getLinkbackParameterName() {
-        return linkbackParameterName;
-    }
+  /**
+   * @return the linkbackParameterName
+   */
+  public String getLinkbackParameterName() {
+    return linkbackParameterName;
+  }
 
-    /**
-     * @param linkbackParameterName
-     *            the linkbackParameterName to set
-     */
-    public void setLinkbackParameterName(String linkbackParameterName) {
-        this.linkbackParameterName = linkbackParameterName;
-    }
+  /**
+   * @param linkbackParameterName the linkbackParameterName to set
+   */
+  public void setLinkbackParameterName(String linkbackParameterName) {
+    this.linkbackParameterName = linkbackParameterName;
+  }
 
-    /**
-     * @return the requiredParameterNames
-     */
-    public List<String> getRequiredParameterNames() {
-        return requiredParameterNames;
-    }
+  /**
+   * @return the requiredParameterNames
+   */
+  public List<String> getRequiredParameterNames() {
+    return requiredParameterNames;
+  }
 
-    /**
-     * @param requiredParameterNames
-     *            the requiredParameterNames to set
-     */
-    public void setRequiredParameterNames(List<String> requiredParameterNames) {
-        this.requiredParameterNames = requiredParameterNames;
-    }
+  /**
+   * @param requiredParameterNames the requiredParameterNames to set
+   */
+  public void setRequiredParameterNames(List<String> requiredParameterNames) {
+    this.requiredParameterNames = requiredParameterNames;
+  }
 
-    /**
-     * @return the optionalParameterNames
-     */
-    public List<String> getOptionalParameterNames() {
-        return optionalParameterNames;
-    }
+  /**
+   * @return the optionalParameterNames
+   */
+  public List<String> getOptionalParameterNames() {
+    return optionalParameterNames;
+  }
 
-    /**
-     * @param optionalParameterNames
-     *            the optionalParameterNames to set
-     */
-    public void setOptionalParameterNames(List<String> optionalParameterNames) {
-        this.optionalParameterNames = optionalParameterNames;
-    }
+  /**
+   * @param optionalParameterNames the optionalParameterNames to set
+   */
+  public void setOptionalParameterNames(List<String> optionalParameterNames) {
+    this.optionalParameterNames = optionalParameterNames;
+  }
 
-    /**
-     * @return the additionalParameters
-     */
-    public Map<String, String> getAdditionalParameters() {
-        return additionalParameters;
-    }
+  /**
+   * @return the additionalParameters
+   */
+  public Map<String, String> getAdditionalParameters() {
+    return additionalParameters;
+  }
 
-    /**
-     * @param additionalParameters
-     *            the additionalParameters to set
-     */
-    public void setAdditionalParameters(Map<String, String> additionalParameters) {
-        this.additionalParameters = additionalParameters;
-    }
+  /**
+   * @param additionalParameters the additionalParameters to set
+   */
+  public void setAdditionalParameters(Map<String, String> additionalParameters) {
+    this.additionalParameters = additionalParameters;
+  }
 
-    
-    public String getErrorViewName() {
-        return errorViewName;
-    }
+  public String getErrorViewName() {
+    return errorViewName;
+  }
 
-    
-    public void setErrorViewName(String errorViewName) {
-        this.errorViewName = errorViewName;
-    }
+  public void setErrorViewName(String errorViewName) {
+    this.errorViewName = errorViewName;
+  }
 }

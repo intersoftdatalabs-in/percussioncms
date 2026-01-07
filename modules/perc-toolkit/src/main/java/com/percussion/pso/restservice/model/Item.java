@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 
 /**
  * Collection of package objects.

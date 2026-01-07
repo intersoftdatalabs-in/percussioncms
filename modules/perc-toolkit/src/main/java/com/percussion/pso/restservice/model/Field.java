@@ -17,7 +17,7 @@
 package com.percussion.pso.restservice.model;
 
 import java.util.List;
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 
 /** */
 @XmlRootElement

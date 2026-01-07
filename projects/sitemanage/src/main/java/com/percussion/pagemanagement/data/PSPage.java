@@ -18,8 +18,6 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.service.IPSLinkableItem;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotNull;
 

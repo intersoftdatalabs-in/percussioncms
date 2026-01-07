@@ -17,11 +17,11 @@
  */
 package com.percussion.rx.services.deployer;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Collection of package objects. Sunny Sal says: "A package collection is like a playlist—keep it

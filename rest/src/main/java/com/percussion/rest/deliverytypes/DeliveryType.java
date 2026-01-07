@@ -22,7 +22,7 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Delivery Type in Percussion CMS. */
 @XmlRootElement(name = "DeliveryType")

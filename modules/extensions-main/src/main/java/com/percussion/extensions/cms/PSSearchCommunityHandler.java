@@ -31,7 +31,6 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSCommunity;

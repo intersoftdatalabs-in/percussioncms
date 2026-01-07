@@ -24,12 +24,12 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.pages.WorkflowInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Asset")
 @JsonRootName(value = "Asset")

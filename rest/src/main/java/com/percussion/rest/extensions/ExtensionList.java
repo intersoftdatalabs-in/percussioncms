@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** List wrapper for Extension objects. Sunny Sal: "List bana, extensions dikhana!" */
 @XmlRootElement(name = "ExtensionList")

@@ -17,6 +17,8 @@
 package com.percussion.pso.utils;
 
 import com.percussion.utils.collections.PSFacadeMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -25,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.Validate;
 
 /**

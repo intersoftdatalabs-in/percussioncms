@@ -23,7 +23,7 @@ Download links are available on the project [Releases page](https://github.com/i
 
 * [Intersoft Data Labs](https://www.intsof.com) will offer commercial support for Percussion CMS since July 2023.
 
- [Percussion](https://www.percussion.com) ended support for Percussion CMS products in June 2023.
+[Percussion](https://www.percussion.com) ended support for Percussion CMS products in June 2023.
 
 ## I was a Percussion customer, is this where I download updates?
 
@@ -34,31 +34,37 @@ Yes.  The latest release will be featured in the [Releases page](https://github.
 This project requires JDK 21 for building and running. The build uses Maven toolchains to ensure compatibility.
 
 ### Prerequisites
+
 - JDK 21 installed on your system.
 - Set the `JAVA_HOME_21` environment variable to the path of your JDK 21 installation.
 
 ### Environment Setup Scripts
+
 To ensure Maven uses JDK 21, use the provided environment setup scripts instead of running `mvn` directly. These scripts set `JAVA_HOME` to `JAVA_HOME_21` and run Maven.
 
 #### Linux/macOS
+
 1. Set `JAVA_HOME_21` in your shell profile (e.g., `~/.bashrc` or `~/.zshrc`):
+
    ```bash
    export JAVA_HOME_21=/path/to/jdk-21
    ```
+
    - Linux example: `export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk-amd64`
    - macOS example: `export JAVA_HOME_21=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home`
-
 2. Run Maven commands using the script:
+
    ```bash
    ./mvn-env.sh clean install
    ```
 
 #### Windows
+
 1. Set `JAVA_HOME_21` as an environment variable:
    - Open System Properties > Environment Variables.
    - Add a new user variable `JAVA_HOME_21` with value `C:\path\to\jdk-21` (e.g., `C:\Program Files\Java\jdk-21`).
-
 2. Run Maven commands using the script:
+
    ```batch
    mvn-env.bat clean install
    ```

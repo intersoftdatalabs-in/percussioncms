@@ -39,6 +39,7 @@ public class TaxValues extends ArrayList<String> {
   public boolean isMultiValued() {
     return this.size() > 1;
   }
+
   public String join(String delim) {
     return StringUtils.join(this, delim);
   }

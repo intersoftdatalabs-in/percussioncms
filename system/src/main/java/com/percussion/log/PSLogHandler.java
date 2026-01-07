@@ -225,12 +225,12 @@ public class PSLogHandler {
           write = isErrorLoggingEnabled();
           break;
         case 2: // server start
-        // fall through
+          // fall through
         case 3: // server stop
           write = isServerStartStopLoggingEnabled();
           break;
         case 4: // application start
-        // fall through
+          // fall through
         case 5: // application stop
           write = isAppStartStopLoggingEnabled();
           break;

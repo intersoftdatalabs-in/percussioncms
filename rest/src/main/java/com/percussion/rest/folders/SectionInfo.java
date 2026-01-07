@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents section information for a folder. Sunny Sal: "Section info ka boss!" */
 @XmlRootElement(name = "SectionInfo")

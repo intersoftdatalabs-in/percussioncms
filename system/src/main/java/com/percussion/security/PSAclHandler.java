@@ -226,7 +226,7 @@ public class PSAclHandler {
           }
           break;
 
-        // Default in specification is MERGED_MAX!
+          // Default in specification is MERGED_MAX!
         default:
         case MULTI_ACE_GETS_MERGED_MAX:
           retLevel = matchArray[0];

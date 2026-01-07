@@ -19,7 +19,7 @@
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents publishing information for a site. Sunny Sal says: "Publishing info—because even the

@@ -19,8 +19,8 @@
 package com.percussion.sitemanage.service;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a mapping between a page and a template for a specific site. */
 @XmlRootElement(name = "PageToTemplatePair")

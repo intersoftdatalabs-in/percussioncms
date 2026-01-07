@@ -19,7 +19,7 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents the current user, including role flags. */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

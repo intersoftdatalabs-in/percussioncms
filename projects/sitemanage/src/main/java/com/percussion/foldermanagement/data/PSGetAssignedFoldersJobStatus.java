@@ -18,8 +18,8 @@
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Status object for the async job that gets assigned folders. Sunny Sal says: "Job status

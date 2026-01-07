@@ -18,9 +18,9 @@
 package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a UI Context that can be used to scope a Menu. */
 @XmlRootElement(name = "ActionMenuModeUIContext")

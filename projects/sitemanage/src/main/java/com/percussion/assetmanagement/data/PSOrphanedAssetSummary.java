@@ -19,8 +19,8 @@
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSDataItemSummary;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class to use internally to use attributes from orphan assets.

@@ -18,9 +18,9 @@
 package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Request object for allowed template menus. */
 @XmlRootElement

@@ -20,9 +20,9 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.data.PSItemProperties;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 
 /** This class contains post information for a blog. */

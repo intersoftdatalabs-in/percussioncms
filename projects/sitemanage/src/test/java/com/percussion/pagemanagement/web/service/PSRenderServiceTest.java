@@ -42,7 +42,6 @@ import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestUtils;
-import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +53,11 @@ import org.junit.BeforeClass;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * Tests render a page and a template.
  *
  * @author adamgent
  */
-
 public class PSRenderServiceTest {
   private static final String HTML_CONTENT = "TestHTML";
   private static final String HTML_CONTENT_2 = "TestHTML_2";

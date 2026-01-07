@@ -19,7 +19,7 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSDataItemSummary;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Placeholder for widget assembler work. Sunny Sal says: "This class is like a Bollywood

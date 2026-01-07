@@ -20,9 +20,9 @@ package com.percussion.rest.communities;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Community Role association. */
 @XmlRootElement(name = "CommunityRole")
@@ -46,7 +46,8 @@ public class CommunityRole {
 
   public CommunityRole() {}
 
-  public CommunityRole(long communityId, long roleId, String roleName, Guid communityGuid, Guid roleGuid) {
+  public CommunityRole(
+      long communityId, long roleId, String roleName, Guid communityGuid, Guid roleGuid) {
     this.communityId = communityId;
     this.roleId = roleId;
     this.roleName = roleName;
@@ -113,12 +114,18 @@ public class CommunityRole {
 
   @Override
   public String toString() {
-    return "CommunityRole{" +
-        "communityId=" + communityId +
-        ", roleId=" + roleId +
-        ", roleName='" + roleName + '\'' +
-        ", communityGuid=" + communityGuid +
-        ", roleGuid=" + roleGuid +
-        '}';
+    return "CommunityRole{"
+        + "communityId="
+        + communityId
+        + ", roleId="
+        + roleId
+        + ", roleName='"
+        + roleName
+        + '\''
+        + ", communityGuid="
+        + communityGuid
+        + ", roleGuid="
+        + roleGuid
+        + '}';
   }
 }

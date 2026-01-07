@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.restservice.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlAttribute;
 
 /** */
 public class Relationship extends ItemRef {

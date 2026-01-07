@@ -17,8 +17,8 @@
 
 package com.percussion.contentmigration.service.impl;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Response object for content migration. */
 @XmlRootElement(name = "MigrateResponse")

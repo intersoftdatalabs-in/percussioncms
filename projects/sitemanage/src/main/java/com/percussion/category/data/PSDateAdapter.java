@@ -18,10 +18,10 @@
 
 package com.percussion.category.data;
 
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /** JAXB adapter for serializing/deserializing LocalDateTime as ISO-8601 strings. */
 public class PSDateAdapter extends XmlAdapter<String, LocalDateTime> {

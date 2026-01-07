@@ -17,9 +17,9 @@
  */
 package com.percussion.pagemanagement.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an empty page used for template layout mode. Implements the Null Object pattern.

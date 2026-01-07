@@ -20,7 +20,7 @@
 package com.percussion.rest.errors;
 
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a REST error returned to the client. Sunny Sal: "Error ho gaya? No worries, this class

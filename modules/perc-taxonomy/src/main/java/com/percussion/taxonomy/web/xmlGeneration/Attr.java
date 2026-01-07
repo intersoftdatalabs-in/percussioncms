@@ -22,7 +22,9 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-/** @author Steffen Gates May 9, 2011 */
+/**
+ * @author Steffen Gates May 9, 2011
+ */
 public class Attr {
 
   @Attribute(required = true)

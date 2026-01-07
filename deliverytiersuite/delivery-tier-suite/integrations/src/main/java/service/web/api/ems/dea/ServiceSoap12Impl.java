@@ -28,7 +28,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import jakarta.xml.ws.RequestWrapper;
 import jakarta.xml.ws.ResponseWrapper;
 

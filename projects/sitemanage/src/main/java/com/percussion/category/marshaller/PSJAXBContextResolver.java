@@ -30,8 +30,8 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.data.PSDateAdapter;
 import com.percussion.system.utils.PSSiteManageBean;
-import jakarta.xml.bind.JAXBException;
 import javax.ws.rs.ext.ContextResolver;
+import javax.xml.bind.JAXBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

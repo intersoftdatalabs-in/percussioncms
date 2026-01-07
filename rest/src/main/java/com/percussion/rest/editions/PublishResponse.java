@@ -20,7 +20,7 @@ package com.percussion.rest.editions;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Stores the information returned from a publish request.
