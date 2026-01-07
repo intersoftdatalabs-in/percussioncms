@@ -190,7 +190,7 @@
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
-        <mssql.version>13.3.0.jre8-preview</mssql.version>
+        <mssql.version>13.3.0.jre11-preview</mssql.version>
         <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
