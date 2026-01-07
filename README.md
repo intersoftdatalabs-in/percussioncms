@@ -21,16 +21,17 @@ Our goal is to empower the developer and the marketer. Smart architecture, smart
 
 ## How do I get it?
 
-Download links are available on the project [Releases page](https://github.com/percussion/percussioncms/releases)
+Download links are available on the project [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases)
 
 ### Commercial Providers
 
-* [Percussion](https://www.percussion.com) will offer commercial support for Percussion CMS through June 2023.
-* [Intersoft Data Labs](https://www.intsof.com) will offer commercial support for Percussion CMS starting in July 2023.
+* [Intersoft Data Labs](https://www.intsof.com) will offer commercial support for Percussion CMS since July 2023.
+
+[Percussion](https://www.percussion.com) ended support for Percussion CMS products in June 2023.
 
 ## I was a Percussion customer, is this where I download updates?
 
-Yes.  The latest release will be featured in the [Releases page](https://github.com/percussion/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has beene re-homed to https://percussioncmshelp.intsof.com.
+Yes.  The latest release will be featured in the [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has beene re-homed to https://percussioncmshelp.intsof.com.
 
 ## Development Setup
 
@@ -79,32 +80,67 @@ Yes.  The latest release will be featured in the [Releases page](https://github.
    ```
 3. Verify with `java -version`.
 
+### Environment Setup Scripts
+
+To ensure Maven uses JDK 8, use the provided environment setup scripts instead of running `mvnw` directly. These scripts set `JAVA_HOME` to `JAVA_HOME_8` and run Maven.
+
+#### Linux/macOS
+
+1. Set `JAVA_HOME_8` in your shell profile (e.g., `~/.bashrc` or `~/.zshrc`):
+
+   ```bash
+   export JAVA_HOME_8=/path/to/jdk-8
+   ```
+
+   - Linux example: `export JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-amazon-corretto`
+   - macOS example: `export JAVA_HOME_8=/Library/Java/JavaVirtualMachines/jdk-1.8.jdk/Contents/Home`
+
+2. Run Maven commands using the script:
+
+   ```bash
+   ./mvn-env.sh clean install
+   ```
+
+#### Windows
+
+1. Set `JAVA_HOME_8` as an environment variable:
+   - Open System Properties > Environment Variables.
+   - Add a new user variable `JAVA_HOME_8` with value `C:\path\to\jdk-8` (e.g., `C:\Program Files\Java\jdk-8`).
+
+2. Run Maven commands using the script:
+
+   ```batch
+   mvn-env.bat clean install
+   ```
+
+If `JAVA_HOME_8` is not set or invalid, the script will display an error message with setup instructions.
+
 ### Building the Project
 
-This project uses the Maven Wrapper (`mvnw`), which ensures the correct Maven version is used.
+This project uses the Maven Wrapper (`mvnw`), which ensures the correct Maven version is used. To ensure JDK 8 is used, use the environment setup scripts.
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/percussion/percussioncms.git
+   git clone https://github.com/intersoftdatalabs-in/percussioncms.git
    cd percussioncms
    ```
 2. Build the project:
    * **Linux/macOS**:
 
      ```bash
-     ./mvnw clean install
+     ./mvn-env.sh clean install
      ```
    * **Windows**:
 
-     ```cmd
-     mvnw.cmd clean install
+     ```batch
+     mvn-env.bat clean install
      ```
 
    To skip tests (for a faster build):
 
    ```bash
-   ./mvnw clean install -DskipTests
+   ./mvn-env.sh clean install -DskipTests
    ```
 
 ### Installing the Application
@@ -173,5 +209,5 @@ To stop the server, use `stop.sh` (Linux/macOS) or `stop.bat` (Windows) in the s
 
 ## Interested in Contributing?
 
-Check out our [Contributor Page](https://github.com/percussion/percussioncms/blob/development/CONTRIBUTING.md) for more information.
+Check out our [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md) for more information.
 
