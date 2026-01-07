@@ -68,8 +68,8 @@ public class PSBrowserDetect implements Filter {
    * BrowserDetection Filter Detects which browser a user is running. If the browser is IE and it is
    * not version 8, 9, 10, or 11 they get a warning.
    *
-   * @see jakarta.servlet.Filter#doFilter(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse,
-   *     jakarta.servlet.FilterChain)
+   * @see jakarta.servlet.Filter#doFilter(jakarta.servlet.ServletRequest,
+   *     jakarta.servlet.ServletResponse, jakarta.servlet.FilterChain)
    */
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

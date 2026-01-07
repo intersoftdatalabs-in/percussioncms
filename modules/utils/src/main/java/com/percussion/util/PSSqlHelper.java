@@ -566,9 +566,9 @@ public class PSSqlHelper {
 
             break;
 
-          // case Types.BINARY:
-          // case Types.VARBINARY:
-          // case Types.LONGVARBINARY:
+            // case Types.BINARY:
+            // case Types.VARBINARY:
+            // case Types.LONGVARBINARY:
           default:
             /* if it's a binary data type it must be a binary stream.
              * For any other data type, we'll also treat the file as a
