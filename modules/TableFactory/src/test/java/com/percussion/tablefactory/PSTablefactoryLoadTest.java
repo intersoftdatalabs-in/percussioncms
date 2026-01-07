@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.file.Path;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import org.apache.commons.io.FileUtils;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.logging.log4j.LogManager;
@@ -118,7 +120,20 @@ public class PSTablefactoryLoadTest {
       // Reset the deploy dir property if it was set prior to test
       if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
 
-      server.shutdown();
+      // Shut down the Derby network server
+      if (server != null) {
+        server.shutdown();
+      }
+
+      // Shut down the Derby database
+      try {
+        DriverManager.getConnection("jdbc:derby://localhost:1529/CMDB;shutdown=true");
+      } catch (SQLException e) {
+        // XJ015 is the expected SQL state for successful shutdown
+        if (!"XJ015".equals(e.getSQLState())) {
+          log.error("Error shutting down Derby database", e);
+        }
+      }
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
