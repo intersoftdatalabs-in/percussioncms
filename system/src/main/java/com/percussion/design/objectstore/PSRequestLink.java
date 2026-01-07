@@ -417,13 +417,13 @@ public class PSRequestLink extends PSComponent implements IPSResults {
 
     switch (m_requestType) {
       case RL_TYPE_NONE:
-        // fall through
+      // fall through
       case RL_TYPE_QUERY:
-        // fall through
+      // fall through
       case RL_TYPE_INSERT:
-        // fall through
+      // fall through
       case RL_TYPE_UPDATE:
-        // fall through
+      // fall through
       case RL_TYPE_DELETE:
         // ok
         break;

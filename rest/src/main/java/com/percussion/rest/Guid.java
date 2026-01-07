@@ -20,9 +20,9 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.services.guidmgr.data.PSGuid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Guid")
 @JsonInclude(JsonInclude.Include.NON_NULL)

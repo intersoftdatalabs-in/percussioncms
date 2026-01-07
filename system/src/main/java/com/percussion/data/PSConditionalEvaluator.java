@@ -1034,12 +1034,12 @@ public class PSConditionalEvaluator {
         result = compareNulls(opCode);
         break;
 
-        // case PSDataConverter.DATATYPE_BINARY:
-        // case PSDataConverter.DATATYPE_UNKNOWN:
-        // case PSDataConverter.DATATYPE_NUMERICSET:
-        // case PSDataConverter.DATATYPE_DATESET:
-        // case PSDataConverter.DATATYPE_TEXTSET:
-        // case PSDataConverter.DATATYPE_BINARYSET:
+      // case PSDataConverter.DATATYPE_BINARY:
+      // case PSDataConverter.DATATYPE_UNKNOWN:
+      // case PSDataConverter.DATATYPE_NUMERICSET:
+      // case PSDataConverter.DATATYPE_DATESET:
+      // case PSDataConverter.DATATYPE_TEXTSET:
+      // case PSDataConverter.DATATYPE_BINARYSET:
       default:
         Object[] args = {left.getClass().getName(), right.getClass().getName()};
         throw new PSEvaluationException(IPSDataErrors.TYPE_COMPARISON_UNSUPPORTED, args);

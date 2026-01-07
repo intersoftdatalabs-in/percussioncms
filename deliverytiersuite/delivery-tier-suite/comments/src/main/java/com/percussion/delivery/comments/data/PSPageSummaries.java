@@ -17,11 +17,11 @@
  */
 package com.percussion.delivery.comments.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple container. Its use is just to add a root element name for Jersey to spit out when

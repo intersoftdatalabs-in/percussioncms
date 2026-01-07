@@ -18,10 +18,10 @@
 package com.percussion.widgetbuilder.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a collection of validation results for a widget builder definition. */
 @XmlRootElement(name = "WidgetBuilderValidationResults")

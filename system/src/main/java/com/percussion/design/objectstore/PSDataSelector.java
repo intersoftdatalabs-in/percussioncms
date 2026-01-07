@@ -814,7 +814,7 @@ public class PSDataSelector extends PSComponent {
         case DS_CACHE_TYPE_INTERVAL:
           break; // ok
         case DS_CACHE_TYPE_TIME:
-          // fall through
+        // fall through
         case DS_CACHE_TYPE_TIME_INTERVAL:
           // we need a cache age time if we cache by time or time+interval
           if (null == m_cacheAgeTime) {

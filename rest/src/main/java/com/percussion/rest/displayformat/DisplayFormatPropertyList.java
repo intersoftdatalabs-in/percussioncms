@@ -21,10 +21,10 @@ package com.percussion.rest.displayformat;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /** List wrapper for DisplayFormatProperty. */
 @XmlRootElement(name = "DisplayFormatPropertyList")

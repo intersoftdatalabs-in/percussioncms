@@ -20,9 +20,9 @@ package com.percussion.rest.contenttypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Content Type in Percussion CMS. */
 @XmlRootElement(name = "ContentType")

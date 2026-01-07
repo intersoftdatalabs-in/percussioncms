@@ -20,10 +20,10 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents Calendar information. Sunny Sal: "Calendar ka hero, date ka zero!" */
 @XmlRootElement(name = "CalendarInfo")

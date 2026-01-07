@@ -20,9 +20,9 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.exception.PSDataServiceException;
+import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.*;
 
 /**
  * A {@link PSResourceDefinitionGroup} is a grouping of {@link PSResourceDefinition}s. The grouping

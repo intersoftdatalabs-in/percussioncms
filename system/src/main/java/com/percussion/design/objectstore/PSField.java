@@ -984,8 +984,8 @@ public class PSField extends PSComponent {
         if (scale > 0) {
           break;
         }
-        // else fall thru
-        // CHECKSTYLE:OFF
+      // else fall thru
+      // CHECKSTYLE:OFF
       case Types.BIGINT:
       case Types.INTEGER:
       case Types.SMALLINT:
@@ -1073,18 +1073,18 @@ public class PSField extends PSComponent {
   public static String getActualDataTypeForJdbcType(int jdbcType, int scale) {
     String actualType = "";
     switch (jdbcType) {
-        /*
-         * these are tricky because they can represent ints or floats, we
-         * assume type int. In general, if Rx uses these types, it is as int.
-         */
+      /*
+       * these are tricky because they can represent ints or floats, we
+       * assume type int. In general, if Rx uses these types, it is as int.
+       */
       case Types.NUMERIC:
       case Types.DECIMAL:
         if (scale > 0) {
           actualType = DT_FLOAT;
           break;
         }
-        // else fall thru
-        // CHECKSTYLE:OFF
+      // else fall thru
+      // CHECKSTYLE:OFF
       case Types.BIGINT:
       case Types.INTEGER:
       case Types.SMALLINT:
