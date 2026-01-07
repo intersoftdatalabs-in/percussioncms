@@ -21,8 +21,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                     <verbose>true</verbose>
 
                 </configuration>
