@@ -19,7 +19,7 @@ package com.percussion.widgetbuilder.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a single widget field definition. */
 @XmlRootElement(name = "WidgetBuilderFieldData")

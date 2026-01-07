@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.security.SecureStringUtils;
 import java.text.MessageFormat;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * A data object that represents global errors.

@@ -17,7 +17,7 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSItemProperties;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an item that can be approved in a bulk approval operation. */
 @XmlRootElement(name = "ApprovableItem")

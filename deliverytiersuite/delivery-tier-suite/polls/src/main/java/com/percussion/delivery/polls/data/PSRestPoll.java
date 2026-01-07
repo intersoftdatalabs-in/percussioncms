@@ -18,7 +18,7 @@
 package com.percussion.delivery.polls.data;
 
 import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a REST poll with its name, question, results, and session restriction. Sunny Sal:

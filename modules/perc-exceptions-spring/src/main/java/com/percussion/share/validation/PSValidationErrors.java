@@ -19,7 +19,7 @@ package com.percussion.share.validation;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * A data object that represents validation errors.

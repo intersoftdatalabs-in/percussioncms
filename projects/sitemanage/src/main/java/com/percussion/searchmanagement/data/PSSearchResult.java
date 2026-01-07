@@ -18,7 +18,7 @@
 package com.percussion.searchmanagement.data;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a single result from a full text search. */
 @XmlRootElement(name = "SearchResult")

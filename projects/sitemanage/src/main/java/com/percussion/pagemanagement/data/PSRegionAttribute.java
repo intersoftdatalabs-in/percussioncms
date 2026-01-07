@@ -18,8 +18,8 @@
 package com.percussion.pagemanagement.data;
 
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an attribute for a region (e.g., HTML attribute). */
 @XmlRootElement(name = "RegionAttribute")

@@ -33,7 +33,7 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
 
 /**
