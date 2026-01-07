@@ -22,10 +22,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import com.percussion.rest.locationscheme.LocationScheme;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a publishing Context in Percussion CMS. */
 @XmlRootElement(name = "Context")

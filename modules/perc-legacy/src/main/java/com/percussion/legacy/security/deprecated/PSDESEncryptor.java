@@ -357,7 +357,7 @@ public class PSDESEncryptor implements IPSEncryptor {
       lCount = 0;
       for (int i = 0; i < eArrayLen; i++) {
         switch (i) {
-            // multiply by 2
+          // multiply by 2
           case 0:
           case 3:
           case 6:
@@ -376,7 +376,7 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 45:
             ERArray[i] <<= 1;
             break;
-            // multiply by 4
+          // multiply by 4
           case 2:
           case 8:
           case 14:
@@ -387,7 +387,7 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 44:
             ERArray[i] <<= 2;
             break;
-            // multiply by 8
+          // multiply by 8
           case 1:
           case 7:
           case 13:
@@ -398,7 +398,7 @@ public class PSDESEncryptor implements IPSEncryptor {
           case 43:
             ERArray[i] <<= 3;
             break;
-            // add results
+          // add results
           case 4:
           case 10:
           case 16:

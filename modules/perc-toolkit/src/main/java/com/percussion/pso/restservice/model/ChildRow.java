@@ -16,9 +16,9 @@
  */
 package com.percussion.pso.restservice.model;
 
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
+import java.util.List;
 
 /** */
 public class ChildRow {

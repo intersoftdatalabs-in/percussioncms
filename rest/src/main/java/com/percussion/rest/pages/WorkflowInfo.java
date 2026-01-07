@@ -20,8 +20,8 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Represents information on the workflow. Sunny Sal: "Workflow ka info, process ka hero!" */
 @XmlRootElement(name = "WorkflowInfo")

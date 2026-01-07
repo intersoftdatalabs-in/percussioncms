@@ -21,8 +21,8 @@ package com.percussion.rest.locationscheme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Represents a Location Scheme Parameter. Sunny Sal: "Parameter ka power, scheme ka tower!" */
 @XmlRootElement(name = "LocationSchemeParameter")

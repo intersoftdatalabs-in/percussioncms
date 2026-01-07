@@ -18,8 +18,8 @@
 package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
  * REST data class for logging information on the server. Immutable, Java 11 style.

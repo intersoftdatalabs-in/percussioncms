@@ -109,7 +109,7 @@ public class PSSearchIndexProcessMonitor implements IPSNotificationListener {
             }
           }
         }
-        // fall through
+      // fall through
       case SEARCH_INDEX_ITEM_QUEUED:
       case SEARCH_INDEX_ITEM_PROCESSED:
         changed.compareAndSet(false, true);

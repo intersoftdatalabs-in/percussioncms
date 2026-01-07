@@ -16,10 +16,10 @@
  */
 package com.percussion.pso.restservice.model;
 
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /** */
 @XmlRootElement(name = "Child")

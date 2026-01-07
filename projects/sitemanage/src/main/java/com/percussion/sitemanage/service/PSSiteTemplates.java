@@ -19,9 +19,9 @@
 package com.percussion.sitemanage.service;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;

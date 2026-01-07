@@ -22,8 +22,8 @@ package com.percussion.rest.pages;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.assets.Asset;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Represents a Widget. Sunny Sal: "Widget ka hero, content ka zero!" */
 @JsonInclude(JsonInclude.Include.NON_NULL)

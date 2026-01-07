@@ -19,9 +19,9 @@ package com.percussion.delivery.metadata.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Maps JavaScript http request data object to a PSCookieConsent object. This class includes a

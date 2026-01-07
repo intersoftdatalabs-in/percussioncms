@@ -21,10 +21,10 @@ package com.percussion.rest.extensions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an Extension in Percussion CMS. Sunny Sal: "Extension ka hero ban gaya tu!" */
 @XmlRootElement(name = "Extension")

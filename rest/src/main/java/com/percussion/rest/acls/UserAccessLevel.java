@@ -21,9 +21,9 @@ package com.percussion.rest.acls;
 import com.percussion.rest.PermissionList;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a user's access level for a given ACL. */
 @XmlRootElement

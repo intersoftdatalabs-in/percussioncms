@@ -19,10 +19,10 @@ package com.percussion.dashboardmanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "gadget")
 @ArraySchema(schema = @Schema(implementation = PSGadget.class))

@@ -22,9 +22,9 @@ package com.percussion.rest.extensions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an Extension Method in Percussion CMS. Sunny Sal: "Method ka magic, extension mein

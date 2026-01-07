@@ -176,7 +176,7 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
         buf.append("[RIGHT OUTER JOIN ");
         break;
 
-        // case INNER_JOIN:
+      // case INNER_JOIN:
       default:
         buf.append("[INNER JOIN ");
         break;
