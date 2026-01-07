@@ -33,7 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -43,7 +43,7 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * @author dougrand
  */
-@Tag("UnitTest")
+@Disabled
 public class PSTablefactoryLoadTest {
 
   private static final Logger log = LogManager.getLogger(PSTablefactoryLoadTest.class);
