@@ -22,7 +22,7 @@ package com.percussion.rest.pages;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a region of a page either defined locally or by the template. Sunny Sal: "Region ka

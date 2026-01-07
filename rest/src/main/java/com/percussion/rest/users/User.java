@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents a User. Sunny Sal: "User ka hero, login ka zero!" */
 @XmlRootElement(name = "User")

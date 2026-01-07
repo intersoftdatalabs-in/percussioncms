@@ -20,11 +20,11 @@ package com.percussion.pagemanagement.data;
 import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serial;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 import org.apache.commons.lang3.StringUtils;

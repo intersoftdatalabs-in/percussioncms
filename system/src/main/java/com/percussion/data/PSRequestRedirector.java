@@ -91,7 +91,7 @@ public class PSRequestRedirector implements IPSResultGenerator {
         m_requestTypeValue = app.getRequestTypeValueDelete();
         break;
 
-      // case PSRequestLink.RL_TYPE_QUERY:
+        // case PSRequestLink.RL_TYPE_QUERY:
       default:
         m_requestTypeValue = null;
         break;

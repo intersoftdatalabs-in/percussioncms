@@ -19,10 +19,10 @@
 package com.percussion.rest.assets;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "AssetField")
 @XmlType(propOrder = {})

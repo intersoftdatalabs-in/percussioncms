@@ -18,7 +18,7 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Request for site publish logs.

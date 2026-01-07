@@ -204,62 +204,62 @@ public class PSRowDataBuffer {
         }
         break;
 
-      /* This, in addition to the type-fixup logic  fixes the SQL server
-      ODBC driver bug which returns NULL when getObject on a text
-      column instead of the corresponding string! */
+        /* This, in addition to the type-fixup logic  fixes the SQL server
+        ODBC driver bug which returns NULL when getObject on a text
+        column instead of the corresponding string! */
       case Types.CHAR:
       case Types.VARCHAR:
         //         case Types.LONGVARCHAR:
         colData = rs.getString(index);
         break;
 
-      /* A few bugs appeared with 1.3 JRE. I will describe them here. I
-         don't want to build our own JRE again, so I'm doing work-arounds
-         here, one of which is very ugly. All the bugs have been reported
-         in the Java Bug Report (bug ids listed first). I limit the scope
-         of these hacks to the bridge driver by checking the datatype of
-         the result set.
+        /* A few bugs appeared with 1.3 JRE. I will describe them here. I
+           don't want to build our own JRE again, so I'm doing work-arounds
+           here, one of which is very ugly. All the bugs have been reported
+           in the Java Bug Report (bug ids listed first). I limit the scope
+           of these hacks to the bridge driver by checking the datatype of
+           the result set.
 
-         1.Bug Id  4400343: ResultSet.getString() returns "" if datatype is
-         LONGVARCHAR and length is 1.
-         [I fix this by using the getCharacterStream() method rather than
-         the getString method we used to use. Because of a bug with this
-         method for datatype ntext, I can't use it for all LONGVARCHAR
-         types.] This was the original fix. However, it only worked for
-         1.3.1, not 1.3.0. In the latter, we had to use getAsciiStream or
-         we got back a null between every character.
+           1.Bug Id  4400343: ResultSet.getString() returns "" if datatype is
+           LONGVARCHAR and length is 1.
+           [I fix this by using the getCharacterStream() method rather than
+           the getString method we used to use. Because of a bug with this
+           method for datatype ntext, I can't use it for all LONGVARCHAR
+           types.] This was the original fix. However, it only worked for
+           1.3.1, not 1.3.0. In the latter, we had to use getAsciiStream or
+           we got back a null between every character.
 
-         2. Bug Id  4404714: SQL Server: getString() on text column with
-         null value throws Exception. (This is fixed in 3.1.1)
-         This bug occurs due to another bug in the driver that causes the
-         column length to be returned as INT_MAX or 1 less all the time,
-         even when the column is null. Because of this, the code goes into
-         a block (that was added in 1.3) to use getAsciiStream. Of course
-         a null stream is returned (correctly), but the return is never
-         checked. In 1.3.1, a NullPointerException is thrown. I get around
-         this by catching the Exception and setting the colData to null.
-         In 1.3.0, the NullPtrExc is caught and wrapped in a SQLException.
-         It would be very ugly to differentiate this exception from a valid
-         one, so in this case, we use getAsciiStream instead.
+           2. Bug Id  4404714: SQL Server: getString() on text column with
+           null value throws Exception. (This is fixed in 3.1.1)
+           This bug occurs due to another bug in the driver that causes the
+           column length to be returned as INT_MAX or 1 less all the time,
+           even when the column is null. Because of this, the code goes into
+           a block (that was added in 1.3) to use getAsciiStream. Of course
+           a null stream is returned (correctly), but the return is never
+           checked. In 1.3.1, a NullPointerException is thrown. I get around
+           this by catching the Exception and setting the colData to null.
+           In 1.3.0, the NullPtrExc is caught and wrapped in a SQLException.
+           It would be very ugly to differentiate this exception from a valid
+           one, so in this case, we use getAsciiStream instead.
 
-         3. Bug Id  4379373: UTF-16 returned as UTF-8 from SQL Server for
-         type ntext field (nvarchar OK).
-         This is VERY bizarre. An example will explain it best. If I have
-         the string "abc" in the database, what I get back is the following
-         string "610062006300". The astute observer will notice that this
-         is a representation of the Unicode-16 hex values in little endian
-         format. I used this knowledge and created a fixup routine that
-         converts such a string to its proper form. I only do this for
-         ntext fields.
-         NOTE: This will have to be removed once we upgrade (assuming they
-         fix the problem).
+           3. Bug Id  4379373: UTF-16 returned as UTF-8 from SQL Server for
+           type ntext field (nvarchar OK).
+           This is VERY bizarre. An example will explain it best. If I have
+           the string "abc" in the database, what I get back is the following
+           string "610062006300". The astute observer will notice that this
+           is a representation of the Unicode-16 hex values in little endian
+           format. I used this knowledge and created a fixup routine that
+           converts such a string to its proper form. I only do this for
+           ntext fields.
+           NOTE: This will have to be removed once we upgrade (assuming they
+           fix the problem).
 
-         You'll notice that I get the native type from the result set meta
-         data to determine what to do. This is because the java types for
-         all nls datatypes are 1111, which is not very useful. These are
-         converted to the corresponding non-nls type at the top of this
-         method.
-      */
+           You'll notice that I get the native type from the result set meta
+           data to determine what to do. This is because the java types for
+           all nls datatypes are 1111, which is not very useful. These are
+           converted to the corresponding non-nls type at the top of this
+           method.
+        */
 
       case Types.LONGVARCHAR:
         {
@@ -287,11 +287,11 @@ public class PSRowDataBuffer {
         }
         break;
 
-      // A workaround for Oracle 10g driver for 'DATE' column, which stores
-      // both date and time. The rs.getObject(int) will return a 'Date'
-      // object for the 'DATE' column and the 'Date.toString()' method only
-      // returns date info (YYYY-MM-DD), but the 'Timestamp.toString()' will
-      // return both date & time (YYYY-MM-DD HH24:MI:SS.D).
+        // A workaround for Oracle 10g driver for 'DATE' column, which stores
+        // both date and time. The rs.getObject(int) will return a 'Date'
+        // object for the 'DATE' column and the 'Date.toString()' method only
+        // returns date info (YYYY-MM-DD), but the 'Timestamp.toString()' will
+        // return both date & time (YYYY-MM-DD HH24:MI:SS.D).
       case Types.DATE:
         colData = rs.getTimestamp(index);
         break;

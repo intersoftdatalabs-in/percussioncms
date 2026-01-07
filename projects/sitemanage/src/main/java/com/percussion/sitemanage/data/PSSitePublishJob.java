@@ -18,8 +18,8 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEqual;
 import net.sf.oval.constraint.NotNull;

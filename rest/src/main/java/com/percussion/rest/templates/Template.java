@@ -22,7 +22,7 @@ package com.percussion.rest.templates;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.*;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents an assembly Template. Sunny Sal: "Template ka hero, slots ka zero!" */
 @XmlRootElement(name = "Template")

@@ -18,7 +18,7 @@
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 
 /**

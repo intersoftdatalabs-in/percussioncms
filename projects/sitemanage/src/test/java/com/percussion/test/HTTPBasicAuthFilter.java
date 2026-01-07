@@ -17,11 +17,11 @@
 
 package com.percussion.test;
 
-import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
+import javax.xml.bind.DatatypeConverter;
 
 /** JAX-RS client filter for HTTP Basic Authentication. // REFACTORED: CP-JAVA11 */
 public class HTTPBasicAuthFilter implements ClientRequestFilter {

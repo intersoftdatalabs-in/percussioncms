@@ -672,9 +672,9 @@ public class PSAclEntry extends PSComponent {
 
     switch (m_type) {
       case ACE_TYPE_USER:
-      // fall through
+        // fall through
       case ACE_TYPE_GROUP:
-      // fall through
+        // fall through
       case ACE_TYPE_ROLE:
         break; // end valid types
       default:

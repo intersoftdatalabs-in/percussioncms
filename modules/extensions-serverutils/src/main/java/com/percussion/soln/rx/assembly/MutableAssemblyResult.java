@@ -39,6 +39,7 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;
+
   private Status status = Status.SUCCESS;
   private byte[] resultData;
   private String mimeType = "text/html";

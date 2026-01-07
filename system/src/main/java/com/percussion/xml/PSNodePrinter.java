@@ -119,11 +119,11 @@ public class PSNodePrinter {
         printElement(eNode);
         break;
 
-      /*
-       *New code for entity references.  When "printing" the XML document,
-       *we must include the "Name" of any entities we encounter.  This will
-       *only happen in Element data, never in attribute data.
-       */
+        /*
+         *New code for entity references.  When "printing" the XML document,
+         *we must include the "Name" of any entities we encounter.  This will
+         *only happen in Element data, never in attribute data.
+         */
       case Node.ENTITY_REFERENCE_NODE:
         m_out.write("&" + node.getNodeName() + ";");
         break;

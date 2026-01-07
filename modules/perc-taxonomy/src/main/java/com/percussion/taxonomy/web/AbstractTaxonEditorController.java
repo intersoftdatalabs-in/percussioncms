@@ -32,6 +32,7 @@ import com.percussion.taxonomy.service.Related_nodeService;
 import com.percussion.taxonomy.service.Relationship_typeService;
 import com.percussion.taxonomy.service.TaxonomyService;
 import com.percussion.taxonomy.service.ValueService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

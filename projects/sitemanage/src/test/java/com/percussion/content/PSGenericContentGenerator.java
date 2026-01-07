@@ -91,7 +91,7 @@ public abstract class PSGenericContentGenerator<T> {
     } catch (FileNotFoundException e) {
       log.error("The XML file was not found");
       return false;
-    } catch (jakarta.xml.bind.UnmarshalException e) {
+    } catch (javax.xml.bind.UnmarshalException e) {
       log.error(
           "Error when unmarshaling the XML file. Make sure it conforms with the XML schema: "
               + e.getLinkedException().getMessage());

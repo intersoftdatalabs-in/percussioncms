@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.data;
 
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 
 /**
  * Represents a workflow assignment request from the client. Contains workflow name and folder id

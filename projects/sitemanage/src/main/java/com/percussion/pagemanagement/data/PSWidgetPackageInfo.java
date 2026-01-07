@@ -18,8 +18,8 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.Validate;
 
 /**

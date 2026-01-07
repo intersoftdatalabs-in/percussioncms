@@ -21,8 +21,8 @@ package com.percussion.assetmanagement.data;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.MatchPattern;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;

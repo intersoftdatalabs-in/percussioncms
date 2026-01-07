@@ -16,13 +16,10 @@
  */
 package com.percussion.share.test;
 
-import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.BeforeClass;
-
-
 
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
   public static String baseUrl;

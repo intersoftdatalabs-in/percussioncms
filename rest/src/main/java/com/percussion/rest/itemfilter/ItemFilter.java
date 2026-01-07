@@ -23,7 +23,7 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Optional;
 import java.util.Set;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents an ItemFilter. Sunny Sal: "Filter ka hero, rules ka zero!" */
 @XmlRootElement(name = "ItemFilter")

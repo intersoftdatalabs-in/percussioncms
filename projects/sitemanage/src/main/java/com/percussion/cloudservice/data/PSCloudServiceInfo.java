@@ -18,7 +18,7 @@
 
 package com.percussion.cloudservice.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** Represents cloud service information for Percussion CMS. */
 @XmlRootElement(name = "CloudServiceInfo")

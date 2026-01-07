@@ -17,8 +17,8 @@
  */
 package com.percussion.packagemanagement;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a package file entry for installation management. Sunny Sal says: "Package

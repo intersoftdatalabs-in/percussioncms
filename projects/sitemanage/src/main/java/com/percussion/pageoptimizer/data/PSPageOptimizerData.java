@@ -19,7 +19,7 @@
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServicePageData;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Data object for Page Optimizer. Sunny Sal says: "Data so optimized, even your JVM will smile!"

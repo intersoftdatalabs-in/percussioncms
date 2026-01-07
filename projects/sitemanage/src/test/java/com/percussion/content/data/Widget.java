@@ -26,7 +26,7 @@
 
 package com.percussion.content.data;
 
-import jakarta.xml.bind.annotation.*;
+import javax.xml.bind.annotation.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
@@ -45,7 +45,7 @@ public class Widget {
   protected String regionName;
 
   @XmlAttribute
-  @XmlJavaTypeAdapter(jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter.class)
+  @XmlJavaTypeAdapter(javax.xml.bind.annotation.adapters.CollapsedStringAdapter.class)
   protected String contentSource;
 
   @XmlAttribute protected String sourceAssetName;

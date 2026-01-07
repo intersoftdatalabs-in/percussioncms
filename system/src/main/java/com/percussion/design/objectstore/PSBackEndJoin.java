@@ -475,11 +475,11 @@ public class PSBackEndJoin extends PSComponent {
 
     switch (m_joinType) {
       case BEJ_TYPE_INNER:
-      // fall through
+        // fall through
       case BEJ_TYPE_FULL_OUTER:
-      // fall through
+        // fall through
       case BEJ_TYPE_LEFT_OUTER:
-      // fall through
+        // fall through
       case BEJ_TYPE_RIGHT_OUTER:
         // ok
         break;

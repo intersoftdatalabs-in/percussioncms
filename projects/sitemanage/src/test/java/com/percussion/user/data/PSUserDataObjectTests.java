@@ -26,8 +26,8 @@ import com.percussion.share.service.exception.PSBeanValidationUtils;
 import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.user.data.PSLdapConfig.PSLdapServer;
 import com.percussion.user.data.PSLdapConfig.PSLdapServer.CatalogType;
-import jakarta.xml.bind.UnmarshalException;
 import java.util.HashSet;
+import javax.xml.bind.UnmarshalException;
 import org.junit.jupiter.api.*;
 
 /** Tests for user data objects and LDAP config XML validation. // REFACTORED: CP-JAVA11 */
