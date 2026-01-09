@@ -22,11 +22,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 /** List of UserAccessLevel objects. */
 @XmlRootElement(name = "AclEntryList")

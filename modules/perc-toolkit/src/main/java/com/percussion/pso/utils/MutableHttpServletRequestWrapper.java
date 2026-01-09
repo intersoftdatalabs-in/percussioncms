@@ -17,6 +17,8 @@
 package com.percussion.pso.utils;
 
 import com.percussion.utils.collections.PSFacadeMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -25,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -110,7 +110,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameter(java.lang.String)
+   * @see jakarta.servlet.ServletRequestWrapper#getParameter(java.lang.String)
    */
   @Override
   public String getParameter(String name) {
@@ -122,7 +122,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterMap()
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterMap()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -131,7 +131,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterNames()
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterNames()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -140,7 +140,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.ServletRequestWrapper#getParameterValues(java.lang.String)
+   * @see jakarta.servlet.ServletRequestWrapper#getParameterValues(java.lang.String)
    */
   @Override
   public String[] getParameterValues(String name) {
@@ -148,7 +148,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeader(java.lang.String)
    */
   @Override
   public String getHeader(String name) {
@@ -165,7 +165,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeaderNames()
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaderNames()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -184,7 +184,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getHeaders(java.lang.String)
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -199,7 +199,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getIntHeader(java.lang.String)
    */
   @Override
   public int getIntHeader(String name) {
@@ -213,7 +213,7 @@ public class MutableHttpServletRequestWrapper extends HttpServletRequestWrapper
   }
 
   /**
-   * @see javax.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String)
+   * @see jakarta.servlet.http.HttpServletRequestWrapper#getDateHeader(java.lang.String)
    */
   @Override
   public long getDateHeader(String name) {

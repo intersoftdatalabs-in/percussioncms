@@ -55,7 +55,7 @@ public class PSErrorCause {
     setLocalizedMessage(t.getLocalizedMessage());
     setMessage(t.getMessage());
 
-    if (sendErrorStackToClient = true) {
+    if (sendErrorStackToClient) {
       setStackTrace(t.getStackTrace());
     }
 

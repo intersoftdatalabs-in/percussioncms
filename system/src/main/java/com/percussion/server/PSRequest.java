@@ -2181,7 +2181,7 @@ public class PSRequest {
   }
 
   /**
-   * Checks the servlet request attributes to see if the the "javax.servlet.include.request_uri"
+   * Checks the servlet request attributes to see if the the "jakarta.servlet.include.request_uri"
    * request attribute is not <code>null</code>, and if not, creates a new request using the
    * supplied request and response, that references the same session, error handler, and log handler
    * as this request.
@@ -2194,7 +2194,7 @@ public class PSRequest {
   public PSRequest getRequestForIncludeURI(HttpServletRequest req, HttpServletResponse resp) {
     PSRequest newReq = null;
 
-    String includePath = (String) req.getAttribute("javax.servlet.include.request_uri");
+    String includePath = (String) req.getAttribute("jakarta.servlet.include.request_uri");
 
     if (StringUtils.isNotBlank(includePath)) {
       newReq = new PSRequest(req, resp, m_errorHandler, m_logHandler);

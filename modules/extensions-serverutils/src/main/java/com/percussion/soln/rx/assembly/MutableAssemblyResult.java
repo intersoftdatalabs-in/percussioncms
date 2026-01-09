@@ -17,7 +17,7 @@
 
 package com.percussion.soln.rx.assembly;
 
-import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;

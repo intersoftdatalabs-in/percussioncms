@@ -18,7 +18,6 @@
 package com.percussion.preinstall;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.zerog.ia.api.pub.CustomCodeAction;
 import com.zerog.ia.api.pub.InstallException;
 import com.zerog.ia.api.pub.InstallerProxy;
 import com.zerog.ia.api.pub.ProgressAccess;
@@ -26,7 +25,7 @@ import com.zerog.ia.api.pub.UninstallerProxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MainIAInstall extends CustomCodeAction {
+public class MainIAInstall {
 
   private static final Logger log = LogManager.getLogger(MainIAInstall.class);
 

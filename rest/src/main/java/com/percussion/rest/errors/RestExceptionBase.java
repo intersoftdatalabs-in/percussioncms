@@ -19,11 +19,11 @@
 
 package com.percussion.rest.errors;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Base class for REST exceptions in Percussion CMS. Sunny Sal: "Exception ka baap yeh hai!" */
 @XmlRootElement(name = "Error")

@@ -21,9 +21,9 @@ package com.percussion.rest.locationscheme;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** List wrapper for LocationSchemeParameter objects. Sunny Sal: "Parameter list ka boss!" */
 @XmlRootElement(name = "LocationSchemeParameterList")

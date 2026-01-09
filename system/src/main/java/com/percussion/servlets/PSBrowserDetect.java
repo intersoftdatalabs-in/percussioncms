@@ -57,7 +57,7 @@ public class PSBrowserDetect implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#destroy()
+   * @see jakarta.servlet.Filter#destroy()
    */
   public void destroy() {
     // Don't need to do anything
@@ -68,8 +68,8 @@ public class PSBrowserDetect implements Filter {
    * BrowserDetection Filter Detects which browser a user is running. If the browser is IE and it is
    * not version 8, 9, 10, or 11 they get a warning.
    *
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
-   *     javax.servlet.FilterChain)
+   * @see jakarta.servlet.Filter#doFilter(jakarta.servlet.ServletRequest,
+   *     jakarta.servlet.ServletResponse, jakarta.servlet.FilterChain)
    */
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -178,7 +178,7 @@ public class PSBrowserDetect implements Filter {
   /*
    * (non-Javadoc)
    *
-   * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+   * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
   public void init(FilterConfig config) throws ServletException {}
 }

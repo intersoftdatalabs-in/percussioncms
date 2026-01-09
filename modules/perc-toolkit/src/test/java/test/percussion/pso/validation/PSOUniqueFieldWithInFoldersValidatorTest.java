@@ -38,7 +38,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
-import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
@@ -47,9 +46,9 @@ import org.jmock.Sequence;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
+public class PSOUniqueFieldWithInFoldersValidatorTest {
 
   private static final Logger log =
       LogManager.getLogger(PSOUniqueFieldWithInFoldersValidatorTest.class);

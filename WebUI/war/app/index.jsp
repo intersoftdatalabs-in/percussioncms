@@ -12,7 +12,7 @@
 <%@ page import="org.apache.commons.lang.ArrayUtils"  %>
 
 <%@ page import="org.json.JSONArray" %>
-<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="jakarta.servlet.http.Cookie" %>
 
 <%@ page import="java.io.BufferedReader" %>
 

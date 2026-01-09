@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -24,12 +23,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -41,41 +39,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "getRoomsAvailable2Result"
-})
+@XmlType(
+    name = "",
+    propOrder = {"getRoomsAvailable2Result"})
 @XmlRootElement(name = "GetRoomsAvailable2Response")
 public class GetRoomsAvailable2Response {
 
-    @XmlElement(name = "GetRoomsAvailable2Result")
-    protected String getRoomsAvailable2Result;
+  @XmlElement(name = "GetRoomsAvailable2Result")
+  protected String getRoomsAvailable2Result;
 
-    /**
-     * Gets the value of the getRoomsAvailable2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetRoomsAvailable2Result() {
-        return getRoomsAvailable2Result;
-    }
+  /**
+   * Gets the value of the getRoomsAvailable2Result property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getGetRoomsAvailable2Result() {
+    return getRoomsAvailable2Result;
+  }
 
-    /**
-     * Sets the value of the getRoomsAvailable2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGetRoomsAvailable2Result(String value) {
-        this.getRoomsAvailable2Result = value;
-    }
-
+  /**
+   * Sets the value of the getRoomsAvailable2Result property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setGetRoomsAvailable2Result(String value) {
+    this.getRoomsAvailable2Result = value;
+  }
 }

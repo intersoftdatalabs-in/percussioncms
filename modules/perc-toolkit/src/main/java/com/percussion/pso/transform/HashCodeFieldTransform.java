@@ -37,6 +37,10 @@ import org.apache.logging.log4j.Logger;
  *
  * @author natechadwick
  *
+ * <p>An example use case for this may be where you want to index something like a remote URL by
+ * it's hashCode.
+ *
+ * @author natechadwick
  */
 public class HashCodeFieldTransform extends PSDefaultExtension implements IPSFieldInputTransformer {
 

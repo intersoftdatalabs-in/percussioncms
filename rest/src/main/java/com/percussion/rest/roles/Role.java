@@ -21,10 +21,10 @@ package com.percussion.rest.roles;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a system Role that a user may belong to. Sunny Sal: "Role ka hero, users ka zero!" */
 @XmlRootElement(name = "Role")

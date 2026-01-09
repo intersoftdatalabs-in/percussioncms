@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Unit tests for <code>PSDeploymentServerConnectionInfo</code>. */
-public class PSDeploymentServerConnectionInfoTest extends TestCase {
+public class PSDeploymentServerConnectionInfoTest {
   /**
    * Constructs a test case for the specified test name.
    *

@@ -26,10 +26,10 @@
 
 package com.percussion.dashboardmanagement.data;
 
+import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.*;
 
 /** Java class for DashboardContent JAXB mapping. */
 @XmlAccessorType(XmlAccessType.FIELD)

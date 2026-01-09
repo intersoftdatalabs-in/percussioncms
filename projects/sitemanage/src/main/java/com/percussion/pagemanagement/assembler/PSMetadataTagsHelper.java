@@ -17,9 +17,9 @@
  */
 package com.percussion.pagemanagement.assembler;
 
+import jakarta.servlet.ServletException;
 import java.util.*;
 import java.util.stream.Collectors;
-import jakarta.servlet.ServletException;
 import net.sf.json.JSONException;
 
 /** Helper for processing metadata tags and their occurrences. */

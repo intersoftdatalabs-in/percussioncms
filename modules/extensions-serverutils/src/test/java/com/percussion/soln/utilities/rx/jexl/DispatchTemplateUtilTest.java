@@ -31,11 +31,10 @@ import javax.jcr.Node;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(MockitoExtension.class)
 public class DispatchTemplateUtilTest {
 
   Mockery context = new JUnit4Mockery();
@@ -60,6 +59,11 @@ public class DispatchTemplateUtilTest {
     picker.setAssemblyService(mockAssemblyService);
     paramMap = new HashMap<String, Object>();
     mockTemplate = context.mock(IPSAssemblyTemplate.class);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    context.assertIsSatisfied();
   }
 
   public void setupMockAssemblyItem(final String ct) throws Exception {
@@ -93,10 +97,14 @@ public class DispatchTemplateUtilTest {
     assertEquals("blah", picker.pickTemplate(asmItem, templateMap, "blah"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void shouldFailOnNullAssemblyItem() throws Exception {
     templateMap.put("testCT", "testTemplate");
-    picker.pickTemplate(null, templateMap, "blah");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          picker.pickTemplate(null, templateMap, "blah");
+        });
   }
 
   @Test

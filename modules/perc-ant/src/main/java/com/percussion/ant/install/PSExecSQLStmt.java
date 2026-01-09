@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 package com.percussion.ant.install;
@@ -514,4 +513,45 @@ public class PSExecSQLStmt extends PSAction {
    * Member variables
    *******************************************************************/
 
+  /**
+   * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
+   */
+  private String sqlSqlServer = "";
+
+  /**
+   * sql statement to use for Oracle database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlOracle = "";
+
+  /**
+   * sql statement to use for UDB (DB2) database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlUDB = "";
+
+  /**
+   * sql statement to use for Apache Derby database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
+   */
+  private String sqlDerby = "";
+
+  /**
+   * sql statement to use for Mysql database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
+   */
+  private String sqlMysql = "";
+
+  /**
+   * Indicates whether the stack trace of the exception generated when executing the SQL statement
+   * should be printed to the log, defaults to <code>true</code>, modified using <code>
+   * setPrintExceptionStackTrace()</code> method.
+   */
+  private boolean mPrintExceptionStackTrace = true;
+
+  /**
+   * ***************************************************************** Member variables
+   * *****************************************************************
+   */
 }

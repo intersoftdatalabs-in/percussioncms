@@ -9,7 +9,7 @@
 Servlet (Servlet API Documentation)
 </TITLE>
 
-<META NAME="keywords" CONTENT="javax.servlet.Servlet interface">
+<META NAME="keywords" CONTENT="jakarta.servlet.Servlet interface">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -103,8 +103,8 @@ Defines methods that all servlets must implement.
 
  <p>To implement this interface, you can write a generic servlet
  that extends
- <code>javax.servlet.GenericServlet</code> or an HTTP servlet that
- extends <code>javax.servlet.http.HttpServlet</code>.
+ <code>jakarta.servlet.GenericServlet</code> or an HTTP servlet that
+ extends <code>jakarta.servlet.http.HttpServlet</code>.
 
  <p>This interface defines methods to initialize a servlet,
  to service requests, and to remove a servlet from the server.
@@ -131,7 +131,7 @@ Defines methods that all servlets must implement.
 <DT><B>Author:</B></DT>
   <DD>Various</DD>
 <DT><B>See Also:</B><DD><A HREF="../../javax/servlet/GenericServlet.html" title="class in javax.servlet"><CODE>GenericServlet</CODE></A>, 
-<A HREF="../../javax/servlet/http/HttpServlet.html" title="class in javax.servlet.http"><CODE>HttpServlet</CODE></A></DL>
+<A HREF="../../javax/servlet/http/HttpServlet.html" title="class in jakarta.servlet.http"><CODE>HttpServlet</CODE></A></DL>
 <HR>
 
 <P>
@@ -185,7 +185,7 @@ Defines methods that all servlets must implement.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../javax/servlet/Servlet.html#init(javax.servlet.ServletConfig)">init</A></B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)</CODE>
+<TD><CODE><B><A HREF="../../javax/servlet/Servlet.html#init(jakarta.servlet.ServletConfig)">init</A></B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by the servlet container to indicate to a servlet that the 
@@ -196,7 +196,7 @@ Defines methods that all servlets must implement.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../javax/servlet/Servlet.html#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)">service</A></B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,
+<TD><CODE><B><A HREF="../../javax/servlet/Servlet.html#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)">service</A></B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,
         <A HREF="../../javax/servlet/ServletResponse.html" title="interface in javax.servlet">ServletResponse</A>&nbsp;res)</CODE>
 
 <BR>
@@ -225,7 +225,7 @@ Defines methods that all servlets must implement.
 </TR>
 </TABLE>
 
-<A NAME="init(javax.servlet.ServletConfig)"><!-- --></A><H3>
+<A NAME="init(jakarta.servlet.ServletConfig)"><!-- --></A><H3>
 init</H3>
 <PRE>
 public void <B>init</B>(<A HREF="../../javax/servlet/ServletConfig.html" title="interface in javax.servlet">ServletConfig</A>&nbsp;config)
@@ -277,12 +277,12 @@ public <A HREF="../../javax/servlet/ServletConfig.html" title="interface in java
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the <code>ServletConfig</code> object
-			that initializes this servlet<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/Servlet.html#init(javax.servlet.ServletConfig)"><CODE>init(javax.servlet.ServletConfig)</CODE></A></DL>
+			that initializes this servlet<DT><B>See Also:</B><DD><A HREF="../../javax/servlet/Servlet.html#init(jakarta.servlet.ServletConfig)"><CODE>init(jakarta.servlet.ServletConfig)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)"><!-- --></A><H3>
+<A NAME="service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)"><!-- --></A><H3>
 service</H3>
 <PRE>
 public void <B>service</B>(<A HREF="../../javax/servlet/ServletRequest.html" title="interface in javax.servlet">ServletRequest</A>&nbsp;req,

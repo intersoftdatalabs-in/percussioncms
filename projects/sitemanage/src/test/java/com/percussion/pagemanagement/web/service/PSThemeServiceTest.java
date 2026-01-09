@@ -30,17 +30,14 @@ import com.percussion.theme.data.PSRegionCSS.Property;
 import com.percussion.theme.data.PSRegionCssList;
 import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
-import com.percussion.utils.testing.IntegrationTest;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
 public class PSThemeServiceTest extends PSRestTestCase<PSThemeRestClient> {
   private static PSTestSiteData testSiteData;
 

@@ -46,10 +46,10 @@ import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
+@Disabled
 public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClient> {
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSSearchServiceTest.class);

@@ -65,8 +65,8 @@ import org.xml.sax.SAXException;
 public class PSTdSchemaXmlServlet extends HttpServlet {
 
   /* (non-Javadoc)
-   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
-   *  javax.servlet.http.HttpServletResponse)
+   * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
+   *  jakarta.servlet.http.HttpServletResponse)
    */
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)

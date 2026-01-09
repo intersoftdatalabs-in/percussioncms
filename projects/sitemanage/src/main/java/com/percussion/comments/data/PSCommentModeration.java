@@ -19,12 +19,12 @@
 
 package com.percussion.comments.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Comment moderation object sent by client, with a list of comment IDs to moderate in the delivery

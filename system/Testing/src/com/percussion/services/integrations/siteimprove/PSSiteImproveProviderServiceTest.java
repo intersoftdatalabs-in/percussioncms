@@ -35,7 +35,7 @@ import java.util.UUID;
 //Remove @Disabled in order to run tests, these tests manually test siteimprove endpoints.
 @Disabled
 @TestMethodOrder(MethodName.class)
-public class PSSiteImproveProviderServiceTest extends TestCase {
+public class PSSiteImproveProviderServiceTest {
 
 	// Testing Resources
 	private static final String TESTING_USER = "percussionbot@gmail.com";

@@ -19,11 +19,11 @@
 
 package com.percussion.comments.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Represents a list of comments that belongs to the specified site. */
 @XmlAccessorType(XmlAccessType.FIELD)

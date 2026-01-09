@@ -209,7 +209,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
     }
     setSize(size);
 
-    // get the scale param, validate, and set itversion>8.2.0-SNAPSHOT</version>
+    // get the scale param, validate, and set it
     String scale = walker.getElementData(SCALE_EL);
     if (scale != null && scale.trim().length() == 0) scale = null;
     else if (!validateParams(scale)) {

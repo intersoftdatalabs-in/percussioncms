@@ -16,7 +16,6 @@
  */
 package com.percussion.delivery.test.utils;
 
-import com.percussion.delivery.test.PSFakeDataGenerator;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

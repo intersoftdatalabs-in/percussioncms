@@ -21,16 +21,12 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.marshaller.PSCategoryMarshaller;
 import com.percussion.category.marshaller.PSCategoryUnMarshaller;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.utils.testing.IntegrationTest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import junit.framework.TestCase;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
-public class PSJerseyRestClientTest extends TestCase {
+public class PSJerseyRestClientTest {
 
   // FB: ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD NC 1-16-16
   private PSCategoryServiceRestClient client;

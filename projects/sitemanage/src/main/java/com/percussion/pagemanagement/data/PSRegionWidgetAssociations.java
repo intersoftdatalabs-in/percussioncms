@@ -19,10 +19,10 @@ package com.percussion.pagemanagement.data;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.io.Serializable;
-import java.util.*;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
+import java.io.Serializable;
+import java.util.*;
 import net.sf.oval.constraint.AssertValid;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;

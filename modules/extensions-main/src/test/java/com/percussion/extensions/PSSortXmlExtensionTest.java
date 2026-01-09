@@ -16,21 +16,25 @@
  */
 package com.percussion.extensions;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.testing.PSMockRequestContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.StringReader;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class PSSortXmlExtensionTest extends TestCase {
+public class PSSortXmlExtensionTest {
 
   PSSortXmlExtension e = new PSSortXmlExtension();
 
-  protected void setUp() throws Exception {
-    super.setUp();
-  }
+  @BeforeEach
+  public void setUp() throws Exception {}
 
+  @Test
   public void testProcessResultDocument() throws Exception {
     StringReader sr =
         new StringReader(

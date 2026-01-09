@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -26,12 +25,11 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
+ * Java class for anonymous complex type.
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -53,257 +51,200 @@ import jakarta.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "categoryID",
-    "bookingID",
-    "timeStart",
-    "timeEnd",
-    "serviceTypeID",
-    "stateID",
-    "estimatedCount",
-    "guaranteedCount",
-    "actualCount"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+      "userName",
+      "password",
+      "categoryID",
+      "bookingID",
+      "timeStart",
+      "timeEnd",
+      "serviceTypeID",
+      "stateID",
+      "estimatedCount",
+      "guaranteedCount",
+      "actualCount"
+    })
 @XmlRootElement(name = "AddServiceOrder")
 public class AddServiceOrder {
 
-    @XmlElement(name = "UserName")
-    protected String userName;
-    @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "CategoryID")
-    protected int categoryID;
-    @XmlElement(name = "BookingID")
-    protected int bookingID;
-    @XmlElement(name = "TimeStart", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar timeStart;
-    @XmlElement(name = "TimeEnd", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar timeEnd;
-    @XmlElement(name = "ServiceTypeID")
-    protected int serviceTypeID;
-    @XmlElement(name = "StateID")
-    protected int stateID;
-    @XmlElement(name = "EstimatedCount")
-    protected int estimatedCount;
-    @XmlElement(name = "GuaranteedCount")
-    protected int guaranteedCount;
-    @XmlElement(name = "ActualCount")
-    protected int actualCount;
+  @XmlElement(name = "UserName")
+  protected String userName;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
-    }
+  @XmlElement(name = "Password")
+  protected String password;
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+  @XmlElement(name = "CategoryID")
+  protected int categoryID;
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
-    }
+  @XmlElement(name = "BookingID")
+  protected int bookingID;
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+  @XmlElement(name = "TimeStart", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar timeStart;
 
-    /**
-     * Gets the value of the categoryID property.
-     * 
-     */
-    public int getCategoryID() {
-        return categoryID;
-    }
+  @XmlElement(name = "TimeEnd", required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar timeEnd;
 
-    /**
-     * Sets the value of the categoryID property.
-     * 
-     */
-    public void setCategoryID(int value) {
-        this.categoryID = value;
-    }
+  @XmlElement(name = "ServiceTypeID")
+  protected int serviceTypeID;
 
-    /**
-     * Gets the value of the bookingID property.
-     * 
-     */
-    public int getBookingID() {
-        return bookingID;
-    }
+  @XmlElement(name = "StateID")
+  protected int stateID;
 
-    /**
-     * Sets the value of the bookingID property.
-     * 
-     */
-    public void setBookingID(int value) {
-        this.bookingID = value;
-    }
+  @XmlElement(name = "EstimatedCount")
+  protected int estimatedCount;
 
-    /**
-     * Gets the value of the timeStart property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getTimeStart() {
-        return timeStart;
-    }
+  @XmlElement(name = "GuaranteedCount")
+  protected int guaranteedCount;
 
-    /**
-     * Sets the value of the timeStart property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setTimeStart(XMLGregorianCalendar value) {
-        this.timeStart = value;
-    }
+  @XmlElement(name = "ActualCount")
+  protected int actualCount;
 
-    /**
-     * Gets the value of the timeEnd property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getTimeEnd() {
-        return timeEnd;
-    }
+  /**
+   * Gets the value of the userName property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getUserName() {
+    return userName;
+  }
 
-    /**
-     * Sets the value of the timeEnd property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setTimeEnd(XMLGregorianCalendar value) {
-        this.timeEnd = value;
-    }
+  /**
+   * Sets the value of the userName property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setUserName(String value) {
+    this.userName = value;
+  }
 
-    /**
-     * Gets the value of the serviceTypeID property.
-     * 
-     */
-    public int getServiceTypeID() {
-        return serviceTypeID;
-    }
+  /**
+   * Gets the value of the password property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the value of the serviceTypeID property.
-     * 
-     */
-    public void setServiceTypeID(int value) {
-        this.serviceTypeID = value;
-    }
+  /**
+   * Sets the value of the password property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setPassword(String value) {
+    this.password = value;
+  }
 
-    /**
-     * Gets the value of the stateID property.
-     * 
-     */
-    public int getStateID() {
-        return stateID;
-    }
+  /** Gets the value of the categoryID property. */
+  public int getCategoryID() {
+    return categoryID;
+  }
 
-    /**
-     * Sets the value of the stateID property.
-     * 
-     */
-    public void setStateID(int value) {
-        this.stateID = value;
-    }
+  /** Sets the value of the categoryID property. */
+  public void setCategoryID(int value) {
+    this.categoryID = value;
+  }
 
-    /**
-     * Gets the value of the estimatedCount property.
-     * 
-     */
-    public int getEstimatedCount() {
-        return estimatedCount;
-    }
+  /** Gets the value of the bookingID property. */
+  public int getBookingID() {
+    return bookingID;
+  }
 
-    /**
-     * Sets the value of the estimatedCount property.
-     * 
-     */
-    public void setEstimatedCount(int value) {
-        this.estimatedCount = value;
-    }
+  /** Sets the value of the bookingID property. */
+  public void setBookingID(int value) {
+    this.bookingID = value;
+  }
 
-    /**
-     * Gets the value of the guaranteedCount property.
-     * 
-     */
-    public int getGuaranteedCount() {
-        return guaranteedCount;
-    }
+  /**
+   * Gets the value of the timeStart property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getTimeStart() {
+    return timeStart;
+  }
 
-    /**
-     * Sets the value of the guaranteedCount property.
-     * 
-     */
-    public void setGuaranteedCount(int value) {
-        this.guaranteedCount = value;
-    }
+  /**
+   * Sets the value of the timeStart property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setTimeStart(XMLGregorianCalendar value) {
+    this.timeStart = value;
+  }
 
-    /**
-     * Gets the value of the actualCount property.
-     * 
-     */
-    public int getActualCount() {
-        return actualCount;
-    }
+  /**
+   * Gets the value of the timeEnd property.
+   *
+   * @return possible object is {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getTimeEnd() {
+    return timeEnd;
+  }
 
-    /**
-     * Sets the value of the actualCount property.
-     * 
-     */
-    public void setActualCount(int value) {
-        this.actualCount = value;
-    }
+  /**
+   * Sets the value of the timeEnd property.
+   *
+   * @param value allowed object is {@link XMLGregorianCalendar }
+   */
+  public void setTimeEnd(XMLGregorianCalendar value) {
+    this.timeEnd = value;
+  }
 
+  /** Gets the value of the serviceTypeID property. */
+  public int getServiceTypeID() {
+    return serviceTypeID;
+  }
+
+  /** Sets the value of the serviceTypeID property. */
+  public void setServiceTypeID(int value) {
+    this.serviceTypeID = value;
+  }
+
+  /** Gets the value of the stateID property. */
+  public int getStateID() {
+    return stateID;
+  }
+
+  /** Sets the value of the stateID property. */
+  public void setStateID(int value) {
+    this.stateID = value;
+  }
+
+  /** Gets the value of the estimatedCount property. */
+  public int getEstimatedCount() {
+    return estimatedCount;
+  }
+
+  /** Sets the value of the estimatedCount property. */
+  public void setEstimatedCount(int value) {
+    this.estimatedCount = value;
+  }
+
+  /** Gets the value of the guaranteedCount property. */
+  public int getGuaranteedCount() {
+    return guaranteedCount;
+  }
+
+  /** Sets the value of the guaranteedCount property. */
+  public void setGuaranteedCount(int value) {
+    this.guaranteedCount = value;
+  }
+
+  /** Gets the value of the actualCount property. */
+  public int getActualCount() {
+    return actualCount;
+  }
+
+  /** Sets the value of the actualCount property. */
+  public void setActualCount(int value) {
+    this.actualCount = value;
+  }
 }

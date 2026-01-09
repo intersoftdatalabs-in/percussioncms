@@ -42,7 +42,6 @@ import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
-import com.percussion.utils.testing.IntegrationTest;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -50,15 +49,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 /**
  * Saves a page with the rest service.
  *
  * @author adamgent
  */
-@Category(IntegrationTest.class)
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
   private static PSTestSiteData testSiteData;
 

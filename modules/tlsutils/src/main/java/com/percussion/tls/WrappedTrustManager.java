@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.tls;
 
 import java.security.KeyStore;
@@ -117,13 +116,10 @@ public class WrappedTrustManager implements X509TrustManager {
     // Using null here initialises the TMF with the default trust store.
     tmf.init(keystore);
 
-    // Get hold of the default trust manager
-
-    for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        return (X509TrustManager) tm;
-      }
+    TrustManager[] trustManagers = tmf.getTrustManagers();
+    if (trustManagers.length == 0) {
+      throw new KeyStoreException("No trust managers found");
     }
-    return null;
+    return (X509TrustManager) trustManagers[0];
   }
 }

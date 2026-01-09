@@ -50,6 +50,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-xml-security</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <!-- Log4j 2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -90,6 +95,13 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-xml-security</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <testResources>
@@ -112,8 +124,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${jdk.version}</target>
+                    <release>${java.version}</release>
                     <fork>true</fork>
                     <meminitial>1024m</meminitial>
                     <maxmem>2024m</maxmem>

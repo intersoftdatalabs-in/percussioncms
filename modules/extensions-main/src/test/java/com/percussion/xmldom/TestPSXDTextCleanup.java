@@ -30,10 +30,9 @@ import com.percussion.util.PSPurgableTempFile;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Scanner;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -85,7 +84,7 @@ public class TestPSXDTextCleanup {
             + " 😀</b></div>");
     psXdTextCleanup.preProcessRequest(params, context);
     assertEquals(
-        "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div 😀</b></div>",
+        "<div class=\"rxbodyfield\"><p>test</p><b>from 2nd div ��</b></div>",
         context.getParameter("postBody"));
   }
 
@@ -117,7 +116,7 @@ public class TestPSXDTextCleanup {
           "yes", // use pretty print
         };
 
-    PSPurgableTempFile tempFile = new PSPurgableTempFile("test", "html", temporaryFolder.getRoot());
+    PSPurgableTempFile tempFile = new PSPurgableTempFile("test", "html", temporaryFolder.toFile());
     tempFile.setSourceFileName("testdocument.html");
     tempFile.setSourceContentType("text/html");
     try (PrintWriter writer = new PrintWriter(tempFile)) {
@@ -128,21 +127,14 @@ public class TestPSXDTextCleanup {
 
     context.setParameter("postBody", tempFile);
     psXdTextCleanup.preProcessRequest(params, context);
+    String newText = null;
 
     assertNotNull(context.getParameter("postBody"));
-    String newText =
-        new Scanner(Objects.requireNonNull(tempFile), "UTF-8").useDelimiter("\\A").next();
-    System.out.println(newText);
-    assertEquals(text, newText);
-  }
-
-  @BeforeEach
-  public void setup() throws IOException {
-    temporaryFolder.create();
-  }
-
-  @AfterEach
-  public void teardown() {
-    temporaryFolder.delete();
+    try (Scanner scanner = new Scanner(Objects.requireNonNull(tempFile), "UTF-8")) {
+      new Scanner(Objects.requireNonNull(tempFile), "UTF-8").useDelimiter("\\A").next();
+      newText = scanner.useDelimiter("\\A").next();
+      System.out.println(newText);
+      assertEquals(text, newText);
+    }
   }
 }

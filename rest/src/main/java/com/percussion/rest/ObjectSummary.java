@@ -20,8 +20,8 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.acls.UserAccessLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement

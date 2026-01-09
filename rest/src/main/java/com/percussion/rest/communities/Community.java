@@ -21,9 +21,9 @@ package com.percussion.rest.communities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Community in Percussion CMS. */
 @XmlRootElement

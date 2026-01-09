@@ -20,13 +20,13 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlElements;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The section node contains summary information of a section and all direct child section nodes.

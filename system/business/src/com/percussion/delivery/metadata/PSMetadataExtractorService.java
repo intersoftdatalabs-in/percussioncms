@@ -17,20 +17,20 @@
 
 package com.percussion.delivery.metadata;
 
-import com.percussion.delivery.metadata.any23.IPSDocumentSource;
-import com.percussion.delivery.metadata.any23.PSReaderDocumentSource;
-import com.percussion.delivery.metadata.any23.PSTripleHandler;
+import com.percussion.delivery.metadata.rdfa.IPSDocumentSource;
+import com.percussion.delivery.metadata.rdfa.PSReaderDocumentSource;
+import com.percussion.delivery.metadata.rdfa.PSTripleHandler;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataEntry;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
-import org.apache.any23.Any23;
-import org.apache.any23.ExtractionReport;
-import org.apache.any23.extractor.ExtractionParameters;
-import org.apache.any23.mime.NaiveMIMETypeDetector;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -192,26 +192,24 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
     }
     
     /**
-     * Runs an extraction process. Creates an Any23 parser with the specified
-     * IPSDocumentSource and sets to the PSMetadataEntry returned the pagepath,
-     * pagename, folder and site specified.
+     * Runs an extraction process. Creates an RDF4J RDFa parser with the specified
+     * IPSDocumentSource (using Semargl's RDF4J implementation) and sets to the PSMetadataEntry returned 
+     * the pagepath, pagename, folder and site specified.
      * 
-     * @param documentSource An IPSDocumentSource to use by Any23.
+     * @param documentSource An IPSDocumentSource to parse.
      * @param pagePath The pagepath of the page.
      * @param pageName The name of the page.
      * @param folder The folder of the page.
      * @param site The site of the page.
-    * @param additional 
+     * @param additional 
      * @return A PSMetadataEntry object with the page information along with its metadata
      * properties.
      */
    private PSMetadataEntry runExtraction(IPSDocumentSource documentSource, String pagePath, String pageName,
-         String folder, String site, Map<String, Object> additional)
+       String folder, String site, Map<String, Object> additional)
    {
-      // Setup extractor
-      Any23 runner;
-
-      PSTripleHandler handler;
+      RDFParser parser = null;
+      PSTripleHandler handler = null;
       
       try
       {
@@ -222,28 +220,58 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
 
          if (documentSource != null) {
 
-             //  Hack to not use default saxon xslt parser.  This sets a transformer factory that can be used
-             //  just by the thread in Any23 parser and does not affect the rest of the system. See ThreadLocalProperties class
-
-             //System.setProperty("threadlocal.javax.xml.transform.TransformerFactory", "javax.xml.transform.sax.SAXTransformerFactory");
-             // DTS Was falling back to JRE internal transformer.
-             System.setProperty("threadlocal.javax.xml.transform.TransformerFactory", "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
-
-             runner = new Any23();
-             runner.setMIMETypeDetector(new NaiveMIMETypeDetector());
+             // Create RDF4J RDFa parser (Semargl implementation)
+             parser = Rio.createParser(RDFFormat.RDFA);
              handler = new PSTripleHandler();
+             
+             // Configure parser settings for lenient parsing
+             parser.getParserConfig().set(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES, false);
+             parser.getParserConfig().set(BasicParserSettings.FAIL_ON_UNKNOWN_LANGUAGES, false);
+             parser.getParserConfig().set(BasicParserSettings.VERIFY_DATATYPE_VALUES, false);
+             parser.getParserConfig().set(BasicParserSettings.VERIFY_LANGUAGE_TAGS, false);
+             parser.getParserConfig().set(BasicParserSettings.VERIFY_RELATIVE_URIS, false);
+             
+             parser.setRDFHandler(handler);
 
-             // Run extraction process. In this point, PSTripleHandler will
-             // collects all
-             // metadata properties found in the page.
-             final ExtractionParameters extractionParameters = ExtractionParameters.newDefault();
+             // Parse the document to extract RDF triples (RDFa metadata)
+             // Sanitize HTML first to handle malformed entities (e.g., bare '&')
+             String baseIri = documentSource.getDocumentIRI();
+             String sanitizedHtml;
+             try (InputStream inputStream = documentSource.openInputStream()) {
+                   Document doc = Jsoup.parse(inputStream, null, "/");
+                   // Remove script/style to avoid malformed entities (&) within text nodes breaking XML parsing
+                   // But preserve JSON-LD scripts
+                   doc.select("script:not([type='application/ld+json']), style").remove();
+                 doc.outputSettings()
+                        .escapeMode(org.jsoup.nodes.Entities.EscapeMode.base)
+                        .charset("UTF-8")
+                        .syntax(Document.OutputSettings.Syntax.xml); // XHTML-like output
+                 sanitizedHtml = doc.outerHtml();
+                 
+                 // Regex replace named entities that are NOT XML predefined (lt, gt, amp, apos, quot)
+                 // to numeric entities, because the SAX parser used by RDF4J/Semargl doesn't know HTML entities.
+                 java.util.regex.Pattern entityPattern = java.util.regex.Pattern.compile("&(?!(?:lt|gt|amp|apos|quot);)([a-zA-Z0-9]+);");
+                 java.util.regex.Matcher matcher = entityPattern.matcher(sanitizedHtml);
+                 StringBuffer sb = new StringBuffer();
+                 while (matcher.find()) {
+                     String entityName = matcher.group(1);
+                     // Use StringEscapeUtils to resolve the entity to a character
+                     String resolved = org.apache.commons.lang.StringEscapeUtils.unescapeHtml("&" + entityName + ";");
+                     if (resolved.length() == 1) {
+                         // Replace with numeric entity
+                         matcher.appendReplacement(sb, "&#" + (int) resolved.charAt(0) + ";");
+                     } else {
+                         // Fallback: keep as is if resolution fails or returns multiple chars
+                         matcher.appendReplacement(sb, matcher.group());
+                     }
+                 }
+                 matcher.appendTail(sb);
+                 sanitizedHtml = sb.toString();
+             }
 
-             extractionParameters.setFlag("any23.microdata.strict", false);
-             extractionParameters.setFlag("any23.extraction.rdfa.programmatic", false);
-
-
-             ExtractionReport report = runner.extract(extractionParameters, documentSource, handler);
-
+             try (java.io.Reader rdr = new java.io.StringReader(sanitizedHtml)) {
+                 parser.parse(rdr, baseIri);
+             }
 
              /** Redo Abstract as any23 is corrupting it. */
              try (InputStream is = documentSource.openInputStream()) {
@@ -321,17 +349,10 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService {
       }
       finally
       {
-         
-         // Reset transformer factory to default
-         System.getProperties().remove("threadlocal.javax.xml.transform.TransformerFactory");
-         
-         log.debug("Transformer Should be reset to saxon :"+System.getProperty("javax.xml.transform.TransformerFactory"));
-         
-         
          if (documentSource != null)
             documentSource.close();
 
-         runner = null;
+         parser = null;
          handler = null;
       }
    }

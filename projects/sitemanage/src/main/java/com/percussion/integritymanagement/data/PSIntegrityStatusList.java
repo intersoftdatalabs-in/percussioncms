@@ -20,8 +20,8 @@ package com.percussion.integritymanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Collection;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Collection;
 
 /** List wrapper for PSIntegrityStatus objects. */
 @XmlRootElement(name = "integritystatus")

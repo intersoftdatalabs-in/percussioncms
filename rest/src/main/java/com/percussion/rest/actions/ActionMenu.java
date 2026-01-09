@@ -20,10 +20,10 @@ package com.percussion.rest.actions;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an Action Menu in Percussion CMS. */
 @XmlRootElement(name = "ActionMenu")

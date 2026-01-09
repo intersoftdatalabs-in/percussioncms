@@ -23,9 +23,9 @@ import com.percussion.rest.ObjectSummary;
 import com.percussion.rest.ObjectSummaryList;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents the visibility of a community and its visible objects. */
 @XmlRootElement

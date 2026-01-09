@@ -19,10 +19,10 @@ package com.percussion.rest.contentlists;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentList")
 @ArraySchema(schema = @Schema(implementation = ContentList.class))

@@ -18,9 +18,9 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * A list of roles.

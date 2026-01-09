@@ -1,4 +1,4 @@
-// REFACTORED: CP-JAVA11
+// REFACTORED: CP-JAVA21
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
@@ -20,9 +20,9 @@ package com.percussion.rest.communities;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Community Role association. */
 @XmlRootElement(name = "CommunityRole")
@@ -99,7 +99,7 @@ public class CommunityRole {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof CommunityRole)) return false;
-    var that = (CommunityRole) o;
+    CommunityRole that = (CommunityRole) o;
     return communityId == that.communityId
         && roleId == that.roleId
         && Objects.equals(roleName, that.roleName)

@@ -19,10 +19,10 @@ package com.percussion.rest.roles;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.Collection;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /** List wrapper for Role objects. Sunny Sal: "Role list ka boss!" */
 @XmlRootElement(name = "RoleList")

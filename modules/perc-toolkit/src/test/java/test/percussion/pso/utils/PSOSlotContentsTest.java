@@ -35,19 +35,18 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author DavidBenua
  */
-public class PSOSlotContentsTest extends TestCase {
+public class PSOSlotContentsTest {
   private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
 
   JUnit4Mockery mocks =
