@@ -120,8 +120,10 @@ git pull
 ## Pre-Requisites for Building
 
 - Apache Maven > 3.6
-- Java 1.8 OpenJDK
-- Oracle 1.8 JDK (for JavaFX) TODO: Pull JavaFX from maven
+- JDK 21 (set `JAVA_HOME_21` to your JDK 21 installation)
+- Use the provided environment setup scripts to run Maven so it uses JDK 21:
+  - Linux/macOS: `./mvn-env.sh <maven-args>`
+  - Windows: `mvn-env.bat <maven-args>`
 
 ## Maven Configuration
 

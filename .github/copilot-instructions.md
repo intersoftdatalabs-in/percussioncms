@@ -103,6 +103,10 @@ Always use the #codebase context when resolving missing interfaces or classes.
 * Ensure all code is compatible with JDK 21
 * Build and test the project using JDK 21
 * **ALWAYS set JAVA_HOME to a Java 21 JRE before running any build or shell commands**
+* Use the provided environment scripts to ensure Maven uses JDK 21 when running locally:
+- Linux/macOS: `./mvn-env.sh <maven-args>`
+- Windows: `mvn-env.bat <maven-args>`
+These scripts set `JAVA_HOME` from `JAVA_HOME_21`.
 * Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
 == Dependencies
 * Upgrade dependencies to their latest versions that are compatible with JDK 21.0

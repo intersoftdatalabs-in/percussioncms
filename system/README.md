@@ -13,7 +13,7 @@
 - No breaking changes to public interfaces.
 - All legacy logging replaced with Log4j 2.x.
 - JUnit5 is now required for all tests.
-- Please run `mvn clean verify` and `mvn spotless:check` before commits.
+- Please run `./mvn-env.sh clean verify` and `./mvn-env.sh spotless:check` (or `mvn-env.bat` on Windows) before commits to ensure Maven runs with JDK 21.
 
 ### Usage Example
 
