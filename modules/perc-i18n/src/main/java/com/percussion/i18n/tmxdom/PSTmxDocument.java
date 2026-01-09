@@ -162,7 +162,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   /*
    * Implementation of the method defined in the interface IPSTmxDocument.
    */
-  public Iterator<Map.Entry<String, PSTmxTranslationUnit>> getTranslationUnits() {
+  public Iterator<Map.Entry<String, IPSTmxTranslationUnit>> getTranslationUnits() {
     return m_Body.getTraslationUnits();
   }
 
@@ -222,12 +222,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     if (srcDoc == null) {
       throw new IllegalArgumentException("srcDoc for merging body must not be null");
     }
-    Iterator<Map.Entry<String, PSTmxTranslationUnit>> iter = srcDoc.getTranslationUnits();
-    Map.Entry<String, PSTmxTranslationUnit> entry = null;
+    Iterator<Map.Entry<String, IPSTmxTranslationUnit>> iter = srcDoc.getTranslationUnits();
+    Map.Entry<String, IPSTmxTranslationUnit> entry = null;
     IPSTmxTranslationUnit srcTu = null;
     while (iter.hasNext()) {
       entry = iter.next();
-      srcTu = (IPSTmxTranslationUnit) entry.getValue();
+      srcTu = entry.getValue();
       m_Body.merge(srcTu);
     }
   }
@@ -241,8 +241,8 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     // for all tu s.
     m_Header.addLanguage(language);
     if (!language.equalsIgnoreCase(PSI18nUtils.DEFAULT_LANG)) {
-      Iterator<Map.Entry<String, PSTmxTranslationUnit>> iter = m_Body.getTraslationUnits();
-      Map.Entry<String, PSTmxTranslationUnit> entry = null;
+      Iterator<Map.Entry<String, IPSTmxTranslationUnit>> iter = m_Body.getTraslationUnits();
+      Map.Entry<String, IPSTmxTranslationUnit> entry = null;
       IPSTmxTranslationUnit srcTu = null;
       while (iter.hasNext()) {
         entry = iter.next();

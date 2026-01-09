@@ -172,7 +172,7 @@ public interface IPSTmxDocument extends IPSTmxNode {
    * @see IPSTmxTranslationUnit
    * @see IPSTmxHeader
    */
-  public Iterator<Map.Entry<String, PSTmxTranslationUnit>> getTranslationUnits();
+  public Iterator<Map.Entry<String, IPSTmxTranslationUnit>> getTranslationUnits();
 
   /**
    * Returns the array of supported languages specified in the header of the TMX document.
