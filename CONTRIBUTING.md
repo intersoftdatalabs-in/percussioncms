@@ -120,8 +120,10 @@ git pull
 ## Pre-Requisites for Building
 
 - Apache Maven > 3.6
-- Java 1.8 OpenJDK
-- Oracle 1.8 JDK (for JavaFX) TODO: Pull JavaFX from maven
+- JDK 21 (set `JAVA_HOME_21` to your JDK 21 installation)
+- Use the provided environment setup scripts to run Maven so it uses JDK 21:
+  - Linux/macOS: `./mvn-env.sh <maven-args>`
+  - Windows: `mvn-env.bat <maven-args>`
 
 ## Maven Configuration
 
@@ -157,6 +159,13 @@ mvn clean install
 Before you start working on a bug or feature, discuss the issue in GitHub Issues or on the percussion community.  This is just to make sure you don't duplicate efforts or waste your valuable time on something that is already underway by someone else.
 
 When starting work, create a new feature branch.
+
+**Before committing**
+
+- Use the project wrapper scripts so Maven runs with JDK 21: `./mvn-env.sh <maven-args>` (Linux/macOS) or `mvn-env.bat <maven-args>` (Windows).
+- Run `./mvn-env.sh spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvn-env.sh spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
+  - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
+- Run `./mvn-env.sh -DskipTests validate` or `./mvn-env.sh clean verify` to ensure the module builds before pushing your commit.
 
 IntelliJ makes some of this a lot easier, especially when searching for specific error messages across modules in the code base.
 

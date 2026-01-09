@@ -6,6 +6,6 @@ It uses ANT for Install and Upgrades.
 ## Building
 
 ```
-mvn clean install
+Use `./mvn-env.sh clean install` (or `mvn-env.bat clean install` on Windows) so Maven runs with JDK 21.
 ```
 
