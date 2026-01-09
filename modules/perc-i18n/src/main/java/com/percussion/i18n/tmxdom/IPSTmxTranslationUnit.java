@@ -42,7 +42,7 @@ public interface IPSTmxTranslationUnit extends IPSTmxNode {
    * @return Iterator object containg a list of all {@link IPSTmxNote} objects. Never <code>null
    *     </code> may be <code>empty</code>.
    */
-  public Iterator getNotes();
+  public Iterator<IPSTmxNote> getNotes();
 
   /**
    * Method to get all property objects that are associated with this translation unit.
@@ -50,7 +50,7 @@ public interface IPSTmxTranslationUnit extends IPSTmxNode {
    * @return Iterator object containg a list of all {@link IPSTmxProperty} objects. Never <code>null
    *     </code> may be <code>empty</code>.
    */
-  public Iterator getProperties();
+  public Iterator<IPSTmxProperty> getProperties();
 
   /**
    * Method to get all translation unit variant objects that are associated with this translation
@@ -59,7 +59,7 @@ public interface IPSTmxTranslationUnit extends IPSTmxNode {
    * @return Iterator object containg a list of all {@link IPSTmxTranslationUnit} objects. Never
    *     <code>null</code> may be <code>empty</code>.
    */
-  public Iterator getTransUnitVariants();
+  public Iterator<IPSTmxTranslationUnitVariant> getTransUnitVariants();
 
   /**
    * Find a specific translation unit by language name

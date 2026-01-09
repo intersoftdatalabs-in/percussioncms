@@ -66,7 +66,7 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   public void setConfigDoc(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc must not be null");
 
-    m_PSTmxConfigParams = new HashMap();
+    m_PSTmxConfigParams = new HashMap<>();
     // Process "tu" element
     Element tu =
         processConfigElement(doc.getDocumentElement(), IPSTmxDtdConstants.ELEM_TU, MERGE_NODEID_TU);
@@ -129,7 +129,7 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
    * Implementation of the method defined in the interface.
    */
   public PSTmxConfigParams getConfigParams(String nodeId) {
-    return (PSTmxConfigParams) m_PSTmxConfigParams.get(nodeId);
+    return m_PSTmxConfigParams.get(nodeId);
   }
 
   /**
@@ -137,7 +137,7 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
    * node for which the merge configuration is specified. Built when the configuration XML document
    * is set, never <code>null</code> after that.
    */
-  protected Map m_PSTmxConfigParams = null;
+  protected Map<String, PSTmxConfigParams> m_PSTmxConfigParams = null;
 
   /**
    * String constant representing the default merge config file name. This file is shipped as part

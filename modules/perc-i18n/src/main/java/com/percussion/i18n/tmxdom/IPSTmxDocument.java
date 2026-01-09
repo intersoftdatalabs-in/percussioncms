@@ -19,6 +19,7 @@ package com.percussion.i18n.tmxdom;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -171,7 +172,7 @@ public interface IPSTmxDocument extends IPSTmxNode {
    * @see IPSTmxTranslationUnit
    * @see IPSTmxHeader
    */
-  public Iterator getTranslationUnits();
+  public Iterator<Map.Entry<String, IPSTmxTranslationUnit>> getTranslationUnits();
 
   /**
    * Returns the array of supported languages specified in the header of the TMX document.
