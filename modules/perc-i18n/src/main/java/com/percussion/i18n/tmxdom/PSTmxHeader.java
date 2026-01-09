@@ -135,14 +135,14 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
   }
 
   /** Map of all notes in the header. Never <code>null</code>. May be <code>empty</code>. */
-  protected Map m_Notes = new HashMap();
+  protected Map<String, PSTmxNote> m_Notes = new HashMap<>();
 
   /**
    * Map of all supported languages in the header. Never <code>null</code>. May be <code>empty
    * </code>. These are actually {@link IPSTmxProperty} object with special attribute of
    * "supportedlanguage".
    */
-  protected Map m_Languages = new HashMap();
+  protected Map<String, PSTmxProperty> m_Languages = new HashMap<>();
 
   /** Node type value for the TMX header, constant */
   public static final int TMXNODETYPE = IPSTmxNode.TMXHEADER;

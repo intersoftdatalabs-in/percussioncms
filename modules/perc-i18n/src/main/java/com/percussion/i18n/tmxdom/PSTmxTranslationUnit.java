@@ -80,8 +80,7 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
 
     if (createDefault) {
 
-      IPSTmxTranslationUnitVariant variant =
-          (PSTmxTranslationUnitVariant) m_TransUnitVariants.get(PSI18nUtils.DEFAULT_LANG);
+      IPSTmxTranslationUnitVariant variant = m_TransUnitVariants.get(PSI18nUtils.DEFAULT_LANG);
       if (variant == null) {
         variant =
             getTMXDocument()
@@ -104,22 +103,22 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   /*
    * Implementation of the method defined in the interface
    */
-  public Iterator getNotes() {
-    return m_Notes.entrySet().iterator();
+  public Iterator<IPSTmxNote> getNotes() {
+    return m_Notes.values().iterator();
   }
 
   /*
    * Implementation of the method defined in the interface
    */
-  public Iterator getProperties() {
-    return m_Properties.entrySet().iterator();
+  public Iterator<IPSTmxProperty> getProperties() {
+    return m_Properties.values().iterator();
   }
 
   /*
    * Implementation of the method defined in the interface
    */
-  public Iterator getTransUnitVariants() {
-    return m_TransUnitVariants.entrySet().iterator();
+  public Iterator<IPSTmxTranslationUnitVariant> getTransUnitVariants() {
+    return m_TransUnitVariants.values().iterator();
   }
 
   /*
@@ -130,7 +129,7 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
     if (lang == null || lang.trim().length() == 0) {
       throw new IllegalArgumentException("lang may not be null or empty");
     }
-    return (IPSTmxTranslationUnitVariant) m_TransUnitVariants.get(lang);
+    return m_TransUnitVariants.get(lang);
   }
 
   /*
@@ -158,15 +157,13 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
     if (tu == null) {
       throw new IllegalArgumentException("tu object must not be null");
     }
-    Map.Entry entry = null;
     IPSTmxNote noteSrc = null;
     IPSTmxNote note = null;
     boolean exists = false;
-    Iterator iter = tu.getNotes();
+    Iterator<IPSTmxNote> iter = tu.getNotes();
     while (iter.hasNext()) {
-      entry = (Map.Entry) iter.next();
-      noteSrc = (IPSTmxNote) entry.getValue();
-      note = (IPSTmxNote) m_Notes.get(noteSrc.getLang());
+      noteSrc = iter.next();
+      note = m_Notes.get(noteSrc.getLang());
       exists = (note != null);
       PSTmxConfigParams options =
           getTMXDocument().getMergeConfig().getConfigParams(IPSTmxMergeConfig.MERGE_NODEID_TU_NOTE);
@@ -207,15 +204,13 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
     if (tu == null) {
       throw new IllegalArgumentException("tu object must not be null");
     }
-    Map.Entry entry = null;
     IPSTmxProperty propSrc = null;
     IPSTmxProperty prop = null;
     boolean exists = false;
-    Iterator iter = tu.getProperties();
+    Iterator<IPSTmxProperty> iter = tu.getProperties();
     while (iter.hasNext()) {
-      entry = (Map.Entry) iter.next();
-      propSrc = (IPSTmxProperty) entry.getValue();
-      prop = (IPSTmxProperty) m_Properties.get(propSrc.getType());
+      propSrc = iter.next();
+      prop = m_Properties.get(propSrc.getType());
       exists = (prop != null);
       PSTmxConfigParams options =
           getTMXDocument()
@@ -258,17 +253,13 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
     if (tu == null) {
       throw new IllegalArgumentException("tu object must not be null");
     }
-    Map.Entry entry = null;
     IPSTmxTranslationUnitVariant tuvSrc = null;
     IPSTmxTranslationUnitVariant tuv = null;
     boolean exists = false;
-    Iterator iter = tu.getTransUnitVariants();
-    Object o = null;
+    Iterator<IPSTmxTranslationUnitVariant> iter = tu.getTransUnitVariants();
     while (iter.hasNext()) {
-      entry = (Map.Entry) iter.next();
-      tuvSrc = (IPSTmxTranslationUnitVariant) entry.getValue();
-      o = m_TransUnitVariants.get(tuvSrc.getLang());
-      tuv = (IPSTmxTranslationUnitVariant) o;
+      tuvSrc = iter.next();
+      tuv = m_TransUnitVariants.get(tuvSrc.getLang());
       exists = (tuv != null);
       PSTmxConfigParams options =
           getTMXDocument().getMergeConfig().getConfigParams(IPSTmxMergeConfig.MERGE_NODEID_TUV);
@@ -308,8 +299,7 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   private void removeTuv(IPSTmxTranslationUnitVariant tuv) {
     if (tuv == null) return;
 
-    IPSTmxTranslationUnitVariant tuv1 =
-        (IPSTmxTranslationUnitVariant) m_TransUnitVariants.get(tuv.getLang());
+    IPSTmxTranslationUnitVariant tuv1 = m_TransUnitVariants.get(tuv.getLang());
     if (tuv1 == null) return;
 
     // m_DOMElement.removeChild(tuv1.getDOMElement());
@@ -328,7 +318,7 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   private void removeNote(IPSTmxNote note) {
     if (note == null) return;
 
-    IPSTmxNote note1 = (IPSTmxNote) m_Notes.get(note.getLang());
+    IPSTmxNote note1 = m_Notes.get(note.getLang());
     if (note1 == null) return;
     // m_DOMElement.removeChild(note1.getDOMElement());
     if (note1.getDOMElement().getParentNode() == m_DOMElement)
@@ -346,7 +336,7 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   private void removeProperty(IPSTmxProperty prop) {
     if (prop == null) return;
 
-    IPSTmxProperty prop1 = (IPSTmxProperty) m_Properties.get(prop.getType());
+    IPSTmxProperty prop1 = m_Properties.get(prop.getType());
     if (prop1 == null) return;
     // m_DOMElement.removeChild(prop.getDOMElement());
     if (prop.getDOMElement().getParentNode() == m_DOMElement)
@@ -410,17 +400,17 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
    * Map of all TMX notes associated with this node. Never <code>null</code>, can be <code>empty
    * </code>.
    */
-  protected Map m_Notes = new HashMap();
+  protected Map<String, IPSTmxNote> m_Notes = new HashMap<>();
 
   /**
    * Map of all TMX properties associated with this node. Never <code>null</code>, can be <code>
    * empty</code>.
    */
-  protected Map m_Properties = new HashMap();
+  protected Map<String, IPSTmxProperty> m_Properties = new HashMap<>();
 
   /**
    * Map of all TMX translation unit variants associated with this node. Never <code>null</code>,
    * can be <code>empty</code>.
    */
-  protected Map m_TransUnitVariants = new HashMap();
+  protected Map<String, IPSTmxTranslationUnitVariant> m_TransUnitVariants = new HashMap<>();
 }

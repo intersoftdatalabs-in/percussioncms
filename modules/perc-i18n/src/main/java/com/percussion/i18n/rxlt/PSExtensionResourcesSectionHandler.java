@@ -72,14 +72,14 @@ public class PSExtensionResourcesSectionHandler extends PSIdleDotter implements 
       PSFileFilter filter = new PSFileFilter(PSFileFilter.IS_FILE);
       filter.setNamePattern(pattern);
       PSFilteredFileList lister = new PSFilteredFileList(filter);
-      List listFiles = lister.getFiles(new File(rxroot, SYSRESOURCES_DIR));
+      List<File> listFiles = lister.getFiles(new File(rxroot, SYSRESOURCES_DIR));
       // show idle dots
       showDots(false);
 
       filter = new PSFileFilter(PSFileFilter.IS_FILE | PSFileFilter.IS_INCLUDE_ALL_DIRECTORIES);
       filter.setNamePattern(pattern);
       lister = new PSFilteredFileList(filter);
-      List listFilesExt = lister.getFiles(new File(rxroot, EXTENSIONS_DIR));
+      List<File> listFilesExt = lister.getFiles(new File(rxroot, EXTENSIONS_DIR));
 
       listFiles.addAll(listFilesExt);
       File file = null;

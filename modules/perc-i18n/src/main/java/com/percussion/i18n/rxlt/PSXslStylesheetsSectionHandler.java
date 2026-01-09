@@ -126,7 +126,7 @@ public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSS
         new PSFileFilter(PSFileFilter.IS_FILE | PSFileFilter.IS_INCLUDE_ALL_DIRECTORIES);
     filter.setNamePattern(pattern);
     PSFilteredFileList lister = new PSFilteredFileList(filter);
-    List listFiles = lister.getFiles(rxroot);
+    List<File> listFiles = lister.getFiles(rxroot);
     // stop displaying idle dots
     showDots(false);
 

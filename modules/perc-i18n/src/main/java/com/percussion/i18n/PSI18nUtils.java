@@ -82,7 +82,7 @@ public class PSI18nUtils implements IPSI18nUtils {
    *     supported.
    * @see PSTmxResourceBundle
    */
-  public static Iterator getKeys(String language) {
+  public static Iterator<String> getKeys(String language) {
     return PSTmxResourceBundle.getInstance().getKeys(language);
   }
 
@@ -384,7 +384,7 @@ public class PSI18nUtils implements IPSI18nUtils {
   public static String formatMessage(String messageKey, String argList, String languageString) {
     if (messageKey == null || messageKey.length() < 1) return "";
 
-    List list = null;
+    List<String> list = null;
     // parse the argument list string to a list.
     if (argList != null && argList.length() > 0) {
       list = new ArrayList<>();
@@ -433,7 +433,7 @@ public class PSI18nUtils implements IPSI18nUtils {
    * @see #LOOKUP_KEY_SEPARATOR
    * @see #LOOKUP_KEY_SEPARATOR_LAST
    */
-  public static String makeLookupKey(List subkeys) {
+  public static String makeLookupKey(List<String> subkeys) {
     StringBuilder buf = new StringBuilder();
     if (subkeys == null || subkeys.isEmpty()) return buf.toString();
     // Make sure to remove all null/empty keys out of the list
