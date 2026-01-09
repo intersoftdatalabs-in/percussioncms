@@ -13,7 +13,7 @@
 - No breaking changes to public interfaces.
 - All legacy logging replaced with Log4j 2.x.
 - JUnit5 is now required for all tests.
-- Please run `./mvn-env.sh clean verify` and `./mvn-env.sh spotless:check` (or `mvn-env.bat` on Windows) before commits to ensure Maven runs with JDK 21.
+- Please run `./mvn-env.sh spotless:check` (Spotless enforces code formatting/style — if it fails, run `./mvn-env.sh spotless:apply`), then `./mvn-env.sh clean verify` (or `mvn-env.bat` on Windows) before commits. Note: `google-java-format` (used by Spotless) requires JDK 21 to run, so use the wrapper scripts to execute Spotless under JDK 21.
 
 ### Usage Example
 

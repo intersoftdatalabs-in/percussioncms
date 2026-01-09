@@ -106,8 +106,7 @@ Always use the #codebase context when resolving missing interfaces or classes.
 * Use the provided environment scripts to ensure Maven uses JDK 21 when running locally:
 - Linux/macOS: `./mvn-env.sh <maven-args>`
 - Windows: `mvn-env.bat <maven-args>`
-These scripts set `JAVA_HOME` from `JAVA_HOME_21`.
-* Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
+These scripts set `JAVA_HOME` from `JAVA_HOME_21`.* **Before committing:** run `./mvn-env.sh spotless:check` and, if it fails, run `./mvn-env.sh spotless:apply` and re-run the check before pushing changes. (Spotless enforces code formatting/style; `google-java-format` used by Spotless requires JDK 21, so run Spotless via the wrapper scripts.)* Example: `export JAVA_HOME=/usr/lib/jvm/java-1.21.0-amazon-corretto` before running `mvn` commands
 == Dependencies
 * Upgrade dependencies to their latest versions that are compatible with JDK 21.0
 * Dependency versions are managed in the parent pom.xml file

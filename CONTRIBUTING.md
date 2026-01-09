@@ -160,6 +160,13 @@ Before you start working on a bug or feature, discuss the issue in GitHub Issues
 
 When starting work, create a new feature branch.
 
+**Before committing**
+
+- Use the project wrapper scripts so Maven runs with JDK 21: `./mvn-env.sh <maven-args>` (Linux/macOS) or `mvn-env.bat <maven-args>` (Windows).
+- Run `./mvn-env.sh spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvn-env.sh spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
+  - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
+- Run `./mvn-env.sh -DskipTests validate` or `./mvn-env.sh clean verify` to ensure the module builds before pushing your commit.
+
 IntelliJ makes some of this a lot easier, especially when searching for specific error messages across modules in the code base.
 
 The examples below show the typical command line for create a feature branch and pull request.
