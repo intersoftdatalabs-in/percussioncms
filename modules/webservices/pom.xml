@@ -232,7 +232,6 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/com/percussion/webservices/design/rhythmyx.wsdl</wsdl>
                                     <extraargs>
-                                        <!-- map namespaces to existing packages to minimize call site changes -->
                                         <extraarg>-p</extraarg>
                                         <extraarg>urn:www.percussion.com/6.0.0=com.percussion.webservices.rhythmyx</extraarg>
                                     </extraargs>
@@ -301,6 +300,58 @@
         </dependency>
 
     </dependencies>
--->
-    </build>
+-->            <plugins>
+                <plugin>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-codegen-plugin</artifactId>
+                    <version>${cxf.version}</version>
+                    <executions>
+                        <execution>
+                            <id>wsdl2java</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>wsdl2java</goal>
+                            </goals>
+                            <configuration>
+                                <sourceRoot>${project.build.directory}/generated-sources/cxf/wsdl2java</sourceRoot>
+                                <wsdlOptions>
+                                    <wsdlOption>
+                                        <wsdl>${basedir}/src/main/resources/com/percussion/webservices/design/rhythmyx.wsdl</wsdl>
+                                        <extraargs>
+                                            <extraarg>-p</extraarg>
+                                            <extraarg>urn:www.percussion.com/6.0.0=com.percussion.webservices.rhythmyx</extraarg>
+                                        </extraargs>
+                                    </wsdlOption>
+                                    <wsdlOption>
+                                        <wsdl>${basedir}/src/main/resources/com/percussion/webservices/design/rhythmyxDesign.wsdl</wsdl>
+                                        <extraargs>
+                                            <extraarg>-p</extraarg>
+                                            <extraarg>urn:www.percussion.com/6.0.0=com.percussion.webservices.rhythmyxdesign</extraarg>
+                                        </extraargs>
+                                    </wsdlOption>
+                                </wsdlOptions>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>add-cxf-source</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>${project.build.directory}/generated-sources/cxf/wsdl2java</source>
+                                </sources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>    </build>
 </project>
