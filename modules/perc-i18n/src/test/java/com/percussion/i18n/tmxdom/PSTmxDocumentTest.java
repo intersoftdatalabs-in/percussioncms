@@ -55,7 +55,7 @@ public class PSTmxDocumentTest {
 
     // Ensure default language exists and non-default does not
     IPSTmxTranslationUnit stored = doc.getTranslationUnits().next().getValue();
-    assertNotNull(stored.getTransUnitVariant(PSTmxDocument.DEFAULT_LANG));
+    assertNotNull(stored.getTransUnitVariant(com.percussion.i18n.PSI18nUtils.DEFAULT_LANG));
 
     // Add a new language and verify a TUV for that language was added
     String newLang = "fr-fr";
