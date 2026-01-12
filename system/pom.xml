@@ -274,11 +274,7 @@
             <artifactId>myfaces-impl</artifactId>
             <version>${myfaces.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-shared-impl</artifactId>
-            <version>${myfaces.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
