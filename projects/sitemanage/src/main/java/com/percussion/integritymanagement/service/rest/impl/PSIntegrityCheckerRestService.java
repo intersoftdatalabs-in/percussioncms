@@ -25,9 +25,9 @@ import com.percussion.integritymanagement.service.IPSIntegrityCheckerService.Int
 import com.percussion.integritymanagement.service.impl.PSIntegrityCheckerService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

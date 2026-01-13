@@ -19,7 +19,7 @@ package service.web.api.ems.dea;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import jakarta.xml.namespace.QName;
+import javax.xml.namespace.QName;
 import jakarta.xml.ws.WebEndpoint;
 import jakarta.xml.ws.WebServiceClient;
 import jakarta.xml.ws.WebServiceFeature;

@@ -43,7 +43,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
@@ -129,7 +129,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
             PSDependencyUtils.getGuidValFromString(depId, m_def.getObjectTypeName()));
     try {
       return (PSAclImpl) m_aclSvc.loadAcl(guid);
-    } catch (PSSecurityException e) {
+    } catch (PSServiceSecurityException e) {
       return null;
     }
   }

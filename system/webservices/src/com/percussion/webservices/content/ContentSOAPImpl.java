@@ -73,8 +73,8 @@ import org.apache.logging.log4j.Logger;
 
 import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
-import javax.jws.WebService;
-import javax.xml.ws.handler.MessageContext;
+import jakarta.jws.WebService;
+import jakarta.xml.ws.handler.MessageContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

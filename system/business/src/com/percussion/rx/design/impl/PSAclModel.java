@@ -26,7 +26,7 @@ import java.text.MessageFormat;
 // REFACTORED: CP-JAVA11
 
 import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public class PSAclModel extends PSLimitedDesignModel {
         try {
             List<?> acls = service.loadAclsForObjects(Collections.singletonList(guid));
             return acls.isEmpty() ? null : acls.get(0);
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             throw new RuntimeException("Failed to get the design object for guid " + guid, e);
         }
     }
@@ -63,7 +63,7 @@ public class PSAclModel extends PSLimitedDesignModel {
         var service = (IPSAclService) getService();
         try {
             service.deleteAcls(Collections.singletonList(guid));
-        } catch (PSSecurityException e) {
+        } catch (PSServiceSecurityException e) {
             throw new RuntimeException("Failed to delete the design object for guid " + guid, e);
         }
     }

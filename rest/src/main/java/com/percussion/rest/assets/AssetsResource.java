@@ -35,6 +35,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.*;
 import java.net.URI;
@@ -44,8 +46,6 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -212,7 +212,7 @@ public class AssetsResource {
   @Operation(
       summary = "Retrieve a binary file.",
       description =
-          "Get the binary for an image, flash or file asset. Returns a javax.ws.rs.core.Response"
+          "Get the binary for an image, flash or file asset. Returns a jakarta.ws.rs.core.Response"
               + " object.",
       responses = {
         @ApiResponse(responseCode = "404", description = "Asset not found"),

@@ -28,7 +28,7 @@ import com.percussion.guitools.PSNameLabel;
 import com.percussion.guitools.PSPathLabel;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.accessibility.AccessibleContext;
+import jakarta.accessibility.AccessibleContext;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;

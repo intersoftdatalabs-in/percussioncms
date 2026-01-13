@@ -1,0 +1,199 @@
+<jaxb:bindings version="3.0"
+    xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- BasicObjects customizations (applies to services compilation) -->
+    <jaxb:bindings schemaLocation="BasicObjects.xsd" node="/xsd:schema">
+        <jaxb:bindings node="xsd:element[@name='PSXTableLocator']/xsd:complexType/xsd:attribute[@name='alias']">
+            <jaxb:property name="aliasAttr"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSXEntry']/xsd:complexType/xsd:sequence/xsd:element[@name='Value']">
+            <jaxb:class name="ValueEntry"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='value']">
+            <jaxb:class name="ValueLower"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+
+    <!-- Make PSRelationshipFilter.Category a typesafe enum (services schema) -->
+    <jaxb:bindings schemaLocation="system/systemServices.xsd" node="/xsd:schema/xsd:simpleType[@name='PSRelationshipFilterCategory']">
+        <jaxb:typesafeEnumClass name="PSRelationshipFilterCategory" />
+    </jaxb:bindings>
+
+    <!-- Make RelationshipFilter.RelationshipType a typesafe enum (common schema) -->
+    <jaxb:bindings schemaLocation="common.xsd" node="/xsd:schema/xsd:complexType[@name='RelationshipFilter']//xsd:element[@name='RelationshipType']/xsd:simpleType">
+        <jaxb:typesafeEnumClass name="RelationshipFilterRelationshipType" />
+    </jaxb:bindings>
+
+    <!-- Avoid generating classes that collide with handwritten exceptions by renaming fault element bindings -->
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSContractViolationFault']">
+        <jaxb:class name="PSContractViolationFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSErrorsFault']">
+        <jaxb:class name="PSErrorsFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSErrorResultsFault']">
+        <jaxb:class name="PSErrorResultsFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSInvalidLocaleFault']">
+        <jaxb:class name="PSInvalidLocaleFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSInvalidSessionFault']">
+        <jaxb:class name="PSInvalidSessionFaultBean" />
+    </jaxb:bindings>
+
+    <!-- Rename generated PSRole to avoid collision with handwritten compatibility shim -->
+    <jaxb:bindings schemaLocation="security/securityServices.xsd" node="/xsd:schema/xsd:complexType[@name='PSRole']">
+        <jaxb:class name="PSRoleGen"/>
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSNotAuthenticatedFault']">
+        <jaxb:class name="PSNotAuthenticatedFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSNotAuthorizedFault']">
+        <jaxb:class name="PSNotAuthorizedFaultBean" />
+    </jaxb:bindings>
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema/xsd:element[@name='PSLockFault']">
+        <jaxb:class name="PSLockFaultBean" />
+    </jaxb:bindings>
+
+    <!-- UI services customizations: map nested elements and inline simpleTypes to top-level named classes to match existing handwritten code and converters -->
+    <jaxb:bindings schemaLocation="ui/uiServices.xsd" node="/xsd:schema">
+
+
+
+
+        <!-- Map PSDisplayFormat Column and its inline enums to named types -->
+
+
+        <!-- Map search/view related inline enums to named types -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSSearchDef']/xsd:complexType/xsd:complexContent/xsd:extension/xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSSearchDefType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSViewDef']/xsd:complexType/xsd:complexContent/xsd:extension/xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSViewDefType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='SearchField']/xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="SearchFieldType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='SearchView']//xsd:attribute[@name='parentCategory']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="SearchViewParentCategory"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <!-- Additional bindings to generate top-level classes/enums expected by converters/tests -->
+    <jaxb:bindings schemaLocation="common.xsd" node="/xsd:schema">
+        <!-- Map Relationship.Properties.Property anonymous complexType to top-level class -->
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='Relationship']/xsd:sequence/xsd:element[@name='Properties']/xsd:complexType/xsd:sequence/xsd:element[@name='Property']/xsd:complexType">
+            <jaxb:class name="RelationshipPropertiesProperty"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="BasicObjects.xsd" node="/xsd:schema">
+
+    </jaxb:bindings>
+
+    <!-- Move PSField attribute enums to content schema bindings (PSField is declared in contentServices.xsd) -->
+    <jaxb:bindings schemaLocation="content/contentServices.xsd" node="/xsd:schema">
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSField']/xsd:attribute[@name='dimension']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFieldDimension"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSFieldDescription']//xsd:attribute[@name='dataType']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFieldDescriptionDataType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSField']/xsd:attribute[@name='transferEncoding']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFieldTransferEncoding"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSField']/xsd:attribute[@name='sourceType']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFieldSourceType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSField']/xsd:attribute[@name='dataType']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFieldDataType"/>
+        </jaxb:bindings>
+        <!-- Content Editor Definition type (map inline enum to named type expected by converters) -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSContentEditorDefinition']/xsd:complexType/xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSContentEditorDefinitionType"/>
+        </jaxb:bindings>
+
+        <!-- PSItemSummary.Operation: inline simpleType -> PSItemSummaryOperation enum -->
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSItemSummary']//xsd:element[@name='Operation']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSItemSummaryOperation" />
+        </jaxb:bindings>
+
+
+
+        <!-- PSSearchParams nested anonymous types remain as nested types (no top-level class binding) -->
+
+        <!-- PSRelatedItem.action inline enum -> PSRelatedItemAction -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSRelatedItem']/xsd:complexType/xsd:attribute[@name='action']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSRelatedItemAction" />
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="content/contentServices.xsd" node="/xsd:schema">
+        <!-- PSFolder nested element and its enum -->
+        <jaxb:bindings node="/xsd:schema//xsd:element[@name='PSFolder']//xsd:element[@name='AclEntry']//xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSFolderSecurityAclEntryType"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema">
+        <!-- PSErrorResultsFault: bind the anonymous ServiceCall complexType and its nested Result/Error complexTypes to named top-level classes -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorResultsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType">
+            <jaxb:class name="PSErrorResultsFaultServiceCall"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorResultsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType/xsd:choice/xsd:element[@name='Result']/xsd:complexType">
+            <jaxb:class name="PSErrorResultsFaultServiceCallResult"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorResultsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType/xsd:choice/xsd:element[@name='Error']/xsd:complexType">
+            <jaxb:class name="PSErrorResultsFaultServiceCallError"/>
+        </jaxb:bindings>
+        <!-- PSErrorsFault: bind ServiceCall and its nested Success/Error complexTypes -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType">
+            <jaxb:class name="PSErrorsFaultServiceCall"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType/xsd:choice/xsd:element[@name='Success']/xsd:complexType">
+            <jaxb:class name="PSErrorsFaultServiceCallSuccess"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSErrorsFault']/xsd:complexType/xsd:sequence/xsd:element[@name='ServiceCall']/xsd:complexType/xsd:choice/xsd:element[@name='Error']/xsd:complexType">
+            <jaxb:class name="PSErrorsFaultServiceCallError"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="system/systemServices.xsd" node="/xsd:schema">
+        <!-- PSAgingTransition 'type' enum and PSAssignedRole enums -->
+        <jaxb:bindings node="/xsd:schema//xsd:complexType[@name='PSAgingTransition']//xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSAgingTransitionType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema//xsd:complexType[@name='PSAssignedRole']//xsd:attribute[@name='assignmentType']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSAssignedRoleAssignmentType"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="/xsd:schema//xsd:complexType[@name='PSAssignedRole']//xsd:attribute[@name='adhocType']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSAssignedRoleAdhocType"/>
+        </jaxb:bindings>
+
+        <!-- RelationshipConfigSummary.type inline enum -> RelationshipConfigSummaryType -->
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='RelationshipConfigSummary']/xsd:complexContent/xsd:extension/xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="RelationshipConfigSummaryType"/>
+        </jaxb:bindings>
+
+        <!-- PSTransition.comment inline enum -> PSTransitionComment -->
+        <jaxb:bindings node="/xsd:schema/xsd:complexType[@name='PSTransition']/xsd:complexContent/xsd:extension/xsd:attribute[@name='comment']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSTransitionComment"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="assembly/assemblyServices.xsd" node="/xsd:schema">
+
+
+        <!-- PSTemplateSlot nested anonymous types kept as nested types; inline enum kept as typesafe enum -->
+        <jaxb:bindings node="/xsd:schema//xsd:element[@name='PSTemplateSlot']//xsd:attribute[@name='type']/xsd:simpleType">
+            <jaxb:typesafeEnumClass name="PSTemplateSlotType"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="security/securityServices.xsd" node="/xsd:schema">
+
+    </jaxb:bindings>
+
+</jaxb:bindings>

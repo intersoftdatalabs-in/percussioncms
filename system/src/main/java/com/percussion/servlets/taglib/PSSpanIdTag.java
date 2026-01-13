@@ -16,7 +16,7 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 
 /**
  * The span id tag allows the creation of elements in a JSF tree that have calculate ids, which is
@@ -37,7 +37,7 @@ public class PSSpanIdTag extends PSJSFBaseTag {
   }
 
   /* (non-Javadoc)
-   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
+   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(jakarta.faces.component.UIComponent)
    */
   @Override
   protected void setProperties(UIComponent comp) {

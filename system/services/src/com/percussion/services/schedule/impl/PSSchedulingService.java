@@ -32,11 +32,8 @@ import com.percussion.services.schedule.data.PSScheduledTaskLog;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -403,7 +400,7 @@ public class PSSchedulingService implements IPSSchedulingService {
    @SuppressWarnings("unchecked")
    public Collection<PSNotificationTemplate> findAllNotificationTemplates()
    {
-      return getSession().createCriteria(PSNotificationTemplate.class).list();
+      return getSession().createQuery("from PSNotificationTemplate", PSNotificationTemplate.class).list();
    }
 
    // see base
@@ -565,19 +562,13 @@ public class PSSchedulingService implements IPSSchedulingService {
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSScheduledTaskLog.class);
-         c.setProjection(Projections.projectionList().add(
-               Projections.property("log_id")).add(
-               Projections.property("task_id")).add(
-               Projections.property("start_time")).add(
-               Projections.property("end_time")).add(
-               Projections.property("is_success")));
-         c.addOrder(Order.desc("end_time"));
+         String hql = "select e.log_id, e.task_id, e.start_time, e.end_time, e.is_success from PSScheduledTaskLog e order by e.end_time desc";
+         Query<Object[]> q = s.createQuery(hql, Object[].class);
          if (maxResult > 0)
-            c.setMaxResults(maxResult);
-         
-         List<Object[]> results = c.list();
-         
+            q.setMaxResults(maxResult);
+
+         List<Object[]> results = q.list();
+
          List<PSScheduledTaskLog> retval = new ArrayList<>();
          for (Object[] props : results)
          {

@@ -1,0 +1,116 @@
+<jaxb:bindings version="3.0"
+    xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- BasicObjects customizations (applies to both WSDL compilations) -->
+    <jaxb:bindings schemaLocation="BasicObjects.xsd" node="/xsd:schema">
+        <!-- BasicObjects alias: target alias attribute on PSXTableLocator -->
+        <jaxb:bindings node="xsd:element[@name='PSXTableLocator']/xsd:complexType/xsd:attribute[@name='alias']">
+            <jaxb:property name="aliasAttr"/>
+        </jaxb:bindings>
+
+        <!-- Resolve duplicate 'Value' declarations causing ObjectFactory collisions -->
+        <!-- Local PSXEntry->Value element: generate distinct class to avoid ObjectFactory collision -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='PSXEntry']/xsd:complexType/xsd:sequence/xsd:element[@name='Value']">
+            <jaxb:class name="ValueEntry"/>
+        </jaxb:bindings>
+        <!-- Lowercase 'value' element used elsewhere in this schema: generate distinct class name -->
+        <jaxb:bindings node="/xsd:schema/xsd:element[@name='value']">
+            <jaxb:class name="ValueLower"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+    <!-- Common and faults are shared packages (applies to both WSDLs) -->
+    <jaxb:bindings schemaLocation="common.xsd" node="/xsd:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="com.percussion.webservices.common"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings schemaLocation="faults.xsd" node="/xsd:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="com.percussion.webservices.faults"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+    <!-- Bindings that only apply when compiling the services WSDL -->
+    <jaxb:bindings wsdlLocation="rhythmyx.wsdl">
+
+        <jaxb:bindings schemaLocation="assembly/assemblyServices.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.assembly.data"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="content/contentServices.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.content.data"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="security/securityServices.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.security.data"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="system/systemServices.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.system.data"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="ui/uiServices.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.ui.data"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <!-- Make PSRelationshipFilter.Category a typesafe enum (services schema) -->
+        <jaxb:bindings schemaLocation="system/systemServices.xsd" node="/xsd:schema/xsd:simpleType[@name='PSRelationshipFilterCategory']">
+            <jaxb:typesafeEnumClass name="PSRelationshipFilterCategory" />
+        </jaxb:bindings>
+
+    </jaxb:bindings>
+
+    <!-- Bindings that only apply when compiling the design WSDL -->
+    <jaxb:bindings wsdlLocation="rhythmyxDesign.wsdl">
+
+        <jaxb:bindings schemaLocation="assembly/assemblyDesign.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.assemblydesign"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="content/contentDesign.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.contentdesign"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="security/securityDesign.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.securitydesign"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="system/systemDesign.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.systemdesign"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+        <jaxb:bindings schemaLocation="ui/uiDesign.xsd" node="/xsd:schema">
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.percussion.webservices.uidesign"/>
+            </jaxb:schemaBindings>
+        </jaxb:bindings>
+
+    </jaxb:bindings>
+
+    <!-- Make RelationshipFilter.RelationshipType a typesafe enum (common schema) -->
+    <jaxb:bindings schemaLocation="common.xsd" node="/xsd:schema/xsd:complexType[@name='RelationshipFilter']//xsd:element[@name='RelationshipType']/xsd:simpleType">
+        <jaxb:typesafeEnumClass name="RelationshipFilterRelationshipType" />
+    </jaxb:bindings>
+
+</jaxb:bindings>

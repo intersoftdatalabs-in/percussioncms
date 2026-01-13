@@ -81,7 +81,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.concurrent.ThreadSafe;
 import javax.jcr.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,7 +97,6 @@ import org.w3c.dom.Document;
  * <p>This class follows the singleton pattern, and a reference to the single instance may be
  * obtained using {@link #getInstance()}.
  */
-@ThreadSafe
 public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHandlerInitListener {
   private static final int EVENT_WAIT_TIME_MS = 10000;
 

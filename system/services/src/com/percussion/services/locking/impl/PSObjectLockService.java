@@ -34,9 +34,8 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
@@ -349,11 +348,10 @@ public class PSObjectLockService
    {
       Session session = getSession();
 
-         Criteria criteria = session.createCriteria(PSObjectLock.class);
-         criteria.add(Restrictions.lt("expirationTime", 
-            System.currentTimeMillis()));
+         Query<PSObjectLock> q = session.createQuery("from PSObjectLock where expirationTime < :now", PSObjectLock.class)
+               .setParameter("now", System.currentTimeMillis());
          
-         return criteria.list();
+         return q.list();
 
    }
 
@@ -403,15 +401,23 @@ public class PSObjectLockService
          PSCriteriaQueryRepeater<PSObjectLock> cr = 
             new PSCriteriaQueryRepeater<PSObjectLock>()
          {
-            public void add(Criteria criteria, List<IPSGuid> ids)
+            public org.hibernate.query.Query<PSObjectLock> createQuery(Session sess, List<IPSGuid> ids)
             {
-               criteria.add(Restrictions.in("objectId", 
-                     PSGuidUtils.toFullLongList(ids)));
+               StringBuilder hql = new StringBuilder("from PSObjectLock l where l.objectId in (:ids)");
                if (!StringUtils.isBlank(lockSession))
-                  criteria.add(Restrictions.eq("lockSession", 
-                     getLockSession(lockSession)));
+                   hql.append(" and l.lockSession = :lockSession");
                if (!StringUtils.isBlank(locker))
-                  criteria.add(Restrictions.eq("locker", locker));
+                   hql.append(" and l.locker = :locker");
+
+               org.hibernate.query.Query<PSObjectLock> q = sess.createQuery(hql.toString(), PSObjectLock.class)
+                       .setParameterList("ids", PSGuidUtils.toFullLongList(ids));
+
+               if (!StringUtils.isBlank(lockSession))
+                   q.setParameter("lockSession", getLockSession(lockSession));
+               if (!StringUtils.isBlank(locker))
+                   q.setParameter("locker", locker);
+
+               return q;
             }
          };
          List<PSObjectLock> locks = cr.query(ids, session, PSObjectLock.class);
@@ -448,10 +454,10 @@ public class PSObjectLockService
       
       Session session = getSession();
 
-         Criteria criteria = session.createCriteria(PSObjectLock.class);
-         criteria.add(Restrictions.in("id", PSGuidUtils.toFullLongList(ids)));
+         Query<PSObjectLock> q = session.createQuery("from PSObjectLock where id in (:ids)", PSObjectLock.class)
+               .setParameterList("ids", PSGuidUtils.toFullLongList(ids));
          
-         List<PSObjectLock> locks = criteria.list();
+         List<PSObjectLock> locks = q.list();
          
          if (skipRelease)
             return locks;
@@ -630,14 +636,13 @@ public class PSObjectLockService
       
       Session session = getSession();
 
-         Criteria criteria = session.createCriteria(PSObjectLock.class);
-         criteria.add(Restrictions.eq("lockSession", 
-            getLockSession(lockSession)));
-         criteria.add(Restrictions.eq("locker", locker));
+      Query<PSObjectLock> q = session.createQuery("from PSObjectLock where lockSession = :lockSession and locker = :locker", PSObjectLock.class);
+      q.setParameter("lockSession", getLockSession(lockSession));
+      q.setParameter("locker", locker);
 
-         List<PSObjectLock> locks = criteria.list();
-         
-         return releaseExpiredLocks(locks);
+      List<PSObjectLock> locks = q.list();
+
+      return releaseExpiredLocks(locks);
 
 
    }

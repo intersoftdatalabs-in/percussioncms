@@ -22,7 +22,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.system.utils.PSSiteManageBean;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Generates names for local content items. */

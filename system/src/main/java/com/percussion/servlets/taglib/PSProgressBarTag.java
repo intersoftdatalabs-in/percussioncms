@@ -16,7 +16,7 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 
 /** The tag that implements the progress bar. */
 public class PSProgressBarTag extends PSJSFBaseTag {
@@ -29,7 +29,7 @@ public class PSProgressBarTag extends PSJSFBaseTag {
   }
 
   /* (non-Javadoc)
-   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
+   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(jakarta.faces.component.UIComponent)
    */
   @SuppressWarnings("unchecked")
   @Override

@@ -27,7 +27,7 @@ import com.percussion.webservices.PSSystemTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.common.ObjectType;
 import com.percussion.webservices.common.Reference;
-import com.percussion.webservices.common.RelationshipFilterRelationshipType;
+import com.percussion.webservices.common.RelationshipFilter.RelationshipFilterRelationshipType;
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.content.PSContentType;
 import com.percussion.webservices.content.PSItem;

@@ -19,37 +19,37 @@
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.CONFIG_FILES</param-name>
+        <param-name>jakarta.faces.CONFIG_FILES</param-name>
         <param-value>/WEB-INF/publishing-faces-config.xml,/WEB-INF/admin-faces-config.xml,/WEB-INF/config/user/faces/faces-config.xml</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-name>jakarta.faces.STATE_SAVING_METHOD</param-name>
         <param-value>client</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.PRETTY_HTML</param-name>
+        <param-name>jakarta.faces.PRETTY_HTML</param-name>
         <param-value>true</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.ALLOW_JAVASCRIPT</param-name>
+        <param-name>jakarta.faces.ALLOW_JAVASCRIPT</param-name>
         <param-value>true</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.READONLY_AS_DISABLED_FOR_SELECTS</param-name>
+        <param-name>jakarta.faces.READONLY_AS_DISABLED_FOR_SELECTS</param-name>
         <param-value>true</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.DETECT_JAVASCRIPT</param-name>
+        <param-name>jakarta.faces.DETECT_JAVASCRIPT</param-name>
         <param-value>false</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.AUTO_SCROLL</param-name>
+        <param-name>jakarta.faces.AUTO_SCROLL</param-name>
         <param-value>false</param-value>
     </context-param>
 
@@ -59,12 +59,12 @@
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.CHECK_EXTENSIONS_FILTER</param-name>
+        <param-name>jakarta.faces.CHECK_EXTENSIONS_FILTER</param-name>
         <param-value>true</param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.RESOURCE_VIRTUAL_PATH</param-name>
+        <param-name>jakarta.faces.RESOURCE_VIRTUAL_PATH</param-name>
         <param-value>/sys_resources/trinidad</param-value>
     </context-param>
 
@@ -74,7 +74,7 @@
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.PARTIAL_STATE_SAVING_METHOD</param-name>
+        <param-name>jakarta.faces.PARTIAL_STATE_SAVING_METHOD</param-name>
         <param-value>false</param-value>
     </context-param>
 
@@ -483,7 +483,7 @@
 
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 

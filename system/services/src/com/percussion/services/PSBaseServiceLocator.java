@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.naming.NamingException;
@@ -218,6 +217,7 @@ public class PSBaseServiceLocator {
         XmlWebApplicationContext parentCtx, List<String> configFiles) {
         try {
             String[] files = configFiles.toArray(new String[0]);
+
             XmlWebApplicationContext ctx = new XmlWebApplicationContext();
             ctx.setParent(ms_context);
             ctx.setServletContext(parentCtx.getServletContext());
@@ -230,6 +230,19 @@ public class PSBaseServiceLocator {
                 PSExceptionUtils.getMessageForLog(e));
             return Optional.empty();
         }
+    }
+
+    private static javax.naming.spi.InitialContextFactoryBuilder createSimpleNamingContextBuilder() {
+        try {
+            Class<?> cls = Class.forName("org.springframework.mock.jndi.SimpleNamingContextBuilder");
+            Object inst = cls.getDeclaredConstructor().newInstance();
+            if (inst instanceof javax.naming.spi.InitialContextFactoryBuilder) {
+                return (javax.naming.spi.InitialContextFactoryBuilder) inst;
+            }
+        } catch (Exception e) {
+            ms_logger.debug("SimpleNamingContextBuilder not available: {}", e.toString());
+        }
+        return null;
     }
 
     /**
@@ -265,9 +278,13 @@ public class PSBaseServiceLocator {
         try {
             if (ms_context == null) {
                 if (!ms_setNamingContextBuilder) {
-                    NamingManager.setInitialContextFactoryBuilder(
-                        new SimpleNamingContextBuilder());
-                    ms_setNamingContextBuilder = true;
+                    javax.naming.spi.InitialContextFactoryBuilder builder = createSimpleNamingContextBuilder();
+                    if (builder != null) {
+                        NamingManager.setInitialContextFactoryBuilder(builder);
+                        ms_setNamingContextBuilder = true;
+                    } else {
+                        ms_logger.warn("SimpleNamingContextBuilder not available; skipping JNDI init");
+                    }
                 }
 
                 PSFileSystemXmlApplicationContext.setConfigDir(

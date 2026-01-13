@@ -24,7 +24,7 @@ import com.percussion.design.objectstore.PSRelationshipPropertyData;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
 
 import java.sql.Connection;
@@ -538,7 +538,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
         }
 
         Connection conn = null;
-        SQLQuery stmt = null;
+        NativeQuery<?> stmt = null;
         Iterator<?> rs = null;
 
         try {
@@ -551,7 +551,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
 
             // execute the query
             //conn = PSConnectionHelper.getDbConnection(null);
-            stmt = sess.createSQLQuery(qryString);
+            stmt = sess.createNativeQuery(qryString);
 
             int i = 0;
 

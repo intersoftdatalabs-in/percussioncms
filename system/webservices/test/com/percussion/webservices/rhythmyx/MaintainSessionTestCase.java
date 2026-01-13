@@ -168,7 +168,7 @@ public class MaintainSessionTestCase extends PSTestBase
    private void setRxSession(org.apache.axis.client.Stub binding,
          String rxSession)
    {
-      binding.setHeader("urn:www.percussion.com/6.0.0/common", "session",
+      binding.setHeader("urn:www.percussion.com/8.2.0/common", "session",
             rxSession);      
    }
 

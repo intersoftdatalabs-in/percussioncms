@@ -48,7 +48,7 @@
         <servlet-name>Jersey Spring Web Application</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
-            <param-name>javax.ws.rs.Application</param-name>
+            <param-name>jakarta.ws.rs.Application</param-name>
             <param-value>com.percussion.PSMembershipApplication</param-value>
         </init-param>
 

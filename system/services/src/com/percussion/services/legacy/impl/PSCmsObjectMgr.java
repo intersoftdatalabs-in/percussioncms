@@ -92,18 +92,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Cache;
 import org.hibernate.CacheMode;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.query.Query;
-import org.hibernate.type.IntegerType;
-import org.hibernate.type.LongType;
-import org.hibernate.type.ShortType;
-import org.hibernate.type.StringType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -277,21 +270,21 @@ public class PSCmsObjectMgr
     @Override
     public List<PSUIMode> findUiModes() {
         Session session = getSession();
-  		try{
-            return session.createCriteria(PSUIMode.class).list();
-        }catch(Exception e){
+        try {
+            return session.createQuery("from PSUIMode", PSUIMode.class).list();
+        } catch(Exception e) {
             logger.warn("An error occurred while listing UI Contexts: {}",
                     PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
-      }
-	}
+        }
+    }
 
     @Override
     public List<PSActionMenu> findActionMenus() {
         Session session = getSession();
 
         try {
-            return session.createCriteria(PSActionMenu.class).addOrder(Order.asc("sortOrder")).list();
+            return session.createQuery("from PSActionMenu m order by m.sortOrder asc", PSActionMenu.class).list();
         } catch (Exception e) {
             logger.warn("An error occurred while listing action menus: {}" , PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
@@ -303,7 +296,13 @@ public class PSCmsObjectMgr
         Session session = getSession();
 
         try {
-            return session.createCriteria(PSActionMenu.class).add(Restrictions.ilike("type",type)).addOrder(Order.asc("sortOrder")).list();
+            if (type == null) {
+                return new ArrayList<>();
+            }
+            String t = type.toLowerCase();
+            return session.createQuery("from PSActionMenu m where lower(m.type) = :type order by m.sortOrder asc", PSActionMenu.class)
+                    .setParameter("type", t)
+                    .list();
         }catch(Exception e) {
             logger.warn("An error occurred while listing action menus by type: {}" , PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
@@ -314,7 +313,7 @@ public class PSCmsObjectMgr
     public List<PSUiContext> findUiContexts() {
         Session session = getSession();
         try {
-            return session.createCriteria(PSUiContext.class).list();
+            return session.createQuery("from PSUiContext", PSUiContext.class).list();
         }catch(Exception e) {
             logger.warn("An error occurred while listing UI Contexts: {}" ,PSExceptionUtils.getMessageForLog(e));
             return new ArrayList<>();
@@ -380,9 +379,9 @@ public class PSCmsObjectMgr
    public PSLocale findLocaleByLanguageString(String lang)
    {
 
-         Criteria c = getSession().createCriteria(PSLocale.class).add(
-               Restrictions.eq("m_languageString", lang));
-         List<PSLocale> locales = c.list();
+         Query<PSLocale> q = getSession().createQuery("from PSLocale where m_languageString = :lang", PSLocale.class)
+               .setParameter("lang", lang);
+         List<PSLocale> locales = q.list();
          if (locales != null && !locales.isEmpty())
          {
             return locales.get(0);
@@ -404,9 +403,9 @@ public class PSCmsObjectMgr
    {
       Session session = getSession();
 
-         Criteria c = session.createCriteria(PSLocale.class).add(Restrictions.eq("m_status", status))
-               .addOrder(Order.asc("m_displayName"));
-         List<PSLocale> locales = c.list();
+         Query<PSLocale> q = session.createQuery("from PSLocale where m_status = :status order by m_displayName asc", PSLocale.class)
+               .setParameter("status", status);
+         List<PSLocale> locales = q.list();
          return locales;
       }
 
@@ -481,8 +480,7 @@ public class PSCmsObjectMgr
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPersistentPropertyMeta.class);
-         return (List<PSPersistentPropertyMeta>) c.list();
+         return s.createQuery("from PSPersistentPropertyMeta", PSPersistentPropertyMeta.class).list();
 
       }
 
@@ -544,10 +542,13 @@ public class PSCmsObjectMgr
 
     private  PSPersistentPropertyMeta findProperties(PSPersistentPropertyMeta meta) {
         Session session = getSession();
-        Criteria criteria = session.createCriteria(PSPersistentPropertyMeta.class);
-        PSPersistentPropertyMeta prop = ((PSPersistentPropertyMeta) criteria.add(Restrictions.eq("propertyName", meta.getPropertyName()))
-                .add((Restrictions.eq("userName",meta.getUserName()))).uniqueResult());
-        return prop;
+        Query<PSPersistentPropertyMeta> q = session.createQuery(
+            "from PSPersistentPropertyMeta where propertyName = :prop and userName = :user", PSPersistentPropertyMeta.class)
+            .setParameter("prop", meta.getPropertyName())
+            .setParameter("user", meta.getUserName())
+            .setMaxResults(1);
+        List<PSPersistentPropertyMeta> list = q.list();
+        return list.isEmpty() ? null : list.get(0);
     }
 
 
@@ -581,8 +582,7 @@ public class PSCmsObjectMgr
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSPersistentProperty.class);
-         return (List<PSPersistentProperty>) c.list();
+         return s.createQuery("from PSPersistentProperty", PSPersistentProperty.class).list();
 
       }
 
@@ -922,13 +922,14 @@ public class PSCmsObjectMgr
 
          if (id instanceof String)
          {
-            if (cm.getIdentifierType() instanceof LongType)
-               id = new Long((String) id);
-            else if (cm.getIdentifierType() instanceof IntegerType)
-               id = new Integer((String) id);
-            else if (cm.getIdentifierType() instanceof ShortType)
-               id = new Short((String) id);
-            else if (!(cm.getIdentifierType() instanceof StringType))
+            Class<?> idClass = cm.getIdentifierType().getReturnedClass();
+            if (Long.class.equals(idClass) || long.class.equals(idClass))
+               id = Long.valueOf((String) id);
+            else if (Integer.class.equals(idClass) || int.class.equals(idClass))
+               id = Integer.valueOf((String) id);
+            else if (Short.class.equals(idClass) || short.class.equals(idClass))
+               id = Short.valueOf((String) id);
+            else if (!String.class.equals(idClass))
                id = null;
          }
          if (id != null)
@@ -965,7 +966,7 @@ public class PSCmsObjectMgr
    {
       Session s = getSession();
 
-         List<PSConfig> result = s.createCriteria(PSConfig.class).list();
+         List<PSConfig> result = s.createQuery("from PSConfig", PSConfig.class).list();
          for (PSConfig c : result)
          {
             if (PSConfigurationFactory.RELATIONSHIPS_CFG.equals(c.getName()))
@@ -1321,7 +1322,7 @@ public class PSCmsObjectMgr
    public Collection<PSRelationshipConfigName> findAllRelationshipConfigNames()
    {
       List<PSRelationshipConfigName> names = getSession()
-              .createCriteria(PSRelationshipConfigName.class).list();
+              .createQuery("from PSRelationshipConfigName", PSRelationshipConfigName.class).list();
 
       if (names == null)
          return Collections.emptyList();
@@ -1335,8 +1336,8 @@ public class PSCmsObjectMgr
    {
       Session sess = getSession();
 
-         return sess.createCriteria(PSRelationshipConfigName.class).add(Restrictions.ilike("config_name", name))
-               .list();
+         return sess.createQuery("from PSRelationshipConfigName where lower(config_name) like :name", PSRelationshipConfigName.class)
+               .setParameter("name", name.toLowerCase()).list();
 
       }
 
@@ -1485,10 +1486,9 @@ public class PSCmsObjectMgr
             {
                end = ids.size();
             }
-            Criteria c = session.createCriteria(PSComponentSummary.class);
-            c.add(Restrictions.in("m_contentId", ids.subList(i, end)));
-            c.setProjection(Projections.distinct(Projections.property("m_contentTypeId")));
-            results.addAll(c.list());
+            List<Number> partResults = session.createQuery("select distinct cs.m_contentTypeId from PSComponentSummary cs where cs.m_contentId in (:ids)", Number.class)
+                .setParameterList("ids", ids.subList(i, end)).list();
+            results.addAll(partResults);
          }
          
          for(Number n : results)
@@ -2059,11 +2059,12 @@ public class PSCmsObjectMgr
             {
                end = ids.size();
             }
-            Criteria c = session.createCriteria(PSComponentSummary.class);
-            c.add(Restrictions.in("m_contentId", ids.subList(i, end)));
-            c.add(Restrictions.ne("m_checkoutUserName", ""));
-            c.setProjection(Projections.property("m_contentId"));
-            results.addAll(c.list());
+            List<Number> partResults = session.createQuery("select c.m_contentId from PSComponentSummary c where c.m_contentId in (:ids) and c.m_checkoutUserName != ''", Number.class)
+                .setParameterList("ids", ids.subList(i, end)).list();
+            for (Number n : partResults)
+            {
+               results.add(n.intValue());
+            }
          }
          
          return results;

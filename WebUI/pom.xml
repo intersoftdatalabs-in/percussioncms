@@ -532,11 +532,6 @@
             <artifactId>solr-solrj</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>owlapi-distribution</artifactId>
             <scope>compile</scope>
@@ -547,7 +542,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
         <dependency>
             <groupId>caja</groupId>

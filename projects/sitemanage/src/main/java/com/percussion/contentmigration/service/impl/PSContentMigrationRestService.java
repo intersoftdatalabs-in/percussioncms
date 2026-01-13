@@ -19,10 +19,10 @@ package com.percussion.contentmigration.service.impl;
 
 import com.percussion.contentmigration.service.IPSContentMigrationService;
 import com.percussion.contentmigration.service.PSContentMigrationException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

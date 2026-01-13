@@ -45,10 +45,7 @@ import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -272,20 +269,20 @@ public class PSContentMgr  implements IPSContentMgr
       try
       {
          name = PSContentUtils.internalizeName(name).toLowerCase();
-         Criteria c = s.createCriteria(PSNodeDefinition.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.ilike("m_name",name));
-         List defs = c.list();
+         org.hibernate.query.Query<PSNodeDefinition> cquery = s.createQuery("from PSNodeDefinition where lower(m_name) like :name", PSNodeDefinition.class);
+         cquery.setParameter("name", name);
+         cquery.setCacheable(true);
+         cquery.setCacheRegion(CACHE_REGION);
+         List<PSNodeDefinition> defs = cquery.list();
          if (defs.size() == 0)
          {
             // Try again with spaces in case the internal name had spaces
             name = name.replace('_', ' ');
-            c = s.createCriteria(PSNodeDefinition.class);
-            c.setCacheable(true);
-            c.setCacheRegion(CACHE_REGION);
-            c.add(Restrictions.ilike("m_name",name));
-            defs = c.list();
+            cquery = s.createQuery("from PSNodeDefinition where lower(m_name) like :name", PSNodeDefinition.class);
+            cquery.setParameter("name", name);
+            cquery.setCacheable(true);
+            cquery.setCacheRegion(CACHE_REGION);
+            defs = cquery.list();
          }
          
          // Make unique
@@ -310,14 +307,14 @@ public class PSContentMgr  implements IPSContentMgr
       org.hibernate.Session s = getSession();
       try
       {
-         Criteria c = s.createCriteria(PSNodeDefinition.class);
-         c.add(Restrictions.eq("m_objectType", 1));
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
+         org.hibernate.query.Query<PSNodeDefinition> q = s.createQuery("from PSNodeDefinition where m_objectType = :otype", PSNodeDefinition.class)
+                 .setParameter("otype", 1)
+                 .setCacheable(true)
+                 .setCacheRegion(CACHE_REGION);
          
-         List defs = c.list();
+         List<PSNodeDefinition> defs = q.list();
          //there may be an entry for every template association
-         HashSet deduped = new HashSet<IPSNodeDefinition>(defs);
+         HashSet<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
          return new ArrayList<>(deduped);
       }
       catch (Exception e)
@@ -338,12 +335,12 @@ public class PSContentMgr  implements IPSContentMgr
      
       org.hibernate.Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentTemplateDesc.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.eq("m_templateid", tmpId.longValue()));
-         c.add(Restrictions.eq("m_contenttypeid", ctId.longValue()));
-         return (PSContentTemplateDesc) c.uniqueResult();
+         org.hibernate.query.Query<PSContentTemplateDesc> q = s.createQuery("from PSContentTemplateDesc where m_templateid = :tmp and m_contenttypeid = :ct", PSContentTemplateDesc.class)
+                 .setParameter("tmp", tmpId.longValue())
+                 .setParameter("ct", ctId.longValue())
+                 .setCacheable(true)
+                 .setCacheRegion(CACHE_REGION);
+         return q.uniqueResult();
 
 
 
@@ -358,11 +355,11 @@ public class PSContentMgr  implements IPSContentMgr
      
       org.hibernate.Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentTypeWorkflow.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         c.add(Restrictions.eq("m_contenttypeid", ctId.longValue()));
-         List<PSContentTypeWorkflow> ctwfs = c.list();
+         org.hibernate.query.Query<PSContentTypeWorkflow> q = s.createQuery("from PSContentTypeWorkflow where m_contenttypeid = :ct", PSContentTypeWorkflow.class)
+                 .setParameter("ct", ctId.longValue())
+                 .setCacheable(true)
+                 .setCacheRegion(CACHE_REGION);
+         List<PSContentTypeWorkflow> ctwfs = q.list();
          return ctwfs;
 
 
@@ -380,14 +377,11 @@ public class PSContentMgr  implements IPSContentMgr
       org.hibernate.Session s = getSession();
       
 
-         Criteria c = s.createCriteria(PSNodeDefinition.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         Criteria d = c.createCriteria("m_cvDescriptors", "descriptor");
-         d.setCacheable(true);
-         d.setCacheRegion(CACHE_REGION);
-         d.add(Restrictions.eq("m_templateid", templateid.longValue()));
-         List<IPSNodeDefinition> defs = c.list();
+         org.hibernate.query.Query<PSNodeDefinition> q = s.createQuery("select distinct nd from PSNodeDefinition nd join nd.m_cvDescriptors descriptor where descriptor.m_templateid = :templateid", PSNodeDefinition.class)
+                 .setParameter("templateid", templateid.longValue())
+                 .setCacheable(true)
+                 .setCacheRegion(CACHE_REGION);
+         List<PSNodeDefinition> defs = q.list();
          //there may be an entry for every template association
          Set<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
          return new ArrayList<>(deduped);
@@ -406,17 +400,15 @@ public class PSContentMgr  implements IPSContentMgr
       org.hibernate.Session s = getSession();
       
 
-         Criteria c = s.createCriteria(PSNodeDefinition.class);
-         c.setCacheable(true);
-         c.setCacheRegion(CACHE_REGION);
-         Criteria d = c.createCriteria("m_ctWfRels", "ctwfrel");
-         d.setCacheable(true);
-         d.setCacheRegion(CACHE_REGION);
-         d.add(Restrictions.eq("m_workflowid", new Integer(workflowid
-               .longValue() + "")));
-         List<IPSNodeDefinition> defs = c.list();
+         // Convert workflow id to int to match stored field
+         int wfId = (int) workflowid.longValue();
+         org.hibernate.query.Query<PSNodeDefinition> q = s.createQuery("select distinct nd from PSNodeDefinition nd join nd.m_ctWfRels ctwfrel where ctwfrel.m_workflowid = :workflowid", PSNodeDefinition.class)
+                 .setParameter("workflowid", wfId)
+                 .setCacheable(true)
+                 .setCacheRegion(CACHE_REGION);
+         List<PSNodeDefinition> defs = q.list();
          //there may be an entry for every workflow association
-         Set deduped = new HashSet<IPSNodeDefinition>(defs);
+         Set<IPSNodeDefinition> deduped = new HashSet<IPSNodeDefinition>(defs);
          return new ArrayList<>(deduped);
 
    }
@@ -603,12 +595,12 @@ public class PSContentMgr  implements IPSContentMgr
       List<String> contentIds = new ArrayList<>();
       try
       {
-         Criteria c = s.createCriteria(PSComponentSummary.class);
-         c.add(Restrictions.eq("m_contentTypeId",  contentTypeId));
-         c.add(Restrictions.ilike("m_name",title));
-         c.setProjection(Projections.property("m_contentId"));
-         List defs = c.list();
-         for(Object def : defs)
+         String hql = "select c.m_contentId from PSComponentSummary c where c.m_contentTypeId = :ct and lower(c.m_name) like :title";
+         org.hibernate.query.Query<Integer> q = s.createQuery(hql, Integer.class)
+               .setParameter("ct", contentTypeId)
+               .setParameter("title", title.toLowerCase());
+         List<Integer> defs = q.list();
+         for(Integer def : defs)
          {
             contentIds.add(def + "");
          }
@@ -695,7 +687,8 @@ public class PSContentMgr  implements IPSContentMgr
       } catch (SQLException e) {
          throw new RuntimeException(e);
       }
-      List<Object> result = sess.createSQLQuery(sql).list();
+      NativeQuery<?> result = sess.createNativeQuery(sql);
+      List<Object> result = result.list();
          
          for (Object row : result)
          {

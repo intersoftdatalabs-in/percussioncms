@@ -44,9 +44,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -459,21 +457,23 @@ public class PSAclService implements IPSAclService
       communities.addAll(communityNames);
       
       
-      Criteria crit = getSession().createCriteria(PSAclImpl.class);
-      // May have better performance returning more object and filtering in java for communityNames or types.
-      if (type!=null)
-            crit = crit.add( Restrictions.eq("objectType", (int)type.getOrdinal()));
-      
-           List<PSAclImpl> acls =  crit.createCriteria("entries")
-            .add( Restrictions.and(
-                     Restrictions.eq("type", (int)PrincipalTypes.COMMUNITY.getOrdinal()),
-                     Restrictions.in("name", communities)
-                )
-                 
-              )  
-            .createCriteria("psPermissions")
-            .add( Restrictions.eq("permission", (int)PSPermissions.RUNTIME_VISIBLE.getOrdinal()))
-            .setCacheable(true).list();
+      // Build an HQL join query to find ACLs visible to the supplied communities
+      StringBuilder hql = new StringBuilder("select distinct a from PSAclImpl a join a.entries e join e.psPermissions p where e.type = :ptype and e.name in :communities and p.permission = :perm");
+      if (type != null) {
+         hql.append(" and a.objectType = :objectType");
+      }
+
+      org.hibernate.query.Query<PSAclImpl> q = getSession().createQuery(hql.toString(), PSAclImpl.class)
+              .setParameter("ptype", (int) PrincipalTypes.COMMUNITY.getOrdinal())
+              .setParameterList("communities", communities)
+              .setParameter("perm", (int) PSPermissions.RUNTIME_VISIBLE.getOrdinal())
+              .setCacheable(true);
+
+      if (type != null) {
+         q.setParameter("objectType", (int) type.getOrdinal());
+      }
+
+      List<PSAclImpl> acls = q.list();
 
       Collection<IPSTypedPrincipal> principals = new ArrayList<>();
       for (String comm : communityNames)

@@ -26,7 +26,7 @@ namespace Loader.RxWebServices {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.42")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="assemblySOAP", Namespace="urn:www.percussion.com/6.0.0/assembly")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="assemblySOAP", Namespace="urn:www.percussion.com/8.2.0/assembly")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RelationshipFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Relationship))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DesignObject))]
@@ -116,9 +116,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadSlots", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadSlotsResponse", Namespace="urn:www.percussion.com/6.0.0/assembly")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSTemplateSlot", Namespace="urn:www.percussion.com/6.0.0/assemblyServices", IsNullable=false)]
-        public PSTemplateSlot[] LoadSlots([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/assembly")] LoadSlotsRequest LoadSlotsRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadSlotsResponse", Namespace="urn:www.percussion.com/8.2.0/assembly")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSTemplateSlot", Namespace="urn:www.percussion.com/8.2.0/assemblyServices", IsNullable=false)]
+        public PSTemplateSlot[] LoadSlots([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/assembly")] LoadSlotsRequest LoadSlotsRequest) {
             object[] results = this.Invoke("LoadSlots", new object[] {
                         LoadSlotsRequest});
             return ((PSTemplateSlot[])(results[0]));
@@ -148,9 +148,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadAssemblyTemplates", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadAssemblyTemplatesResponse", Namespace="urn:www.percussion.com/6.0.0/assembly")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAssemblyTemplate", Namespace="urn:www.percussion.com/6.0.0/assemblyServices", IsNullable=false)]
-        public PSAssemblyTemplate[] LoadAssemblyTemplates([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/assembly")] LoadAssemblyTemplatesRequest LoadAssemblyTemplatesRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadAssemblyTemplatesResponse", Namespace="urn:www.percussion.com/8.2.0/assembly")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAssemblyTemplate", Namespace="urn:www.percussion.com/8.2.0/assemblyServices", IsNullable=false)]
+        public PSAssemblyTemplate[] LoadAssemblyTemplates([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/assembly")] LoadAssemblyTemplatesRequest LoadAssemblyTemplatesRequest) {
             object[] results = this.Invoke("LoadAssemblyTemplates", new object[] {
                         LoadAssemblyTemplatesRequest});
             return ((PSAssemblyTemplate[])(results[0]));
@@ -200,7 +200,7 @@ namespace Loader.RxWebServices {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.42")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="contentSOAP", Namespace="urn:www.percussion.com/6.0.0/content")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="contentSOAP", Namespace="urn:www.percussion.com/8.2.0/content")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RelationshipFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Relationship))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DesignObject))]
@@ -495,9 +495,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadKeywords", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadKeywordsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadKeywordsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSKeyword", IsNullable=false)]
-        public PSKeyword[] LoadKeywords([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadKeywordsRequest LoadKeywordsRequest) {
+        public PSKeyword[] LoadKeywords([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadKeywordsRequest LoadKeywordsRequest) {
             object[] results = this.Invoke("LoadKeywords", new object[] {
                         LoadKeywordsRequest});
             return ((PSKeyword[])(results[0]));
@@ -527,9 +527,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadLocales", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadLocalesResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadLocalesResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSLocale", IsNullable=false)]
-        public PSLocale[] LoadLocales([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadLocalesRequest LoadLocalesRequest) {
+        public PSLocale[] LoadLocales([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadLocalesRequest LoadLocalesRequest) {
             object[] results = this.Invoke("LoadLocales", new object[] {
                         LoadLocalesRequest});
             return ((PSLocale[])(results[0]));
@@ -559,7 +559,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadTranslationSettings", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadTranslationSettingsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadTranslationSettingsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAutoTranslation", IsNullable=false)]
         public PSAutoTranslation[] LoadTranslationSettings() {
             object[] results = this.Invoke("LoadTranslationSettings", new object[0]);
@@ -589,9 +589,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadContentTypes", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadContentTypesResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadContentTypesResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSContentTypeSummary", IsNullable=false)]
-        public PSContentTypeSummary[] LoadContentTypes([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadContentTypesRequest LoadContentTypesRequest) {
+        public PSContentTypeSummary[] LoadContentTypes([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadContentTypesRequest LoadContentTypesRequest) {
             object[] results = this.Invoke("LoadContentTypes", new object[] {
                         LoadContentTypesRequest});
             return ((PSContentTypeSummary[])(results[0]));
@@ -621,9 +621,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:CreateItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("CreateItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("CreateItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] CreateItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] CreateItemsRequest CreateItemsRequest) {
+        public PSItem[] CreateItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] CreateItemsRequest CreateItemsRequest) {
             object[] results = this.Invoke("CreateItems", new object[] {
                         CreateItemsRequest});
             return ((PSItem[])(results[0]));
@@ -653,9 +653,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("FindItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("FindItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSSearchResults", IsNullable=false)]
-        public PSSearchResults[] FindItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindItemsRequest FindItemsRequest) {
+        public PSSearchResults[] FindItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindItemsRequest FindItemsRequest) {
             object[] results = this.Invoke("FindItems", new object[] {
                         FindItemsRequest});
             return ((PSSearchResults[])(results[0]));
@@ -685,9 +685,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] LoadItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadItemsRequest LoadItemsRequest) {
+        public PSItem[] LoadItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadItemsRequest LoadItemsRequest) {
             object[] results = this.Invoke("LoadItems", new object[] {
                         LoadItemsRequest});
             return ((PSItem[])(results[0]));
@@ -717,8 +717,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SaveItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("SaveItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public SaveItemsResponse SaveItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] SaveItemsRequest SaveItemsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("SaveItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public SaveItemsResponse SaveItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] SaveItemsRequest SaveItemsRequest) {
             object[] results = this.Invoke("SaveItems", new object[] {
                         SaveItemsRequest});
             return ((SaveItemsResponse)(results[0]));
@@ -748,7 +748,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:DeleteItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteItems([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteItemsRequest) {
+        public void DeleteItems([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteItemsRequest) {
             this.Invoke("DeleteItems", new object[] {
                         DeleteItemsRequest});
         }
@@ -777,9 +777,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:ViewItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("ViewItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("ViewItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] ViewItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] ViewItemsRequest ViewItemsRequest) {
+        public PSItem[] ViewItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] ViewItemsRequest ViewItemsRequest) {
             object[] results = this.Invoke("ViewItems", new object[] {
                         ViewItemsRequest});
             return ((PSItem[])(results[0]));
@@ -809,9 +809,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:PrepareForEdit", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("PrepareForEditResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("PrepareForEditResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItemStatus", IsNullable=false)]
-        public PSItemStatus[] PrepareForEdit([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] PrepareForEditRequest) {
+        public PSItemStatus[] PrepareForEdit([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] PrepareForEditRequest) {
             object[] results = this.Invoke("PrepareForEdit", new object[] {
                         PrepareForEditRequest});
             return ((PSItemStatus[])(results[0]));
@@ -841,7 +841,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:ReleaseFromEdit", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void ReleaseFromEdit([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] ReleaseFromEditRequest ReleaseFromEditRequest) {
+        public void ReleaseFromEdit([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] ReleaseFromEditRequest ReleaseFromEditRequest) {
             this.Invoke("ReleaseFromEdit", new object[] {
                         ReleaseFromEditRequest});
         }
@@ -870,9 +870,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:NewCopies", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("NewCopiesResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("NewCopiesResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] NewCopies([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] NewCopiesRequest NewCopiesRequest) {
+        public PSItem[] NewCopies([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] NewCopiesRequest NewCopiesRequest) {
             object[] results = this.Invoke("NewCopies", new object[] {
                         NewCopiesRequest});
             return ((PSItem[])(results[0]));
@@ -902,9 +902,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:NewPromotableVersions", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("NewPromotableVersionsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("NewPromotableVersionsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] NewPromotableVersions([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] NewPromotableVersionsRequest NewPromotableVersionsRequest) {
+        public PSItem[] NewPromotableVersions([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] NewPromotableVersionsRequest NewPromotableVersionsRequest) {
             object[] results = this.Invoke("NewPromotableVersions", new object[] {
                         NewPromotableVersionsRequest});
             return ((PSItem[])(results[0]));
@@ -934,9 +934,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:NewTranslations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("NewTranslationsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("NewTranslationsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSItem", IsNullable=false)]
-        public PSItem[] NewTranslations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] NewTranslationsRequest NewTranslationsRequest) {
+        public PSItem[] NewTranslations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] NewTranslationsRequest NewTranslationsRequest) {
             object[] results = this.Invoke("NewTranslations", new object[] {
                         NewTranslationsRequest});
             return ((PSItem[])(results[0]));
@@ -966,9 +966,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindRevisions", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("FindRevisionsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("FindRevisionsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSRevisions", IsNullable=false)]
-        public PSRevisions[] FindRevisions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] FindRevisionsRequest) {
+        public PSRevisions[] FindRevisions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] FindRevisionsRequest) {
             object[] results = this.Invoke("FindRevisions", new object[] {
                         FindRevisionsRequest});
             return ((PSRevisions[])(results[0]));
@@ -998,7 +998,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:PromoteRevisions", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void PromoteRevisions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] PromoteRevisionsRequest) {
+        public void PromoteRevisions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] PromoteRevisionsRequest) {
             this.Invoke("PromoteRevisions", new object[] {
                         PromoteRevisionsRequest});
         }
@@ -1027,7 +1027,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:CheckinItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void CheckinItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] CheckinItemsRequest CheckinItemsRequest) {
+        public void CheckinItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] CheckinItemsRequest CheckinItemsRequest) {
             this.Invoke("CheckinItems", new object[] {
                         CheckinItemsRequest});
         }
@@ -1056,7 +1056,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:CheckoutItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void CheckoutItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] CheckoutItemsRequest CheckoutItemsRequest) {
+        public void CheckoutItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] CheckoutItemsRequest CheckoutItemsRequest) {
             this.Invoke("CheckoutItems", new object[] {
                         CheckoutItemsRequest});
         }
@@ -1085,8 +1085,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:GetAssemblyUrls", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("GetAssemblyUrlsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public GetAssemblyUrlsResponse GetAssemblyUrls([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] GetAssemblyUrlsRequest GetAssemblyUrlsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("GetAssemblyUrlsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public GetAssemblyUrlsResponse GetAssemblyUrls([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] GetAssemblyUrlsRequest GetAssemblyUrlsRequest) {
             object[] results = this.Invoke("GetAssemblyUrls", new object[] {
                         GetAssemblyUrlsRequest});
             return ((GetAssemblyUrlsResponse)(results[0]));
@@ -1116,9 +1116,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:CreateChildEntries", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("CreateChildEntriesResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("CreateChildEntriesResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSChildEntry", IsNullable=false)]
-        public PSChildEntry[] CreateChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] CreateChildEntriesRequest CreateChildEntriesRequest) {
+        public PSChildEntry[] CreateChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] CreateChildEntriesRequest CreateChildEntriesRequest) {
             object[] results = this.Invoke("CreateChildEntries", new object[] {
                         CreateChildEntriesRequest});
             return ((PSChildEntry[])(results[0]));
@@ -1148,9 +1148,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadChildEntries", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadChildEntriesResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadChildEntriesResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSChildEntry", IsNullable=false)]
-        public PSChildEntry[] LoadChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadChildEntriesRequest LoadChildEntriesRequest) {
+        public PSChildEntry[] LoadChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadChildEntriesRequest LoadChildEntriesRequest) {
             object[] results = this.Invoke("LoadChildEntries", new object[] {
                         LoadChildEntriesRequest});
             return ((PSChildEntry[])(results[0]));
@@ -1180,7 +1180,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SaveChildEntries", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void SaveChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] SaveChildEntriesRequest SaveChildEntriesRequest) {
+        public void SaveChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] SaveChildEntriesRequest SaveChildEntriesRequest) {
             this.Invoke("SaveChildEntries", new object[] {
                         SaveChildEntriesRequest});
         }
@@ -1209,7 +1209,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:DeleteChildEntries", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] DeleteChildEntriesRequest DeleteChildEntriesRequest) {
+        public void DeleteChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] DeleteChildEntriesRequest DeleteChildEntriesRequest) {
             this.Invoke("DeleteChildEntries", new object[] {
                         DeleteChildEntriesRequest});
         }
@@ -1238,7 +1238,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:ReorderChildEntries", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void ReorderChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] ReorderChildEntriesRequest ReorderChildEntriesRequest) {
+        public void ReorderChildEntries([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] ReorderChildEntriesRequest ReorderChildEntriesRequest) {
             this.Invoke("ReorderChildEntries", new object[] {
                         ReorderChildEntriesRequest});
         }
@@ -1267,9 +1267,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:AddContentRelations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("AddContentRelationsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("AddContentRelationsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAaRelationship", IsNullable=false)]
-        public PSAaRelationship[] AddContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] AddContentRelationsRequest AddContentRelationsRequest) {
+        public PSAaRelationship[] AddContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] AddContentRelationsRequest AddContentRelationsRequest) {
             object[] results = this.Invoke("AddContentRelations", new object[] {
                         AddContentRelationsRequest});
             return ((PSAaRelationship[])(results[0]));
@@ -1299,9 +1299,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadContentRelations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadContentRelationsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadContentRelationsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAaRelationship", IsNullable=false)]
-        public PSAaRelationship[] LoadContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadContentRelationsRequest LoadContentRelationsRequest) {
+        public PSAaRelationship[] LoadContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadContentRelationsRequest LoadContentRelationsRequest) {
             object[] results = this.Invoke("LoadContentRelations", new object[] {
                         LoadContentRelationsRequest});
             return ((PSAaRelationship[])(results[0]));
@@ -1331,7 +1331,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SaveContentRelations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void SaveContentRelations([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("PSAaRelationship", IsNullable=false)] PSAaRelationship[] SaveContentRelationsRequest) {
+        public void SaveContentRelations([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("PSAaRelationship", IsNullable=false)] PSAaRelationship[] SaveContentRelationsRequest) {
             this.Invoke("SaveContentRelations", new object[] {
                         SaveContentRelationsRequest});
         }
@@ -1360,7 +1360,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:DeleteContentRelations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteContentRelations([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteContentRelationsRequest) {
+        public void DeleteContentRelations([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteContentRelationsRequest) {
             this.Invoke("DeleteContentRelations", new object[] {
                         DeleteContentRelationsRequest});
         }
@@ -1389,7 +1389,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:ReorderContentRelations", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void ReorderContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] ReorderContentRelationsRequest ReorderContentRelationsRequest) {
+        public void ReorderContentRelations([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] ReorderContentRelationsRequest ReorderContentRelationsRequest) {
             this.Invoke("ReorderContentRelations", new object[] {
                         ReorderContentRelationsRequest});
         }
@@ -1418,9 +1418,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindChildItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("FindChildItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("FindChildItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public PSItemSummary[] FindChildItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindChildItemsRequest FindChildItemsRequest) {
+        public PSItemSummary[] FindChildItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindChildItemsRequest FindChildItemsRequest) {
             object[] results = this.Invoke("FindChildItems", new object[] {
                         FindChildItemsRequest});
             return ((PSItemSummary[])(results[0]));
@@ -1450,9 +1450,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindParentItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("FindParentItemsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("FindParentItemsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public PSItemSummary[] FindParentItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindParentItemsRequest FindParentItemsRequest) {
+        public PSItemSummary[] FindParentItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindParentItemsRequest FindParentItemsRequest) {
             object[] results = this.Invoke("FindParentItems", new object[] {
                         FindParentItemsRequest});
             return ((PSItemSummary[])(results[0]));
@@ -1482,9 +1482,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadFolders", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadFoldersResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadFoldersResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSFolder", IsNullable=false)]
-        public PSFolder[] LoadFolders([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] LoadFoldersRequest LoadFoldersRequest) {
+        public PSFolder[] LoadFolders([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] LoadFoldersRequest LoadFoldersRequest) {
             object[] results = this.Invoke("LoadFolders", new object[] {
                         LoadFoldersRequest});
             return ((PSFolder[])(results[0]));
@@ -1514,8 +1514,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SaveFolders", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("SaveFoldersResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public SaveFoldersResponse SaveFolders([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("PSFolder", IsNullable=false)] PSFolder[] SaveFoldersRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("SaveFoldersResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public SaveFoldersResponse SaveFolders([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] [System.Xml.Serialization.XmlArrayItemAttribute("PSFolder", IsNullable=false)] PSFolder[] SaveFoldersRequest) {
             object[] results = this.Invoke("SaveFolders", new object[] {
                         SaveFoldersRequest});
             return ((SaveFoldersResponse)(results[0]));
@@ -1545,7 +1545,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:DeleteFolders", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteFolders([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] DeleteFoldersRequest DeleteFoldersRequest) {
+        public void DeleteFolders([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] DeleteFoldersRequest DeleteFoldersRequest) {
             this.Invoke("DeleteFolders", new object[] {
                         DeleteFoldersRequest});
         }
@@ -1574,8 +1574,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:AddFolder", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("AddFolderResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public AddFolderResponse AddFolder([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] AddFolderRequest AddFolderRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("AddFolderResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public AddFolderResponse AddFolder([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] AddFolderRequest AddFolderRequest) {
             object[] results = this.Invoke("AddFolder", new object[] {
                         AddFolderRequest});
             return ((AddFolderResponse)(results[0]));
@@ -1605,9 +1605,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:AddFolderTree", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("AddFolderTreeResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("AddFolderTreeResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSFolder", IsNullable=false)]
-        public PSFolder[] AddFolderTree([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] AddFolderTreeRequest AddFolderTreeRequest) {
+        public PSFolder[] AddFolderTree([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] AddFolderTreeRequest AddFolderTreeRequest) {
             object[] results = this.Invoke("AddFolderTree", new object[] {
                         AddFolderTreeRequest});
             return ((PSFolder[])(results[0]));
@@ -1637,9 +1637,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindFolderChildren", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("FindFolderChildrenResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("FindFolderChildrenResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public PSItemSummary[] FindFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindFolderChildrenRequest FindFolderChildrenRequest) {
+        public PSItemSummary[] FindFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindFolderChildrenRequest FindFolderChildrenRequest) {
             object[] results = this.Invoke("FindFolderChildren", new object[] {
                         FindFolderChildrenRequest});
             return ((PSItemSummary[])(results[0]));
@@ -1669,7 +1669,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:AddFolderChildren", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void AddFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] AddFolderChildrenRequest AddFolderChildrenRequest) {
+        public void AddFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] AddFolderChildrenRequest AddFolderChildrenRequest) {
             this.Invoke("AddFolderChildren", new object[] {
                         AddFolderChildrenRequest});
         }
@@ -1698,7 +1698,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:RemoveFolderChildren", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void RemoveFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] RemoveFolderChildrenRequest RemoveFolderChildrenRequest) {
+        public void RemoveFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] RemoveFolderChildrenRequest RemoveFolderChildrenRequest) {
             this.Invoke("RemoveFolderChildren", new object[] {
                         RemoveFolderChildrenRequest});
         }
@@ -1727,7 +1727,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:MoveFolderChildren", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void MoveFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] MoveFolderChildrenRequest MoveFolderChildrenRequest) {
+        public void MoveFolderChildren([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] MoveFolderChildrenRequest MoveFolderChildrenRequest) {
             this.Invoke("MoveFolderChildren", new object[] {
                         MoveFolderChildrenRequest});
         }
@@ -1756,8 +1756,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindFolderPath", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("FindFolderPathResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public FindFolderPathResponse FindFolderPath([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindFolderPathRequest FindFolderPathRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("FindFolderPathResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public FindFolderPathResponse FindFolderPath([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindFolderPathRequest FindFolderPathRequest) {
             object[] results = this.Invoke("FindFolderPath", new object[] {
                         FindFolderPathRequest});
             return ((FindFolderPathResponse)(results[0]));
@@ -1787,8 +1787,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindPathIds", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("FindPathIdsResponse", Namespace="urn:www.percussion.com/6.0.0/content")]
-        public FindPathIdsResponse FindPathIds([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/content")] FindPathIdsRequest FindPathIdsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("FindPathIdsResponse", Namespace="urn:www.percussion.com/8.2.0/content")]
+        public FindPathIdsResponse FindPathIds([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/content")] FindPathIdsRequest FindPathIdsRequest) {
             object[] results = this.Invoke("FindPathIds", new object[] {
                         FindPathIdsRequest});
             return ((FindPathIdsResponse)(results[0]));
@@ -1838,7 +1838,7 @@ namespace Loader.RxWebServices {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.42")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="securitySOAP", Namespace="urn:www.percussion.com/6.0.0/security")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="securitySOAP", Namespace="urn:www.percussion.com/8.2.0/security")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RelationshipFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Relationship))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DesignObject))]
@@ -1947,8 +1947,8 @@ namespace Loader.RxWebServices {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:Login", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("LoginResponse", Namespace="urn:www.percussion.com/6.0.0/security")]
-        public LoginResponse Login([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] LoginRequest LoginRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("LoginResponse", Namespace="urn:www.percussion.com/8.2.0/security")]
+        public LoginResponse Login([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] LoginRequest LoginRequest) {
             object[] results = this.Invoke("Login", new object[] {
                         LoginRequest});
             return ((LoginResponse)(results[0]));
@@ -1977,7 +1977,7 @@ namespace Loader.RxWebServices {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:Logout", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void Logout([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] LogoutRequest LogoutRequest) {
+        public void Logout([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] LogoutRequest LogoutRequest) {
             this.Invoke("Logout", new object[] {
                         LogoutRequest});
         }
@@ -2005,7 +2005,7 @@ namespace Loader.RxWebServices {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:RefreshSession", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void RefreshSession([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] RefreshSessionRequest RefreshSessionRequest) {
+        public void RefreshSession([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] RefreshSessionRequest RefreshSessionRequest) {
             this.Invoke("RefreshSession", new object[] {
                         RefreshSessionRequest});
         }
@@ -2034,9 +2034,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadCommunities", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadCommunitiesResponse", Namespace="urn:www.percussion.com/6.0.0/security")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSCommunity", Namespace="urn:www.percussion.com/6.0.0/securityServices", IsNullable=false)]
-        public PSCommunity[] LoadCommunities([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] LoadCommunitiesRequest LoadCommunitiesRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadCommunitiesResponse", Namespace="urn:www.percussion.com/8.2.0/security")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSCommunity", Namespace="urn:www.percussion.com/8.2.0/securityServices", IsNullable=false)]
+        public PSCommunity[] LoadCommunities([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] LoadCommunitiesRequest LoadCommunitiesRequest) {
             object[] results = this.Invoke("LoadCommunities", new object[] {
                         LoadCommunitiesRequest});
             return ((PSCommunity[])(results[0]));
@@ -2066,9 +2066,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadRoles", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRolesResponse", Namespace="urn:www.percussion.com/6.0.0/security")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSRole", Namespace="urn:www.percussion.com/6.0.0/securityServices", IsNullable=false)]
-        public PSRole[] LoadRoles([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] LoadRolesRequest LoadRolesRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRolesResponse", Namespace="urn:www.percussion.com/8.2.0/security")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSRole", Namespace="urn:www.percussion.com/8.2.0/securityServices", IsNullable=false)]
+        public PSRole[] LoadRoles([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] LoadRolesRequest LoadRolesRequest) {
             object[] results = this.Invoke("LoadRoles", new object[] {
                         LoadRolesRequest});
             return ((PSRole[])(results[0]));
@@ -2098,8 +2098,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FilterByRuntimeVisibility", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("FilterByRuntimeVisibilityResponse", Namespace="urn:www.percussion.com/6.0.0/security")]
-        public FilterByRuntimeVisibilityResponse FilterByRuntimeVisibility([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/security")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] FilterByRuntimeVisibilityRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("FilterByRuntimeVisibilityResponse", Namespace="urn:www.percussion.com/8.2.0/security")]
+        public FilterByRuntimeVisibilityResponse FilterByRuntimeVisibility([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/security")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] FilterByRuntimeVisibilityRequest) {
             object[] results = this.Invoke("FilterByRuntimeVisibility", new object[] {
                         FilterByRuntimeVisibilityRequest});
             return ((FilterByRuntimeVisibilityResponse)(results[0]));
@@ -2149,7 +2149,7 @@ namespace Loader.RxWebServices {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.42")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="systemSOAP", Namespace="urn:www.percussion.com/6.0.0/system")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="systemSOAP", Namespace="urn:www.percussion.com/8.2.0/system")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RelationshipFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Relationship))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DesignObject))]
@@ -2294,7 +2294,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SwitchCommunity", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void SwitchCommunity([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] SwitchCommunityRequest SwitchCommunityRequest) {
+        public void SwitchCommunity([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] SwitchCommunityRequest SwitchCommunityRequest) {
             this.Invoke("SwitchCommunity", new object[] {
                         SwitchCommunityRequest});
         }
@@ -2323,7 +2323,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SwitchLocale", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void SwitchLocale([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] SwitchLocaleRequest SwitchLocaleRequest) {
+        public void SwitchLocale([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] SwitchLocaleRequest SwitchLocaleRequest) {
             this.Invoke("SwitchLocale", new object[] {
                         SwitchLocaleRequest});
         }
@@ -2352,8 +2352,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:CreateRelationship", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("CreateRelationshipResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
-        public CreateRelationshipResponse CreateRelationship([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] CreateRelationshipRequest CreateRelationshipRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("CreateRelationshipResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
+        public CreateRelationshipResponse CreateRelationship([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] CreateRelationshipRequest CreateRelationshipRequest) {
             object[] results = this.Invoke("CreateRelationship", new object[] {
                         CreateRelationshipRequest});
             return ((CreateRelationshipResponse)(results[0]));
@@ -2383,9 +2383,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadRelationships", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRelationshipsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRelationshipsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSRelationship", IsNullable=false)]
-        public PSRelationship[] LoadRelationships([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] LoadRelationshipsRequest LoadRelationshipsRequest) {
+        public PSRelationship[] LoadRelationships([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] LoadRelationshipsRequest LoadRelationshipsRequest) {
             object[] results = this.Invoke("LoadRelationships", new object[] {
                         LoadRelationshipsRequest});
             return ((PSRelationship[])(results[0]));
@@ -2415,7 +2415,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:SaveRelationships", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void SaveRelationships([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("PSRelationship", IsNullable=false)] PSRelationship[] SaveRelationshipsRequest) {
+        public void SaveRelationships([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("PSRelationship", IsNullable=false)] PSRelationship[] SaveRelationshipsRequest) {
             this.Invoke("SaveRelationships", new object[] {
                         SaveRelationshipsRequest});
         }
@@ -2444,7 +2444,7 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:DeleteRelationships", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        public void DeleteRelationships([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteRelationshipsRequest) {
+        public void DeleteRelationships([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] DeleteRelationshipsRequest) {
             this.Invoke("DeleteRelationships", new object[] {
                         DeleteRelationshipsRequest});
         }
@@ -2473,8 +2473,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindDependents", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("FindDependentsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
-        public FindDependentsResponse FindDependents([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] FindDependentsRequest FindDependentsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("FindDependentsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
+        public FindDependentsResponse FindDependents([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] FindDependentsRequest FindDependentsRequest) {
             object[] results = this.Invoke("FindDependents", new object[] {
                         FindDependentsRequest});
             return ((FindDependentsResponse)(results[0]));
@@ -2504,8 +2504,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:FindOwners", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("FindOwnersResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
-        public FindOwnersResponse FindOwners([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] FindOwnersRequest FindOwnersRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("FindOwnersResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
+        public FindOwnersResponse FindOwners([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] FindOwnersRequest FindOwnersRequest) {
             object[] results = this.Invoke("FindOwners", new object[] {
                         FindOwnersRequest});
             return ((FindOwnersResponse)(results[0]));
@@ -2535,9 +2535,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadRelationshipTypes", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRelationshipTypesResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadRelationshipTypesResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSRelationshipConfigSummary", IsNullable=false)]
-        public RelationshipConfigSummary[] LoadRelationshipTypes([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] LoadRelationshipTypesRequest LoadRelationshipTypesRequest) {
+        public RelationshipConfigSummary[] LoadRelationshipTypes([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] LoadRelationshipTypesRequest LoadRelationshipTypesRequest) {
             object[] results = this.Invoke("LoadRelationshipTypes", new object[] {
                         LoadRelationshipTypesRequest});
             return ((RelationshipConfigSummary[])(results[0]));
@@ -2567,9 +2567,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadAuditTrails", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadAuditTrailsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadAuditTrailsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAuditTrail", IsNullable=false)]
-        public PSAuditTrail[] LoadAuditTrails([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] LoadAuditTrailsRequest) {
+        public PSAuditTrail[] LoadAuditTrails([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] LoadAuditTrailsRequest) {
             object[] results = this.Invoke("LoadAuditTrails", new object[] {
                         LoadAuditTrailsRequest});
             return ((PSAuditTrail[])(results[0]));
@@ -2599,8 +2599,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:TransitionItems", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("TransitionItemsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
-        public TransitionItemsResponse TransitionItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] TransitionItemsRequest TransitionItemsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("TransitionItemsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
+        public TransitionItemsResponse TransitionItems([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] TransitionItemsRequest TransitionItemsRequest) {
             object[] results = this.Invoke("TransitionItems", new object[] {
                         TransitionItemsRequest});
             return ((TransitionItemsResponse)(results[0]));
@@ -2630,9 +2630,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadWorkflows", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadWorkflowsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadWorkflowsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
         [return: System.Xml.Serialization.XmlArrayItemAttribute("PSWorkflow", IsNullable=false)]
-        public PSWorkflow[] LoadWorkflows([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] LoadWorkflowsRequest LoadWorkflowsRequest) {
+        public PSWorkflow[] LoadWorkflows([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] LoadWorkflowsRequest LoadWorkflowsRequest) {
             object[] results = this.Invoke("LoadWorkflows", new object[] {
                         LoadWorkflowsRequest});
             return ((PSWorkflow[])(results[0]));
@@ -2662,8 +2662,8 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:GetAllowedTransitions", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlElementAttribute("GetAllowedTransitionsResponse", Namespace="urn:www.percussion.com/6.0.0/system")]
-        public GetAllowedTransitionsResponse GetAllowedTransitions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/6.0.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] GetAllowedTransitionsRequest) {
+        [return: System.Xml.Serialization.XmlElementAttribute("GetAllowedTransitionsResponse", Namespace="urn:www.percussion.com/8.2.0/system")]
+        public GetAllowedTransitionsResponse GetAllowedTransitions([System.Xml.Serialization.XmlArrayAttribute(Namespace="urn:www.percussion.com/8.2.0/system")] [System.Xml.Serialization.XmlArrayItemAttribute("Id", IsNullable=false)] long[] GetAllowedTransitionsRequest) {
             object[] results = this.Invoke("GetAllowedTransitions", new object[] {
                         GetAllowedTransitionsRequest});
             return ((GetAllowedTransitionsResponse)(results[0]));
@@ -2713,7 +2713,7 @@ namespace Loader.RxWebServices {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "2.0.50727.42")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="uiSOAP", Namespace="urn:www.percussion.com/6.0.0/ui")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="uiSOAP", Namespace="urn:www.percussion.com/8.2.0/ui")]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RelationshipFilter))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Relationship))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DesignObject))]
@@ -2813,9 +2813,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadActions", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadActionsResponse", Namespace="urn:www.percussion.com/6.0.0/ui")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAction", Namespace="urn:www.percussion.com/6.0.0/uiServices", IsNullable=false)]
-        public PSAction[] LoadActions([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/ui")] LoadActionsRequest LoadActionsRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadActionsResponse", Namespace="urn:www.percussion.com/8.2.0/ui")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSAction", Namespace="urn:www.percussion.com/8.2.0/uiServices", IsNullable=false)]
+        public PSAction[] LoadActions([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/ui")] LoadActionsRequest LoadActionsRequest) {
             object[] results = this.Invoke("LoadActions", new object[] {
                         LoadActionsRequest});
             return ((PSAction[])(results[0]));
@@ -2845,9 +2845,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadDisplayFormats", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadDisplayFormatsResponse", Namespace="urn:www.percussion.com/6.0.0/ui")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSDisplayFormat", Namespace="urn:www.percussion.com/6.0.0/uiServices", IsNullable=false)]
-        public PSDisplayFormat[] LoadDisplayFormats([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/ui")] LoadDisplayFormatsRequest LoadDisplayFormatsRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadDisplayFormatsResponse", Namespace="urn:www.percussion.com/8.2.0/ui")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSDisplayFormat", Namespace="urn:www.percussion.com/8.2.0/uiServices", IsNullable=false)]
+        public PSDisplayFormat[] LoadDisplayFormats([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/ui")] LoadDisplayFormatsRequest LoadDisplayFormatsRequest) {
             object[] results = this.Invoke("LoadDisplayFormats", new object[] {
                         LoadDisplayFormatsRequest});
             return ((PSDisplayFormat[])(results[0]));
@@ -2877,9 +2877,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadSearches", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadSearchesResponse", Namespace="urn:www.percussion.com/6.0.0/ui")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSSearchDef", Namespace="urn:www.percussion.com/6.0.0/uiServices", IsNullable=false)]
-        public PSSearchDef[] LoadSearches([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/ui")] LoadSearchesRequest LoadSearchesRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadSearchesResponse", Namespace="urn:www.percussion.com/8.2.0/ui")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSSearchDef", Namespace="urn:www.percussion.com/8.2.0/uiServices", IsNullable=false)]
+        public PSSearchDef[] LoadSearches([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/ui")] LoadSearchesRequest LoadSearchesRequest) {
             object[] results = this.Invoke("LoadSearches", new object[] {
                         LoadSearchesRequest});
             return ((PSSearchDef[])(results[0]));
@@ -2909,9 +2909,9 @@ namespace Loader.RxWebServices {
         /// <remarks/>
         [System.Web.Services.Protocols.SoapHeaderAttribute("PSAuthenticationHeaderValue")]
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("urn:LoadViews", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Bare)]
-        [return: System.Xml.Serialization.XmlArrayAttribute("LoadViewsResponse", Namespace="urn:www.percussion.com/6.0.0/ui")]
-        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSViewDef", Namespace="urn:www.percussion.com/6.0.0/uiServices", IsNullable=false)]
-        public PSViewDef[] LoadViews([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/ui")] LoadViewsRequest LoadViewsRequest) {
+        [return: System.Xml.Serialization.XmlArrayAttribute("LoadViewsResponse", Namespace="urn:www.percussion.com/8.2.0/ui")]
+        [return: System.Xml.Serialization.XmlArrayItemAttribute("PSViewDef", Namespace="urn:www.percussion.com/8.2.0/uiServices", IsNullable=false)]
+        public PSViewDef[] LoadViews([System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/ui")] LoadViewsRequest LoadViewsRequest) {
             object[] results = this.Invoke("LoadViews", new object[] {
                         LoadViewsRequest});
             return ((PSViewDef[])(results[0]));
@@ -2963,7 +2963,7 @@ namespace Loader.RxWebServices {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:www.percussion.com/6.0.0/common", IsNullable=false)]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:www.percussion.com/8.2.0/common", IsNullable=false)]
     public partial class PSAuthenticationHeader : System.Web.Services.Protocols.SoapHeader {
         
         private string sessionField;
@@ -2984,7 +2984,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/content")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/content")]
     public partial class FolderRef {
         
         private System.Nullable<long> idField;
@@ -3019,7 +3019,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="Property", Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="Property", Namespace="urn:www.percussion.com/8.2.0/common")]
     public partial class Property1 {
         
         private string nameField;
@@ -3054,7 +3054,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public partial class RelationshipFilter {
         
         private System.Nullable<long> idField;
@@ -3238,7 +3238,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public enum ObjectType {
         
         /// <remarks/>
@@ -3266,7 +3266,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public partial class Reference {
         
         private long idField;
@@ -3301,7 +3301,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/content")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/content")]
     public partial class PSItemSummary {
         
         private Reference contentTypeField;
@@ -3399,7 +3399,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public partial class Relationship {
         
         private RelationshipProperty[] propertiesField;
@@ -3560,7 +3560,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public partial class DesignObject {
         
         private long idField;
@@ -3608,7 +3608,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/uiServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/uiServices")]
     public partial class SearchView : DesignObject {
         
         private CommunityRef[] communitiesField;
@@ -4007,7 +4007,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/system")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/system")]
     public partial class RelationshipConfigSummary : DesignObject {
         
         private string nameField;
@@ -4086,7 +4086,7 @@ namespace Loader.RxWebServices {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/system")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/system")]
     public partial class Transition : DesignObject {
         
         private PSNotification[] notificationsField;
@@ -4922,7 +4922,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public enum operatorTypes {
         
         /// <remarks/>
@@ -4965,7 +4965,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/common")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/common")]
     public enum connectorTypes {
         
         /// <remarks/>
@@ -6668,7 +6668,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/assemblyServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/assemblyServices")]
     public enum OutputFormatType {
         
         /// <remarks/>
@@ -6690,7 +6690,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/assemblyServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/assemblyServices")]
     public enum PublishType {
         
         /// <remarks/>
@@ -6709,7 +6709,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/assemblyServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/assemblyServices")]
     public enum TemplateUsageType {
         
         /// <remarks/>
@@ -6728,7 +6728,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/assemblyServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/assemblyServices")]
     public enum TemplateType {
         
         /// <remarks/>
@@ -10286,7 +10286,7 @@ namespace Loader.RxWebServices {
         private PSLogin pSLoginField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/6.0.0/securityServices")]
+        [System.Xml.Serialization.XmlElementAttribute(Namespace="urn:www.percussion.com/8.2.0/securityServices")]
         public PSLogin PSLogin {
             get {
                 return this.pSLoginField;
@@ -10910,7 +10910,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/system")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/system")]
     public enum RelationshipCategory {
         
         /// <remarks/>
@@ -11742,7 +11742,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/uiServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/uiServices")]
     public enum ActionType {
         
         /// <remarks/>
@@ -11758,7 +11758,7 @@ namespace Loader.RxWebServices {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.42")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/6.0.0/uiServices")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:www.percussion.com/8.2.0/uiServices")]
     public enum RefreshType {
         
         /// <remarks/>

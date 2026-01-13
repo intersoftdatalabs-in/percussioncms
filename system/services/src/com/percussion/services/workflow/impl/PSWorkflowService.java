@@ -56,12 +56,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -258,21 +254,14 @@ public class PSWorkflowService
       else
          query = name;
       Session session = getSession();
-      Criteria c = session.createCriteria(PSWorkflow.class);
-      c.add(Restrictions.ilike("name", query));
-      /* use a projection to avoid loading all the states, if label gets added
-       * to PSWorkflow, then this will need to be modified`
-       */
-      c.setProjection(Projections.projectionList()
-         .add(Projections.property("name"))
-         .add(Projections.property("description"))
-         .add(Projections.property("id")));
+      String hql = "select w.name, w.description, w.id from PSWorkflow w where lower(w.name) like :name";
+      Query<Object[]> q = session.createQuery(hql, Object[].class)
+            .setParameter("name", query.toLowerCase());
 
-      List<Object> queryResults = c.list();
+      List<Object[]> queryResults = q.list();
       List<PSObjectSummary> sums = new ArrayList<>(queryResults.size());
-      for (Object o : queryResults)
+      for (Object[] oa : queryResults)
       {
-         Object[] oa = (Object[]) o;
          //name and id should never be null
          sums.add(new PSObjectSummary(new PSGuid(PSTypeEnum.WORKFLOW,
                  (Long) oa[2]), oa[0].toString(),
@@ -899,9 +888,9 @@ public class PSWorkflowService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentAdhocUser.class);
-         c.add(Restrictions.eq("user", username));
-         return c.list();
+         Query<PSContentAdhocUser> q = s.createQuery("from PSContentAdhocUser where user = :user", PSContentAdhocUser.class)
+               .setParameter("user", username);
+         return q.list();
 
    }
    
@@ -913,10 +902,10 @@ public class PSWorkflowService
       
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentAdhocUser.class);
-         c.add(Restrictions.eq("contentId", contentId.getUUID()));
+         Query<PSContentAdhocUser> q = s.createQuery("from PSContentAdhocUser where contentId = :cid", PSContentAdhocUser.class)
+               .setParameter("cid", contentId.getUUID());
          
-         return c.list();
+         return q.list();
 
    }
    
@@ -976,14 +965,10 @@ public class PSWorkflowService
             PSLegacyGuid lg = (PSLegacyGuid) contentid;
             cidToGuid.put(lg.getContentId(), lg);
          }
-         Criteria c = s.createCriteria(PSComponentSummary.class);
-         c.add(Restrictions.in("m_contentId", cidToGuid.keySet()));
-         ProjectionList list = Projections.projectionList();
-         list.add(Projections.property("m_contentId"));
-         list.add(Projections.property("m_workflowAppId"));
-         list.add(Projections.property("m_contentStateId"));
-         c.setProjection(list);
-         List<Object[]> results = c.list();
+         String hql = "select c.m_contentId, c.m_workflowAppId, c.m_contentStateId from PSComponentSummary c where c.m_contentId in :ids";
+         Query<Object[]> q = s.createQuery(hql, Object[].class)
+               .setParameter("ids", cidToGuid.keySet());
+         List<Object[]> results = q.list();
          for (Object[] row : results)
          {
             int cid = (Integer) row[0];
@@ -1021,9 +1006,9 @@ public class PSWorkflowService
       }
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentApproval.class);
-         c.add(Restrictions.eq("user", username));
-         return c.list();
+         Query<PSContentApproval> q = s.createQuery("from PSContentApproval where user = :user", PSContentApproval.class)
+               .setParameter("user", username);
+         return q.list();
 
    }
 
@@ -1034,10 +1019,10 @@ public class PSWorkflowService
       
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSContentApproval.class);
-         c.add(Restrictions.eq("contentId", contentid.getUUID()));
+         Query<PSContentApproval> q = s.createQuery("from PSContentApproval where contentId = :cid", PSContentApproval.class)
+               .setParameter("cid", contentid.getUUID());
          
-         return c.list();
+         return q.list();
 
    }
    

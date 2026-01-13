@@ -36,8 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
@@ -111,16 +110,16 @@ public class PSContentService implements IPSContentService {
       var session = getSession();
       var searchLabel = StringUtils.isBlank(label) ? "%" : label;
 
-      // Use deprecated API temporarily until full migration to JPA Criteria
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.like("label", searchLabel));
-      criteria.add(Restrictions.eq("keywordType", String.valueOf(1)));
-
+      StringBuilder hql = new StringBuilder("from PSKeyword where label like :label and keywordType = :keywordType");
       Optional.ofNullable(sortProperty)
          .filter(prop -> !StringUtils.isBlank(prop))
-         .ifPresent(prop -> criteria.addOrder(Order.asc(prop)));
+         .ifPresent(prop -> hql.append(" order by ").append(prop).append(" asc"));
 
-      List<PSKeyword> rawKeywords = criteria.list();
+      Query<PSKeyword> q = session.createQuery(hql.toString(), PSKeyword.class)
+            .setParameter("label", searchLabel)
+            .setParameter("keywordType", String.valueOf(1));
+
+      List<PSKeyword> rawKeywords = q.list();
       var keywords = filterKeywordExcludes(rawKeywords);
 
       // Load choices for each keyword using streams
@@ -143,14 +142,14 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.eq("keywordType", type));
-
+      StringBuilder hql = new StringBuilder("from PSKeyword where keywordType = :type");
       Optional.ofNullable(sortProperty)
          .filter(prop -> !StringUtils.isBlank(prop))
-         .ifPresent(prop -> criteria.addOrder(Order.asc(prop)));
+         .ifPresent(prop -> hql.append(" order by ").append(prop).append(" asc"));
+      Query<PSKeyword> q = session.createQuery(hql.toString(), PSKeyword.class)
+            .setParameter("type", type);
 
-      return criteria.list();
+      return q.list();
    }
 
    /**
@@ -166,10 +165,9 @@ public class PSContentService implements IPSContentService {
       validateKeywordId(id);
       
       var session = getSession();
-      var criteria = session.createCriteria(PSKeyword.class);
-      criteria.add(Restrictions.eq("id", id.longValue()));
-
-      List<PSKeyword> keywords = criteria.list();
+      Query<PSKeyword> q = session.createQuery("from PSKeyword where id = :id", PSKeyword.class)
+            .setParameter("id", id.longValue());
+      List<PSKeyword> keywords = q.list();
       if (keywords.isEmpty()) {
          throw new PSContentException(IPSContentErrors.MISSING_KEYWORD, id);
       }
@@ -323,10 +321,10 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSAutoTranslation.class);
-      criteria.add(Restrictions.eq("contentTypeId", contentTypeId.longValue()));
+      Query<PSAutoTranslation> q = session.createQuery("from PSAutoTranslation where contentTypeId = :ctid", PSAutoTranslation.class)
+            .setParameter("ctid", contentTypeId.longValue());
 
-      return criteria.list();
+      return q.list();
    }
 
    /* (non-Javadoc)
@@ -377,10 +375,10 @@ public class PSContentService implements IPSContentService {
       }
 
       var session = getSession();
-      var criteria = session.createCriteria(PSFolderProperty.class);
-      criteria.add(Restrictions.eq("folderId", folderId.longValue()));
+      Query<PSFolderProperty> q = session.createQuery("from PSFolderProperty where folderId = :fid", PSFolderProperty.class)
+            .setParameter("fid", folderId.longValue());
 
-      return criteria.list();
+      return q.list();
    }
 
    @Override

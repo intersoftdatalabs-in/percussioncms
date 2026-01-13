@@ -16,8 +16,8 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
 
@@ -54,7 +54,7 @@ public class PSMenuItemTag extends PSJSFBaseTag {
   }
 
   /* (non-Javadoc)
-   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(javax.faces.component.UIComponent)
+   * @see com.percussion.servlets.taglib.PSJSFBaseTag#setProperties(jakarta.faces.component.UIComponent)
    */
   @SuppressWarnings("unchecked")
   @Override

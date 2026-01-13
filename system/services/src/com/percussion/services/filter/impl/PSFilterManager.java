@@ -37,10 +37,8 @@ import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -145,39 +143,25 @@ public class PSFilterManager
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSItemFilter.class);
-         return c.list();
-
+       Query<PSItemFilter> q = s.createQuery("from PSItemFilter", PSItemFilter.class);
+       return q.list();
    }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.filter.IPSFilterService#findFilterByAuthType(int)
-    */
    @SuppressWarnings("unchecked")
    public IPSItemFilter findFilterByAuthType(int authtype)
          throws PSFilterException
    {
       Session s = getSession();
 
-         Criteria c = s.createCriteria(PSItemFilter.class);
-         c.add(Restrictions.eq("legacy_authtype", authtype));
-         List<PSItemFilter> results = c.list();
-         if (results.isEmpty())
-         {
-            throw new PSFilterException(
-                  IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
-         }
-         return results.get(0);
-
+       Query<PSItemFilter> q = s.createQuery("from PSItemFilter where legacy_authtype = :authtype", PSItemFilter.class)
+               .setParameter("authtype", authtype);
+       List<PSItemFilter> results = q.list();
+       if (results.isEmpty())
+       {
+          throw new PSFilterException(
+                IPSFilterServiceErrors.AUTHTYPE_MISSING, authtype);
+       }
+       return results.get(0);
    }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.filter.IPSFilterService#saveFilter(com.percussion.services.filter.IPSItemFilter)
-    */
    @Transactional
    public void saveFilter(IPSItemFilter filter)
    {
@@ -294,12 +278,11 @@ public class PSFilterManager
 
          if (type.getOrdinal() == PSTypeEnum.ITEM_FILTER.getOrdinal())
          {
-            Criteria c = s.createCriteria(PSItemFilter.class);
-            List<IPSItemFilter> results = c.list();
-            for (IPSItemFilter f : results)
+            Query<PSItemFilter> q = s.createQuery("from PSItemFilter", PSItemFilter.class);
+            List<PSItemFilter> results = q.list();
+            for (PSItemFilter f : results)
             {
-               rval.add(new PSObjectSummary(f.getGUID(), f.getName(), f
-                     .getName(), f.getDescription()));
+               rval.add(new PSObjectSummary(f.getGUID(), f.getName(), f.getName(), f.getDescription()));
             }
          }
 
@@ -399,8 +382,9 @@ public class PSFilterManager
          }
       }
 
-      return s.createCriteria(PSItemFilter.class).addOrder(Order.asc("name"))
-           .setCacheable(true).list();
+      Query<PSItemFilter> q = s.createQuery("from PSItemFilter order by name", PSItemFilter.class);
+      q.setCacheable(true);
+      return q.list();
 
    }
 

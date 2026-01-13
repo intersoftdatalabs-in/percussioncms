@@ -37,12 +37,12 @@ import org.apache.logging.log4j.Logger;
 import javax.security.auth.login.LoginException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPElement;
+import jakarta.xml.ws.WebServiceContext;
+import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPHeader;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPElement;
 import java.rmi.RemoteException;
 import java.util.Optional;
 import java.util.List;
@@ -110,7 +110,7 @@ public class PSBaseSOAPImpl {
         }
 
         var messageContext = webServiceContext.getMessageContext();
-        var soapMessage = (SOAPMessage) messageContext.get("javax.xml.ws.binding.soapMessage");
+        var soapMessage = (SOAPMessage) messageContext.get("jakarta.xml.ws.binding.soapMessage");
         
         if (soapMessage == null) {
             return Optional.empty();
@@ -192,7 +192,7 @@ public class PSBaseSOAPImpl {
         }
 
         var messageContext = webServiceContext.getMessageContext();
-        var soapMessage = (SOAPMessage) messageContext.get("javax.xml.ws.binding.soapMessage");
+        var soapMessage = (SOAPMessage) messageContext.get("jakarta.xml.ws.binding.soapMessage");
         
         if (soapMessage == null) {
             return Collections.emptyList();

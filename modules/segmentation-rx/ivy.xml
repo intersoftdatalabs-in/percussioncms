@@ -30,7 +30,7 @@
 			<exclude org="org.apache.geronimo.specs"/> 
 		</dependency>  
 		<dependency org="com.sun.xml.fastinfoset" name="FastInfoset" rev="1.2.2" force="true" conf="compile->default"/>  
-		<dependency org="javax.ws.rs" name="jsr311-api" rev="0.8" force="true" conf="compile->default"/>  
+		<dependency org="jakarta.ws.rs" name="jsr311-api" rev="0.8" force="true" conf="compile->default"/>  
 		<dependency org="org.codehaus.jettison" name="jettison" rev="1.0.1" force="true" conf="compile->default"/>  
 		<!-- add any other dependencies here -->  
 		<!-- make sure you have some unit tests -->  

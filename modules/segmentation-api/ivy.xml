@@ -17,7 +17,7 @@
 		<dependency org="commons-logging" name="commons-logging" rev="1.1.1"  conf="optional->default"/>
 		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.1" conf="optional-&gt;default"/>  
 		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.1.7" conf="optional-&gt;default"/> 
-		<dependency org="javax.ws.rs" name="jsr311-api" rev="0.8" force="true" conf="compile->default"/> 
+		<dependency org="jakarta.ws.rs" name="jsr311-api" rev="0.8" force="true" conf="compile->default"/> 
 		
 		<!-- make sure you have some unit tests -->  
 		<dependency org="org.jmock" name="jmock" rev="2.4.0" conf="test-&gt;*"/>  

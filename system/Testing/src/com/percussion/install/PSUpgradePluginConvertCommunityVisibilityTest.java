@@ -26,7 +26,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;

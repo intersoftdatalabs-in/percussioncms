@@ -1006,7 +1006,7 @@ public class PSSiteManager implements IPSSiteManager {
    @SuppressWarnings("unchecked")
    private List<IPSPublishingContext> findAllContexts(boolean includeChildren) throws PSNotFoundException {
       List<IPSPublishingContext> result = getSession()
-              .createCriteria(PSPublishingContext.class).list();
+              .createQuery("from PSPublishingContext", IPSPublishingContext.class).list();
 
       if (includeChildren)
       {
@@ -1021,7 +1021,7 @@ public class PSSiteManager implements IPSSiteManager {
    @SuppressWarnings("unchecked")
    public List<IPSLocationScheme> findAllSchemes()
    {
-      return getSession().createCriteria(PSLocationScheme.class).list();
+      return getSession().createQuery("from PSLocationScheme", IPSLocationScheme.class).list();
    }
    
    @Override
@@ -1174,8 +1174,10 @@ public class PSSiteManager implements IPSSiteManager {
          throw new RuntimeException(e);
       }
 
-      List<Object[]> result = sess.createSQLQuery(sql).addScalar("SITEID",
-            StandardBasicTypes.LONG).addScalar("SITENAME", StandardBasicTypes.STRING).addScalar(
+      NativeQuery<?> resultQuery = sess.createNativeQuery(sql)
+            .addScalar("SITEID", StandardBasicTypes.LONG)
+            .addScalar("SITENAME", StandardBasicTypes.STRING)
+            .addScalar(
             "VARIANTID", StandardBasicTypes.LONG).list();
       
       for (Object[] row : result)

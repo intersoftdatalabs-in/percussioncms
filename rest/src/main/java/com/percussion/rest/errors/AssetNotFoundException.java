@@ -19,7 +19,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Exception thrown when an asset is not found. Sunny Sal: "Asset dhoondho, nahi mila? Not found,

@@ -3,11 +3,11 @@
 applyTo: "**/*.java"
 --------------------
 
-# GitHub Copilot Instructions for Java 17 Features and Best Practices
+# GitHub Copilot Instructions for Java 21 Features and Best Practices
 
-These instructions guide GitHub Copilot in generating Java 17 code for the PercussionCMS project, emphasizing modern features and best practices.
+These instructions guide GitHub Copilot in generating Java 21 code for the PercussionCMS project, emphasizing modern features and best practices.
 
-## Java 17 Features
+## Java 21 Features
 
 1. **Local Variable Syntax for Lambda Parameters (`var` in Lambdas)**:
    - Use `var` in lambda expressions to improve readability when type inference is clear.
@@ -38,7 +38,7 @@ These instructions guide GitHub Copilot in generating Java 17 code for the Percu
      ```
    - Prefer asynchronous requests with `sendAsync` for non-blocking operations in CMS API calls.
 6. **Nest-Based Access Control**:
-   - Understand that Java 17 allows nested classes to access private members of enclosing classes without synthetic methods.
+   - Understand that Java 21 allows nested classes to access private members of enclosing classes without synthetic methods.
    - Use this for cleaner encapsulation in nested CMS component classes.
 7. **File API Enhancements**:
    - Use `Files.writeString()` and `Files.readString()` for simplified file operations.
@@ -61,7 +61,7 @@ These instructions guide GitHub Copilot in generating Java 17 code for the Percu
    - Example: `logger.error("Failed to load content with id: {}", id, e);`.
 4. **Immutability**:
    - Prefer immutable objects and collections to reduce side effects.
-   - Example: Use `record` classes (introduced in Java 14 but backportable as POJOs in Java 17) for data carriers.
+   - Example: Use `record` classes (introduced in Java 14 but backportable as POJOs in Java 21) for data carriers.
 
      ```java
      public record ContentItem(String id, String title) {}
@@ -79,7 +79,7 @@ These instructions guide GitHub Copilot in generating Java 17 code for the Percu
    - Use `HttpClient` with proper timeout configurations to avoid hanging requests.
    - Example: `HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();`.
 8. **Testing**:
-   - Write unit tests with JUnit 5, leveraging Java 17 features like `assertDoesNotThrow`.
+   - Write unit tests with JUnit 5, leveraging Java 21 features like `assertDoesNotThrow`.
    - Example:
 
      ```java
@@ -182,7 +182,7 @@ These instructions guide GitHub Copilot in generating Java 17 code for the Percu
 
 ## Copilot-Specific Guidance
 
-- Suggest Java 17 features like `var`, `List.of()`, and `HttpClient` when generating code.
+- Suggest Java 21 features like `var`, `List.of()`, and `HttpClient` when generating code.
 - Avoid deprecated APIs (e.g., `java.util.Date`); prefer `java.time` API.
 - Example: Use `LocalDateTime.now()` instead of `new Date()`.
 - Generate code snippets with proper exception handling and logging.

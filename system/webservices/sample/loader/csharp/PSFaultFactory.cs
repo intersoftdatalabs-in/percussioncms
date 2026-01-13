@@ -272,7 +272,7 @@ namespace RxFaultFactory
         /// <summary>
         /// The XML namespace used in the Soap Fault node.
         /// </summary>
-        private static string FAULT_NAMESPACE = "urn:www.percussion.com/6.0.0/faults";
+        private static string FAULT_NAMESPACE = "urn:www.percussion.com/8.2.0/faults";
 
         /// <summary>
         /// Reads the values for <code>errorMessage</code> and 

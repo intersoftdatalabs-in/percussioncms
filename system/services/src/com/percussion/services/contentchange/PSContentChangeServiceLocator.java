@@ -18,7 +18,7 @@ package com.percussion.services.contentchange;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-import javax.annotation.concurrent.ThreadSafe;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author JaySeletz
  * @since Java 11 Modernization
  */
-@ThreadSafe
+
 public class PSContentChangeServiceLocator extends PSBaseServiceLocator {
 
     private static final AtomicReference<IPSContentChangeService> SERVICE_REF =

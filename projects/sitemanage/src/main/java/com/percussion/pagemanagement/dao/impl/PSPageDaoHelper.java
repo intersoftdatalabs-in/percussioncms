@@ -112,8 +112,10 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
           "select distinct CONTENTID from "
               + qualifyTableName(PAGE_TABLE)
               + " where TEMPLATEID = :template";
-      var query = sess.createSQLQuery(sql);
-      query.setString(TEMPLATE_PARAM, templateId);
+      org.hibernate.query.NativeQuery<Integer> query =
+          sess.createNativeQuery(sql)
+              .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
+      query.setParameter(TEMPLATE_PARAM, templateId);
       return query.list();
     } catch (SQLException e) {
       log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
@@ -139,8 +141,10 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + "where TEMPLATEID = :template "
               + "    and (CS.CURRENTREVISION = P.REVISIONID "
               + "         OR CS.TIPREVISION = P.REVISIONID) ";
-      var query = sess.createSQLQuery(sql);
-      query.setString(TEMPLATE_PARAM, deletedTemplate);
+      org.hibernate.query.NativeQuery<Integer> query =
+          sess.createNativeQuery(sql)
+              .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
+      query.setParameter(TEMPLATE_PARAM, deletedTemplate);
       var results = query.list();
       if (results == null) {
         return new ArrayList<>();
@@ -186,10 +190,10 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
                 + "SET TEMPLATEID = :template "
                 + "WHERE CONTENTID = :contentid"
                 + "    AND TEMPLATEID = :deletedtemplate";
-        var query = sess.createSQLQuery(sql);
-        query.setString(TEMPLATE_PARAM, entry.getValue());
-        query.setInteger("contentid", Integer.parseInt(entry.getKey()));
-        query.setString("deletedtemplate", deletedTemplate);
+        org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
+        query.setParameter(TEMPLATE_PARAM, entry.getValue());
+        query.setParameter("contentid", Integer.parseInt(entry.getKey()));
+        query.setParameter("deletedtemplate", deletedTemplate);
         query.executeUpdate();
       }
     } catch (SQLException e) {
@@ -255,7 +259,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + join(pages, ",")
               + ") "
               + "    AND CS.CURRENTREVISION = P.REVISIONID ";
-      var query = sess.createSQLQuery(sql);
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
       var results = query.list();
       for (Object[] row : (List<Object[]>) results) {
         mapPageToTemplate.put(row[0].toString(), row[1].toString());
@@ -282,7 +286,9 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + "' AND CONTENTID in ("
               + join(pages, ",")
               + ") ";
-      var query = sess.createSQLQuery(sql);
+      org.hibernate.query.NativeQuery<Integer> query =
+          sess.createNativeQuery(sql)
+              .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
       return query.list();
     } catch (SQLException e) {
       log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
@@ -326,7 +332,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
               + join(pages, ",")
               + ") "
               + "    AND CS.CURRENTREVISION = P.REVISIONID ";
-      var query = sess.createSQLQuery(sql);
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
       var results = query.list();
       for (Object[] row : (List<Object[]>) results) {
         mapPageToLinkText.put(row[0].toString(), row[1].toString());
@@ -377,7 +383,9 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
                 + ") ";
         sql = formGetByStatusSQLQuery(criteria, sql);
       }
-      var query = sess.createSQLQuery(sql);
+      org.hibernate.query.NativeQuery<Integer> query =
+          sess.createNativeQuery(sql)
+              .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
       return query.list();
     } catch (SQLException e) {
       var error = "Failed to get the fully qualified table name for 'CT_PAGE'";

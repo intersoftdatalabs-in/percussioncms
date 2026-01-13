@@ -61,9 +61,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.query.NativeQuery;
 import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -241,7 +240,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
       buf.append(PSRelationshipConfig.ID_RECYCLED_CONTENT);
 
       String query = buf.toString();
-      Query sq = getSession().createSQLQuery(query);
+      NativeQuery<?> sq = getSession().createNativeQuery(query);
       List<Object[]> rows = sq.list();
       // store the list of relationships
       int parent;
@@ -299,7 +298,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
 
       String query = buf.toString();
 
-      SQLQuery sq = getSession().createSQLQuery(query);
+      NativeQuery<?> sq = getSession().createNativeQuery(query);
 
       // store the list of relationships
       List<Object[]> rows = sq.list();

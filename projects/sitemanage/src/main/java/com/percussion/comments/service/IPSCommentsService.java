@@ -21,9 +21,9 @@ import com.percussion.comments.data.PSCommentModeration;
 import com.percussion.comments.data.PSCommentsSummary;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSValidationException;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import java.util.List;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 
 /**
  * Service for managing comments in Percussion CMS.

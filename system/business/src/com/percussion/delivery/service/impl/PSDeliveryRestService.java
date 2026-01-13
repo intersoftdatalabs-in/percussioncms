@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.service.impl;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 /**
  * @author peterfrontiero

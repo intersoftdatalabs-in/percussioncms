@@ -593,7 +593,7 @@ TrConverterHint.prototype.getHints = function(converter){}
 
 
 /**
- * Converter "interface" similar to javax.faces.convert.Converter,
+ * Converter "interface" similar to jakarta.faces.convert.Converter,
  * except that all relevant information must be passed to the constructor
  * as the context and component are not passed to the getAsString or getAsObject method 
  *
@@ -628,7 +628,7 @@ TrConverter.prototype.getAsString = function(value, label){}
 TrConverter.prototype.getAsObject = function(value, label){}
 
 /**
- * Validator "interface" similar to javax.faces.validator.Validator,
+ * Validator "interface" similar to jakarta.faces.validator.Validator,
  * except that all relevant information must be passed to the constructor
  * as the context and component are not passed to the validate method 
  *
@@ -728,7 +728,7 @@ TrValidatorException.prototype.getFacesMessage =
   }
 
 /**
- * Message similar to javax.faces.application.FacesMessage
+ * Message similar to jakarta.faces.application.FacesMessage
  *
  * @param summary - Localized summary message text
  * @param detail - Localized detail message text 

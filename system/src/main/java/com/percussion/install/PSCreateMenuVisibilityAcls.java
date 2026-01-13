@@ -26,7 +26,7 @@ import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.services.security.PSSecurityException;
+import com.percussion.services.security.PSServiceSecurityException;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.util.PSSqlHelper;
@@ -176,7 +176,7 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
    * @throws PSSecurityException
    * @throws NotOwnerException
    */
-  private void processAction(int actionid) throws PSSecurityException, NotOwnerException {
+  private void processAction(int actionid) throws PSServiceSecurityException, NotOwnerException {
     IPSGuid action = new PSGuid(PSTypeEnum.ACTION, actionid);
     IPSAcl acl = ms_acl.loadAclForObjectModifiable(action);
     PrintStream logger = getLogger();
@@ -223,7 +223,7 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
    *     may be persisted, so it must be loaded as modifiable.
    * @throws PSSecurityException
    */
-  private void portCommunityAccess(IPSGuid action, IPSAcl acl) throws PSSecurityException {
+  private void portCommunityAccess(IPSGuid action, IPSAcl acl) throws PSServiceSecurityException {
     getLogger()
         .println(
             "Porting community permisions from RXMENUVISIBILTY "

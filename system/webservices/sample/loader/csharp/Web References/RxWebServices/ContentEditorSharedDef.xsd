@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<xsd:schema xmlns:com="urn:www.percussion.com/6.0.0/common" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/6.0.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema xmlns:com="urn:www.percussion.com/8.2.0/common" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:www.percussion.com/8.2.0/common" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:include schemaLocation="BasicObjects.xsd" />
   <xsd:element name="PSContentEditorSharedDef">
     <xsd:complexType>

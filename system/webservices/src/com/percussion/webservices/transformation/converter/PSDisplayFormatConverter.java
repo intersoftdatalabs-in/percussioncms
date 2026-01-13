@@ -28,10 +28,7 @@ import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.ui.data.CommunityRef;
-import com.percussion.webservices.ui.data.PSDisplayFormatColumnsColumn;
-import com.percussion.webservices.ui.data.PSDisplayFormatColumnsColumnRenderType;
-import com.percussion.webservices.ui.data.PSDisplayFormatColumnsColumnSortOrder;
-import com.percussion.webservices.ui.data.Property;
+import com.percussion.webservices.ui.data.Property; // WS DTOs (use fully qualified names where necessary) 
 import org.apache.axis.types.UnsignedInt;
 import org.apache.commons.beanutils.BeanUtilsBean;
 
@@ -99,21 +96,60 @@ public class PSDisplayFormatConverter extends PSConverter
       else // convert from objectstore to webservice
       {
          PSDisplayFormat source = (PSDisplayFormat) value;
-         PSDisplayFormatColumnsColumn[] cols = 
-            getColumns(source.getColumnContainer(), 
-                  source.getSortedColumnName());
-         CommunityRef[] communities = getCommunities(source);
-         Property[] properties = getProperties(source);
+         // Build WS display format using generated nested types
+         com.percussion.webservices.ui.data.PSDisplayFormat ws = new com.percussion.webservices.ui.data.PSDisplayFormat();
+         // Columns
+         com.percussion.webservices.ui.data.PSDisplayFormat.Columns cols = new com.percussion.webservices.ui.data.PSDisplayFormat.Columns();
+         for (int i=0;i<source.getColumnContainer().size();i++) {
+            PSDisplayColumn srcCol = (PSDisplayColumn) source.getColumnContainer().get(i);
+            com.percussion.webservices.ui.data.PSDisplayFormat.Columns.Column c = new com.percussion.webservices.ui.data.PSDisplayFormat.Columns.Column();
+            c.setName(srcCol.getSource());
+            c.setLabel(srcCol.getDisplayName());
+            c.setDescription(srcCol.getDescription());
+            c.setCategory(srcCol.isCategorized());
+            c.setDefaultSortColumn(srcCol.getSource().equalsIgnoreCase(source.getSortedColumnName()));
+            // renderType and sortOrder are strings in generated classes
+            if (srcCol.isNumberType()) c.setRenderType("number");
+            else if (srcCol.isImageType()) c.setRenderType("image");
+            else if (srcCol.isDateType()) c.setRenderType("date");
+            else c.setRenderType("text");
+            c.setSortOrder(srcCol.isAscendingSort() ? "ascending" : "descending");
+            c.setSequence((long) srcCol.getPosition());
+            c.setWidth(srcCol.getWidth());
+            cols.getColumn().add(c);
+         }
+         ws.setColumns(cols);
+         // Communities
+         if (source.getAllowedCommunities()!=null && !source.getAllowedCommunities().isEmpty()) {
+            com.percussion.webservices.ui.data.PSDisplayFormat.Communities comm = new com.percussion.webservices.ui.data.PSDisplayFormat.Communities();
+            for (Map.Entry<IPSGuid,String> entry : source.getAllowedCommunities().entrySet()) {
+               CommunityRef cr = new CommunityRef();
+               PSDesignGuid g = new PSDesignGuid(entry.getKey());
+               cr.setId(g.getValue());
+               cr.setName(entry.getValue());
+               comm.getCommunityRef().add(cr);
+            }
+            ws.setCommunities(comm);
+         }
+         // Properties
+         if (source.getProperties()!=null) {
+            com.percussion.webservices.ui.data.PSDisplayFormat.Properties props = new com.percussion.webservices.ui.data.PSDisplayFormat.Properties();
+            Iterator propsItr = source.getProperties();
+            while (propsItr.hasNext()) {
+               PSDFMultiProperty mp = (PSDFMultiProperty) propsItr.next();
+               Property p = new Property();
+               p.setName(mp.getName());
+               if (mp.hasValues()) p.setValue((String) mp.iterator().next());
+               props.getProperty().add(p);
+            }
+            ws.setProperties(props);
+         }
          PSDesignGuid guid = new PSDesignGuid(source.getGUID());
-         return
-            new com.percussion.webservices.ui.data.PSDisplayFormat(
-               guid.getValue(),
-               source.getDescription(),
-               cols, 
-               communities,
-               properties,
-               source.getInternalName(),
-               source.getDisplayName());
+         ws.setName(source.getInternalName());
+         ws.setLabel(source.getDisplayName());
+         ws.setDescription(source.getDescription());
+
+         return ws;
 
       }
    }
@@ -233,55 +269,26 @@ public class PSDisplayFormatConverter extends PSConverter
     * 
     * @return the converted columns, never <code>null</code>, may be empty.
     */
-   private PSDisplayFormatColumnsColumn[] getColumns(
+   private com.percussion.webservices.ui.data.PSDisplayFormat.Columns getColumns(
          PSDFColumns cols, String sortColumn)
    {
-      PSDisplayFormatColumnsColumn[] tgtCols = new
-         PSDisplayFormatColumnsColumn[cols.size()];
-      PSDisplayFormatColumnsColumn tgtCol;
-      
-      for (int i=0; i<cols.size(); i++)
-      {
+      com.percussion.webservices.ui.data.PSDisplayFormat.Columns wsCols = new com.percussion.webservices.ui.data.PSDisplayFormat.Columns();
+      if (cols == null) return wsCols;
+      for (int i=0; i<cols.size(); i++) {
          PSDisplayColumn col = (PSDisplayColumn)cols.get(i);
-         
-         String dataType;
-         if (col.isNumberType()) 
-            dataType = PSDisplayFormatColumnsColumnRenderType._number;
-         else if (col.isImageType())
-            dataType = PSDisplayFormatColumnsColumnRenderType._image;
-         else if (col.isDateType())
-            dataType = PSDisplayFormatColumnsColumnRenderType._date;
-         else
-            dataType = PSDisplayFormatColumnsColumnRenderType._text;
-            
-         PSDisplayFormatColumnsColumnRenderType renderType =
-            PSDisplayFormatColumnsColumnRenderType.fromString(
-                  dataType);
-         String sortOrderString = col.isAscendingSort() ? 
-               SORT_ORDER_ASCENDING : SORT_ORDER_DESCENDING;
-         PSDisplayFormatColumnsColumnSortOrder sortOrder =
-            PSDisplayFormatColumnsColumnSortOrder.fromString(
-                  sortOrderString);
-         UnsignedInt sequence = new UnsignedInt(String.valueOf(col
-               .getPosition()));
-         boolean isSortedColumn = col.getSource().equalsIgnoreCase(sortColumn);
-         
-         tgtCol = new PSDisplayFormatColumnsColumn(
-               col.getSource(),
-               col.getDisplayName(),
-               col.getDescription(),
-               col.isCategorized(),
-               isSortedColumn,
-               renderType,
-               sortOrder,
-               sequence,
-               col.getWidth()
-               );
-         
-         tgtCols[i] = tgtCol;
+         com.percussion.webservices.ui.data.PSDisplayFormat.Columns.Column wsCol = new com.percussion.webservices.ui.data.PSDisplayFormat.Columns.Column();
+         wsCol.setName(col.getSource());
+         wsCol.setLabel(col.getDisplayName());
+         wsCol.setDescription(col.getDescription());
+         wsCol.setCategory(col.isCategorized());
+         wsCol.setDefaultSortColumn(col.getSource().equalsIgnoreCase(sortColumn));
+         wsCol.setRenderType(col.isNumberType() ? "number" : (col.isImageType() ? "image" : (col.isDateType() ? "date" : "text")));
+         wsCol.setSortOrder(col.isAscendingSort() ? "ascending" : "descending");
+         wsCol.setSequence((long) col.getPosition());
+         wsCol.setWidth(col.getWidth());
+         wsCols.getColumn().add(wsCol);
       }
-      
-      return tgtCols;
+      return wsCols;
    }
    /**
     * Converts a list of WS columns to a list of objectstore columns
@@ -296,21 +303,20 @@ public class PSDisplayFormatConverter extends PSConverter
     *    class. 
     */
    private PSDFColumns getColumns(
-         PSDisplayFormatColumnsColumn[] cols, long displayId)
+         com.percussion.webservices.ui.data.PSDisplayFormat.Columns cols, long displayId)
          throws PSCmsException, ClassNotFoundException 
    {
       PSDFColumns tgtCols = new PSDFColumns();
-      if (cols == null)
+      if (cols == null || cols.getColumn() == null)
          return tgtCols;
       
       PSDisplayColumn tgtCol;
       boolean isAscendingSort;
       int groupType;
-      for (PSDisplayFormatColumnsColumn col : cols)
+      for (com.percussion.webservices.ui.data.PSDisplayFormat.Columns.Column col : cols.getColumn())
       {
          PSKey key = PSDisplayColumn.createKey(col.getName(), displayId, false);
-         isAscendingSort = col.getSortOrder().getValue().equalsIgnoreCase(
-                 SORT_ORDER_ASCENDING);
+         isAscendingSort = "ascending".equalsIgnoreCase(col.getSortOrder());
          groupType = col.isCategory() ? PSDisplayColumn.GROUPING_CATEGORY
                : PSDisplayColumn.GROUPING_FLAT;
          
@@ -319,16 +325,16 @@ public class PSDisplayFormatConverter extends PSConverter
          tgtCol.setDisplayName(col.getLabel());
          tgtCol.setDescription(col.getDescription());
          tgtCol.setSortOrder(isAscendingSort);
-         tgtCol.setPosition(col.getSequence().intValue());
+         tgtCol.setPosition((int) col.getSequence());
          tgtCol.setWidth(col.getWidth());
          tgtCol.setGroupingType(groupType);
 
-         String dataType = col.getRenderType().getValue();
-         if (dataType.equalsIgnoreCase(PSDisplayFormatColumnsColumnRenderType._number))
+         String dataType = col.getRenderType();
+         if ("number".equalsIgnoreCase(dataType))
             dataType = PSDisplayColumn.DATATYPE_NUMBER;
-         else if (dataType.equalsIgnoreCase(PSDisplayFormatColumnsColumnRenderType._image))
+         else if ("image".equalsIgnoreCase(dataType))
             dataType = PSDisplayColumn.DATATYPE_IMAGE;
-         else if (dataType.equalsIgnoreCase(PSDisplayFormatColumnsColumnRenderType._date))
+         else if ("date".equalsIgnoreCase(dataType))
             dataType = PSDisplayColumn.DATATYPE_DATE;
          else
             dataType = PSDisplayColumn.DATATYPE_TEXT;

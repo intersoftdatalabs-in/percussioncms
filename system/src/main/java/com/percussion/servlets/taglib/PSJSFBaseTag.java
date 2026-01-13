@@ -16,12 +16,12 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.application.Application;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.ValueBinding;
-import javax.faces.webapp.UIComponentTag;
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+import jakarta.faces.application.Application;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.webapp.UIComponentTag;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -39,7 +39,7 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
   }
 
   /* (non-Javadoc)
-   * @see javax.faces.webapp.UIComponentTag#setProperties(javax.faces.component.UIComponent)
+   * @see jakarta.faces.webapp.UIComponentTag#setProperties(jakarta.faces.component.UIComponent)
    */
   @Override
   protected void setProperties(UIComponent comp) {
@@ -70,8 +70,9 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
     } else {
       FacesContext ctx = FacesContext.getCurrentInstance();
       Application app = ctx.getApplication();
-      ValueBinding vb = app.createValueBinding(value);
-      comp.setValueBinding(name, vb);
+      ValueExpression ve = app.getExpressionFactory().createValueExpression(
+            ctx.getELContext(), value, Object.class);
+      comp.setValueExpression(name, ve);
     }
   }
 
@@ -96,8 +97,9 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
     }
     FacesContext ctx = FacesContext.getCurrentInstance();
     Application app = ctx.getApplication();
-    MethodBinding mb = app.createMethodBinding(value, params);
-    comp.getAttributes().put(name, mb);
+    MethodExpression me = app.getExpressionFactory().createMethodExpression(
+          ctx.getELContext(), value, Object.class, params);
+    comp.getAttributes().put(name, me);
   }
 
   /**

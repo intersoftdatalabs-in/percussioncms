@@ -91,7 +91,7 @@ import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.common.ObjectType;
 import com.percussion.webservices.common.Property;
 import com.percussion.webservices.common.Reference;
-import com.percussion.webservices.common.RelationshipFilterRelationshipType;
+import com.percussion.webservices.common.RelationshipFilter.RelationshipFilterRelationshipType;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.security.IPSSecurityDesignWs;
@@ -1621,8 +1621,7 @@ public class PSWebserviceUtils
       if (src.getRelationshipType() != null)
       {
          RelationshipFilterRelationshipType type = src.getRelationshipType();
-         if (type.getValue()
-               .equals(RelationshipFilterRelationshipType._system))
+         if (type == RelationshipFilterRelationshipType.SYSTEM)
             filter.setType(PSRelationshipFilter.FILTER_TYPE_SYSTEM);
          else
             filter.setType(PSRelationshipFilter.FILTER_TYPE_USER);

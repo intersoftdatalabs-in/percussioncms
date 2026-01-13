@@ -19,7 +19,7 @@ package com.percussion.delivery;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.PSMetadataExtractorService;
-import com.percussion.delivery.metadata.any23.PSTripleHandler;
+import com.percussion.delivery.metadata.rdfa.PSTripleHandler;
 import com.percussion.delivery.metadata.extractor.data.PSMetadataEntry;
 
 import org.junit.jupiter.api.Test;

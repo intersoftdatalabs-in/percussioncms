@@ -140,7 +140,7 @@ import org.junit.jupiter.api.Tag;
 
 import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
-import javax.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;

@@ -38,11 +38,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.CacheMode;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -479,8 +478,8 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
     List<PSLocator> locators = new ArrayList<PSLocator>();
     String testId = Integer.toString(node.getId());
-    Query query =
-        session.createSQLQuery(
+    org.hibernate.query.NativeQuery<?> query =
+        session.createNativeQuery(
             "SELECT CONTENTID,REVISIONID,"
                 + column
                 + " from "
@@ -512,8 +511,8 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
           splitList.remove(testId);
           String newString = StringUtils.join(splitList, ',');
-          SQLQuery updateQuery =
-              session.createSQLQuery(
+          org.hibernate.query.NativeQuery<?> updateQuery =
+              session.createNativeQuery(
                   "UPDATE "
                       + table
                       + " SET "

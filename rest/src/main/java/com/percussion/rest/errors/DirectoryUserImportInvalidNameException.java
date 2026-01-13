@@ -19,7 +19,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Exception for invalid directory user import name. Sunny Sal: "Naam mein kya rakha hai? Import ke
