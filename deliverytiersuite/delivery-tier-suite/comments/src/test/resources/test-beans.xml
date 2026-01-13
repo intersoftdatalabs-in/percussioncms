@@ -50,7 +50,7 @@
    <bean id="propertyConfigurer"
          class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
       <property name="properties" ref="propertyPlaceholderProps" />
-   </bean>
+   </bean> 
 
    <import resource="classpath:perc-datasources.xml" />
 
