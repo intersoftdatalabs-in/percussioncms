@@ -320,7 +320,7 @@
             <dependency>
                 <groupId>com.google.javascript</groupId>
                 <artifactId>closure-compiler</artifactId>
-                <version>v20260104</version>
+                <version>v20260112</version>
                 <exclusions>
                     <exclusion>
                         <groupId>junit</groupId>
