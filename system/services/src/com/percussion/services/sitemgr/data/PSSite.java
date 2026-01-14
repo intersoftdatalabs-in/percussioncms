@@ -384,25 +384,34 @@ public class PSSite implements IPSSite, IPSCatalogItem {
      * Enhanced property management using Java 11 patterns
      */
     @Override
-    public void setProperty(String name, IPSGuid contextId, String value) {
+    public PSSiteProperty setProperty(String name, IPSGuid contextId, String value) {
         Objects.requireNonNull(name, "name cannot be null");
         Objects.requireNonNull(contextId, "contextId cannot be null");
 
-        // Remove existing property with same name and context
-        properties.removeIf(prop ->
-                Objects.equals(prop.getName(), name) &&
-                        Objects.equals(prop.getContextId(), contextId)
-        );
+        // Look for an existing property
+        PSSiteProperty prop = properties.stream()
+                .filter(p -> Objects.equals(p.getName(), name)
+                        && Objects.equals(p.getContextId(), contextId))
+                .findFirst()
+                .orElse(null);
 
-        // Add new property if value is not blank
-        if (StringUtils.isNotBlank(value)) {
-            var property = new PSSiteProperty();
-            property.setName(name);
-            property.setContextId(contextId);
-            property.setValue(value);
-            property.setSiteId(siteId);
-            properties.add(property);
+        if (StringUtils.isBlank(value)) {
+            if (prop != null) {
+                properties.remove(prop);
+            }
+            return null;
         }
+
+        if (prop == null) {
+            prop = new PSSiteProperty();
+            prop.setPropertyId(PSGuidHelper.generateNextLong(PSTypeEnum.SITE_PROPERTY));
+            prop.setContextId(contextId);
+            prop.setName(name);
+            prop.setSite(this);
+            properties.add(prop);
+        }
+        prop.setValue(value);
+        return prop;
     }
 
     @Override
@@ -499,28 +508,10 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         }
     }
 
-    public PSSiteProperty setProperty(String propname, IPSGuid contextId,
-                                      String value) {
-        PSSiteProperty prop = null;
-        for (PSSiteProperty p : properties) {
-            if (p.getName().equals(propname) && p.getContextId().equals(contextId)) {
-                prop = p;
-                break;
-            }
-        }
-        if (prop == null) {
-            prop = new PSSiteProperty();
-            prop.setPropertyId(
-                    PSGuidHelper.generateNextLong(PSTypeEnum.SITE_PROPERTY));
-            prop.setContextId(contextId);
-            prop.setName(propname);
-            prop.setSite(this);
-            properties.add(prop);
-        }
-        prop.setValue(value);
-
-        return prop;
-    }
+    /* Removed duplicate method - consolidated into the IPSSite-matching
+     * implementation above which returns a PSSiteProperty and handles
+     * find-or-create semantics consistently.
+     */
 
     /* (non-Javadoc)
      * @see com.percussion.services.sitemgr.IPSSite#removeProperty(java.lang.String, com.percussion.services.sitemgr.IPSPublishingContext)
@@ -538,6 +529,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
         }
     }
 
+    @Override
     public PSSiteProperty setProperty(String propname,
                                       IPSPublishingContext context, String value) {
         return setProperty(propname, context.getGUID(), value);
