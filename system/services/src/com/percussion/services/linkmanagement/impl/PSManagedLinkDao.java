@@ -20,7 +20,7 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.linkmanagement.data.PSManagedLink;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 
 import org.apache.commons.lang3.Validate;
@@ -88,7 +88,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
     }
 
     @Transactional
-    public void saveLink(PSManagedLink link) throws IPSGenericDao.SaveException {
+    public void saveLink(PSManagedLink link) throws PSDataServiceException {
         Validate.notNull(link);
         if (link.getLinkId() == -1)
         {
@@ -104,7 +104,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
         {
             String msg = "database error " + e.getMessage();
             log.error(msg);
-            throw new IPSGenericDao.SaveException(msg, e);
+            throw new PSDataServiceException(msg, e);
         }
         finally
         {

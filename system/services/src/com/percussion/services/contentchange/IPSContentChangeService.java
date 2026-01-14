@@ -18,7 +18,7 @@ package com.percussion.services.contentchange;
 
 import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,10 +52,10 @@ public interface IPSContentChangeService {
      * publishing operations. The event will be validated before storage.
      *
      * @param changeEvent the change event to store, must not be null
-     * @throws IPSGenericDao.SaveException if the event cannot be saved
+     * @throws PSDataServiceException if the event cannot be saved
      * @throws IllegalArgumentException if changeEvent is null or invalid
      */
-    void contentChanged(PSContentChangeEvent changeEvent) throws IPSGenericDao.SaveException;
+    void contentChanged(PSContentChangeEvent changeEvent) throws PSDataServiceException;
 
     /**
      * Records multiple content change events atomically.
@@ -64,10 +64,10 @@ public interface IPSContentChangeService {
      * ensuring all events are stored or none are stored in case of failure.
      *
      * @param changeEvents the collection of change events to store, must not be null or empty
-     * @throws IPSGenericDao.SaveException if any event cannot be saved
+     * @throws PSDataServiceException if any event cannot be saved
      * @throws IllegalArgumentException if changeEvents is null, empty, or contains invalid events
      */
-    default void contentChanged(Iterable<PSContentChangeEvent> changeEvents) throws IPSGenericDao.SaveException {
+    default void contentChanged(Iterable<PSContentChangeEvent> changeEvents) throws PSDataServiceException {
         if (changeEvents == null) {
             throw new IllegalArgumentException("changeEvents cannot be null");
         }
@@ -90,7 +90,7 @@ public interface IPSContentChangeService {
         return CompletableFuture.runAsync(() -> {
             try {
                 contentChanged(changeEvent);
-            } catch (IPSGenericDao.SaveException e) {
+            } catch (PSDataServiceException e) {
                 throw new RuntimeException("Failed to save change event asynchronously", e);
             }
         });

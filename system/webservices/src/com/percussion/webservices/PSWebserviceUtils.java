@@ -91,7 +91,8 @@ import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import com.percussion.webservices.common.ObjectType;
 import com.percussion.webservices.common.Property;
 import com.percussion.webservices.common.Reference;
-import com.percussion.webservices.common.RelationshipFilter.RelationshipFilterRelationshipType;
+// RelationshipFilter relationship type is represented as a String in the generated JAXB classes
+// import com.percussion.webservices.common.RelationshipFilter.RelationshipFilterRelationshipType;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.security.IPSSecurityDesignWs;
@@ -1620,8 +1621,8 @@ public class PSWebserviceUtils
       // set relationship type (system / user)
       if (src.getRelationshipType() != null)
       {
-         RelationshipFilterRelationshipType type = src.getRelationshipType();
-         if (type == RelationshipFilterRelationshipType.SYSTEM)
+         String type = src.getRelationshipType();
+         if ("system".equals(type))
             filter.setType(PSRelationshipFilter.FILTER_TYPE_SYSTEM);
          else
             filter.setType(PSRelationshipFilter.FILTER_TYPE_USER);

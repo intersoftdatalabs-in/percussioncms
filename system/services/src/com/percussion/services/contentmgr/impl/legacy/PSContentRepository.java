@@ -80,7 +80,7 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationHelper;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import com.percussion.services.utils.orm.data.PSTempId;
-import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.jsr170.PSProperty;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;

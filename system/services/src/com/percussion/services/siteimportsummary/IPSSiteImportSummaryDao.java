@@ -18,7 +18,7 @@
 package com.percussion.services.siteimportsummary;
 
 import com.percussion.services.siteimportsummary.data.PSSiteImportSummary;
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
  * Dao for site import summary. 
@@ -30,7 +30,7 @@ public interface IPSSiteImportSummaryDao
     * Saves site import summary object.
     * @param summary must not be <code>null</code>
     */
-   void save(PSSiteImportSummary summary) throws IPSGenericDao.SaveException;
+   void save(PSSiteImportSummary summary) throws PSDataServiceException;
    
    /**
     * Finds a summary by the supplied summary id.

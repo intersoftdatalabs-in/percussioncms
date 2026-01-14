@@ -110,7 +110,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
 
     @Override
     @Transactional
-    public void contentChanged(PSContentChangeEvent changeEvent) throws IPSGenericDao.SaveException {
+    public void contentChanged(PSContentChangeEvent changeEvent) throws PSDataServiceException {
         Objects.requireNonNull(changeEvent, "Change event cannot be null");
 
         var session = getSession();
@@ -133,7 +133,7 @@ public final class PSContentChangeService implements IPSContentChangeService,
         } catch (HibernateException e) {
             var msg = "Database error while saving content change event: " + e.getMessage();
             log.error(msg, e);
-            throw new IPSGenericDao.SaveException(msg, e);
+            throw new PSDataServiceException(msg, e);
         }
     }
 

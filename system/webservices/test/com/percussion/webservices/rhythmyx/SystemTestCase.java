@@ -27,7 +27,7 @@ import com.percussion.webservices.PSSystemTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.common.ObjectType;
 import com.percussion.webservices.common.Reference;
-import com.percussion.webservices.common.RelationshipFilter.RelationshipFilterRelationshipType;
+// RelationshipFilterRelationshipType is represented as a String in generated classes
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.content.PSContentType;
 import com.percussion.webservices.content.PSItem;
@@ -725,9 +725,9 @@ public class SystemTestCase extends PSSystemTestBase
       // filter by "system" or "user" type
       //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 
-      // add filteringy by relationship "user" type
+      // add filtering by relationship "user" type
       // but there is no "user" type, so the result should be the same
-      filter.setRelationshipType(RelationshipFilterRelationshipType.user);
+      filter.setRelationshipType("user");
       rels_2 = loadRelationships(binding, filter);
       /* the counts are equal because config name, category and rel type are
        * OR'd together, not AND'd */
@@ -735,14 +735,14 @@ public class SystemTestCase extends PSSystemTestBase
 
       // query by relationship "system" type
       filter = new PSRelationshipFilter();
-      filter.setRelationshipType(RelationshipFilterRelationshipType.system);
+      filter.setRelationshipType("system");
       rels_2 = loadRelationships(binding, filter);
       assertTrue(rels_2.length > 0);
 
       // query by "user" type, the result should be empty
       // since there is no "user" type in FastForward
       filter = new PSRelationshipFilter();
-      filter.setRelationshipType(RelationshipFilterRelationshipType.user);
+      filter.setRelationshipType("user");
       rels_2 = loadRelationships(binding, filter);
       assertTrue(rels_2.length == 0);
 

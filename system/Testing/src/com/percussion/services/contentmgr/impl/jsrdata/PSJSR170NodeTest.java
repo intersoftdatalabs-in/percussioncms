@@ -18,7 +18,7 @@ package com.percussion.services.contentmgr.impl.jsrdata;
 
 
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.servlet_utils.jsr170.PSProperty;
+import com.percussion.system.utils.jsr170.PSProperty;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;

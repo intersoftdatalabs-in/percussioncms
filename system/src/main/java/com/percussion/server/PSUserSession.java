@@ -1016,15 +1016,19 @@ public class PSUserSession {
       String newValue = null;
       try {
         IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-        PSLocale l = mgr.findLocaleByLanguageString(strValue);
+        var opt = mgr.findLocaleByLanguageString(strValue);
+        PSLocale l = opt.orElse(null);
         if (l == null || l.getStatus() != PSLocale.STATUS_ACTIVE) {
-          l = mgr.findLocaleByLanguageString("en-us");
-          if (l != null && l.getStatus() != PSLocale.STATUS_ACTIVE) {
+          var enOpt = mgr.findLocaleByLanguageString("en-us");
+          PSLocale enLocale = enOpt.orElse(null);
+          if (enLocale != null && enLocale.getStatus() == PSLocale.STATUS_ACTIVE) {
             newValue = "en-us";
           } else {
-            Collection active = mgr.findLocaleByStatus(PSLocale.STATUS_ACTIVE);
-            if (active.size() > 0) {
-              l = (PSLocale) active.iterator().next();
+            java.util.List<PSLocale> active =
+                mgr.findLocalesByStatus(PSLocale.STATUS_ACTIVE)
+                    .collect(java.util.stream.Collectors.toList());
+            if (!active.isEmpty()) {
+              l = active.iterator().next();
               newValue = l.getLanguageString();
             } else {
               throw new Exception("No locales found");

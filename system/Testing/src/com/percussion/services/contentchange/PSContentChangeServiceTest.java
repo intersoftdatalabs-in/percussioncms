@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.exception.PSDataServiceException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -39,7 +39,7 @@ public class PSContentChangeServiceTest
 {
 
    @Test
-   public void test() throws IPSGenericDao.SaveException {
+   public void test() throws PSDataServiceException {
       IPSContentChangeService changeSvc = PSContentChangeServiceLocator.getContentChangeService();
       assertNotNull(changeSvc);
       

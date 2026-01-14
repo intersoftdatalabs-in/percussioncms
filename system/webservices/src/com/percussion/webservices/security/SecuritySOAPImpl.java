@@ -36,6 +36,16 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Optional;
 
+// Generated request/response types from webservices module
+import com.percussion.webservices.securityservices.LoadCommunitiesRequest;
+import com.percussion.webservices.securityservices.LoadRolesRequest;
+import com.percussion.webservices.securityservices.LoginRequest;
+import com.percussion.webservices.securityservices.LoginResponse;
+import com.percussion.webservices.securityservices.LogoutRequest;
+import com.percussion.webservices.securityservices.RefreshSessionRequest;
+import com.percussion.webservices.securityservices.FilterByRuntimeVisibilityResponse;
+
+
 /**
  * Server side implementations for web services defined in rhythmyx.wsdl
  * for operations defined in the securitySOAP bindings.
@@ -43,8 +53,8 @@ import java.util.Optional;
  * <p>Modernized for Java 11 with enhanced exception handling, Optional usage,
  * and improved logging. Uses JAX-WS annotations for contemporary SOAP implementation.
  */
-@WebService(endpointInterface = "com.percussion.webservices.security.Security")
-public class SecuritySOAPImpl extends PSBaseSOAPImpl implements Security {
+@WebService(endpointInterface = "com.percussion.webservices.securityservices.Security")
+public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.webservices.securityservices.Security {
 
     private static final Logger logger = LogManager.getLogger(SecuritySOAPImpl.class);
 

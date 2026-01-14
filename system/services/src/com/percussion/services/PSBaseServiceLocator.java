@@ -429,10 +429,18 @@ public class PSBaseServiceLocator {
             initializing = true;
 
             if (!ms_setNamingContextBuilder) {
-                ms_logger.info("Setting initial test JNDI context factory builder.");
-                NamingManager.setInitialContextFactoryBuilder(
-                    new SimpleNamingContextBuilder());
-                ms_setNamingContextBuilder = true;
+                ms_logger.info("Attempting to set initial test JNDI context factory builder via mock builder.");
+                try {
+                    var clazz = Class.forName("org.springframework.mock.jndi.SimpleNamingContextBuilder");
+                    var builder = clazz.getDeclaredConstructor().newInstance();
+                    NamingManager.setInitialContextFactoryBuilder((NamingManager.InitialContextFactoryBuilder) builder);
+                    ms_setNamingContextBuilder = true;
+                    ms_logger.info("Successfully set SimpleNamingContextBuilder");
+                } catch (ClassNotFoundException cnfe) {
+                    ms_logger.info("SimpleNamingContextBuilder not available on classpath; skipping JNDI mock setup");
+                } catch (Exception ex) {
+                    ms_logger.warn("Failed to initialize SimpleNamingContextBuilder via reflection", ex);
+                }
             }
 
             String rxDeployDir = System.getProperty("rxdeploydir");

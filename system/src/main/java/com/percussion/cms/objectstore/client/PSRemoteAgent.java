@@ -659,7 +659,8 @@ public class PSRemoteAgent {
     try {
       PSBinaryFileData[] tmp = new PSBinaryFileData[files.size()];
       files.toArray(tmp);
-      locator = requester.updateBinary(tmp, app_resource, params);
+      var optLocator = requester.updateBinary(tmp, app_resource, params);
+      locator = optLocator.orElse(null);
     } catch (IOException e) {
       Object[] args = new Object[] {e.getClass().getName(), e.getMessage()};
       throw new PSRemoteException(new PSException(1001, args));

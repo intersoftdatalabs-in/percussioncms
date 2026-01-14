@@ -22,6 +22,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.beans.IPSPropertyLoader;
 import com.percussion.utils.beans.PSPropertyWrapper;
 import com.percussion.utils.io.PSReaderInputStream;
+import com.percussion.utils.jsr170.IPSJcrCacheItem;
 import com.percussion.utils.jsr170.IPSProperty;
 import com.percussion.utils.jsr170.IPSPropertyInterceptor;
 import com.percussion.utils.jsr170.PSValueConverter;

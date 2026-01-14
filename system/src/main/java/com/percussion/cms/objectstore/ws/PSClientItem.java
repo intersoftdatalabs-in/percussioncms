@@ -5,12 +5,19 @@ package com.percussion.cms.objectstore.ws;
 
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSItemField;
-import java.util.List;
 
 public class PSClientItem {
 
-  public List<String> getAllFieldNames() {
-    return java.util.Collections.emptyList();
+  private PSItemDefinition def;
+
+  public PSClientItem() {}
+
+  public PSClientItem(PSItemDefinition def) {
+    this.def = def;
+  }
+
+  public java.util.Iterator<String> getAllFieldNames() {
+    return java.util.Collections.emptyIterator();
   }
 
   public PSItemDefinition getItemDefinition() {
@@ -19,5 +26,25 @@ public class PSClientItem {
 
   public PSItemField getFieldByName(String name) {
     return null;
+  }
+
+  public java.util.Iterator<PSItemField> getAllFields() {
+    return java.util.Collections.emptyIterator();
+  }
+
+  public void loadXmlData(org.w3c.dom.Element el) {
+    // no-op stub
+  }
+
+  public int getContentId() {
+    return -1;
+  }
+
+  public int getRevision() {
+    return -1;
+  }
+
+  public int getContentTypeId() {
+    return -1;
   }
 }
