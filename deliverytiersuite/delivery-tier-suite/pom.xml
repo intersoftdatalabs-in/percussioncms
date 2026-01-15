@@ -51,7 +51,7 @@
         <servlet.spec>6.0.0</servlet.spec>
         <spring.security.version>7.0.2</spring.security.version>
         <!-- Overrides Parent-->
-        <spring.version>7.0.2</spring.version>
+        <spring.version>7.0.3</spring.version>
         <sqlserver.version>13.3.0.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
