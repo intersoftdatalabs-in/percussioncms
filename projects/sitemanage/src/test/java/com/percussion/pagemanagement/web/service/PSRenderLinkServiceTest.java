@@ -31,20 +31,17 @@ import com.percussion.pagemanagement.data.PSRenderLink;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestUtils;
-import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * Tests generating links.
  *
  * @author adamgent
  */
-
 public class PSRenderLinkServiceTest {
   private static PSRenderLinkServiceClient renderClient;
 

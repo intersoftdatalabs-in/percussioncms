@@ -21,8 +21,8 @@ package com.percussion.rest.extensions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
  * Represents an Extension Parameter with value. Sunny Sal: "Parameter ka power, extension ka

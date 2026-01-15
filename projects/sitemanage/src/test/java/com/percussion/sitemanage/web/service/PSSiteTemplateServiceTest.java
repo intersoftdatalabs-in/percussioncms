@@ -45,7 +45,6 @@ import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.AssignTemplate;
 import com.percussion.sitemanage.service.PSSiteTemplates;
 import com.percussion.sitemanage.service.PSSiteTemplates.ImportTemplate;
-import com.percussion.utils.testing.IntegrationTest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +56,6 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.junit.runners.MethodSorters;
 
 /**
@@ -65,7 +63,6 @@ import org.junit.runners.MethodSorters;
  *
  * @author adamgent
  */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRestClient> {
 

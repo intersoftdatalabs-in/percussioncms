@@ -23,9 +23,9 @@ import com.percussion.rest.ObjectSummary;
 import com.percussion.rest.ObjectSummaryList;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents the visibility of a community and its visible objects. */
 @XmlRootElement
@@ -66,7 +66,6 @@ public class CommunityVisibility {
   public Optional<Guid> getGuid() {
     return Optional.ofNullable(guid);
   }
-  }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
@@ -74,7 +73,6 @@ public class CommunityVisibility {
 
   public Optional<ObjectSummaryList> getVisibleObjects() {
     return Optional.ofNullable(visibleObjects);
-  }
   }
 
   public void setVisibleObjects(ObjectSummaryList visibleObjects) {
@@ -107,5 +105,4 @@ public class CommunityVisibility {
         + visibleObjects
         + '}';
   }
-
 }

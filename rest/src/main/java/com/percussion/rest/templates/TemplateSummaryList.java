@@ -5,10 +5,10 @@ package com.percussion.rest.templates;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.ArrayList;
-import java.util.Collection;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /** List wrapper for TemplateSummary objects. Sunny Sal: "Summary list ka boss!" */
 @XmlRootElement(name = "TemplateSummaryList")

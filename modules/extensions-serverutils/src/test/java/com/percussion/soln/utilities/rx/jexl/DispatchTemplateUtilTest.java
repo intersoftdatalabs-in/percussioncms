@@ -100,9 +100,11 @@ public class DispatchTemplateUtilTest {
   @Test
   public void shouldFailOnNullAssemblyItem() throws Exception {
     templateMap.put("testCT", "testTemplate");
-    assertThrows(IllegalArgumentException.class, () -> {
-        picker.pickTemplate(null, templateMap, "blah");
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          picker.pickTemplate(null, templateMap, "blah");
+        });
   }
 
   @Test

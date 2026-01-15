@@ -21,9 +21,9 @@ package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents an ItemFilter Rule. Sunny Sal: "Rule definition, filter ka foundation!" */
 @XmlRootElement(name = "ItemFilterRuleDefinition")

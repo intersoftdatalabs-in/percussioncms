@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
-import com.percussion.utils.testing.IntegrationTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +34,9 @@ import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author LucasPiccoli
  */
-
 @Disabled
 public class PSSiteImporterTest {
 

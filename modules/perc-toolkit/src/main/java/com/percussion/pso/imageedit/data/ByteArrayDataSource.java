@@ -16,12 +16,12 @@
  */
 package com.percussion.pso.imageedit.data;
 
+import jakarta.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import jakarta.activation.DataSource;
 
 /**
  * A simple in-memory datasource.

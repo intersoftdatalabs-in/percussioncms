@@ -97,8 +97,8 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
    *
    * @return An iterator over zero or more <code>File</code> objects, never <code>null</code>.
    */
-  public Iterator getResourceFiles() {
-    List files = new ArrayList();
+  public Iterator<File> getResourceFiles() {
+    List<File> files = new ArrayList<>();
 
     // get js file
     File jsFile = getJSFile(m_languagestring, false);
@@ -109,7 +109,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     if (cssFile.exists()) files.add(cssFile);
 
     // get image files
-    List imgFiles = getImageFiles(m_languagestring, false);
+    List<File> imgFiles = getImageFiles(m_languagestring, false);
     if (imgFiles != null) files.addAll(imgFiles);
 
     // get user options xml file
@@ -192,8 +192,8 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
    *     directory does not exist. Otherwise will contain all files that exist below that directory,
    *     including files within any subdirectories, recurisvely.
    */
-  private List getImageFiles(String languageString, boolean isSystem) {
-    List listFiles = null;
+  private List<File> getImageFiles(String languageString, boolean isSystem) {
+    List<File> listFiles = null;
     File dir = getImageFileDir(languageString, isSystem);
     if (dir.exists()) {
       PSPatternMatcher pattern = new PSPatternMatcher('?', '*', "*.*");
@@ -316,7 +316,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     PSCommandLineProcessor.logMessage("copyingImageResourcesFor", m_languagestring);
     // start displaying idle dots
     showDots(true);
-    List listFiles = getImageFiles(PSI18nUtils.DEFAULT_LANG, true);
+    List<File> listFiles = getImageFiles(PSI18nUtils.DEFAULT_LANG, true);
     if (listFiles == null) {
       PSCommandLineProcessor.logMessage(
           "imageDirNotExist", getImageFileDir(PSI18nUtils.DEFAULT_LANG, true).getCanonicalPath());

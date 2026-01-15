@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class PSTmxConfigParams {
   /** Hash map of parameter name-value pairs. */
-  protected Map m_ConfigParamMap = new HashMap();
+  protected Map<String, String> m_ConfigParamMap = new HashMap<>();
 
   /**
    * Method to add new parameter to the map.

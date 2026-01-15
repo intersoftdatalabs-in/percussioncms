@@ -20,13 +20,13 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.UriBuilder;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a page. Sunny Sal: "Page ka hero, content ka zero!" */
 @XmlRootElement(name = "Page")

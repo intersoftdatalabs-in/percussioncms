@@ -207,7 +207,7 @@ public class PSCommandLineProcessor {
     String temp;
     switch (actionid) {
       case IPSActionHandler.ACTIONID_GENERATE_TMX_RESOURCES:
-        List sections = null;
+        List<String> sections = null;
         boolean backtomain = false;
         boolean allSections = false;
         while ((!backtomain && !allSections) && (sections == null || sections.isEmpty())) {
@@ -409,11 +409,11 @@ public class PSCommandLineProcessor {
     PSLocaleHandler localehandler = new PSLocaleHandler();
     try {
       Document doc = localehandler.getLocaleDocument(m_rxroot);
-      List langstring = new ArrayList();
+      List<String> langstring = new ArrayList<>();
 
-      List disname = new ArrayList();
-      List desc = new ArrayList();
-      List status = new ArrayList();
+      List<String> disname = new ArrayList<>();
+      List<String> desc = new ArrayList<>();
+      List<String> status = new ArrayList<>();
       getLanguageList(doc, langstring, status, disname, desc);
       System.out.println();
       System.out.println("Supported Languages:");
@@ -449,11 +449,16 @@ public class PSCommandLineProcessor {
    * @param disname may be <code>null</code> in which case a new List is created.
    * @param desc may be <code>null</code> in which case a new List is created.
    */
-  private void getLanguageList(Document doc, List language, List status, List disname, List desc) {
-    if (language == null) language = new ArrayList();
-    if (status == null) status = new ArrayList();
-    if (disname == null) disname = new ArrayList();
-    if (desc == null) desc = new ArrayList();
+  private void getLanguageList(
+      Document doc,
+      List<String> language,
+      List<String> status,
+      List<String> disname,
+      List<String> desc) {
+    if (language == null) language = new ArrayList<>();
+    if (status == null) status = new ArrayList<>();
+    if (disname == null) disname = new ArrayList<>();
+    if (desc == null) desc = new ArrayList<>();
     if (doc == null) return;
 
     NodeList nl = doc.getElementsByTagName("column");

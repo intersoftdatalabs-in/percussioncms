@@ -20,7 +20,9 @@ package com.percussion.taxonomy.web.xmlGeneration;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Text;
 
-/** @author Steffen Gates May 9, 2011 */
+/**
+ * @author Steffen Gates May 9, 2011
+ */
 public class Value {
 
   @Attribute(required = true)

@@ -40,7 +40,7 @@ There are many more modules, but the ones listed above are the big ones.
 
 This section guides you through submitting a bug report for Percussion CMS. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
 
-Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report). Fill out [the required template](https://github.com/percussion/percussioncms/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md), the information it asks for helps us resolve issues faster.
+Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report). Fill out [the required template](https://github.com/intersoftdatalabs-in/percussioncms/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md), the information it asks for helps us resolve issues faster.
 
 > **Note:** If you find a **Closed** issue that seems like it is the same thing that you're experiencing, open a new issue and include a link to the original issue in the body of your new one.
 >
@@ -50,7 +50,7 @@ Before creating bug reports, please check [this list](#before-submitting-a-bug-r
 
 #### How Do I Submit A (Good) Bug Report?
 
-Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue in the project repository and provide the following information by filling in [the template](https://github.com/percussion/percussion/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md).
+Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue in the project repository and provide the following information by filling in [the template](https://github.com/intersoftdatalabs-in/percussion/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md).
 
 Explain the problem and include additional details to help maintainers reproduce the problem:
 
@@ -67,7 +67,7 @@ Explain the problem and include additional details to help maintainers reproduce
 Provide more context by answering these questions:
 
 * **Did the problem start happening recently** (e.g. after updating to a new version of Percussion CMS) or was this always a problem?
-* If the problem started happening recently, **can you reproduce the problem in an older version of Percussion CMS ?** What's the most recent version in which the problem doesn't happen? You can download older versions of Percussion CMS from [the releases page](https://github.com/percussion/percussioncms/releases).
+* If the problem started happening recently, **can you reproduce the problem in an older version of Percussion CMS ?** What's the most recent version in which the problem doesn't happen? You can download older versions of Percussion CMS from [the releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases).
 * **Can you reliably reproduce the issue?** If not, provide details about how often the problem happens and under which conditions it normally happens.
 * If the problem is related to working with Pages / Items / Assets (e.g. opening and editing Pages), **does the problem happen for all Pages or only some?**
 
@@ -82,7 +82,7 @@ Include details about your configuration and environment:
 
 This section guides you through submitting an enhancement suggestion for Percussion CMS, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion :pencil: and find related suggestions :mag_right:.
 
-Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please [include as many details as possible](#how-do-i-submit-a-good-enhancement-suggestion). Fill in [the template](https://github.com/percussion/percussioncms/.github/blob/master/.github/ISSUE_TEMPLATE/feature_request.md), including the steps that you imagine you would take if the feature you're requesting existed.
+Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please [include as many details as possible](#how-do-i-submit-a-good-enhancement-suggestion). Fill in [the template](https://github.com/intersoftdatalabs-in/percussioncms/.github/blob/master/.github/ISSUE_TEMPLATE/feature_request.md), including the steps that you imagine you would take if the feature you're requesting existed.
 
 #### Before Submitting An Enhancement Suggestion
 
@@ -104,14 +104,14 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 
 ### Reporting Security Issues / Vulnerabilities
 
-If you feel that you have discovered a security issue or vulnerability in any of the project modules, **please do not log a normal GitHub issue**.  Follow the process defined in the project [Security Policy](https://github.com/percussion/percussioncms/blob/development/SECURITY.md)
+If you feel that you have discovered a security issue or vulnerability in any of the project modules, **please do not log a normal GitHub issue**.  Follow the process defined in the project [Security Policy](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/SECURITY.md)
 
 ### Great, how do I get started working on Percussion CMS code?
 
 ## Developer Setup
 
 ```
-git clone https://github.com/percussion/percussioncms.git
+git clone https://github.com/intersoftdatalabs-in/percussioncms.git
 cd percussioncms
 git fetch origin
 git pull
@@ -120,8 +120,10 @@ git pull
 ## Pre-Requisites for Building
 
 - Apache Maven > 3.6
-- Java 1.8 OpenJDK
-- Oracle 1.8 JDK (for JavaFX) TODO: Pull JavaFX from maven
+- JDK 21 (set `JAVA_HOME_21` to your JDK 21 installation)
+- Use the provided environment setup scripts to run Maven so it uses JDK 21:
+  - Linux/macOS: `./mvn-env.sh <maven-args>`
+  - Windows: `mvn-env.bat <maven-args>`
 
 ## Maven Configuration
 
@@ -158,6 +160,13 @@ Before you start working on a bug or feature, discuss the issue in GitHub Issues
 
 When starting work, create a new feature branch.
 
+**Before committing**
+
+- Use the project wrapper scripts so Maven runs with JDK 21: `./mvn-env.sh <maven-args>` (Linux/macOS) or `mvn-env.bat <maven-args>` (Windows).
+- Run `./mvn-env.sh spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvn-env.sh spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
+  - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
+- Run `./mvn-env.sh -DskipTests validate` or `./mvn-env.sh clean verify` to ensure the module builds before pushing your commit.
+
 IntelliJ makes some of this a lot easier, especially when searching for specific error messages across modules in the code base.
 
 The examples below show the typical command line for create a feature branch and pull request.
@@ -187,7 +196,7 @@ Push the branch to the origin.
 git push --set-upstream origin CMS-7209
 ```
 
-From there, goto http://github.com/percussion/percussioncms/
+From there, goto http://github.com/intersoftdatalabs-in/percussioncms/
 
 Select the branch you just pushed and request a pull request adding any comments and requesting a review from at least 1 other maintainer.  Once the pull request has been merged, you can then delete the branch on your local.
 

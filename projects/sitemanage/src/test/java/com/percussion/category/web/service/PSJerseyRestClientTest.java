@@ -21,14 +21,10 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.marshaller.PSCategoryMarshaller;
 import com.percussion.category.marshaller.PSCategoryUnMarshaller;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.utils.testing.IntegrationTest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.jupiter.api.Test;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-
-
 
 public class PSJerseyRestClientTest {
 

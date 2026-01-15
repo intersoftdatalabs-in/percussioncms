@@ -105,18 +105,18 @@ public class PSI18NTranslationKeyValues {
     Element root = doc.createElement(ELEM_KEYVALUES);
 
     // iterate through the map and create keys attribute and values
-    Iterator it = m_keyValueMap.entrySet().iterator();
-    Map.Entry me = null;
+    Iterator<Map.Entry<String, PSTmxUnit>> it = m_keyValueMap.entrySet().iterator();
+    Map.Entry<String, PSTmxUnit> me = null;
     Element keyEl = null;
     Text valueTextNode = null;
     while (it.hasNext()) {
-      me = (Map.Entry) it.next();
-      PSTmxUnit unit = (PSTmxUnit) me.getValue();
+      me = it.next();
+      PSTmxUnit unit = me.getValue();
       keyEl = doc.createElement(ELEM_KEYVALUE);
       valueTextNode = doc.createTextNode(unit.getValue());
       keyEl.appendChild(valueTextNode);
 
-      keyEl.setAttribute(ATTR_KEY, (String) me.getKey());
+      keyEl.setAttribute(ATTR_KEY, me.getKey());
       if (unit.getMnemonic() != 0) {
         StringBuilder buf = new StringBuilder(1);
         buf.append(Integer.toString(unit.getMnemonic()));
@@ -166,17 +166,17 @@ public class PSI18NTranslationKeyValues {
    *     keys and values must be of type <code>String</code> or a ClassCastExceptionException will
    *     be thrown. Must not be <code>null</code>.
    */
-  public void fromMap(Map keyValueMap) {
+  public void fromMap(Map<String, PSTmxUnit> keyValueMap) {
     if (keyValueMap == null) throw new IllegalArgumentException("keyValueMap must not be null.");
 
     // clear old values:
     m_keyValueMap.clear();
 
-    Iterator it = keyValueMap.entrySet().iterator();
-    Map.Entry me = null;
+    Iterator<Map.Entry<String, PSTmxUnit>> it = keyValueMap.entrySet().iterator();
+    Map.Entry<String, PSTmxUnit> me = null;
     while (it.hasNext()) {
-      me = (Map.Entry) it.next();
-      populateMap((String) me.getKey(), (PSTmxUnit) me.getValue());
+      me = it.next();
+      populateMap(me.getKey(), me.getValue());
     }
   }
 
@@ -192,7 +192,7 @@ public class PSI18NTranslationKeyValues {
       throw new IllegalArgumentException("key must not be null or empty.");
 
     if (m_keyValueMap.containsKey(key)) {
-      return ((PSTmxUnit) m_keyValueMap.get(key)).getValue();
+      return m_keyValueMap.get(key).getValue();
     } else {
       // never return empty, but only after@:
       int atLoc = key.indexOf("@");
@@ -217,7 +217,7 @@ public class PSI18NTranslationKeyValues {
       throw new IllegalArgumentException("key must not be null or empty.");
 
     if (m_keyValueMap.containsKey(key)) {
-      return ((PSTmxUnit) m_keyValueMap.get(key)).getTooltip();
+      return m_keyValueMap.get(key).getTooltip();
     }
 
     return null;
@@ -232,7 +232,7 @@ public class PSI18NTranslationKeyValues {
       throw new IllegalArgumentException("key must not be null or empty.");
 
     if (m_keyValueMap.containsKey(key)) {
-      return ((PSTmxUnit) m_keyValueMap.get(key)).getMnemonic();
+      return m_keyValueMap.get(key).getMnemonic();
     }
 
     return 0;
@@ -269,7 +269,7 @@ public class PSI18NTranslationKeyValues {
    * Populated by {@link #populateMap(String, String) populateMap(String, String)}. Never <code>null
    * </code>. Invariant.
    */
-  private Map m_keyValueMap = new HashMap();
+  private Map<String, PSTmxUnit> m_keyValueMap = new HashMap<>();
 
   /**
    * If this has any values, use them to limit the packages that should be loaded from the server.

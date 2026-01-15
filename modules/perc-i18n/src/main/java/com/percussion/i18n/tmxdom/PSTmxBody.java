@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
  */
 public class PSTmxBody extends PSTmxNode {
   /** Map of all translation units of this node. A TMX body is just a set of translation units. */
-  protected Map m_TransUnits = new HashMap();
+  protected Map<String, IPSTmxTranslationUnit> m_TransUnits = new HashMap<>();
 
   /**
    * Name of this node. This is the element tag name of the DOM element associated with this node.
@@ -111,7 +111,7 @@ public class PSTmxBody extends PSTmxNode {
    *
    * @return iterator of all translation units. Never <code>null</code>, may be <code>empty</code>
    */
-  protected Iterator getTraslationUnits() {
+  protected Iterator<Map.Entry<String, IPSTmxTranslationUnit>> getTraslationUnits() {
     return m_TransUnits.entrySet().iterator();
   }
 
@@ -121,7 +121,7 @@ public class PSTmxBody extends PSTmxNode {
       throw new PSTmxDomException("onlyOneTypeAllowedToMerge", "IPSTmxTranslationUnit");
     }
     IPSTmxTranslationUnit srcTu = (IPSTmxTranslationUnit) node;
-    IPSTmxTranslationUnit temp = (IPSTmxTranslationUnit) m_TransUnits.get(srcTu.getKey());
+    IPSTmxTranslationUnit temp = m_TransUnits.get(srcTu.getKey());
     boolean exists = (temp != null);
     PSTmxConfigParams options =
         getTMXDocument().getMergeConfig().getConfigParams(IPSTmxMergeConfig.MERGE_NODEID_TU);
@@ -181,7 +181,7 @@ public class PSTmxBody extends PSTmxNode {
    * @throws PSTmxDomException when trying to remove a nonexisting translation unit.
    */
   protected void removeTranslationUnit(IPSTmxTranslationUnit tu) throws PSTmxDomException {
-    IPSTmxTranslationUnit temp = (PSTmxTranslationUnit) m_TransUnits.get(tu.getKey());
+    IPSTmxTranslationUnit temp = m_TransUnits.get(tu.getKey());
     if (temp == null) // should this be ignored??
     {
       throw new PSTmxDomException("cannotRemoveTU", "");

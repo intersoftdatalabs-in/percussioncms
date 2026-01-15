@@ -20,9 +20,9 @@ package com.percussion.rest.deliverytypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** Represents a Delivery Type in Percussion CMS. */
 @XmlRootElement(name = "DeliveryType")

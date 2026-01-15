@@ -20,8 +20,8 @@
 package com.percussion.rest.itemfilter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /** Represents an ItemFilter Rule Parameter. Sunny Sal: "Rule parameter, filter ka accelerator!" */
 @XmlRootElement(name = "ItemFilterRuleDefinitionParam")

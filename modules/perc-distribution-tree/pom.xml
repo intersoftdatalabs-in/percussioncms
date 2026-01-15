@@ -141,7 +141,6 @@
             <scope>compile</scope>
         </dependency>
         <!-- Use legacy javax JAX-RS API for Java 11/Tomcat 9 stack -->
-
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>

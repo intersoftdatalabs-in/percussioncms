@@ -162,7 +162,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   /*
    * Implementation of the method defined in the interface IPSTmxDocument.
    */
-  public Iterator getTranslationUnits() {
+  public Iterator<Map.Entry<String, IPSTmxTranslationUnit>> getTranslationUnits() {
     return m_Body.getTraslationUnits();
   }
 
@@ -222,12 +222,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     if (srcDoc == null) {
       throw new IllegalArgumentException("srcDoc for merging body must not be null");
     }
-    Iterator<Map.Entry> iter = srcDoc.getTranslationUnits();
-    Map.Entry entry = null;
+    Iterator<Map.Entry<String, IPSTmxTranslationUnit>> iter = srcDoc.getTranslationUnits();
+    Map.Entry<String, IPSTmxTranslationUnit> entry = null;
     IPSTmxTranslationUnit srcTu = null;
     while (iter.hasNext()) {
       entry = iter.next();
-      srcTu = (IPSTmxTranslationUnit) entry.getValue();
+      srcTu = entry.getValue();
       m_Body.merge(srcTu);
     }
   }
@@ -241,12 +241,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     // for all tu s.
     m_Header.addLanguage(language);
     if (!language.equalsIgnoreCase(PSI18nUtils.DEFAULT_LANG)) {
-      Iterator<Map.Entry> iter = m_Body.getTraslationUnits();
-      Map.Entry entry = null;
+      Iterator<Map.Entry<String, IPSTmxTranslationUnit>> iter = m_Body.getTraslationUnits();
+      Map.Entry<String, IPSTmxTranslationUnit> entry = null;
       IPSTmxTranslationUnit srcTu = null;
       while (iter.hasNext()) {
-        entry = (Map.Entry) iter.next();
-        srcTu = (IPSTmxTranslationUnit) entry.getValue();
+        entry = iter.next();
+        srcTu = entry.getValue();
         srcTu.addTuv(createTranslationUnitVariant(language, ""), false);
       }
     }
@@ -299,7 +299,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
       throw new RuntimeException("extract stylesheet not loaded");
     }
 
-    Map params = new HashMap();
+    Map<String, Object> params = new HashMap<>();
     params.put("extractlang", languageString);
     tempDoc = transformXML(m_DOMDocument, ms_xslExtractDoc, params);
     return new PSTmxDocument(tempDoc, false);
@@ -442,7 +442,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
    * @throws TransformerException
    * @throws IllegalArgumentException
    */
-  public static Document transformXML(Document srcDoc, Document xslDoc, Map params)
+  public static Document transformXML(Document srcDoc, Document xslDoc, Map<String, Object> params)
       throws SAXException, TransformerException {
     if (srcDoc == null) {
       throw new IllegalArgumentException("srcDoc must not be null.");
@@ -461,9 +461,9 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     templates = tfactory.newTemplates(dsource);
     Transformer transformer = templates.newTransformer();
     if (params != null) {
-      Iterator<Map.Entry> iter = params.entrySet().iterator();
+      Iterator<Map.Entry<String, Object>> iter = params.entrySet().iterator();
       while (iter.hasNext()) {
-        Map.Entry param = (Map.Entry) iter.next();
+        Map.Entry<String, Object> param = iter.next();
         transformer.setParameter(param.getKey().toString(), param.getValue().toString());
       }
     }
