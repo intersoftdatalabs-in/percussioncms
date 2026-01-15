@@ -170,6 +170,9 @@ updates:
       - dependency-name: "org.apache.velocity.tools:*"
         versions:
           - ">=4"
+      - dependency-name: "com.google.inject:guice"
+        versions:
+          - ">=3"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
