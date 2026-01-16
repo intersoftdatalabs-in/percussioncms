@@ -173,6 +173,18 @@ updates:
       - dependency-name: "com.google.inject:guice"
         versions:
           - ">=3"
+      - dependency-name: "com.google.inject.extensions:guice-multibindings"
+        versions:
+          - ">=3"
+       - dependency-name: "com.google.inject.extensions:guice-jmx"
+        versions:
+          - ">=3"
+      - dependency-name: "org.apache.shiro:shiro-web"
+        versions:
+          - ">=2"
+      - dependency-name: "1.1-BETA5-incubating"
+        versions:
+          - ">1.1-BETA5-incubating"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
