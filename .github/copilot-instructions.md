@@ -29,4 +29,5 @@
 * Any23 is retired. Remove any Any23 dependencies. Refactor code that uses Any23 to not use it.
 * Add missing perc-i18n dependency where needed.
 * prefer the javax namespace, do not migrate to the jakarta namespace on this branch.
-* Add all AI generated plans, tasks, issues to the /docs/ai-generated folder for future reference.
+* Add all AI generated plans, tasks, issues to the /docs/ai-generated/tasks/ folder for future reference.
+* Organize AI-generated documentation by task using the pattern: `/docs/ai-generated/tasks/PR#-TaskName/` (e.g., `/docs/ai-generated/tasks/#524-v8.1.6-release-notes/`)
